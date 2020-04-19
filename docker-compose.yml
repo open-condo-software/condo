@@ -1,0 +1,44 @@
+version: '3'
+services:
+  dev:
+    image: node:12
+    volumes:
+#      - .:/app:cached
+      - ~/.docker_bash_history:/root/.bash_history
+      - ~/.docker_bash_history:/home/node/.bash_history
+      - ~/.docker_bashrc:/root/.bashrc
+      - ~/.docker_bashrc:/home/node/.bashrc
+    working_dir: /app
+    command: sleep infinity
+#    ports:
+#      - "127.0.0.1:1337:1337"
+#      - "127.0.0.1:3000:3000"
+#      - "127.0.0.1:9222:9222"
+#      - "127.0.0.1:9229:9229"
+#    environment:
+#      PORT: 3000
+    networks:
+      - app-network
+  mongodb:
+    image: mongo:4.2.5
+    ports:
+      - "127.0.0.1:27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+      MONGO_INITDB_DATABASE: main
+    networks:
+      - app-network
+  postgresdb:
+    image: postgres:12.2
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: main
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
