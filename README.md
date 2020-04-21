@@ -8,6 +8,8 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
 
 ## Todo
 
+**VERSION**: 0.0.1.**ALPHA**
+
  - [ ] Add Ant Design Pro
  - [ ] Auth
  - [ ] Docs about structure
@@ -120,6 +122,8 @@ yarn workspace @app/_example01app dev
 # Follow the Next.js tutorial: https://nextjs.org/docs/getting-started#related
 # You can run `yarn <command>` inside new app workspace by
 # `yarn workspace @app/_example01app <command>`
+
+# You can also check the: `apps/_example02app`
 ```
 
 ## Tips

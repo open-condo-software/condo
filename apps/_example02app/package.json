@@ -1,5 +1,5 @@
 {
-  "name": "@app/web",
+  "name": "@app/_example02app",
   "version": "1.0.0",
   "scripts": {
     "dev": "next",
