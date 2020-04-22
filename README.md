@@ -84,6 +84,8 @@ Keystone Admin UI is reachable via `http://127.0.0.1:3000/admin`.
 
 ## Write Frontend APP
 
+### Create new Next.js APP
+
 ```bash
 # Create Next.js new React APP folder
 mkdir apps/_example01app
@@ -123,7 +125,14 @@ yarn workspace @app/_example01app dev
 # You can run `yarn <command>` inside new app workspace by
 # `yarn workspace @app/_example01app <command>`
 
-# You can also check the: `apps/_example02app`
+# You can also check `apps/_example02app` and others examples
+```
+
+### Add package to existing APP
+
+```bash
+# Add new package to APP
+yarn workspace @app/_example01app add antd
 ```
 
 ## Tips
