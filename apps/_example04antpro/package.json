@@ -1,0 +1,19 @@
+{
+  "name": "@app/_example04antpro",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@ant-design/pro-layout": "^5.0.9",
+    "@zeit/next-less": "^1.0.1",
+    "antd": "^4.1.4",
+    "isomorphic-unfetch": "^3.0.0",
+    "less": "^3.11.1",
+    "next": "^9.3.5",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  }
+}
