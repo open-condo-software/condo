@@ -1,7 +1,8 @@
 import React from 'react';
 import { Alert, Card, Typography } from 'antd';
 import { HeartTwoTone, SmileTwoTone } from '@ant-design/icons';
-import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import { PageHeaderWrapper } from "../layout/BasicLayout";
+
 
 const HomePage = () => (
     <PageHeaderWrapper content="Hello admin title">
