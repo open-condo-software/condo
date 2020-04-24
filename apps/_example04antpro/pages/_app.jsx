@@ -15,6 +15,9 @@ const menuDataRender = () => [
     },
 ];
 
-export default function App({ Component, pageProps }) {
+function App({ Component, pageProps }) {
     return <BasicLayout menuDataRender={menuDataRender}><Component {...pageProps} /></BasicLayout>
 };
+
+
+export default App;
