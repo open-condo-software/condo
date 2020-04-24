@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { Button, Card, Result } from 'antd';
 // import { FormattedMessage, formatMessage } from 'umi';
 import { CloseCircleOutlined, RightOutlined } from '@ant-design/icons';
-import { GridContent } from '@ant-design/pro-layout';
+import { GridContent } from "../../layout/BasicLayout";
 
 import styles from './failure.less';
 
