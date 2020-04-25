@@ -16,7 +16,7 @@ const keystone = new Keystone({
     defaultAccess: { list: false, field: true, custom: false },
     onConnect: async () => {
         // Initialise some data
-        if (conf.NODE_ENV !== 'development') return; // Just for dev env purposes!
+        if (conf.NODE_ENV !== 'development' || conf.INIT_DATABASE_DATA) return; // Just for dev env purposes!
         const users = await keystone.lists.User.adapter.findAll();
         if (!users.length) {
             const initialData = require('./initial-data');

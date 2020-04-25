@@ -16,11 +16,12 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "jest --watch",
-    "dev": "cross-env NODE_ENV=development keystone dev",
+    "test": "jest",
+    "dev": "cross-env NODE_ENV=development DISABLE_LOGGING=true keystone dev",
     "build": "cross-env NODE_ENV=production keystone build",
     "start": "cross-env NODE_ENV=production keystone start",
-    "upgrade-relationships": "cross-env NODE_ENV=production keystone upgrade-relationships --migration"
+    "upgrade-relationships": "keystone upgrade-relationships --migration",
+    "create-tables": "keystone create-tables"
   },
   "dependencies": {
     "@keystonejs/adapter-knex": "^9.0.1",
@@ -36,6 +37,7 @@
     "@keystonejs/file-adapters": "^6.0.1",
     "@keystonejs/keystone": "^8.1.1",
     "cross-env": "^7.0.2",
+    "dotenv": "^8.2.0",
     "faker": "^4.1.0",
     "isomorphic-unfetch": "^3.0.0",
     "next": "^9.3.5",
