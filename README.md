@@ -22,13 +22,20 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] prettier
  - [ ] linter
  - [x] Model: User
- - [x] Test: User
- - [x] Test: Auth
+ - [x] Test: UserAPI
+ - [x] Test: Login
+ - [ ] Page: Login
+ - [ ] Model: RegisterUser
+ - [ ] Test: RegisterUser
+ - [ ] Page: RegisterUser
  - [ ] Model: Notifications
  - [ ] Test: Notifications
  - [ ] Model: UserSettings
  - [ ] Test: UserSettings
  - [ ] Page: UserSettings
+ - [ ] Model: GlobalSettings
+ - [ ] Test: GlobalSettings
+ - [ ] Page: GlobalSettings
  - [x] Core: Monorepo with packages and apps
  - [x] Core: docker-compose
  - [x] Core: CI
@@ -38,7 +45,10 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] Core: Background tasks
  - [ ] Core: Background scheduled tasks
  - [ ] Core: Metrics
+ - [ ] Core: Roles and Permissions
+ - [ ] Core: Logging
  - [ ] Core: lerna?
+ - [ ] Core: benchmarks?
  - Auth my social apps?
  - CRDT example?
  - multiple backend support?
