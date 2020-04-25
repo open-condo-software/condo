@@ -2,20 +2,17 @@ const { Keystone } = require('@keystonejs/keystone');
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password');
 const { GraphQLApp } = require('@keystonejs/app-graphql');
 const { AdminUIApp } = require('@keystonejs/app-admin-ui');
-const { KnexAdapter } = require('@keystonejs/adapter-knex');
-const { MongooseAdapter } = require('@keystonejs/adapter-mongoose');
 const { NextApp } = require('@keystonejs/app-next');
 const { StaticApp } = require('@keystonejs/app-static');
 
 const conf = require('./config');
 const access = require("./core/access");
+const { getAdapter } = require("./core/adapter.utils");
 const { registerLists } = require("./core/lists");
 
-const Adapter = (conf.KEYSTONE_ADAPTER_TYPE === 'mongoose') ? MongooseAdapter : KnexAdapter;
-const AdapterOpts = (conf.KEYSTONE_ADAPTER_TYPE === 'mongoose') ? { mongoUri: conf.DATABASE_URL } : { knexOptions: { connection: conf.DATABASE_URL } };
 const keystone = new Keystone({
     name: conf.PROJECT_NAME,
-    adapter: new Adapter(AdapterOpts),
+    adapter: getAdapter(conf.DATABASE_URL),
     defaultAccess: { list: false, field: true, custom: false },
     onConnect: async () => {
         // Initialise some data
