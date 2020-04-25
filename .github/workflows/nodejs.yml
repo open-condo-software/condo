@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-#        node-version: [10.x, 12.x]
+        node-version: [12.x]
         database: ["postgresql://postgres:postgres@127.0.0.1/main", "mongodb://mongo:mongo@127.0.0.1/main?authSource=admin"]
 
     steps:
@@ -28,10 +28,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: yarn
-      - name: start server for ${{ matrix.database }}
+      - name: Start server for ${{ matrix.database }}
         run: |
           yarn create-tables
-          yarn start &
+          yarn dev &
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: production
