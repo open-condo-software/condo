@@ -36,5 +36,3 @@ jobs:
           yarn test
         env:
           DATABASE_URL: ${{ matrix.database }}
-          NODE_ENV: production
-          INIT_DATABASE_DATA: true
