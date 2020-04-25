@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "next",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "next build"
   },
   "dependencies": {
     "@ant-design/pro-layout": "^5.0.9",
@@ -14,6 +15,7 @@
     "less": "^3.11.1",
     "next": "^9.3.5",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "react-intl": "^4.5.0"
   }
 }
