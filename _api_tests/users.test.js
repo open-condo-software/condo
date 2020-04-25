@@ -46,12 +46,17 @@ test('user: get all users', async () => {
     const user = await createUser();
     const client = await makeLoggedInClient(user);
     const { data } = await client.query(ALL_USERS_ID_EMAIL_QUERY);
-    expect(data).toEqual(1);
+    expect(data.users).toEqual(
+        expect.arrayContaining([
+            expect.objectContaining({id: user.id, name: user.name, email: user.email}),
+            expect.objectContaining({email: null})
+        ])
+    );
 });
 
 test('user: get count of users', async () => {
     const user = await createUser();
     const client = await makeLoggedInClient(user);
     const { data } = await client.query(COUNT_OF_USERS_QUERY);
-    expect(data.meta.count).toBeGreaterThanOrEqual(1);
+    expect(data.meta.count).toBeGreaterThanOrEqual(2);
 });
