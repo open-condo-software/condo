@@ -10,20 +10,35 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
 
 **VERSION**: 0.0.1.**ALPHA**
 
- - [x] docker-compose
- - [x] docs: now-to create new frontend app 
+ - [x] docs: now-to create frontend app 
+ - [x] example: Ant Design Pro + Next.js
+ - [ ] example: Internationalization (based on https://github.com/PaulPCIO/nextjs-with-react-intl/blob/master/components/IntlProvider.tsx)
  - [ ] docs: now-to write backend 
- - [ ] Add Ant Design Pro
- - [ ] Internationalization (based on https://github.com/PaulPCIO/nextjs-with-react-intl/blob/master/components/IntlProvider.tsx)
- - [ ] Auth
- - [ ] Notifications
- - [ ] Docs about structure
- - [ ] More Examples and tests
- - [ ] Deploy
- - [ ] CI
+ - [ ] docs: project structure
+ - [x] Test: auth
+ - [x] Test: examples
+ - [ ] docs: Deploy
+ - [ ] CI: Deploy
  - [ ] prettier
  - [ ] linter
- - [ ] Realtime support
+ - [x] Model: User
+ - [x] Test: User
+ - [x] Test: Auth
+ - [ ] Model: Notifications
+ - [ ] Test: Notifications
+ - [ ] Model: UserSettings
+ - [ ] Test: UserSettings
+ - [ ] Page: UserSettings
+ - [x] Core: Monorepo with packages and apps
+ - [x] Core: docker-compose
+ - [x] Core: CI
+ - [ ] Core: KeystoneJS AuthProvider (with isActive check!)
+ - [ ] Core: Realtime support
+ - [ ] Core: Attachment
+ - [ ] Core: Background tasks
+ - [ ] Core: Background scheduled tasks
+ - [ ] Core: Metrics
+ - [ ] Core: lerna?
  - Auth my social apps?
  - CRDT example?
  - multiple backend support?
