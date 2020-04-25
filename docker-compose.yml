@@ -1,15 +1,15 @@
 version: '3'
 services:
-  dev:
-    image: node:12
-    volumes:
+#  dev:
+#    image: node:12
+#    volumes:
 #      - .:/app:cached
-      - ~/.docker_bash_history:/root/.bash_history
-      - ~/.docker_bash_history:/home/node/.bash_history
-      - ~/.docker_bashrc:/root/.bashrc
-      - ~/.docker_bashrc:/home/node/.bashrc
-    working_dir: /app
-    command: sleep infinity
+#      - ~/.docker_bash_history:/root/.bash_history
+#      - ~/.docker_bash_history:/home/node/.bash_history
+#      - ~/.docker_bashrc:/root/.bashrc
+#      - ~/.docker_bashrc:/home/node/.bashrc
+#    working_dir: /app
+#    command: sleep infinity
 #    ports:
 #      - "127.0.0.1:1337:1337"
 #      - "127.0.0.1:3000:3000"
@@ -17,8 +17,8 @@ services:
 #      - "127.0.0.1:9229:9229"
 #    environment:
 #      PORT: 3000
-    networks:
-      - app-network
+#    networks:
+#      - app-network
   mongodb:
     image: mongo:4.2.5
     ports:
