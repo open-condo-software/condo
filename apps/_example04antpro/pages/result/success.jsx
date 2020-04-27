@@ -1,13 +1,12 @@
 import React, { Fragment } from 'react';
 import { Button, Card, Steps, Result, Descriptions } from 'antd';
-// import { FormattedMessage, formatMessage } from 'umi';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { DingdingOutlined } from '@ant-design/icons';
+
 import { GridContent } from "../../layout/BasicLayout";
 
 import styles from './success.less';
 
-const FormattedMessage = (props) => (props.defaultAccess || props.id);
-const formatMessage = FormattedMessage;
 
 const { Step } = Steps;
 const desc1 = (
@@ -56,10 +55,12 @@ const desc2 = (
 const content = (
     <>
         <Descriptions
-            title={formatMessage({
-                id: 'resultandsuccess.success.operate-title',
-                defaultMessage: 'Project Name',
-            })}
+            title={
+                <FormattedMessage
+                    id='resultandsuccess.success.operate-title'
+                    defaultMessage='Project Name'
+                />
+            }
         >
             <Descriptions.Item
                 label={
@@ -162,15 +163,17 @@ const extra = (
         </Button>
     </Fragment>
 );
-export default () => (
-    <GridContent>
+export default () => {
+    const intl = useIntl();
+
+    return (<GridContent>
         <Card bordered={false}>
             <Result
                 status="success"
-                title={formatMessage({
+                title={intl.formatMessage({
                     id: 'resultandsuccess.success.title',
                 })}
-                subTitle={formatMessage({
+                subTitle={intl.formatMessage({
                     id: 'resultandsuccess.success.description',
                 })}
                 extra={extra}
@@ -181,5 +184,5 @@ export default () => (
                 {content}
             </Result>
         </Card>
-    </GridContent>
-);
+    </GridContent>);
+};

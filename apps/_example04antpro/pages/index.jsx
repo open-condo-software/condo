@@ -1,6 +1,8 @@
 import React from 'react';
 import { Alert, Card, Typography } from 'antd';
 import { HeartTwoTone, SmileTwoTone } from '@ant-design/icons';
+import { FormattedMessage } from "react-intl";
+
 import { PageHeaderWrapper } from "../layout/BasicLayout";
 
 
@@ -19,6 +21,11 @@ const HomePage = () => (
             />
             <Typography.Title level={2} style={{ textAlign: 'center' }}>
                 <SmileTwoTone/> Ant Design Pro <HeartTwoTone twoToneColor="#eb2f96"/> You
+            </Typography.Title>
+            <Typography.Title level={2} style={{ textAlign: 'center' }}>
+                <FormattedMessage id="pages.index.greeting" defaultMessage="Hello, {name}!"
+                                  values={{name: '🧑USER'}}
+                />
             </Typography.Title>
         </Card>
         <p style={{ textAlign: 'center', marginTop: 24 }}>

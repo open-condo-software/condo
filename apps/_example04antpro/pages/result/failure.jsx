@@ -1,17 +1,15 @@
 import React, { Fragment } from 'react';
 import { Button, Card, Result } from 'antd';
-// import { FormattedMessage, formatMessage } from 'umi';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { CloseCircleOutlined, RightOutlined } from '@ant-design/icons';
+
 import { GridContent } from "../../layout/BasicLayout";
 
 import styles from './failure.less';
 
-const FormattedMessage = (props) => (props.defaultAccess || props.id);
-const formatMessage = FormattedMessage;
-
 const Content = (
     <Fragment>
-        <div className={styles.title}>
+        <div className="title">
             <FormattedMessage
                 id="resultandfail.error.hint-title"
                 defaultMessage="The content you submitted has the following error:"
@@ -63,20 +61,22 @@ const Content = (
         </div>
     </Fragment>
 );
-export default () => (
-    <GridContent>
+export default () => {
+    const intl = useIntl();
+
+    return (<GridContent>
         <Card bordered={false}>
             <Result
                 status="error"
-                title={formatMessage({
+                title={intl.formatMessage({
                     id: 'resultandfail.error.title',
                 })}
-                subTitle={formatMessage({
+                subTitle={intl.formatMessage({
                     id: 'resultandfail.error.description',
                 })}
                 extra={
                     <Button type="primary">
-                        <FormattedMessage id="resultandfail.error.btn-text" defaultMessage="Return to modify" />
+                        <FormattedMessage id="resultandfail.error.btn-text" defaultMessage="Return to modify"/>
                     </Button>
                 }
                 style={{
@@ -87,5 +87,5 @@ export default () => (
                 {Content}
             </Result>
         </Card>
-    </GridContent>
-);
+    </GridContent>);
+};

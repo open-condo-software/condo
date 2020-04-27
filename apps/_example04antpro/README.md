@@ -1,6 +1,8 @@
 # ANT DESIGN PRO #
 
  - you should always use `.less` extension for all your CSS files because of https://github.com/zeit/next.js/issues/9830
+ - you should always hard code className sting: use `className="title"` instead `className={styles.title}`
+ - you should always think about import order! if you have a classes with the same name in a different pages
 
 ## Import @ant-design/pro-layout components ##
 
