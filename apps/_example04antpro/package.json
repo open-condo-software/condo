@@ -5,7 +5,7 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "test": "next build"
+    "test": "next build && next export"
   },
   "dependencies": {
     "@ant-design/pro-layout": "^5.0.9",
