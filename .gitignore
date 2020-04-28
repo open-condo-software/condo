@@ -3,6 +3,6 @@ dist
 .next
 out
 .idea
-
+.env
 /__media
 _example.js
