@@ -21,7 +21,7 @@
     "build": "cross-env NODE_ENV=production keystone build",
     "start": "cross-env NODE_ENV=production keystone start",
     "upgrade-relationships": "keystone upgrade-relationships --migration",
-    "create-tables": "keystone create-tables"
+    "create-tables": "cross-env CREATE_TABLES=true keystone create-tables"
   },
   "dependencies": {
     "@keystonejs/adapter-knex": "^9.0.1",
