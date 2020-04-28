@@ -14,6 +14,7 @@ const keystone = new Keystone({
     name: conf.PROJECT_NAME,
     adapter: getAdapter(conf.DATABASE_URL),
     defaultAccess: { list: false, field: true, custom: false },
+    queryLimits: { maxTotalResults: 1000 },
     onConnect: async () => {
         // Initialise some data
         if (conf.NODE_ENV !== 'development') return; // Just for dev env purposes!
@@ -44,7 +45,9 @@ keystone.extendGraphQLSchema({
         {
             schema: 'double(x: Int): Int',
             resolver: (_, { x }) => 2 * x,
-            access: true,
+            access: ({ authentication: { item, listKey } }) => {
+                return true;
+            },
         },
     ],
 });
