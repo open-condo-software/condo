@@ -1,8 +1,8 @@
-const { Text, Checkbox, Password, Relationship, CalendarDay, File } = require('@keystonejs/fields');
+const { Text, Checkbox, Password, CalendarDay, File } = require('@keystonejs/fields');
 const { LocalFileAdapter } = require("@keystonejs/file-adapters");
-const { AuthedRelationship } = require('@keystonejs/fields-authed-relationship');
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce');
 const getYear = require('date-fns/get_year');
+const { byTracking, atTracking } = require('@keystonejs/list-plugins');
 
 const { KeystoneList } = require("../core/lists");
 const { Stars } = require("../core/custom-fields");
@@ -49,7 +49,6 @@ const User = new KeystoneList('User', {
         rating: { type: Stars, starCount: 5 },
         aboutMyself: { type: Wysiwyg },
         dob: { type: CalendarDay, format: 'Do MMMM YYYY', yearRangeFrom: 1901, yearRangeTo: getYear(new Date()) },
-        createdBy: { type: AuthedRelationship, ref: 'User', isRequired: true, access: access.readOnlyField },
     },
     access: {
         // read: access.userIsAdminOrOwner,
@@ -59,8 +58,12 @@ const User = new KeystoneList('User', {
         delete: true,
         auth: true,
     },
+    plugins: [byTracking(), atTracking()],
+    adminDoc: 'A list of Users',
     adminConfig: {
-        defaultPageSize: 100,
+        defaultPageSize: 50,
+        maximumPageSize: 200,
+        defaultSort: 'email',
         defaultColumns: 'avatar, name, email, isAdmin, isActive',
         // defaultSort: 'name',
     },
