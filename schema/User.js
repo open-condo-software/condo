@@ -5,7 +5,7 @@ const getYear = require('date-fns/get_year');
 const { byTracking, atTracking } = require('@keystonejs/list-plugins');
 
 const { KeystoneList } = require("../core/lists");
-const { Stars } = require("../core/custom-fields");
+const { Stars, MultiCheck } = require("../core/custom-fields");
 const access = require("../core/access");
 const conf = require("../config");
 
@@ -47,6 +47,7 @@ const User = new KeystoneList('User', {
         },
         avatar: { type: File, adapter: avatarFileAdapter },
         rating: { type: Stars, starCount: 5 },
+        settings: { type: MultiCheck, options: ['Feature1', 'Feature2'], defaultValue: [false, false] },
         aboutMyself: { type: Wysiwyg },
         dob: { type: CalendarDay, format: 'Do MMMM YYYY', yearRangeFrom: 1901, yearRangeTo: getYear(new Date()) },
     },

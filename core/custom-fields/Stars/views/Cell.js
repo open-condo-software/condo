@@ -1,5 +1,6 @@
-import React from 'react';
+/** @jsx jsx */
 
+import { jsx } from '@emotion/core';
 import Stars from './Stars';
 
 export default function StarsCell({ field, data }) {
