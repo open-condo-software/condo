@@ -47,7 +47,7 @@ const User = new KeystoneList('User', {
         },
         avatar: { type: File, adapter: avatarFileAdapter },
         rating: { type: Stars, starCount: 5 },
-        settings: { type: MultiCheck, options: ['Feature1', 'Feature2'], defaultValue: [false, false] },
+        settings: { type: MultiCheck, options: ['Feature1', 'Feature2'] },
         aboutMyself: { type: Wysiwyg },
         dob: { type: CalendarDay, format: 'Do MMMM YYYY', yearRangeFrom: 1901, yearRangeTo: getYear(new Date()) },
     },
