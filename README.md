@@ -12,7 +12,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
 
  - [x] docs: now-to create frontend app 
  - [x] example: Ant Design Pro + Next.js
- - [ ] example: Internationalization (based on https://github.com/PaulPCIO/nextjs-with-react-intl/blob/master/components/IntlProvider.tsx)
+ - [x] example: Internationalization (react-intl)
  - [ ] docs: now-to write backend 
  - [ ] docs: project structure
  - [x] Test: auth
