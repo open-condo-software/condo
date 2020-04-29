@@ -61,6 +61,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
 
 ## Server side
 
+1. You know something about [Node.js](https://nodejs.dev/)
 1. You should follow the [KeystoneJS tutorial](https://www.keystonejs.com/tutorials/new-project)
 1. Something about mongo and mongoose
 
