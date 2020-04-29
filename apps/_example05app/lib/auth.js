@@ -142,6 +142,12 @@ export const withAuth = ({ ssr = false } = {}) => PageComponent => {
 
   if (ssr || PageComponent.getInitialProps) {
     WithAuth.getInitialProps = async ctx => {
+      if (ctx.router.route === '/_error') {
+        // prevent infinity loop: https://github.com/zeit/next.js/issues/6973
+        console.dir(ctx.router);
+        throw new Error(`WithAuth: catch error!`)
+      }
+
       const inAppContext = Boolean(ctx.ctx)
 
       // Run wrapped getInitialProps methods
