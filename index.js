@@ -66,9 +66,10 @@ module.exports = {
         new AdminUIApp({
             adminPath: '/admin',
             hooks: require.resolve('./admin-ui/'),
-            enableDefaultRoute: true,
+            // enableDefaultRoute: true,
             isAccessAllowed: access.userIsAdmin,
             authStrategy,
         }),
+        new NextApp({ dir: './apps/_example05app' }),
     ],
 };

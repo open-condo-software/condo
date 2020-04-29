@@ -1,0 +1,34 @@
+{
+  "name": "@app/_example05app",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next",
+    "debug": "node inspect ./node_modules/.bin/next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "next build && next export"
+  },
+  "dependencies": {
+    "@apollo/react-hooks": "^3.1.5",
+    "@apollo/react-ssr": "^3.1.5",
+    "@emotion/styled": "^10.0.27",
+    "apollo-cache-inmemory": "^1.6.5",
+    "apollo-client": "^2.6.8",
+    "apollo-link-http": "^1.5.17",
+    "apollo-upload-client": "^13.0.0",
+    "date-fns": "^2.12.0",
+    "facepaint": "^1.2.1",
+    "get-contrast": "^2.0.0",
+    "graphql": "^15.0.0",
+    "graphql-tag": "^2.10.3",
+    "isomorphic-unfetch": "^3.0.0",
+    "lodash": "^4.17.15",
+    "next": "^9.3.5",
+    "prop-types": "^15.7.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-toast-notifications": "^2.4.0",
+    "react-use-form-state": "^0.12.1",
+    "uuid": "^7.0.3"
+  }
+}
