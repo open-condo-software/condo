@@ -2,11 +2,11 @@ import React from 'react';
 import { Button, Result } from 'antd';
 import Router from "next/router";
 
-const NoFoundPage = () => (
+const ServerErrorPage = () => (
     <Result
-        status="404"
-        title="404"
-        subTitle="Sorry, the page you visited does not exist."
+        status="500"
+        title="500"
+        subTitle="Sorry, the server is reporting an error."
         extra={
             <Button type="primary" onClick={() => Router.push('/')}>
                 Back Home
@@ -15,4 +15,4 @@ const NoFoundPage = () => (
     />
 );
 
-export default NoFoundPage;
+export default ServerErrorPage;

@@ -5,7 +5,7 @@ import { CloseCircleOutlined, RightOutlined } from '@ant-design/icons';
 
 import { GridContent } from "../../layout/BasicLayout";
 
-import styles from './failure.less';
+import './failure.less';
 
 const Content = (
     <Fragment>
@@ -24,7 +24,7 @@ const Content = (
                 style={{
                     marginRight: 8,
                 }}
-                className={styles.error_icon}
+                className="error_icon"
             />
             <FormattedMessage
                 id="resultandfail.error.hint-text1"
@@ -44,7 +44,7 @@ const Content = (
                 style={{
                     marginRight: 8,
                 }}
-                className={styles.error_icon}
+                className="error_icon"
             />
             <FormattedMessage
                 id="resultandfail.error.hint-text2"

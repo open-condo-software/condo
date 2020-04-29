@@ -5,12 +5,12 @@ import { DingdingOutlined } from '@ant-design/icons';
 
 import { GridContent } from "../../layout/BasicLayout";
 
-import styles from './success.less';
+import './success.less';
 
 
 const { Step } = Steps;
 const desc1 = (
-    <div className={styles.title}>
+    <div className="title">
         <div
             style={{
                 margin: '8px 0 4px',
@@ -32,7 +32,7 @@ const desc2 = (
         style={{
             fontSize: 12,
         }}
-        className={styles.title}
+        className="title"
     >
         <div
             style={{
