@@ -27,6 +27,9 @@ export const useAuth = () => useContext(AuthContext);
 const userFragment = `
   id
   name
+  avatar {
+    publicUrl
+  }
   isAdmin
 `;
 

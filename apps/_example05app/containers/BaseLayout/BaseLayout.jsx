@@ -19,6 +19,7 @@ const { Header, Sider, Content } = Layout;
 const { SubMenu } = Menu;
 
 import './antd-custom.less'
+import MenuHeader from './components/MenuHeader'
 
 const layout = css`
     height: 100%;
@@ -95,6 +96,7 @@ function BaseLayout(props) {
             </Sider>
             <Layout>
                 <Header css={layoutHeader}>
+                    <MenuHeader/>
                     {/*<div css={trigger} onClick={toggleCollapsed}>*/}
                     {/*    {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {})}*/}
                     {/*</div>*/}
