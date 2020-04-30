@@ -10,7 +10,7 @@ const MenuHeader = () => {
     const withDropdownMenu = true;
 
     const menu = (
-        <Menu className={style.umiPluginLayoutMenu}>
+        <Menu className={"umi-plugin-layout-menu"}>
             <Menu.Item key="logout" onClick={console.log}>
                 <LogoutOutlined />
                 Logout
