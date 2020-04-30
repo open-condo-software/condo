@@ -94,7 +94,6 @@ const AuthProvider = ({ children, initialUserValue }) => {
         setUser(item);
       }
     },
-    onError: console.error,
   });
 
   const [signout, { loading: signoutLoading }] = useMutation(SIGNOUT_MUTATION, {
@@ -110,7 +109,6 @@ const AuthProvider = ({ children, initialUserValue }) => {
         setUser(null);
       }
     },
-    onError: console.error,
   });
 
   return (
