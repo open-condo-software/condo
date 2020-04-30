@@ -139,13 +139,19 @@ export const withApollo = ({ ssr = false } = {}) => PageComponent => {
 
   if (ssr || PageComponent.getInitialProps) {
     WithApollo.getInitialProps = async ctx => {
+      const isOnServerSide = typeof window === 'undefined';
+      const inAppContext = Boolean(ctx.ctx);
+
       if (ctx.router.route === '/_error') {
         // prevent infinity loop: https://github.com/zeit/next.js/issues/6973
         console.dir(ctx.router);
-        throw new Error(`WithAuth: catch error!`)
+        if (inAppContext && ctx.ctx.err) {
+          throw ctx.ctx.err
+        } else {
+          throw new Error(`${WithApollo.displayName}: catch error!`)
+        }
       }
 
-      const inAppContext = Boolean(ctx.ctx)
       const { apolloClient } = initOnContext(ctx)
 
       // Run wrapped getInitialProps methods
@@ -156,8 +162,7 @@ export const withApollo = ({ ssr = false } = {}) => PageComponent => {
         pageProps = await App.getInitialProps(ctx)
       }
 
-      // Only on the server:
-      if (typeof window === 'undefined') {
+      if (isOnServerSide) {
         const { AppTree } = ctx
         // When redirecting, the response is finished.
         // No point in continuing to render

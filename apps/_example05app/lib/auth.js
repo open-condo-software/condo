@@ -142,13 +142,18 @@ export const withAuth = ({ ssr = false } = {}) => PageComponent => {
 
   if (ssr || PageComponent.getInitialProps) {
     WithAuth.getInitialProps = async ctx => {
+      const isOnServerSide = typeof window === 'undefined';
+      const inAppContext = Boolean(ctx.ctx);
+
       if (ctx.router.route === '/_error') {
         // prevent infinity loop: https://github.com/zeit/next.js/issues/6973
         console.dir(ctx.router);
-        throw new Error(`WithAuth: catch error!`)
+        if (inAppContext && ctx.ctx.err) {
+          throw ctx.ctx.err
+        } else {
+          throw new Error(`${WithAuth.displayName}: catch error!`)
+        }
       }
-
-      const inAppContext = Boolean(ctx.ctx)
 
       // Run wrapped getInitialProps methods
       let pageProps = {}
@@ -158,9 +163,8 @@ export const withAuth = ({ ssr = false } = {}) => PageComponent => {
         pageProps = await App.getInitialProps(ctx)
       }
 
-      // Only on the server:
       let user;
-      if (typeof window === 'undefined') {
+      if (isOnServerSide) {
         try {
           const data = await ctx.apolloClient.query({
             query: gql`
