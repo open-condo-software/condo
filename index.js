@@ -4,6 +4,7 @@ const { GraphQLApp } = require('@keystonejs/app-graphql');
 const { AdminUIApp } = require('@keystonejs/app-admin-ui');
 const { NextApp } = require('@keystonejs/app-next');
 const { StaticApp } = require('@keystonejs/app-static');
+const express = require("express");
 
 const conf = require('./config');
 const access = require("./core/access");
@@ -52,6 +53,13 @@ keystone.extendGraphQLSchema({
     ],
 });
 
+class CustomApp {
+    prepareMiddleware({ keystone, dev, distDir }) {
+        const middleware = express();
+        return middleware;
+    }
+}
+
 const authStrategy = keystone.createAuthStrategy({
     type: PasswordAuthStrategy,
     list: 'User',
@@ -70,6 +78,6 @@ module.exports = {
             isAccessAllowed: access.userIsAdmin,
             authStrategy,
         }),
-        new NextApp({ dir: './apps/_example05app' }),
+        (conf.INCLUDE_NEXT_APP) ? new NextApp({ dir: conf.INCLUDE_NEXT_APP }) : new CustomApp(),
     ],
 };

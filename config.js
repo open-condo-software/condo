@@ -8,4 +8,5 @@ module.exports = {
     MEDIA_URL: process.env.MEDIA_URL || '/media',
     DIST_DIR: process.env.DIST_DIR || 'dist',
     NODE_ENV: process.env.NODE_ENV || 'production',
+    INCLUDE_NEXT_APP: process.env.INCLUDE_NEXT_APP,
 };

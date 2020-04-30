@@ -40,6 +40,7 @@
     "@keystonejs/list-plugins": "^5.2.0",
     "cross-env": "^7.0.2",
     "dotenv": "^8.2.0",
+    "express": "^4.17.1",
     "faker": "^4.1.0",
     "isomorphic-unfetch": "^3.0.0",
     "next": "^9.3.5",
