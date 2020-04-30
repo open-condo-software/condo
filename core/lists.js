@@ -8,7 +8,6 @@ const registerLists = (keystone, modulesList) => {
 }
 
 class KeystoneList {
-
     constructor (name, schema) {
         ow(schema, ow.object.partialShape({
             fields: ow.object.valuesOfType(ow.object.hasKeys('type')),
