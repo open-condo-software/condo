@@ -1,49 +1,43 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-
-import { useState } from 'react';
-import { Layout, Menu, Breadcrumb } from 'antd';
-import {
-    MenuUnfoldOutlined,
-    MenuFoldOutlined,
-    UserOutlined,
-    VideoCameraOutlined,
-    UploadOutlined,
-    DesktopOutlined,
-    PieChartOutlined,
-    FileOutlined,
-    TeamOutlined,
-} from '@ant-design/icons';
-
-const { Header, Sider, Content } = Layout;
-const { SubMenu } = Menu;
+import { useState } from 'react'
+import { Breadcrumb, Layout, Menu } from 'antd'
+import { DesktopOutlined, FileOutlined, PieChartOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
 
 import './antd-custom.less'
 import MenuHeader from './components/MenuHeader'
 
-const layout = css`
+const { Header, Sider, Content } = Layout;
+const { SubMenu } = Menu;
+
+const layoutCss = css`
     height: 100%;
 `
 
-const layoutLeftMenu = css`
+const sideMenuCss = css`
     box-shadow: 2px 0 6px rgba(0,21,41,.35);
 `;
 
-const layoutHeader = css`
+const topMenuWrapperCss = css`
+    align-items: center;
+`
+
+const topMenuCss = css`
     background: #fff;
     padding: 0;
     box-shadow: 2px 0 6px rgba(0,21,41,.35);
+    min-width: 100%;
 `
 
-const layoutContentWrapper = css`
+const mainContentWrapperCss = css`
 `
 
-const layoutContentBreadcrumb = css`
+const mainContentBreadcrumbCss = css`
     margin: 16px;
     padding: 0 0 0 24px;
 `
 
-const layoutContent = css`
+const mainContentCss = css`
     margin: 16px;
     padding: 24px;
     min-height: 280px;
@@ -51,7 +45,7 @@ const layoutContent = css`
     border-radius: 2px;
 `
 
-const logo = css`
+const logoCss = css`
     height: 64px;
     margin: 0 24px;
     
@@ -72,9 +66,9 @@ function BaseLayout(props) {
     };
 
     return (
-        <Layout css={layout} as="section">
-            <Sider collapsible collapsed={collapsed} onCollapse={toggleCollapsed} css={layoutLeftMenu} as="aside">
-                <img css={logo} src="/logo.svg" />
+        <Layout css={layoutCss} as="section">
+            <Sider collapsible collapsed={collapsed} onCollapse={toggleCollapsed} css={sideMenuCss} as="aside" style={props.sideMenuStyle}>
+                <img css={logoCss} src="/logo.svg" />
                 <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
                     <Menu.Item key="1" icon={<PieChartOutlined />}>
                         Option 1
@@ -94,19 +88,19 @@ function BaseLayout(props) {
                     <Menu.Item key="9" icon={<FileOutlined />} />
                 </Menu>
             </Sider>
-            <Layout>
-                <Header css={layoutHeader}>
+            <Layout css={topMenuWrapperCss} style={props.topMenuWrapperStyle}>
+                <Header css={topMenuCss} style={props.topMenuStyle}>
                     <MenuHeader/>
                     {/*<div css={trigger} onClick={toggleCollapsed}>*/}
                     {/*    {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {})}*/}
                     {/*</div>*/}
                 </Header>
-                <Content css={layoutContentWrapper} as="div">
-                    <Breadcrumb css={layoutContentBreadcrumb}>
+                <Content css={mainContentWrapperCss} as="div" style={props.mainContentWrapperStyle}>
+                    <Breadcrumb css={mainContentBreadcrumbCss} style={props.mainContentBreadcrumbStyle}>
                         <Breadcrumb.Item>User</Breadcrumb.Item>
                         <Breadcrumb.Item>Bill</Breadcrumb.Item>
                     </Breadcrumb>
-                    <div css={layoutContent} as="main">
+                    <div css={mainContentCss} as="main" style={props.mainContentStyle}>
                         {props.children}
                     </div>
                 </Content>
