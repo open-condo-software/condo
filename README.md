@@ -55,7 +55,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
 
 # Learn
 
-0. You should have a basic knowledge about [HTML/CSS](https://htmlacademy.org/courses/html-css-basics/intro/html)
+0. You should have a [basic knowledge](https://htmlacademy.org/courses/html-css-basics/intro/html) about [HTML/CSS](https://www.internetingishard.com/html-and-css/) 
 1. You should know [Modern JavaScript](https://javascript.info/)
 2. You should know [GraphQL](https://graphql.org/)
 
@@ -73,7 +73,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
 ## More
 
 1. yarn workspaces: https://classic.yarnpkg.com/en/docs/workspaces/
-2. CSS animations: https://css-animations.io/
+2. CSS animations: https://css-animations.io/ (base level), https://tympanus.net/codrops/ (pro examples)
 3. JS Egghead.io courses: https://egghead.io/
 4. Docker compose: https://docs.docker.com/compose/
 
