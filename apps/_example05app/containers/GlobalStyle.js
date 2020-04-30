@@ -5,7 +5,6 @@ export default function GlobalStyle() {
   return (
     <Global
       styles={css`
-        ${normalize};
         $@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap');
         body {
           max-width: 100%;
@@ -19,6 +18,9 @@ export default function GlobalStyle() {
           -moz-font-feature-settings: 'liga on';
           -moz-osx-font-smoothing: grayscale;
           -webkit-font-smoothing: antialiased;
+        }
+        #__next {
+          height: 100%;
         }
       `}
     />
