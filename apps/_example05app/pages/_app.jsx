@@ -4,22 +4,22 @@ import { ToastProvider } from 'react-toast-notifications';
 
 import { withApollo } from '../lib/apollo';
 import { withAuth } from '../lib/auth';
-// import StylesBase from '../styles/StylesBase';
-// import GoogleAnalytics from '../components/GoogleAnalytics';
+import GlobalStyle from "../containers/GlobalStyle";
+import GoogleAnalytics from '../containers/GoogleAnalytics';
 
 const MyApp = ({ Component, pageProps }) => {
     return (
         <ToastProvider>
             <Head>
-                {/*<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>*/}
+                <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
                 <meta
                     name="viewport"
                     content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
                 />
             </Head>
-            {/*<StylesBase />*/}
+            <GlobalStyle />
             <Component {...pageProps} />
-            {/*<GoogleAnalytics />*/}
+            <GoogleAnalytics />
         </ToastProvider>
     );
 };
