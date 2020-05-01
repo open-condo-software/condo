@@ -10,7 +10,7 @@ const registerSchemas = (keystone, modulesList) => {
         (module) => Object.values(module).forEach(
             (GQLSchema) => {
                 if (GQL_SCHEMA_TYPES.includes(GQLSchema._type)) {
-                    GQLSchema.register(keystone)
+                    GQLSchema._register(keystone)
                 }
             }))
 }
@@ -26,19 +26,35 @@ class GQLListSchema {
         this._type = GQL_LIST_SCHEMA_TYPE
     }
 
-    register (keystone) {
+    _register (keystone) {
         keystone.createList(this.name, this.schema)
+    }
+
+    _factory (props = {}) {
+        const result = {}
+        for (const [name, field] of Object.entries(this.schema.fields)) {
+            if (props.hasOwnProperty(name)) {
+                if (props[name] !== undefined) {
+                    result[name] = props[name]
+                }
+            } else if (field.factory) {
+                result[name] = field.factory()
+            } else if (field.hasOwnProperty('defaultValue')) {
+                result[name] = field.defaultValue
+            }
+        }
+        return result
     }
 }
 
 class GQLCustomSchema {
-    constructor (customSchema) {
-        this.customSchema = customSchema
+    constructor (schema) {
+        this.schema = schema
         this._type = GQL_CUSTOM_SCHEMA_TYPE
     }
 
-    register (keystone) {
-        keystone.extendGraphQLSchema(this.customSchema)
+    _register (keystone) {
+        keystone.extendGraphQLSchema(this.schema)
     }
 }
 
@@ -46,4 +62,6 @@ module.exports = {
     GQLListSchema,
     GQLCustomSchema,
     registerSchemas,
+    GQL_CUSTOM_SCHEMA_TYPE,
+    GQL_LIST_SCHEMA_TYPE,
 }

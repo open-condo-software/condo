@@ -1,3 +1,5 @@
+const { User } = require('../schema/User')
+const { createSchemaObject } = require('../core/test.utils')
 const { makeLoggedInClient, makeClient, createUser, gql } = require('../core/test.utils')
 
 const ALL_USERS_ID_EMAIL_QUERY = gql`
@@ -59,4 +61,9 @@ test('user: get count of users', async () => {
     const client = await makeLoggedInClient(user)
     const { data } = await client.query(COUNT_OF_USERS_QUERY)
     expect(data.meta.count).toBeGreaterThanOrEqual(2)
+})
+
+test('createSchemaObject()', async () => {
+    const user = await createSchemaObject(User)
+    expect(user.id).toMatch(/^[A-Za-z0-9-]+$/g)
 })

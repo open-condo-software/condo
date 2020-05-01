@@ -5,6 +5,7 @@ const gql = require("graphql-tag");
 const { Cookie, CookieJar } = require('tough-cookie');
 const { print } = require('graphql/language/printer');
 const crypto = require('crypto');
+const { GQL_LIST_SCHEMA_TYPE } = require('./schema')
 const getRandomString = () => crypto.randomBytes(6).hexSlice();
 
 const URL = 'http://127.0.0.1:3000/admin/api';
@@ -118,10 +119,30 @@ const createUser = async (args = {}) => {
     return { ...data, id: result.data.user.id }
 };
 
+const createSchemaObject = async (schemaList, args = {}) => {
+    if (schemaList._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Wrong type. Expect ${GQL_LIST_SCHEMA_TYPE}`)
+    const client = await makeLoggedInClient({email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET});
+    const data = schemaList._factory(args);
+
+    const mutation = gql`
+        mutation createNew${schemaList.name}($data: ${schemaList.name}CreateInput) {
+            obj: create${schemaList.name}(data: $data) {
+                id
+            }
+        }
+    `;
+    const result = await client.mutate(mutation, { data });
+    if (result.errors && result.errors.length > 0) {
+        throw new Error(result.errors[0].message);
+    }
+    return { ...data, id: result.data.obj.id }
+}
+
 module.exports = {
     makeClient,
     makeLoggedInClient,
     createUser,
+    createSchemaObject,
     gql,
     DEFAULT_TEST_USER_IDENTITY,
     DEFAULT_TEST_USER_SECRET,

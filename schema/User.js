@@ -1,4 +1,5 @@
 const { v4: uuid } = require('uuid');
+const faker = require('faker');
 const { Text, Checkbox, Password, CalendarDay, File } = require('@keystonejs/fields')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
@@ -18,8 +19,12 @@ const avatarFileAdapter = new LocalFileAdapter({
 const User = new GQLListSchema('User', {
     // labelResolver: item => `${item.name}`,
     fields: {
-        name: { type: Text },
+        name: {
+            factory: () => faker.fake("{{name.suffix}} {{name.firstName}} {{name.lastName}}"),
+            type: Text
+        },
         email: {
+            factory: () => faker.internet.exampleEmail(),
             type: Text,
             isUnique: true,
             // 2. Only authenticated users can read/update their own email, not any other user's.
@@ -37,6 +42,7 @@ const User = new GQLListSchema('User', {
         },
         isActive: { type: Checkbox, defaultValue: true },
         password: {
+            factory: () => faker.internet.password(),
             type: Password,
             access: {
                 // 3. Only admins can see if a password is set. No-one can read their own or other user's passwords.
