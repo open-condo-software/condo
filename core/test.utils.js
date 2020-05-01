@@ -13,7 +13,7 @@ const DEFAULT_TEST_USER_SECRET = '1a92b3a07c78';
 const DEFAULT_TEST_ADMIN_IDENTITY = 'admin@example.com';
 const DEFAULT_TEST_ADMIN_SECRET = '3a74b3f07978';
 
-const LOGIN_MUTATION = gql`
+const SIGNIN_MUTATION = gql`
     mutation sigin($identity: String, $secret: String) {
         auth: authenticateUserWithPassword(email: $identity, password: $secret) {
             user: item {
@@ -91,7 +91,7 @@ const makeLoggedInClient = async (args = {}) => {
         ...args,
     };
     const client = await makeClient();
-    const { data, errors } = await client.mutate(LOGIN_MUTATION, { identity: variables.email, secret: variables.password });
+    const { data, errors } = await client.mutate(SIGNIN_MUTATION, { identity: variables.email, secret: variables.password });
     if (errors && errors.length > 0) {
         throw new Error(errors[0].message);
     }

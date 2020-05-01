@@ -2,7 +2,7 @@
 
 const { makeClient, makeLoggedInClient, DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET, gql } = require('../core/test.utils');
 
-const LOGIN_MUTATION = gql`
+const SIGNIN_MUTATION = gql`
     mutation sigin($identity: String, $secret: String) {
         auth: authenticateUserWithPassword(email: $identity, password: $secret) {
             user: item {
@@ -20,9 +20,9 @@ const GET_MY_USERINFO = gql`
     }
 `;
 
-test('anonymous: try to login', async () => {
+test('anonymous: try to sign in', async () => {
     const client = await makeClient();
-    const { data } = await client.mutate(LOGIN_MUTATION, {
+    const { data } = await client.mutate(SIGNIN_MUTATION, {
         "identity": DEFAULT_TEST_USER_IDENTITY,
         "secret": DEFAULT_TEST_USER_SECRET
     });
@@ -36,8 +36,9 @@ test('anonymous: get user info', async () => {
 });
 
 
-test('get user info after login', async () => {
+test('get user info after sign in', async () => {
     const client = await makeLoggedInClient();
     const { data } = await client.query(GET_MY_USERINFO);
     expect(data.user).toEqual({ id: client.user.id });
 });
+
