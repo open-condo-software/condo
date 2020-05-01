@@ -9,7 +9,7 @@ const express = require("express");
 const conf = require('./config');
 const access = require("./core/access");
 const { getAdapter } = require("./core/adapter.utils");
-const { registerLists } = require("./core/lists");
+const { registerSchemas } = require("./core/schema");
 
 const keystone = new Keystone({
     name: conf.PROJECT_NAME,
@@ -27,7 +27,7 @@ const keystone = new Keystone({
     },
 });
 
-registerLists(keystone, [
+registerSchemas(keystone, [
     require('./schema/User'),
     require('./schema/Condominium'),
     require('./schema/Todo'),

@@ -1,9 +1,9 @@
 const { Text, CalendarDay, Checkbox, Relationship } = require('@keystonejs/fields');
 
 const { Stars } = require("../core/custom-fields");
-const { KeystoneList } = require("../core/lists");
+const { GQLListSchema } = require("../core/schema");
 
-module.exports = new KeystoneList('Todo', {
+module.exports = new GQLListSchema('Todo', {
     fields: {
         // existing fields
         description: {

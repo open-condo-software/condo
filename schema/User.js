@@ -1,20 +1,21 @@
-const { Text, Checkbox, Password, CalendarDay, File } = require('@keystonejs/fields');
-const { LocalFileAdapter } = require("@keystonejs/file-adapters");
-const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce');
-const getYear = require('date-fns/get_year');
-const { byTracking, atTracking } = require('@keystonejs/list-plugins');
+const { v4: uuid } = require('uuid');
+const { Text, Checkbox, Password, CalendarDay, File } = require('@keystonejs/fields')
+const { LocalFileAdapter } = require('@keystonejs/file-adapters')
+const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
+const getYear = require('date-fns/get_year')
+const { byTracking, atTracking } = require('@keystonejs/list-plugins')
 
-const { KeystoneList } = require("../core/lists");
-const { Stars, MultiCheck } = require("../core/custom-fields");
-const access = require("../core/access");
-const conf = require("../config");
+const { GQLListSchema } = require('../core/schema')
+const { Stars, MultiCheck } = require('../core/custom-fields')
+const access = require('../core/access')
+const conf = require('../config')
 
 const avatarFileAdapter = new LocalFileAdapter({
     src: `${conf.MEDIA_ROOT}/avatars`,
     path: `${conf.MEDIA_URL}/avatars`,
-});
+})
 
-const User = new KeystoneList('User', {
+const User = new GQLListSchema('User', {
     // labelResolver: item => `${item.name}`,
     fields: {
         name: { type: Text },
@@ -68,8 +69,8 @@ const User = new KeystoneList('User', {
         defaultColumns: 'avatar, name, email, isAdmin, isActive',
         // defaultSort: 'name',
     },
-});
+})
 
 module.exports = {
     User,
-};
+}

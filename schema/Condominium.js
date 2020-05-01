@@ -1,8 +1,8 @@
 const access = require("../core/access");
-const { KeystoneList } = require("../core/lists");
+const { GQLListSchema } = require("../core/schema");
 const { Text, CalendarDay, Checkbox, Relationship } = require('@keystonejs/fields');
 
-const Condominium = new KeystoneList('Condominium', {
+const Condominium = new GQLListSchema('Condominium', {
     // labelResolver: item => `${item.address}`,
     labelField: 'address',
     fields: {
@@ -28,7 +28,7 @@ const Condominium = new KeystoneList('Condominium', {
     },
 });
 
-const ChatMessage = new KeystoneList('ChatMessage', {
+const ChatMessage = new GQLListSchema('ChatMessage', {
     fields: {
         chat: { type: Relationship, ref: 'Condominium', many: false, isRequired: true },
         user: { type: Relationship, ref: 'User', many: false, isRequired: true },
