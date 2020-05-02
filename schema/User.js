@@ -243,7 +243,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             schema: 'changePasswordWithToken(token: String!, password: String!): String',
             access: true,
             resolver: async (_, { token, password }, context, info, { query }) => {
-                const now = Date.now()
+                const now = (new Date(Date.now())).toISOString()
 
                 const { errors, data } = await query(
                     // check usedAt
