@@ -1,5 +1,3 @@
-'use strict'
-
 const { createUser } = require('../core/test.utils')
 const { makeClient, makeLoggedInClient, DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET, gql } = require('../core/test.utils')
 

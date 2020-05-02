@@ -63,7 +63,7 @@ const User = new GQLListSchema('User', {
         read: access.canReadOnlyActive,
         create: access.userIsAdmin,
         update: access.userIsAdminOrIsThisItem,
-        delete: true,
+        delete: access.userIsAdmin,
         auth: true,
     },
     plugins: [byTracking(), atTracking()],
@@ -291,11 +291,12 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 }
 
                 await query(
-                    `mutation DeletePasswordToken($tokenId: ID!) {
-                        deleteForgotPasswordAction(id: $tokenId) {
-                          id
+                    `
+                        mutation DeletePasswordToken($tokenId: ID!) {
+                          deleteForgotPasswordAction(id: $tokenId) {
+                            id
+                          }
                         }
-                      }
                     `,
                     { variables: { tokenId }, skipAccessControl: true },
                 )
@@ -306,8 +307,63 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
     ],
 })
 
+const RegisterService = new GQLCustomSchema('RegisterService', {
+    mutations: [
+        {
+            schema: 'registerNewUser(name: String!, email: String!, password: String!, captcha: String!): User',
+            access: true,
+            resolver: async (_, { name, email, password }, context, info, { query }) => {
+                const { errors, data } = await query(
+                    `
+                        query findUserByEmail($email: String!) {
+                          users: allUsers(where: { email: $email }) {
+                            id
+                          }
+                        }
+                    `,
+                    { variables: { email }, skipAccessControl: true },
+                )
+
+                if (errors) {
+                    throw errors.message
+                }
+
+                if (data.users.length !== 0) {
+                    throw new Error(`[register:email:multipleFound] User with this email is already registered`)
+                }
+
+                if (password.length < 8) {
+                    throw new Error(`[register:password:minLength] Password length less then 7 character`)
+                }
+
+                const result = await query(
+                    `
+                        mutation createNewUser($email: String!, $password: String!, $name: String!) {
+                          user: createUser(data: { email: $email, password: $password, name: $name }) {
+                            id
+                            name
+                            email
+                            isAdmin
+                            isActive
+                          }
+                        }
+                    `,
+                    { variables: { name, email, password }, skipAccessControl: true },
+                )
+
+                if (result.errors) {
+                    throw result.errors.message
+                }
+
+                return result.data.user
+            },
+        }
+    ]
+})
+
 module.exports = {
     User,
     ForgotPasswordAction,
     ForgotPasswordService,
+    RegisterService,
 }
