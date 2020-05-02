@@ -1,15 +1,15 @@
-const { Keystone } = require('@keystonejs/keystone');
-const { PasswordAuthStrategy } = require('@keystonejs/auth-password');
-const { GraphQLApp } = require('@keystonejs/app-graphql');
-const { AdminUIApp } = require('@keystonejs/app-admin-ui');
-const { NextApp } = require('@keystonejs/app-next');
-const { StaticApp } = require('@keystonejs/app-static');
-const express = require("express");
+const { Keystone } = require('@keystonejs/keystone')
+const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
+const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { AdminUIApp } = require('@keystonejs/app-admin-ui')
+const { NextApp } = require('@keystonejs/app-next')
+const { StaticApp } = require('@keystonejs/app-static')
+const express = require('express')
 
-const conf = require('./config');
-const access = require("./core/access");
-const { getAdapter } = require("./core/adapter.utils");
-const { registerSchemas } = require("./core/schema");
+const conf = require('./config')
+const access = require('./core/access')
+const { getAdapter } = require('./core/adapter.utils')
+const { registerSchemas } = require('./core/schema')
 
 const keystone = new Keystone({
     name: conf.PROJECT_NAME,
@@ -18,20 +18,20 @@ const keystone = new Keystone({
     queryLimits: { maxTotalResults: 1000 },
     onConnect: async () => {
         // Initialise some data
-        if (conf.NODE_ENV !== 'development') return; // Just for dev env purposes!
-        const users = await keystone.lists.User.adapter.findAll();
+        if (conf.NODE_ENV !== 'development') return // Just for dev env purposes!
+        const users = await keystone.lists.User.adapter.findAll()
         if (!users.length) {
-            const initialData = require('./initial-data');
-            await keystone.createItems(initialData);
+            const initialData = require('./initial-data')
+            await keystone.createItems(initialData)
         }
     },
-});
+})
 
 registerSchemas(keystone, [
     require('./schema/User'),
     require('./schema/Condominium'),
     require('./schema/Todo'),
-]);
+])
 
 keystone.extendGraphQLSchema({
     types: [{ type: 'type FooBar { foo: Int, bar: Float }' }],
@@ -47,23 +47,23 @@ keystone.extendGraphQLSchema({
             schema: 'double(x: Int): Int',
             resolver: (_, { x }) => 2 * x,
             access: ({ authentication: { item, listKey } }) => {
-                return true;
+                return true
             },
         },
     ],
-});
+})
 
 class CustomApp {
-    prepareMiddleware({ keystone, dev, distDir }) {
-        const middleware = express();
-        return middleware;
+    prepareMiddleware ({ keystone, dev, distDir }) {
+        const middleware = express()
+        return middleware
     }
 }
 
 const authStrategy = keystone.createAuthStrategy({
     type: PasswordAuthStrategy,
     list: 'User',
-});
+})
 
 module.exports = {
     configureExpress: () => {},
@@ -81,4 +81,4 @@ module.exports = {
         }),
         (conf.INCLUDE_NEXT_APP) ? new NextApp({ dir: conf.INCLUDE_NEXT_APP }) : new CustomApp(),
     ],
-};
+}
