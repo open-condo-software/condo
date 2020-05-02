@@ -19,10 +19,15 @@ const keystone = new Keystone({
     onConnect: async () => {
         // Initialise some data
         if (conf.NODE_ENV !== 'development') return // Just for dev env purposes!
-        const users = await keystone.lists.User.adapter.findAll()
-        if (!users.length) {
-            const initialData = require('./initial-data')
-            await keystone.createItems(initialData)
+        // This function can be called before tables are created! (we just ignore this)
+        try {
+            const users = await keystone.lists.User.adapter.findAll()
+            if (!users.length) {
+                const initialData = require('./initial-data')
+                await keystone.createItems(initialData)
+            }
+        } catch (e) {
+            console.warn("onConnectError:", e)
         }
     },
 })
