@@ -63,7 +63,7 @@ test('anonymous: wrong email', async () => {
 })
 
 test('check auth by empty password', async () => {
-    const user = await createUser({password: ''})
+    const user = await createUser({ password: '' })
     const checkAuthByEmptyPassword = async () => {
         await makeLoggedInClient({ email: user.email, password: '' })
     }
