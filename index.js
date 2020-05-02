@@ -66,6 +66,7 @@ const authStrategy = keystone.createAuthStrategy({
 });
 
 module.exports = {
+    configureExpress: () => {},
     distDir: conf.DIST_DIR,
     keystone,
     apps: [
