@@ -17,7 +17,7 @@ const USER_LIST = new GQLListSchema('User', {
         isAdmin: {
             type: Checkbox,
             defaultValue: false,
-        }
+        },
     },
     access: {
         read: false,
@@ -33,7 +33,7 @@ test('List.factory(): has fields', () => {
 })
 
 test('List.factory(): check undefined', () => {
-    const obj = USER_LIST._factory({isAdmin: undefined})
+    const obj = USER_LIST._factory({ isAdmin: undefined })
     expect(Object.keys(obj)).toEqual(['name', 'email'])
     expect(obj['isAdmin']).toBeUndefined()
     expect(obj['somethingOthers']).toBeUndefined()
