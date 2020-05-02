@@ -48,8 +48,13 @@ class GQLListSchema {
 }
 
 class GQLCustomSchema {
-    constructor (schema) {
+    constructor (name, schema) {
+        ow(schema, ow.object.partialShape({
+            mutations: ow.array.valueOf(
+                ow.object.valuesOfType(ow.object.hasKeys(['access', 'schema', 'resolver']))),
+        }))
         this.schema = schema
+        this.name = name
         this._type = GQL_CUSTOM_SCHEMA_TYPE
     }
 
