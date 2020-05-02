@@ -17,12 +17,12 @@
   ],
   "scripts": {
     "test": "jest",
-    "dev": "cross-env NODE_ENV=development DISABLE_LOGGING=true keystone dev",
+    "dev": "keystone dev",
     "debug": "node inspect node_modules/.bin/keystone dev",
-    "build": "cross-env NODE_ENV=production keystone build",
-    "start": "cross-env NODE_ENV=production keystone start",
+    "build": "keystone build",
+    "start": "keystone start",
     "upgrade-relationships": "keystone upgrade-relationships --migration",
-    "create-tables": "cross-env CREATE_TABLES=true keystone create-tables"
+    "create-tables": "node node_modules/.bin/keystone create-tables"
   },
   "dependencies": {
     "@keystonejs/adapter-knex": "^9.0.3",
