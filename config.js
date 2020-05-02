@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config()
 
 module.exports = {
     PROJECT_NAME: process.env.PROJECT_NAME || 'my-keystone-app',
@@ -9,4 +9,7 @@ module.exports = {
     DIST_DIR: process.env.DIST_DIR || 'dist',
     NODE_ENV: process.env.NODE_ENV || 'production',
     INCLUDE_NEXT_APP: process.env.INCLUDE_NEXT_APP,
-};
+    SERVER_URL: process.env.SERVER_URL || 'http://localhost:3000',
+
+    USER__RESET_PASSWORD_TOKEN_EXPIRY: process.env.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24,
+}
