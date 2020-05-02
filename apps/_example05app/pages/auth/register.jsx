@@ -62,7 +62,8 @@ const RegisterForm = () => {
             <Form.Item
                 name="name"
                 label={
-                    <span> Name&nbsp; <Tooltip title="What do you want others to call you?"><QuestionCircleOutlined/></Tooltip></span>
+                    <span> Name&nbsp; <Tooltip
+                        title="What do you want others to call you?"><QuestionCircleOutlined/></Tooltip></span>
                 }
                 rules={[{ required: true, message: 'Please input your real!', whitespace: true }]}
             >

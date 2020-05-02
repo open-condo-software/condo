@@ -7,8 +7,8 @@ import { DesktopOutlined, FileOutlined, PieChartOutlined, TeamOutlined, UserOutl
 import './antd-custom.less'
 import MenuHeader from './components/MenuHeader'
 
-const { Header, Sider, Content } = Layout;
-const { SubMenu } = Menu;
+const { Header, Sider, Content } = Layout
+const { SubMenu } = Menu
 
 const layoutCss = css`
     height: 100%;
@@ -16,10 +16,9 @@ const layoutCss = css`
 
 const sideMenuCss = css`
     box-shadow: 2px 0 6px rgba(0,21,41,.35);
-`;
+`
 
 const topMenuWrapperCss = css`
-    align-items: center;
 `
 
 const topMenuCss = css`
@@ -58,34 +57,35 @@ const logoCss = css`
     }
 `
 
-function BaseLayout(props) {
+function BaseLayout (props) {
     const [collapsed, setCollapsed] = useState(false)
 
     const toggleCollapsed = () => {
-        setCollapsed(!collapsed);
-    };
+        setCollapsed(!collapsed)
+    }
 
     return (
         <Layout css={layoutCss} as="section">
-            <Sider collapsible collapsed={collapsed} onCollapse={toggleCollapsed} css={sideMenuCss} as="aside" style={props.sideMenuStyle}>
-                <img css={logoCss} src="/logo.svg" />
+            <Sider collapsible collapsed={collapsed} onCollapse={toggleCollapsed} css={sideMenuCss} as="aside"
+                   style={props.sideMenuStyle}>
+                <img css={logoCss} src="/logo.svg"/>
                 <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
-                    <Menu.Item key="1" icon={<PieChartOutlined />}>
+                    <Menu.Item key="1" icon={<PieChartOutlined/>}>
                         Option 1
                     </Menu.Item>
-                    <Menu.Item key="2" icon={<DesktopOutlined />}>
+                    <Menu.Item key="2" icon={<DesktopOutlined/>}>
                         Option 2
                     </Menu.Item>
-                    <SubMenu key="sub1" icon={<UserOutlined />} title="User">
+                    <SubMenu key="sub1" icon={<UserOutlined/>} title="User">
                         <Menu.Item key="3">Tom</Menu.Item>
                         <Menu.Item key="4">Bill</Menu.Item>
                         <Menu.Item key="5">Alex</Menu.Item>
                     </SubMenu>
-                    <SubMenu key="sub2" icon={<TeamOutlined />} title="Team">
+                    <SubMenu key="sub2" icon={<TeamOutlined/>} title="Team">
                         <Menu.Item key="6">Team 1</Menu.Item>
                         <Menu.Item key="8">Team 2</Menu.Item>
                     </SubMenu>
-                    <Menu.Item key="9" icon={<FileOutlined />} />
+                    <Menu.Item key="9" icon={<FileOutlined/>}/>
                 </Menu>
             </Sider>
             <Layout css={topMenuWrapperCss} style={props.topMenuWrapperStyle}>
@@ -106,7 +106,7 @@ function BaseLayout(props) {
                 </Content>
             </Layout>
         </Layout>
-    );
+    )
 }
 
-export default BaseLayout;
+export default BaseLayout

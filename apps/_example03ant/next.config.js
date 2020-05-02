@@ -1,4 +1,4 @@
-const withLess = require('@zeit/next-less');
+const withLess = require('@zeit/next-less')
 
 // fix: prevents error when .less files are required by node
 if (typeof require !== 'undefined') {
@@ -6,6 +6,6 @@ if (typeof require !== 'undefined') {
 }
 module.exports = withLess({
     lessLoaderOptions: {
-        javascriptEnabled: true
-    }
-});
+        javascriptEnabled: true,
+    },
+})

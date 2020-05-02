@@ -1,6 +1,6 @@
-const access = require("../core/access");
-const { GQLListSchema } = require("../core/schema");
-const { Text, CalendarDay, Checkbox, Relationship } = require('@keystonejs/fields');
+const access = require('../core/access')
+const { GQLListSchema } = require('../core/schema')
+const { Text, CalendarDay, Checkbox, Relationship } = require('@keystonejs/fields')
 
 const Condominium = new GQLListSchema('Condominium', {
     // labelResolver: item => `${item.address}`,
@@ -14,7 +14,7 @@ const Condominium = new GQLListSchema('Condominium', {
             type: Relationship,
             ref: 'User',
             many: true,
-        }
+        },
     },
     queryLimits: {
         maxResults: 100,
@@ -26,7 +26,7 @@ const Condominium = new GQLListSchema('Condominium', {
         delete: false,
         auth: true,
     },
-});
+})
 
 const ChatMessage = new GQLListSchema('ChatMessage', {
     fields: {
@@ -36,10 +36,10 @@ const ChatMessage = new GQLListSchema('ChatMessage', {
     },
     access: {
         read: ({ authentication: { item: user } }) => {
-            if (!user) return false;
-            if (user.isAdmin) return {};
+            if (!user) return false
+            if (user.isAdmin) return {}
             return {
-                chat: {users_some: {id: user.id}},
+                chat: { users_some: { id: user.id } },
             }
         },
         create: true,
@@ -47,9 +47,9 @@ const ChatMessage = new GQLListSchema('ChatMessage', {
         delete: true,
         auth: true,
     },
-});
+})
 
 module.exports = {
     Condominium,
     ChatMessage,
-};
+}

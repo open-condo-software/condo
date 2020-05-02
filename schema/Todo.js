@@ -1,13 +1,13 @@
-const { Text, CalendarDay, Checkbox, Relationship } = require('@keystonejs/fields');
+const { Text, CalendarDay, Checkbox, Relationship } = require('@keystonejs/fields')
 
-const { Stars } = require("../core/custom-fields");
-const { GQLListSchema } = require("../core/schema");
+const { Stars } = require('../core/custom-fields')
+const { GQLListSchema } = require('../core/schema')
 
 module.exports = new GQLListSchema('Todo', {
     fields: {
         // existing fields
         description: {
-            factory: () => "fake description",
+            factory: () => 'fake description',
             type: Text,
             isRequired: true,
         },
@@ -20,11 +20,11 @@ module.exports = new GQLListSchema('Todo', {
         deadline: {
             factory: () => new Date(),
             type: CalendarDay,
-            format: "Do MMMM YYYY",
+            format: 'Do MMMM YYYY',
             yearRangeFrom: '2010',
             yearRangeTo: '2039',
             isRequired: false,
-            defaultValue: new Date().toISOString("YYYY-MM-DD").substring(0, 10),
+            defaultValue: new Date().toISOString('YYYY-MM-DD').substring(0, 10),
         },
         assignee: { type: Relationship, ref: 'User', isRequired: true },
         stars: { type: Stars, starCount: 5 },
@@ -36,4 +36,4 @@ module.exports = new GQLListSchema('Todo', {
         delete: true,
         auth: true,
     },
-});
+})

@@ -1,10 +1,10 @@
-import React from 'react';
-import { Global, css } from '@emotion/core';
+import React from 'react'
+import { Global, css } from '@emotion/core'
 
-export default function GlobalStyle() {
-  return (
-    <Global
-      styles={css`
+export default function GlobalStyle () {
+    return (
+        <Global
+            styles={css`
         $@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap');
         body {
           max-width: 100%;
@@ -23,8 +23,8 @@ export default function GlobalStyle() {
           height: 100%;
         }
       `}
-    />
-  );
+        />
+    )
 }
 
 const normalize = css`
@@ -377,4 +377,4 @@ template {
 [hidden] {
   display: none;
 }
-`;
+`

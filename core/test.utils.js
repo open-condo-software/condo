@@ -1,5 +1,3 @@
-'use strict'
-
 const axios = require('axios')
 const gql = require('graphql-tag')
 const { Cookie, CookieJar } = require('tough-cookie')
@@ -7,6 +5,7 @@ const { print } = require('graphql/language/printer')
 const crypto = require('crypto')
 const express = require('express')
 const { GQL_LIST_SCHEMA_TYPE } = require('./schema')
+
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
 
 const URL = 'http://127.0.0.1:3000/admin/api'

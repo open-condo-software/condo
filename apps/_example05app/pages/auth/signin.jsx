@@ -117,7 +117,7 @@ function CustomContainer (props) {
     return (<BaseLayout
         {...props}
         sideMenuStyle={{ display: 'none' }}
-        mainContentWrapperStyle={{ maxWidth: '600px', paddingTop: '50px' }}
+        mainContentWrapperStyle={{ maxWidth: '600px', paddingTop: '50px', margin: '0 auto' }}
         mainContentBreadcrumbStyle={{ display: 'none' }}
     />)
 }

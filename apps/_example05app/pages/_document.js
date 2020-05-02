@@ -2,13 +2,13 @@ import Document, { Html, Head, Main, NextScript } from 'next/document'
 import { extractCritical } from 'emotion-server'
 
 export default class MyDocument extends Document {
-    static getInitialProps({ renderPage }) {
+    static getInitialProps ({ renderPage }) {
         const page = renderPage()
         const styles = extractCritical(page.html)
         return { ...page, ...styles }
     }
 
-    render() {
+    render () {
         return (
             <Html>
                 <Head/>
