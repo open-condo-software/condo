@@ -13,21 +13,20 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] docs: now-to create frontend app 
  - [x] example: Ant Design Pro + Next.js
  - [x] example: Internationalization (react-intl)
- - [ ] docs: now-to write backend 
+ - [x] ForgotUserPassword: Schema, API, Tests
+ - [ ] ForgotUserPassword: Page (example)
+ - [x] Auth: Schema, API, Test
+ - [x] Auth: Page (example)
+ - [x] User: Schema, API, Tests
+ - [ ] User: reusable customization (like django user)
+ - [ ] Register: Schema, API, Test
+ - [ ] Register: Page (example)
+ - [ ] docs: now-to write backend
  - [ ] docs: project structure
- - [x] Test: auth
- - [x] Test: examples
  - [ ] docs: Deploy
  - [ ] CI: Deploy
  - [ ] prettier
  - [ ] linter
- - [x] Model: User
- - [x] Test: UserAPI
- - [x] Test: Login
- - [ ] Page: Login
- - [ ] Model: RegisterUser
- - [ ] Test: RegisterUser
- - [ ] Page: RegisterUser
  - [ ] Model: Notifications
  - [ ] Test: Notifications
  - [ ] Model: UserSettings
@@ -115,7 +114,7 @@ Keystone Admin UI is reachable via `http://127.0.0.1:3000/admin`.
 
 ## Write Frontend APP
 
-### Create new Next.js APP
+### Create new APP
 
 ```bash
 # Create Next.js new React APP folder
