@@ -5,6 +5,7 @@ const gql = require("graphql-tag");
 const { Cookie, CookieJar } = require('tough-cookie');
 const { print } = require('graphql/language/printer');
 const crypto = require('crypto');
+const express = require('express')
 const { GQL_LIST_SCHEMA_TYPE } = require('./schema')
 const getRandomString = () => crypto.randomBytes(6).hexSlice();
 
@@ -104,8 +105,12 @@ const makeLoggedInClient = async (args = {}) => {
     return client;
 };
 
+const makeLoggedInAdminClient = async () => {
+    return await makeLoggedInClient({email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET});
+}
+
 const createUser = async (args = {}) => {
-    const client = await makeLoggedInClient({email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET});
+    const client = await makeLoggedInAdminClient();
     const data = {
         name: 'Mr#' + getRandomString(),
         email: 'xx' + getRandomString() + '@example.com',
@@ -121,7 +126,7 @@ const createUser = async (args = {}) => {
 
 const createSchemaObject = async (schemaList, args = {}) => {
     if (schemaList._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Wrong type. Expect ${GQL_LIST_SCHEMA_TYPE}`)
-    const client = await makeLoggedInClient({email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET});
+    const client = await makeLoggedInAdminClient();
     const data = schemaList._factory(args);
 
     const mutation = gql`
@@ -138,11 +143,45 @@ const createSchemaObject = async (schemaList, args = {}) => {
     return { ...data, id: result.data.obj.id }
 }
 
+const getSchemaObject = async (schemaList, fields, where) => {
+    if (schemaList._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Wrong type. Expect ${GQL_LIST_SCHEMA_TYPE}`)
+    const client = await makeLoggedInAdminClient();
+
+    function fieldsToStr(fields) {
+        return '{ ' + fields.map((f) => Array.isArray(f) ? fieldsToStr(f) : f).join(' ') + ' }'
+    }
+
+    const query = gql`
+        query ${schemaList.name}($where: ${schemaList.name}WhereUniqueInput!) {
+            obj: ${schemaList.name}(where: $where) ${fieldsToStr(fields)}
+        }
+    `;
+    const result = await client.query(query, { where });
+    if (result.errors && result.errors.length > 0) {
+        throw new Error(result.errors[0].message);
+    }
+    return result.data.obj
+}
+
+// TODO: remove or use it!
+const upTestServer = async () => {
+    const {distDir, keystone, apps, configureExpress} = require('../index')
+    const dev = process.env.NODE_ENV !== 'production';
+    const { middlewares } = await keystone.prepare({ apps, distDir, dev });
+    await keystone.connect();
+    const app = express();
+    configureExpress(app);
+    app.use(middlewares);
+    return { keystone, app };
+}
+
 module.exports = {
     makeClient,
     makeLoggedInClient,
+    makeLoggedInAdminClient,
     createUser,
     createSchemaObject,
+    getSchemaObject,
     gql,
     DEFAULT_TEST_USER_IDENTITY,
     DEFAULT_TEST_USER_SECRET,
