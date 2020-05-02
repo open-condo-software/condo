@@ -36,3 +36,5 @@ jobs:
           yarn test
         env:
           DATABASE_URL: ${{ matrix.database }}
+          NODE_ENV: development
+          DISABLE_LOGGING: true
