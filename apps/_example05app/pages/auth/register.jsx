@@ -11,15 +11,26 @@ import {
     AutoComplete,
 } from 'antd'
 import { useState } from 'react'
+import { useMutation } from '@apollo/react-hooks'
 import Head from 'next/head'
-import Router from 'next/router'
+import { QuestionCircleOutlined } from '@ant-design/icons'
+import gql from 'graphql-tag'
 
+import Router from 'next/router'
 import BaseLayout from '../../containers/BaseLayout'
 import { useAuth } from '../../lib/auth'
 
 const { Title } = Typography
 
-import { QuestionCircleOutlined } from '@ant-design/icons'
+const REGISTER_NEW_USER_MUTATION = gql`
+    mutation registerNewUser($name: String!, $email: String!, $password: String!, $captcha: String!) {
+        user: registerNewUser(name: $name, email: $email, password: $password, captcha: $captcha) {
+            id
+            name
+            isAdmin
+        }
+    }
+`
 
 const formItemLayout = {
     labelCol: {
@@ -47,9 +58,41 @@ const tailFormItemLayout = {
 const RegisterForm = () => {
     const [form] = Form.useForm()
     const [isLoading, setIsLoading] = useState(false)
+    const { signin } = useAuth()
+    const [register, ctx] = useMutation(REGISTER_NEW_USER_MUTATION)
 
     const onFinish = values => {
         console.log('Received values of form: ', values)
+        setIsLoading(true)
+        register({ variables: values })
+            .then(
+                () => {
+                    notification.success({
+                        message: 'registered!',
+                    })
+                    // TODO(pahaz): push to nextUrl!
+                    signin({ variables: form.getFieldsValue() }).then(() => { Router.push('/') }, console.error)
+                },
+                (e) => {
+                    const errors = []
+                    console.error(e)
+                    notification.error({
+                        message: 'Register server error',
+                        description: e.message,
+                    })
+                    if (e.message.includes('[register:email:multipleFound]')) {
+                        errors.push({
+                            name: 'email',
+                            errors: [('This email is already registered')],
+                        })
+                    }
+                    if (errors.length) {
+                        form.setFields(errors)
+                    }
+                })
+            .finally(() => {
+                setIsLoading(false)
+            })
     }
 
     return (
@@ -58,11 +101,13 @@ const RegisterForm = () => {
             form={form}
             name="register"
             onFinish={onFinish}
+            initialValues={{ captcha: '12312' }}
         >
             <Form.Item
                 name="name"
                 label={
-                    <span> Name&nbsp; <Tooltip title="What do you want others to call you?"><QuestionCircleOutlined/></Tooltip></span>
+                    <span> Name&nbsp; <Tooltip
+                        title="What do you want others to call you?"><QuestionCircleOutlined/></Tooltip></span>
                 }
                 rules={[{ required: true, message: 'Please input your real!', whitespace: true }]}
             >
@@ -127,22 +172,20 @@ const RegisterForm = () => {
                 <Input.Password/>
             </Form.Item>
 
-            {/*<Form.Item label="Captcha" extra="We must make sure that your are a human.">*/}
-            {/*    <Row gutter={8}>*/}
-            {/*        <Col span={12}>*/}
-            {/*            <Form.Item*/}
-            {/*                name="captcha"*/}
-            {/*                noStyle*/}
-            {/*                rules={[{ required: true, message: 'Please input the captcha you got!' }]}*/}
-            {/*            >*/}
-            {/*                <Input/>*/}
-            {/*            </Form.Item>*/}
-            {/*        </Col>*/}
-            {/*        <Col span={12}>*/}
-            {/*            <Button>Get captcha</Button>*/}
-            {/*        </Col>*/}
-            {/*    </Row>*/}
-            {/*</Form.Item>*/}
+            <Form.Item label="Captcha" extra="We must make sure that your are a human." style={{ display: 'none' }}>
+                <Row gutter={8}>
+                    <Col span={12}>
+                        <Form.Item
+                            name="captcha"
+                        >
+                            <Input value="0571"/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Button>Get captcha</Button>
+                    </Col>
+                </Row>
+            </Form.Item>
 
             <Form.Item
                 name="agreement"
@@ -157,7 +200,7 @@ const RegisterForm = () => {
                 </Checkbox>
             </Form.Item>
             <Form.Item {...tailFormItemLayout}>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" loading={isLoading}>
                     Register
                 </Button>
                 <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/signin')}>

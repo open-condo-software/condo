@@ -20,7 +20,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] User: Schema, API, Tests
  - [ ] User: reusable customization (like django user)
  - [x] Register: Schema, API, Test
- - [ ] Register: Page (example)
+ - [x] Register: Page (example)
  - [ ] docs: now-to write backend
  - [ ] docs: project structure
  - [ ] docs: Deploy
