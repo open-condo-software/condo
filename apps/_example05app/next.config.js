@@ -12,8 +12,4 @@ module.exports = withLess(withCSS({
   lessLoaderOptions: {
     javascriptEnabled: true,
   },
-  webpack: (config, options) => {
-    console.log(config, options);
-    return config;
-  },
 }));
