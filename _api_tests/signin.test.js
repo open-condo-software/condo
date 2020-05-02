@@ -1,5 +1,6 @@
 'use strict'
 
+const { createUser } = require('../core/test.utils')
 const { makeClient, makeLoggedInClient, DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET, gql } = require('../core/test.utils')
 
 const SIGNIN_MUTATION = gql`
@@ -59,4 +60,12 @@ test('anonymous: wrong email', async () => {
     })
     expect(data).toEqual({ 'auth': null })
     expect(JSON.stringify(errors)).toEqual(expect.stringMatching('passwordAuth:identity:notFound'))
+})
+
+test('check auth by empty password', async () => {
+    const user = await createUser({password: ''})
+    const checkAuthByEmptyPassword = async () => {
+        await makeLoggedInClient({ email: user.email, password: '' })
+    }
+    await expect(checkAuthByEmptyPassword).rejects.toThrow(/passwordAuth:secret:notSet/)
 })

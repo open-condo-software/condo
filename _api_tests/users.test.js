@@ -2,7 +2,7 @@ const { User } = require('../schema/User')
 const { createSchemaObject } = require('../core/test.utils')
 const { makeLoggedInClient, makeClient, createUser, gql } = require('../core/test.utils')
 
-const ALL_USERS_ID_EMAIL_QUERY = gql`
+const ALL_USERS_QUERY = gql`
     query {
         users: allUsers {
             id
@@ -22,7 +22,7 @@ const COUNT_OF_USERS_QUERY = gql`
 
 test('anonymous: get all users', async () => {
     const client = await makeClient()
-    const { data, errors } = await client.query(ALL_USERS_ID_EMAIL_QUERY)
+    const { data, errors } = await client.query(ALL_USERS_QUERY)
     expect(data).toEqual({ users: null })
     expect(errors[0]).toMatchObject({
         'data': { 'target': 'allUsers', 'type': 'query' },
@@ -47,7 +47,7 @@ test('anonymous: get count of users', async () => {
 test('user: get all users', async () => {
     const user = await createUser()
     const client = await makeLoggedInClient(user)
-    const { data } = await client.query(ALL_USERS_ID_EMAIL_QUERY)
+    const { data } = await client.query(ALL_USERS_QUERY)
     expect(data.users).toEqual(
         expect.arrayContaining([
             expect.objectContaining({ id: user.id, name: user.name, email: user.email }),
