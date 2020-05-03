@@ -30,5 +30,7 @@
   "pages.auth.TwoPasswordDontMatch": "The two passwords that you entered do not match!",
   "pages.auth.WeMustMakeSureThatYouAreHuman": "We must make sure that your are a human",
   "pages.auth.IHaveReadAndAcceptTheAgreement": "I have read and accept the agreement",
+  "pages.auth.ForgotPasswordTitle": "Restore password",
+  "pages.auth.IsNotImplementedYet": "Is not implemented yet ...",
   "logout": "Logout"
 }

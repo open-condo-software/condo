@@ -30,5 +30,7 @@
   "pages.auth.TwoPasswordDontMatch": "Введеные вами пароли не совпадают!",
   "pages.auth.WeMustMakeSureThatYouAreHuman": "Нам нужно убедиться, что вы человек",
   "pages.auth.IHaveReadAndAcceptTheAgreement": "Я прочитал и принимаю ваше соглашение",
+  "pages.auth.ForgotPasswordTitle": "Сброс пароля",
+  "pages.auth.IsNotImplementedYet": "Пока не реализовано ...",
   "logout": "Выйти"
 }
