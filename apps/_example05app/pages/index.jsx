@@ -3,6 +3,7 @@ import { keyframes, css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
 import { Button, Typography } from 'antd'
 import Head from 'next/head'
+import { useIntl } from 'react-intl'
 
 export const basicStyles = css`
   background-color: white;
@@ -56,9 +57,10 @@ export const Animated = styled('div')`
 
 function HomePage () {
     const auth = useAuth()
+    const intl = useIntl()
     return <>
         <Head><title>Welcome</title></Head>
-        <Typography.Title css={css`text-align: center;`}>{auth.user ? auth.user.name : 'GUEST'}, welcome!</Typography.Title>
+        <Typography.Title css={css`text-align: center;`}>{intl.formatMessage({id: 'welcome'}, {name: auth.user ? auth.user.name : 'GUEST'})}</Typography.Title>
         <div>
             <Button>hello</Button>
             <Basic>Cool Styles</Basic>

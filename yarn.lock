@@ -11938,7 +11938,7 @@ react-input-autosize@^2.2.1, react-input-autosize@^2.2.2:
   dependencies:
     prop-types "^15.5.8"
 
-react-intl@^4.5.0:
+react-intl@^4.5.0, react-intl@^4.5.1:
   version "4.5.1"
   resolved "https://registry.yarnpkg.com/react-intl/-/react-intl-4.5.1.tgz#b1583c853eaf652ba3579e605aec66eeb915195f"
   integrity sha512-Zhe5rn+AYtcnzgAuL2ZgqOCMpFwco9aQ0OMdobe/g1l+hUTEEt7gQyZO0cHXd4lsfJIyBtjGnVlR9V2YwC1dDw==
