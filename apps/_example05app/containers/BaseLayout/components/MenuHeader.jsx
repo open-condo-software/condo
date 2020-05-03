@@ -5,6 +5,7 @@ import { LogoutOutlined } from '@ant-design/icons'
 import Router from 'next/router'
 
 import { useAuth } from '../../../lib/auth'
+import { useIntl } from 'react-intl'
 
 const headerRightWrapper = css`
   float: right;
@@ -35,15 +36,20 @@ const headerDropdownMenu = css`
 
 const MenuHeader = (props) => {
     const auth = useAuth()
+    const intl = useIntl()
     const loading = Boolean(props.loading)
     const withDropdownMenu = true
     const avatarUrl = (auth.user && auth.user.avatar && auth.user.avatar.publicUrl) ? auth.user.avatar.publicUrl : 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png'
 
+    const SignOutMsg = intl.formatMessage({id: 'SignOut'})
+    const SignInMsg = intl.formatMessage({id: 'SignIn'})
+    const AvatarMsg = intl.formatMessage({id: 'Avatar'})
+    const GuestUsernameMsg = intl.formatMessage({id: 'baselayout.menuheader.GuestUsername'})
+
     const menu = (
         <Menu css={headerDropdownMenu}>
-            <Menu.Item key="logout" onClick={auth.signout}>
-                <LogoutOutlined/>
-                Logout
+            <Menu.Item key="signout" onClick={auth.signout}>
+                <LogoutOutlined/> {SignOutMsg}
             </Menu.Item>
         </Menu>
     )
@@ -53,16 +59,16 @@ const MenuHeader = (props) => {
             <Avatar
                 size="small"
                 src={avatarUrl}
-                alt="avatar"
+                alt={AvatarMsg}
                 className="avatar"
             />
-            <span className="name">{auth.user ? auth.user.name : 'GUEST'}</span>
+            <span className="name">{auth.user ? auth.user.name : GuestUsernameMsg}</span>
         </div>
     )
 
     const sigin = (
         <div css={headerItem} onClick={() => Router.push('/auth/signin')}>
-            <span className="name">Sign in</span>
+            <span className="name">{SignInMsg}</span>
         </div>
     )
 

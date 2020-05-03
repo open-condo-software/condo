@@ -19,6 +19,7 @@ import gql from 'graphql-tag'
 import Router from 'next/router'
 import BaseLayout from '../../containers/BaseLayout'
 import { useAuth } from '../../lib/auth'
+import { useIntl } from 'react-intl'
 
 const { Title } = Typography
 
@@ -61,15 +62,35 @@ const RegisterForm = () => {
     const { signin } = useAuth()
     const [register, ctx] = useMutation(REGISTER_NEW_USER_MUTATION)
 
+    const intl = useIntl()
+    const SignInMsg = intl.formatMessage({ id: 'SignIn' })
+    const RegisterMsg = intl.formatMessage({ id: 'Register' })
+    const EmailMsg = intl.formatMessage({ id: 'Email' })
+    const NameMsg = intl.formatMessage({ id: 'Name' })
+    const PasswordMsg = intl.formatMessage({ id: 'Password' })
+    const ConfirmPasswordMsg = intl.formatMessage({ id: 'ConfirmPassword' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const CaptchaMsg = intl.formatMessage({ id: 'Captcha' })
+    const RegisteredMsg = intl.formatMessage({ id: 'pages.auth.Registered' })
+    const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
+    const WhatDoYouWantOthersToCallYouMsg = intl.formatMessage({ id: 'pages.auth.WhatDoYouWantOthersToCallYou' })
+    const PleaseInputYourNameMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourName' })
+    const PleaseInputYourEmailMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
+    const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
+    const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
+    const EmailIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
+    const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
+    const ShouldAcceptAgreementMsg = intl.formatMessage({ id: 'pages.auth.ShouldAcceptAgreement' })
+    const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch', defaultMessage: "The two passwords that you entered do not match!" })
+    const WeMustMakeSureThatYouAreHumanMsg = intl.formatMessage({ id: 'pages.auth.WeMustMakeSureThatYouAreHuman', defaultMessage: "We must make sure that your are a human" })
+    const IHaveReadAndAcceptTheAgreementMsg = intl.formatMessage({ id: 'pages.auth.IHaveReadAndAcceptTheAgreement', defaultMessage: "I have read and accept the agreement" })
+
     const onFinish = values => {
-        console.log('Received values of form: ', values)
         setIsLoading(true)
         register({ variables: values })
             .then(
                 () => {
-                    notification.success({
-                        message: 'registered!',
-                    })
+                    notification.success({ message: { RegisteredMsg } })
                     // TODO(pahaz): push to nextUrl!
                     signin({ variables: form.getFieldsValue() }).then(() => { Router.push('/') }, console.error)
                 },
@@ -77,13 +98,13 @@ const RegisterForm = () => {
                     const errors = []
                     console.error(e)
                     notification.error({
-                        message: 'Register server error',
+                        message: ServerErrorMsg,
                         description: e.message,
                     })
                     if (e.message.includes('[register:email:multipleFound]')) {
                         errors.push({
                             name: 'email',
-                            errors: [('This email is already registered')],
+                            errors: [EmailIsAlreadyRegisteredMsg],
                         })
                     }
                     if (errors.length) {
@@ -101,30 +122,29 @@ const RegisterForm = () => {
             form={form}
             name="register"
             onFinish={onFinish}
-            initialValues={{ captcha: '12312' }}
+            initialValues={{ captcha: 'todo' }}
         >
             <Form.Item
                 name="name"
                 label={
-                    <span> Name&nbsp; <Tooltip
-                        title="What do you want others to call you?"><QuestionCircleOutlined/></Tooltip></span>
+                    <span> {NameMsg}&nbsp; <Tooltip title={WhatDoYouWantOthersToCallYouMsg}><QuestionCircleOutlined/></Tooltip></span>
                 }
-                rules={[{ required: true, message: 'Please input your real!', whitespace: true }]}
+                rules={[{ required: true, message: PleaseInputYourNameMsg, whitespace: true }]}
             >
                 <Input/>
             </Form.Item>
 
             <Form.Item
                 name="email"
-                label="E-mail"
+                label={EmailMsg}
                 rules={[
                     {
                         type: 'email',
-                        message: 'The input is not valid E-mail!',
+                        message: EmailIsNotValidMsg,
                     },
                     {
                         required: true,
-                        message: 'Please input your E-mail!',
+                        message: PleaseInputYourEmailMsg,
                     },
                 ]}
             >
@@ -133,15 +153,15 @@ const RegisterForm = () => {
 
             <Form.Item
                 name="password"
-                label="Password"
+                label={PasswordMsg}
                 rules={[
                     {
                         required: true,
-                        message: 'Please input your password!',
+                        message: PleaseInputYourPasswordMsg,
                     },
                     {
                         min: 7,
-                        message: 'Your should be more then 6 character',
+                        message: PasswordIsTooShortMsg,
                     },
                 ]}
                 hasFeedback
@@ -151,20 +171,20 @@ const RegisterForm = () => {
 
             <Form.Item
                 name="confirm"
-                label="Confirm Password"
+                label={ConfirmPasswordMsg}
                 dependencies={['password']}
                 hasFeedback
                 rules={[
                     {
                         required: true,
-                        message: 'Please confirm your password!',
+                        message: PleaseConfirmYourPasswordMsg,
                     },
                     ({ getFieldValue }) => ({
                         validator (rule, value) {
                             if (!value || getFieldValue('password') === value) {
                                 return Promise.resolve()
                             }
-                            return Promise.reject('The two passwords that you entered do not match!')
+                            return Promise.reject(TwoPasswordDontMatchMsg)
                         },
                     }),
                 ]}
@@ -172,7 +192,7 @@ const RegisterForm = () => {
                 <Input.Password/>
             </Form.Item>
 
-            <Form.Item label="Captcha" extra="We must make sure that your are a human." style={{ display: 'none' }}>
+            <Form.Item label={CaptchaMsg} extra={WeMustMakeSureThatYouAreHumanMsg} style={{ display: 'none' }}>
                 <Row gutter={8}>
                     <Col span={12}>
                         <Form.Item
@@ -182,7 +202,7 @@ const RegisterForm = () => {
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Button>Get captcha</Button>
+                        <Button>???</Button>
                     </Col>
                 </Row>
             </Form.Item>
@@ -191,20 +211,21 @@ const RegisterForm = () => {
                 name="agreement"
                 valuePropName="checked"
                 rules={[
-                    { validator: (_, value) => value ? Promise.resolve() : Promise.reject('Should accept agreement') },
+                    { validator: (_, value) => value ? Promise.resolve() : Promise.reject(ShouldAcceptAgreementMsg) },
                 ]}
                 {...tailFormItemLayout}
             >
                 <Checkbox>
-                    I have read and accept the <a href="">agreement</a>
+                    {/* TODO(pahaz): agreement link! */}
+                    {IHaveReadAndAcceptTheAgreementMsg}<a href="">*</a>.
                 </Checkbox>
             </Form.Item>
             <Form.Item {...tailFormItemLayout}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
-                    Register
+                    {RegisterMsg}
                 </Button>
                 <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/signin')}>
-                    Sign in
+                    {SignInMsg}
                 </Button>
             </Form.Item>
         </Form>
@@ -212,11 +233,13 @@ const RegisterForm = () => {
 }
 
 const RegisterPage = () => {
+    const intl = useIntl()
+    const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
     return (<>
         <Head>
-            <title>Register</title>
+            <title>{RegistrationTitleMsg}</title>
         </Head>
-        <Title css={css`text-align: center;`}>Register</Title>
+        <Title css={css`text-align: center;`}>{RegistrationTitleMsg}</Title>
         <RegisterForm/>
     </>)
 }
@@ -226,7 +249,7 @@ function CustomContainer (props) {
         {...props}
         logo="topMenu"
         sideMenuStyle={{ display: 'none' }}
-        mainContentWrapperStyle={{ maxWidth: '600px', paddingTop: '50px', margin: '0 auto' }}
+        mainContentWrapperStyle={{ maxWidth: '600px', minWidth: '490px', paddingTop: '50px', margin: '0 auto' }}
         mainContentBreadcrumbStyle={{ display: 'none' }}
     />)
 }

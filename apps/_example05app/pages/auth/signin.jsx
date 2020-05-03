@@ -7,6 +7,7 @@ import Router from 'next/router'
 
 import BaseLayout from '../../containers/BaseLayout'
 import { useAuth } from '../../lib/auth'
+import { useIntl } from 'react-intl'
 
 const { Title } = Typography
 
@@ -21,17 +22,28 @@ const tailLayout = {
 
 const SignInForm = () => {
     const [form] = Form.useForm()
+    const intl = useIntl()
     const [isLoading, setIsLoading] = useState(false)
     const { signin } = useAuth()
+
+    const SignInMsg = intl.formatMessage({ id: 'SignIn' })
+    const RegisterMsg = intl.formatMessage({ id: 'Register' })
+    const EmailMsg = intl.formatMessage({ id: 'Email' })
+    const PasswordMsg = intl.formatMessage({ id: 'Password' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const LoggedInMsg = intl.formatMessage({ id: 'pages.auth.LoggedIn' })
+    const EmailIsNoFoundMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNoFound' })
+    const WrongPasswordMsg = intl.formatMessage({ id: 'pages.auth.WrongPassword' })
+    const PleaseInputYourEmailMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
+    const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
+    const ForgotPasswordMsg = intl.formatMessage({ id: 'pages.auth.ForgotPassword' })
 
     const onFinish = values => {
         setIsLoading(true)
         signin({ variables: values })
             .then(
                 (data) => {
-                    notification.success({
-                        message: 'logged in!',
-                    })
+                    notification.success({ message: LoggedInMsg })
                     // TODO(pahaz): go to ?next url
                     Router.push('/')
                 },
@@ -39,19 +51,19 @@ const SignInForm = () => {
                     console.log(e)
                     const errors = []
                     notification.error({
-                        message: 'SignIn server error',
+                        message: ServerErrorMsg,
                         description: e.message,
                     })
                     if (e.message.includes('[passwordAuth:identity:notFound]')) {
                         errors.push({
                             name: 'email',
-                            errors: [('This email is not found')],
+                            errors: [EmailIsNoFoundMsg],
                         })
                     }
                     if (e.message.includes('[passwordAuth:secret:mismatch]')) {
                         errors.push({
                             name: 'password',
-                            errors: [('Wrong password')],
+                            errors: [WrongPasswordMsg],
                         })
                     }
                     if (errors.length) {
@@ -71,34 +83,32 @@ const SignInForm = () => {
             onFinish={onFinish}
         >
             <Form.Item
-                label="Email"
+                label={EmailMsg}
                 name="email"
-                rules={[{ required: true, message: 'Please input your email!' }]}
+                rules={[{ required: true, message: PleaseInputYourEmailMsg }]}
                 placeholder="name@example.com"
             >
                 <Input/>
             </Form.Item>
 
             <Form.Item
-                label="Password"
+                label={PasswordMsg}
                 name="password"
-                rules={[{ required: true, message: 'Please input your password!' }]}
+                rules={[{ required: true, message: PleaseInputYourPasswordMsg }]}
                 css={css`margin: 0;`}
             >
                 <Input.Password/>
             </Form.Item>
             <Form.Item {...tailLayout}>
-                <a onClick={() => Router.push('/auth/forgot')} css={css`float: right;`}>
-                    Forgot password
-                </a>
+                <a onClick={() => Router.push('/auth/forgot')} css={css`float: right;`}>{ForgotPasswordMsg}</a>
             </Form.Item>
 
             <Form.Item {...tailLayout}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
-                    Sign in
+                    {SignInMsg}
                 </Button>
                 <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/register')}>
-                    Register
+                    {RegisterMsg}
                 </Button>
             </Form.Item>
         </Form>
@@ -106,11 +116,13 @@ const SignInForm = () => {
 }
 
 const SignInPage = () => {
+    const intl = useIntl()
+    const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
     return (<>
         <Head>
-            <title>Sign In</title>
+            <title>{SignInTitleMsg}</title>
         </Head>
-        <Title css={css`text-align: center;`}>Sign In</Title>
+        <Title css={css`text-align: center;`}>{SignInTitleMsg}</Title>
         <SignInForm/>
     </>)
 }
@@ -120,7 +132,7 @@ function CustomContainer (props) {
         {...props}
         logo="topMenu"
         sideMenuStyle={{ display: 'none' }}
-        mainContentWrapperStyle={{ maxWidth: '600px', paddingTop: '50px', margin: '0 auto' }}
+        mainContentWrapperStyle={{ maxWidth: '600px', minWidth: '490px', paddingTop: '50px', margin: '0 auto' }}
         mainContentBreadcrumbStyle={{ display: 'none' }}
     />)
 }
