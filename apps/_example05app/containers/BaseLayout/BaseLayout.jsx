@@ -3,6 +3,7 @@ import { css, jsx } from '@emotion/core'
 import { useState } from 'react'
 import { Breadcrumb, Layout, Menu } from 'antd'
 import { DesktopOutlined, FileOutlined, PieChartOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
+import Router from 'next/router'
 
 import './antd-custom.less'
 import MenuHeader from './components/MenuHeader'
@@ -57,9 +58,19 @@ const logoCss = css`
     }
 `
 
+const logoTopCss = css`
+    height: 64px;
+    margin: 0 16px;
+`
+
 function BaseLayout (props) {
     const [collapsed, setCollapsed] = useState(false)
+    const logo = props.logo || 'sideMenu'
 
+    const handleLogoClick = () => {
+        // TODO(pahaz): configurable?
+        Router.push('/')
+    }
     const toggleCollapsed = () => {
         setCollapsed(!collapsed)
     }
@@ -68,7 +79,7 @@ function BaseLayout (props) {
         <Layout css={layoutCss} as="section">
             <Sider collapsible collapsed={collapsed} onCollapse={toggleCollapsed} css={sideMenuCss} as="aside"
                    style={props.sideMenuStyle}>
-                <img css={logoCss} src="/logo.svg"/>
+                {logo === 'sideMenu' ? <img css={logoCss} src="/logo.svg" onClick={handleLogoClick}/> : null}
                 <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
                     <Menu.Item key="1" icon={<PieChartOutlined/>}>
                         Option 1
@@ -90,6 +101,7 @@ function BaseLayout (props) {
             </Sider>
             <Layout css={topMenuWrapperCss} style={props.topMenuWrapperStyle}>
                 <Header css={topMenuCss} style={props.topMenuStyle}>
+                    {logo === 'topMenu' ? <img css={logoTopCss} src="/logo.svg" onClick={handleLogoClick}/> : null}
                     <MenuHeader/>
                     {/*<div css={trigger} onClick={toggleCollapsed}>*/}
                     {/*    {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {})}*/}

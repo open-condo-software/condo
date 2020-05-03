@@ -224,6 +224,7 @@ const RegisterPage = () => {
 function CustomContainer (props) {
     return (<BaseLayout
         {...props}
+        logo="topMenu"
         sideMenuStyle={{ display: 'none' }}
         mainContentWrapperStyle={{ maxWidth: '600px', paddingTop: '50px', margin: '0 auto' }}
         mainContentBreadcrumbStyle={{ display: 'none' }}

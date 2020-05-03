@@ -32,6 +32,8 @@ const SignInForm = () => {
                     notification.success({
                         message: 'logged in!',
                     })
+                    // TODO(pahaz): go to ?next url
+                    Router.push('/')
                 },
                 (e) => {
                     console.log(e)
@@ -106,9 +108,9 @@ const SignInForm = () => {
 const SignInPage = () => {
     return (<>
         <Head>
-            <title>Register</title>
+            <title>Sign In</title>
         </Head>
-        <Title css={css`text-align: center;`}>Register</Title>
+        <Title css={css`text-align: center;`}>Sign In</Title>
         <SignInForm/>
     </>)
 }
@@ -116,6 +118,7 @@ const SignInPage = () => {
 function CustomContainer (props) {
     return (<BaseLayout
         {...props}
+        logo="topMenu"
         sideMenuStyle={{ display: 'none' }}
         mainContentWrapperStyle={{ maxWidth: '600px', paddingTop: '50px', margin: '0 auto' }}
         mainContentBreadcrumbStyle={{ display: 'none' }}

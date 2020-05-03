@@ -1,8 +1,9 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-
 import { Avatar, Dropdown, Menu, Spin } from 'antd'
 import { LogoutOutlined } from '@ant-design/icons'
+import Router from 'next/router'
+
 import { useAuth } from '../../../lib/auth'
 
 const headerRightWrapper = css`
@@ -59,6 +60,12 @@ const MenuHeader = (props) => {
         </div>
     )
 
+    const sigin = (
+        <div css={headerItem} onClick={() => Router.push('/auth/signin')}>
+            <span className="name">Sign in</span>
+        </div>
+    )
+
     if (loading) {
         return (
             <div css={headerRightWrapper}>
@@ -67,9 +74,12 @@ const MenuHeader = (props) => {
         )
     }
 
+    const signedInItems = withDropdownMenu ? (<Dropdown overlay={menu}>{avatar}</Dropdown>) : (avatar)
+    const signedOutItems = (sigin)
+
     return (
         <div css={headerRightWrapper}>
-            {withDropdownMenu ? (<Dropdown overlay={menu}>{avatar}</Dropdown>) : (avatar)}
+            {auth.isAuthenticated ? signedInItems : signedOutItems}
         </div>
     )
 }
