@@ -1,7 +1,8 @@
 import { useAuth } from '../lib/auth'
-import { keyframes, css } from '@emotion/core'
+import { keyframes, css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
-import { Button } from 'antd'
+import { Button, Typography } from 'antd'
+import Head from 'next/head'
 
 export const basicStyles = css`
   background-color: white;
@@ -56,7 +57,8 @@ export const Animated = styled('div')`
 function HomePage () {
     const auth = useAuth()
     return <>
-        <div>Welcome to {auth.user ? auth.user.name : 'GUEST'}!</div>
+        <Head><title>Welcome</title></Head>
+        <Typography.Title css={css`text-align: center;`}>{auth.user ? auth.user.name : 'GUEST'}, welcome!</Typography.Title>
         <div>
             <Button>hello</Button>
             <Basic>Cool Styles</Basic>

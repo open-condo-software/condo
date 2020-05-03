@@ -48,6 +48,7 @@ const mainContentCss = css`
 const logoCss = css`
     height: 64px;
     margin: 0 24px;
+    cursor: pointer;
     
     transition: all 0.2s;
     filter: brightness(10);
@@ -61,6 +62,7 @@ const logoCss = css`
 const logoTopCss = css`
     height: 64px;
     margin: 0 16px;
+    cursor: pointer;
 `
 
 function BaseLayout (props) {
