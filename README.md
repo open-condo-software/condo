@@ -15,26 +15,28 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] example: Internationalization (react-intl)
  - [x] ForgotUserPassword: Schema, API, Tests
  - [ ] ForgotUserPassword: Page (example)
+ - [ ] ForgotUserPassword: Email notification
  - [x] Auth: Schema, API, Test
  - [x] Auth: Page (example)
  - [x] User: Schema, API, Tests
- - [ ] User: reusable customization (like django user)
+ - [ ] User: reusable customization (like django.auth.user)
  - [x] Register: Schema, API, Test
  - [x] Register: Page (example)
+ - [ ] Register: Email verification
+ - [ ] Register: Extensibility (like django-registrations)
  - [ ] docs: now-to write backend
  - [ ] docs: project structure
  - [ ] docs: Deploy
  - [ ] CI: Deploy
  - [ ] prettier
  - [ ] linter
- - [ ] Model: Notifications
- - [ ] Test: Notifications
- - [ ] Model: UserSettings
- - [ ] Test: UserSettings
- - [ ] Page: UserSettings
- - [ ] Model: GlobalSettings
- - [ ] Test: GlobalSettings
- - [ ] Page: GlobalSettings
+ - [ ] UserNotifications: Schema, API, Tests
+ - [ ] UserNotifications: Page (example 05 top menu) 
+ - [ ] UserProfileSettings: Schema, API, Tests
+ - [ ] UserProfileSettings: Page (example 05 user profile page)
+ - [ ] UserProfileSettings: Extensibility
+ - [ ] GlobalSettings: Schema, API, Tests
+ - [ ] GlobalSettings: Admin and example
  - [x] Core: Monorepo with packages and apps
  - [x] Core: docker-compose
  - [x] Core: CI
