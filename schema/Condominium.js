@@ -1,5 +1,5 @@
-const access = require('../core/access')
-const { GQLListSchema } = require('../core/schema')
+const access = require('@core/keystone/access')
+const { GQLListSchema } = require('@core/keystone/schema')
 const { Text, CalendarDay, Checkbox, Relationship } = require('@keystonejs/fields')
 
 const Condominium = new GQLListSchema('Condominium', {

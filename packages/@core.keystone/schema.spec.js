@@ -38,3 +38,26 @@ test('List.factory(): check undefined', () => {
     expect(obj['isAdmin']).toBeUndefined()
     expect(obj['somethingOthers']).toBeUndefined()
 })
+
+test('List.override(): disable isAdmin field', () => {
+    const newUser = USER_LIST._override({
+        fields: {
+            isAdmin: null,
+            email: null,
+        },
+    })
+    expect (Object.keys(newUser.schema.fields)).toEqual(["name"])
+})
+
+test('List.override(): set isAdmin defaultValue to true', () => {
+    const newUser = USER_LIST._override({
+        fields: {
+            isAdmin: {
+                defaultValue: true
+            },
+        },
+    })
+    const obj = newUser._factory()
+    expect(Object.keys(obj)).toEqual(['name', 'email', 'isAdmin'])
+    expect(obj.isAdmin).toEqual(true)
+})

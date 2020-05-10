@@ -4,7 +4,7 @@ const { Cookie, CookieJar } = require('tough-cookie')
 const { print } = require('graphql/language/printer')
 const crypto = require('crypto')
 const express = require('express')
-const { GQL_LIST_SCHEMA_TYPE } = require('./schema')
+const { GQL_LIST_SCHEMA_TYPE } = require('@core/keystone/schema')
 
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
 

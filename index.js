@@ -5,11 +5,11 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
 const { StaticApp } = require('@keystonejs/app-static')
 const express = require('express')
+const access = require('@core/keystone/access')
+const { getAdapter } = require('@core/keystone/adapter.utils')
+const { registerSchemas } = require('@core/keystone/schema')
 
 const conf = require('./config')
-const access = require('./core/access')
-const { getAdapter } = require('./core/adapter.utils')
-const { registerSchemas } = require('./core/schema')
 
 const keystone = new Keystone({
     name: conf.PROJECT_NAME,
@@ -71,7 +71,8 @@ const authStrategy = keystone.createAuthStrategy({
 })
 
 module.exports = {
-    configureExpress: () => {},
+    configureExpress: (app) => {
+    },
     distDir: conf.DIST_DIR,
     keystone,
     apps: [

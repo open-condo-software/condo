@@ -1,0 +1,8 @@
+{
+  "name": "@core/config",
+  "version": "1.0.0",
+  "dependencies": {
+    "cross-env": "^7.0.2",
+    "dotenv": "^8.2.0"
+  }
+}

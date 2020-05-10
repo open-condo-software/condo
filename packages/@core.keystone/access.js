@@ -52,9 +52,10 @@ const readOnlyField = {
 
 module.exports = {
     userIsAdmin,
+    userIsOwner,
+    userIsAdminOrOwner,
     userIsThisItem,
     userIsAdminOrIsThisItem,
-    userIsAdminOrOwner,
     canReadOnlyActive,
     canReadOnlyIfInUsers,
     readOnlyField,

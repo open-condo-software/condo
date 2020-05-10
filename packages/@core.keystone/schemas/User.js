@@ -2,18 +2,16 @@ const { v4: uuid } = require('uuid')
 const faker = require('faker')
 const { Text, Checkbox, Password, CalendarDay, File, Relationship, DateTime } = require('@keystonejs/fields')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
-const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const getYear = require('date-fns/get_year')
 const { byTracking, atTracking } = require('@keystonejs/list-plugins')
 
 const { GQLListSchema, GQLCustomSchema } = require('@core/keystone/schema')
-const { Stars, MultiCheck } = require('../core/custom-fields')
 const access = require('@core/keystone/access')
-const conf = require('../config')
+const conf = require('@core/config')
 
 const avatarFileAdapter = new LocalFileAdapter({
-    src: `${conf.MEDIA_ROOT}/avatars`,
-    path: `${conf.MEDIA_URL}/avatars`,
+    src: `${conf.MEDIA_ROOT || '__media'}/avatars`,
+    path: `${conf.MEDIA_URL || '/media'}/avatars`,
 })
 
 const User = new GQLListSchema('User', {
@@ -53,9 +51,6 @@ const User = new GQLListSchema('User', {
             },
         },
         avatar: { type: File, adapter: avatarFileAdapter },
-        rating: { type: Stars, starCount: 5 },
-        settings: { type: MultiCheck, options: ['Feature1', 'Feature2'] },
-        aboutMyself: { type: Wysiwyg },
         dob: { type: CalendarDay, format: 'Do MMMM YYYY', yearRangeFrom: 1901, yearRangeTo: getYear(new Date()) },
     },
     access: {
@@ -154,6 +149,7 @@ const ForgotPasswordAction = new GQLListSchema('ForgotPasswordAction', {
                 recipientEmail: User.email,
             }
 
+            // TODO(pahaz): need some hook for sendMail HERE!
             // const options = {
             //     subject: 'Request for password reset',
             //     to: User.email,
@@ -355,10 +351,12 @@ const RegisterService = new GQLCustomSchema('RegisterService', {
                     throw result.errors.message
                 }
 
+                // TODO(pahaz): now-to verify emails?!
+
                 return result.data.user
             },
-        }
-    ]
+        },
+    ],
 })
 
 module.exports = {

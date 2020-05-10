@@ -1,0 +1,16 @@
+{
+  "name": "@core/keystone",
+  "version": "1.0.0",
+  "dependencies": {
+    "@keystonejs/adapter-knex": "^9.0.3",
+    "@keystonejs/adapter-mongoose": "^8.0.2",
+    "@keystonejs/fields": "^10.0.0",
+    "@keystonejs/file-adapters": "^6.0.2",
+    "@keystonejs/list-plugins": "^5.2.1",
+    "date-fns": "^2.13.0",
+    "faker": "^4.1.0",
+    "lodash": "^4.17.15",
+    "ow": "^0.17.0",
+    "uuid": "^8.0.0"
+  }
+}
