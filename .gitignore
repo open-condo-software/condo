@@ -6,3 +6,4 @@ out
 .env
 /__media
 _example.js
+yarn-error.log
