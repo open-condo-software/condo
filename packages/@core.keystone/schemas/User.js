@@ -2,7 +2,7 @@ const { v4: uuid } = require('uuid')
 const faker = require('faker')
 const { Text, Checkbox, Password, CalendarDay, File, Relationship, DateTime } = require('@keystonejs/fields')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
-const getYear = require('date-fns/get_year')
+const getYear = require('date-fns/getYear')
 const { byTracking, atTracking } = require('@keystonejs/list-plugins')
 
 const { GQLListSchema, GQLCustomSchema } = require('@core/keystone/schema')

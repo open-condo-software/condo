@@ -43,7 +43,7 @@ test('List.override(): disable isAdmin field', () => {
     const newUser = USER_LIST._override({
         fields: {
             isAdmin: null,
-            email: null,
+            email: undefined,
         },
     })
     expect (Object.keys(newUser.schema.fields)).toEqual(["name"])
@@ -53,6 +53,7 @@ test('List.override(): set isAdmin defaultValue to true', () => {
     const newUser = USER_LIST._override({
         fields: {
             isAdmin: {
+                type: Checkbox,
                 defaultValue: true
             },
         },

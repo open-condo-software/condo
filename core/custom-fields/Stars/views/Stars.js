@@ -1,5 +1,4 @@
 /** @jsx jsx */
-
 import { jsx } from '@emotion/core'
 
 const STAR_WIDTH = 22

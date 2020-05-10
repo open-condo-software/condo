@@ -1,6 +1,6 @@
 const { ArgumentError } = require('ow')
 const ow = require('ow')
-const _ = require('lodash');
+const _ = require('lodash')
 
 const GQL_LIST_SCHEMA_TYPE = 'GQLListSchema'
 const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
@@ -19,11 +19,11 @@ const registerSchemas = (keystone, modulesList) => {
 class GQLListSchema {
     constructor (name, schema) {
         ow(schema, ow.object.partialShape({
-            fields: ow.object.valuesOfType(ow.any(ow.object.hasKeys('type'), ow.null)),
+            fields: ow.object.valuesOfType(ow.any(ow.object.hasKeys('type'), ow.null, ow.undefined)),
             access: ow.object.nonEmpty,
         }))
         // remove null fields (may be overridden)
-        schema.fields = _.pickBy(schema.fields, _.identity);
+        schema.fields = _.pickBy(schema.fields, _.identity)
         this.schema = schema
         this.name = name
         this._type = GQL_LIST_SCHEMA_TYPE
@@ -50,14 +50,14 @@ class GQLListSchema {
     }
 
     _override (schema) {
-        function customizer(objValue, newValue) {
-            if (_.isArray(newValue) || _.isArray(objValue)) {
-                return newValue;
-            }
-        }
-
-        const newSchema = _.mergeWith(_.cloneDeep(this.schema), schema, customizer)
-        return new GQLListSchema(this.name, newSchema)
+        const fields = { ...this.schema.fields, ...(schema.fields || {}) }
+        const access = { ...this.schema.access, ...(schema.access || {}) }
+        return new GQLListSchema(this.name, {
+            ...this.schema,
+            ...schema,
+            fields,
+            access,
+        })
     }
 }
 

@@ -1,7 +1,7 @@
 /** @jsx jsx */
-
 import { jsx } from '@emotion/core'
 import { FieldContainer, FieldLabel, FieldInput } from '@arch-ui/fields'
+
 import Stars from './Stars'
 
 const StarsField = ({ field, value, errors, onChange }) => (

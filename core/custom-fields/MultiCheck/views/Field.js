@@ -1,15 +1,15 @@
 /** @jsx jsx */
-
 import { jsx } from '@emotion/core'
 import { useState, useEffect } from 'react'
 import { FieldContainer, FieldDescription } from '@arch-ui/fields'
-import { Checkbox } from './MultiCheck'
 import { ShieldIcon } from '@arch-ui/icons'
 import { Lozenge } from '@arch-ui/lozenge'
 import { colors, gridSize } from '@arch-ui/theme'
 
+import { Checkbox } from './MultiCheck'
+
 const TextField = ({ onChange, autoFocus, field, value, errors }) => {
-    const initialState = value ? value : field.config.defaultValue
+    const initialState = value ? value : field.getDefaultValue()
     const [values, setValues] = useState(initialState)
     useEffect(() => {
         onChange(values)

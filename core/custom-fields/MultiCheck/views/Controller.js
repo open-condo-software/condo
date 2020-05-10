@@ -1,4 +1,5 @@
 import FieldController from '@keystonejs/fields/Controller'
+
 import { parseDefaultValues } from '../util'
 
 class MultiCheckController extends FieldController {
