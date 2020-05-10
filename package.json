@@ -22,7 +22,7 @@
     "build": "keystone build",
     "start": "keystone start",
     "upgrade-relationships": "keystone upgrade-relationships --migration",
-    "create-tables": "node node_modules/.bin/keystone create-tables"
+    "create-tables": "keystone create-tables"
   },
   "dependencies": {
     "@keystonejs/adapter-knex": "^10.0.0",

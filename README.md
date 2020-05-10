@@ -109,14 +109,38 @@ yarn dev
 Keystone Admin UI is reachable via `http://127.0.0.1:3000/admin`.
 
 ## Write Backend
-```bash
-# TODO
 
+### Create new Keystone.js APP
+
+```bash
+# Create Keystone.js new backend
+mkdir apps/_back01keystone
+
+# 1. create package.json, index.js and initial-data.js (check exampe)
+# 2. define your schema by following https://www.keystonejs.com/tutorials/add-lists
+# and use GQLListSchema wrappers for style checking and easy test writing
+
+# Link new package and Install dependencies
+yarn
+
+# create .env file (development mode)
+cat > .env << ENDOFFILE
+DATABASE_URL=mongodb://mongo:mongo@127.0.0.1/main?authSource=admin
+DISABLE_LOGGING=true
+NODE_ENV=development
+ENDOFFILE
+
+# Start dev server on http://localhost:3000
+yarn workspace @app/_back01keystone dev
+
+# Follow the Keystone.js tutorial: https://www.keystonejs.com/tutorials/add-lists
+# You can run `yarn <command>` inside new app workspace by
+# `yarn workspace @app/_back01keystone <command>`
 ```
 
 ## Write Frontend APP
 
-### Create new APP
+### Create new Next.js APP
 
 ```bash
 # Create Next.js new React APP folder

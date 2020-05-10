@@ -10,8 +10,8 @@ const access = require('@core/keystone/access')
 const conf = require('@core/config')
 
 const avatarFileAdapter = new LocalFileAdapter({
-    src: `${conf.MEDIA_ROOT || '__media'}/avatars`,
-    path: `${conf.MEDIA_URL || '/media'}/avatars`,
+    src: `${conf.MEDIA_ROOT}/avatars`,
+    path: `${conf.MEDIA_URL}/avatars`,
 })
 
 const User = new GQLListSchema('User', {

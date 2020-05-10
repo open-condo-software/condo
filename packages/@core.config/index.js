@@ -22,10 +22,13 @@ function getConfig (namespace) {
     namespace = (namespace) ? namespace + '__' : ''
 
     const baseConfigs = {
+        NODE_ENV: process.env[`${namespace}NODE_ENV`] || process.env[`NODE_ENV`] || 'production',
         PROJECT_NAME: process.env[`${namespace}PROJECT_NAME`] || process.env[`PROJECT_NAME`] || 'noname-project',
         SERVER_URL: process.env[`${namespace}SERVER_URL`] || process.env[`SERVER_URL`] || 'http://localhost:3000',
         DATABASE_URL: process.env[`${namespace}DATABASE_URL`] || process.env[`DATABASE_URL`] || undefined,
-        NODE_ENV: process.env[`${namespace}NODE_ENV`] || process.env[`NODE_ENV`] || 'production',
+        // LOCAL MEDIA FILES
+        MEDIA_ROOT: process.env.MEDIA_ROOT || path.join(root, '__media'),
+        MEDIA_URL: process.env.MEDIA_URL || '/media',
     }
 
     const getter = (obj, name) => {
