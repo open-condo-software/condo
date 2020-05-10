@@ -11,5 +11,5 @@ module.exports = {
     INCLUDE_NEXT_APP: process.env.INCLUDE_NEXT_APP,
     SERVER_URL: process.env.SERVER_URL || 'http://localhost:3000',
 
-    USER__RESET_PASSWORD_TOKEN_EXPIRY: process.env.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24,
+    USER__RESET_PASSWORD_TOKEN_EXPIRY: process.env.USER__RESET_PASSWORD_TOKEN_EXPIRY,
 }

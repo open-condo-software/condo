@@ -9,7 +9,9 @@ const { GQLListSchema, GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@core/keystone/access')
 const conf = require('@core/config')
 
-const avatarFileAdapter = new LocalFileAdapter({
+const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
+const SERVER_URL = conf.SERVER_URL
+const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
     src: `${conf.MEDIA_ROOT}/avatars`,
     path: `${conf.MEDIA_URL}/avatars`,
 })
@@ -50,7 +52,7 @@ const User = new GQLListSchema('User', {
                 update: access.userIsAdminOrIsThisItem,
             },
         },
-        avatar: { type: File, adapter: avatarFileAdapter },
+        avatar: { type: File, adapter: AVATAR_FILE_ADAPTER },
         dob: { type: CalendarDay, format: 'Do MMMM YYYY', yearRangeFrom: 1901, yearRangeTo: getYear(new Date()) },
     },
     access: {
@@ -143,9 +145,8 @@ const ForgotPasswordAction = new GQLListSchema('ForgotPasswordAction', {
 
             const { allForgotPasswordActions, User } = data
             const forgotPasswordKey = allForgotPasswordActions[0].token
-            const url = conf.SERVER_URL
             const props = {
-                forgotPasswordUrl: `${url}/change-password?key=${forgotPasswordKey}`,
+                forgotPasswordUrl: `${SERVER_URL}/change-password?key=${forgotPasswordKey}`,
                 recipientEmail: User.email,
             }
 
@@ -170,7 +171,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             access: true,
             resolver: async (_, { email }, context, info, { query }) => {
                 const token = uuid()
-                const tokenExpiration = parseInt(conf.USER__RESET_PASSWORD_TOKEN_EXPIRY)
+                const tokenExpiration = parseInt(RESET_PASSWORD_TOKEN_EXPIRY)
 
                 const now = Date.now()
                 const requestedAt = new Date(now).toISOString()
