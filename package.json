@@ -20,5 +20,9 @@
     "start": "yarn workspace @app/_back02keystone start",
     "upgrade-relationships": "yarn workspace @app/_back02keystone upgrade-relationships",
     "create-tables": "yarn workspace @app/_back02keystone create-tables"
+  },
+  "dependencies": {
+    "@core/config": "^1.0.0",
+    "@core/keystone": "^1.0.0"
   }
 }
