@@ -30,13 +30,15 @@ test('anonymous: try to sign in', async () => {
 
 test('anonymous: get user info', async () => {
     const client = await makeClient()
-    const { data } = await client.query(GET_MY_USERINFO)
+    const { data, errors } = await client.query(GET_MY_USERINFO)
+    expect(errors).toEqual(undefined)
     expect(data).toEqual({ 'user': null })
 })
 
 test('get user info after sign in', async () => {
     const client = await makeLoggedInClient()
-    const { data } = await client.query(GET_MY_USERINFO)
+    const { data, errors } = await client.query(GET_MY_USERINFO)
+    expect(errors).toEqual(undefined)
     expect(data.user).toEqual({ id: client.user.id })
 })
 

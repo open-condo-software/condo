@@ -1,4 +1,5 @@
-const axios = require('axios')
+const axios = require('axios').default
+const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const gql = require('graphql-tag')
 const { Cookie, CookieJar } = require('tough-cookie')
 const { print } = require('graphql/language/printer')
@@ -41,27 +42,20 @@ const CREATE_USER_MUTATION = gql`
 `
 
 const makeClient = async () => {
-    const cookiejar = new CookieJar()
+    // TODO(pahaz): remove axios! need something else ... may be apollo client
+    const cookieJar = new CookieJar()
     const client = axios.create({
         withCredentials: true,
-        headers: { 'Content-Type': 'application/json' },
+        adapter: require('axios/lib/adapters/http'),
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Cache: 'no-cache',
+        },
         validateStatus: (status) => status >= 200 && status < 500,
     })
-
-    client.interceptors.request.use((config) => {
-        cookiejar.getCookies(config.url, (err, cookies) => {
-            config.headers.cookie = cookies.join('; ')
-        })
-        return config
-    })
-    client.interceptors.response.use((response) => {
-        if (Array.isArray(response.headers['set-cookie'])) {
-            response.headers['set-cookie'].forEach((c) => {
-                cookiejar.setCookie(Cookie.parse(c), response.config.url, (err, cookie) => false)
-            })
-        }
-        return response
-    })
+    axiosCookieJarSupport(client)
+    client.defaults.jar = cookieJar
 
     return {
         mutate: async (query, variables = {}) => {
