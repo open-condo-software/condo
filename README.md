@@ -10,8 +10,9 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
 
 **VERSION**: 0.0.1.**ALPHA**
 
- - [x] docs: now-to create frontend app 
- - [x] docs: now-to write backend app
+ - [x] docs: how-to create frontend app 
+ - [x] docs: how-to write backend app
+ - [x] docs: how-to upgrade packages versions
  - [x] example: Ant Design Pro + Next.js
  - [x] example: Internationalization (react-intl)
  - [x] ForgotUserPassword: Schema, API, Tests
@@ -189,6 +190,13 @@ yarn workspace @app/_example01app dev
 ```bash
 # Add new package to APP
 yarn workspace @app/_example01app add antd
+```
+
+### Upgrade packages versions ###
+
+```bash
+# just run the command, and select packages for update (this command will fix the package.json files) 
+yarn upgrade-interactive --latest
 ```
 
 ## Tips
