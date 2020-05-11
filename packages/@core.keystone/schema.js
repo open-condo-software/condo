@@ -1,11 +1,13 @@
-const { ArgumentError } = require('ow')
 const ow = require('ow')
 const _ = require('lodash')
+const Emittery = require('emittery')
 
+const EVENTS = new Emittery()
 const GQL_LIST_SCHEMA_TYPE = 'GQLListSchema'
 const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
 const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
 
+const isNotNullObject = (v) => typeof v === 'object' && v !== null
 const registerSchemas = (keystone, modulesList) => {
     modulesList.forEach(
         (module) => Object.values(module).forEach(
@@ -24,8 +26,8 @@ class GQLListSchema {
         }))
         // remove null fields (may be overridden)
         schema.fields = _.pickBy(schema.fields, _.identity)
-        this.schema = schema
         this.name = name
+        this.schema = schema
         this._type = GQL_LIST_SCHEMA_TYPE
     }
 
@@ -50,14 +52,25 @@ class GQLListSchema {
     }
 
     _override (schema) {
-        const fields = { ...this.schema.fields, ...(schema.fields || {}) }
-        const access = { ...this.schema.access, ...(schema.access || {}) }
-        return new GQLListSchema(this.name, {
-            ...this.schema,
-            ...schema,
-            fields,
-            access,
+        const mergedSchema = { ...this.schema, ...schema }
+        Object.keys(schema).forEach((key) => {
+            if (isNotNullObject(schema[key]) && isNotNullObject(this.schema[key])) {
+                mergedSchema[key] = { ...this.schema[key], ...schema[key] }
+            }
         })
+        return new GQLListSchema(this.name, mergedSchema)
+    }
+
+    on (eventName, listener) {
+        ow(eventName, ow.string)
+        ow(listener, ow.function)
+        return EVENTS.on(`${this.name}:${eventName}`, listener)
+    }
+
+    async emit (eventName, eventData) {
+        ow(eventName, ow.string)
+        ow(eventData, ow.object)
+        return await EVENTS.emit(`${this.name}:${eventName}`, eventData)
     }
 }
 
@@ -67,13 +80,25 @@ class GQLCustomSchema {
             mutations: ow.array.valueOf(
                 ow.object.valuesOfType(ow.object.hasKeys(['access', 'schema', 'resolver']))),
         }))
-        this.schema = schema
         this.name = name
+        this.schema = schema
         this._type = GQL_CUSTOM_SCHEMA_TYPE
     }
 
     _register (keystone) {
         keystone.extendGraphQLSchema(this.schema)
+    }
+
+    on (eventName, listener) {
+        ow(eventName, ow.string)
+        ow(listener, ow.function)
+        return EVENTS.on(`${this.name}:${eventName}`, listener)
+    }
+
+    async emit (eventName, eventData) {
+        ow(eventName, ow.string)
+        ow(eventData, ow.object)
+        return await EVENTS.emit(`${this.name}:${eventName}`, eventData)
     }
 }
 

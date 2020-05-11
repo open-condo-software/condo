@@ -11,6 +11,7 @@
     "axios-cookiejar-support": "^1.0.0",
     "crypto": "^1.0.1",
     "date-fns": "^2.13.0",
+    "emittery": "^0.7.0",
     "express": "^4.17.1",
     "faker": "^4.1.0",
     "lodash": "^4.17.15",

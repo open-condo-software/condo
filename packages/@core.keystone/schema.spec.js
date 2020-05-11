@@ -1,3 +1,4 @@
+const { ArgumentError } = require('ow')
 const faker = require('faker')
 const { Text, Checkbox } = require('@keystonejs/fields')
 
@@ -24,6 +25,24 @@ const USER_LIST = new GQLListSchema('User', {
     },
 })
 
+const EVENT_LIST = new GQLListSchema('Event', {
+    fields: {
+        name: {
+            factory: () => faker.fake('{{name.firstName}}'),
+            type: Text,
+            hooks: {
+                validateInput: async (ctx) => {await EVENT_LIST.emit('validateName', ctx)},
+            },
+        },
+    },
+    access: {
+        read: false,
+    },
+    hooks: {
+        validateInput: async (ctx) => {await EVENT_LIST.emit('validate', ctx)},
+    },
+})
+
 test('List.factory(): has fields', () => {
     const obj = USER_LIST._factory()
     expect(Object.keys(obj)).toEqual(['name', 'email', 'isAdmin'])
@@ -46,7 +65,7 @@ test('List.override(): disable isAdmin field', () => {
             email: undefined,
         },
     })
-    expect (Object.keys(newUser.schema.fields)).toEqual(["name"])
+    expect(Object.keys(newUser.schema.fields)).toEqual(['name'])
 })
 
 test('List.override(): set isAdmin defaultValue to true', () => {
@@ -54,11 +73,47 @@ test('List.override(): set isAdmin defaultValue to true', () => {
         fields: {
             isAdmin: {
                 type: Checkbox,
-                defaultValue: true
+                defaultValue: true,
             },
         },
     })
     const obj = newUser._factory()
     expect(Object.keys(obj)).toEqual(['name', 'email', 'isAdmin'])
     expect(obj.isAdmin).toEqual(true)
+})
+
+test('List.override(): override part of field will raise an error', () => {
+    const predicate = () => {
+        // isAdmin field don't have type!
+        USER_LIST._override({
+            fields: {
+                isAdmin: {
+                    defaultValue: true,
+                },
+            },
+        })
+    }
+    expect(predicate).toThrow(ArgumentError)
+    expect(predicate).toThrow('to have keys `["type"]`')
+})
+
+test('List.override(): inherit events', async () => {
+    const baseEventListener = jest.fn()
+    const overrideEventListener = jest.fn()
+    const newEventList = EVENT_LIST._override({
+        fields: {
+            foo: {
+                type: Checkbox,
+                defaultValue: true,
+            },
+        },
+    })
+    EVENT_LIST.on('validate', baseEventListener)
+    newEventList.on('validate', overrideEventListener)
+
+    await EVENT_LIST.schema.hooks.validateInput({ id: 1 })
+    await newEventList.schema.hooks.validateInput({ id: 2 })
+
+    expect(baseEventListener.mock.calls).toEqual([[{ id: 1 }], [{ id: 2 }]])
+    expect(overrideEventListener.mock.calls).toEqual([[{ id: 1 }], [{ id: 2 }]])
 })
