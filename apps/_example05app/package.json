@@ -30,11 +30,11 @@
     "lodash": "^4.17.15",
     "next": "^9.3.5",
     "prop-types": "^15.7.2",
+    "rc-queue-anim": "^1.8.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-intl": "^4.5.1",
     "react-toast-notifications": "^2.4.0",
-    "react-use-form-state": "^0.12.1",
-    "uuid": "^7.0.3"
+    "react-use-form-state": "^0.12.1"
   }
 }
