@@ -143,23 +143,15 @@ const ForgotPasswordAction = new GQLListSchema('ForgotPasswordAction', {
                 return
             }
 
-            const { allForgotPasswordActions, User } = data
-            const forgotPasswordKey = allForgotPasswordActions[0].token
+            const forgotPasswordKey = data.allForgotPasswordActions[0].token
             const props = {
-                forgotPasswordUrl: `${SERVER_URL}/change-password?key=${forgotPasswordKey}`,
-                recipientEmail: User.email,
+                User: data.User,
+                ForgotPasswordAction: data.allForgotPasswordActions[0],
+                forgotPasswordUrl: `${SERVER_URL}/auth/change-password?key=${forgotPasswordKey}`,
             }
 
-            // TODO(pahaz): need some hook for sendMail HERE!
-            // const options = {
-            //     subject: 'Request for password reset',
-            //     to: User.email,
-            //     from: process.env.MAILGUN_FROM,
-            //     domain: process.env.MAILGUN_DOMAIN,
-            //     apiKey: process.env.MAILGUN_API_KEY,
-            // };
-            //
-            // await sendEmail('forgot-password.jsx', props, options);
+            // hook for send mail!
+            await ForgotPasswordAction.emit('action', props)
         },
     },
 })
@@ -233,6 +225,14 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     throw new Error('[error]: Unable to create forgotten password action')
                 }
 
+                // hook for send mail!
+                await ForgotPasswordService.emit('startPasswordRecovery', {
+                    User: userData.allUsers[0],
+                    token,
+                    requestedAt,
+                    expiresAt,
+                })
+
                 return 'ok'
             },
         },
@@ -251,6 +251,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                             token
                             user {
                               id
+                              email
                             }
                           }
                         }
@@ -297,6 +298,12 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     `,
                     { variables: { tokenId }, skipAccessControl: true },
                 )
+
+                // hook for send mail!
+                await ForgotPasswordService.emit('passwordChanged', {
+                    User: data.passwordTokens[0].user,
+                    ForgotPasswordAction: data.passwordTokens[0],
+                })
 
                 return 'ok'
             },
