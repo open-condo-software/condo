@@ -1,7 +1,7 @@
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const { User: BaseUser, ForgotPasswordAction, ForgotPasswordService, RegisterService } = require('@core/keystone/schemas/User')
 
-const { Stars, MultiCheck } = require('../core/custom-fields')
+const { Stars, MultiCheck } = require('../custom-fields')
 
 const User = BaseUser._override({
     fields: {

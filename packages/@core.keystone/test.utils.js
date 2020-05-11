@@ -166,8 +166,8 @@ const getSchemaObject = async (schemaList, fields, where) => {
 }
 
 // TODO: remove or use it!
-const upTestServer = async () => {
-    const { distDir, keystone, apps, configureExpress } = require('../index')
+const upTestServer = async (entryPoint) => {
+    const { distDir, keystone, apps, configureExpress } = require(entryPoint)
     const dev = process.env.NODE_ENV !== 'production'
     const { middlewares } = await keystone.prepare({ apps, distDir, dev })
     await keystone.connect()

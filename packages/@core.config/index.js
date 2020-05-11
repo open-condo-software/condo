@@ -16,16 +16,27 @@ if (root === cwd) {
     require('dotenv').config({ path: path.join(cwd, '.env') })
 }
 
+function getEnv (namespace, name, defaultValue) {
+    return preprocessEnv(process.env[`${namespace}${name}`] || process.env[`${name}`] || defaultValue)
+}
+
+function preprocessEnv (v) {
+    if (!v) return v
+    if (v.includes('${ROOT}')) {
+        v = v.replace('${ROOT}', root)
+    }
+    return v
+}
 
 function getConfig (namespace) {
     namespace = (namespace) ? namespace.toUpperCase().replace('_', '') : ''
     namespace = (namespace) ? namespace + '__' : ''
 
     const baseConfigs = {
-        NODE_ENV: process.env[`${namespace}NODE_ENV`] || process.env[`NODE_ENV`] || 'production',
-        PROJECT_NAME: process.env[`${namespace}PROJECT_NAME`] || process.env[`PROJECT_NAME`] || 'noname-project',
-        SERVER_URL: process.env[`${namespace}SERVER_URL`] || process.env[`SERVER_URL`] || 'http://localhost:3000',
-        DATABASE_URL: process.env[`${namespace}DATABASE_URL`] || process.env[`DATABASE_URL`] || undefined,
+        NODE_ENV: getEnv(namespace, 'NODE_ENV', 'production'),
+        PROJECT_NAME: getEnv(namespace, 'PROJECT_NAME', 'noname-project'),
+        SERVER_URL: getEnv(namespace, 'SERVER_URL', 'http://localhost:3000'),
+        DATABASE_URL: getEnv(namespace, 'DATABASE_URL'),
         // LOCAL MEDIA FILES
         MEDIA_ROOT: process.env.MEDIA_ROOT || path.join(root, '__media'),
         MEDIA_URL: process.env.MEDIA_URL || '/media',
@@ -33,7 +44,7 @@ function getConfig (namespace) {
 
     const getter = (obj, name) => {
         if (name in obj) return obj[name]
-        return process.env[`${namespace}${name}`] || process.env[`${name}`] || undefined
+        return getEnv(namespace, name)
     }
 
     const setter = () => {

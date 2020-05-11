@@ -1,4 +1,4 @@
-const { makeClient, gql } = require('../core/test.utils')
+const { makeClient, gql } = require('@core/keystone/test.utils')
 
 const APP_VERSION_QUERY = gql`
     query {

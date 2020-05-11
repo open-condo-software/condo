@@ -1,5 +1,5 @@
-const { createUser } = require('../core/test.utils')
-const { makeClient, makeLoggedInClient, DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET, gql } = require('../core/test.utils')
+const { createUser } = require('@core/keystone/test.utils')
+const { makeClient, makeLoggedInClient, DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET, gql } = require('@core/keystone/test.utils')
 
 const SIGNIN_MUTATION = gql`
     mutation sigin($identity: String, $secret: String) {

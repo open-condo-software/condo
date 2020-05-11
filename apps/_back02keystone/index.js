@@ -8,8 +8,7 @@ const express = require('express')
 const access = require('@core/keystone/access')
 const { getAdapter } = require('@core/keystone/adapter.utils')
 const { registerSchemas } = require('@core/keystone/schema')
-
-const conf = require('./config')
+const conf = require('@core/config')
 
 const keystone = new Keystone({
     name: conf.PROJECT_NAME,
@@ -34,7 +33,7 @@ const keystone = new Keystone({
 
 registerSchemas(keystone, [
     require('./schema/User'),
-    require('./schema/Condominium'),
+    require('./schema/Condo'),
     require('./schema/Todo'),
 ])
 
@@ -73,7 +72,6 @@ const authStrategy = keystone.createAuthStrategy({
 module.exports = {
     configureExpress: (app) => {
     },
-    distDir: conf.DIST_DIR,
     keystone,
     apps: [
         new GraphQLApp(),

@@ -1,7 +1,6 @@
 const faker = require('faker')
-const { createUser } = require('../core/test.utils')
-
-const { makeClient, gql } = require('../core/test.utils')
+const { createUser } = require('@core/keystone/test.utils')
+const { makeClient, gql } = require('@core/keystone/test.utils')
 
 const REGISTER_NEW_USER_MUTATION = gql`
     mutation registerNewUser($name: String!, $email: String!, $password: String!, $captcha: String!) {

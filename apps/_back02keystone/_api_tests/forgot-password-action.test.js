@@ -1,7 +1,8 @@
-const { getSchemaObject } = require('../core/test.utils')
+const { getSchemaObject } = require('@core/keystone/test.utils')
+const { createSchemaObject } = require('@core/keystone/test.utils')
+const { makeLoggedInClient, makeLoggedInAdminClient, makeClient, createUser, gql } = require('@core/keystone/test.utils')
+x
 const { User, ForgotPasswordAction } = require('../schema/User')
-const { createSchemaObject } = require('../core/test.utils')
-const { makeLoggedInClient, makeLoggedInAdminClient, makeClient, createUser, gql } = require('../core/test.utils')
 
 const ALL_FORGOT_PASSWORD_ACTIONS_QUERY = gql`
     query {

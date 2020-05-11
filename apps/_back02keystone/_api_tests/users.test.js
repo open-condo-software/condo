@@ -1,6 +1,7 @@
+const { createSchemaObject } = require('@core/keystone/test.utils')
+const { makeLoggedInClient, makeClient, createUser, gql } = require('@core/keystone/test.utils')
+
 const { User } = require('../schema/User')
-const { createSchemaObject } = require('../core/test.utils')
-const { makeLoggedInClient, makeClient, createUser, gql } = require('../core/test.utils')
 
 const ALL_USERS_QUERY = gql`
     query {

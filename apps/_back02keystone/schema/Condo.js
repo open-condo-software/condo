@@ -2,7 +2,7 @@ const access = require('@core/keystone/access')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Text, CalendarDay, Checkbox, Relationship } = require('@keystonejs/fields')
 
-const Condominium = new GQLListSchema('Condominium', {
+const Condo = new GQLListSchema('Condo', {
     // labelResolver: item => `${item.address}`,
     labelField: 'address',
     fields: {
@@ -30,7 +30,7 @@ const Condominium = new GQLListSchema('Condominium', {
 
 const ChatMessage = new GQLListSchema('ChatMessage', {
     fields: {
-        chat: { type: Relationship, ref: 'Condominium', many: false, isRequired: true },
+        chat: { type: Relationship, ref: 'Condo', many: false, isRequired: true },
         user: { type: Relationship, ref: 'User', many: false, isRequired: true },
         message: { type: Text, isRequired: true },
     },
@@ -50,6 +50,6 @@ const ChatMessage = new GQLListSchema('ChatMessage', {
 })
 
 module.exports = {
-    Condominium,
+    Condo,
     ChatMessage,
 }
