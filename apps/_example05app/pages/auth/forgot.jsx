@@ -9,6 +9,7 @@ import gql from 'graphql-tag'
 import { useMutation } from '@apollo/react-hooks'
 
 import BaseLayout from '../../containers/BaseLayout'
+import qs from 'qs'
 
 const { Title, Paragraph } = Typography
 
@@ -31,8 +32,10 @@ const ForgotForm = () => {
     const [form] = Form.useForm()
     const intl = useIntl()
     const [isLoading, setIsLoading] = useState(false)
-    const [isShowInstructions, setIsShowInstructions] = useState(false)
+    const [isSuccessMessage, setIsSuccessMessage] = useState(false)
     const [startPasswordRecovery, ctx] = useMutation(START_PASSWORD_RECOVERY_MUTATION)
+    let initialValues = (typeof window !== 'undefined' && window.location && window.location.href.includes('?') ? qs.parse(window.location.href.split('?', 2)[1]) : {})
+    initialValues = { ...initialValues, password: '', confirm: '' }
 
     const StartRecoveryMsg = intl.formatMessage({ id: 'StartRecovery' })
     const EmailMsg = intl.formatMessage({ id: 'Email' })
@@ -50,7 +53,7 @@ const ForgotForm = () => {
             .then(
                 (data) => {
                     notification.success({ message: StartedMsg })
-                    setIsShowInstructions(true)
+                    setIsSuccessMessage(true)
                 },
                 (e) => {
                     console.log(e)
@@ -74,7 +77,7 @@ const ForgotForm = () => {
             })
     }
 
-    if (isShowInstructions) {
+    if (isSuccessMessage) {
         return <Result
             status="success"
             title={StartedMsg}
@@ -88,6 +91,7 @@ const ForgotForm = () => {
             form={form}
             name="forgot"
             onFinish={onFinish}
+            initialValues={initialValues}
         >
             <Paragraph css={css`text-align: center;`}>{ForgotPasswordDescriptionMsg}</Paragraph>
             <Form.Item

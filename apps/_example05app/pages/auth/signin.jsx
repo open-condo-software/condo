@@ -8,6 +8,7 @@ import Router from 'next/router'
 import BaseLayout from '../../containers/BaseLayout'
 import { useAuth } from '../../lib/auth'
 import { useIntl } from 'react-intl'
+import qs from 'qs'
 
 const { Title } = Typography
 
@@ -25,6 +26,8 @@ const SignInForm = () => {
     const intl = useIntl()
     const [isLoading, setIsLoading] = useState(false)
     const { signin } = useAuth()
+    let initialValues = (typeof window !== 'undefined' && window.location && window.location.href.includes('?') ? qs.parse(window.location.href.split('?', 2)[1]) : {})
+    initialValues = { ...initialValues, password: '', confirm: '', captcha: 'no' }
 
     const SignInMsg = intl.formatMessage({ id: 'SignIn' })
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
@@ -81,6 +84,7 @@ const SignInForm = () => {
             form={form}
             name="signin"
             onFinish={onFinish}
+            initialValues={initialValues}
         >
             <Form.Item
                 label={EmailMsg}

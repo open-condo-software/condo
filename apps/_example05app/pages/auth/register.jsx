@@ -20,6 +20,7 @@ import Router from 'next/router'
 import BaseLayout from '../../containers/BaseLayout'
 import { useAuth } from '../../lib/auth'
 import { useIntl } from 'react-intl'
+import qs from 'qs'
 
 const { Title } = Typography
 
@@ -33,7 +34,7 @@ const REGISTER_NEW_USER_MUTATION = gql`
     }
 `
 
-const formItemLayout = {
+const layout = {
     labelCol: {
         xs: { span: 24 },
         sm: { span: 10 },
@@ -43,7 +44,7 @@ const formItemLayout = {
         sm: { span: 18 },
     },
 }
-const tailFormItemLayout = {
+const tailLayout = {
     wrapperCol: {
         xs: {
             span: 24,
@@ -61,6 +62,8 @@ const RegisterForm = () => {
     const [isLoading, setIsLoading] = useState(false)
     const { signin } = useAuth()
     const [register, ctx] = useMutation(REGISTER_NEW_USER_MUTATION)
+    let initialValues = (typeof window !== 'undefined' && window.location && window.location.href.includes('?') ? qs.parse(window.location.href.split('?', 2)[1]) : {})
+    initialValues = { ...initialValues, password: '', confirm: '', captcha: 'no' }
 
     const intl = useIntl()
     const SignInMsg = intl.formatMessage({ id: 'SignIn' })
@@ -118,11 +121,11 @@ const RegisterForm = () => {
 
     return (
         <Form
-            {...formItemLayout}
+            {...layout}
             form={form}
             name="register"
             onFinish={onFinish}
-            initialValues={{ captcha: 'todo' }}
+            initialValues={initialValues}
         >
             <Form.Item
                 name="name"
@@ -213,14 +216,14 @@ const RegisterForm = () => {
                 rules={[
                     { validator: (_, value) => value ? Promise.resolve() : Promise.reject(ShouldAcceptAgreementMsg) },
                 ]}
-                {...tailFormItemLayout}
+                {...tailLayout}
             >
                 <Checkbox>
                     {/* TODO(pahaz): agreement link! */}
                     {IHaveReadAndAcceptTheAgreementMsg}<a href="">*</a>.
                 </Checkbox>
             </Form.Item>
-            <Form.Item {...tailFormItemLayout}>
+            <Form.Item {...tailLayout}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {RegisterMsg}
                 </Button>
