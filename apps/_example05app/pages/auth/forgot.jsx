@@ -1,23 +1,125 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Typography } from 'antd'
+import { useState } from 'react'
+import { Button, Form, Input, notification, Typography, Result } from 'antd'
 import Head from 'next/head'
+import Router from 'next/router'
 import { useIntl } from 'react-intl'
+import gql from 'graphql-tag'
+import { useMutation } from '@apollo/react-hooks'
 
 import BaseLayout from '../../containers/BaseLayout'
 
 const { Title, Paragraph } = Typography
 
-const SignInPage = () => {
+const START_PASSWORD_RECOVERY_MUTATION = gql`
+    mutation startPasswordRecovery($email: String!){
+        status: startPasswordRecovery(email: $email)
+    }
+`
+
+const layout = {
+    labelCol: { span: 8 },
+    wrapperCol: { span: 16 },
+}
+
+const tailLayout = {
+    wrapperCol: { offset: 8, span: 16 },
+}
+
+const ForgotForm = () => {
+    const [form] = Form.useForm()
+    const intl = useIntl()
+    const [isLoading, setIsLoading] = useState(false)
+    const [isShowInstructions, setIsShowInstructions] = useState(false)
+    const [startPasswordRecovery, ctx] = useMutation(START_PASSWORD_RECOVERY_MUTATION)
+
+    const StartRecoveryMsg = intl.formatMessage({ id: 'StartRecovery' })
+    const EmailMsg = intl.formatMessage({ id: 'Email' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const StartedMsg = intl.formatMessage({ id: 'Started' })
+    const RegisterMsg = intl.formatMessage({ id: 'Register' })
+    const PleaseInputYourEmailMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
+    const EmailIsNotRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotRegistered' })
+    const ForgotPasswordDescriptionMsg = intl.formatMessage({ id: 'pages.auth.ForgotPasswordDescription' })
+    const ForgotPasswordStartedDescriptionMsg = intl.formatMessage({ id: 'pages.auth.ForgotPasswordStartedDescription' })
+
+    const onFinish = values => {
+        setIsLoading(true)
+        startPasswordRecovery({ variables: values })
+            .then(
+                (data) => {
+                    notification.success({ message: StartedMsg })
+                    setIsShowInstructions(true)
+                },
+                (e) => {
+                    console.log(e)
+                    const errors = []
+                    notification.error({
+                        message: ServerErrorMsg,
+                        description: e.message,
+                    })
+                    if (e.message.includes('[unknown-user]')) {
+                        errors.push({
+                            name: 'email',
+                            errors: [EmailIsNotRegisteredMsg],
+                        })
+                    }
+                    if (errors.length) {
+                        form.setFields(errors)
+                    }
+                })
+            .finally(() => {
+                setIsLoading(false)
+            })
+    }
+
+    if (isShowInstructions) {
+        return <Result
+            status="success"
+            title={StartedMsg}
+            subTitle={ForgotPasswordStartedDescriptionMsg}
+        />
+    }
+
+    return (
+        <Form
+            {...layout}
+            form={form}
+            name="forgot"
+            onFinish={onFinish}
+        >
+            <Paragraph css={css`text-align: center;`}>{ForgotPasswordDescriptionMsg}</Paragraph>
+            <Form.Item
+                label={EmailMsg}
+                name="email"
+                rules={[{ required: true, message: PleaseInputYourEmailMsg }]}
+                placeholder="name@example.com"
+            >
+                <Input/>
+            </Form.Item>
+
+            <Form.Item {...tailLayout}>
+                <Button type="primary" htmlType="submit" loading={isLoading}>
+                    {StartRecoveryMsg}
+                </Button>
+                <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/register')}>
+                    {RegisterMsg}
+                </Button>
+            </Form.Item>
+        </Form>
+    )
+}
+
+const ForgotPage = () => {
     const intl = useIntl()
     const ForgotPasswordTitleMsg = intl.formatMessage({ id: 'pages.auth.ForgotPasswordTitle' })
-    const IsNotImplementedYetMsg = intl.formatMessage({ id: 'pages.auth.IsNotImplementedYet' })
     return (<>
         <Head>
             <title>{ForgotPasswordTitleMsg}</title>
         </Head>
         <Title css={css`text-align: center;`} level={2}>{ForgotPasswordTitleMsg}</Title>
-        <Paragraph css={css`text-align: center;`}>{IsNotImplementedYetMsg}</Paragraph>
+        <ForgotForm/>
     </>)
 }
 
@@ -31,6 +133,6 @@ function CustomContainer (props) {
     />)
 }
 
-SignInPage.container = CustomContainer
+ForgotPage.container = CustomContainer
 
-export default SignInPage
+export default ForgotPage
