@@ -269,16 +269,20 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     throw new Error(msg)
                 }
 
+                const user = data.passwordTokens[0].user.id
+                const tokenId = data.passwordTokens[0].id
+
                 // mark token as used
                 const { errors: markAsUsedError } = await query(
                     `
                         mutation markTokenAsUsed($tokenId: ID!, $now: DateTime!) {
                           updateForgotPasswordAction(id: $tokenId, data: {usedAt: $now}) {
                             id
+                            usedAt
                           }
-                        }                    
+                        }           
                     `,
-                    { variables: { tokenId, usedAt: now }, skipAccessControl: true },
+                    { variables: { tokenId, now }, skipAccessControl: true },
                 )
 
                 if (markAsUsedError) {
@@ -288,9 +292,6 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 }
 
                 // change password
-                const user = data.passwordTokens[0].user.id
-                const tokenId = data.passwordTokens[0].id
-
                 const { errors: passwordError } = await query(
                     `
                         mutation UpdateUserPassword($user: ID!, $password: String!) {
