@@ -18,16 +18,19 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] ForgotUserPassword: Schema, API, Tests
  - [x] ForgotUserPassword: Page (example)
  - [x] ForgotUserPassword: Email notification hook
+ - [ ] ForgotUserPassword: Options captcha support
  - [x] ChangePassword: Schema, API, Tests
- - [ ] ChangePassword: Page (example)
+ - [x] ChangePassword: Page (example)
  - [x] Auth: Schema, API, Test
  - [x] Auth: Page (example)
+ - [ ] Auth: Options captcha support
  - [x] User: Schema, API, Tests
  - [x] User: reusable customization (like django.auth.user)
  - [x] Register: Schema, API, Test
  - [x] Register: Page (example)
  - [ ] Register: Email verification
  - [ ] Register: Extensibility (like django-registrations)
+ - [ ] Register: Options captcha support
  - [ ] docs: project structure
  - [ ] docs: Deploy
  - [ ] CI: Deploy

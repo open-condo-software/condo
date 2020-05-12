@@ -229,7 +229,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 await ForgotPasswordService.emit('afterStartPasswordRecovery', {
                     User,
                     ForgotPasswordAction,
-                    forgotPasswordUrl: `${SERVER_URL}/auth/change-password?key=${ForgotPasswordAction.token}`,
+                    forgotPasswordUrl: `${SERVER_URL}/auth/change-password?token=${ForgotPasswordAction.token}`,
                 })
 
                 return 'ok'

@@ -15,6 +15,10 @@
   "ServerError": "Server error",
   "StartRecovery": "Start recovery",
   "Started": "Started",
+  "Change": "Change",
+  "Changed": "Changed",
+  "GoToLogin": "GoToLogin",
+  "GoToSignIn": "GoToSignIn",
   "pages.auth.LoggedIn": "Logged in",
   "pages.auth.EmailIsNoFound": "Email is not found",
   "pages.auth.WrongPassword": "Wrong password",
@@ -38,5 +42,7 @@
   "pages.auth.ForgotPasswordDescription": "You can change your password for security reasons or reset it if you forget it. You will get an email with the steps to recover your account password",
   "pages.auth.ForgotPasswordStartedDescription": "You successfully started the recovery process. Usually, it takes some time to deliver recovery instructions email. If you don’t get an email: check your Spam folder",
   "pages.auth.ChangePasswordTitle": "Change password",
+  "pages.auth.PasswordWasChanged": "The password was changed",
+  "pages.auth.PasswordWasChangedDescription": "You can use you new password to sign in",
   "logout": "Logout"
 }
