@@ -100,6 +100,7 @@ const ForgotPasswordAction = new GQLListSchema('ForgotPasswordAction', {
         },
         usedAt: {
             type: DateTime,
+            defaultValue: null,
         },
     },
     access: {
@@ -127,13 +128,13 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const token = uuid()
                 const tokenExpiration = parseInt(RESET_PASSWORD_TOKEN_EXPIRY)
 
-                const now = Date.now()
-                const requestedAt = new Date(now).toISOString()
-                const expiresAt = new Date(now + tokenExpiration).toISOString()
+                const nowTimestamp = Date.now()
+                const requestedAt = new Date(nowTimestamp).toISOString()
+                const expiresAt = new Date(nowTimestamp + tokenExpiration).toISOString()
 
                 // before hook
                 await ForgotPasswordService.emit('beforeStartPasswordRecovery', {
-                    now, email, requestedAt, expiresAt, token,
+                    email, requestedAt, expiresAt, token,
                 })
 
                 const { errors: userErrors, data: userData } = await query(
@@ -178,7 +179,6 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                             token: $token,
                             requestedAt: $requestedAt,
                             expiresAt: $expiresAt,
-                            usedAt: null,
                           }) {
                             id
                             token
@@ -214,7 +214,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                       }
                     }
                 `,
-                    { skipAccessControl: true, variables: { user: userId, now } },
+                    { skipAccessControl: true, variables: { user: userId, now: requestedAt } },
                 )
 
                 if (userAndTokenErrors) {
