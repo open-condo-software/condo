@@ -207,16 +207,16 @@ yarn upgrade-interactive --latest
 ### TESTS_FAKE_CLIENT_MODE ###
 
 `@core/keystone/test.utils` can work in two modes:
- 1. create real client and make a requests by HTTP to remote server
- 2. create fake client and express app and make a inner express requests by `supertest` lib 
+ 1. Real client mode. Allow to send HTTP/1.1 requests to remote server
+ 2. Fake client mode. Allow to use fake express requests by `supertest` lib 
 
-The first mode is better for end-to-end tests. You can also use it for test your production.
+The Real mode is better for end-to-end testing. You can also use it for test your production.
 
-The second mode is better for debugging. Because it uses one process for whole request/response process.
-If you want to use TDD like development process and to easy debug end-to-end process.
+The Fake mode is better for debugging. Because it uses one process for whole request/response process.
+It's better for TDD like development process and to easy debug end-to-end request/response process.
 
-You can use `TESTS_FAKE_CLIENT_MODE` to change test mode. This options setup express app and client in one process.
-This allows you to put debugger breakpoints in any part of the request processing process. 
+You can use `TESTS_FAKE_CLIENT_MODE` to change test mode. This options setup express app and fake client in one process.
+This allows you to put debugger breakpoints in any part of the request/response process. 
 And use IDE integrations for easy debugging.
 
 ## Tips
