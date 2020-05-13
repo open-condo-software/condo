@@ -158,7 +158,7 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
             const isOnServerSide = typeof window === 'undefined'
             const inAppContext = Boolean(ctx.ctx)
 
-            if (ctx.router.route === '/_error') {
+            if (ctx.router.route === '/_error' && !ctx.router.asPath.startsWith('/404')) {
                 // prevent infinity loop: https://github.com/zeit/next.js/issues/6973
                 console.dir(ctx.router)
                 if (inAppContext && ctx.ctx.err) {

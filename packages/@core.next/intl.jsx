@@ -88,7 +88,7 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
             const inAppContext = Boolean(ctx.ctx)
             const req = (inAppContext) ? ctx.ctx.req : ctx.req
 
-            if (ctx.router.route === '/_error') {
+            if (ctx.router.route === '/_error' && !ctx.router.asPath.startsWith('/404')) {
                 // prevent infinity loop: https://github.com/zeit/next.js/issues/6973
                 console.dir(ctx.router)
                 if (inAppContext && ctx.ctx.err) {
