@@ -77,6 +77,15 @@ const prepareKeystoneExpressApp = async (entryPoint) => {
     return { keystone, app }
 }
 
+const prepareNextExpressApp = async (dir) => {
+    const next = require('next')
+    const dev = process.env.NODE_ENV !== 'production'
+    const nextApp = next({ dir, dev })
+    await nextApp.prepare()
+    const app = nextApp.getRequestHandler()
+    return { app }
+}
+
 const makeFakeClient = async (app) => {
     const request = require('supertest')
     const client = request(app)
@@ -262,6 +271,7 @@ const areWeRunningTests = () => {
 module.exports = {
     areWeRunningTests,
     prepareKeystoneExpressApp,
+    prepareNextExpressApp,
     setFakeClientMode,
     makeClient,
     makeLoggedInClient,
