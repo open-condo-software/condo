@@ -3,9 +3,8 @@ import { css, jsx } from '@emotion/core'
 import { Avatar, Dropdown, Menu, Spin } from 'antd'
 import { LogoutOutlined } from '@ant-design/icons'
 import Router from 'next/router'
-
-import { useAuth } from '../../../lib/auth'
-import { useIntl } from 'react-intl'
+import { useAuth } from '@core/next/auth'
+import { useIntl } from '@core/next/intl'
 
 const headerRightWrapper = css`
   float: right;

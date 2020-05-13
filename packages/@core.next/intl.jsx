@@ -1,22 +1,26 @@
-import { IntlProvider } from 'react-intl'
+import { IntlProvider, useIntl } from 'react-intl'
 import React from 'react'
 import App from 'next/app'
+import cookie from 'js-cookie'
+import nextCookie from 'next-cookies'
 
 const LocaleContext = React.createContext({
     locale: 'en',
     setLocale: () => null,
 })
 
-const getMessages = async (locale) => {
+let messagesImporter = (locale) => import(`./${locale}.json`)
+
+let getMessages = async (locale) => {
     try {
-        return require(`../lang/${locale}.json`)
+        return messagesImporter(locale)
     } catch (error) {
         console.error(error)
-        return require(`../lang/en.json`)
+        return import(`./lang/en.json`)
     }
 }
 
-const getLocale = (defaultLocale) => {
+let getLocale = (defaultLocale) => {
     let locale = null
     if (typeof window !== 'undefined') {
         if (localStorage) {
@@ -30,10 +34,13 @@ const getLocale = (defaultLocale) => {
 }
 
 function Intl (props) {
-    const [locale, setLocale] = React.useState(getLocale(props.locale))
-    const [messages, setMessages] = React.useState(props.messages || {})
+    const [locale, setLocale] = React.useState(props.locale)
+    const [messages, setMessages] = React.useState(props.messages)
     React.useEffect(() => {
-        getMessages(locale).then(messages => setMessages(messages))
+        getMessages(locale).then(messages => {
+            setMessages(messages)
+            cookie.set('locale', locale, { expires: 365 })
+        })
     }, [locale])
 
     return (
@@ -47,16 +54,24 @@ function Intl (props) {
 
 function extractReqLocale (req) {
     try {
-        return req.headers['accept-language'].slice(0, 2)
+        const cookieLocale = nextCookie({ req }).locale
+        const headersLocale = req.headers['accept-language'].slice(0, 2)
+        return cookieLocale || headersLocale
     } catch (e) {
         return null
     }
 }
 
-export const withIntl = ({ ssr = false } = {}) => PageComponent => {
+const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
+    const defaultLocale = opts.defaultLocale ? opts.defaultLocale : 'en'
+    // TODO(pahaz): refactor it. No need to patch globals here!
+    messagesImporter = opts.messagesImporter ? opts.messagesImporter : messagesImporter
+    getMessages = opts.getMessages ? opts.getMessages : getMessages
+    getLocale = opts.getLocale ? opts.getLocale : getLocale
+
     const WithIntl = ({ locale, messages, ...pageProps }) => {
         return (
-            <Intl locale={locale} messages={messages}>
+            <Intl locale={locale || defaultLocale} messages={messages || {}}>
                 <PageComponent {...pageProps} />
             </Intl>
         )
@@ -83,7 +98,7 @@ export const withIntl = ({ ssr = false } = {}) => PageComponent => {
                 }
             }
 
-            const locale = getLocale((req) ? extractReqLocale(req) : 'en')
+            const locale = getLocale((req) ? extractReqLocale(req) : defaultLocale)
             const messages = await getMessages(locale)
 
             // Run wrapped getInitialProps methods
@@ -103,4 +118,9 @@ export const withIntl = ({ ssr = false } = {}) => PageComponent => {
     }
 
     return WithIntl
+}
+
+export {
+    withIntl,
+    useIntl,
 }

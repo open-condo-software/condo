@@ -1,18 +1,30 @@
 import React from 'react'
 import App from 'next/app'
 import Head from 'next/head'
-import { ApolloProvider } from '@apollo/react-hooks'
+import {
+    ApolloProvider,
+    useApolloClient,
+    useMutation,
+    useQuery,
+    useSubscription,
+    useLazyQuery,
+} from '@apollo/react-hooks'
 import fetch from 'isomorphic-unfetch'
 import getConfig from 'next/config'
 import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { createUploadLink } from 'apollo-upload-client'
 
-function createApolloClient (initialState, ctx) {
+let getApolloClientConfig = () => {
     const {
-        publicRuntimeConfig: { serverUrl },
+        publicRuntimeConfig: { serverUrl, apolloGraphQLUrl },
     } = getConfig()
-    const uri = `${serverUrl}/admin/api`
+    if (!serverUrl || !apolloGraphQLUrl) throw new Error('You should set next.js publicRuntimeConfig { serverUrl, apolloGraphQLUrl } variables. Check your next.config.js')
+    return { serverUrl, apolloGraphQLUrl }
+}
+
+let createApolloClient = (initialState, ctx) => {
+    const { serverUrl, apolloGraphQLUrl } = getApolloClientConfig()
     const isOnClientSide = typeof window !== 'undefined'
 
     if (isOnClientSide) {
@@ -28,7 +40,7 @@ function createApolloClient (initialState, ctx) {
         // connectToDevTools: !Boolean(ctx),
         ssrMode: Boolean(ctx),
         link: createUploadLink({
-            uri: uri, // Server URL (must be absolute)
+            uri: apolloGraphQLUrl, // Server URL (must be absolute)
             credentials: 'same-origin', // Additional fetch() options like `credentials` or `headers`
             fetch: (isOnClientSide && window.fetch) ? window.fetch : fetch,
             headers: (ctx && ctx.req) ? ctx.req.headers : undefined,  // allow to use client cookies on server side requests
@@ -47,7 +59,7 @@ let globalApolloClient = null
  * inside getStaticProps, getStaticPaths or getServerSideProps
  * @param {NextPageContext | NextAppContext} ctx
  */
-const initOnContext = ctx => {
+const initOnContext = (ctx, opts) => {
     const inAppContext = Boolean(ctx.ctx)
 
     // We consider installing `withApollo({ ssr: true })` on global App level
@@ -64,7 +76,7 @@ const initOnContext = ctx => {
     // Initialize ApolloClient if not already done
     const apolloClient =
         ctx.apolloClient ||
-        initApolloClient(ctx.apolloState || {}, inAppContext ? ctx.ctx : ctx)
+        initApolloClient(ctx.apolloState || {}, inAppContext ? ctx.ctx : ctx, opts)
 
     // We send the Apollo Client as a prop to the component to avoid calling initApollo() twice in the server.
     // Otherwise, the component would have to call initApollo() again but this
@@ -112,7 +124,11 @@ const initApolloClient = (initialState, ctx) => {
  * @param  {Boolean} [withApolloOptions.ssr=false]
  * @returns {(PageComponent: ReactNode) => ReactNode}
  */
-export const withApollo = ({ ssr = false } = {}) => PageComponent => {
+const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
+    // TODO(pahaz): refactor it. No need to patch globals here!
+    getApolloClientConfig = opts.getApolloClientConfig ? opts.getApolloClientConfig : getApolloClientConfig
+    createApolloClient = opts.createApolloClient ? opts.createApolloClient : createApolloClient
+
     const WithApollo = ({ apolloClient, apolloState, ...pageProps }) => {
         let client
         if (apolloClient) {
@@ -217,4 +233,9 @@ export const withApollo = ({ ssr = false } = {}) => PageComponent => {
     }
 
     return WithApollo
+}
+
+export {
+    withApollo,
+    useApolloClient, useMutation, useQuery, useSubscription, useLazyQuery,
 }

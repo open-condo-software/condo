@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react'
-import { useQuery, useMutation, useApolloClient } from '@apollo/react-hooks'
+import { useQuery, useMutation, useApolloClient } from './apollo'
 import gql from 'graphql-tag'
 import App from 'next/app'
 
@@ -9,7 +9,7 @@ import App from 'next/app'
  * This is the base react context instance. It should not be used
  * directly but is exported here to simplify testing.
  */
-export const AuthContext = createContext({
+const AuthContext = createContext({
     isAuthenticated: false,
     isLoading: true,
     signin: () => {throw new Error('no Auth.signin')},
@@ -22,7 +22,7 @@ export const AuthContext = createContext({
  * -------
  * A hook which provides access to the AuthContext
  */
-export const useAuth = () => useContext(AuthContext)
+const useAuth = () => useContext(AuthContext)
 
 const userFragment = `
   id
@@ -33,7 +33,7 @@ const userFragment = `
   isAdmin
 `
 
-const USER_QUERY = gql`
+let USER_QUERY = gql`
     query {
         authenticatedUser {
             ${userFragment}
@@ -41,7 +41,7 @@ const USER_QUERY = gql`
     }
 `
 
-const SIGNIN_MUTATION = gql`
+let SIGNIN_MUTATION = gql`
     mutation signin($email: String, $password: String) {
         authenticateUserWithPassword(email: $email, password: $password) {
             item {
@@ -51,7 +51,7 @@ const SIGNIN_MUTATION = gql`
     }
 `
 
-const SIGNOUT_MUTATION = gql`
+let SIGNOUT_MUTATION = gql`
     mutation {
         unauthenticateUser {
             success
@@ -126,7 +126,12 @@ const AuthProvider = ({ children, initialUserValue }) => {
     )
 }
 
-export const withAuth = ({ ssr = false } = {}) => PageComponent => {
+const withAuth = ({ ssr = false, ...opts } = {}) => PageComponent => {
+    // TODO(pahaz): refactor it. No need to patch globals here!
+    USER_QUERY = opts.USER_QUERY ? opts.USER_QUERY : USER_QUERY
+    SIGNIN_MUTATION = opts.SIGNIN_MUTATION ? opts.SIGNIN_MUTATION : SIGNIN_MUTATION
+    SIGNOUT_MUTATION = opts.SIGNOUT_MUTATION ? opts.SIGNOUT_MUTATION : SIGNOUT_MUTATION
+
     const WithAuth = ({ user, ...pageProps }) => {
         return (
             <AuthProvider initialUserValue={user}>
@@ -168,15 +173,7 @@ export const withAuth = ({ ssr = false } = {}) => PageComponent => {
             if (isOnServerSide) {
                 try {
                     const data = await ctx.apolloClient.query({
-                        query: gql`
-                            query {
-                                authenticatedUser {
-                                    id
-                                    name
-                                    isAdmin
-                                }
-                            }
-                        `,
+                        query: USER_QUERY,
                         fetchPolicy: 'network-only',
                     })
                     user = data.data ? data.data.authenticatedUser : undefined
@@ -196,4 +193,9 @@ export const withAuth = ({ ssr = false } = {}) => PageComponent => {
     }
 
     return WithAuth
+}
+
+export {
+    withAuth,
+    useAuth,
 }
