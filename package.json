@@ -13,13 +13,9 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "yarn workspace @app/_back02keystone test",
-    "dev": "yarn workspace @app/_back02keystone dev",
-    "debug": "yarn workspace @app/_back02keystone debug",
-    "build": "yarn workspace @app/_back02keystone build",
-    "start": "yarn workspace @app/_back02keystone start",
-    "upgrade-relationships": "yarn workspace @app/_back02keystone upgrade-relationships",
-    "create-tables": "yarn workspace @app/_back02keystone create-tables"
+    "test": "jest",
+    "dev": "node multi-server.js",
+    "start": "node multi-server.js"
   },
   "dependencies": {
     "@core/config": "^1.0.0",

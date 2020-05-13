@@ -43,9 +43,11 @@ const CREATE_USER_MUTATION = gql`
 `
 
 let __expressApp = null
+let __isAwaiting = false
 
 function setFakeClientMode (path) {
     if (__expressApp !== null) return
+    if (__isAwaiting) return
     const module = require(path)
     let mode = null
     if (module.hasOwnProperty('URL_PREFIX') && module.hasOwnProperty('prepareBackApp')) {
@@ -62,8 +64,9 @@ function setFakeClientMode (path) {
             done()
         }, 10000)
     }
-    jest.setTimeout(10000)
     if (!mode) throw new Error('setFakeServerOption(path) unknown module type')
+    jest.setTimeout(10000)
+    __isAwaiting = true
 }
 
 const prepareKeystoneExpressApp = async (entryPoint) => {
