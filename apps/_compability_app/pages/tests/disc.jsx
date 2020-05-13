@@ -7,20 +7,12 @@ import {
     List,
     Button,
     Divider,
-} from 'antd';
+} from 'antd'
 
-import { useIntl } from '../../lib/intl'
 import { AuthLayout, BaseLayout } from '../../containers'
 import Translate from '../../components/Translate'
 
-function prepareTestData () {
-    return import("../../lang/ru.json").then(data => {
-        return data.default.tests.disc
-    })
-}
-
 function DiscTest () {
-    const intl = useIntl();
     const [form] = Form.useForm()
     const [disc_data, setDiscData] = React.useState([])
     const [isLoading, setIsLoading] = React.useState(false)
@@ -34,7 +26,7 @@ function DiscTest () {
     prepareTestData().then(data => setDiscData(data))
 
     if (!disc_data.length) {
-        return <>"...Loading"</>;
+        return <Translate id={"tests.DataFetching"}/>;
     }
 
     return (
@@ -58,7 +50,6 @@ function DiscTest () {
                         <List.Item key={question_index}>
                             <Row gutter={8}>
                                 <Col span={24}>
-
                                     <Form.Item
                                         name={`disc_${question_index}`}
                                         label={<Translate id={`tests.disc.${question_index}.title`}/>}
@@ -90,6 +81,10 @@ function DiscTest () {
     )
 }
 
+function prepareTestData () {
+    return import("../../lang/ru.json").then(data => data.default.tests.disc)
+}
+
 function CustomContainer (props) {
     return (
         <AuthLayout>
@@ -97,7 +92,7 @@ function CustomContainer (props) {
                 {...props}
                 logo="topMenu"
                 sideMenuStyle={{ display: 'none' }}
-                mainContentWrapperStyle={{ maxWidth: '1024px', minWidth: '490px', paddingTop: '50px', margin: '0 auto' }}
+                mainContentWrapperStyle={{ maxWidth: '1024px', minWidth: '490px', paddingTop: '20px', margin: '0 auto' }}
                 mainContentBreadcrumbStyle={{ display: 'none' }}
             />
         </AuthLayout>

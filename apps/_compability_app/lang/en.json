@@ -15,6 +15,8 @@
   "ServerError": "Server error",
   "StartRecovery": "Start recovery",
   "Started": "Started",
+  "Loading": "Loading...",
+  "PageUnavailable": "You are not authorized",
   "Change": "Change",
   "Changed": "Changed",
   "GoToLogin": "GoToLogin",

@@ -1,4 +1,5 @@
 import { AuthContext } from '../../lib/auth'
+import Translate from '../../components/Translate'
 
 export function AuthLayout({ children }) {
     return (
@@ -6,11 +7,11 @@ export function AuthLayout({ children }) {
             {
                 ({isAuthenticated, isLoading}) => {
                     if (isLoading) {
-                        return "Загрузка..."
+                        return <Translate id={"Loading"}/>
                     }
 
                     if (!isAuthenticated) {
-                        return "Страница доступна только авторизованному пользователю"
+                        return <Translate id={"PageUnavailable"}/>
                     }
 
                     return children
