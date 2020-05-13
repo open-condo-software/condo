@@ -11,6 +11,7 @@ import {
 
 import { useIntl } from '../../lib/intl'
 import { AuthLayout, BaseLayout } from '../../containers'
+import Translate from '../../components/Translate'
 
 function prepareTestData () {
     return import("../../lang/ru.json").then(data => {
@@ -60,7 +61,7 @@ function DiscTest () {
 
                                     <Form.Item
                                         name={`disc_${question_index}`}
-                                        label={intl.formatMessage({ id: `tests.disc.${question_index}.title` })}
+                                        label={<Translate id={`tests.disc.${question_index}.title`}/>}
                                         rules={[{ required: true }]}
                                     >
                                         <Radio.Group>
@@ -74,7 +75,7 @@ function DiscTest () {
                                                     value={option_index}
                                                     key={`${question_index + option_index}`}
                                                 >
-                                                    {intl.formatMessage({ id: `tests.disc.${question_index}.options.${option_index}` })}
+                                                    {<Translate id={`tests.disc.${question_index}.options.${option_index}`}/>}
                                                 </Radio>
                                             ))}
                                         </Radio.Group>

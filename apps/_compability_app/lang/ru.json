@@ -44,6 +44,12 @@
   "pages.auth.ChangePasswordTitle": "Изменение пароля",
   "pages.auth.PasswordWasChanged": "Пароль изменен!",
   "pages.auth.PasswordWasChangedDescription": "Вы уже можете использовать свой новый пароль для входа",
+  "pages": {
+    "index": {
+      "title": "Добро пожаловать!",
+      "apply_test": "Пройти тест DISC"
+    }
+  },
   "logout": "Выйти",
   "tests": {
     "disc": [

@@ -7,7 +7,7 @@ import MenuHeader from './components/MenuHeader'
 
 const { Header, Content } = Layout
 const layoutCss = css`
-    height: 100%;
+    min-height: 100vh;
 `
 
 const topMenuWrapperCss = css`
@@ -24,9 +24,10 @@ const topMenuCss = css`
 `
 
 const mainContentCss = css`
+    display:flex;
     margin: 16px;
     padding: 24px;
-    min-height: 280px;
+    height: 100%;
     background: white;
     border-radius: 2px;
 `
