@@ -1,5 +1,7 @@
-const { createSchemaObject } = require('@core/keystone/test.utils')
+const { createSchemaObject, setFakeClientMode } = require('@core/keystone/test.utils')
 const { makeLoggedInClient, makeClient, createUser, gql } = require('@core/keystone/test.utils')
+const conf = require('@core/config')
+if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 const { User } = require('../schema/User')
 

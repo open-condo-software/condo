@@ -1,4 +1,6 @@
-const { makeClient, gql } = require('@core/keystone/test.utils')
+const { makeClient, gql, setFakeClientMode } = require('@core/keystone/test.utils')
+const conf = require('@core/config')
+if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 const APP_VERSION_QUERY = gql`
     query {

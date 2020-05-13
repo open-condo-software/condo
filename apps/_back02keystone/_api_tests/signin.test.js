@@ -1,5 +1,7 @@
-const { createUser } = require('@core/keystone/test.utils')
+const { createUser, setFakeClientMode } = require('@core/keystone/test.utils')
 const { makeClient, makeLoggedInClient, DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET, gql } = require('@core/keystone/test.utils')
+const conf = require('@core/config')
+if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 const SIGNIN_MUTATION = gql`
     mutation sigin($identity: String, $secret: String) {

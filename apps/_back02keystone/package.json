@@ -1,6 +1,9 @@
 {
   "name": "@app/_back02keystone",
   "version": "1.0.0",
+  "jest": {
+    "testEnvironment": "node"
+  },
   "scripts": {
     "test": "jest",
     "dev": "keystone dev",

@@ -6,8 +6,8 @@ import Head from 'next/head'
 import Router from 'next/router'
 
 import BaseLayout from '../../containers/BaseLayout'
-import { useAuth } from '../../lib/auth'
-import { useIntl } from 'react-intl'
+import { useAuth } from '@core/next/auth'
+import { useIntl } from '@core/next/intl'
 import { getQueryParams } from '../../utils/url.utils'
 
 const { Title } = Typography

@@ -9,7 +9,8 @@ const { GQL_LIST_SCHEMA_TYPE } = require('@core/keystone/schema')
 
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
 
-const URL = 'http://127.0.0.1:3000/admin/api'
+const API_PATH = '/admin/api'
+const URL = `http://127.0.0.1:3000${API_PATH}`
 const DEFAULT_TEST_USER_IDENTITY = 'user@example.com'
 const DEFAULT_TEST_USER_SECRET = '1a92b3a07c78'
 const DEFAULT_TEST_ADMIN_IDENTITY = 'admin@example.com'
@@ -41,7 +42,95 @@ const CREATE_USER_MUTATION = gql`
     }
 `
 
-const makeClient = async () => {
+let __expressApp = null
+
+function setFakeClientMode (path) {
+    if (__expressApp !== null) return
+    const module = require(path)
+    let mode = null
+    if (module.hasOwnProperty('URL_PREFIX') && module.hasOwnProperty('prepareBackApp')) {
+        mode = 'multi-server'
+        beforeAll(async (done) => {
+            __expressApp = await module.prepareBackApp()
+            done()
+        }, 10000)
+    } else if (module.hasOwnProperty('keystone') && module.hasOwnProperty('apps')) {
+        mode = 'keystone'
+        beforeAll(async (done) => {
+            const res = await prepareKeystoneExpressApp(path)
+            __expressApp = res.app
+            done()
+        }, 10000)
+    }
+    jest.setTimeout(10000)
+    if (!mode) throw new Error('setFakeServerOption(path) unknown module type')
+}
+
+const prepareKeystoneExpressApp = async (entryPoint) => {
+    const { distDir, keystone, apps, configureExpress } = require(entryPoint)
+    const dev = process.env.NODE_ENV !== 'production'
+    const { middlewares } = await keystone.prepare({ apps, distDir, dev })
+    await keystone.connect()
+    const app = express()
+    configureExpress(app)
+    app.use(middlewares)
+    return { keystone, app }
+}
+
+const makeFakeClient = async (app) => {
+    const request = require('supertest')
+    const client = request(app)
+    let cookies = {}
+
+    function extractCookies (cookies) {
+        return cookies.reduce((shapedCookies, cookieString) => {
+            const [rawCookie, ...flags] = cookieString.split('; ')
+            const [cookieName, value] = rawCookie.split('=')
+            return { ...shapedCookies, [cookieName]: value }
+        }, {})
+    }
+
+    function cookiesToString (cookies) {
+        return Object.entries(cookies).map(([key, value]) => `${key}=${value}`).join(';')
+    }
+
+    return {
+        mutate: async (query, variables = {}) => {
+            if (query.kind !== 'Document') throw new Error('query is not a gql object')
+            return new Promise((resolve, reject) => {
+                client.post(API_PATH).set('Cookie', [cookiesToString(cookies)]).send({
+                    query: print(query),
+                    variables: JSON.stringify(variables),
+                }).end(function (err, res) {
+                    const setCookies = res.headers['set-cookie']
+                    if (setCookies) {
+                        cookies = { ...cookies, ...extractCookies(setCookies) }
+                    }
+                    if (err) return reject(err)
+                    return resolve(res.body)
+                })
+            })
+        },
+        query: async (query, variables = {}) => {
+            if (query.kind !== 'Document') throw new Error('query is not a gql object')
+            return new Promise((resolve, reject) => {
+                client.get(API_PATH).set('Cookie', [cookiesToString(cookies)]).query({
+                    query: print(query),
+                    variables: JSON.stringify(variables),
+                }).end(function (err, res) {
+                    const setCookies = res.headers['set-cookie']
+                    if (setCookies) {
+                        cookies = { ...cookies, ...extractCookies(setCookies) }
+                    }
+                    if (err) return reject(err)
+                    return resolve(res.body)
+                })
+            })
+        },
+    }
+}
+
+const makeRealClient = async () => {
     // TODO(pahaz): remove axios! need something else ... may be apollo client
     const cookieJar = new CookieJar()
     const client = axios.create({
@@ -77,6 +166,13 @@ const makeClient = async () => {
             return response.data
         },
     }
+}
+
+const makeClient = async () => {
+    if (__expressApp) {
+        return await makeFakeClient(__expressApp)
+    }
+    return await makeRealClient()
 }
 
 const makeLoggedInClient = async (args = {}) => {
@@ -159,19 +255,14 @@ const getSchemaObject = async (schemaList, fields, where) => {
     return result.data.obj
 }
 
-// TODO: remove or use it!
-const upTestServer = async (entryPoint) => {
-    const { distDir, keystone, apps, configureExpress } = require(entryPoint)
-    const dev = process.env.NODE_ENV !== 'production'
-    const { middlewares } = await keystone.prepare({ apps, distDir, dev })
-    await keystone.connect()
-    const app = express()
-    configureExpress(app)
-    app.use(middlewares)
-    return { keystone, app }
+const areWeRunningTests = () => {
+    return process.env.JEST_WORKER_ID !== undefined
 }
 
 module.exports = {
+    areWeRunningTests,
+    prepareKeystoneExpressApp,
+    setFakeClientMode,
     makeClient,
     makeLoggedInClient,
     makeLoggedInAdminClient,
