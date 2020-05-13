@@ -13,6 +13,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] docs: how-to create frontend app 
  - [x] docs: how-to write backend app
  - [x] docs: how-to upgrade packages versions
+ - [x] docs: how-to use with postgres
  - [x] example: Ant Design Pro + Next.js
  - [x] example: Internationalization (react-intl)
  - [x] ForgotUserPassword: Schema, API, Tests
@@ -190,12 +191,23 @@ yarn workspace @app/_example01app dev
 # You can also check `apps/_example02app` and others examples
 ```
 
-### Add package to existing APP
+### Add package to existing APP ###
 
 ```bash
 # Add new package to APP
 yarn workspace @app/_example01app add antd
 ```
+
+### How-to use with postgres ###
+
+You need to set `DATABASE_URL` like `postgresql://postgres:postgres@127.0.0.1/main`.
+```bash
+# 1 create tables
+yarn workspace @app/_back02keystone create-tables
+```
+
+And there is no solutions to migrations yes... You can try `knex` migrations and writ about it here.
+
 
 ### Upgrade packages versions ###
 
