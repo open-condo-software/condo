@@ -11,14 +11,14 @@ import {
     AutoComplete,
 } from 'antd'
 import { useState } from 'react'
-import { useMutation } from '@apollo/react-hooks'
+import { useMutation } from '@core/next/apollo'
 import Head from 'next/head'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import gql from 'graphql-tag'
 
 import Router from 'next/router'
 import BaseLayout from '../../containers/BaseLayout'
-import { useAuth } from '../../lib/auth'
+import { useAuth } from '@core/next/auth'
 import { useIntl } from 'react-intl'
 import { getQueryParams } from '../../utils/url.utils'
 

@@ -4,7 +4,7 @@ import { Typography } from 'antd'
 import Head from 'next/head'
 import { useIntl } from 'react-intl'
 
-import { useAuth } from '../lib/auth'
+import { useAuth } from '@core/next/auth'
 import Chat from '../containers/Chat'
 
 function HomePage () {
