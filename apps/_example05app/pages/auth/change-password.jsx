@@ -6,10 +6,10 @@ import Head from 'next/head'
 import Router from 'next/router'
 import { useIntl } from 'react-intl'
 import gql from 'graphql-tag'
-import qs from 'qs'
 import { useMutation } from '@apollo/react-hooks'
 
 import BaseLayout from '../../containers/BaseLayout'
+import { getQueryParams } from '../../lib/url.utils'
 
 const { Title, Paragraph } = Typography
 
@@ -49,7 +49,7 @@ const ChangePasswordForm = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccessMessage, setIsSuccessMessage] = useState(false)
     const [changePassword, ctx] = useMutation(CHANGE_PASSWORD_WITH_TOKEN_MUTATION)
-    let initialValues = (typeof window !== 'undefined' && window.location && window.location.href.includes('?') ? qs.parse(window.location.href.split('?', 2)[1]) : {})
+    let initialValues = getQueryParams()
     initialValues = { ...initialValues, password: '', confirm: '' }
 
     const PasswordMsg = intl.formatMessage({ id: 'Password' })

@@ -20,7 +20,7 @@ import Router from 'next/router'
 import BaseLayout from '../../containers/BaseLayout'
 import { useAuth } from '../../lib/auth'
 import { useIntl } from 'react-intl'
-import qs from 'qs'
+import { getQueryParams } from '../../lib/url.utils'
 
 const { Title } = Typography
 
@@ -62,7 +62,7 @@ const RegisterForm = () => {
     const [isLoading, setIsLoading] = useState(false)
     const { signin } = useAuth()
     const [register, ctx] = useMutation(REGISTER_NEW_USER_MUTATION)
-    let initialValues = (typeof window !== 'undefined' && window.location && window.location.href.includes('?') ? qs.parse(window.location.href.split('?', 2)[1]) : {})
+    let initialValues = getQueryParams()
     initialValues = { ...initialValues, password: '', confirm: '', captcha: 'no' }
 
     const intl = useIntl()

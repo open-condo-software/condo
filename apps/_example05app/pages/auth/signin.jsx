@@ -8,7 +8,7 @@ import Router from 'next/router'
 import BaseLayout from '../../containers/BaseLayout'
 import { useAuth } from '../../lib/auth'
 import { useIntl } from 'react-intl'
-import qs from 'qs'
+import { getQueryParams } from '../../lib/url.utils'
 
 const { Title } = Typography
 
@@ -26,7 +26,7 @@ const SignInForm = () => {
     const intl = useIntl()
     const [isLoading, setIsLoading] = useState(false)
     const { signin } = useAuth()
-    let initialValues = (typeof window !== 'undefined' && window.location && window.location.href.includes('?') ? qs.parse(window.location.href.split('?', 2)[1]) : {})
+    let initialValues = getQueryParams()
     initialValues = { ...initialValues, password: '', confirm: '', captcha: 'no' }
 
     const SignInMsg = intl.formatMessage({ id: 'SignIn' })

@@ -9,7 +9,7 @@ import gql from 'graphql-tag'
 import { useMutation } from '@apollo/react-hooks'
 
 import BaseLayout from '../../containers/BaseLayout'
-import qs from 'qs'
+import { getQueryParams } from '../../lib/url.utils'
 
 const { Title, Paragraph } = Typography
 
@@ -34,7 +34,7 @@ const ForgotForm = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccessMessage, setIsSuccessMessage] = useState(false)
     const [startPasswordRecovery, ctx] = useMutation(START_PASSWORD_RECOVERY_MUTATION)
-    let initialValues = (typeof window !== 'undefined' && window.location && window.location.href.includes('?') ? qs.parse(window.location.href.split('?', 2)[1]) : {})
+    let initialValues = getQueryParams()
     initialValues = { ...initialValues, password: '', confirm: '' }
 
     const StartRecoveryMsg = intl.formatMessage({ id: 'StartRecovery' })
