@@ -85,17 +85,19 @@ function prepareTestData () {
     return import("../../lang/ru.json").then(data => data.default.tests.disc)
 }
 
-function CustomContainer (props) {
+function CustomContainer ({children, ...rest_props}) {
     return (
-        <AuthLayout>
-            <BaseLayout
-                {...props}
-                logo="topMenu"
-                sideMenuStyle={{ display: 'none' }}
-                mainContentWrapperStyle={{ maxWidth: '1024px', minWidth: '490px', paddingTop: '20px', margin: '0 auto' }}
-                mainContentBreadcrumbStyle={{ display: 'none' }}
-            />
-        </AuthLayout>
+        <BaseLayout
+            {...rest_props}
+            logo="topMenu"
+            sideMenuStyle={{ display: 'none' }}
+            mainContentWrapperStyle={{ maxWidth: '1024px', minWidth: '490px', paddingTop: '20px', margin: '0 auto' }}
+            mainContentBreadcrumbStyle={{ display: 'none' }}
+        >
+            <AuthLayout>
+                {children}
+            </AuthLayout>
+        </BaseLayout>
     )
 }
 

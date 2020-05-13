@@ -1,5 +1,10 @@
 import { AuthContext } from '../../lib/auth'
+import { Spin } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
+
 import Translate from '../../components/Translate'
+import PageLoader from './PageLoader'
+
 
 export function AuthLayout({ children }) {
     return (
@@ -7,7 +12,7 @@ export function AuthLayout({ children }) {
             {
                 ({isAuthenticated, isLoading}) => {
                     if (isLoading) {
-                        return <Translate id={"Loading"}/>
+                        return (<PageLoader/>)
                     }
 
                     if (!isAuthenticated) {

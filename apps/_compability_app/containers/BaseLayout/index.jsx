@@ -8,6 +8,7 @@ import MenuHeader from './components/MenuHeader'
 const { Header, Content } = Layout
 const layoutCss = css`
     min-height: 100vh;
+    background: radial-gradient(#CECECE, #fff);
 `
 
 const topMenuWrapperCss = css`
@@ -50,9 +51,6 @@ export function BaseLayout (props) {
                 <Header css={topMenuCss} style={props.topMenuStyle}>
                     {logo === 'topMenu' ? <img css={logoTopCss} src="/logo.svg" onClick={handleLogoClick}/> : null}
                     <MenuHeader/>
-                    {/*<div css={trigger} onClick={toggleCollapsed}>*/}
-                    {/*    {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {})}*/}
-                    {/*</div>*/}
                 </Header>
                 <Content css={mainContentWrapperCss} as="div" style={props.mainContentWrapperStyle}>
                     <div css={mainContentCss} as="main" style={props.mainContentStyle}>
