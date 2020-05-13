@@ -207,7 +207,7 @@ yarn workspace @app/_back02keystone create-tables
 ```
 
 **NOTE**: And there is no solutions to migrations yet... 
-You can try `knex` migrations and writ about it here.
+You can try `knex` migrations and write about it here.
 
 ### Upgrade packages versions ###
 
