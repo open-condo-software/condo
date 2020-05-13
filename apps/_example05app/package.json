@@ -6,12 +6,14 @@
     "debug": "node inspect ./node_modules/.bin/next dev",
     "build": "next build",
     "start": "next start",
-    "test": "next build && next export"
+    "test": "next build && next export && jest"
   },
   "dependencies": {
     "@apollo/react-hooks": "^3.1.5",
     "@apollo/react-ssr": "^3.1.5",
     "@emotion/styled": "^10.0.27",
+    "@testing-library/jest-dom": "^5.7.0",
+    "@testing-library/react": "^10.0.4",
     "@zeit/next-css": "^1.0.1",
     "@zeit/next-less": "^1.0.1",
     "antd": "^4.2.0",
@@ -19,6 +21,7 @@
     "apollo-client": "^2.6.8",
     "apollo-link-http": "^1.5.17",
     "apollo-upload-client": "^13.0.0",
+    "babel-jest": "^26.0.1",
     "date-fns": "^2.12.0",
     "emotion": "^10.0.27",
     "emotion-server": "^10.0.27",
@@ -27,6 +30,7 @@
     "graphql": "^15.0.0",
     "graphql-tag": "^2.10.3",
     "isomorphic-unfetch": "^3.0.0",
+    "jest": "^26.0.1",
     "lodash": "^4.17.15",
     "next": "9.3.6",
     "prop-types": "^15.7.2",
@@ -35,6 +39,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-intl": "^4.5.1",
+    "react-test-renderer": "^16.13.1",
     "react-toast-notifications": "^2.4.0",
     "react-use-form-state": "^0.12.1"
   }

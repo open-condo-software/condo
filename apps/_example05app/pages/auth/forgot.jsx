@@ -9,7 +9,7 @@ import gql from 'graphql-tag'
 import { useMutation } from '@apollo/react-hooks'
 
 import BaseLayout from '../../containers/BaseLayout'
-import { getQueryParams } from '../../lib/url.utils'
+import { getQueryParams } from '../../utils/url.utils'
 
 const { Title, Paragraph } = Typography
 
