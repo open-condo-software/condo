@@ -59,7 +59,7 @@ let globalApolloClient = null
  * inside getStaticProps, getStaticPaths or getServerSideProps
  * @param {NextPageContext | NextAppContext} ctx
  */
-const initOnContext = (ctx, opts) => {
+const initOnContext = (ctx) => {
     const inAppContext = Boolean(ctx.ctx)
 
     // We consider installing `withApollo({ ssr: true })` on global App level
@@ -76,7 +76,7 @@ const initOnContext = (ctx, opts) => {
     // Initialize ApolloClient if not already done
     const apolloClient =
         ctx.apolloClient ||
-        initApolloClient(ctx.apolloState || {}, inAppContext ? ctx.ctx : ctx, opts)
+        initApolloClient(ctx.apolloState || {}, inAppContext ? ctx.ctx : ctx)
 
     // We send the Apollo Client as a prop to the component to avoid calling initApollo() twice in the server.
     // Otherwise, the component would have to call initApollo() again but this
