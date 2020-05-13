@@ -1,15 +1,35 @@
 /** @jsx jsx */
 import { css, Global, jsx } from '@emotion/core'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Input } from 'antd'
 import { SendOutlined } from '@ant-design/icons'
 import QueueAnim from 'rc-queue-anim'
+import { useImmer } from 'use-immer'
+import io from 'socket.io-client'
 
+const useSocket = (...args) => {
+    const { current: socket } = useRef(io(...args))
+    useEffect(() => {
+        return () => {
+            socket && socket.removeAllListeners()
+            socket && socket.close()
+        }
+    }, [socket])
+    return [socket]
+}
 
-function MessageList (props) {
-    const messages = props.messages
-    const user = props.user
-    const onEnd = props.onEnd
+const CHAT_SERVER_URL = 'http://localhost:3000/'
+
+function MessageList ({ messages, user }) {
+    const messagesEndRef = useRef(null)
+    const scrollToBottom = () => {
+        // we need to wait before an animation
+        const x = setTimeout(() => {
+            if (messagesEndRef) messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+        }, 320)
+        return () => clearTimeout(x)
+    }
+    useEffect(scrollToBottom, [messages])
 
     const items = messages.map((msg) => {
         return (
@@ -24,69 +44,70 @@ function MessageList (props) {
 
     return (
         <QueueAnim delay={300} className="chat-messages-list" component="ul" type={['right', 'left']} leaveReverse
-                   onEnd={onEnd}>
+                   onEnd={scrollToBottom}>
             {items}
+            <div ref={messagesEndRef}/>
         </QueueAnim>
     )
 }
 
-function Chat (props) {
-    const $messagesContainer = useRef(null)
-    const user = 'User2'
+function MessageInput ({ onSendMessage }) {
     const [message, setMessage] = useState('')
-    const [messages, setMessages] = useState([
-        { user: 'User1', id: 'm1', message: 'Hey' },
-        { user: 'User3', id: 'm21', message: 'this is a demonstration of the gooey effect on a chat window' },
-        { user: 'User3', id: 'm22', message: 'this is a demonstration of the gooey effect on a chat window' },
-        { user: 'User3', id: 'm23', message: 'this is a demonstration of the gooey effect on a chat window' },
-        { user: 'User2', id: 'm31', message: 'please :)' },
-        { user: 'User3', id: 'm24', message: 'this is a demonstration of the gooey effect on a chat window' },
-        { user: 'User2', id: 'm32', message: 'please :)' },
-        { user: 'User3', id: 'm25', message: 'this is a demonstration of the gooey effect on a chat window' },
-        { user: 'User2', id: 'm4', message: 'HELP!' },
-    ])
 
     function handleEnter (e) {
         e.preventDefault()
         if (!message) return
-        messages.push({ user: user, id: String(Math.random()), message: message })
-        setMessages(messages)
         setMessage('')
+        onSendMessage(message)
+    }
+
+    return <div className="chat-input-bar">
+        <div className={'chat-input-wrapper' + ((message) ? ' chat-input-not-empty' : '')}>
+            <Input className={'chat-input'}
+                   onPressEnter={handleEnter}
+                   onChange={(e) => {setMessage(e.target.value)}}
+                   value={message}
+                   placeholder="Type something ..."/>
+            <button className="chat-send" onClick={handleEnter}>
+                <SendOutlined/>
+            </button>
+        </div>
+    </div>
+}
+
+function Chat (props) {
+    console.log(props)
+    const $messagesContainer = useRef(null)
+    const [messages, setMessages] = useImmer([])
+    const [socket] = useSocket(CHAT_SERVER_URL)
+    socket.connect()
+    const user = socket.id
+    debugger
+
+    useEffect(() => {
+        return socket.on('chat message', (msg) => {
+            setMessages(messages => {messages.push(msg)})
+        })
+    }, [])
+
+    function handleSendMessage (message) {
+        socket.emit('chat message', { user, message, id: `${Date.now()}-${Math.random()}` })
     }
 
     function handleEndAnimation () {
         // TODO(pahaz): smooth the scroll
-        $messagesContainer.current.scrollTop = 99999
+        // $messagesContainer.current.scrollTop = 99999
     }
 
     return (<>
         <div className="chat-window">
             <div className="chat-messages" ref={$messagesContainer}>
-                <MessageList messages={messages} user={user} onEnd={handleEndAnimation}/>
+                <MessageList messages={messages} user={user}/>
             </div>
-            <div className="chat-input-bar">
-                <div className="chat-info-container"/>
-                <div className="chat-effect-container">
-                    <div className="chat-effect-bar"/>
-                </div>
-                <div className="chat-input-wrapper">
-                    <Input className="chat-input" onPressEnter={handleEnter}
-                           onChange={(e) => {setMessage(e.target.value)}} value={message}
-                           placeholder="Type something ..."/>
-                    <button className="chat-send" onClick={handleEnter}>
-                        <SendOutlined/>
-                    </button>
-                </div>
-            </div>
+            <MessageInput onSendMessage={handleSendMessage}/>
         </div>
         {/* TODO(pahaz): remove useless styles */}
         <Global styles={css`
-.chat-window button:focus {
-    -webkit-tap-highlight-color: rgba(255,255,255,0);
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
-}
-
 .chat-window {
     width: 310px;
     margin: 0 auto;
@@ -95,7 +116,6 @@ function Chat (props) {
     border-width: 50px 15px;
     color: #474c57;
     border-radius: 20px;
-    font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 @media screen and (max-width:380px) {
@@ -103,15 +123,6 @@ function Chat (props) {
         border: none;
         border-radius: 0px;
     }
-}
-
-.chat-window a {
-    color: #eab1c6;
-}
-
-.chat-window a:hover,
-.chat-window a:focus {
-    color: #C7668A;
 }
 
 .chat-messages {
@@ -138,69 +149,19 @@ function Chat (props) {
     margin-bottom: 10px;
 }
 
-.chat-message-effect {
-    position: absolute;
-}
-
-.chat-message-bubble {
-    display: inline-block;
-    font-size: 14px;
-    max-width: 350px;
-    background: #fff;
-    padding: 8px 14px;
-    border-radius: 18px;
-    min-width: 0;
-}
-
-.chat-message-self.chat-message-merge-start .chat-message-bubble {
-    border-bottom-right-radius: 0;
-}
-
-.chat-message-self.chat-message-merge-middle .chat-message-bubble {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-}
-
-.chat-message-self.chat-message-merge-end .chat-message-bubble {
-    border-top-right-radius: 0;
-}
-
 .chat-message-self {
     text-align: right;
 }
 
-.chat-message-self .chat-message-bubble,
-.chat-message-effect .chat-message-bubble { 
-    background: #32a8e6;
-    color: #fff;
-    text-align: left;
-}
-
 .chat-input-bar {
     position: relative;
-    background:#32A8E6;
+    background: #32A8E6;
 }
 
 .chat-input-wrapper {
-    position: relative;
-    z-index: 2;
-    /*background: #32A8E6;*/
-    padding: 0.5em 0;
-    border-radius: 0 0 2px 2px;
-    color: #fff;
-}
-
-.chat-input-wrapper,
-.chat-send {
-    display: -webkit-flex;
-    display: -ms-flexbox;
     display: flex;
-    -webkit-flex-wrap: wrap;
-    -ms-flex-wrap: wrap;
     flex-wrap: wrap;
-    -webkit-justify-content: center;
     justify-content: center;
-    font-size: 16px;
 }
 
 .chat-input {
@@ -215,6 +176,7 @@ function Chat (props) {
     background: transparent;
     border: transparent;
     box-shadow: none !important;
+    color: #FFF;
 }
 
 .chat-input::placeholder {
@@ -232,54 +194,10 @@ function Chat (props) {
     transition: color 0.6s;
 }
 
-.chat-input:empty + .chat-send {
-    color: #2B8EC2;
+.chat-input-not-empty .chat-send {
+    color: #FFF;
 }
 
-.chat-send>i {
-    position: relative;
-}
-
-.chat-effect-container {
-    position: absolute;
-    top: -100px;
-    width: 100%;
-}
-
-.chat-effect-bar {
-    background: #32a8e6;
-    position: absolute;
-    top: 100px;
-    width: 100%;
-    height: 40px;
-    -webkit-transform: rotateY(0);
-    transform: rotateY(0);
-}
-
-.chat-effect-dots {
-    position: absolute;
-}
-
-.chat-effect-dot {
-    background: #32a8e6;
-    position: absolute;
-    width: 15px;
-    height: 15px;
-    border-radius: 100%;
-}
-
-.chat-info-container {
-    position: absolute;
-    top: -20px;
-    font-size: 12px;
-    color: #2B8EC2;
-}
-
-.chat-info-typing {
-    position: absolute;
-    left: 80px;
-    white-space: nowrap;
-}
                     `}/>
     </>)
 }
