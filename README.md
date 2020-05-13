@@ -206,7 +206,7 @@ You need to set `DATABASE_URL` like `postgresql://postgres:postgres@127.0.0.1/ma
 yarn workspace @app/_back02keystone create-tables
 ```
 
-**NOTE**: And there is no solutions to migrations yes... 
+**NOTE**: And there is no solutions to migrations yet... 
 You can try `knex` migrations and writ about it here.
 
 ### Upgrade packages versions ###
