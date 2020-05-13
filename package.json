@@ -15,7 +15,8 @@
   "scripts": {
     "test": "jest",
     "dev": "node multi-server.js",
-    "start": "node multi-server.js"
+    "start": "node multi-server.js",
+    "create-tables": "yarn workspace @app/_back02keystone create-tables"
   },
   "dependencies": {
     "@core/config": "^1.0.0",
