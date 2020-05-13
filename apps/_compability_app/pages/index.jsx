@@ -7,10 +7,10 @@ function HomePage () {
     return (
         <div>
             <Typography.Title>
-                <Translate  id={"pages.index.title"}/>
+                <Translate id={"pages.index.title"}/>
             </Typography.Title>
             <CustomLink path="/tests/disc">
-                <Translate  id={"pages.index.apply_test"}/>
+                <Translate id={"pages.index.apply_test"}/>
             </CustomLink>
         </div>
     )

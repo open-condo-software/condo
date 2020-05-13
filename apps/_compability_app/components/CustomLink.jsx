@@ -1,10 +1,16 @@
 import Router from 'next/router'
+import * as React from 'react'
 
 function CustomLink({ path, children }) {
+    const clickHandler = React.useCallback(
+        () => Router.push(path),
+        [path],
+    );
+
     return (
-        <div onClick={() => Router.push(path)}>
+        <a onClick={clickHandler}>
             {children}
-        </div>
+        </a>
     )
 }
 
