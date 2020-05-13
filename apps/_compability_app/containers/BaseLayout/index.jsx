@@ -37,7 +37,7 @@ const logoTopCss = css`
     cursor: pointer;
 `
 
-function BaseLayout (props) {
+export function BaseLayout (props) {
     const logo = props.logo || 'sideMenu'
     const handleLogoClick = () => {
         Router.push('/')
@@ -62,5 +62,3 @@ function BaseLayout (props) {
         </Layout>
     )
 }
-
-export default BaseLayout

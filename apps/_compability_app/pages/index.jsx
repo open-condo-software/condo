@@ -1,5 +1,3 @@
-import Link from 'next/link'
-import Router from 'next/router'
 import CustomLink from '../components/CustomLink'
 
 function HomePage () {

@@ -4,11 +4,11 @@ import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import "antd/dist/antd.css";
 
+import { flatten } from '../util'
 import { withApollo } from '../lib/apollo'
 import { withAuth } from '../lib/auth'
-import { withIntl } from '../lib/Intl'
-import GlobalErrorBoundary from '../containers/GlobalErrorBoundery'
-import BaseLayout from '../containers/BaseLayout'
+import { withIntl } from '../lib/intl'
+import { BaseLayout, GlobalErrorBoundary } from '../containers'
 
 const MyApp = ({ Component, pageProps }) => {
     const LayoutComponent = Component.container || BaseLayout
@@ -31,4 +31,10 @@ const MyApp = ({ Component, pageProps }) => {
     )
 }
 
-export default withApollo({ ssr: true })(withIntl({ ssr: true })(withAuth({ ssr: false })(MyApp)))
+const messagesImporter = (locale) => {
+    return import(`../lang/${locale}.json`).then(data => {
+        return flatten(data.default)
+    });
+}
+
+export default withApollo({ ssr: true })(withIntl({ ssr: true, messagesImporter })(withAuth({ ssr: false })(MyApp)))

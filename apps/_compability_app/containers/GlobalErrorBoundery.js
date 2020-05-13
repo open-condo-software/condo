@@ -1,6 +1,6 @@
 import React from 'react'
 
-class GlobalErrorBoundary extends React.Component {
+export class GlobalErrorBoundary extends React.Component {
     constructor (props) {
         super(props)
         this.state = { hasError: false }
@@ -26,5 +26,3 @@ class GlobalErrorBoundary extends React.Component {
         return this.props.children
     }
 }
-
-export default GlobalErrorBoundary

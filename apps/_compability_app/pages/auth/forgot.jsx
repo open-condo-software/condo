@@ -4,7 +4,7 @@ import { Typography } from 'antd'
 import Head from 'next/head'
 import { useIntl } from 'react-intl'
 
-import BaseLayout from '../../containers/BaseLayout'
+import { BaseLayout } from '../../containers'
 
 const { Title, Paragraph } = Typography
 

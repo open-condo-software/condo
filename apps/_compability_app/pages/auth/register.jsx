@@ -3,12 +3,9 @@ import { css, jsx } from '@emotion/core'
 import { Form, Input, Button, Typography, notification } from 'antd'
 import {
     Tooltip,
-    Cascader,
-    Select,
     Row,
     Col,
     Checkbox,
-    AutoComplete,
 } from 'antd'
 import { useState } from 'react'
 import { useMutation } from '@apollo/react-hooks'
@@ -17,7 +14,7 @@ import { QuestionCircleOutlined } from '@ant-design/icons'
 import gql from 'graphql-tag'
 
 import Router from 'next/router'
-import BaseLayout from '../../containers/BaseLayout'
+import { BaseLayout } from '../../containers'
 import { useAuth } from '../../lib/auth'
 import { useIntl } from 'react-intl'
 
