@@ -9,6 +9,7 @@ const access = require('@core/keystone/access')
 const { getAdapter } = require('@core/keystone/adapter.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const conf = require('@core/config')
+const { areWeRunningTests } = require('@core/keystone/test.utils')
 
 const keystone = new Keystone({
     name: conf.PROJECT_NAME,
@@ -83,6 +84,6 @@ module.exports = {
             isAccessAllowed: access.userIsAdmin,
             authStrategy,
         }),
-        (conf.INCLUDE_NEXT_APP) ? new NextApp({ dir: conf.INCLUDE_NEXT_APP }) : new CustomApp(),
+        (conf.INCLUDE_NEXT_APP && !areWeRunningTests()) ? new NextApp({ dir: conf.INCLUDE_NEXT_APP }) : new CustomApp(),
     ],
 }

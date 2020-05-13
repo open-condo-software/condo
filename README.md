@@ -204,6 +204,21 @@ yarn workspace @app/_example01app add antd
 yarn upgrade-interactive --latest
 ```
 
+### TESTS_FAKE_CLIENT_MODE ###
+
+`@core/keystone/test.utils` can work in two modes:
+ 1. create real client and make a requests by HTTP to remote server
+ 2. create fake client and express app and make a inner express requests by `supertest` lib 
+
+The first mode is better for end-to-end tests. You can also use it for test your production.
+
+The second mode is better for debugging. Because it uses one process for whole request/response process.
+If you want to use TDD like development process and to easy debug end-to-end process.
+
+You can use `TESTS_FAKE_CLIENT_MODE` to change test mode. This options setup express app and client in one process.
+This allows you to put debugger breakpoints in any part of the request processing process. 
+And use IDE integrations for easy debugging.
+
 ## Tips
 
 ### yarn add
