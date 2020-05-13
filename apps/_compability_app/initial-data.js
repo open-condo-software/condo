@@ -8,13 +8,19 @@ module.exports = {
             dob: '1990-01-02',
             password: '3a74b3f07978',
         },
-        {
-            name: 'JustUser',
-            email: 'user@example.com',
-            isAdmin: false,
-            isActive: true,
-            dob: '1995-06-09',
-            password: '1a92b3a07c78',
-        },
     ],
 };
+
+//
+// /*
+// * @result array:string;
+// * */
+// function creteDiscData(result) {
+//     const pool = [0, 0, 0, 0];
+//
+//     result.forEach((responce) => {
+//         pool[responce] = pool[responce] + 1;
+//     });
+//
+//     return pool;
+// };

@@ -1,14 +1,14 @@
-function Button ({onClick}) {
-    return (
-        <button onClick={onClick}>Click Me</button>
-    )
-}
+import Link from 'next/link'
+import Router from 'next/router'
+import CustomLink from '../components/CustomLink'
 
 function HomePage () {
     return (
         <div>
-            <div>Welcome to App!</div>
-            <Button onClick={() => alert("Hello world")}/>
+            <div>Добро пожаловать!</div>
+            <CustomLink path="/tests/disc">
+                Пройти первый тест
+            </CustomLink>
         </div>
     )
 }

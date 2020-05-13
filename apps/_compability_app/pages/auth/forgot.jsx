@@ -12,23 +12,27 @@ const SignInPage = () => {
     const intl = useIntl()
     const ForgotPasswordTitleMsg = intl.formatMessage({ id: 'pages.auth.ForgotPasswordTitle' })
     const IsNotImplementedYetMsg = intl.formatMessage({ id: 'pages.auth.IsNotImplementedYet' })
-    return (<>
-        <Head>
-            <title>{ForgotPasswordTitleMsg}</title>
-        </Head>
-        <Title css={css`text-align: center;`} level={2}>{ForgotPasswordTitleMsg}</Title>
-        <Paragraph css={css`text-align: center;`}>{IsNotImplementedYetMsg}</Paragraph>
-    </>)
+    return (
+        <>
+            <Head>
+                <title>{ForgotPasswordTitleMsg}</title>
+            </Head>
+            <Title css={css`text-align: center;`} level={2}>{ForgotPasswordTitleMsg}</Title>
+            <Paragraph css={css`text-align: center;`}>{IsNotImplementedYetMsg}</Paragraph>
+        </>
+    )
 }
 
 function CustomContainer (props) {
-    return (<BaseLayout
-        {...props}
-        logo="topMenu"
-        sideMenuStyle={{ display: 'none' }}
-        mainContentWrapperStyle={{ maxWidth: '600px', minWidth: '490px', paddingTop: '50px', margin: '0 auto' }}
-        mainContentBreadcrumbStyle={{ display: 'none' }}
-    />)
+    return (
+        <BaseLayout
+            {...props}
+            logo="topMenu"
+            sideMenuStyle={{ display: 'none' }}
+            mainContentWrapperStyle={{ maxWidth: '600px', minWidth: '490px', paddingTop: '50px', margin: '0 auto' }}
+            mainContentBreadcrumbStyle={{ display: 'none' }}
+        />
+    )
 }
 
 SignInPage.container = CustomContainer

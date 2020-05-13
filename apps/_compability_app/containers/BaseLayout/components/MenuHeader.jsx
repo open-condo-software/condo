@@ -1,11 +1,11 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { Avatar, Dropdown, Menu, Spin } from 'antd'
+import { useIntl } from 'react-intl'
 import { LogoutOutlined } from '@ant-design/icons'
 import Router from 'next/router'
 
 import { useAuth } from '../../../lib/auth'
-import { useIntl } from 'react-intl'
 
 const headerRightWrapper = css`
   float: right;
