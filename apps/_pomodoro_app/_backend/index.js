@@ -9,6 +9,8 @@ const access = require('@core/keystone/access')
 const { getAdapter } = require('@core/keystone/adapter.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const conf = require('@core/config')
+const { areWeRunningTests } = require('@core/keystone/test.utils')
+
 
 const keystone = new Keystone({
     name: conf.PROJECT_NAME,
@@ -33,7 +35,8 @@ const keystone = new Keystone({
 
 registerSchemas(keystone, [
     require('./schema/User'),
-    require('./schema/Condo'),
+    require('./schema/Team'),
+    //require('./schema/Condo'),
     require('./schema/Todo'),
 ])
 
@@ -83,6 +86,6 @@ module.exports = {
             isAccessAllowed: access.userIsAdmin,
             authStrategy,
         }),
-        new NextApp({dir: 'C:\\Users\\Mikhail\\Desktop\\Work\\nodejs-hackathon-boilerplate-starter-kit\\apps\\_example05app'})
+        (conf.INCLUDE_NEXT_APP && !areWeRunningTests()) ? new NextApp({ dir: conf.INCLUDE_NEXT_APP }) : new CustomApp(),
     ],
 }

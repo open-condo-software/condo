@@ -1,5 +1,5 @@
 {
-  "name": "@app/_back02keystone",
+  "name": "@app/pomodoro_backend",
   "version": "1.0.0",
   "scripts": {
     "test": "jest",

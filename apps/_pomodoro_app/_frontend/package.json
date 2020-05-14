@@ -1,5 +1,5 @@
 {
-  "name": "@app/_example03ant",
+  "name": "@app/pomodoro_frontend",
   "version": "1.0.0",
   "scripts": {
     "dev": "next",
