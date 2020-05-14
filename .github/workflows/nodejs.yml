@@ -33,7 +33,7 @@ jobs:
           yarn create-tables
           yarn dev ./apps/_back02keystone/multi-server &
           sleep 10
-          yarn test
+          yarn test ./apps/_back02keystone
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
