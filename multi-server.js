@@ -1,15 +1,28 @@
 const express = require('express')
 const http = require('http')
-const port = parseInt(process.env.PORT || '3000')
 
-const back1 = require('./apps/_back02keystone/multi-server')
-const back2 = require('./apps/_example05app/multi-server')
-const back3 = require('./apps/_realtime01app/multi-server')
-const BACKS = [back1, back2, back3]
+const PORT = parseInt(process.env.PORT || '3000')
+let BACKENDS = []
+
+function initModules (modules) {
+    BACKENDS = modules.map((m) => require(m))
+}
+
+async function initServer (port) {
+    const app = await initApp()
+    app.set('port', port)
+    const server = http.createServer(app)
+    await Promise.all(BACKENDS.map(async (back) => {
+        if (!back.prepareBackServer) return
+        await back.prepareBackServer(server)
+        console.log(`MULTI-SERVER: PATCH SERVER BY ${back.NAME}`)
+    }))
+    return server.listen(port)
+}
 
 async function initApp () {
     const app = express()
-    await Promise.all(BACKS.map(async (back) => {
+    await Promise.all(BACKENDS.map(async (back) => {
         if (!back.prepareBackApp) return
         const backApp = await back.prepareBackApp()
         if (!backApp) return
@@ -19,18 +32,14 @@ async function initApp () {
     return app
 }
 
-async function initServer (port) {
-    const app = await initApp()
-    app.set('port', port)
-    const server = http.createServer(app)
-    await Promise.all(BACKS.map(async (back) => {
-        if (!back.prepareBackServer) return
-        await back.prepareBackServer(server)
-        console.log(`MULTI-SERVER: PATCH SERVER BY ${back.NAME}`)
-    }))
-    return server.listen(port)
+const modules = process.argv.slice(2);
+if (modules.length <= 0) {
+    console.error('You should pass related apps paths')
+    console.error('USE: node multi-server.js ./apps/_back02keystone/multi-server ./apps/_example05app/multi-server ./apps/_realtime01app/multi-server')
+    process.exit(1)
 }
 
-initServer(port).then(() => {
-    console.log(`MULTI-SERVER: READY on ${port}`)
+initModules(modules)
+initServer(PORT).then(() => {
+    console.log(`MULTI-SERVER: READY on ${PORT}`)
 })
