@@ -84,6 +84,7 @@ module.exports = {
             isAccessAllowed: access.userIsAdmin,
             authStrategy,
         }),
-        (conf.INCLUDE_NEXT_APP && !areWeRunningTests()) ? new NextApp({ dir: conf.INCLUDE_NEXT_APP }) : new CustomApp(),
+        // TODO(pahaz): remove it! Multi server is better!
+        // (conf.INCLUDE_NEXT_APP && !areWeRunningTests()) ? new NextApp({ dir: conf.INCLUDE_NEXT_APP }) : new CustomApp(),
     ],
 }

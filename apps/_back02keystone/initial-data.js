@@ -17,4 +17,4 @@ module.exports = {
             password: '1a92b3a07c78',
         },
     ],
-};
+}
