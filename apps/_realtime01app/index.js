@@ -1,14 +1,14 @@
 function init (io) {
     io.on('connection', (socket) => {
-        console.log('a user connected')
+        console.log(socket.id, 'a user connected')
 
         socket.on('chat message', (msg) => {
-            console.log('message: ' + msg)
+            console.log('message', socket.id, msg)
             io.emit('chat message', msg)
         })
 
         socket.on('disconnect', () => {
-            console.log('user disconnected')
+            console.log(socket.id, 'user disconnected')
         })
     })
 }

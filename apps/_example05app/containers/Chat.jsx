@@ -5,31 +5,25 @@ import { Input } from 'antd'
 import { SendOutlined } from '@ant-design/icons'
 import QueueAnim from 'rc-queue-anim'
 import { useImmer } from 'use-immer'
-import io from 'socket.io-client'
-
-const useSocket = (...args) => {
-    const { current: socket } = useRef(io(...args))
-    useEffect(() => {
-        return () => {
-            socket && socket.removeAllListeners()
-            socket && socket.close()
-        }
-    }, [socket])
-    return [socket]
-}
+import socketIOClient from 'socket.io-client'
 
 const CHAT_SERVER_URL = 'http://localhost:3000/'
+const CHAT_DEBUG = false
 
 function MessageList ({ messages, user }) {
-    const messagesEndRef = useRef(null)
-    const scrollToBottom = () => {
+    const $messagesContainer = useRef(null)
+    const $endOfMessages = useRef(null)
+
+    useEffect(() => {
         // we need to wait before an animation
-        const x = setTimeout(() => {
-            if (messagesEndRef) messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+        setTimeout(() => {
+            if ($endOfMessages.current) $endOfMessages.current.scrollIntoView({ behavior: 'smooth' })
         }, 320)
-        return () => clearTimeout(x)
+    }, [messages])
+
+    function handleEndAnimation () {
+        $messagesContainer.current.scrollTop = 99999
     }
-    useEffect(scrollToBottom, [messages])
 
     const items = messages.map((msg) => {
         return (
@@ -43,11 +37,13 @@ function MessageList ({ messages, user }) {
     })
 
     return (
-        <QueueAnim delay={300} className="chat-messages-list" component="ul" type={['right', 'left']} leaveReverse
-                   onEnd={scrollToBottom}>
-            {items}
-            <div ref={messagesEndRef}/>
-        </QueueAnim>
+        <div className="chat-messages" ref={$messagesContainer}>
+            <QueueAnim delay={300} className="chat-messages-list" component="ul" type={['right', 'left']} leaveReverse
+                       onEnd={handleEndAnimation}>
+                {items}
+            </QueueAnim>
+            <div key='last' ref={$endOfMessages}/>
+        </div>
     )
 }
 
@@ -61,53 +57,63 @@ function MessageInput ({ onSendMessage }) {
         onSendMessage(message)
     }
 
-    return <div className="chat-input-bar">
-        <div className={'chat-input-wrapper' + ((message) ? ' chat-input-not-empty' : '')}>
-            <Input className={'chat-input'}
-                   onPressEnter={handleEnter}
-                   onChange={(e) => {setMessage(e.target.value)}}
-                   value={message}
-                   placeholder="Type something ..."/>
-            <button className="chat-send" onClick={handleEnter}>
-                <SendOutlined/>
-            </button>
+    return (
+        <div className="chat-input-bar">
+            <div className={`chat-input-wrapper ${(message) ? 'chat-input-not-empty' : ''}`}>
+                <Input className="chat-input" onPressEnter={handleEnter}
+                       onChange={(e) => {setMessage(e.target.value)}} value={message}
+                       placeholder="Type something ..."/>
+                <button className="chat-send" onClick={handleEnter}>
+                    <SendOutlined/>
+                </button>
+            </div>
         </div>
-    </div>
+    )
 }
 
-function Chat (props) {
-    console.log(props)
-    const $messagesContainer = useRef(null)
+function Chat () {
     const [messages, setMessages] = useImmer([])
-    const [socket] = useSocket(CHAT_SERVER_URL)
-    socket.connect()
-    const user = socket.id
-    debugger
+    const [user, setUser] = useState('unknown')
+    const [socket, setSocket] = useState(null)
 
     useEffect(() => {
-        return socket.on('chat message', (msg) => {
+        if (CHAT_DEBUG) console.log('chat', 'init')
+        const socket = socketIOClient(CHAT_SERVER_URL)
+        socket.on('connect', () => {
+            if (CHAT_DEBUG) console.log('chat', socket.id, 'connected')
+            setUser(socket.id)
+            setSocket(socket)
+        })
+        socket.on('chat message', (msg) => {
+            if (CHAT_DEBUG) console.log('chat', socket.id, 'receive', msg)
             setMessages(messages => {messages.push(msg)})
         })
+        return () => {
+            if (CHAT_DEBUG) console.log('chat', socket.id, 'destroyed')
+            socket.removeAllListeners()
+            socket.close()
+            setSocket(null)
+        }
     }, [])
 
     function handleSendMessage (message) {
-        socket.emit('chat message', { user, message, id: `${Date.now()}-${Math.random()}` })
-    }
-
-    function handleEndAnimation () {
-        // TODO(pahaz): smooth the scroll
-        // $messagesContainer.current.scrollTop = 99999
+        const msg = { user, message, id: `${Date.now()}-${Math.random()}` }
+        socket && socket.emit('chat message', msg)
+        if (CHAT_DEBUG) console.log('chat', (socket) ? socket.id : null, 'send', msg)
     }
 
     return (<>
         <div className="chat-window">
-            <div className="chat-messages" ref={$messagesContainer}>
-                <MessageList messages={messages} user={user}/>
-            </div>
+            <MessageList messages={messages} user={user}/>
             <MessageInput onSendMessage={handleSendMessage}/>
         </div>
-        {/* TODO(pahaz): remove useless styles */}
         <Global styles={css`
+.chat-window button:focus {
+    -webkit-tap-highlight-color: rgba(255,255,255,0);
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
 .chat-window {
     width: 310px;
     margin: 0 auto;
@@ -149,8 +155,37 @@ function Chat (props) {
     margin-bottom: 10px;
 }
 
+.chat-message-bubble {
+    display: inline-block;
+    font-size: 14px;
+    max-width: 350px;
+    background: #fff;
+    padding: 8px 14px;
+    border-radius: 18px;
+    min-width: 0;
+}
+
+.chat-message-self .chat-message-merge-start .chat-message-bubble {
+    border-bottom-right-radius: 0;
+}
+
+.chat-message-self .chat-message-merge-middle .chat-message-bubble {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.chat-message-self .chat-message-merge-end .chat-message-bubble {
+    border-top-right-radius: 0;
+}
+
 .chat-message-self {
     text-align: right;
+}
+
+.chat-message-self .chat-message-bubble { 
+    background: #32a8e6;
+    color: #fff;
+    text-align: left;
 }
 
 .chat-input-bar {
@@ -176,7 +211,7 @@ function Chat (props) {
     background: transparent;
     border: transparent;
     box-shadow: none !important;
-    color: #FFF;
+    color: #2B8EC2;
 }
 
 .chat-input::placeholder {
