@@ -1,8 +1,9 @@
 import { IntlProvider, useIntl } from 'react-intl'
 import React from 'react'
-import App from 'next/app'
 import cookie from 'js-cookie'
 import nextCookie from 'next-cookies'
+
+const { preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
 const LocaleContext = React.createContext({
     locale: 'en',
@@ -44,7 +45,7 @@ function Intl (props) {
     }, [locale])
 
     return (
-        <IntlProvider key={locale} locale={locale} messages={messages}>
+        <IntlProvider key={locale} locale={locale} messages={messages} onError={props.onError}>
             <LocaleContext.Provider value={{ locale, setLocale }}>
                 {props.children}
             </LocaleContext.Provider>
@@ -68,10 +69,11 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
     messagesImporter = opts.messagesImporter ? opts.messagesImporter : messagesImporter
     getMessages = opts.getMessages ? opts.getMessages : getMessages
     getLocale = opts.getLocale ? opts.getLocale : getLocale
+    const onIntlError = opts.hideErrors ? (() => {}) : null
 
     const WithIntl = ({ locale, messages, ...pageProps }) => {
         return (
-            <Intl locale={locale || defaultLocale} messages={messages || {}}>
+            <Intl locale={locale || defaultLocale} messages={messages || {}} onError={onIntlError}>
                 <PageComponent {...pageProps} />
             </Intl>
         )
@@ -87,27 +89,11 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
         WithIntl.getInitialProps = async ctx => {
             const inAppContext = Boolean(ctx.ctx)
             const req = (inAppContext) ? ctx.ctx.req : ctx.req
-
-            if (ctx.router.route === '/_error' && !ctx.router.asPath.startsWith('/404')) {
-                // prevent infinity loop: https://github.com/zeit/next.js/issues/6973
-                console.dir(ctx.router)
-                if (inAppContext && ctx.ctx.err) {
-                    throw ctx.ctx.err
-                } else {
-                    throw new Error(`${WithIntl.displayName}: catch error!`)
-                }
-            }
-
             const locale = getLocale((req) ? extractReqLocale(req) : defaultLocale)
             const messages = await getMessages(locale)
+            const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 
-            // Run wrapped getInitialProps methods
-            let pageProps = {}
-            if (PageComponent.getInitialProps) {
-                pageProps = await PageComponent.getInitialProps(ctx)
-            } else if (inAppContext) {
-                pageProps = await App.getInitialProps(ctx)
-            }
+            preventInfinityLoop(ctx)
 
             return {
                 ...pageProps,

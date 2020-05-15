@@ -1,5 +1,4 @@
 import React from 'react'
-import App from 'next/app'
 import Head from 'next/head'
 import {
     ApolloProvider,
@@ -14,6 +13,8 @@ import getConfig from 'next/config'
 import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { createUploadLink } from 'apollo-upload-client'
+
+const { preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
 let getApolloClientConfig = () => {
     const {
@@ -157,26 +158,8 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
         WithApollo.getInitialProps = async ctx => {
             const isOnServerSide = typeof window === 'undefined'
             const inAppContext = Boolean(ctx.ctx)
-
-            if (ctx.router.route === '/_error' && !ctx.router.asPath.startsWith('/404')) {
-                // prevent infinity loop: https://github.com/zeit/next.js/issues/6973
-                console.dir(ctx.router)
-                if (inAppContext && ctx.ctx.err) {
-                    throw ctx.ctx.err
-                } else {
-                    throw new Error(`${WithApollo.displayName}: catch error!`)
-                }
-            }
-
             const { apolloClient } = initOnContext(ctx)
-
-            // Run wrapped getInitialProps methods
-            let pageProps = {}
-            if (PageComponent.getInitialProps) {
-                pageProps = await PageComponent.getInitialProps(ctx)
-            } else if (inAppContext) {
-                pageProps = await App.getInitialProps(ctx)
-            }
+            const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 
             if (isOnServerSide) {
                 const { AppTree } = ctx
@@ -220,6 +203,8 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
                     Head.rewind()
                 }
             }
+
+            preventInfinityLoop(ctx)
 
             return {
                 ...pageProps,

@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState } from 'react'
 import { useQuery, useMutation, useApolloClient } from './apollo'
 import gql from 'graphql-tag'
-import App from 'next/app'
+
+const { preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
 /**
  * AuthContext
@@ -149,25 +150,7 @@ const withAuth = ({ ssr = false, ...opts } = {}) => PageComponent => {
     if (ssr || PageComponent.getInitialProps) {
         WithAuth.getInitialProps = async ctx => {
             const isOnServerSide = typeof window === 'undefined'
-            const inAppContext = Boolean(ctx.ctx)
-
-            if (ctx.router.route === '/_error' && !ctx.router.asPath.startsWith('/404')) {
-                // prevent infinity loop: https://github.com/zeit/next.js/issues/6973
-                console.dir(ctx.router)
-                if (inAppContext && ctx.ctx.err) {
-                    throw ctx.ctx.err
-                } else {
-                    throw new Error(`${WithAuth.displayName}: catch error!`)
-                }
-            }
-
-            // Run wrapped getInitialProps methods
-            let pageProps = {}
-            if (PageComponent.getInitialProps) {
-                pageProps = await PageComponent.getInitialProps(ctx)
-            } else if (inAppContext) {
-                pageProps = await App.getInitialProps(ctx)
-            }
+            const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 
             let user
             if (isOnServerSide) {
@@ -184,6 +167,8 @@ const withAuth = ({ ssr = false, ...opts } = {}) => PageComponent => {
                     console.error('Error while running `withAuth`', error)
                 }
             }
+
+            preventInfinityLoop(ctx)
 
             return {
                 ...pageProps,
