@@ -10,17 +10,3 @@ module.exports = {
         },
     ],
 };
-
-//
-// /*
-// * @result array:string;
-// * */
-// function creteDiscData(result) {
-//     const pool = [0, 0, 0, 0];
-//
-//     result.forEach((responce) => {
-//         pool[responce] = pool[responce] + 1;
-//     });
-//
-//     return pool;
-// };
