@@ -43,9 +43,11 @@ const CREATE_USER_MUTATION = gql`
 `
 
 let __expressApp = null
+let __isAwaiting = false
 
 function setFakeClientMode (path) {
     if (__expressApp !== null) return
+    if (__isAwaiting) return
     const module = require(path)
     let mode = null
     if (module.hasOwnProperty('URL_PREFIX') && module.hasOwnProperty('prepareBackApp')) {
@@ -62,8 +64,9 @@ function setFakeClientMode (path) {
             done()
         }, 10000)
     }
-    jest.setTimeout(10000)
     if (!mode) throw new Error('setFakeServerOption(path) unknown module type')
+    jest.setTimeout(10000)
+    __isAwaiting = true
 }
 
 const prepareKeystoneExpressApp = async (entryPoint) => {
@@ -75,6 +78,15 @@ const prepareKeystoneExpressApp = async (entryPoint) => {
     configureExpress(app)
     app.use(middlewares)
     return { keystone, app }
+}
+
+const prepareNextExpressApp = async (dir) => {
+    const next = require('next')
+    const dev = process.env.NODE_ENV !== 'production'
+    const nextApp = next({ dir, dev })
+    await nextApp.prepare()
+    const app = nextApp.getRequestHandler()
+    return { app }
 }
 
 const makeFakeClient = async (app) => {
@@ -262,6 +274,7 @@ const areWeRunningTests = () => {
 module.exports = {
     areWeRunningTests,
     prepareKeystoneExpressApp,
+    prepareNextExpressApp,
     setFakeClientMode,
     makeClient,
     makeLoggedInClient,

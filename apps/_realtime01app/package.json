@@ -1,0 +1,20 @@
+{
+  "name": "@app/_realtime01app",
+  "version": "1.0.0",
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "scripts": {
+    "test": "jest",
+    "dev": "node server.js",
+    "debug": "node inspect server.js",
+    "build": "node -e \"console.log('no')\"",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@core/config": "^1.0.0",
+    "express": "^4.17.1",
+    "jest": "^26.0.1",
+    "socket.io": "^2.3.0"
+  }
+}

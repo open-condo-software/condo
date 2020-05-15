@@ -24,6 +24,7 @@
     "get-contrast": "^2.0.0",
     "graphql": "^15.0.0",
     "graphql-tag": "^2.10.3",
+    "immer": "^6.0.5",
     "jest": "^26.0.1",
     "lodash": "^4.17.15",
     "next": "9.3.6",
@@ -34,6 +35,8 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-test-renderer": "^16.13.1",
-    "react-use-form-state": "^0.12.1"
+    "react-use-form-state": "^0.12.1",
+    "socket.io-client": "^2.3.0",
+    "use-immer": "^0.4.0"
   }
 }
