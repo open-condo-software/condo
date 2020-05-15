@@ -44,5 +44,6 @@
   "pages.auth.ChangePasswordTitle": "Change password",
   "pages.auth.PasswordWasChanged": "The password was changed",
   "pages.auth.PasswordWasChangedDescription": "You can use you new password to sign in",
+  "menu.Home": "Dashboard",
   "logout": "Logout"
 }
