@@ -1,5 +1,6 @@
 import React from 'react'
 import Head from 'next/head'
+import App from 'next/app'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 
@@ -33,4 +34,14 @@ const MyApp = ({ Component, pageProps }) => {
     )
 }
 
-export default withApollo({ ssr: true })(withIntl({ ssr: true, messagesImporter: (locale) => import(`../lang/${locale}`) })(withAuth({ ssr: false })(MyApp)))
+// MyApp.getInitialProps = async (appContext) => {
+//     // calls page's `getInitialProps` and fills `appProps.pageProps`
+//     const appProps = await App.getInitialProps(appContext)
+//     return { ...appProps }
+// }
+
+export default (
+    withApollo({ ssr: true })(
+        withIntl({ ssr: true, messagesImporter: (locale) => import(`../lang/${locale}`) })(
+            withAuth({ ssr: false })(
+                MyApp))))
