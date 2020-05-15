@@ -1,14 +1,24 @@
 import App from 'next/app'
 
+let errors = {}
+
 function preventInfinityLoop (ctx) {
     const inAppContext = Boolean(ctx.ctx)
     if (inAppContext && ctx.router.route === '/_error' && !ctx.router.asPath.startsWith('/404')) {
         // prevent infinity loop: https://github.com/zeit/next.js/issues/6973
-        console.dir(ctx.router)
         if (inAppContext && ctx.ctx.err) {
             throw ctx.ctx.err
         } else {
-            throw new Error(`preventInfinityLoop(): catch error!`)
+            let url = ctx.router.asPath || ctx.router.route || ''
+            url = url.split('?', 1)[0]
+            if (url) {
+                errors[url] = (errors[url] || 0) + 1
+                if (errors[url] >= 10) {
+                    const msg = `preventInfinityLoop(): catch loop! Probably you don't have some URL`
+                    console.dir(ctx.router)
+                    throw new Error(msg)
+                }
+            }
         }
     }
 }
