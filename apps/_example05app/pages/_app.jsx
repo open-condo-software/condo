@@ -1,8 +1,8 @@
 import React from 'react'
 import Head from 'next/head'
-import App from 'next/app'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
+import { DashboardOutlined } from '@ant-design/icons'
 
 import { withApollo } from '@core/next/apollo'
 import { withAuth } from '@core/next/auth'
@@ -11,6 +11,14 @@ import GlobalStyle from '../containers/GlobalStyle'
 import GoogleAnalytics from '../containers/GoogleAnalytics'
 import BaseLayout from '../containers/BaseLayout'
 import GlobalErrorBoundary from '../containers/GlobalErrorBoundery'
+
+const MY_MENU = [
+    {
+        path: '/',
+        icon: <DashboardOutlined/>,
+        locale: 'menu.Home',
+    },
+]
 
 const MyApp = ({ Component, pageProps }) => {
     const LayoutComponent = Component.container || BaseLayout
@@ -25,7 +33,7 @@ const MyApp = ({ Component, pageProps }) => {
                     />
                 </Head>
                 <GlobalStyle/>
-                <LayoutComponent>
+                <LayoutComponent menuDataRenderer={() => MY_MENU}>
                     <Component {...pageProps} />
                 </LayoutComponent>
                 <GoogleAnalytics/>

@@ -135,9 +135,7 @@ function CustomContainer (props) {
     return (<BaseLayout
         {...props}
         logoLocation="topMenu"
-        sideMenuStyle={{ display: 'none' }}
-        mainContentWrapperStyle={{ maxWidth: '600px', minWidth: '490px', paddingTop: '50px', margin: '0 auto' }}
-        mainContentBreadcrumbStyle={{ display: 'none' }}
+        className="top-menu-only-layout"
     />)
 }
 
