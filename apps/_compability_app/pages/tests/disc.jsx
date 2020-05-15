@@ -9,12 +9,11 @@ import {
     Divider,
 } from 'antd'
 
-import { AuthLayout, BaseLayout } from '../../containers'
+import { AuthLayout } from '../../containers'
 import Translate from '../../components/Translate'
 
-function DiscTest () {
+export default function DiscTest ({disc_data}) {
     const [form] = Form.useForm()
-    const [disc_data, setDiscData] = React.useState([])
     const [isLoading, setIsLoading] = React.useState(false)
     const onFinish = values => {
         setIsLoading(true)
@@ -23,14 +22,8 @@ function DiscTest () {
         }, 1000);
     }
 
-    prepareTestData().then(data => setDiscData(data))
-
-    if (!disc_data.length) {
-        return <Translate id={"tests.DataFetching"}/>;
-    }
-
     return (
-        <div>
+        <AuthLayout>
             <Divider orientation="left">Тест DISC</Divider>
             <Form
                 layout="vertical"
@@ -46,61 +39,49 @@ function DiscTest () {
                         </Button>
                     }
                     dataSource={disc_data}
-                    renderItem={(question, question_index) => (
-                        <List.Item key={question_index}>
-                            <Row gutter={8}>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name={`disc_${question_index}`}
-                                        label={<Translate id={`tests.disc.${question_index}.title`}/>}
-                                        rules={[{ required: true }]}
-                                    >
-                                        <Radio.Group>
-                                            {question.options.map((option, option_index) => (
-                                                <Radio
-                                                    style={{
-                                                        display: 'block',
-                                                        lineHeight: '30px',
-                                                        whiteSpace: 'normal',
-                                                    }}
-                                                    value={option_index}
-                                                    key={`${question_index + option_index}`}
-                                                >
-                                                    {<Translate id={`tests.disc.${question_index}.options.${option_index}`}/>}
-                                                </Radio>
-                                            ))}
-                                        </Radio.Group>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </List.Item>
-                    )}
+                    renderItem={renderTestQuestion}
                 />
             </Form>
-        </div>
+        </AuthLayout>
     )
 }
 
-function prepareTestData () {
-    return import("../../lang/ru.json").then(data => data.default.tests.disc)
+export async function getStaticProps() {
+    const locale_source = await import("../../lang/ru.json")
+
+    return ({
+        props: { disc_data: locale_source.default.tests.disc }
+    });
 }
 
-function CustomContainer ({children, ...rest_props}) {
+function renderTestQuestion(question, question_index) {
     return (
-        <BaseLayout
-            {...rest_props}
-            logo="topMenu"
-            sideMenuStyle={{ display: 'none' }}
-            mainContentWrapperStyle={{ maxWidth: '1024px', minWidth: '490px', paddingTop: '20px', margin: '0 auto' }}
-            mainContentBreadcrumbStyle={{ display: 'none' }}
-        >
-            <AuthLayout>
-                {children}
-            </AuthLayout>
-        </BaseLayout>
+        <List.Item key={question_index}>
+            <Row gutter={8}>
+                <Col span={24}>
+                    <Form.Item
+                        name={`disc_${question_index}`}
+                        label={<Translate id={`tests.disc.${question_index}.title`}/>}
+                        rules={[{ required: true }]}
+                    >
+                        <Radio.Group>
+                            {question.options.map((option, option_index) => (
+                                <Radio
+                                    style={{
+                                        display: 'block',
+                                        lineHeight: '30px',
+                                        whiteSpace: 'normal',
+                                    }}
+                                    value={option_index}
+                                    key={`${question_index + option_index}`}
+                                >
+                                    {<Translate id={`tests.disc.${question_index}.options.${option_index}`}/>}
+                                </Radio>
+                            ))}
+                        </Radio.Group>
+                    </Form.Item>
+                </Col>
+            </Row>
+        </List.Item>
     )
 }
-
-DiscTest.container = CustomContainer
-
-export default DiscTest

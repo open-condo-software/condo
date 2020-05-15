@@ -3,7 +3,7 @@ import { css, jsx } from '@emotion/core'
 import { Layout } from 'antd'
 import Router from 'next/router'
 
-import MenuHeader from './components/MenuHeader'
+import MenuHeader from '../components/MenuHeader'
 
 const { Header, Content } = Layout
 const layoutCss = css`
@@ -26,6 +26,7 @@ const topMenuCss = css`
 
 const mainContentCss = css`
     display:flex;
+    flex-direction:column;
     margin: 16px;
     padding: 24px;
     height: 100%;

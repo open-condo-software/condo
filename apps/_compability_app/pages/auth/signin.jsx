@@ -6,7 +6,7 @@ import Head from 'next/head'
 import Router from 'next/router'
 
 import { BaseLayout } from '../../containers'
-import { useAuth } from '../../lib/auth'
+import { useAuth } from '@core/next/auth'
 import { useIntl } from 'react-intl'
 
 const { Title } = Typography

@@ -1,4 +1,3 @@
-/** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { Typography } from 'antd'
 import Head from 'next/head'

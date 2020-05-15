@@ -5,9 +5,9 @@ import { cache } from 'emotion'
 import "antd/dist/antd.css";
 
 import { flatten } from '../util'
-import { withApollo } from '../lib/apollo'
-import { withAuth } from '../lib/auth'
-import { withIntl } from '../lib/intl'
+import { withApollo } from '@core/next/apollo'
+import { withAuth } from '@core/next/auth'
+import { withIntl } from '@core/next/intl'
 import { BaseLayout, GlobalErrorBoundary } from '../containers'
 
 const MyApp = ({ Component, pageProps }) => {

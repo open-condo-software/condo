@@ -5,7 +5,7 @@ import { useIntl } from 'react-intl'
 import { LogoutOutlined } from '@ant-design/icons'
 import Router from 'next/router'
 
-import { useAuth } from '../../../lib/auth'
+import { useAuth } from '@core/next/auth'
 
 const headerRightWrapper = css`
   float: right;

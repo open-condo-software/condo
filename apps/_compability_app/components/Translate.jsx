@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useIntl } from '../lib/intl';
+import { useIntl } from '@core/next/intl';
 
 function Translate(props) {
     const intl = useIntl()
