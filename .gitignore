@@ -4,6 +4,7 @@ dist
 out
 .idea
 .env
+yarn.lock
 __media
 _example.js
 yarn-error.log
