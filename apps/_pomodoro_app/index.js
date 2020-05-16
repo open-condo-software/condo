@@ -1,3 +1,4 @@
+const realtime = require("./realtime/server")
 const { Keystone } = require('@keystonejs/keystone')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
@@ -66,8 +67,8 @@ class CustomApp {
 }
 
 class RealtimeApp {
-    prepareMiddleware({keystone, dev, distDir}) {
-
+    prepareMiddleware ({ keystone, dev, distDir }) {
+        realtime.start().then(() => console.log("Realtime server is ready"))
     }
 }
 
@@ -90,6 +91,7 @@ module.exports = {
             isAccessAllowed: access.userIsAdmin,
             authStrategy,
         }),
-        (conf.INCLUDE_NEXT_APP && !areWeRunningTests()) ? new NextApp({ dir: conf.INCLUDE_NEXT_APP }) : new CustomApp(),
+        (!areWeRunningTests()) ? new NextApp({ dir: __dirname }) : new CustomApp(),
+        new RealtimeApp()
     ],
 }
