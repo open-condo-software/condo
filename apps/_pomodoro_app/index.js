@@ -1,4 +1,3 @@
-const realtime = require("./realtime/server")
 const { Keystone } = require('@keystonejs/keystone')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
@@ -6,6 +5,7 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
 const { StaticApp } = require('@keystonejs/app-static')
 const express = require('express')
+const realtime = require("./realtime/server")
 const access = require('@core/keystone/access')
 const { getAdapter } = require('@core/keystone/adapter.utils')
 const { registerSchemas } = require('@core/keystone/schema')
@@ -82,8 +82,6 @@ module.exports = {
     },
     keystone,
     apps: [
-        (!areWeRunningTests()) ? new NextApp({ dir: __dirname }) : new CustomApp(),
-        new RealtimeApp(),
         new GraphQLApp(),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({
@@ -93,5 +91,7 @@ module.exports = {
             isAccessAllowed: access.userIsAdmin,
             authStrategy,
         }),
+        (!areWeRunningTests()) ? new NextApp({ dir: __dirname }) : new CustomApp(),
+        new RealtimeApp(),
     ],
 }

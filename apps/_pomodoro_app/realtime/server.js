@@ -11,5 +11,5 @@ async function initServer (port) {
 }
 
 module.exports = {
-    start: () => initServer().then(() => console.log(` Realtime server is started on ${port}`))
+    start: () => initServer(port).then(() => console.log(` SERVER started at port: ${port}`))
 };
