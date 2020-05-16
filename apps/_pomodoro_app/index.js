@@ -14,7 +14,7 @@ const { areWeRunningTests } = require('@core/keystone/test.utils')
 
 
 const keystone = new Keystone({
-    name: conf.PROJECT_NAME,
+    name: "Pomodoro timer",
     adapter: getAdapter(conf.DATABASE_URL),
     defaultAccess: { list: false, field: true, custom: false },
     queryLimits: { maxTotalResults: 1000 },
