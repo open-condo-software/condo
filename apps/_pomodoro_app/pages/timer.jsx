@@ -4,17 +4,37 @@ const ENDPOINT = "http://127.0.0.1:3001";
 
 export default function Timer() {
     const [response, setResponse] = useState("");
+    const socket = socketIOClient(ENDPOINT);
 
     useEffect(() => {
-        const socket = socketIOClient(ENDPOINT);
-        socket.on("chat message", data => {
+        socket.on("timer", data => {
             setResponse(data);
         });
     }, []);
 
     return (
+    <>
         <p>
-            Message {response}
+            Timer {response}
         </p>
+
+        <button onClick={() => {
+           socket.emit('start')
+        }}>
+            Run Timer
+        </button>
+
+        <button onClick={() => {
+            socket.emit('pause')
+        }}>
+            Pause Timer
+        </button>
+
+        <button onClick={() => {
+            socket.emit('clear')
+        }}>
+            Clear Timer
+        </button>
+    </>
     );
 }

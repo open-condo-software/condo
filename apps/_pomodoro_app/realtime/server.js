@@ -1,12 +1,19 @@
 const http = require('http')
-const { prepareBackApp, prepareBackServer } = require('./multi-server')
+const socketio = require('socket.io')
 const port = parseInt(process.env.PORT || '3001')
+const express = require('express')
+const { init } = require('./index')
+
+async function prepareSocketIOServer(server) {
+    const io = socketio(server)
+    init(io)
+}
 
 async function initServer (port) {
-    const app = await prepareBackApp()
+    const app = express()
     app.set('port', port)
     const server = http.createServer(app)
-    await prepareBackServer(server)
+    await prepareSocketIOServer(server)
     return server.listen(port)
 }
 
