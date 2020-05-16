@@ -36,8 +36,6 @@ const keystone = new Keystone({
 registerSchemas(keystone, [
     require('./schema/User'),
     require('./schema/Team'),
-    //require('./schema/Condo'),
-    require('./schema/Todo'),
 ])
 
 keystone.extendGraphQLSchema({
@@ -64,6 +62,12 @@ class CustomApp {
     prepareMiddleware ({ keystone, dev, distDir }) {
         const middleware = express()
         return middleware
+    }
+}
+
+class RealtimeApp {
+    prepareMiddleware({keystone, dev, distDir}) {
+
     }
 }
 
