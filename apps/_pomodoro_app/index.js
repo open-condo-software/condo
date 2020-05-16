@@ -19,7 +19,7 @@ const keystone = new Keystone({
     defaultAccess: { list: false, field: true, custom: false },
     queryLimits: { maxTotalResults: 1000 },
     onConnect: async () => {
-        // Initialise some data
+        // Initialize some data
         if (conf.NODE_ENV !== 'development') return // Just for dev env purposes!
         // This function can be called before tables are created! (we just ignore this)
         try {
@@ -68,7 +68,7 @@ class CustomApp {
 
 class RealtimeApp {
     prepareMiddleware ({ keystone, dev, distDir }) {
-        realtime.start().then(() => console.log("Realtime server is ready"))
+        realtime.start()
     }
 }
 
@@ -82,6 +82,8 @@ module.exports = {
     },
     keystone,
     apps: [
+        (!areWeRunningTests()) ? new NextApp({ dir: __dirname }) : new CustomApp(),
+        new RealtimeApp(),
         new GraphQLApp(),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({
@@ -91,7 +93,5 @@ module.exports = {
             isAccessAllowed: access.userIsAdmin,
             authStrategy,
         }),
-        (!areWeRunningTests()) ? new NextApp({ dir: __dirname }) : new CustomApp(),
-        new RealtimeApp()
     ],
 }

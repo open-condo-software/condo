@@ -1,6 +1,6 @@
 const http = require('http')
 const { prepareBackApp, prepareBackServer } = require('./multi-server')
-const port = parseInt(process.env.PORT || '3005')
+const port = parseInt(process.env.PORT || '3001')
 
 async function initServer (port) {
     const app = await prepareBackApp()
@@ -11,5 +11,5 @@ async function initServer (port) {
 }
 
 module.exports = {
-    start: () => initServer()
+    start: () => initServer().then(() => console.log(` Realtime server is started on ${port}`))
 };
