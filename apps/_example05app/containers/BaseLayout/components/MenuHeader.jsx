@@ -16,7 +16,7 @@ const headerRightWrapper = css`
 const headerItem = css`
     display: inline-block;
     height: 100%;
-    padding: 0 16px;
+    padding: 0 24px;
     cursor: pointer;
     transition: all 0.3s;
     > i {

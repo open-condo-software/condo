@@ -134,10 +134,8 @@ const SignInPage = () => {
 function CustomContainer (props) {
     return (<BaseLayout
         {...props}
-        logo="topMenu"
-        sideMenuStyle={{ display: 'none' }}
-        mainContentWrapperStyle={{ maxWidth: '600px', minWidth: '490px', paddingTop: '50px', margin: '0 auto' }}
-        mainContentBreadcrumbStyle={{ display: 'none' }}
+        logoLocation="topMenu"
+        className="top-menu-only-layout"
     />)
 }
 

@@ -1,51 +1,96 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { useState } from 'react'
-import { Breadcrumb, Layout, Menu } from 'antd'
-import { DesktopOutlined, FileOutlined, PieChartOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
+import { Layout, Menu, PageHeader } from 'antd'
+import {
+    DesktopOutlined,
+    FileOutlined,
+    PieChartOutlined,
+    TeamOutlined,
+    UserOutlined,
+    DashboardOutlined,
+    FormOutlined,
+    TableOutlined,
+    ProfileOutlined,
+    CheckCircleOutlined,
+    WarningOutlined,
+    HighlightOutlined,
+} from '@ant-design/icons'
 import Router from 'next/router'
+import { useRouter } from 'next/router'
 
 import './antd-custom.less'
 import MenuHeader from './components/MenuHeader'
+import { useIntl } from '@core/next/intl'
 
 const { Header, Sider, Content } = Layout
 const { SubMenu } = Menu
+
+const DEFAULT_MENU = [
+    {
+        path: '/',
+        icon: <DashboardOutlined/>,
+        locale: 'menu.Home',
+    },
+    {
+        path: '/auth',
+        locale: 'menu.Auth',
+        hideInMenu: true,
+        children: [
+            {
+                path: '/auth/signin',
+                locale: 'menu.SignIn',
+            },
+            {
+                path: '/auth/register',
+                locale: 'menu.SignUp',
+            },
+            {
+                path: '/auth/forgot',
+                locale: 'menu.ResetPassword',
+            },
+            {
+                path: '/auth/change-password',
+                locale: 'menu.ChangePassword',
+            },
+        ],
+    },
+]
 
 const layoutCss = css`
     height: 100%;
 `
 
-const sideMenuCss = css`
+const layoutSideMenuCss = css`
+    z-index: 10;
     box-shadow: 2px 0 6px rgba(0,21,41,.35);
 `
 
-const topMenuWrapperCss = css`
-`
-
 const topMenuCss = css`
+    z-index: 9;
     background: #fff;
     padding: 0;
     box-shadow: 2px 0 6px rgba(0,21,41,.35);
     min-width: 100%;
 `
 
-const mainContentWrapperCss = css`
+const pageWrapperCss = css`
 `
 
-const mainContentBreadcrumbCss = css`
-    margin: 16px;
-    padding: 0 0 0 24px;
+const pageHeaderCss = css`
+    padding: 12px 24px 12px;
+    background-color: #fff;
 `
 
-const mainContentCss = css`
-    margin: 16px;
+const pageContentCss = css`
+    margin: 24px;
     padding: 24px;
     min-height: 280px;
     background: white;
     border-radius: 2px;
 `
 
-const logoCss = css`
+const sideMenuLogoCss = css`
     height: 64px;
     margin: 0 24px;
     cursor: pointer;
@@ -59,62 +104,90 @@ const logoCss = css`
     }
 `
 
-const logoTopCss = css`
+const topMenuLogoCss = css`
     height: 64px;
-    margin: 0 16px;
+    margin: 0 24px;
     cursor: pointer;
 `
 
-function BaseLayout (props) {
-    const [collapsed, setCollapsed] = useState(false)
-    const logo = props.logo || 'sideMenu'
+function renderMenuData (menuData, menuItemRender, localeRender, onClickMenuItem) {
+    return menuData.map((item) => {
+        if (item.hideInMenu) return null
+        const text = item.locale ? localeRender(item.locale) : item.name
+        return (
+            (item.children && !item.hideChildrenInMenu) ?
+                <SubMenu key={item.path} icon={item.icon} title={menuItemRender(item, text)}
+                         onTitleClick={() => onClickMenuItem(item)}>
+                    {renderMenuData(item.children, menuItemRender, localeRender, onClickMenuItem)}
+                </SubMenu>
+                :
+                <Menu.Item key={item.path} icon={item.icon} onClick={() => onClickMenuItem(item)}>
+                    {menuItemRender(item, text)}
+                </Menu.Item>
+        )
+    })
+}
 
-    const handleLogoClick = () => {
-        // TODO(pahaz): configurable?
-        Router.push('/')
+function getBreadcrumbFromMenuData(menuData, pathname, menuItemRender, localeRender, onClickMenuItem) {
+    let result = null
+    const find = menuData => {
+        for (const item of menuData) {
+            if (pathname.startsWith(item.path)) {
+                result = item.breadcrumb ? item.breadcrumb : null
+                if (item.children) find(item.children)
+                return
+            }
+        }
     }
+    find(menuData)
+    return result
+}
+
+function BaseLayout (props) {
+    // .layout { .top-menu .side-menu .page-wrapper { .page-header .page-content } }
+    // try to be compatible with https://github.com/ant-design/ant-design-pro-layout/blob/master/README.md#api
+    const [collapsed, setCollapsed] = useState(false)
+    const { pathname } = useRouter()
+    const intl = useIntl()
+
+    const logoLocation = props.logoLocation || 'sideMenu'
+    const localeRender = (locale) => intl.formatMessage({ id: locale })
+    const menuDataRender = props.menuDataRender || (() => DEFAULT_MENU)
+    const menuItemRender = props.menuItemRender || ((props, item) => item)
+    const onLogoClick = props.onLogoClick || (() => Router.push('/'))
+    const onClickMenuItem = props.onClickMenuItem || ((item) => (item.children) ? null : Router.push(item.path))
+    const menuData = menuDataRender()
+
+    const title = props.title || null
+    const subTitle = props.subTitle || null
+    const breadcrumbData = getBreadcrumbFromMenuData(menuData, pathname, menuItemRender, localeRender, onClickMenuItem)
+    const hasPageHeader = Boolean(title || subTitle || breadcrumbData)
+
     const toggleCollapsed = () => {
         setCollapsed(!collapsed)
     }
 
     return (
-        <Layout css={layoutCss} as="section">
-            <Sider collapsible collapsed={collapsed} onCollapse={toggleCollapsed} css={sideMenuCss} as="aside"
-                   style={props.sideMenuStyle}>
-                {logo === 'sideMenu' ? <img css={logoCss} src="/logo.svg" onClick={handleLogoClick}/> : null}
+        <Layout className={`layout ${props.className ? props.className : ''}`} css={layoutCss} as="section">
+            <Sider className="side-menu" css={layoutSideMenuCss} as="aside"
+                   collapsible collapsed={collapsed} onCollapse={toggleCollapsed}
+            >
+                {logoLocation === 'sideMenu' ? <img css={sideMenuLogoCss} src="/logo.svg" onClick={onLogoClick}/> : null}
                 <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
-                    <Menu.Item key="1" icon={<PieChartOutlined/>}>
-                        Option 1
-                    </Menu.Item>
-                    <Menu.Item key="2" icon={<DesktopOutlined/>}>
-                        Option 2
-                    </Menu.Item>
-                    <SubMenu key="sub1" icon={<UserOutlined/>} title="User">
-                        <Menu.Item key="3">Tom</Menu.Item>
-                        <Menu.Item key="4">Bill</Menu.Item>
-                        <Menu.Item key="5">Alex</Menu.Item>
-                    </SubMenu>
-                    <SubMenu key="sub2" icon={<TeamOutlined/>} title="Team">
-                        <Menu.Item key="6">Team 1</Menu.Item>
-                        <Menu.Item key="8">Team 2</Menu.Item>
-                    </SubMenu>
-                    <Menu.Item key="9" icon={<FileOutlined/>}/>
+                    {renderMenuData(menuData, menuItemRender, localeRender, onClickMenuItem)}
                 </Menu>
             </Sider>
-            <Layout css={topMenuWrapperCss} style={props.topMenuWrapperStyle}>
-                <Header css={topMenuCss} style={props.topMenuStyle}>
-                    {logo === 'topMenu' ? <img css={logoTopCss} src="/logo.svg" onClick={handleLogoClick}/> : null}
+            <Layout>
+                <Header className="top-menu" css={topMenuCss}>
+                    {logoLocation === 'topMenu' ? <img css={topMenuLogoCss} src="/logo.svg" onClick={onLogoClick}/> : null}
                     <MenuHeader/>
-                    {/*<div css={trigger} onClick={toggleCollapsed}>*/}
-                    {/*    {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {})}*/}
-                    {/*</div>*/}
                 </Header>
-                <Content css={mainContentWrapperCss} as="div" style={props.mainContentWrapperStyle}>
-                    <Breadcrumb css={mainContentBreadcrumbCss} style={props.mainContentBreadcrumbStyle}>
-                        <Breadcrumb.Item>User</Breadcrumb.Item>
-                        <Breadcrumb.Item>Bill</Breadcrumb.Item>
-                    </Breadcrumb>
-                    <div css={mainContentCss} as="main" style={props.mainContentStyle}>
+                <Content className="page-wrapper" css={pageWrapperCss} as="main">
+                    <PageHeader className="page-header" css={pageHeaderCss}
+                                style={{display: (hasPageHeader) ? 'block' : 'none'}}
+                                title={title} subTitle={subTitle}
+                                breadcrumb={{routes: breadcrumbData}}/>
+                    <div className="page-content" css={pageContentCss}>
                         {props.children}
                     </div>
                 </Content>

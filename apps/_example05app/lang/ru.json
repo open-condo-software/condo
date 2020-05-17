@@ -44,5 +44,6 @@
   "pages.auth.ChangePasswordTitle": "Изменение пароля",
   "pages.auth.PasswordWasChanged": "Пароль изменен!",
   "pages.auth.PasswordWasChangedDescription": "Вы уже можете использовать свой новый пароль для входа",
+  "menu.Home": "Дашборд",
   "logout": "Выйти"
 }

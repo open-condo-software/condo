@@ -22,10 +22,18 @@ export default function GlobalStyle () {
         #__next {
           height: 100%;
         }
+        
+        ${page}
       `}
         />
     )
 }
+
+const page = css`
+.top-menu-only-layout .side-menu {display: none}
+.top-menu-only-layout .page-wrapper {max-width: 600px; min-width: 490px; padding-top: 50px; margin: 0 auto}
+.top-menu-only-layout .page-header {display: none}
+`
 
 const normalize = css`
 /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
