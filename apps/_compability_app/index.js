@@ -7,6 +7,7 @@ const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { getAdapter } = require('@core/keystone/adapter.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const conf = require('@core/config')
+const fs = require('fs')
 
 const keystone = new Keystone({
     name: conf.PROJECT_NAME,
@@ -19,10 +20,17 @@ const keystone = new Keystone({
         // This function can be called before tables are created! (we just ignore this)
         try {
             const users = await keystone.lists.User.adapter.findAll()
-            if (!users.length) {
-                const initialData = require('./initial-data')
-                await keystone.createItems(initialData)
-            }
+            /*
+            * Подумать над идеей парсера тестова для initial-data;
+            * */
+
+            const source_dir = './db_source'
+
+            fs.readdirSync(source_dir).forEach(async file => {
+                console.log(file);
+                const initialData = require(`${source_dir}/${file}`)
+                    await keystone.createItems(initialData)
+            });
         } catch (e) {
             console.warn('Keystone.onConnect() Error:', e)
         }
@@ -30,7 +38,10 @@ const keystone = new Keystone({
 })
 
 registerSchemas(keystone, [
+    require('./schema/Test'),
     require('./schema/User'),
+    require('./schema/Answer'),
+    require('./schema/Question'),
 ])
 
 const authStrategy = keystone.createAuthStrategy({

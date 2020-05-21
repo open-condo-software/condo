@@ -1,0 +1,115 @@
+const get = require('lodash/get')
+const fs = require('fs');
+
+
+/*
+* Необходимо преобразовать структуру:
+* {
+*   "tests": {
+*       "disc": [
+*         {
+*           "title": string,
+*           "options": string[]
+*         },
+*    }
+* }
+*
+* в структуру:
+*
+* {
+*   Test: [{ name }],
+*   Question: [{ name }],
+*   Answer: [{ name }],
+* }
+*
+* */
+
+/*
+* @path:string - path for json source;
+* @ref:Array[string] - reference for source locale data
+*       (if its equals undefined, parser will restruct full locale data);
+*
+* returns {
+*   [key: String]: {
+*       [field: string]: string|number|boolean|null|undefined;
+*   }
+* }
+* */
+
+
+function restructData(path, ref) {
+    let json_data
+
+    try {
+        json_data = require(path)
+    } catch (e) {
+        console.log(`Something went wrong while trying to read: ${json_data};`)
+    }
+
+    const schema_source = get(json_data, ref)
+
+    if (!schema_source || typeof schema_source !== 'object') {
+        return
+    }
+
+    const sdlStruct = intlToSdl(schema_source)
+
+    fs.writeFile('./db_source/test_sdl.js', createSdlFileSource(sdlStruct), function (err) {
+            if (err) {
+                throw err
+            }
+
+            console.log('Sdl structure parsed!\nSdl source is generated.')
+        }
+    )
+}
+
+function createSdlFileSource(content) {
+    return `// generated at ${Date.now().toString()}\nmodule.exports = ${JSON.stringify(content)}`
+}
+
+function intlToSdl (intl_object) {
+    const initial_data = {
+        Test: [],
+        Question: [],
+        Answer: [],
+    }
+
+    for (name in intl_object) {
+        if (includes(initial_data.Test, name)) {
+            const test = {
+                name: name,
+                questions: [],
+            }
+
+            intl_object[name].forEach(({ title, options }) => {
+                if (includes(initial_data.Question, title)) {
+                    const question = {
+                        name: title,
+                        answers: []
+                    }
+
+                    options.forEach((option) => {
+                        if (includes(initial_data.Answer, option)) {
+                            initial_data.Answer.push({ name: option })
+                            question.answers.push({ where: { name: option }})
+                        }
+                    })
+
+                    initial_data.Question.push(question)
+                    test.questions.push({ where: { name: title } })
+                }
+            })
+
+            initial_data.Test.push(test)
+        }
+    }
+
+    return initial_data;
+}
+
+function includes(source, value) {
+    return source.filter(({ name }) => name === value).length === 0
+}
+
+restructData('../lang/ru.json', "tests")
