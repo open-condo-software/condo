@@ -109,5 +109,3 @@ function intlToSdl(intl_object) {
 function includes(source, value) {
     return source.filter(({ name }) => name === value).length === 0
 }
-
-// restructData('../lang/ru.json', "tests", './db_source/test_sdl.js')
