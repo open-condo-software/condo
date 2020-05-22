@@ -27,7 +27,6 @@ const keystone = new Keystone({
             const source_dir = './db_source'
 
             fs.readdirSync(source_dir).forEach(async file => {
-                console.log(file);
                 const initialData = require(`${source_dir}/${file}`)
                     await keystone.createItems(initialData)
             });

@@ -1,7 +1,6 @@
 const get = require('lodash/get')
 const fs = require('fs');
 
-
 /*
 * Необходимо преобразовать структуру:
 * {
@@ -36,8 +35,7 @@ const fs = require('fs');
 * }
 * */
 
-
-function restructData(path, ref) {
+export function restructData(path, ref, destination) {
     let json_data
 
     try {
@@ -46,7 +44,7 @@ function restructData(path, ref) {
         console.log(`Something went wrong while trying to read: ${json_data};`)
     }
 
-    const schema_source = get(json_data, ref)
+    const schema_source = ref ? get(json_data, ref) : json_data
 
     if (!schema_source || typeof schema_source !== 'object') {
         return
@@ -54,7 +52,7 @@ function restructData(path, ref) {
 
     const sdlStruct = intlToSdl(schema_source)
 
-    fs.writeFile('./db_source/test_sdl.js', createSdlFileSource(sdlStruct), function (err) {
+    fs.writeFileSync(destination, createSdlFileSource(sdlStruct), function (err) {
             if (err) {
                 throw err
             }
@@ -68,7 +66,7 @@ function createSdlFileSource(content) {
     return `// generated at ${Date.now().toString()}\nmodule.exports = ${JSON.stringify(content)}`
 }
 
-function intlToSdl (intl_object) {
+function intlToSdl(intl_object) {
     const initial_data = {
         Test: [],
         Question: [],
@@ -112,4 +110,4 @@ function includes(source, value) {
     return source.filter(({ name }) => name === value).length === 0
 }
 
-restructData('../lang/ru.json', "tests")
+// restructData('../lang/ru.json', "tests", './db_source/test_sdl.js')
