@@ -2,28 +2,6 @@ const get = require('lodash/get')
 const fs = require('fs');
 
 /*
-* Необходимо преобразовать структуру:
-* {
-*   "tests": {
-*       "disc": [
-*         {
-*           "title": string,
-*           "options": string[]
-*         },
-*    }
-* }
-*
-* в структуру:
-*
-* {
-*   Test: [{ name }],
-*   Question: [{ name }],
-*   Answer: [{ name }],
-* }
-*
-* */
-
-/*
 * @path:string - path for json source;
 * @ref:Array[string] - reference for source locale data
 *       (if its equals undefined, parser will restruct full locale data);
