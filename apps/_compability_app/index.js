@@ -21,7 +21,7 @@ const keystone = new Keystone({
         try {
             const users = await keystone.lists.User.adapter.findAll()
             if (!users.length) {
-                const users_data = require('./initial-data')
+                const users_data = require('./initial_data')
                 await keystone.createItems(users_data)
             }
             fs.readdirSync('./db_source').forEach(async file => {
