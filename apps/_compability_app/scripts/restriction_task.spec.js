@@ -150,5 +150,3 @@ describe("Restriction_task", () => {
         expect(restructed_data).toStrictEqual(expected)
     })
 })
-
-let c;
