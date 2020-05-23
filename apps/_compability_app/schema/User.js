@@ -7,12 +7,6 @@ const {
 } = require('@core/keystone/schemas/User')
 const { Relationship } = require('@keystonejs/fields')
 
-/*
-* 1) Типы тестов;
-* 2) Генерация тестов в админке;
-* 3) Генерация моделей;
-* */
-
 const User = BaseUser._override({
     fields: {
         aboutMyself: { type: Wysiwyg },

@@ -35,7 +35,7 @@ export function restructData(path, ref, destination) {
                 throw err
             }
 
-            console.log('Sdl structure parsed!\nSdl source is generated.')
+            console.log('Sdl structure parsed!\nSdl source generated.')
         }
     )
 }

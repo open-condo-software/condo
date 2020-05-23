@@ -20,15 +20,13 @@ const keystone = new Keystone({
         // This function can be called before tables are created! (we just ignore this)
         try {
             const users = await keystone.lists.User.adapter.findAll()
-            /*
-            * Подумать над идеей парсера тестова для initial-data;
-            * */
-
-            const source_dir = './db_source'
-
-            fs.readdirSync(source_dir).forEach(async file => {
-                const initialData = require(`${source_dir}/${file}`)
-                    await keystone.createItems(initialData)
+            if (!users.length) {
+                const users_data = require('./initial-data')
+                await keystone.createItems(users_data)
+            }
+            fs.readdirSync('./db_source').forEach(async file => {
+                const users_data = require(`./db_source/${file}`)
+                await keystone.createItems(users_data)
             });
         } catch (e) {
             console.warn('Keystone.onConnect() Error:', e)
@@ -36,14 +34,10 @@ const keystone = new Keystone({
     },
 })
 
-registerSchemas(keystone, [
-    require('./schema/Test'),
-    require('./schema/User'),
-    require('./schema/Answer'),
-    require('./schema/Question'),
-])
+const modules_list = fs.readdirSync('./schema').map(file => require(`./schema/${file}`));
+registerSchemas(keystone, modules_list)
 
-const authStrategy = keystone.createAuthStrategy({
+const auth_strategy = keystone.createAuthStrategy({
     type: PasswordAuthStrategy,
     list: 'User',
 })
@@ -53,7 +47,7 @@ module.exports = {
     apps: [
         new GraphQLApp(),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
-        new AdminUIApp({ authStrategy }),
+        new AdminUIApp({ authStrategy: auth_strategy }),
         new NextApp({ dir: '.' }),
     ],
 }
