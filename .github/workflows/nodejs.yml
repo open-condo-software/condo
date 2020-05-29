@@ -31,7 +31,7 @@ jobs:
       - name: Start server for ${{ matrix.database }}
         run: |
           set -x
-          [[ $DATABASE_URL == "postgresql*" ]] && yarn workspace @app/_back02keystone migrate
+          [[ $DATABASE_URL == 'postgresql*' ]] && yarn workspace @app/_back02keystone migrate
           yarn test ./packages
           yarn dev ./apps/_back02keystone/multi-server &
           sleep 10
