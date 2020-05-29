@@ -490,7 +490,7 @@ def _3_3_restore_django_migrations(ctx):
             continue
         d = item.read_text()
         for name, code in (re.findall(r'^// KMIGRATOR:(.*?):([A-Za-z0-9+/=]*?)$', d, re.MULTILINE)):
-            (DJANGO_DIR / 'migrations' / name + '.py').write_bytes(base64.b64decode(code.encode('ascii')))
+            (DJANGO_DIR / 'migrations' / '{}.py'.format(name)).write_bytes(base64.b64decode(code.encode('ascii')))
             repaired.add(name)
     ctx['__KNEX_DJANGO_MIGRATION__'] = repaired
 
