@@ -10,12 +10,20 @@ const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
 const isNotNullObject = (v) => typeof v === 'object' && v !== null
 const registerSchemas = (keystone, modulesList) => {
     modulesList.forEach(
-        (module) => Object.values(module).forEach(
-            (GQLSchema) => {
-                if (GQL_SCHEMA_TYPES.includes(GQLSchema._type)) {
-                    GQLSchema._register(keystone)
-                }
-            }))
+        (module) => {
+            if (GQL_SCHEMA_TYPES.includes(module._type)) {
+                module._register(keystone)
+            } else {
+                Object.values(module).forEach(
+                    (GQLSchema) => {
+                        if (GQL_SCHEMA_TYPES.includes(GQLSchema._type)) {
+                            GQLSchema._register(keystone)
+                        } else {
+                            console.warn('Wrong schema module export format! What\'s this? ', GQLSchema)
+                        }
+                    })
+            }
+        })
 }
 
 class GQLListSchema {
