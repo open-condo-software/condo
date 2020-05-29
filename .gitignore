@@ -5,6 +5,7 @@ out
 .idea
 .env
 .kmigrator
+.DS_Store
 yarn.lock
 __media
 _example.js
