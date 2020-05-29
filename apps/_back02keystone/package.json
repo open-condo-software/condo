@@ -10,8 +10,8 @@
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build": "keystone build",
     "start": "keystone start",
-    "makemigrations": "python kmigrator.py makemigrations",
-    "migrate": "python kmigrator.py migrate"
+    "makemigrations": "./kmigrator.py makemigrations",
+    "migrate": "./kmigrator.py migrate"
   },
   "dependencies": {
     "@core/config": "^1.0.0",
