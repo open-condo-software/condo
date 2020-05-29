@@ -5,6 +5,7 @@ out
 .idea
 .env
 .kmigrator
+yarn.lock
 __media
 _example.js
 yarn-error.log
