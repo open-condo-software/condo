@@ -35,7 +35,6 @@ jobs:
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
-          python3 -V
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/_back02keystone migrate
           yarn test ./packages
           yarn dev ./apps/_back02keystone/multi-server &

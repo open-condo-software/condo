@@ -479,7 +479,7 @@ def _3_1_prepare_django_dir(ctx):
 
 
 def _3_2_generate_django_models(ctx):
-    models = subprocess.check_output(['python', str(DJANGO_DIR / '..' / '_django_model_generator.py')], timeout=30)
+    models = subprocess.check_output([sys.executable, str(DJANGO_DIR / '..' / '_django_model_generator.py')], timeout=30)
     (DJANGO_DIR / 'models.py').write_bytes(models)
 
 
@@ -525,8 +525,8 @@ def _4_1_makemigrations(ctx):
     log_file = DJANGO_DIR / '..' / 'makemigrations.{}.log'.format(time())
     exists = ctx['__KNEX_DJANGO_MIGRATION__']
     n = datetime.now()
-    res = os.system(' '.join(['python', str(DJANGO_DIR / '..' / 'manage.py'), 'makemigrations', '_django_schema']))
-    if res != 0:
+    r = os.system(' '.join([sys.executable, str(DJANGO_DIR / '..' / 'manage.py'), 'makemigrations', '_django_schema']))
+    if r != 0:
         raise KProblem('ERROR: can\'t create migration')
     for item in (DJANGO_DIR / 'migrations').iterdir():
         _hotfix_django_migration_bug(item)
@@ -535,7 +535,7 @@ def _4_1_makemigrations(ctx):
         if not item.is_file() or name.startswith('__') or name in exists:
             continue
         code = base64.b64encode(item.read_bytes()).decode('utf-8')
-        cmd = ['python', str(DJANGO_DIR / '..' / 'manage.py'), 'sqlmigrate', '_django_schema', name]
+        cmd = [sys.executable, str(DJANGO_DIR / '..' / 'manage.py'), 'sqlmigrate', '_django_schema', name]
         fwd_sql = subprocess.check_output(cmd).decode('utf-8')
         try:
             bwd_sql = subprocess.check_output(cmd + ['--backwards'], stderr=subprocess.PIPE).decode('utf-8')
