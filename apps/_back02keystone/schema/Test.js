@@ -39,7 +39,7 @@ const Test = new GQLListSchema('Test', {
             googleMapsKey: 'no',
         },
 
-        status: {type: Select, options: 'pending, processed', isRequired: true},
+        status_renamed: {type: Select, options: 'pending, processed', isRequired: true},
         uuid: {
             type: Uuid,
             isRequired: true,
