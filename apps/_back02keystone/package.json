@@ -10,8 +10,8 @@
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build": "keystone build",
     "start": "keystone start",
-    "upgrade-relationships": "keystone upgrade-relationships --migration",
-    "create-tables": "keystone create-tables"
+    "makemigrations": "python kmigrator.py makemigrations",
+    "migrate": "python kmigrator.py migrate"
   },
   "dependencies": {
     "@core/config": "^1.0.0",
