@@ -31,7 +31,7 @@ const Test = new GQLListSchema('Test', {
             ],
         },
 
-        rating1: {type: Integer},
+        rating1: {type: Integer, isRequired: true},
         rating2: {type: Float},
         rating3: {type: Decimal},
         venue: {
