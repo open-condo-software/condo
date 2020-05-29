@@ -4,6 +4,7 @@ dist
 out
 .idea
 .env
+.kmigrator
 __media
 _example.js
 yarn-error.log
