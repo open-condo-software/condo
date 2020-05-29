@@ -165,8 +165,8 @@ def to_fieldtype(value, fieldname=None):
         ctx.pop('to_field')
     if ctx.get('db_column') and fieldname == to_fieldname(fieldname) and field_class != 'models.ForeignKey':
         ctx.pop('db_column')
-    ctx_line = ', '.join([f'{k}={v}' for k, v in ctx.items()])
-    return f'{field_class}({ctx_line})'
+    ctx_line = ', '.join(['{}={}'.format(k, v) for k, v in ctx.items()])
+    return '{}({})'.format(field_class, ctx_line)
 
 
 def main():
@@ -490,7 +490,7 @@ def _3_3_restore_django_migrations(ctx):
             continue
         d = item.read_text()
         for name, code in (re.findall(r'^// KMIGRATOR:(.*?):([A-Za-z0-9+/=]*?)$', d, re.MULTILINE)):
-            (DJANGO_DIR / 'migrations' / f'{name}.py').write_bytes(base64.b64decode(code.encode('ascii')))
+            (DJANGO_DIR / 'migrations' / name + '.py').write_bytes(base64.b64decode(code.encode('ascii')))
             repaired.add(name)
     ctx['__KNEX_DJANGO_MIGRATION__'] = repaired
 
@@ -522,7 +522,7 @@ def _hotfix_django_migration_bug(item):
 
 
 def _4_1_makemigrations(ctx):
-    log_file = DJANGO_DIR / '..' / f'makemigrations.{time()}.log'
+    log_file = DJANGO_DIR / '..' / 'makemigrations.{}.log'.format(time())
     exists = ctx['__KNEX_DJANGO_MIGRATION__']
     n = datetime.now()
     res = os.system(' '.join(['python', str(DJANGO_DIR / '..' / 'manage.py'), 'makemigrations', '_django_schema']))
@@ -531,7 +531,7 @@ def _4_1_makemigrations(ctx):
     for item in (DJANGO_DIR / 'migrations').iterdir():
         _hotfix_django_migration_bug(item)
         name = item.name.replace('.py', '')
-        filename = f'{n.strftime("%Y%m%d%H%M%S")}-{name}.js'
+        filename = '{}-{}.js'.format(n.strftime("%Y%m%d%H%M%S"), name)
         if not item.is_file() or name.startswith('__') or name in exists:
             continue
         code = base64.b64encode(item.read_bytes()).decode('utf-8')
@@ -541,9 +541,9 @@ def _4_1_makemigrations(ctx):
             bwd_sql = subprocess.check_output(cmd + ['--backwards'], stderr=subprocess.PIPE).decode('utf-8')
             text = KNEX_MIGRATION_TPL.format(**locals())
         except subprocess.CalledProcessError as e:
-            print(f'\nWARN: !! NO BACKWARD MIGRATION !!')
-            print(f'WARN: filename={filename}')
-            print(f'WARN: logfile={log_file.resolve()}\n')
+            print('\nWARN: !! NO BACKWARD MIGRATION !!')
+            print('WARN: filename={}'.format(filename))
+            print('WARN: logfile={}\n'.format(log_file.resolve()))
             log_file.write_bytes(e.stderr)
             text = KNEX_MIGRATION_TPL_NO_DOWN.format(**locals())
 
@@ -552,15 +552,15 @@ def _4_1_makemigrations(ctx):
 
 
 def _5_1_run_knex_command(ctx, cmd='latest'):
-    ctx['__KNEX_MIGRATION_CODE__'] = f'return await knex.migrate.{cmd}(config)'
+    ctx['__KNEX_MIGRATION_CODE__'] = 'return await knex.migrate.{}(config)'.format(cmd)
     KNEX_MIGRATE_SCRIPT.write_text(_inject_ctx(RUN_KEYSTONE_KNEX_SCRIPT, ctx))
-    log_file = DJANGO_DIR / '..' / f'knex.run.{time()}.{cmd}.log'
+    log_file = DJANGO_DIR / '..' / 'knex.run.{}.{}.log'.format(time(), cmd)
     try:
         log = subprocess.check_output(['node', str(KNEX_MIGRATE_SCRIPT)], stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         log = e.output
         print('ERROR: logfile =', log_file.resolve())
-        raise KProblem(f'ERROR: can\'t run knex command knex.migrate.{cmd}')
+        raise KProblem('ERROR: can\'t run knex command knex.migrate.{}'.format(cmd))
     finally:
         log_file.write_bytes(log)
         print(log.decode('utf-8'))

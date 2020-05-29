@@ -27,8 +27,12 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn
-      - name: Start server for ${{ matrix.database }}
+      - name: install packages
+        run: |
+          yarn
+          pip3 install django
+          pip3 install psycopg2
+      - name: run tests for ${{ matrix.database }}
         run: |
           set -x
           python3 -V
