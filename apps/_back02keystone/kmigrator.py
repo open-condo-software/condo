@@ -191,6 +191,7 @@ const fs = require('fs')
 const { keystone } = require(path.resolve(entryFile))
 
 const tableCache = {}
+let hasKnexConnection = false 
 
 function createFakeTable (tableName) {
     if (tableCache[tableName]) return tableCache[tableName]
@@ -297,6 +298,7 @@ function createFakeTable (tableName) {
 
         console.log('write client config')
         fs.writeFileSync(knexConnectionFile, JSON.stringify(s.client.config))
+        hasKnexConnection = true
 
         const migrationsConfig = {directory: knexMigrationsDir}
         try {
@@ -314,6 +316,10 @@ function createFakeTable (tableName) {
         console.error(e)
         process.exit(1)
     })
+    if (!hasKnexConnection) {
+        console.error('\\nERROR: No KNEX adapter connection settings! Check the DATABASE_URL')
+        process.exit(3)        
+    }
     fs.writeFileSync(knexSchemaFile, JSON.stringify(tableCache))
     process.exit(0)
 })()
