@@ -24,12 +24,17 @@ const User = new GQLListSchema('User', {
             type: Text,
         },
         email: {
-            factory: () => faker.internet.exampleEmail(),
+            factory: () => faker.internet.exampleEmail().toLowerCase(),
             type: Text,
             isUnique: true,
             // 2. Only authenticated users can read/update their own email, not any other user's.
             // Admins can read/update anyone's email.
             access: access.userIsAdminOrIsThisItem,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    return resolvedData['email'] && resolvedData['email'].toLowerCase()
+                },
+            },
         },
         isAdmin: {
             type: Checkbox,
