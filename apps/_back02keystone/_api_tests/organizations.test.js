@@ -3,7 +3,7 @@ const { makeLoggedInClient, makeLoggedInAdminClient, makeClient, createUser, gql
 const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
-const { Organization, OrganizationToUserLink } = require('../schema/User')
+const { Organization, OrganizationToUserLink } = require('../schema/Organization')
 
 const ALL_ORGANIZATIONS_QUERY = gql`
     query {
