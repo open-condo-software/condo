@@ -23,6 +23,16 @@ const User = new GQLListSchema('User', {
             factory: () => faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}'),
             type: Text,
         },
+        phone: {
+            type: Text,
+            isUnique: true,
+            access: access.userIsAdminOrIsThisItem,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    return resolvedData['phone'] && resolvedData['phone'].toLowerCase().replace(/\D/g,'')
+                },
+            },
+        },
         email: {
             factory: () => faker.internet.exampleEmail().toLowerCase(),
             type: Text,
