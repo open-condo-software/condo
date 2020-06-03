@@ -35,11 +35,11 @@ jobs:
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
-          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/_back02keystone migrate
           yarn test ./packages
+          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/_back02keystone migrate
           yarn dev ./apps/_back02keystone/multi-server &
           sleep 10
-          yarn test ./apps/_back02keystone
+          yarn workspace @app/_back02keystone test
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development

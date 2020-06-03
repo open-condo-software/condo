@@ -13,7 +13,6 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "jest",
     "dev": "node multi-server.js"
   },
   "dependencies": {
