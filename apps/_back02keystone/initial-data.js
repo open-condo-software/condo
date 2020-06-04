@@ -12,6 +12,7 @@ module.exports = {
         {
             name: 'JustUser',
             email: 'user@example.com',
+            phone: '89068888811',
             isAdmin: false,
             isActive: true,
             dob: '1995-06-09',
