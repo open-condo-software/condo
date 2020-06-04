@@ -24,6 +24,7 @@ const User = new GQLListSchema('User', {
             type: Text,
         },
         phone: {
+            factory: () => faker.phone.phoneNumberFormat(),
             type: Text,
             isUnique: true,
             access: access.userIsAdminOrIsThisItem,
