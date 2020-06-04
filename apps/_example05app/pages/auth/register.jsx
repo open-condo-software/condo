@@ -89,6 +89,7 @@ const RegisterForm = () => {
     const IHaveReadAndAcceptTheAgreementMsg = intl.formatMessage({ id: 'pages.auth.IHaveReadAndAcceptTheAgreement', defaultMessage: "I have read and accept the agreement" })
 
     const onFinish = values => {
+        if (values.email) values.email = values.email.toLowerCase()
         setIsLoading(true)
         register({ variables: values })
             .then(
