@@ -231,7 +231,7 @@ const createUser = async (args = {}) => {
     const client = await makeLoggedInAdminClient()
     const data = {
         name: 'Mr#' + getRandomString(),
-        email: 'xx' + getRandomString() + '@example.com',
+        email: 'xx' + getRandomString().toLowerCase() + '@example.com',
         password: getRandomString(),
         phone: faker.phone.phoneNumberFormat(),
         ...args,
