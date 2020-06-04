@@ -7,6 +7,7 @@ exports.up = async (knex) => {
 --
 -- Alter field phone on user
 --
+ALTER TABLE "User" DROP CONSTRAINT "User_phone_key";
 DROP INDEX IF EXISTS "User_phone_46f113c5_like";
 COMMIT;
 

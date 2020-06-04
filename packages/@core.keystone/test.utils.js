@@ -251,9 +251,7 @@ const createSchemaObject = async (schemaList, args = {}) => {
 
     const mutation = gql`
         mutation createNew${schemaList.name}($data: ${schemaList.name}CreateInput) {
-            obj: create${schemaList.name}(data: $data) {
-            id
-        }
+            obj: create${schemaList.name}(data: $data) { id }
         }
     `
     const result = await client.mutate(mutation, { data })
