@@ -3,6 +3,7 @@ module.exports = {
         {
             name: 'Admin',
             email: 'admin@example.com',
+            phone: '89068888888',
             isAdmin: true,
             isActive: true,
             dob: '1990-01-02',
