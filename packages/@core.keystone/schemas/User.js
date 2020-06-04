@@ -23,17 +23,6 @@ const User = new GQLListSchema('User', {
             factory: () => faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}'),
             type: Text,
         },
-        phone: {
-            factory: () => faker.phone.phoneNumberFormat(),
-            type: Text,
-            isUnique: true,
-            access: access.userIsAdminOrIsThisItem,
-            hooks: {
-                resolveInput: async ({ resolvedData }) => {
-                    return resolvedData['phone'] && resolvedData['phone'].toLowerCase().replace(/\D/g,'')
-                },
-            },
-        },
         email: {
             factory: () => faker.internet.exampleEmail().toLowerCase(),
             type: Text,
@@ -343,7 +332,9 @@ const RegisterService = new GQLCustomSchema('RegisterService', {
             schema: 'registerNewUser(name: String!, email: String!, password: String!, captcha: String!): User',
             access: true,
             resolver: async (_, { name, email, password }, context, info, { query }) => {
-                const { errors, data } = await query(
+                // TODO(pahaz): check email is valid!
+                // TODO(pahaz): check phone is valid!
+                const { errors: errors1, data: data1 } = await query(
                     `
                         query findUserByEmail($email: String!) {
                           users: allUsers(where: { email: $email }) {
@@ -354,11 +345,11 @@ const RegisterService = new GQLCustomSchema('RegisterService', {
                     { variables: { email }, skipAccessControl: true },
                 )
 
-                if (errors) {
-                    throw errors.message
+                if (errors1) {
+                    throw errors1.message
                 }
 
-                if (data.users.length !== 0) {
+                if (data1.users.length !== 0) {
                     throw new Error(`[register:email:multipleFound] User with this email is already registered`)
                 }
 

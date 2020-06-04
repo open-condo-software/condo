@@ -7,6 +7,7 @@ const crypto = require('crypto')
 const express = require('express')
 const { GQL_LIST_SCHEMA_TYPE } = require('@core/keystone/schema')
 const util = require('util')
+const faker = require('faker')
 
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
 
@@ -232,6 +233,7 @@ const createUser = async (args = {}) => {
         name: 'Mr#' + getRandomString(),
         email: 'xx' + getRandomString() + '@example.com',
         password: getRandomString(),
+        phone: faker.phone.phoneNumberFormat(),
         ...args,
     }
     const result = await client.mutate(CREATE_USER_MUTATION, { data })

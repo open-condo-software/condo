@@ -3,6 +3,8 @@ const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const { Text, Checkbox, Password, CalendarDay, File, Relationship, DateTime } = require('@keystonejs/fields')
 const { User: BaseUser, ForgotPasswordAction, ForgotPasswordService, RegisterService } = require('@core/keystone/schemas/User')
 const conf = require('@core/config')
+const access = require('@core/keystone/access')
+const faker = require('faker')
 
 const { Stars, MultiCheck } = require('../custom-fields')
 
@@ -17,6 +19,16 @@ const User = BaseUser._override({
         rating: { type: Stars, starCount: 5 },
         settings: { type: MultiCheck, options: ['Feature1', 'Feature2'] },
         aboutMyself: { type: Wysiwyg },
+        phone: {
+            factory: () => faker.phone.phoneNumberFormat(),
+            type: Text,
+            access: access.userIsAdminOrIsThisItem,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    return resolvedData['phone'] && resolvedData['phone'].toLowerCase().replace(/\D/g,'')
+                },
+            },
+        },
     },
 })
 
