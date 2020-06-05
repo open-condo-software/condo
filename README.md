@@ -26,6 +26,8 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] Auth: Page (example)
  - [ ] Auth: Options captcha support
  - [x] User: Schema, API, Tests
+ - [x] Organization: Schema, API, Tests
+ - [ ] Organization: Page (example)
  - [x] User: reusable customization (like django.auth.user)
  - [x] Register: Schema, API, Test
  - [x] Register: Page (example)
@@ -230,6 +232,60 @@ It's better for TDD like development process and to easy debug end-to-end reques
 You can use `TESTS_FAKE_CLIENT_MODE` to change test mode. This option setup the express app and the fake client in one process.
 This allows you to put debugger breakpoints in any part of the request/response process. 
 And use IDE integrations for easy debugging.
+
+### Postgres migrations ###
+
+https://github.com/keystonejs/keystone/discussions/3067
+
+```bash
+# download
+curl -o kmigrator https://raw.githubusercontent.com/8iq/nodejs-hackathon-boilerplate-starter-kit/master/apps/_back02keystone/kmigrator.py
+chmod +x kmigrator
+# install dependencies
+python3 -m pip install django
+python3 -m pip install psycopg2-binary
+
+# create new migrations based on the changes you have made
+./kmigrator makemigrations
+
+# applying database migrations
+./kmigrator migrate
+```
+
+Add to `package.json`:
+```js
+  ...
+  "scripts": {
+    "makemigrations": "./kmigrator.py makemigrations",
+    "migrate": "./kmigrator.py migrate",
+    ...
+  }
+```
+
+Run by `yarn makemigrations` and `yarn migrate`
+
+### DEBUG QUERIES ###
+
+For postgres you can set env `DEBUG=knex:query,knex:tx`. Example:
+```bash
+DEBUG=knex:query,knex:tx yarn dev @app/_back02keystone @app/_example05app @app/_realtime01app
+```
+
+For mongo you can set env `DEBUG_MONGOOSE=1`. Example:
+```bash
+DEBUG_MONGOOSE=1 yarn dev @app/_back02keystone @app/_example05app @app/_realtime01app
+```
+
+### Run multiple apps at the same time ###
+
+You can use `multi-app-server.js` to run more then one app.
+
+Example:
+```bash
+node multi-app-server.js @app/_back02keystone @app/_example05app @app/_realtime01app
+```
+
+Every app should have `multi-app-support.js` file. Check `_back02keystone`, `_example05app` and `_realtime01app` examples.
 
 ## Tips
 
