@@ -12,7 +12,7 @@ import {
 import { AuthLayout } from '../../containers'
 import Translate from '../../components/Translate'
 
-export default function DiscTest ({disc_data}) {
+export default function DiscTest({disc_data}) {
     const [form] = Form.useForm()
     const [isLoading, setIsLoading] = React.useState(false)
     const onFinish = values => {
