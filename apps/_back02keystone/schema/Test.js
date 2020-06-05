@@ -64,6 +64,11 @@ const Test = new GQLListSchema('Test', {
             ref: 'Test',
             many: false,
         },
+        related: {
+            type: Relationship,
+            ref: 'Test',
+            many: true,
+        },
     },
     access: {
         read: true,
