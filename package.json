@@ -13,8 +13,7 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "jest",
-    "dev": "node multi-server.js"
+    "dev": "node multi-app-server.js"
   },
   "dependencies": {
     "@core/config": "^1.0.0",

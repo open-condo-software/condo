@@ -34,6 +34,7 @@ const keystone = new Keystone({
 
 registerSchemas(keystone, [
     require('./schema/User'),
+    require('./schema/Organization'),
     require('./schema/Test'),
     require('./schema/Todo'),
 ])

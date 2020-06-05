@@ -5,7 +5,7 @@ const PORT = parseInt(process.env.PORT || '3000')
 let BACKENDS = []
 
 function initModules (modules) {
-    BACKENDS = modules.map((m) => require(m))
+    BACKENDS = modules.map((m) => require(m + '/multi-app-support'))
 }
 
 async function initServer (port) {
@@ -35,7 +35,7 @@ async function initApp () {
 const modules = process.argv.slice(2);
 if (modules.length <= 0) {
     console.error('You should pass related apps paths')
-    console.error('USE: node multi-server.js ./apps/_back02keystone/multi-server ./apps/_example05app/multi-server ./apps/_realtime01app/multi-server')
+    console.error('USE: node multi-app-server.js @app/_back02keystone @app/_example05app @app/_realtime01app')
     process.exit(1)
 }
 

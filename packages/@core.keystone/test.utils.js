@@ -6,6 +6,8 @@ const { print } = require('graphql/language/printer')
 const crypto = require('crypto')
 const express = require('express')
 const { GQL_LIST_SCHEMA_TYPE } = require('@core/keystone/schema')
+const util = require('util')
+const faker = require('faker')
 
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
 
@@ -55,17 +57,17 @@ function setFakeClientMode (path) {
         beforeAll(async (done) => {
             __expressApp = await module.prepareBackApp()
             done()
-        }, 10000)
+        }, 20000)
     } else if (module.hasOwnProperty('keystone') && module.hasOwnProperty('apps')) {
         mode = 'keystone'
         beforeAll(async (done) => {
             const res = await prepareKeystoneExpressApp(path)
             __expressApp = res.app
             done()
-        }, 10000)
+        }, 20000)
     }
     if (!mode) throw new Error('setFakeServerOption(path) unknown module type')
-    jest.setTimeout(10000)
+    jest.setTimeout(60000)
     __isAwaiting = true
 }
 
@@ -118,7 +120,13 @@ const makeFakeClient = async (app) => {
                     if (setCookies) {
                         cookies = { ...cookies, ...extractCookies(setCookies) }
                     }
-                    if (err) return reject(err)
+                    if (err) {
+                        console.error(err)
+                        return reject(err)
+                    }
+                    if (res.body && res.body.errors) {
+                        console.warn(util.inspect(res.body.errors, { showHidden: false, depth: null }))
+                    }
                     return resolve(res.body)
                 })
             })
@@ -134,7 +142,13 @@ const makeFakeClient = async (app) => {
                     if (setCookies) {
                         cookies = { ...cookies, ...extractCookies(setCookies) }
                     }
-                    if (err) return reject(err)
+                    if (err) {
+                        console.error(err)
+                        return reject(err)
+                    }
+                    if (res.body && res.body.errors) {
+                        console.warn(util.inspect(res.body.errors, { showHidden: false, depth: null }))
+                    }
                     return resolve(res.body)
                 })
             })
@@ -217,13 +231,18 @@ const createUser = async (args = {}) => {
     const client = await makeLoggedInAdminClient()
     const data = {
         name: 'Mr#' + getRandomString(),
-        email: 'xx' + getRandomString() + '@example.com',
+        email: 'xx' + getRandomString().toLowerCase() + '@example.com',
         password: getRandomString(),
+        phone: faker.phone.phoneNumberFormat(),
         ...args,
     }
     const result = await client.mutate(CREATE_USER_MUTATION, { data })
     if (result.errors && result.errors.length > 0) {
+        console.warn(util.inspect(result.errors, { showHidden: false, depth: null }))
         throw new Error(result.errors[0].message)
+    }
+    if (!result.data.user.id) {
+        throw new Error('createUser() no ID returned')
     }
     return { ...data, id: result.data.user.id }
 }
@@ -235,16 +254,14 @@ const createSchemaObject = async (schemaList, args = {}) => {
 
     const mutation = gql`
         mutation createNew${schemaList.name}($data: ${schemaList.name}CreateInput) {
-            obj: create${schemaList.name}(data: $data) {
-            id
-        }
+            obj: create${schemaList.name}(data: $data) { id }
         }
     `
     const result = await client.mutate(mutation, { data })
     if (result.errors && result.errors.length > 0) {
         throw new Error(result.errors[0].message)
     }
-    return { ...data, id: result.data.obj.id }
+    return { id: result.data.obj.id, _raw_query_data: data }
 }
 
 const getSchemaObject = async (schemaList, fields, where) => {
@@ -285,4 +302,5 @@ module.exports = {
     gql,
     DEFAULT_TEST_USER_IDENTITY,
     DEFAULT_TEST_USER_SECRET,
+    getRandomString,
 }
