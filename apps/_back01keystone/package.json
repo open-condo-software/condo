@@ -10,15 +10,15 @@
   "dependencies": {
     "@core/config": "^1.0.0",
     "@core/keystone": "^1.0.0",
-    "@keystonejs/adapter-knex": "^10.0.0",
-    "@keystonejs/adapter-mongoose": "^8.1.0",
-    "@keystonejs/app-admin-ui": "^6.0.0",
-    "@keystonejs/app-graphql": "^5.1.7",
+    "@keystonejs/adapter-knex": "^10.0.2",
+    "@keystonejs/adapter-mongoose": "^8.1.2",
+    "@keystonejs/app-admin-ui": "^7.0.1",
+    "@keystonejs/app-graphql": "^5.1.8",
     "@keystonejs/app-static": "^5.1.2",
-    "@keystonejs/auth-password": "^5.1.7",
-    "@keystonejs/fields": "^10.0.0",
-    "@keystonejs/fields-wysiwyg-tinymce": "^5.2.7",
-    "@keystonejs/keystone": "^9.0.0",
+    "@keystonejs/auth-password": "^5.1.9",
+    "@keystonejs/fields": "^12.0.1",
+    "@keystonejs/fields-wysiwyg-tinymce": "^5.3.0",
+    "@keystonejs/keystone": "^10.1.0",
     "cross-env": "^7.0.0",
     "express": "^4.17.1"
   }
