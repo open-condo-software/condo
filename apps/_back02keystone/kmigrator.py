@@ -8,15 +8,18 @@ if sys.version_info[0] < 3:
 try:
     import django
     if django.VERSION[0] < 3:
-        print("ERROR: required Django version >= 3.0")
+        print("ERROR: Django is {}! required version >= 3.0.6".format(django.VERSION))
+        print("TRY TO FIX BY COMMAND: '{} -m pip install \"Django>=3.0.6\"'".format(sys.executable))
         sys.exit(1)
 except:
     print("ERROR: required Django version >= 3.0")
+    print("TRY TO FIX BY COMMAND: '{} -m pip install \"Django>=3.0.6\"'".format(sys.executable))
     sys.exit(1)
 try:
     import psycopg2
 except:
     print("ERROR: required Psycopg")
+    print("TRY TO FIX BY COMMAND: '{} -m pip install \"psycopg2-binary>=2.8.5\"'".format(sys.executable))
     sys.exit(1)
 
 import base64
