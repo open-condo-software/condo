@@ -67,7 +67,7 @@ function setFakeClientMode (path) {
         }, 20000)
     }
     if (!mode) throw new Error('setFakeServerOption(path) unknown module type')
-    jest.setTimeout(20000)
+    jest.setTimeout(60000)
     __isAwaiting = true
 }
 
@@ -240,6 +240,9 @@ const createUser = async (args = {}) => {
     if (result.errors && result.errors.length > 0) {
         console.warn(util.inspect(result.errors, { showHidden: false, depth: null }))
         throw new Error(result.errors[0].message)
+    }
+    if (!result.data.user.id) {
+        throw new Error('createUser() no ID returned')
     }
     return { ...data, id: result.data.user.id }
 }

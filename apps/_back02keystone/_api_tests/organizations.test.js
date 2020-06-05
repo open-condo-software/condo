@@ -67,15 +67,25 @@ const DELETE_ORGANIZATION_TO_USER_LINK_MUTATION = gql`
     mutation delObj($id: ID!) {
         obj: deleteOrganizationToUserLink(id: $id) {
             id
-            organization {
-                id
-                name
-            }
-            user {
-                id
-                name
-            }
             role
+        }
+    }
+`
+
+const GET_ORGANIZATION_WITH_LINKS_QUERY = gql`
+    query q($id: ID!) {
+        obj: Organization (where: {id: $id}) {
+            id
+            userLinks {
+                organization {
+                    id
+                }
+                user {
+                    id
+                }
+                role
+                id
+            }
         }
     }
 `
@@ -206,11 +216,46 @@ test('user: access to change OrganizationToUserLink only for owners', async () =
         user: { connect: { id: user3.id } },
         role: 'member',
     })
-
     const client_owner = await makeLoggedInClient(user1)
-    const { data: data1, errors: errors1 } = await client_owner.query(COUNT_OF_ORGANIZATION_TO_USER_LINKS_QUERY)
-    expect(errors1).toEqual(undefined)
-    expect(data1.meta.count).toEqual(3)
+
+    // check DB state
+    const { data: data0, errors: errors0 } = await client_owner.query(GET_ORGANIZATION_WITH_LINKS_QUERY, { id: organizationId })
+    expect(errors0).toEqual(undefined)
+    expect(data0.obj).toEqual({
+        'id': organizationId,
+        'userLinks': [
+            {
+                'id': link1Id,
+                'organization': {
+                    'id': organizationId,
+                },
+                'role': 'owner',
+                'user': {
+                    'id': user1.id,
+                },
+            },
+            {
+                'id': link2Id,
+                'organization': {
+                    'id': organizationId,
+                },
+                'role': 'member',
+                'user': {
+                    'id': user2.id,
+                },
+            },
+            {
+                'id': link3Id,
+                'organization': {
+                    'id': organizationId,
+                },
+                'role': 'member',
+                'user': {
+                    'id': user3.id,
+                },
+            },
+        ],
+    })
 
     // delete user 3
     const { data: data2, errors: errors2 } = await client_owner.mutate(DELETE_ORGANIZATION_TO_USER_LINK_MUTATION, { id: link3Id })
@@ -218,9 +263,33 @@ test('user: access to change OrganizationToUserLink only for owners', async () =
     expect(data2.obj).toEqual(expect.objectContaining({ id: link3Id }))
 
     const client_member = await makeLoggedInClient(user2)
-    const { data: data3, errors: errors3 } = await client_member.query(COUNT_OF_ORGANIZATION_TO_USER_LINKS_QUERY)
+    const { data: data3, errors: errors3 } = await client_member.query(GET_ORGANIZATION_WITH_LINKS_QUERY, { id: organizationId })
     expect(errors3).toEqual(undefined)
-    expect(data3.meta.count).toEqual(2)
+    expect(data3.obj).toEqual({
+        'id': organizationId,
+        'userLinks': [
+            {
+                'id': link1Id,
+                'organization': {
+                    'id': organizationId,
+                },
+                'role': 'owner',
+                'user': {
+                    'id': user1.id,
+                },
+            },
+            {
+                'id': link2Id,
+                'organization': {
+                    'id': organizationId,
+                },
+                'role': 'member',
+                'user': {
+                    'id': user2.id,
+                },
+            },
+        ],
+    })
 
     // try to delete user 1
     const { data: data4, errors: errors4 } = await client_member.mutate(DELETE_ORGANIZATION_TO_USER_LINK_MUTATION, { id: link1Id })

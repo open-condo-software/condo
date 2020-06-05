@@ -44,19 +44,21 @@ const OrganizationToUserLink = new GQLListSchema('OrganizationToUserLink', {
             type: Relationship,
             ref: 'Organization.userLinks',
             isRequired: true,
-            many: false,
+            knexOptions: { isNotNullable: true },
         },
         user: {
             factory: () => ({ create: User._factory() }),
             type: Relationship,
             ref: 'User',
             isRequired: true,
+            knexOptions: { isNotNullable: true },
         },
         role: {
             type: Select,
             options: 'owner, member',
             isRequired: true,
             defaultValue: 'member',
+            knexOptions: { isNotNullable: true },
         },
     },
     access: {
