@@ -1,5 +1,10 @@
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
-const { User: BaseUser, ForgotPasswordAction, ForgotPasswordService, RegisterService } = require('@core/keystone/schemas/User')
+const {
+    User: BaseUser,
+    ForgotPasswordAction,
+    ForgotPasswordService,
+    RegisterService,
+} = require('@core/keystone/schemas/User')
 
 const User = BaseUser._override({
     fields: {
