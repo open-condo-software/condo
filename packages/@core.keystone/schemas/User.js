@@ -332,6 +332,8 @@ const RegisterService = new GQLCustomSchema('RegisterService', {
             schema: 'registerNewUser(name: String!, email: String!, password: String!, captcha: String!): User',
             access: true,
             resolver: async (_, { name, email, password }, context, info, { query }) => {
+                await RegisterService.emit('beforeRegisterNewUser', { name, email, password })
+
                 // TODO(pahaz): check email is valid!
                 // TODO(pahaz): check phone is valid!
                 const { errors: errors1, data: data1 } = await query(
@@ -377,7 +379,7 @@ const RegisterService = new GQLCustomSchema('RegisterService', {
                 }
 
                 // Send mail hook!
-                await RegisterService.emit('registerNewUser', { User: result.data.user })
+                await RegisterService.emit('afterRegisterNewUser', { User: result.data.user })
 
                 return result.data.user
             },
