@@ -1,3 +1,5 @@
+const userIsAuthenticated = ({ authentication: { item: user } }) => Boolean(user && user.id)
+
 const userIsAdmin = ({ authentication: { item: user } }) => Boolean(user && user.isAdmin)
 
 const userIsThisItem = ({ existingItem, authentication: { item: user } }) => {
@@ -51,6 +53,7 @@ const readOnlyField = {
 }
 
 module.exports = {
+    userIsAuthenticated,
     userIsAdmin,
     userIsOwner,
     userIsAdminOrOwner,
