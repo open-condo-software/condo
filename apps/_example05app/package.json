@@ -11,8 +11,8 @@
   "dependencies": {
     "@core/next": "^1.0.0",
     "@emotion/styled": "^10.0.27",
-    "@testing-library/jest-dom": "^5.7.0",
-    "@testing-library/react": "^10.0.4",
+    "@testing-library/jest-dom": "^5.9.0",
+    "@testing-library/react": "^10.2.0",
     "@zeit/next-css": "^1.0.1",
     "@zeit/next-less": "^1.0.1",
     "antd": "^4.2.0",
