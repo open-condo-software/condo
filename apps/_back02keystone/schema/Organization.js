@@ -15,7 +15,7 @@ const Organization = BaseOrganization._override({
         // settings: { type: MultiCheck, options: ['Feature1', 'Feature2'] },
         avatar: { type: File, adapter: AVATAR_FILE_ADAPTER },
         description: {
-            factory: faker.lorem.paragraph(),
+            factory: () => faker.lorem.paragraph(),
             type: Wysiwyg,
         },
     },
