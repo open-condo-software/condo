@@ -6,6 +6,7 @@ const { byTracking, atTracking } = require('@keystonejs/list-plugins')
 const { GQLListSchema, GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@core/keystone/access')
 const conf = require('@core/config')
+const { find } = require('../schema')
 const { findById } = require('../schema')
 const { User } = require('./User')
 
@@ -15,7 +16,6 @@ const Organization = new GQLListSchema('Organization', {
             factory: () => faker.company.companyName(),
             type: Text,
         },
-        isActive: { type: Checkbox, defaultValue: true },
         userLinks: {
             type: Relationship, ref: 'OrganizationToUserLink.organization', many: true,
         },
@@ -34,7 +34,7 @@ const Organization = new GQLListSchema('Organization', {
         defaultPageSize: 50,
         maximumPageSize: 200,
         defaultSort: 'name',
-        defaultColumns: 'name, isActive',
+        defaultColumns: 'name, createdBy, createdAt',
     },
 })
 
@@ -46,6 +46,9 @@ const OrganizationToUserLink = new GQLListSchema('OrganizationToUserLink', {
             ref: 'Organization.userLinks',
             isRequired: true,
             knexOptions: { isNotNullable: true },
+            access: {
+                update: access.userIsAdmin,
+            }
         },
         user: {
             factory: () => ({ create: User._factory() }),
@@ -53,6 +56,9 @@ const OrganizationToUserLink = new GQLListSchema('OrganizationToUserLink', {
             ref: 'User',
             isRequired: true,
             knexOptions: { isNotNullable: true },
+            access: {
+                update: access.userIsAdmin,
+            }
         },
         role: {
             type: Select,
@@ -137,12 +143,38 @@ function accessAllowOnlyForLinkedUsers ({ authentication: { item: user } }) {
     }
 }
 
-function accessAllowOnlyForRoleOwner ({ authentication: { item: user } }) {
-    if (!user) return false
+function connectByIdOnly (obj) {
+    if (!obj) return false
+    const keys = Object.keys(obj)
+    if (keys.length !== 1) return false
+    if (keys[0] !== 'connect') return false
+    const connect = obj.connect
+    if (!connect) return false
+    if (!connect.id) return false
+    const connect_keys = Object.keys(connect)
+    if (connect_keys.length !== 1) return false
+    return true
+}
+
+async function accessAllowOnlyForRoleOwner ({ operation, authentication: { item: user }, itemId, originalInput }) {
+    if (!user || !user.id) return false
     if (user.isAdmin) return true
-    return {
-        organization: { userLinks_some: { user: { id: user.id }, role: 'owner' } },
+    let orgId
+    if (operation === 'create' && originalInput) {
+        if (!connectByIdOnly(originalInput.organization) || !connectByIdOnly(originalInput.user)) return false
+        orgId = originalInput.organization.connect.id
+    } else if ((operation === 'update' || operation === 'delete') && itemId) {
+        const existingItem = await findById('OrganizationToUserLink', itemId)
+        orgId = existingItem.organization
+    } else {
+        return false
     }
+    const res = await find('OrganizationToUserLink', {
+        organization: { id: orgId },
+        user: { id: user.id },
+        role: 'owner',
+    })
+    return res.length === 1
 }
 
 module.exports = {

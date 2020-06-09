@@ -125,11 +125,18 @@ class GQLCustomSchema {
     }
 }
 
-async function findById (schemaName, id) {
+async function find (schemaName, condition) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
-    return await schemaList._keystone.lists[schemaName].adapter.findById(id)
+    return await schemaList._keystone.lists[schemaName].adapter.find(condition)
+}
+
+async function findById (schemaName, id) {
+    const res = await find(schemaName, { id })
+    if (res.length > 1) throw new Error('findById() returns multiple objects')
+    else if (res.length === 1) return res[0]
+    else return null
 }
 
 module.exports = {
@@ -137,6 +144,7 @@ module.exports = {
     GQLCustomSchema,
     registerSchemas,
     unregisterAllSchemas,
+    find,
     findById,
     GQL_CUSTOM_SCHEMA_TYPE,
     GQL_LIST_SCHEMA_TYPE,
