@@ -1,6 +1,7 @@
 const { createSchemaObject, setFakeClientMode } = require('@core/keystone/test.utils')
 const { makeLoggedInClient, makeLoggedInAdminClient, makeClient, createUser, gql } = require('@core/keystone/test.utils')
 const conf = require('@core/config')
+const faker = require('faker')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 const { Organization, OrganizationToUserLink } = require('../schema/Organization')
@@ -46,17 +47,17 @@ const COUNT_OF_ORGANIZATION_TO_USER_LINKS_QUERY = gql`
     }
 `
 
-const GET_ORGANIZATION_TO_USER_LINK_QUERY = gql`
+const GET_ORGANIZATION_TO_USER_LINKS_BY_ORGANIZATION_ID_QUERY = gql`
     query getObj($id: ID!) {
-        obj: OrganizationToUserLink (where: {id: $id}) {
+        objs: allOrganizationToUserLinks (where: {organization: {id: $id}}) {
             id
             organization {
                 id
                 name
+                description
             }
             user {
                 id
-                name
             }
             role
         }
@@ -86,6 +87,14 @@ const GET_ORGANIZATION_WITH_LINKS_QUERY = gql`
                 role
                 id
             }
+        }
+    }
+`
+
+const REGISTER_NEW_ORGANIZATION_MUTATION = gql`
+    mutation create($data: OrganizationRegisterNewInput!) {
+        obj: registerNewOrganization(data: $data) {
+            id
         }
     }
 `
@@ -300,4 +309,31 @@ test('user: access to change OrganizationToUserLink only for owners', async () =
         'path': ['obj'],
     })
     expect(data4).toEqual({ 'obj': null })
+})
+
+test('registerNewOrganization() by user', async () => {
+    const user = await createUser()
+    const client = await makeLoggedInClient(user)
+    const name = faker.company.companyName()
+    const description = faker.lorem.paragraph()
+    const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+        data: { name, description },
+    })
+
+    // created company
+    expect(errors).toEqual(undefined)
+    expect(data.obj.id).toMatch(/^[0-9a-zA-Z-_]+$/)
+
+    const { data: data1, errors: errors1 } = await client.query(
+        GET_ORGANIZATION_TO_USER_LINKS_BY_ORGANIZATION_ID_QUERY,
+        { id: data.obj.id },
+    )
+    expect(errors1).toEqual(undefined)
+    expect(data1.objs).toEqual([
+        expect.objectContaining({
+            'organization': expect.objectContaining({ name, description }),
+            'user': { 'id': user.id },
+            'role': 'owner',
+        }),
+    ])
 })
