@@ -329,8 +329,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
 const RegisterService = new GQLCustomSchema('RegisterService', {
     mutations: [
         {
-            schema: 'registerNewUser(name: String!, email: String!, password: String!, captcha: String!): User',
             access: true,
+            schema: 'registerNewUser(name: String!, email: String!, password: String!, captcha: String!): User',
             resolver: async (_, { name, email, password }, context, info, { query }) => {
                 await RegisterService.emit('beforeRegisterNewUser', { name, email, password })
 

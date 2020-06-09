@@ -2,7 +2,8 @@ const ow = require('ow')
 const _ = require('lodash')
 const Emittery = require('emittery')
 
-const EVENTS = new Emittery()
+let EVENTS = new Emittery()
+let SCHEMAS = new Map()
 const GQL_LIST_SCHEMA_TYPE = 'GQLListSchema'
 const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
 const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
@@ -25,6 +26,11 @@ const registerSchemas = (keystone, modulesList) => {
             }
         })
 }
+const unregisterAllSchemas = () => {
+    console.warn('unregisterAllSchemas() called! It\'just for debug/tests purposes. Don\'t use it in prod!')
+    EVENTS = new Emittery()
+    SCHEMAS = new Map()
+}
 
 class GQLListSchema {
     constructor (name, schema) {
@@ -37,10 +43,7 @@ class GQLListSchema {
         this.name = name
         this.schema = schema
         this._type = GQL_LIST_SCHEMA_TYPE
-    }
-
-    _register (keystone) {
-        keystone.createList(this.name, this.schema)
+        this._keystone = null
     }
 
     _factory (props = {}) {
@@ -52,7 +55,7 @@ class GQLListSchema {
                 }
             } else if (field.factory) {
                 result[name] = field.factory()
-            } else if (field.hasOwnProperty('defaultValue')) {
+            } else if (field.hasOwnProperty('defaultValue') && typeof field.defaultValue !== 'function') {
                 result[name] = field.defaultValue
             }
         }
@@ -67,6 +70,13 @@ class GQLListSchema {
             }
         })
         return new GQLListSchema(this.name, mergedSchema)
+    }
+
+    _register (keystone) {
+        if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
+        SCHEMAS.set(this.name, this)
+        this._keystone = keystone
+        keystone.createList(this.name, this.schema)
     }
 
     on (eventName, listener) {
@@ -88,12 +98,17 @@ class GQLCustomSchema {
             mutations: ow.array.valueOf(
                 ow.object.valuesOfType(ow.object.hasKeys(['access', 'schema', 'resolver']))),
         }))
+        if (!name.endsWith('Service')) console.warn(`GQLCustomSchema name=${name} is not ends with 'Service'`)
         this.name = name
         this.schema = schema
         this._type = GQL_CUSTOM_SCHEMA_TYPE
+        this._keystone = null
     }
 
     _register (keystone) {
+        if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
+        SCHEMAS.set(this.name, this)
+        this._keystone = keystone
         keystone.extendGraphQLSchema(this.schema)
     }
 
@@ -110,10 +125,19 @@ class GQLCustomSchema {
     }
 }
 
+async function findById (schemaName, id) {
+    if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
+    if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
+    const schemaList = SCHEMAS.get(schemaName)
+    return await schemaList._keystone.lists[schemaName].adapter.findById(id)
+}
+
 module.exports = {
     GQLListSchema,
     GQLCustomSchema,
     registerSchemas,
+    unregisterAllSchemas,
+    findById,
     GQL_CUSTOM_SCHEMA_TYPE,
     GQL_LIST_SCHEMA_TYPE,
 }
