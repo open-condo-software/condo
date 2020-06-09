@@ -383,12 +383,12 @@ test('no access to change another organization', async () => {
 
     const user = await createUser()
     const client = await makeLoggedInClient(user)
-    const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+    const { errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
         data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
     })
     expect(errors).toEqual(undefined)
 
-    const { data: d1, errors: err1 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
+    const { errors: err1 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
         id: linkId,
         data: { user: { connect: { id: user.id } } },
     })
@@ -398,7 +398,7 @@ test('no access to change another organization', async () => {
         'name': 'AccessDeniedError',
         'path': ['obj'],
     })
-    const { data: d2, errors: err2 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
+    const { errors: err2 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
         id: linkId,
         data: { role: 'member' },
     })
@@ -495,4 +495,52 @@ test('owner: has no access to update OrganizationToUserLinks organization/user a
         'name': 'AccessDeniedError',
         'path': ['obj'],
     })
+})
+
+const ACCEPT_OR_REJECT_MUTATION = gql`
+    mutation acceptOrReject($id: ID!, $data: OrganizationToUserLinkAcceptOrRejectInput!){
+        status: acceptOrRejectOrganizationToUserLink(id: $id, data: $data)
+    }
+`
+
+test('user: accept/reject OrganizationToUserLinks', async () => {
+    const user = await createUser()
+    const user2 = await createUser()
+    const client = await makeLoggedInClient(user)
+    const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+        data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
+    })
+    expect(errors).toEqual(undefined)
+
+    // create
+    const { data: d2, errors: err2 } = await client.mutate(CREATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
+        data: {
+            organization: { connect: { id: data.obj.id } },
+            user: { connect: { id: user2.id } },
+            role: 'member',
+        },
+    })
+    expect(err2).toEqual(undefined)
+    expect(d2.obj.id).toMatch(/^[0-9a-zA-Z-_]+$/)
+
+    // accept
+    const member_client = await makeLoggedInClient(user2)
+    const { data: d3, errors: err3 } = await member_client.mutate(ACCEPT_OR_REJECT_MUTATION, {
+        id: d2.obj.id,
+        data: {
+            isAccepted: true,
+        },
+    })
+    expect(err3).toEqual(undefined)
+    expect(d3.status).toEqual('ok')
+
+    // reject
+    const { data: d4, errors: err4 } = await member_client.mutate(ACCEPT_OR_REJECT_MUTATION, {
+        id: d2.obj.id,
+        data: {
+            isRejected: true,
+        },
+    })
+    expect(err4).toEqual(undefined)
+    expect(d4.status).toEqual('ok')
 })
