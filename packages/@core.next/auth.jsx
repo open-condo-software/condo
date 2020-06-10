@@ -10,13 +10,7 @@ const { DEBUG_RERENDERS, preventInfinityLoop, getContextIndependentWrappedInitia
  * This is the base react context instance. It should not be used
  * directly but is exported here to simplify testing.
  */
-const AuthContext = createContext({
-    isAuthenticated: false,
-    isLoading: true,
-    signin: () => {throw new Error('no Auth.signin')},
-    signout: () => {throw new Error('no Auth.signin')},
-    user: {},
-})
+const AuthContext = createContext({})
 
 /**
  * useAuth
@@ -68,7 +62,7 @@ let SIGNOUT_MUTATION = gql`
  */
 const AuthProvider = ({ children, initialUserValue }) => {
     const client = useApolloClient()
-    const [user, setUser] = useState(initialUserValue || null)
+    const [user, setUser] = useState(initialUserValue)
 
     useEffect(() => {
         // validate current user state without avoidable useQuery re-renders

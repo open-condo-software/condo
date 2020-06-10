@@ -5,10 +5,9 @@ import nextCookie from 'next-cookies'
 
 const { DEBUG_RERENDERS, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
-const LocaleContext = React.createContext({
-    locale: 'en',
-    setLocale: () => null,
-})
+const LocaleContext = React.createContext({})
+
+let defaultLocale = 'en'
 
 let messagesImporter = (locale) => import(`./${locale}.json`)
 
@@ -23,31 +22,29 @@ let getMessages = async (locale) => {
     }
 }
 
-let getLocale = (defaultLocale) => {
+let getLocale = () => {
     let locale = null
     if (typeof window !== 'undefined') {
-        if (cookie) {
-            locale = cookie.get('locale')
-        }
+        locale = cookie.get('locale')
         if (!locale && navigator) {
             locale = navigator.language.slice(0, 2)
         }
     }
-    return locale || defaultLocale || 'en'
+    return locale || defaultLocale
 }
 
 let extractReqLocale = (req) => {
     try {
         const cookieLocale = nextCookie({ req }).locale
         const headersLocale = req.headers['accept-language'].slice(0, 2)
-        return cookieLocale || headersLocale
+        return cookieLocale || headersLocale || defaultLocale
     } catch (e) {
         return null
     }
 }
 
 const Intl = ({ children, initialLocale, initialMessages, onError }) => {
-    const [locale, setLocale] = useState(initialLocale)
+    const [locale, setLocale] = useState(initialLocale || getLocale())
     const [messages, setMessages] = useState(initialMessages)
     useEffect(() => {
         getMessages(locale).then(importedMessages => {
@@ -72,7 +69,7 @@ const Intl = ({ children, initialLocale, initialMessages, onError }) => {
 if (DEBUG_RERENDERS) Intl.whyDidYouRender = true
 
 const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
-    const defaultLocale = opts.defaultLocale ? opts.defaultLocale : 'en'
+    defaultLocale = opts.defaultLocale ? opts.defaultLocale : 'en'
     // TODO(pahaz): refactor it. No need to patch globals here!
     messagesImporter = opts.messagesImporter ? opts.messagesImporter : messagesImporter
     getMessages = opts.getMessages ? opts.getMessages : getMessages
@@ -82,7 +79,7 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
     const WithIntl = ({ locale, messages, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithIntl()', locale)
         return (
-            <Intl initialLocale={locale || defaultLocale} initialMessages={messages || {}} onError={onIntlError}>
+            <Intl initialLocale={locale} initialMessages={messages} onError={onIntlError}>
                 <PageComponent {...pageProps} />
             </Intl>
         )
@@ -100,12 +97,10 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
         WithIntl.getInitialProps = async ctx => {
             const inAppContext = Boolean(ctx.ctx)
             const req = (inAppContext) ? ctx.ctx.req : ctx.req
-            const locale = getLocale((req) ? extractReqLocale(req) : defaultLocale)
+            const locale = extractReqLocale(req)
             const messages = await getMessages(locale)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
-
             preventInfinityLoop(ctx)
-
             return {
                 ...pageProps,
                 locale,
