@@ -96,7 +96,10 @@ const OrganizationService = new GQLCustomSchema('OrganizationService', {
             access: access.userIsAuthenticated,
             schema: 'registerNewOrganization(data: OrganizationRegisterNewInput!): Organization',
             resolver: async (_, { data }, context, info, { query }) => {
-                await OrganizationService.emit('beforeRegisterNewOrganization', data)
+                const extraLinkData = {}
+                const extraOrganizationData = {}
+                await OrganizationService.emit('beforeRegisterNewOrganization', {
+                    data, extraLinkData, extraOrganizationData })
 
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { errors: err1, data: data1 } = await query(
@@ -113,9 +116,10 @@ const OrganizationService = new GQLCustomSchema('OrganizationService', {
                     {
                         variables: {
                             'data': {
-                                'organization': { 'create': data },
+                                'organization': { 'create': {...data, ...extraOrganizationData} },
                                 'user': { 'connect': { 'id': context.authedItem.id } },
                                 'role': 'owner',
+                                ...extraLinkData,
                             },
                         }, skipAccessControl: true,
                     },

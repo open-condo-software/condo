@@ -49,6 +49,11 @@ const OrganizationToUserLink = BaseOrganizationToUserLink._override({
     },
 })
 
+OrganizationService.on('beforeRegisterNewOrganization', async ({ data, extraLinkData, extraOrganizationData }) => {
+    extraLinkData.isAccepted = true
+    extraLinkData.isRejected = false
+})
+
 const OrganizationAcceptRejectService = new GQLCustomSchema('OrganizationAcceptRejectService', {
     types: [
         {
