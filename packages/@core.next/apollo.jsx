@@ -14,7 +14,7 @@ import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { createUploadLink } from 'apollo-upload-client'
 
-const { preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
+const { DEBUG_RERENDERS, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
 let getApolloClientConfig = () => {
     const {
@@ -131,6 +131,7 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
     createApolloClient = opts.createApolloClient ? opts.createApolloClient : createApolloClient
 
     const WithApollo = ({ apolloClient, apolloState, ...pageProps }) => {
+        if (DEBUG_RERENDERS) console.log('WithApollo()', apolloState)
         let client
         if (apolloClient) {
             // Happens on: getDataFromTree & next.js ssr
@@ -146,6 +147,8 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
             </ApolloProvider>
         )
     }
+
+    if (DEBUG_RERENDERS) WithApollo.whyDidYouRender = true
 
     // Set the correct displayName in development
     if (process.env.NODE_ENV !== 'production') {
@@ -212,7 +215,7 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
                 apolloState: apolloClient.cache.extract(),
                 // Provide the client for ssr. As soon as this payload
                 // gets JSON.stringified it will remove itself.
-                apolloClient: ctx.apolloClient,
+                apolloClient: apolloClient,
             }
         }
     }

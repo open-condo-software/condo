@@ -1,9 +1,9 @@
 import { IntlProvider, useIntl } from 'react-intl'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import cookie from 'js-cookie'
 import nextCookie from 'next-cookies'
 
-const { preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
+const { DEBUG_RERENDERS, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
 const LocaleContext = React.createContext({
     locale: 'en',
@@ -14,18 +14,20 @@ let messagesImporter = (locale) => import(`./${locale}.json`)
 
 let getMessages = async (locale) => {
     try {
-        return messagesImporter(locale)
+        const module = await messagesImporter(locale)
+        return module.default || module
     } catch (error) {
-        console.error(error)
-        return import(`./lang/en.json`)
+        console.error('getMessages error:', error)
+        const module = import(`./lang/en.json`)
+        return module.default
     }
 }
 
 let getLocale = (defaultLocale) => {
     let locale = null
     if (typeof window !== 'undefined') {
-        if (localStorage) {
-            locale = localStorage.getItem('locale')
+        if (cookie) {
+            locale = cookie.get('locale')
         }
         if (!locale && navigator) {
             locale = navigator.language.slice(0, 2)
@@ -34,26 +36,7 @@ let getLocale = (defaultLocale) => {
     return locale || defaultLocale || 'en'
 }
 
-function Intl (props) {
-    const [locale, setLocale] = React.useState(props.locale)
-    const [messages, setMessages] = React.useState(props.messages)
-    React.useEffect(() => {
-        getMessages(locale).then(messages => {
-            setMessages(messages)
-            cookie.set('locale', locale, { expires: 365 })
-        })
-    }, [locale])
-
-    return (
-        <IntlProvider key={locale} locale={locale} messages={messages} onError={props.onError}>
-            <LocaleContext.Provider value={{ locale, setLocale }}>
-                {props.children}
-            </LocaleContext.Provider>
-        </IntlProvider>
-    )
-}
-
-function extractReqLocale (req) {
+let extractReqLocale = (req) => {
     try {
         const cookieLocale = nextCookie({ req }).locale
         const headersLocale = req.headers['accept-language'].slice(0, 2)
@@ -62,6 +45,31 @@ function extractReqLocale (req) {
         return null
     }
 }
+
+const Intl = ({ children, initialLocale, initialMessages, onError }) => {
+    const [locale, setLocale] = useState(initialLocale)
+    const [messages, setMessages] = useState(initialMessages)
+    useEffect(() => {
+        getMessages(locale).then(importedMessages => {
+            if (JSON.stringify(messages) === JSON.stringify(importedMessages)) return
+            if (DEBUG_RERENDERS) console.log('IntlProvider() newMessages and newLocale', locale)
+            setMessages(importedMessages)
+            cookie.set('locale', locale, { expires: 365 })
+        })
+    }, [locale])
+
+    if (DEBUG_RERENDERS) console.log('IntlProvider()', locale)
+
+    return (
+        <IntlProvider key={locale} locale={locale} messages={messages} onError={onError}>
+            <LocaleContext.Provider value={{ locale, setLocale }}>
+                {children}
+            </LocaleContext.Provider>
+        </IntlProvider>
+    )
+}
+
+if (DEBUG_RERENDERS) Intl.whyDidYouRender = true
 
 const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
     const defaultLocale = opts.defaultLocale ? opts.defaultLocale : 'en'
@@ -72,12 +80,15 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
     const onIntlError = opts.hideErrors ? (() => {}) : null
 
     const WithIntl = ({ locale, messages, ...pageProps }) => {
+        if (DEBUG_RERENDERS) console.log('WithIntl()', locale)
         return (
-            <Intl locale={locale || defaultLocale} messages={messages || {}} onError={onIntlError}>
+            <Intl initialLocale={locale || defaultLocale} initialMessages={messages || {}} onError={onIntlError}>
                 <PageComponent {...pageProps} />
             </Intl>
         )
     }
+
+    if (DEBUG_RERENDERS) WithIntl.whyDidYouRender = true
 
     // Set the correct displayName in development
     if (process.env.NODE_ENV !== 'production') {

@@ -13,6 +13,7 @@
     "@emotion/styled": "^10.0.27",
     "@testing-library/jest-dom": "^5.9.0",
     "@testing-library/react": "^10.2.0",
+    "@welldone-software/why-did-you-render": "^4.2.5",
     "@zeit/next-css": "^1.0.1",
     "@zeit/next-less": "^1.0.1",
     "antd": "^4.2.0",

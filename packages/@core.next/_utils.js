@@ -1,6 +1,7 @@
 import App from 'next/app'
 
 let errors = {}
+const DEBUG_RERENDERS = false
 
 function preventInfinityLoop (ctx) {
     const inAppContext = Boolean(ctx.ctx)
@@ -35,6 +36,7 @@ async function getContextIndependentWrappedInitialProps (PageComponent, ctx) {
 }
 
 module.exports = {
+    DEBUG_RERENDERS,
     preventInfinityLoop,
     getContextIndependentWrappedInitialProps,
 }

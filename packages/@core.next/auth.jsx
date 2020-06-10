@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useState } from 'react'
-import { useQuery, useMutation, useApolloClient } from './apollo'
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import { useMutation, useApolloClient } from './apollo'
 import gql from 'graphql-tag'
 
-const { preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
+const { DEBUG_RERENDERS, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
 /**
  * AuthContext
@@ -67,26 +67,23 @@ let SIGNOUT_MUTATION = gql`
  * authenticated state and provides methods for managing the auth state.
  */
 const AuthProvider = ({ children, initialUserValue }) => {
-    const [user, setUser] = useState(initialUserValue)
     const client = useApolloClient()
+    const [user, setUser] = useState(initialUserValue || null)
 
-    const { loading: userLoading } = useQuery(USER_QUERY, {
-        fetchPolicy: 'no-cache',
-        onCompleted: ({ authenticatedUser, error }) => {
-            if (error) {
-                throw error
-            }
-
+    useEffect(() => {
+        // validate current user state without avoidable useQuery re-renders
+        client.query({ query: USER_QUERY }).then(({ data: { authenticatedUser, error } }) => {
+            if (error) { return onError(error) }
+            if (JSON.stringify(authenticatedUser) === JSON.stringify(user)) return
+            if (DEBUG_RERENDERS) console.log('AuthProvider() newUser', authenticatedUser)
             setUser(authenticatedUser)
-        },
-        onError: console.error,
-    })
+        }, onError)
+    }, [user])
 
-    const [signin, { loading: signinLoading }] = useMutation(SIGNIN_MUTATION, {
+    const [signin] = useMutation(SIGNIN_MUTATION, {
         onCompleted: async ({ authenticateUserWithPassword: { item } = {}, error }) => {
-            if (error) {
-                throw error
-            }
+            if (error) { return onError(error) }
+            if (DEBUG_RERENDERS) console.log('AuthProvider() signin()')
 
             // Ensure there's no old unauthenticated data hanging around
             await client.resetStore()
@@ -95,13 +92,13 @@ const AuthProvider = ({ children, initialUserValue }) => {
                 setUser(item)
             }
         },
+        onError,
     })
 
-    const [signout, { loading: signoutLoading }] = useMutation(SIGNOUT_MUTATION, {
+    const [signout] = useMutation(SIGNOUT_MUTATION, {
         onCompleted: async ({ unauthenticateUser: { success } = {}, error }) => {
-            if (error) {
-                throw error
-            }
+            if (error) { return onError(error) }
+            if (DEBUG_RERENDERS) console.log('AuthProvider() signout()')
 
             // Ensure there's no old authenticated data hanging around
             await client.resetStore()
@@ -110,13 +107,20 @@ const AuthProvider = ({ children, initialUserValue }) => {
                 setUser(null)
             }
         },
+        onError,
     })
+
+    function onError (error) {
+        console.error(error)
+        setUser(null)
+    }
+
+    if (DEBUG_RERENDERS) console.log('AuthProvider()', user)
 
     return (
         <AuthContext.Provider
             value={{
                 isAuthenticated: !!user,
-                isLoading: userLoading || signinLoading || signoutLoading,
                 signin,
                 signout,
                 user,
@@ -127,6 +131,8 @@ const AuthProvider = ({ children, initialUserValue }) => {
     )
 }
 
+if (DEBUG_RERENDERS) AuthProvider.whyDidYouRender = true
+
 const withAuth = ({ ssr = false, ...opts } = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     USER_QUERY = opts.USER_QUERY ? opts.USER_QUERY : USER_QUERY
@@ -134,12 +140,15 @@ const withAuth = ({ ssr = false, ...opts } = {}) => PageComponent => {
     SIGNOUT_MUTATION = opts.SIGNOUT_MUTATION ? opts.SIGNOUT_MUTATION : SIGNOUT_MUTATION
 
     const WithAuth = ({ user, ...pageProps }) => {
+        if (DEBUG_RERENDERS) console.log('WithAuth()', user)
         return (
             <AuthProvider initialUserValue={user}>
                 <PageComponent {...pageProps} />
             </AuthProvider>
         )
     }
+
+    if (DEBUG_RERENDERS) WithAuth.whyDidYouRender = true
 
     // Set the correct displayName in development
     if (process.env.NODE_ENV !== 'production') {
