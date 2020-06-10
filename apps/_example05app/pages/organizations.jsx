@@ -1,7 +1,9 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Form, Input, Button, Typography, notification, Modal, Tag } from 'antd'
+import { Form, Input, Button, Typography, notification, Modal, Tag, Radio, Popconfirm } from 'antd'
 import { List, Avatar, Skeleton } from 'antd'
+import { QuestionCircleOutlined } from '@ant-design/icons'
+
 import gql from 'graphql-tag'
 
 import { useState } from 'react'
@@ -15,6 +17,7 @@ import { useMutation, useQuery } from '@core/next/apollo'
 import { getQueryParams } from '../utils/url.utils'
 import { useImmer } from 'use-immer'
 import styled from '@emotion/styled'
+import { useOrganization } from '@core/next/organization'
 
 const { Title } = Typography
 
@@ -75,7 +78,13 @@ gqlOrganization.registerNew = gql`
     }
 `
 
-const gqlOrganizationLink = buildListQueries('OrganizationToUserLink', ['id', 'organization', ['id', 'name', 'description', 'avatar', ['publicUrl']], 'user', ['id', 'name'], 'role'])
+const gqlOrganizationLink = buildListQueries('OrganizationToUserLink', ['id', 'organization', ['id', 'name', 'description', 'avatar', ['publicUrl']], 'user', ['id', 'name'], 'role', 'isRejected', 'isAccepted'])
+
+const ACCEPT_REJECT_ORGANIZATION = gql`
+    mutation acceptOrReject($id: ID!, $data: OrganizationToUserLinkAcceptOrRejectInput!){
+        status: acceptOrRejectOrganizationToUserLink(id: $id, data: $data)
+    }
+`
 
 const CreateOrganizationForm = ({ onFinish }) => {
     const [isVisible, setIsVisible] = useState(false)
@@ -173,16 +182,46 @@ const CreateOrganizationForm = ({ onFinish }) => {
 }
 
 const OrganizationListForm = () => {
-    const [form] = Form.useForm()
-    const intl = useIntl()
     const { user } = useAuth()
+    const organization = useOrganization()
     const where = user ? { user: { id: user.id } } : {}
-    const { loading, error, data, refetch } = useQuery(gqlOrganizationLink.list, {
+    const { loading, data, refetch } = useQuery(gqlOrganizationLink.list, {
         variables: { where },
-        fetchPolicy: 'network-only',
         errorPolicy: 'all',
     })
+    const [acceptOrReject] = useMutation(ACCEPT_REJECT_ORGANIZATION)
+
+    const intl = useIntl()
+    const DoneMsg = intl.formatMessage({ id: 'Done' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+
     const loadMore = <ListButtonSlot><CreateOrganizationForm onFinish={refetch}/></ListButtonSlot>
+    console.log(organization)
+    function handleAcceptOrReject (item, action) {
+        console.log(item, action)
+        let data = {}
+        if (action === 'accept') {
+            data = { isAccepted: true, isRejected: false }
+        } else if (action === 'reject') {
+            data = { isAccepted: false, isRejected: true }
+        } else if (action === 'leave') {
+            data = { isRejected: true }
+        }
+        acceptOrReject({ variables: { id: item.id, data } })
+            .then(
+                () => {
+                    console.log('Done')
+                    notification.success({ message: DoneMsg })
+                },
+                (e) => {
+                    console.error(e)
+                    notification.error({
+                        message: ServerErrorMsg,
+                        description: e.message,
+                    })
+                })
+            .finally(() => refetch())
+    }
 
     return (
         <List
@@ -192,17 +231,33 @@ const OrganizationListForm = () => {
             dataSource={data && data.list || []}
             renderItem={item => (
                 <List.Item
-                    actions={[<a key="list-loadmore-edit">leave</a>, <a key="list-loadmore-more">go</a>]}
+                    actions={[
+                        (!item.isAccepted && !item.isRejected) ?
+                            <Radio.Group size="small" onChange={(e) => handleAcceptOrReject(item, e.target.value)}>
+                                <Radio.Button value="accept">accept</Radio.Button>
+                                <Radio.Button value="reject">reject</Radio.Button>
+                            </Radio.Group>
+                            : null,
+                        (item.isAccepted) ? <Popconfirm title="Are you sure？"
+                                                        icon={<QuestionCircleOutlined style={{ color: 'red' }}/>}
+                                                        onConfirm={() => handleAcceptOrReject(item, 'leave')}>
+                                <Button size="small" type="dashed" danger>leave</Button>
+                            </Popconfirm>
+                            : null,
+                        (item.isAccepted) ? <Button size="small" type={'primary'}
+                                                    onClick={() => organization.selectLink(item)}>select</Button> : null,
+                    ].filter((x) => Boolean(x))}
+                    key={item.id}
+                    style={(item.isRejected) ? { display: 'none' } : undefined}
                 >
                     <Skeleton avatar title={false} loading={item.loading} active>
                         <List.Item.Meta
                             avatar={
-                                <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"/>
+                                <Avatar src="https://www.pngitem.com/pimgs/m/226-2261747_company-name-icon-png-transparent-png.png"/>
                             }
-                            title={<a href="https://ant.design">{item.organization && item.organization.name}</a>}
-                            description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+                            title={<>{item.organization && item.organization.name}{"  "}{item.role === 'owner' ? <Tag color="error">owner</Tag> : null}</>}
+                            description={item.organization && item.organization.description}
                         />
-                        {item.role === 'owner' ? <Tag color="error">owner</Tag> : null}
                     </Skeleton>
                 </List.Item>
             )}
