@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { useApolloClient, useLazyQuery } from './apollo'
+import { useQuery } from './apollo'
 import gql from 'graphql-tag'
 import cookie from 'js-cookie'
 import { useAuth } from './auth'
 import nextCookie from 'next-cookies'
 
-const { DEBUG_RERENDERS, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
+const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
 const OrganizationContext = createContext({})
 
@@ -35,74 +35,78 @@ let GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY = gql`
     }
 `
 
-let getLink = () => {
+let setLinkId = (value) => {
+    if (typeof window !== 'undefined') {
+        cookie.set('organizationLinkId', value, { expires: 365 })
+    }
+}
+
+let getLinkId = () => {
     let state = null
     if (typeof window !== 'undefined') {
         try {
-            const cookieState = cookie.get('organizationLink')
-            if (cookieState) state = JSON.parse(state)
+            state = cookie.get('organizationLinkId') || null
         } catch (e) {
-            console.warn('JSON parse organization value error:', e)
             state = null
         }
     }
     return state
 }
 
-let extractReqLink = (req) => {
-    let state = null
+let extractReqLinkId = (req) => {
     try {
-        const cookieState = nextCookie({ req }).organizationLink
-        if (typeof cookieState === 'object') state = cookieState
+        return nextCookie({ req }).organizationLinkId || null
     } catch (e) {
-        console.error(e)
-        state = null
+        return null
     }
-    return state
 }
 
-const OrganizationProvider = ({ children, initialLink }) => {
-    const client = useApolloClient()
+const OrganizationProvider = ({ children, initialLinkValue }) => {
     const auth = useAuth()
-    const [state, setState] = useState(initialLink || getLink())
-    useEffect(() => {
-        // validate changed!
-        if (!state) return
-        runUpdateQuery(state.id)
+    const [linkIdState, setLinkIdState] = useState(initialLinkValue && initialLinkValue.id || getLinkId())
+    const [link, setLink] = useState(initialLinkValue)
+
+    const { loading: linkLoading } = useQuery(GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY, {
+        variables: { id: linkIdState },
+        onCompleted: ({ obj }) => {
+            if (JSON.stringify(obj) === JSON.stringify(link)) return
+            if (DEBUG_RERENDERS) console.log('OrganizationProvider() newState', obj)
+            setLinkId(obj.id)
+            setLinkIdState(obj.id)
+            setLink(obj)
+        },
+        onError,
     })
 
-    function safeSetState (obj) {
-        if (JSON.stringify(obj) === JSON.stringify(state)) return
-        if (DEBUG_RERENDERS) console.log('OrganizationProvider() newState', obj)
-        cookie.set('organizationLink', JSON.stringify(obj), { expires: 365 })
-        setState(obj)
+    useEffect(() => {
+        if (auth.isLoading) return
+        if (!auth.user) setLink(null)
+    }, [auth.user])
+
+    function onError (error) {
+        console.error(error)
+        setLink(null)
     }
 
-    function runUpdateQuery (id) {
-        return client.query({
-            query: GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY,
-            variables: { id: id },
-        }).then(({ data }) => {
-            if (String(auth.user.id) === String(data.obj.user.id)) {
-                safeSetState(data.obj)
-            } else {
-                console.error('auth.user.id === data.user.id', data, auth)
-                safeSetState(null)
-            }
-        }, (error) => {
-            console.error(error)
-            safeSetState(null)
-        })
+    function handleSelectItem (linkItem) {
+        if (linkItem && linkItem.id) {
+            setLinkIdState(linkItem.id)
+        } else {
+            setLink(null)
+            setLinkId('')
+        }
+        return Promise.resolve()
     }
 
-    if (DEBUG_RERENDERS) console.log('OrganizationProvider()', state)
+    if (DEBUG_RERENDERS) console.log('OrganizationProvider()', link)
 
     return (
         <OrganizationContext.Provider
             value={{
-                selectLink: (linkItem) => runUpdateQuery(linkItem.id),
-                link: (state && state.id) ? state : null,
-                organization: (state && state.organization) ? state.organization : null,
+                selectLink: handleSelectItem,
+                isLoading: auth.isLoading || linkLoading,
+                link: (link && link.id) ? link : null,
+                organization: (link && link.organization) ? link.organization : null,
             }}
         >
             {children}
@@ -110,24 +114,53 @@ const OrganizationProvider = ({ children, initialLink }) => {
     )
 }
 
-if (DEBUG_RERENDERS) OrganizationProvider.whyDidYouRender = true
+if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) OrganizationProvider.whyDidYouRender = true
+
+const initOnRestore = async (ctx) => {
+    let linkId, link = null
+    const isOnServerSide = typeof window === 'undefined'
+    if (isOnServerSide) {
+        const inAppContext = Boolean(ctx.ctx)
+        const req = (inAppContext) ? ctx.ctx.req : ctx.req
+        linkId = extractReqLinkId(req)
+    } else {
+        linkId = getLinkId()
+    }
+
+    if (linkId) {
+        try {
+            const data = await ctx.apolloClient.query({
+                query: GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY,
+                variables: { id: linkId },
+                fetchPolicy: (isOnServerSide) ? 'network-only' : 'cache-first',
+            })
+            link = data.data ? data.data.obj : null
+        } catch (error) {
+            // Prevent Apollo Client GraphQL errors from crashing SSR.
+            // Handle them in components via the data.error prop:
+            // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
+            console.error('Error while running `withOrganization`', error)
+            link = null
+        }
+    }
+
+    return { link }
+}
 
 const withOrganization = ({ ssr = false, ...opts } = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY = opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY ? opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY : GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY
-    getLink = opts.getLink ? opts.getLink : getLink
-    extractReqLink = opts.extractReqLink ? opts.extractReqLink : extractReqLink
 
     const WithOrganization = ({ link, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithOrganization()', link)
         return (
-            <OrganizationProvider initialLink={link}>
+            <OrganizationProvider initialLinkValue={link}>
                 <PageComponent {...pageProps} />
             </OrganizationProvider>
         )
     }
 
-    if (DEBUG_RERENDERS) WithOrganization.whyDidYouRender = true
+    if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) WithOrganization.whyDidYouRender = true
 
     // Set the correct displayName in development
     if (process.env.NODE_ENV !== 'production') {
@@ -137,11 +170,15 @@ const withOrganization = ({ ssr = false, ...opts } = {}) => PageComponent => {
 
     if (ssr || PageComponent.getInitialProps) {
         WithOrganization.getInitialProps = async ctx => {
-            const inAppContext = Boolean(ctx.ctx)
-            const req = (inAppContext) ? ctx.ctx.req : ctx.req
-            const link = extractReqLink(req)
+            if (DEBUG_RERENDERS) console.log('WithOrganization.getInitialProps()', ctx)
+            const isOnServerSide = typeof window === 'undefined'
+            const { link } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
-            preventInfinityLoop(ctx)
+
+            if (isOnServerSide) {
+                preventInfinityLoop(ctx)
+            }
+
             return {
                 ...pageProps,
                 link,

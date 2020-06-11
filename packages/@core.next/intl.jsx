@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import cookie from 'js-cookie'
 import nextCookie from 'next-cookies'
 
-const { DEBUG_RERENDERS, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
+const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
 const LocaleContext = React.createContext({})
 
@@ -17,7 +17,7 @@ let getMessages = async (locale) => {
         return module.default || module
     } catch (error) {
         console.error('getMessages error:', error)
-        const module = import(`./lang/en.json`)
+        const module = await import(`./lang/en.json`)
         return module.default
     }
 }
@@ -25,9 +25,13 @@ let getMessages = async (locale) => {
 let getLocale = () => {
     let locale = null
     if (typeof window !== 'undefined') {
-        locale = cookie.get('locale')
-        if (!locale && navigator) {
-            locale = navigator.language.slice(0, 2)
+        try {
+            locale = cookie.get('locale')
+            if (!locale && navigator) {
+                locale = navigator.language.slice(0, 2)
+            }
+        } catch (e) {
+            locale = null
         }
     }
     return locale || defaultLocale
@@ -43,8 +47,23 @@ let extractReqLocale = (req) => {
     }
 }
 
+const initOnRestore = async (ctx) => {
+    let locale, messages
+    const isOnServerSide = typeof window === 'undefined'
+    if (isOnServerSide) {
+        const inAppContext = Boolean(ctx.ctx)
+        const req = (inAppContext) ? ctx.ctx.req : ctx.req
+        locale = extractReqLocale(req)
+        messages = await getMessages(locale)
+    } else {
+        locale = getLocale()
+        messages = await getMessages(locale)
+    }
+    return { locale, messages }
+}
+
 const Intl = ({ children, initialLocale, initialMessages, onError }) => {
-    const [locale, setLocale] = useState(initialLocale || getLocale())
+    const [locale, setLocale] = useState(initialLocale)
     const [messages, setMessages] = useState(initialMessages)
     useEffect(() => {
         getMessages(locale).then(importedMessages => {
@@ -66,7 +85,7 @@ const Intl = ({ children, initialLocale, initialMessages, onError }) => {
     )
 }
 
-if (DEBUG_RERENDERS) Intl.whyDidYouRender = true
+if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) Intl.whyDidYouRender = true
 
 const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
     defaultLocale = opts.defaultLocale ? opts.defaultLocale : 'en'
@@ -77,6 +96,7 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
     const onIntlError = opts.hideErrors ? (() => {}) : null
 
     const WithIntl = ({ locale, messages, ...pageProps }) => {
+        // in there is no locale and no messages => client side rerender (we should use some client side cache)
         if (DEBUG_RERENDERS) console.log('WithIntl()', locale)
         return (
             <Intl initialLocale={locale} initialMessages={messages} onError={onIntlError}>
@@ -85,7 +105,7 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
         )
     }
 
-    if (DEBUG_RERENDERS) WithIntl.whyDidYouRender = true
+    if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) WithIntl.whyDidYouRender = true
 
     // Set the correct displayName in development
     if (process.env.NODE_ENV !== 'production') {
@@ -95,12 +115,15 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
 
     if (ssr || PageComponent.getInitialProps) {
         WithIntl.getInitialProps = async ctx => {
-            const inAppContext = Boolean(ctx.ctx)
-            const req = (inAppContext) ? ctx.ctx.req : ctx.req
-            const locale = extractReqLocale(req)
-            const messages = await getMessages(locale)
+            if (DEBUG_RERENDERS) console.log('WithIntl.getInitialProps()', ctx)
+            const isOnServerSide = typeof window === 'undefined'
+            const { locale, messages } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
-            preventInfinityLoop(ctx)
+
+            if (isOnServerSide) {
+                preventInfinityLoop(ctx)
+            }
+
             return {
                 ...pageProps,
                 locale,

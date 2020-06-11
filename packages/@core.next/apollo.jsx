@@ -14,7 +14,7 @@ import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { createUploadLink } from 'apollo-upload-client'
 
-const { DEBUG_RERENDERS, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
+const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
 let getApolloClientConfig = () => {
     const {
@@ -55,24 +55,34 @@ let createApolloClient = (initialState, ctx) => {
 let globalApolloClient = null
 
 /**
+ * Always creates a new apollo client on the server
+ * Creates or reuses apollo client in the browser.
+ * @param  {NormalizedCacheObject} initialState
+ * @param  {NextPageContext} ctx
+ */
+const initApolloClient = (initialState, ctx) => {
+    // Make sure to create a new client for every server-side request so that data
+    // isn't shared between connections (which would be bad)
+    if (typeof window === 'undefined') {
+        return createApolloClient(initialState, ctx)
+    }
+
+    // Reuse client on the client-side
+    if (!globalApolloClient) {
+        globalApolloClient = createApolloClient(initialState, ctx)
+    }
+
+    return globalApolloClient
+}
+
+/**
  * Installs the Apollo Client on NextPageContext
  * or NextAppContext. Useful if you want to use apolloClient
  * inside getStaticProps, getStaticPaths or getServerSideProps
  * @param {NextPageContext | NextAppContext} ctx
  */
-const initOnContext = (ctx) => {
+const initOnRestore = async (ctx) => {
     const inAppContext = Boolean(ctx.ctx)
-
-    // We consider installing `withApollo({ ssr: true })` on global App level
-    // as antipattern since it disables project wide Automatic Static Optimization.
-    if (process.env.NODE_ENV === 'development') {
-        if (inAppContext) {
-            console.warn(
-                'Warning: You have opted-out of Automatic Static Optimization due to `withApollo` in `pages/_app`.\n' +
-                'Read more: https://err.sh/next.js/opt-out-auto-static-optimization\n',
-            )
-        }
-    }
 
     // Initialize ApolloClient if not already done
     const apolloClient =
@@ -93,28 +103,7 @@ const initOnContext = (ctx) => {
         ctx.ctx.apolloClient = apolloClient
     }
 
-    return ctx
-}
-
-/**
- * Always creates a new apollo client on the server
- * Creates or reuses apollo client in the browser.
- * @param  {NormalizedCacheObject} initialState
- * @param  {NextPageContext} ctx
- */
-const initApolloClient = (initialState, ctx) => {
-    // Make sure to create a new client for every server-side request so that data
-    // isn't shared between connections (which would be bad)
-    if (typeof window === 'undefined') {
-        return createApolloClient(initialState, ctx)
-    }
-
-    // Reuse client on the client-side
-    if (!globalApolloClient) {
-        globalApolloClient = createApolloClient(initialState, ctx)
-    }
-
-    return globalApolloClient
+    return { apolloClient }
 }
 
 /**
@@ -148,7 +137,7 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
         )
     }
 
-    if (DEBUG_RERENDERS) WithApollo.whyDidYouRender = true
+    if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) WithApollo.whyDidYouRender = true
 
     // Set the correct displayName in development
     if (process.env.NODE_ENV !== 'production') {
@@ -159,9 +148,9 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
 
     if (ssr || PageComponent.getInitialProps) {
         WithApollo.getInitialProps = async ctx => {
+            if (DEBUG_RERENDERS) console.log('WithApollo.getInitialProps()', ctx)
             const isOnServerSide = typeof window === 'undefined'
-            const inAppContext = Boolean(ctx.ctx)
-            const { apolloClient } = initOnContext(ctx)
+            const { apolloClient } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 
             if (isOnServerSide) {
@@ -174,6 +163,7 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
 
                 // Only if dataFromTree is enabled
                 if (ssr && AppTree) {
+                    const inAppContext = Boolean(ctx.ctx)
                     try {
                         // Import `@apollo/react-ssr` dynamically.
                         // We don't want to have this in our client bundle.
@@ -205,9 +195,9 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
                     // head side effect therefore need to be cleared manually
                     Head.rewind()
                 }
-            }
 
-            preventInfinityLoop(ctx)
+                preventInfinityLoop(ctx)
+            }
 
             return {
                 ...pageProps,

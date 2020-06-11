@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { useMutation, useApolloClient } from './apollo'
+import { useMutation, useApolloClient, useQuery } from './apollo'
 import gql from 'graphql-tag'
 
-const { DEBUG_RERENDERS, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
+const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
 /**
  * AuthContext
@@ -64,17 +64,27 @@ const AuthProvider = ({ children, initialUserValue }) => {
     const client = useApolloClient()
     const [user, setUser] = useState(initialUserValue)
 
-    useEffect(() => {
-        // validate current user state without avoidable useQuery re-renders
-        client.query({ query: USER_QUERY }).then(({ data: { authenticatedUser, error } }) => {
+    // useEffect(() => {
+    //     // validate current user state without avoidable useQuery re-renders
+    //     client.query({ query: USER_QUERY }).then(({ data: { authenticatedUser, error } }) => {
+    //         if (error) { return onError(error) }
+    //         if (JSON.stringify(authenticatedUser) === JSON.stringify(user)) return
+    //         if (DEBUG_RERENDERS) console.log('AuthProvider() newUser', authenticatedUser)
+    //         setUser(authenticatedUser)
+    //     }, onError)
+    // }, [user])
+
+    const { loading: userLoading } = useQuery(USER_QUERY, {
+        onCompleted: ({ authenticatedUser, error }) => {
             if (error) { return onError(error) }
             if (JSON.stringify(authenticatedUser) === JSON.stringify(user)) return
             if (DEBUG_RERENDERS) console.log('AuthProvider() newUser', authenticatedUser)
             setUser(authenticatedUser)
-        }, onError)
-    }, [user])
+        },
+        onError,
+    })
 
-    const [signin] = useMutation(SIGNIN_MUTATION, {
+    const [signin, { loading: signinLoading }] = useMutation(SIGNIN_MUTATION, {
         onCompleted: async ({ authenticateUserWithPassword: { item } = {}, error }) => {
             if (error) { return onError(error) }
             if (DEBUG_RERENDERS) console.log('AuthProvider() signin()')
@@ -89,7 +99,7 @@ const AuthProvider = ({ children, initialUserValue }) => {
         onError,
     })
 
-    const [signout] = useMutation(SIGNOUT_MUTATION, {
+    const [signout, { loading: signoutLoading }] = useMutation(SIGNOUT_MUTATION, {
         onCompleted: async ({ unauthenticateUser: { success } = {}, error }) => {
             if (error) { return onError(error) }
             if (DEBUG_RERENDERS) console.log('AuthProvider() signout()')
@@ -115,6 +125,7 @@ const AuthProvider = ({ children, initialUserValue }) => {
         <AuthContext.Provider
             value={{
                 isAuthenticated: !!user,
+                isLoading: userLoading || signinLoading || signoutLoading,
                 signin,
                 signout,
                 user,
@@ -125,7 +136,26 @@ const AuthProvider = ({ children, initialUserValue }) => {
     )
 }
 
-if (DEBUG_RERENDERS) AuthProvider.whyDidYouRender = true
+if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) AuthProvider.whyDidYouRender = true
+
+const initOnRestore = async (ctx) => {
+    let user
+    const isOnServerSide = typeof window === 'undefined'
+    try {
+        const data = await ctx.apolloClient.query({
+            query: USER_QUERY,
+            fetchPolicy: (isOnServerSide) ? 'network-only' : 'cache-first',
+        })
+        user = data.data ? data.data.authenticatedUser : undefined
+    } catch (error) {
+        // Prevent Apollo Client GraphQL errors from crashing SSR.
+        // Handle them in components via the data.error prop:
+        // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
+        console.error('Error while running `withAuth`', error)
+        user = null
+    }
+    return { user }
+}
 
 const withAuth = ({ ssr = false, ...opts } = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
@@ -142,7 +172,7 @@ const withAuth = ({ ssr = false, ...opts } = {}) => PageComponent => {
         )
     }
 
-    if (DEBUG_RERENDERS) WithAuth.whyDidYouRender = true
+    if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) WithAuth.whyDidYouRender = true
 
     // Set the correct displayName in development
     if (process.env.NODE_ENV !== 'production') {
@@ -152,26 +182,14 @@ const withAuth = ({ ssr = false, ...opts } = {}) => PageComponent => {
 
     if (ssr || PageComponent.getInitialProps) {
         WithAuth.getInitialProps = async ctx => {
+            if (DEBUG_RERENDERS) console.log('WithAuth.getInitialProps()', ctx)
             const isOnServerSide = typeof window === 'undefined'
+            const { user } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 
-            let user
             if (isOnServerSide) {
-                try {
-                    const data = await ctx.apolloClient.query({
-                        query: USER_QUERY,
-                        fetchPolicy: 'network-only',
-                    })
-                    user = data.data ? data.data.authenticatedUser : undefined
-                } catch (error) {
-                    // Prevent Apollo Client GraphQL errors from crashing SSR.
-                    // Handle them in components via the data.error prop:
-                    // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
-                    console.error('Error while running `withAuth`', error)
-                }
+                preventInfinityLoop(ctx)
             }
-
-            preventInfinityLoop(ctx)
 
             return {
                 ...pageProps,
