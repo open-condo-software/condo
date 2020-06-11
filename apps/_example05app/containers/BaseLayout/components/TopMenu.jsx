@@ -1,19 +1,26 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/core'
-import { Avatar, Dropdown, Menu, Spin } from 'antd'
+import { Avatar, Dropdown, Menu, Spin, Tag } from 'antd'
 import { LogoutOutlined } from '@ant-design/icons'
 import Router from 'next/router'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
+import styled from '@emotion/styled'
 
-const headerRightWrapper = css`
+const TopMenuLeftWrapper = styled.div`
+  float: left;
+  height: 100%;
+  margin-left: auto;
+  overflow: hidden;
+`
+
+const TopMenuRightWrapper = styled.div`
   float: right;
   height: 100%;
   margin-left: auto;
   overflow: hidden;
 `
 
-const headerItem = css`
+const TopMenuItem = styled.div`
     display: inline-block;
     height: 100%;
     padding: 0 24px;
@@ -30,23 +37,29 @@ const headerItem = css`
     }
 `
 
-const headerDropdownMenu = css`
-`
-
-const MenuHeader = (props) => {
+const TopMenu = (props) => {
     const auth = useAuth()
     const intl = useIntl()
+    const organization = useOrganization()
     const loading = Boolean(props.loading)
     const withDropdownMenu = true
     const avatarUrl = (auth.user && auth.user.avatar && auth.user.avatar.publicUrl) ? auth.user.avatar.publicUrl : 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png'
 
-    const SignOutMsg = intl.formatMessage({id: 'SignOut'})
-    const SignInMsg = intl.formatMessage({id: 'SignIn'})
-    const AvatarMsg = intl.formatMessage({id: 'Avatar'})
-    const GuestUsernameMsg = intl.formatMessage({id: 'baselayout.menuheader.GuestUsername'})
+    const SignOutMsg = intl.formatMessage({ id: 'SignOut' })
+    const SignInMsg = intl.formatMessage({ id: 'SignIn' })
+    const AvatarMsg = intl.formatMessage({ id: 'Avatar' })
+    const GuestUsernameMsg = intl.formatMessage({ id: 'baselayout.menuheader.GuestUsername' })
+
+    if (loading) {
+        return (
+            <div>
+                <Spin size="small" style={{ marginLeft: 16, marginRight: 16 }}/>
+            </div>
+        )
+    }
 
     const menu = (
-        <Menu css={headerDropdownMenu}>
+        <Menu>
             <Menu.Item key="signout" onClick={auth.signout}>
                 <LogoutOutlined/> {SignOutMsg}
             </Menu.Item>
@@ -54,7 +67,7 @@ const MenuHeader = (props) => {
     )
 
     const avatar = (
-        <div css={headerItem}>
+        <TopMenuItem>
             <Avatar
                 size="small"
                 src={avatarUrl}
@@ -62,31 +75,30 @@ const MenuHeader = (props) => {
                 className="avatar"
             />
             <span className="name">{auth.user ? auth.user.name : GuestUsernameMsg}</span>
-        </div>
+        </TopMenuItem>
     )
 
     const sigin = (
-        <div css={headerItem} onClick={() => Router.push('/auth/signin')}>
+        <TopMenuItem onClick={() => Router.push('/auth/signin')}>
             <span className="name">{SignInMsg}</span>
-        </div>
+        </TopMenuItem>
     )
-
-    if (loading) {
-        return (
-            <div css={headerRightWrapper}>
-                <Spin size="small" style={{ marginLeft: 16, marginRight: 16 }}/>
-            </div>
-        )
-    }
 
     const signedInItems = withDropdownMenu ? (<Dropdown overlay={menu}>{avatar}</Dropdown>) : (avatar)
     const signedOutItems = (sigin)
 
-    return (
-        <div css={headerRightWrapper}>
+    const organizationName = (organization && organization.organization) ? <TopMenuItem
+        onClick={() => Router.push('/organizations')}>
+        {organization.organization.name}{' '}
+        {(organization.link && organization.link.role === 'owner') ? <Tag color="error">owner</Tag> : null}
+    </TopMenuItem> : null
+
+    return (<>
+        <TopMenuLeftWrapper>{organizationName}</TopMenuLeftWrapper>
+        <TopMenuRightWrapper>
             {auth.isAuthenticated ? signedInItems : signedOutItems}
-        </div>
-    )
+        </TopMenuRightWrapper>
+    </>)
 }
 
-export default MenuHeader
+export default TopMenu
