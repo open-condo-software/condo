@@ -48,8 +48,8 @@ const SignInForm = () => {
             .then(
                 (data) => {
                     notification.success({ message: LoggedInMsg })
-                    // TODO(pahaz): go to ?next url
-                    Router.push('/')
+                    if (initialValues.next) Router.push(initialValues.next)
+                    else Router.push('/')
                 },
                 (e) => {
                     console.log(e)
