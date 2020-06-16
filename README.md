@@ -27,7 +27,10 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] Auth: Options captcha support
  - [x] User: Schema, API, Tests
  - [x] Organization: Schema, API, Tests
- - [ ] Organization: Page (example)
+ - [x] Organization: Page (example)
+ - [x] Organization: accept/reject/leave/select logic: Schema, API, Tests
+ - [x] Organization: accept/reject/leave/select logic: Page (example)
+ - [ ] Organization: invite/apply logic
  - [x] User: reusable customization (like django.auth.user)
  - [x] Register: Schema, API, Test
  - [x] Register: Page (example)
