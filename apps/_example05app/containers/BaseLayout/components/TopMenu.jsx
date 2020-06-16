@@ -39,15 +39,16 @@ const TopMenuItem = styled.div`
 
 const TopMenu = (props) => {
     const auth = useAuth()
-    const intl = useIntl()
     const organization = useOrganization()
     const loading = Boolean(props.loading)
     const withDropdownMenu = true
     const avatarUrl = (auth.user && auth.user.avatar && auth.user.avatar.publicUrl) ? auth.user.avatar.publicUrl : 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png'
 
+    const intl = useIntl()
     const SignOutMsg = intl.formatMessage({ id: 'SignOut' })
     const SignInMsg = intl.formatMessage({ id: 'SignIn' })
     const AvatarMsg = intl.formatMessage({ id: 'Avatar' })
+    const OwnerMsg = intl.formatMessage({ id: 'Owner' })
     const GuestUsernameMsg = intl.formatMessage({ id: 'baselayout.menuheader.GuestUsername' })
 
     if (loading) {
@@ -90,7 +91,7 @@ const TopMenu = (props) => {
     const organizationName = (organization && organization.organization) ? <TopMenuItem
         onClick={() => Router.push('/organizations')}>
         {organization.organization.name}{' '}
-        {(organization.link && organization.link.role === 'owner') ? <Tag color="error">owner</Tag> : null}
+        {(organization.link && organization.link.role === 'owner') ? <Tag color="error">{OwnerMsg}</Tag> : null}
     </TopMenuItem> : null
 
     return (<>

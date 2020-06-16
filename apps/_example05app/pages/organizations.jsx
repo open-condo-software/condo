@@ -1,25 +1,37 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Form, Input, Button, Typography, notification, Modal, Tag, Radio, Popconfirm } from 'antd'
-import { List, Avatar, Skeleton } from 'antd'
+import styled from '@emotion/styled'
+import {
+    Avatar,
+    Button,
+    Form,
+    Input,
+    List,
+    Modal,
+    notification,
+    Popconfirm,
+    Radio,
+    Skeleton,
+    Tag,
+    Typography,
+} from 'antd'
 import { QuestionCircleOutlined } from '@ant-design/icons'
-
 import gql from 'graphql-tag'
-
 import { useState } from 'react'
 import Head from 'next/head'
 import Router from 'next/router'
-
-import BaseLayout from '../containers/BaseLayout'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { useMutation, useQuery } from '@core/next/apollo'
-import { getQueryParams } from '../utils/url.utils'
-import { useImmer } from 'use-immer'
-import styled from '@emotion/styled'
 import { useOrganization } from '@core/next/organization'
 
+import { getQueryParams } from '../utils/url.utils'
+import BaseLayout from '../containers/BaseLayout'
+import { AuthRequired } from '../containers/AuthRequired'
+
 const { Title } = Typography
+
+const DEFAULT_ORGANIZATION_AVATAR_URL = 'https://www.pngitem.com/pimgs/m/226-2261747_company-name-icon-png-transparent-png.png'
 
 const ListButtonSlot = styled.div`
     margin: 24px;
@@ -27,6 +39,7 @@ const ListButtonSlot = styled.div`
 `
 
 function buildListQueries (gqlListSchemaName, fields = ['id', '_label_']) {
+    // TODO(pahaz): remove it! useless and large!
     const fieldsToStr = (fields) => '{ ' + fields.map((f) => Array.isArray(f) ? fieldsToStr(f) : f).join(' ') + ' }'
     const gqlFields = fieldsToStr(fields)
 
@@ -97,8 +110,13 @@ const CreateOrganizationForm = ({ onFinish }) => {
     })
 
     const intl = useIntl()
-    const SavedMsg = intl.formatMessage({ id: 'Saved' })
+    const DoneMsg = intl.formatMessage({ id: 'Done' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const CancelMsg = intl.formatMessage({ id: 'Cancel' })
+    const SaveMsg = intl.formatMessage({ id: 'Save' })
+    const NameMsg = intl.formatMessage({ id: 'Name' })
+    const DescriptionMsg = intl.formatMessage({ id: 'Description' })
+    const CreateOrganizationButtonLabelMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
     const ErrorsMsgMapping = {
         '[register:email:multipleFound]': {
             name: 'email',
@@ -115,13 +133,11 @@ const CreateOrganizationForm = ({ onFinish }) => {
     }
 
     function handleFinish (values) {
-        console.log({ action: 'create', ...values })
         setIsLoading(true)
         create({ variables: { data: values } })
             .then(
                 () => {
-                    console.log('saved')
-                    notification.success({ message: SavedMsg })
+                    notification.success({ message: DoneMsg })
                     onFinish()
                 },
                 (e) => {
@@ -151,27 +167,23 @@ const CreateOrganizationForm = ({ onFinish }) => {
     }
 
     return (<>
-        <Button onClick={handleOpen}>Create Organization</Button>
+        <Button onClick={handleOpen}>{CreateOrganizationButtonLabelMsg}</Button>
         <Modal title="Change unit form" visible={isVisible} onCancel={handleCancel} footer={[
-            <Button key="back" onClick={handleCancel}>
-                Cancel
-            </Button>,
-            <Button key="submit" type="primary" onClick={handleSave} loading={isLoading}>
-                Save
-            </Button>,
+            <Button key="back" onClick={handleCancel}>{CancelMsg}</Button>,
+            <Button key="submit" type="primary" onClick={handleSave} loading={isLoading}>{SaveMsg}</Button>,
         ]}
         >
             <Form form={form} layout="vertical" name="create-organization-form" onFinish={handleFinish}>
                 <Form.Item
                     name="name"
-                    label="Name"
+                    label={NameMsg}
                     rules={[{ required: true }]}
                 >
                     <Input/>
                 </Form.Item>
                 <Form.Item
                     name="description"
-                    label="Description"
+                    label={DescriptionMsg}
                     rules={[{ required: true }]}
                 >
                     <Input/>
@@ -194,9 +206,15 @@ const OrganizationListForm = () => {
     const intl = useIntl()
     const DoneMsg = intl.formatMessage({ id: 'Done' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const AcceptMsg = intl.formatMessage({ id: 'Accept' })
+    const RejectMsg = intl.formatMessage({ id: 'Reject' })
+    const LeaveMsg = intl.formatMessage({ id: 'Leave' })
+    const SelectMsg = intl.formatMessage({ id: 'Select' })
+    const OwnerMsg = intl.formatMessage({ id: 'Owner' })
+    const AreYouSureMsg = intl.formatMessage({ id: 'AreYouSure' })
 
     const loadMore = <ListButtonSlot><CreateOrganizationForm onFinish={refetch}/></ListButtonSlot>
-    console.log(organization)
+
     function handleAcceptOrReject (item, action) {
         console.log(item, action)
         let data = {}
@@ -210,7 +228,6 @@ const OrganizationListForm = () => {
         acceptOrReject({ variables: { id: item.id, data } })
             .then(
                 () => {
-                    console.log('Done')
                     notification.success({ message: DoneMsg })
                 },
                 (e) => {
@@ -221,6 +238,14 @@ const OrganizationListForm = () => {
                     })
                 })
             .finally(() => refetch())
+    }
+
+    function handleSelect (item) {
+        organization.selectLink(item).then(() => {
+            const query = getQueryParams()
+            if (query.next) Router.push(query.next)
+            else Router.push('/')
+        })
     }
 
     return (
@@ -234,48 +259,50 @@ const OrganizationListForm = () => {
                     actions={[
                         (!item.isAccepted && !item.isRejected) ?
                             <Radio.Group size="small" onChange={(e) => handleAcceptOrReject(item, e.target.value)}>
-                                <Radio.Button value="accept">accept</Radio.Button>
-                                <Radio.Button value="reject">reject</Radio.Button>
+                                <Radio.Button value="accept">{AcceptMsg}</Radio.Button>
+                                <Radio.Button value="reject">{RejectMsg}</Radio.Button>
                             </Radio.Group>
                             : null,
-                        (item.isAccepted) ? <Popconfirm title="Are you sure？"
-                                                        icon={<QuestionCircleOutlined style={{ color: 'red' }}/>}
-                                                        onConfirm={() => handleAcceptOrReject(item, 'leave')}>
-                                <Button size="small" type="dashed" danger>leave</Button>
+                        (item.isAccepted) ?
+                            <Popconfirm title={AreYouSureMsg} icon={<QuestionCircleOutlined style={{ color: 'red' }}/>}
+                                        onConfirm={() => handleAcceptOrReject(item, 'leave')}>
+                                <Button size="small" type="dashed" danger>{LeaveMsg}</Button>
                             </Popconfirm>
                             : null,
-                        (item.isAccepted) ? <Button size="small" type={'primary'}
-                                                    onClick={() => organization.selectLink(item)}>select</Button> : null,
+                        (item.isAccepted) ?
+                            <Button size="small" type={'primary'} onClick={() => handleSelect(item)}>{SelectMsg}</Button>
+                            : null,
                     ].filter((x) => Boolean(x))}
                     key={item.id}
                     style={(item.isRejected) ? { display: 'none' } : undefined}
                 >
                     <Skeleton avatar title={false} loading={item.loading} active>
                         <List.Item.Meta
-                            avatar={
-                                <Avatar src="https://www.pngitem.com/pimgs/m/226-2261747_company-name-icon-png-transparent-png.png"/>
-                            }
-                            title={<>{item.organization && item.organization.name}{"  "}{item.role === 'owner' ? <Tag color="error">owner</Tag> : null}</>}
+                            avatar={<Avatar src={item.avatar && item.avatar.publicUrl || DEFAULT_ORGANIZATION_AVATAR_URL}/>}
+                            title={<>
+                                {item.organization && item.organization.name}
+                                {'  '}
+                                {item.role === 'owner' ? <Tag color="error">{OwnerMsg}</Tag> : null}
+                            </>}
                             description={item.organization && item.organization.description}
                         />
                     </Skeleton>
                 </List.Item>
             )}
         />
-
     )
 }
 
 const OrganizationListPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.organizations.PageTitle' })
-    return (<>
+    return (<AuthRequired>
         <Head>
             <title>{PageTitleMsg}</title>
         </Head>
         <Title css={css`text-align: center;`}>{PageTitleMsg}</Title>
         <OrganizationListForm/>
-    </>)
+    </AuthRequired>)
 }
 
 function CustomContainer (props) {
