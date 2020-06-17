@@ -21,8 +21,7 @@ const Organization = new GQLListSchema('Organization', {
         },
     },
     access: {
-        // read: access.userIsAdminOrOwner,
-        read: true,
+        read: access.userIsAuthenticated,
         create: access.userIsAdmin,
         update: access.userIsAdmin,
         delete: access.userIsAdmin,
