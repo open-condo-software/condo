@@ -1,13 +1,13 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Form, Input, Button, Typography, notification } from 'antd'
+import { Button, Form, Input, notification, Typography } from 'antd'
 import { useState } from 'react'
 import Head from 'next/head'
 import Router from 'next/router'
-
-import BaseLayout from '../../containers/BaseLayout'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
+
+import BaseLayout from '../../containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
 
 const { Title } = Typography

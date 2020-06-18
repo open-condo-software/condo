@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { useState } from 'react'
-import { Button, Form, Input, notification, Typography, Result } from 'antd'
+import { Button, Form, Input, notification, Result, Typography } from 'antd'
 import Head from 'next/head'
 import Router from 'next/router'
 import { useIntl } from '@core/next/intl'
@@ -11,7 +11,7 @@ import gql from 'graphql-tag'
 import BaseLayout from '../../containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
 
-const { Title, Paragraph } = Typography
+const { Title } = Typography
 
 const CHANGE_PASSWORD_WITH_TOKEN_MUTATION = gql`
     mutation changePasswordWithToken($token: String!, $password: String!) {
