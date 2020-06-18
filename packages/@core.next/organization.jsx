@@ -35,7 +35,7 @@ let GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY = gql`
     }
 `
 
-let setLinkId = (value) => {
+let setCookieLinkId = (value) => {
     if (typeof window !== 'undefined') {
         cookie.set('organizationLinkId', value, { expires: 365 })
     }
@@ -66,12 +66,16 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
     const [linkIdState, setLinkIdState] = useState(initialLinkValue && initialLinkValue.id || getLinkId())
     const [link, setLink] = useState(initialLinkValue)
 
-    const { loading: linkLoading } = useQuery(GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY, {
+    const { loading: linkLoading, refetch } = useQuery(GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY, {
         variables: { id: linkIdState },
-        onCompleted: ({ obj }) => {
+        skip: !auth.user || !linkIdState,
+        onCompleted: (data) => {
+            if (!data) return // TODO(pahaz): remove ofter resolve: https://github.com/apollographql/react-apollo/issues/3492
+            // NOTE: if skip == true the data = null
+            const { obj } = data
             if (JSON.stringify(obj) === JSON.stringify(link)) return
             if (DEBUG_RERENDERS) console.log('OrganizationProvider() newState', obj)
-            setLinkId(obj.id)
+            setCookieLinkId(obj.id)
             setLinkIdState(obj.id)
             setLink(obj)
         },
@@ -80,22 +84,25 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
 
     useEffect(() => {
         if (auth.isLoading) return
-        if (!auth.user) setLink(null)
+        if (!auth.user && link !== null) setLink(null)
     }, [auth.user])
 
     function onError (error) {
         console.error(error)
+        setCookieLinkId('')
         setLink(null)
     }
 
     function handleSelectItem (linkItem) {
         if (linkItem && linkItem.id) {
-            setLinkIdState(linkItem.id)
+            const newId = linkItem.id
+            setLinkIdState(newId)
+            return refetch({ id: newId })
         } else {
+            setCookieLinkId('')
             setLink(null)
-            setLinkId('')
+            return Promise.resolve()
         }
-        return Promise.resolve()
     }
 
     if (DEBUG_RERENDERS) console.log('OrganizationProvider()', link)
