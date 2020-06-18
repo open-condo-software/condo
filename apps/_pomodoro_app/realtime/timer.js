@@ -6,12 +6,10 @@ const intervals = {
  * Sets timers off, gives away current time, is unique for one team
  */
 class Timer {
-    timer = 0
-    counter
-    logger
 
-    constructor(logger) {
-        this.logger = logger
+    constructor() {
+        this.timer = 0
+        this.counter = 0
     }
 
     getTime() {

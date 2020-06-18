@@ -1,3 +1,6 @@
+const Timer = require('./timer')
+const authMiddleware = require('./auth')
+
 /**
  * One socket is created for one team
  * Sockets are stored inside an array
@@ -8,38 +11,38 @@
  * @param io
  */
 function init (io) {
-    let timerValue = 0;
-    let timerIsAlive = false;
-    let timer;
 
     /**
      * Active timers storage
-     * @type {{Timer}}
+     * @type {{string, Timer}}
      */
     const timers = {}
 
+    io.use(authMiddleware)
+
     io.on('connection', (socket) => {
-        console.log("check auth")
-        if (!timers.hasOwnProperty(socket.id)) {
-            timers[socket.id] = Timer()
+        const id = socket.request._query['team']
+
+        if (!timers.hasOwnProperty(id)) {
+            timers[id] = new Timer.Timer()
         }
 
         const timer = timers[id]
-        console.log(socket.id, 'a user connected')
+        console.log(id, 'a user connected')
 
-        socket.on('start', (msg) => {
+        socket.on('start', () => {
             timer.start()
             console.log('started timer', socket.id)
         })
 
         socket.on('pause', () => {
             timer.pause()
-            console.log(socket.id, 'paused timer')
+            console.log(id, 'paused timer')
         })
 
         socket.on('clear', () => {
             timer.pause()
-            timer.clear()
+            timer.reset()
             console.log('timer was cleared')
         })
     })
