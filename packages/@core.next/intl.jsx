@@ -7,6 +7,7 @@ const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityL
 
 const LocaleContext = React.createContext({})
 
+// TODO(pahaz): probably it's better to get it from next config!
 let defaultLocale = 'en'
 
 let messagesImporter = (locale) => import(`./${locale}.json`)
@@ -40,7 +41,7 @@ let getLocale = () => {
 let extractReqLocale = (req) => {
     try {
         const cookieLocale = nextCookie({ req }).locale
-        const headersLocale = req.headers['accept-language'].slice(0, 2)
+        const headersLocale = req.headers['accept-language'] && req.headers['accept-language'].slice(0, 2)
         return cookieLocale || headersLocale || defaultLocale
     } catch (e) {
         return null
