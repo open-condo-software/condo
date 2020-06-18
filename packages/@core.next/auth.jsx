@@ -89,12 +89,12 @@ const AuthProvider = ({ children, initialUserValue }) => {
             if (error) { return onError(error) }
             if (DEBUG_RERENDERS) console.log('AuthProvider() signin()')
 
-            // Ensure there's no old unauthenticated data hanging around
-            await client.resetStore()
-
             if (item) {
                 setUser(item)
             }
+
+            // Ensure there's no old unauthenticated data hanging around
+            await client.resetStore()
         },
         onError,
     })
@@ -104,12 +104,12 @@ const AuthProvider = ({ children, initialUserValue }) => {
             if (error) { return onError(error) }
             if (DEBUG_RERENDERS) console.log('AuthProvider() signout()')
 
-            // Ensure there's no old authenticated data hanging around
-            await client.resetStore()
-
             if (success) {
                 setUser(null)
             }
+
+            // Ensure there's no old authenticated data hanging around
+            await client.resetStore()
         },
         onError,
     })
