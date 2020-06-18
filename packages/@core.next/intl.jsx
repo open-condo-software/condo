@@ -93,7 +93,7 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
     messagesImporter = opts.messagesImporter ? opts.messagesImporter : messagesImporter
     getMessages = opts.getMessages ? opts.getMessages : getMessages
     getLocale = opts.getLocale ? opts.getLocale : getLocale
-    const onIntlError = opts.hideErrors ? (() => {}) : null
+    const onIntlError = opts.hideErrors ? (() => {}) : undefined
 
     const WithIntl = ({ locale, messages, ...pageProps }) => {
         // in there is no locale and no messages => client side rerender (we should use some client side cache)
