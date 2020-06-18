@@ -37,10 +37,9 @@ const TopMenuItem = styled.div`
     }
 `
 
-const TopMenu = (props) => {
+const TopMenu = () => {
     const auth = useAuth()
     const organization = useOrganization()
-    const loading = Boolean(props.loading)
     const withDropdownMenu = true
     const avatarUrl = (auth.user && auth.user.avatar && auth.user.avatar.publicUrl) ? auth.user.avatar.publicUrl : 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png'
 
@@ -51,7 +50,7 @@ const TopMenu = (props) => {
     const OwnerMsg = intl.formatMessage({ id: 'Owner' })
     const GuestUsernameMsg = intl.formatMessage({ id: 'baselayout.menuheader.GuestUsername' })
 
-    if (loading) {
+    if (organization && organization.isLoading || auth.isLoading) {
         return (
             <div>
                 <Spin size="small" style={{ marginLeft: 16, marginRight: 16 }}/>
