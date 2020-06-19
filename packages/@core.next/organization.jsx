@@ -68,7 +68,7 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
 
     const { loading: linkLoading, refetch } = useQuery(GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY, {
         variables: { id: linkIdState },
-        skip: !auth.user || !linkIdState,
+        skip: auth.isLoading || !auth.user || !linkIdState,
         onCompleted: (data) => {
             if (!data) return // TODO(pahaz): remove ofter resolve: https://github.com/apollographql/react-apollo/issues/3492
             // NOTE: if skip == true the data = null
@@ -90,6 +90,7 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
     function onError (error) {
         console.error(error)
         setCookieLinkId('')
+        setLinkIdState(null)
         setLink(null)
     }
 
@@ -100,6 +101,7 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
             return refetch({ id: newId })
         } else {
             setCookieLinkId('')
+            setLinkIdState(null)
             setLink(null)
             return Promise.resolve()
         }
@@ -111,7 +113,7 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
         <OrganizationContext.Provider
             value={{
                 selectLink: handleSelectItem,
-                isLoading: auth.isLoading || linkLoading,
+                isLoading: (!auth.user || !linkIdState) ? false : linkLoading,
                 link: (link && link.id) ? link : null,
                 organization: (link && link.organization) ? link.organization : null,
             }}
