@@ -7,6 +7,7 @@ const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { getAdapter } = require('@core/keystone/adapter.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const conf = require('@core/config')
+const fs = require('fs')
 
 const keystone = new Keystone({
     name: conf.PROJECT_NAME,
@@ -20,20 +21,23 @@ const keystone = new Keystone({
         try {
             const users = await keystone.lists.User.adapter.findAll()
             if (!users.length) {
-                const initialData = require('./initial-data')
-                await keystone.createItems(initialData)
+                const users_data = require('./initial_data')
+                await keystone.createItems(users_data)
             }
+            fs.readdirSync('./db_source').forEach(async file => {
+                const users_data = require(`./db_source/${file}`)
+                await keystone.createItems(users_data)
+            });
         } catch (e) {
             console.warn('Keystone.onConnect() Error:', e)
         }
     },
 })
 
-registerSchemas(keystone, [
-    require('./schema/User'),
-])
+const modules_list = fs.readdirSync('./schema').map(file => require(`./schema/${file}`));
+registerSchemas(keystone, modules_list)
 
-const authStrategy = keystone.createAuthStrategy({
+const auth_strategy = keystone.createAuthStrategy({
     type: PasswordAuthStrategy,
     list: 'User',
 })
@@ -43,7 +47,7 @@ module.exports = {
     apps: [
         new GraphQLApp(),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
-        new AdminUIApp({ authStrategy }),
+        new AdminUIApp({ authStrategy: auth_strategy }),
         new NextApp({ dir: '.' }),
     ],
 }

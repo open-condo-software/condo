@@ -20,7 +20,7 @@ import Router from 'next/router'
 import { useRouter } from 'next/router'
 
 import './antd-custom.less'
-import MenuHeader from './components/MenuHeader'
+import TopMenu from './components/TopMenu'
 import { useIntl } from '@core/next/intl'
 
 const { Header, Sider, Content } = Layout
@@ -72,6 +72,7 @@ const topMenuCss = css`
     padding: 0;
     box-shadow: 2px 0 6px rgba(0,21,41,.35);
     min-width: 100%;
+    clear: both;
 `
 
 const pageWrapperCss = css`
@@ -105,6 +106,7 @@ const sideMenuLogoCss = css`
 `
 
 const topMenuLogoCss = css`
+    float: left;
     height: 64px;
     margin: 0 24px;
     cursor: pointer;
@@ -180,7 +182,7 @@ function BaseLayout (props) {
             <Layout>
                 <Header className="top-menu" css={topMenuCss}>
                     {logoLocation === 'topMenu' ? <img css={topMenuLogoCss} src="/logo.svg" onClick={onLogoClick}/> : null}
-                    <MenuHeader/>
+                    <TopMenu/>
                 </Header>
                 <Content className="page-wrapper" css={pageWrapperCss} as="main">
                     <PageHeader className="page-header" css={pageHeaderCss}

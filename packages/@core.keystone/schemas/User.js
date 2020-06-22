@@ -24,12 +24,17 @@ const User = new GQLListSchema('User', {
             type: Text,
         },
         email: {
-            factory: () => faker.internet.exampleEmail(),
+            factory: () => faker.internet.exampleEmail().toLowerCase(),
             type: Text,
             isUnique: true,
             // 2. Only authenticated users can read/update their own email, not any other user's.
             // Admins can read/update anyone's email.
             access: access.userIsAdminOrIsThisItem,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    return resolvedData['email'] && resolvedData['email'].toLowerCase()
+                },
+            },
         },
         isAdmin: {
             type: Checkbox,
@@ -324,10 +329,14 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
 const RegisterService = new GQLCustomSchema('RegisterService', {
     mutations: [
         {
-            schema: 'registerNewUser(name: String!, email: String!, password: String!, captcha: String!): User',
             access: true,
+            schema: 'registerNewUser(name: String!, email: String!, password: String!, captcha: String!): User',
             resolver: async (_, { name, email, password }, context, info, { query }) => {
-                const { errors, data } = await query(
+                await RegisterService.emit('beforeRegisterNewUser', { name, email, password })
+
+                // TODO(pahaz): check email is valid!
+                // TODO(pahaz): check phone is valid!
+                const { errors: errors1, data: data1 } = await query(
                     `
                         query findUserByEmail($email: String!) {
                           users: allUsers(where: { email: $email }) {
@@ -338,11 +347,11 @@ const RegisterService = new GQLCustomSchema('RegisterService', {
                     { variables: { email }, skipAccessControl: true },
                 )
 
-                if (errors) {
-                    throw errors.message
+                if (errors1) {
+                    throw errors1.message
                 }
 
-                if (data.users.length !== 0) {
+                if (data1.users.length !== 0) {
                     throw new Error(`[register:email:multipleFound] User with this email is already registered`)
                 }
 
@@ -370,7 +379,7 @@ const RegisterService = new GQLCustomSchema('RegisterService', {
                 }
 
                 // Send mail hook!
-                await RegisterService.emit('registerNewUser', { User: result.data.user })
+                await RegisterService.emit('afterRegisterNewUser', { User: result.data.user })
 
                 return result.data.user
             },

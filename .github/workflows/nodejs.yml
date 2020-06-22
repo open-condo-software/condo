@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: TEST SERVER
+name: TEST BACK 02 KEYSTONE EXAMPLE
 
 on:
   push:
@@ -27,14 +27,20 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn
-      - name: Start server for ${{ matrix.database }}
+      - name: install packages
         run: |
-          yarn create-tables
-          yarn test ./packages
-          yarn dev ./apps/_back02keystone/multi-server &
+          yarn
+          pip3 install django
+          pip3 install psycopg2-binary
+      - name: run tests for ${{ matrix.database }}
+        run: |
+          set -x
+          export DEBUG=knex:query,knex:tx
+          export DEBUG_MONGOOSE=1
+          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/_back02keystone migrate
+          yarn workspace @app/_back02keystone dev &
           sleep 10
-          yarn test ./apps/_back02keystone
+          yarn workspace @app/_back02keystone test
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development

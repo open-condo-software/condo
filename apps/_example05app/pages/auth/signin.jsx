@@ -1,13 +1,13 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Form, Input, Button, Typography, notification } from 'antd'
+import { Button, Form, Input, notification, Typography } from 'antd'
 import { useState } from 'react'
 import Head from 'next/head'
 import Router from 'next/router'
-
-import BaseLayout from '../../containers/BaseLayout'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
+
+import BaseLayout from '../../containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
 
 const { Title } = Typography
@@ -42,13 +42,14 @@ const SignInForm = () => {
     const ForgotPasswordMsg = intl.formatMessage({ id: 'pages.auth.ForgotPassword' })
 
     const onFinish = values => {
+        if (values.email) values.email = values.email.toLowerCase()
         setIsLoading(true)
         signin({ variables: values })
             .then(
                 (data) => {
                     notification.success({ message: LoggedInMsg })
-                    // TODO(pahaz): go to ?next url
-                    Router.push('/')
+                    if (initialValues.next) Router.push(initialValues.next)
+                    else Router.push('/')
                 },
                 (e) => {
                     console.log(e)

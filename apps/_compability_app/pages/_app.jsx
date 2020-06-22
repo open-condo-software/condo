@@ -31,10 +31,6 @@ const MyApp = ({ Component, pageProps }) => {
     )
 }
 
-const messagesImporter = (locale) => {
-    return import(`../lang/${locale}.json`).then(data => {
-        return flatten(data.default)
-    });
-}
+const messagesImporter = (locale) => import(`../lang/${locale}.json`).then(data => flatten(data.default));
 
 export default withApollo({ ssr: true })(withIntl({ ssr: true, messagesImporter })(withAuth({ ssr: false })(MyApp)))
