@@ -1,83 +1,112 @@
 import { IntlProvider, useIntl } from 'react-intl'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import cookie from 'js-cookie'
 import nextCookie from 'next-cookies'
 
-const { preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
+const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
-const LocaleContext = React.createContext({
-    locale: 'en',
-    setLocale: () => null,
-})
+const LocaleContext = React.createContext({})
+
+// TODO(pahaz): probably it's better to get it from next config!
+let defaultLocale = 'en'
 
 let messagesImporter = (locale) => import(`./${locale}.json`)
 
 let getMessages = async (locale) => {
     try {
-        return messagesImporter(locale)
+        const module = await messagesImporter(locale)
+        return module.default || module
     } catch (error) {
-        console.error(error)
-        return import(`./lang/en.json`)
+        console.error('getMessages error:', error)
+        const module = await import(`./lang/en.json`)
+        return module.default
     }
 }
 
-let getLocale = (defaultLocale) => {
+let getLocale = () => {
     let locale = null
     if (typeof window !== 'undefined') {
-        if (localStorage) {
-            locale = localStorage.getItem('locale')
-        }
-        if (!locale && navigator) {
-            locale = navigator.language.slice(0, 2)
+        try {
+            locale = cookie.get('locale')
+            if (!locale && navigator) {
+                locale = navigator.language.slice(0, 2)
+            }
+        } catch (e) {
+            locale = null
         }
     }
-    return locale || defaultLocale || 'en'
+    return locale || defaultLocale
 }
 
-function Intl (props) {
-    const [locale, setLocale] = React.useState(props.locale)
-    const [messages, setMessages] = React.useState(props.messages)
-    React.useEffect(() => {
-        getMessages(locale).then(messages => {
-            setMessages(messages)
-            cookie.set('locale', locale, { expires: 365 })
-        })
-    }, [locale])
-
-    return (
-        <IntlProvider key={locale} locale={locale} messages={messages} onError={props.onError}>
-            <LocaleContext.Provider value={{ locale, setLocale }}>
-                {props.children}
-            </LocaleContext.Provider>
-        </IntlProvider>
-    )
-}
-
-function extractReqLocale (req) {
+let extractReqLocale = (req) => {
     try {
         const cookieLocale = nextCookie({ req }).locale
-        const headersLocale = req.headers['accept-language'].slice(0, 2)
-        return cookieLocale || headersLocale
+        const headersLocale = req.headers['accept-language'] && req.headers['accept-language'].slice(0, 2)
+        return cookieLocale || headersLocale || defaultLocale
     } catch (e) {
         return null
     }
 }
 
+const initOnRestore = async (ctx) => {
+    let locale, messages
+    const isOnServerSide = typeof window === 'undefined'
+    if (isOnServerSide) {
+        const inAppContext = Boolean(ctx.ctx)
+        const req = (inAppContext) ? ctx.ctx.req : ctx.req
+        locale = extractReqLocale(req)
+        messages = await getMessages(locale)
+    } else {
+        locale = getLocale()
+        messages = await getMessages(locale)
+    }
+    return { locale, messages }
+}
+
+const Intl = ({ children, initialLocale, initialMessages, onError }) => {
+    const [locale, setLocale] = useState(initialLocale)
+    const [messages, setMessages] = useState(initialMessages)
+    useEffect(() => {
+        getMessages(locale).then(importedMessages => {
+            if (JSON.stringify(messages) === JSON.stringify(importedMessages)) return
+            if (DEBUG_RERENDERS) console.log('IntlProvider() newMessages and newLocale', locale)
+            setMessages(importedMessages)
+            cookie.set('locale', locale, { expires: 365 })
+        })
+    }, [locale])
+
+    if (DEBUG_RERENDERS) console.log('IntlProvider()', locale)
+
+    return (
+        <IntlProvider key={locale} locale={locale} messages={messages} onError={onError}>
+            <LocaleContext.Provider value={{ locale, setLocale }}>
+                {children}
+            </LocaleContext.Provider>
+        </IntlProvider>
+    )
+}
+
+if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) Intl.whyDidYouRender = true
+
 const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
-    const defaultLocale = opts.defaultLocale ? opts.defaultLocale : 'en'
+    defaultLocale = opts.defaultLocale ? opts.defaultLocale : 'en'
     // TODO(pahaz): refactor it. No need to patch globals here!
     messagesImporter = opts.messagesImporter ? opts.messagesImporter : messagesImporter
     getMessages = opts.getMessages ? opts.getMessages : getMessages
     getLocale = opts.getLocale ? opts.getLocale : getLocale
-    const onIntlError = opts.hideErrors ? (() => {}) : null
+    const onIntlError = opts.hideErrors ? (() => {}) : undefined
 
     const WithIntl = ({ locale, messages, ...pageProps }) => {
+        // in there is no locale and no messages => client side rerender (we should use some client side cache)
+        if (DEBUG_RERENDERS) console.log('WithIntl()', locale)
         return (
-            <Intl locale={locale || defaultLocale} messages={messages || {}} onError={onIntlError}>
+            <Intl initialLocale={locale} initialMessages={messages} onError={onIntlError}>
                 <PageComponent {...pageProps} />
             </Intl>
         )
     }
+
+    if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) WithIntl.whyDidYouRender = true
 
     // Set the correct displayName in development
     if (process.env.NODE_ENV !== 'production') {
@@ -87,13 +116,14 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
 
     if (ssr || PageComponent.getInitialProps) {
         WithIntl.getInitialProps = async ctx => {
-            const inAppContext = Boolean(ctx.ctx)
-            const req = (inAppContext) ? ctx.ctx.req : ctx.req
-            const locale = getLocale((req) ? extractReqLocale(req) : defaultLocale)
-            const messages = await getMessages(locale)
+            if (DEBUG_RERENDERS) console.log('WithIntl.getInitialProps()', ctx)
+            const isOnServerSide = typeof window === 'undefined'
+            const { locale, messages } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 
-            preventInfinityLoop(ctx)
+            if (isOnServerSide) {
+                preventInfinityLoop(ctx)
+            }
 
             return {
                 ...pageProps,

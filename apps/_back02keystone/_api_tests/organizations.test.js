@@ -1,6 +1,7 @@
 const { createSchemaObject, setFakeClientMode } = require('@core/keystone/test.utils')
 const { makeLoggedInClient, makeLoggedInAdminClient, makeClient, createUser, gql } = require('@core/keystone/test.utils')
 const conf = require('@core/config')
+const faker = require('faker')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 const { Organization, OrganizationToUserLink } = require('../schema/Organization')
@@ -46,27 +47,18 @@ const COUNT_OF_ORGANIZATION_TO_USER_LINKS_QUERY = gql`
     }
 `
 
-const GET_ORGANIZATION_TO_USER_LINK_QUERY = gql`
+const GET_ORGANIZATION_TO_USER_LINKS_BY_ORGANIZATION_ID_QUERY = gql`
     query getObj($id: ID!) {
-        obj: OrganizationToUserLink (where: {id: $id}) {
+        objs: allOrganizationToUserLinks (where: {organization: {id: $id}}) {
             id
             organization {
                 id
                 name
+                description
             }
             user {
                 id
-                name
             }
-            role
-        }
-    }
-`
-
-const DELETE_ORGANIZATION_TO_USER_LINK_MUTATION = gql`
-    mutation delObj($id: ID!) {
-        obj: deleteOrganizationToUserLink(id: $id) {
-            id
             role
         }
     }
@@ -86,6 +78,65 @@ const GET_ORGANIZATION_WITH_LINKS_QUERY = gql`
                 role
                 id
             }
+        }
+    }
+`
+
+const REGISTER_NEW_ORGANIZATION_MUTATION = gql`
+    mutation reg($data: OrganizationRegisterNewInput!) {
+        obj: registerNewOrganization(data: $data) {
+            id
+            userLinks {
+                id
+                organization {
+                    id
+                    name
+                    description
+                }
+                user {
+                    id
+                }
+                role
+            }
+        }
+    }
+`
+
+const DELETE_ORGANIZATION_TO_USER_LINK_MUTATION = gql`
+    mutation delObj($id: ID!) {
+        obj: deleteOrganizationToUserLink(id: $id) {
+            id
+            role
+        }
+    }
+`
+
+const UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION = gql`
+    mutation update($id: ID!, $data: OrganizationToUserLinkUpdateInput){
+        obj: updateOrganizationToUserLink(id: $id, data: $data) {
+            id
+            organization {
+                id
+            }
+            user {
+                id
+            }
+            role
+        }
+    }
+`
+
+const CREATE_ORGANIZATION_TO_USER_LINK_MUTATION = gql`
+    mutation create($data: OrganizationToUserLinkCreateInput){
+        obj: createOrganizationToUserLink(data: $data) {
+            id
+            organization {
+                id
+            }
+            user {
+                id
+            }
+            role
         }
     }
 `
@@ -300,4 +351,196 @@ test('user: access to change OrganizationToUserLink only for owners', async () =
         'path': ['obj'],
     })
     expect(data4).toEqual({ 'obj': null })
+})
+
+test('registerNewOrganization() by user', async () => {
+    const user = await createUser()
+    const client = await makeLoggedInClient(user)
+    const name = faker.company.companyName()
+    const description = faker.lorem.paragraph()
+    const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+        data: { name, description },
+    })
+
+    // created company
+    expect(errors).toEqual(undefined)
+    expect(data.obj.id).toMatch(/^[0-9a-zA-Z-_]+$/)
+    expect(data.obj.userLinks).toEqual([
+        expect.objectContaining({
+            'organization': expect.objectContaining({ name, description }),
+            'user': { 'id': user.id },
+            'role': 'owner',
+        }),
+    ])
+})
+
+test('no access to change another organization', async () => {
+    const { id: organizationId } = await createSchemaObject(Organization)
+    const { id: linkId } = await createSchemaObject(OrganizationToUserLink, {
+        organization: { connect: { id: organizationId } },
+        role: 'owner',
+    })
+
+    const user = await createUser()
+    const client = await makeLoggedInClient(user)
+    const { errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+        data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
+    })
+    expect(errors).toEqual(undefined)
+
+    const { errors: err1 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
+        id: linkId,
+        data: { user: { connect: { id: user.id } } },
+    })
+    expect(err1[0]).toMatchObject({
+        'data': { 'target': 'updateOrganizationToUserLink', 'type': 'mutation' },
+        'message': 'You do not have access to this resource',
+        'name': 'AccessDeniedError',
+        'path': ['obj'],
+    })
+    const { errors: err2 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
+        id: linkId,
+        data: { role: 'member' },
+    })
+    expect(err2[0]).toMatchObject({
+        'data': { 'target': 'updateOrganizationToUserLink', 'type': 'mutation' },
+        'message': 'You do not have access to this resource',
+        'name': 'AccessDeniedError',
+        'path': ['obj'],
+    })
+})
+
+test('owner: has access to create/update/delete OrganizationToUserLinks', async () => {
+    const user = await createUser()
+    const user2 = await createUser()
+    const client = await makeLoggedInClient(user)
+    const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+        data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
+    })
+    expect(errors).toEqual(undefined)
+
+    // create
+    const { data: d2, errors: err2 } = await client.mutate(CREATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
+        data: {
+            organization: { connect: { id: data.obj.id } },
+            user: { connect: { id: user2.id } },
+            role: 'member',
+        },
+    })
+    expect(err2).toEqual(undefined)
+    expect(d2.obj.id).toMatch(/^[0-9a-zA-Z-_]+$/)
+
+    // update
+    const { data: d3, errors: err3 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
+        id: d2.obj.id,
+        data: {
+            role: 'owner',
+        },
+    })
+    expect(err3).toEqual(undefined)
+    expect(d3.obj.role).toEqual('owner')
+
+    // delete
+    const { data: d4, errors: err4 } = await client.mutate(DELETE_ORGANIZATION_TO_USER_LINK_MUTATION, {
+        id: d2.obj.id,
+    })
+    expect(err4).toEqual(undefined)
+    expect(d4.obj.id).toEqual(d2.obj.id)
+})
+
+test('owner: has no access to update OrganizationToUserLinks organization/user attrs', async () => {
+    const { id: organizationId } = await createSchemaObject(Organization)
+    const user = await createUser()
+    const user2 = await createUser()
+    const client = await makeLoggedInClient(user)
+    const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+        data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
+    })
+    expect(errors).toEqual(undefined)
+
+    // create
+    const { data: d2, errors: err2 } = await client.mutate(CREATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
+        data: {
+            organization: { connect: { id: data.obj.id } },
+            user: { connect: { id: user2.id } },
+            role: 'member',
+        },
+    })
+    expect(err2).toEqual(undefined)
+    expect(d2.obj.id).toMatch(/^[0-9a-zA-Z-_]+$/)
+
+    // update organization
+    const { errors: err3 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
+        id: d2.obj.id,
+        data: {
+            organization: { connect: {id: organizationId}},
+        },
+    })
+    expect(err3[0]).toMatchObject({
+        'data': { 'target': 'updateOrganizationToUserLink', 'type': 'mutation' },
+        'message': 'You do not have access to this resource',
+        'name': 'AccessDeniedError',
+        'path': ['obj'],
+    })
+    // update user
+    const { errors: err4 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
+        id: d2.obj.id,
+        data: {
+            user: { connect: {id: user2.id}},
+        },
+    })
+    expect(err4[0]).toMatchObject({
+        'data': { 'target': 'updateOrganizationToUserLink', 'type': 'mutation' },
+        'message': 'You do not have access to this resource',
+        'name': 'AccessDeniedError',
+        'path': ['obj'],
+    })
+})
+
+const ACCEPT_OR_REJECT_MUTATION = gql`
+    mutation acceptOrReject($id: ID!, $data: OrganizationToUserLinkAcceptOrRejectInput!){
+        status: acceptOrRejectOrganizationToUserLink(id: $id, data: $data)
+    }
+`
+
+test('user: accept/reject OrganizationToUserLinks', async () => {
+    const user = await createUser()
+    const user2 = await createUser()
+    const client = await makeLoggedInClient(user)
+    const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+        data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
+    })
+    expect(errors).toEqual(undefined)
+
+    // create
+    const { data: d2, errors: err2 } = await client.mutate(CREATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
+        data: {
+            organization: { connect: { id: data.obj.id } },
+            user: { connect: { id: user2.id } },
+            role: 'member',
+        },
+    })
+    expect(err2).toEqual(undefined)
+    expect(d2.obj.id).toMatch(/^[0-9a-zA-Z-_]+$/)
+
+    // accept
+    const member_client = await makeLoggedInClient(user2)
+    const { data: d3, errors: err3 } = await member_client.mutate(ACCEPT_OR_REJECT_MUTATION, {
+        id: d2.obj.id,
+        data: {
+            isAccepted: true,
+        },
+    })
+    expect(err3).toEqual(undefined)
+    expect(d3.status).toEqual('ok')
+
+    // reject
+    const { data: d4, errors: err4 } = await member_client.mutate(ACCEPT_OR_REJECT_MUTATION, {
+        id: d2.obj.id,
+        data: {
+            isRejected: true,
+        },
+    })
+    expect(err4).toEqual(undefined)
+    expect(d4.status).toEqual('ok')
 })

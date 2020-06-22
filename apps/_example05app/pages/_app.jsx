@@ -2,15 +2,30 @@ import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
-import { DashboardOutlined } from '@ant-design/icons'
+import {
+    DashboardOutlined,
+    HomeOutlined,
+    TeamOutlined,
+    UserOutlined,
+    CommentOutlined,
+    ExceptionOutlined,
+} from '@ant-design/icons'
+import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 import { withApollo } from '@core/next/apollo'
 import { withAuth } from '@core/next/auth'
 import { withIntl } from '@core/next/intl'
+import { withOrganization } from '@core/next/organization'
 import GlobalStyle from '../containers/GlobalStyle'
 import GoogleAnalytics from '../containers/GoogleAnalytics'
 import BaseLayout from '../containers/BaseLayout'
 import GlobalErrorBoundary from '../containers/GlobalErrorBoundery'
+
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    whyDidYouRender(React, {
+        logOnDifferentValues: true,
+    })
+}
 
 const MY_MENU = [
     {
@@ -51,5 +66,6 @@ const MyApp = ({ Component, pageProps }) => {
 export default (
     withApollo({ ssr: true })(
         withIntl({ ssr: true, messagesImporter: (locale) => import(`../lang/${locale}`) })(
-            withAuth({ ssr: false })(
-                MyApp))))
+            withAuth({ ssr: true })(
+                withOrganization({ ssr: true })(
+                    MyApp)))))

@@ -32,12 +32,16 @@ const User = BaseUser._override({
     },
 })
 
+RegisterService.on('afterRegisterNewUser', async (ctx) => {
+    console.log('Fake send welcome email!', JSON.stringify(ctx))
+})
+
 ForgotPasswordService.on('afterStartPasswordRecovery', (ctx) => {
-    console.log('Fake send email!', JSON.stringify(ctx))
+    console.log('Fake send security email!', JSON.stringify(ctx))
 })
 
 ForgotPasswordService.on('afterChangePasswordWithToken', (ctx) => {
-    console.log('Fake send email!', JSON.stringify(ctx))
+    console.log('Fake send security email!', JSON.stringify(ctx))
 })
 
 module.exports = {

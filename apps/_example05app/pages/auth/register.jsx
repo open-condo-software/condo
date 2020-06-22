@@ -1,25 +1,16 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Form, Input, Button, Typography, notification } from 'antd'
-import {
-    Tooltip,
-    Cascader,
-    Select,
-    Row,
-    Col,
-    Checkbox,
-    AutoComplete,
-} from 'antd'
+import { Button, Checkbox, Col, Form, Input, notification, Row, Tooltip, Typography } from 'antd'
 import { useState } from 'react'
 import { useMutation } from '@core/next/apollo'
 import Head from 'next/head'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import gql from 'graphql-tag'
-
 import Router from 'next/router'
-import BaseLayout from '../../containers/BaseLayout'
 import { useAuth } from '@core/next/auth'
-import { useIntl } from 'react-intl'
+import { useIntl } from '@core/next/intl'
+
+import BaseLayout from '../../containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
 
 const { Title } = Typography

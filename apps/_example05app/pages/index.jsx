@@ -2,8 +2,7 @@
 import { css, jsx } from '@emotion/core'
 import { Typography } from 'antd'
 import Head from 'next/head'
-import { useIntl } from 'react-intl'
-
+import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
 import Chat from '../containers/Chat'
 
