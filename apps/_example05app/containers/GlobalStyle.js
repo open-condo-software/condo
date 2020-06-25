@@ -23,6 +23,13 @@ export default function GlobalStyle () {
           height: 100%;
         }
         
+        .ant-radio-wrapper {
+            white-space: inherit;
+        }
+        .ant-checkbox-wrapper {
+            white-space: inherit;
+        }
+        
         ${page}
       `}
         />
