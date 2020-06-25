@@ -15,7 +15,7 @@ const Timer = () => {
         const sock = io(ENDPOINT, {query: `team=${id}`})
         setSocket(sock)
 
-        sock.on('event', (data) => {
+        sock.on('timer', (data) => {
             setResponse(data)
         })
     }, [])

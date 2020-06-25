@@ -19,10 +19,14 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware) {
      */
     const timers = {}
 
-    function forgeEvent(x,y) {
+    function forgeTimer(id, time, period, nextPreiod, nextPeriodLength, paused) {
         return {
-            type: x,
-            time: y
+            id:id,
+            timer:time,
+            period:period,
+            nextPeriod:nextPreiod,
+            nextPeriodLength:nextPeriodLength,
+            paused:paused
         }
     }
 
@@ -40,20 +44,20 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware) {
 
         socket.on('start', () => {
             timer.start()
-            socket.emit('event', forgeEvent('start', timer.getTime()))
+            socket.emit('timer', forgeTimer(id, timer.getTime(), 'WORK', 'BREAK', 20, timer.isPaused()))
             logger.log(`started timer for ${id}`)
         })
 
         socket.on('pause', () => {
             timer.pause()
-            socket.emit('event', forgeEvent('pause', timer.getTime()))
+            socket.emit('timer', forgeTimer(id, timer.getTime(), 'WORK', 'BREAK', 20, timer.isPaused()))
             logger.log(`paused timer for ${id}`)
         })
 
         socket.on('clear', () => {
             timer.pause()
             timer.reset()
-            socket.emit('event', forgeEvent('clear', timer.getTime()))
+            socket.emit('timer', forgeTimer(id, timer.getTime(), 'WORK', 'BREAK', 20, timer.isPaused()))
             logger.log(`timer was cleared for ${id}`)
         })
 
@@ -61,7 +65,7 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware) {
          * A method is used only for testing purposes
          */
         socket.on('check', () => {
-            socket.emit('event', forgeEvent('check', timer.getTime()))
+            socket.emit('timer', forgeTimer(id, timer.getTime(), 'WORK', 'BREAK', 20, timer.isPaused()))
             logger.log(timer.getTime())
         })
     })

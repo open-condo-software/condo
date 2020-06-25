@@ -40,6 +40,10 @@ class Timer {
     reset() {
         this.timer = 0
     }
+
+    isPaused() {
+        return this.status === status.paused
+    }
 }
 
 module.exports = Timer
