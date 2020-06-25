@@ -6,6 +6,7 @@
   "Avatar": "Автар",
   "SignIn": "Войти",
   "SignOut": "Выйти",
+  "Sign": "Подписать",
   "Register": "Зарегистрироваться",
   "Name": "Название",
   "Description": "Описание",
@@ -66,5 +67,7 @@
   "pages.organizations.PageTitle": "Организации",
   "pages.organizations.CreateOrganizationButtonLabel": "Создать новую организацию",
   "menu.Home": "Дашборд",
+  "menu.Tickets": "Заявки",
+  "menu.Employee": "Сотрудники",
   "logout": "Выйти"
 }

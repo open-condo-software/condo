@@ -6,6 +6,7 @@
   "Avatar": "Avatar",
   "SignIn": "Sign in",
   "SignOut": "Sign out",
+  "Sign": "Sign",
   "Register": "Register",
   "Name": "Name",
   "Description": "Description",
@@ -66,5 +67,7 @@
   "pages.organizations.PageTitle": "Organizations",
   "pages.organizations.CreateOrganizationButtonLabel": "Create new organization",
   "menu.Home": "Dashboard",
+  "menu.Tickets": "Tickets",
+  "menu.Employee": "Employee",
   "logout": "Logout"
 }
