@@ -1,4 +1,4 @@
-import qs from 'qs'
+const qs = require('qs')
 
 function getQueryParams () {
     if (typeof global === 'undefined' || !global.location) return {}
@@ -9,6 +9,6 @@ function getQueryParams () {
     return qs.parse(global.location.href.substring(startIndex + 1, endIndex))
 }
 
-export {
+module.exports = {
     getQueryParams,
 }
