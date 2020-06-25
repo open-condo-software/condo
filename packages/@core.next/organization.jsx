@@ -107,7 +107,7 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
         }
     }
 
-    if (DEBUG_RERENDERS) console.log('OrganizationProvider()', link)
+    if (DEBUG_RERENDERS) console.log('OrganizationProvider()', link, 'loading', linkLoading, 'skip', (auth.isLoading || !auth.user || !linkIdState))
 
     return (
         <OrganizationContext.Provider

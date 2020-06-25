@@ -251,6 +251,7 @@ const OrganizationListForm = () => {
     return (
         <List
             loading={loading}
+            rowKey="id"
             itemLayout="horizontal"
             loadMore={loadMore}
             dataSource={data && data.list || []}
