@@ -14,7 +14,7 @@
   "dependencies": {
     "@core/config": "^1.0.0",
     "express": "^4.17.1",
-    "jest": "^26.0.1",
+    "jest": "^26.1.0",
     "socket.io": "^2.3.0"
   }
 }
