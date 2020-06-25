@@ -31,7 +31,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 0, 0)
+VERSION = (1, 1, 0)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -143,7 +143,8 @@ def to_fieldtype(value, fieldname=None):
         "enum": lambda x, choices: x.update(
             {'field_class': 'models.IntegerField', 'choices': [(i, str(i)) for i in choices]}) if type(
             choices[0]) == int else x.update(
-            {'field_class': 'models.CharField', 'max_length': 50, 'choices': [(i, i) for i in choices]})
+            {'field_class': 'models.CharField', 'max_length': 50, 'choices': [(i, i) for i in choices]}),
+        "kmigrator": lambda x, options: x.update(options),
     }
 
     if ['increments'] in value:
@@ -194,10 +195,11 @@ const knexMigrationsDir = '__KNEX_MIGRATION_DIR__'
 const { asyncForEach } = require('@keystonejs/utils')
 const path = require('path')
 const fs = require('fs')
+const util = require('util')
 const { keystone } = require(path.resolve(entryFile))
 
 const tableCache = {}
-let hasKnexConnection = false 
+let hasKnexConnection = false
 
 function createFakeTable (tableName) {
     if (tableCache[tableName]) return tableCache[tableName]
@@ -271,6 +273,7 @@ function createFakeTable (tableName) {
         dropUnique: (columns, indexName) => {throw new Error('dropUnique() not supported')},
         dropPrimary: (constraintName) => {throw new Error('dropPrimary() not supported')},
         queryContext: (context) => {throw new Error('queryContext() not supported')},
+        kmigrator: (name, options) => chinable(name, ['kmigrator', options]),
     }
     tableCache[tableName] = table
     return table
@@ -290,8 +293,14 @@ function createFakeTable (tableName) {
         const s_dropTableIfExists = s.dropTableIfExists
         const s_dropTable = s.dropTable
         s.table = s.createTable = function createTable (tableName, callback) {
-            callback(createFakeTable(`${schemaName}.${tableName}`))
+            const ft = createFakeTable(`${schemaName}.${tableName}`)
+            callback(ft)
             console.log('CALL', 'createTable', tableName)
+            for (const fad of adapter.listAdapters[tableName].fieldAdapters) {
+                if (fad.config.kmigratorOptions) {
+                    ft.kmigrator(fad.path, fad.config.kmigratorOptions)
+                }
+            }
         }
         s.dropTable = s.dropTableIfExists = function dropTable (tableName) {
             console.log('CALL', 'dropTable', tableName)
@@ -324,7 +333,7 @@ function createFakeTable (tableName) {
     })
     if (!hasKnexConnection) {
         console.error('\\nERROR: No KNEX adapter connection settings! Check the DATABASE_URL')
-        process.exit(3)        
+        process.exit(3)
     }
     fs.writeFileSync(knexSchemaFile, JSON.stringify(tableCache))
     process.exit(0)
@@ -337,6 +346,7 @@ const knexMigrationsCode = '__KNEX_MIGRATION_CODE__'
 
 const {asyncForEach} = require('@keystonejs/utils')
 const path = require('path')
+const util = require('util')
 const {keystone} = require(path.resolve(entryFile))
 
 async function runInContext(knex, config) {

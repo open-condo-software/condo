@@ -86,6 +86,8 @@ const ForgotPasswordAction = new GQLListSchema('ForgotPasswordAction', {
             type: Relationship,
             ref: 'User',
             isRequired: true,
+            knexOptions: { isNotNullable: true }, // Relationship only!
+            kmigratorOptions: { null: false },
         },
         token: {
             factory: () => uuid(),

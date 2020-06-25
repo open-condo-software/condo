@@ -16,6 +16,7 @@ const Organization = new GQLListSchema('Organization', {
             factory: () => faker.company.companyName(),
             type: Text,
             isRequired: true,
+            kmigratorOptions: { null: false },
         },
         userLinks: {
             type: Relationship, ref: 'OrganizationToUserLink.organization', many: true,
@@ -46,6 +47,7 @@ const OrganizationToUserLink = new GQLListSchema('OrganizationToUserLink', {
             ref: 'Organization.userLinks',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Relationship only!
+            kmigratorOptions: { null: false },
             access: {
                 update: access.userIsAdmin,
             }
@@ -56,6 +58,7 @@ const OrganizationToUserLink = new GQLListSchema('OrganizationToUserLink', {
             ref: 'User',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Relationship only!
+            kmigratorOptions: { null: false },
             access: {
                 update: access.userIsAdmin,
             }
@@ -65,6 +68,7 @@ const OrganizationToUserLink = new GQLListSchema('OrganizationToUserLink', {
             options: 'owner, member',
             defaultValue: 'member',
             isRequired: true,
+            kmigratorOptions: { null: false },
         },
     },
     access: {
