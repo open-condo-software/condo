@@ -12,12 +12,14 @@ const Timer = () => {
     const {id} = router.query
 
     useEffect(() => {
-        const sock = io(ENDPOINT, {query: `team=${id}`})
+        const sock = io(ENDPOINT, {query: `timer=${id}`})
         setSocket(sock)
 
         sock.on('timer', (data) => {
             setResponse(data)
         })
+
+        return () => socket.disconnect();
     }, [])
 
     if (socket === null) {
