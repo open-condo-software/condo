@@ -69,8 +69,8 @@ test('Timers give correct period', async () => {
     await sleep(2000) // break 2
     await sleep(2000) // work 3
     await sleep(2000) // break 3
-    await sleep(2500) // work 4
-    console.log(x.getTime())
+    await sleep(2000) // work 4
+    await sleep(2000) // big_break
     expect(x.getInterval()).toBe('BIG_BREAK')
     expect(x.getNextInterval()).toBe('WORK')
 });
