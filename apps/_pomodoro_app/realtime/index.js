@@ -18,6 +18,7 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware) {
      * @type {{string, Timer}}
      */
     const timers = {}
+    const sockets = {}
 
     function forgeTimer(id, time, period, nextPreiod, nextPeriodLength, paused) {
         return {
@@ -33,7 +34,12 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware) {
     io.use(auth.auth)
 
     io.on('connection', (socket) => {
-        const id = socket.request._query['team']
+        const id = socket.request._query['timer']
+
+        if (!sockets.hasOwnProperty(id)) {
+            sockets[id] = []
+        }
+        sockets[id].push(socket)
 
         if (!timers.hasOwnProperty(id)) {
             timers[id] = new Timer()
