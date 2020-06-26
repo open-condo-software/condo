@@ -22,7 +22,7 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware) {
     function forgeTimer(id, time, period, nextPreiod, nextPeriodLength, paused) {
         return {
             id:id,
-            timer:time,
+            time:time,
             period:period,
             nextPeriod:nextPreiod,
             nextPeriodLength:nextPeriodLength,
