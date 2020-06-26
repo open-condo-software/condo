@@ -31,7 +31,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 1, 0)
+VERSION = (1, 1, 1)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -296,9 +296,14 @@ function createFakeTable (tableName) {
             const ft = createFakeTable(`${schemaName}.${tableName}`)
             callback(ft)
             console.log('CALL', 'createTable', tableName)
-            for (const fad of adapter.listAdapters[tableName].fieldAdapters) {
-                if (fad.config.kmigratorOptions) {
-                    ft.kmigrator(fad.path, fad.config.kmigratorOptions)
+            if (!adapter.listAdapters[tableName]) {
+                console.warn(`NO adapter.listAdapters['${tableName}']`)
+                console.dir(adapter.listAdapters)
+            } else {
+                for (const fad of adapter.listAdapters[tableName].fieldAdapters) {
+                    if (fad.config.kmigratorOptions) {
+                        ft.kmigrator(fad.path, fad.config.kmigratorOptions)
+                    }
                 }
             }
         }
