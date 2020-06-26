@@ -18,7 +18,6 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware) {
      * @type {{string, Timer}}
      */
     const timers = {}
-    const sockets = {}
 
     function forgeTimer(id, time, period, nextPreiod, nextPeriodLength, paused) {
         return {
@@ -36,10 +35,7 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware) {
     io.on('connection', (socket) => {
         const id = socket.request._query['timer']
 
-        if (!sockets.hasOwnProperty(id)) {
-            sockets[id] = []
-        }
-        sockets[id].push(socket)
+        socket.join(id)
 
         if (!timers.hasOwnProperty(id)) {
             timers[id] = new Timer()
@@ -50,20 +46,20 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware) {
 
         socket.on('start', () => {
             timer.start()
-            socket.emit('timer', forgeTimer(id, timer.getTime(), 'WORK', 'BREAK', 20, timer.isPaused()))
+            io.in(id).emit('timer', forgeTimer(id, timer.getTime(), 'WORK', 'BREAK', 20, timer.isPaused()))
             logger.log(`started timer for ${id}`)
         })
 
         socket.on('pause', () => {
             timer.pause()
-            socket.emit('timer', forgeTimer(id, timer.getTime(), 'WORK', 'BREAK', 20, timer.isPaused()))
+            io.in(id).emit('timer', forgeTimer(id, timer.getTime(), 'WORK', 'BREAK', 20, timer.isPaused()))
             logger.log(`paused timer for ${id}`)
         })
 
         socket.on('clear', () => {
             timer.pause()
             timer.reset()
-            socket.emit('timer', forgeTimer(id, timer.getTime(), 'WORK', 'BREAK', 20, timer.isPaused()))
+            io.in(id).emit('timer', forgeTimer(id, timer.getTime(), 'WORK', 'BREAK', 20, timer.isPaused()))
             logger.log(`timer was cleared for ${id}`)
         })
 
@@ -71,7 +67,7 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware) {
          * A method is used only for testing purposes
          */
         socket.on('check', () => {
-            socket.emit('timer', forgeTimer(id, timer.getTime(), 'WORK', 'BREAK', 20, timer.isPaused()))
+            io.in(id).emit('timer', forgeTimer(id, timer.getTime(), 'WORK', 'BREAK', 20, timer.isPaused()))
             logger.log(timer.getTime())
         })
     })
