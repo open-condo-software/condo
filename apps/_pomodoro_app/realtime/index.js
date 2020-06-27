@@ -1,6 +1,7 @@
 const Timer = require('./application/Timer')
 const SimpleAuthMiddleware = require('./application/SimpleAuthMiddleware')
 const ConsoleLogger = require('./application/ConsoleLogger')
+const Repository = require('./application/Repository')
 
 
 /**
@@ -17,6 +18,8 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware) {
      * @type {{string, Timer}}
      */
     const timers = {}
+    const repo = new Repository()
+
 
     function forgeTimer(id, time, period, nextPreiod, nextPeriodLength, paused) {
         return {
@@ -40,8 +43,19 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware) {
 
         socket.join(id)
 
+        //todo(toplenboren) rewrite
         if (!timers.hasOwnProperty(id)) {
-            timers[id] = new Timer(15*60, 25*60, 25*60)
+            try {
+                const data = repo.getEntityById(id)
+                timers[id] = new Timer(data.breakTime, data.bigBreakTime, data.worktimeTime)
+            } catch (e) {
+                const data = {
+                    breakTime:15*60,
+                    bigBreakTime:25*60,
+                    worktimeTime:25*60
+                }
+                timers[id] = new Timer(data.breakTime, data.bigBreakTime, data.worktimeTime)
+            }
         }
 
         const timer = timers[id]
