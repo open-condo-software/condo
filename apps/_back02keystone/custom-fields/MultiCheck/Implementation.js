@@ -98,9 +98,8 @@ class MultiCheck extends Implementation {
         return [
             ...this.equalityInputFields(this.graphQLInputType),
             ...this.inInputFields(this.graphQLInputType),
-
-            // Create a graphQL query for each individual option
-            ...this.options.map(option => `${this.path}_${option}: Boolean`),
+            // TODO(pahaz): Create a graphQL query for each individual option. ADAPTER.getQueryConditions()
+            //...this.options.map(option => `${this.path}_${option}: Boolean`),
         ]
     }
 
@@ -176,8 +175,9 @@ class MongoFieldInterface extends CommonFieldAdapterInterface(MongooseFieldAdapt
      * @param {mongoose.Schema} schema
      */
     addToMongooseSchema (schema) {
+        const Any = new mongoose.Schema({ any: Object })
         const schemaOptions = {
-            type: { id: ObjectId },
+            type: Any,
         }
         schema.add({ [this.path]: this.mergeSchemaOptions(schemaOptions, this.config) })
         schema.set('strict', false)
