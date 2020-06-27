@@ -175,9 +175,8 @@ class MongoFieldInterface extends CommonFieldAdapterInterface(MongooseFieldAdapt
      * @param {mongoose.Schema} schema
      */
     addToMongooseSchema (schema) {
-        const Any = new mongoose.Schema({ any: Object })
         const schemaOptions = {
-            type: Any,
+            type: Object,
         }
         schema.add({ [this.path]: this.mergeSchemaOptions(schemaOptions, this.config) })
         schema.set('strict', false)
