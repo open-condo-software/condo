@@ -1,8 +1,12 @@
-const { Implementation, KnexFieldInterface, MongoFieldInterface } = require('./Implementation')
+const { OptionsImplementation, OptionsKnexFieldAdapter, OptionsMongooseFieldAdapter } = require('./Implementation')
 
 module.exports = {
-    type: 'MultiCheck',
-    implementation: Implementation,
+    type: 'Options',
+    implementation: OptionsImplementation,
+    adapters: {
+        knex: OptionsKnexFieldAdapter,
+        mongoose: OptionsMongooseFieldAdapter,
+    },
     views: {
         // Note: You cannot currently import and extend a controller
         // outside this monorepo.
@@ -10,9 +14,5 @@ module.exports = {
         Field: require.resolve('./views/Field'),
         // Filter: Text.views.Filter,
         Cell: require.resolve('./views/Cell'),
-    },
-    adapters: {
-        mongoose: MongoFieldInterface,
-        knex: KnexFieldInterface,
     },
 }

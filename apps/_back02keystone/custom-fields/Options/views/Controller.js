@@ -1,6 +1,6 @@
 import FieldController from '@keystonejs/fields/Controller'
 
-class MultiCheckController extends FieldController {
+class OptionsController extends FieldController {
     constructor (config, ...args) {
         const defaultValue = config.defaultValue
         super({ ...config, defaultValue }, ...args)
@@ -36,4 +36,4 @@ class MultiCheckController extends FieldController {
     getFilterTypes = () => { return [] }
 }
 
-export default MultiCheckController
+export default OptionsController

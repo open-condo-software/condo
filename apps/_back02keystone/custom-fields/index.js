@@ -1,7 +1,7 @@
 const Stars = require('./Stars')
-const MultiCheck = require('./MultiCheck')
+const Options = require('./Options')
 
 module.exports = {
     Stars,
-    MultiCheck,
+    Options,
 }

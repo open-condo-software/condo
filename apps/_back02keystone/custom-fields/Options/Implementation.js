@@ -1,28 +1,14 @@
 const { Implementation } = require('@keystonejs/fields')
 const { MongooseFieldAdapter } = require('@keystonejs/adapter-mongoose')
 const { KnexFieldAdapter } = require('@keystonejs/adapter-knex')
-const mongoose = require('mongoose')
-const { Text } = require('@keystonejs/fields')
 
-// Disabling the getter of mongoose >= 5.1.0
-// https://mongoosejs.com/docs/migrating_to_5.html#id-getter
-mongoose.set('objectIdGetter', false)
-
-const {
-    Types: { ObjectId },
-} = mongoose
-
-// Using the text implementation because we're going to stringify the array of results.
-// We could store this in another table, but this would require writing a complex controller.
-// JSON.stringify feels good enough for this simple field.
-
-class MultiCheck extends Implementation {
+class OptionsImplementation extends Implementation {
     constructor (path, { options }, listConfig) {
         super(...arguments)
         if (!Array.isArray(options)) {
             throw new Error(
                 `
-  🚫 The MultiCheck field ${this.listKey}.${path} is not configured with valid options;
+  🚫 The Options field ${this.listKey}.${path} is not configured with valid options;
   `,
             )
         }
@@ -34,8 +20,8 @@ class MultiCheck extends Implementation {
 
         // Including the list name + path to make sure these input types are unique
         // to this list+field and don't collide.
-        this.graphQLOutputType = `MultiCheck${itemQueryName}_${path}`
-        this.graphQLInputType = `MultiCheck${itemQueryName}Input_${path}`
+        this.graphQLOutputType = `Options${itemQueryName}_${path}`
+        this.graphQLInputType = `Options${itemQueryName}Input_${path}`
     }
 
     // Field auxiliary types are top-level types which a type may need or provide
@@ -150,7 +136,7 @@ class MultiCheck extends Implementation {
             return null
         }
 
-        const mergedData = {...defaultData, ...previousData, ...uploadData}
+        const mergedData = { ...defaultData, ...previousData, ...uploadData }
         const nonNullKeys = Object.keys(mergedData).filter((k) => mergedData[k] !== null)
 
         // we don't save any null value! just true/false
@@ -170,7 +156,7 @@ const CommonFieldAdapterInterface = superclass =>
         }
     }
 
-class MongoFieldInterface extends CommonFieldAdapterInterface(MongooseFieldAdapter) {
+class OptionsMongooseFieldAdapter extends CommonFieldAdapterInterface(MongooseFieldAdapter) {
     /*
      * @param {mongoose.Schema} schema
      */
@@ -183,7 +169,7 @@ class MongoFieldInterface extends CommonFieldAdapterInterface(MongooseFieldAdapt
     }
 }
 
-class KnexFieldInterface extends CommonFieldAdapterInterface(KnexFieldAdapter) {
+class OptionsKnexFieldAdapter extends CommonFieldAdapterInterface(KnexFieldAdapter) {
     constructor () {
         super(...arguments)
 
@@ -203,7 +189,7 @@ class KnexFieldInterface extends CommonFieldAdapterInterface(KnexFieldAdapter) {
 }
 
 module.exports = {
-    Implementation: MultiCheck,
-    MongoFieldInterface,
-    KnexFieldInterface,
+    OptionsImplementation,
+    OptionsKnexFieldAdapter,
+    OptionsMongooseFieldAdapter,
 }

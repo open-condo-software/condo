@@ -25,7 +25,7 @@ const Checkbox = ({ label, value, onChange }) => {
     )
 }
 
-const MultiCheckField = ({ onChange, autoFocus, field, value, errors }) => {
+const OptionsField = ({ onChange, autoFocus, field, value, errors }) => {
     const initialState = value ? value : field.getDefaultValue()
     const [values, setValues] = useState(initialState)
     useEffect(() => {
@@ -75,4 +75,4 @@ const MultiCheckField = ({ onChange, autoFocus, field, value, errors }) => {
     )
 }
 
-export default MultiCheckField
+export default OptionsField
