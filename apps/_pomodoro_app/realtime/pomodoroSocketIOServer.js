@@ -5,23 +5,22 @@ const Repository = require('./application/Repository')
 
 
 /**
- * One socket is created for one id
+ * Realtime server that handles the pomodoro timer application
  * TODO When socket dies we fire out an logger request to create statistics
- * @param io
- * @param logger
- * @param auth
+ * @param io - Socket.io namespace
+ * @param logger - an AbstractLogger impl
+ * @param auth - an AbstractAuthMiddleware impl
+ * @param repo - an AbstractRepository impl
  */
-function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware) {
+function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware, repo=new Repository()) {
 
     /**
      * Active timers storage
      * @type {{string, Timer}}
      */
     const timers = {}
-    const repo = new Repository()
 
-
-    function forgeTimer(id, time, period, nextPreiod, nextPeriodLength, paused) {
+    function _forgeTimer(id, time, period, nextPreiod, nextPeriodLength, paused) {
         return {
             id:id,
             time:time,
@@ -33,7 +32,7 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware) {
     }
 
     function _emitTimerEvent(io, timer, id) {
-        io.in(id).emit('timer', forgeTimer(id, timer.getTime(), timer.getInterval(), timer.getNextInterval(), timer.getNextIntervalLength(), timer.isPaused()))
+        io.in(id).emit('timer', _forgeTimer(id, timer.getTime(), timer.getInterval(), timer.getNextInterval(), timer.getNextIntervalLength(), timer.isPaused()))
     }
 
     io.use(auth.auth)
