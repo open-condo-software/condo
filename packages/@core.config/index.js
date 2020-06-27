@@ -1,23 +1,43 @@
 const path = require('path')
+const fs = require('fs')
+const dotenv = require('dotenv')
+const DEBUG = false
 
+let namespace = undefined
 const root = path.resolve(path.join(__dirname, '../..'))
 const cwd = process.cwd()
-let namespace
+const env0 = JSON.parse(JSON.stringify(process.env))
 
-if (root === cwd) {
-    namespace = undefined
-    // load only root .env
-    require('dotenv').config({ path: path.join(root, '.env') })
-} else {
-    namespace = path.dirname(cwd)
-    // load root .env
-    require('dotenv').config({ path: path.join(root, '.env') })
-    // load project .env
-    require('dotenv').config({ path: path.join(cwd, '.env') })
+// load root .env
+if (fs.existsSync(path.join(root, '.env'))) {
+    const env1 = dotenv.parse(fs.readFileSync(path.join(root, '.env')))
+    for (const k in env1) {
+        if (!env0.hasOwnProperty(k)) {
+            if (DEBUG) console.log(`@core.config: [root.env] process.env[${k}] = ${env1[k]}`)
+            process.env[k] = env1[k]
+        }
+    }
 }
 
+// load app .env
+if (root !== cwd) {
+    namespace = path.basename(cwd)
+    if (fs.existsSync(path.join(cwd, '.env'))) {
+        const env2 = dotenv.parse(fs.readFileSync(path.join(cwd, '.env')))
+        for (const k in env2) {
+            if (!env0.hasOwnProperty(k)) {
+                if (DEBUG) console.log(`@core.config: [app.env] process.env[${k}] = ${env1[k]}`)
+                process.env[k] = env2[k]
+            }
+        }
+    }
+}
+
+if (DEBUG) console.log(`@core.config: inited! namespace=${namespace}, cwd=${cwd}, root=${root}`)
+if (DEBUG) console.dir(process.env)
+
 function getEnv (namespace, name, defaultValue) {
-    return preprocessEnv(process.env[`${namespace}${name}`] || process.env[`${name}`] || defaultValue)
+    return preprocessEnv(process.env[`${namespace}_${name}`] || process.env[`${name}`] || defaultValue)
 }
 
 function preprocessEnv (v) {

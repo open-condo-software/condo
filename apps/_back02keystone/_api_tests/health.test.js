@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const { makeClient, gql, setFakeClientMode } = require('@core/keystone/test.utils')
 const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))

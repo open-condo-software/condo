@@ -251,6 +251,7 @@ const OrganizationListForm = () => {
     return (
         <List
             loading={loading}
+            rowKey="id"
             itemLayout="horizontal"
             loadMore={loadMore}
             dataSource={data && data.list || []}
@@ -293,7 +294,7 @@ const OrganizationListForm = () => {
     )
 }
 
-const OrganizationListPage = () => {
+const OrganizationsPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.organizations.PageTitle' })
     return (<AuthRequired>
@@ -313,6 +314,6 @@ function CustomContainer (props) {
     />)
 }
 
-OrganizationListPage.container = CustomContainer
+OrganizationsPage.container = CustomContainer
 
-export default OrganizationListPage
+export default OrganizationsPage

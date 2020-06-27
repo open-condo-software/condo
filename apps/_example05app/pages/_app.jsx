@@ -2,20 +2,13 @@ import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
-import {
-    DashboardOutlined,
-    HomeOutlined,
-    TeamOutlined,
-    UserOutlined,
-    CommentOutlined,
-    ExceptionOutlined,
-} from '@ant-design/icons'
+import { DashboardOutlined, ExceptionOutlined, UserOutlined } from '@ant-design/icons'
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 import { withApollo } from '@core/next/apollo'
 import { withAuth } from '@core/next/auth'
 import { withIntl } from '@core/next/intl'
-import { withOrganization } from '@core/next/organization'
+import { useOrganization, withOrganization } from '@core/next/organization'
 import GlobalStyle from '../containers/GlobalStyle'
 import GoogleAnalytics from '../containers/GoogleAnalytics'
 import BaseLayout from '../containers/BaseLayout'
@@ -27,13 +20,49 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     })
 }
 
-const MY_MENU = [
-    {
-        path: '/',
-        icon: <DashboardOutlined/>,
-        locale: 'menu.Home',
-    },
-]
+function menuDataRender() {
+    const organization = useOrganization()
+    if (organization && organization.link && organization.link.role === 'owner') {
+        return [
+            {
+                path: '/',
+                icon: <DashboardOutlined/>,
+                locale: 'menu.Home',
+            },
+            {
+                path: '/tickets',
+                icon: <ExceptionOutlined/>,
+                locale: 'menu.Tickets',
+            },
+            {
+                path: '/employee',
+                icon: <UserOutlined/>,
+                locale: 'menu.Employee',
+            },
+        ]
+    } else if (organization && organization.link && organization.link.role === 'member') {
+        return [
+            {
+                path: '/',
+                icon: <DashboardOutlined/>,
+                locale: 'menu.Home',
+            },
+            {
+                path: '/tickets',
+                icon: <ExceptionOutlined/>,
+                locale: 'menu.Tickets',
+            },
+        ]
+    } else {
+        return [
+            {
+                path: '/',
+                icon: <DashboardOutlined/>,
+                locale: 'menu.Home',
+            },
+        ]
+    }
+}
 
 const MyApp = ({ Component, pageProps }) => {
     const LayoutComponent = Component.container || BaseLayout
@@ -48,7 +77,7 @@ const MyApp = ({ Component, pageProps }) => {
                     />
                 </Head>
                 <GlobalStyle/>
-                <LayoutComponent menuDataRenderer={() => MY_MENU}>
+                <LayoutComponent menuDataRender={menuDataRender}>
                     <Component {...pageProps} />
                 </LayoutComponent>
                 <GoogleAnalytics/>
