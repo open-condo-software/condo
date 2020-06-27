@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const faker = require('faker')
 const { createUser, makeClient, gql, setFakeClientMode } = require('@core/keystone/test.utils')
 const conf = require('@core/config')

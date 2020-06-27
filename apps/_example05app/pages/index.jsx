@@ -5,6 +5,7 @@ import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
 import Chat from '../containers/Chat'
+import { OrganizationRequired } from '../containers/OrganizationRequired'
 
 function HomePage () {
     const auth = useAuth()
@@ -19,4 +20,8 @@ function HomePage () {
     </>
 }
 
-export default HomePage
+function HomePageWrapper () {
+    return <OrganizationRequired><HomePage/></OrganizationRequired>
+}
+
+export default HomePageWrapper

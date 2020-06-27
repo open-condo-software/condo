@@ -77,7 +77,7 @@ const prepareKeystoneExpressApp = async (entryPoint) => {
     const { middlewares } = await keystone.prepare({ apps, distDir, dev })
     await keystone.connect()
     const app = express()
-    configureExpress(app)
+    if (configureExpress) configureExpress(app)
     app.use(middlewares)
     return { keystone, app }
 }
@@ -306,7 +306,14 @@ const areWeRunningTests = () => {
     return process.env.JEST_WORKER_ID !== undefined
 }
 
+class EmptyApp {
+    prepareMiddleware ({ keystone, dev, distDir }) {
+        return express()
+    }
+}
+
 module.exports = {
+    EmptyApp,
     areWeRunningTests,
     prepareKeystoneExpressApp,
     prepareNextExpressApp,
