@@ -1,6 +1,4 @@
-const { Implementation, MongoIntegerInterface, KnexIntegerInterface } = require('./Implementation')
-
-const { Text } = require('@keystonejs/fields')
+const { Implementation, KnexFieldInterface, MongoFieldInterface } = require('./Implementation')
 
 module.exports = {
     type: 'MultiCheck',
@@ -10,11 +8,11 @@ module.exports = {
         // outside this monorepo.
         Controller: require.resolve('./views/Controller'),
         Field: require.resolve('./views/Field'),
-        Filter: Text.views.Filter,
+        // Filter: Text.views.Filter,
         Cell: require.resolve('./views/Cell'),
     },
     adapters: {
-        mongoose: MongoIntegerInterface,
-        knex: KnexIntegerInterface,
+        mongoose: MongoFieldInterface,
+        knex: KnexFieldInterface,
     },
 }

@@ -1,25 +1,39 @@
 import FieldController from '@keystonejs/fields/Controller'
 
-import { parseDefaultValues } from '../util'
-
 class MultiCheckController extends FieldController {
     constructor (config, ...args) {
-        const defaultValue = parseDefaultValues(config.defaultValue, config.options)
+        const defaultValue = config.defaultValue
         super({ ...config, defaultValue }, ...args)
     }
 
-    // Allow JSON values to be stored as String
-    serialize = data => {
-        return data[this.path] ? JSON.stringify(data[this.path]) : undefined
+    deserialize = data => {
+        const { path } = this
+        if (!data || !data[path]) {
+            // Forcibly return null if empty string
+            return null
+        }
+        return this.config.options.reduce((prev, next) => ({ ...prev, [next]: data[path][next] }), {})
     }
 
-    // Allow string values to be returned as JSON
-    deserialize = data => {
-        return data[this.path] ? JSON.parse(data[this.path]) : null
+    serialize = data => {
+        const { path } = this
+        if (!data || !data[path]) {
+            // Forcibly return null if empty string
+            return null
+        }
+        return this.config.options.reduce((prev, next) => ({ ...prev, [next]: data[path][next] }), {})
+    }
+
+    getQueryFragment = () => {
+        return `
+            ${this.path} {
+               ${this.config.options.join(' ')}
+            }
+        `
     }
 
     // For simplicity let's disable filtering on this field (PRs welcome)
-    getFilterTypes = () => []
+    getFilterTypes = () => { return [] }
 }
 
 export default MultiCheckController

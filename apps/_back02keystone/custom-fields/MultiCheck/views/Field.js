@@ -1,14 +1,31 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/core'
-import { useState, useEffect } from 'react'
-import { FieldContainer, FieldDescription } from '@arch-ui/fields'
+import { jsx, css } from '@emotion/core'
+import { useEffect, useState } from 'react'
+import { FieldContainer, FieldDescription, FieldInput } from '@arch-ui/fields'
 import { ShieldIcon } from '@arch-ui/icons'
 import { Lozenge } from '@arch-ui/lozenge'
 import { colors, gridSize } from '@arch-ui/theme'
+import { CheckboxPrimitive } from '@arch-ui/controls'
 
-import { Checkbox } from './MultiCheck'
+const Checkbox = ({ label, value, onChange }) => {
+    const checked = value || false
+    const htmlID = `ks-input-${label}`
+    return (
+        <div css={css`display: flex; align-items: center;`}>
+            <label htmlFor={htmlID}>{label}</label>
+            <FieldInput css={{ height: 35, order: '-1' }}>
+                <CheckboxPrimitive
+                    autoFocus={false}
+                    checked={checked}
+                    onChange={event => onChange({ [label]: event.target.checked })}
+                    id={htmlID}
+                />
+            </FieldInput>
+        </div>
+    )
+}
 
-const TextField = ({ onChange, autoFocus, field, value, errors }) => {
+const MultiCheckField = ({ onChange, autoFocus, field, value, errors }) => {
     const initialState = value ? value : field.getDefaultValue()
     const [values, setValues] = useState(initialState)
     useEffect(() => {
@@ -58,4 +75,4 @@ const TextField = ({ onChange, autoFocus, field, value, errors }) => {
     )
 }
 
-export default TextField
+export default MultiCheckField
