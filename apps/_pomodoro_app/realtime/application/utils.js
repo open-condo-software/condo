@@ -1,5 +1,4 @@
-class LinkGenerator {
-    static Generate() {
+function generateLink() {
         const consonants = 'bcdfghjklmnpqrstvwxyz'.split('')
         const vowels = 'aeiou'.split('')
         const rand = (lim) => {return Math.floor(Math.random() * lim)}
@@ -19,6 +18,7 @@ class LinkGenerator {
 
         return(createRandomWord(5) + '-' + createRandomWord(5) )
     }
-}
 
-module.exports = LinkGenerator
+module.exports = {
+    generateLink: generateLink
+}

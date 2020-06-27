@@ -1,10 +1,9 @@
 const express = require('express')
-const LinkGenerator = require('../realtime/application/LinkGenerator')
-const Repository = require('../realtime/application/Repository')
 const bodyParser = require('body-parser')
 
+const {generateLink} = require('./application/utils')
 
-async function prepareBackApp (linkGenerator = LinkGenerator, repo = new Repository) {
+async function prepareBackApp (store) {
     const app = express()
 
     app.use(bodyParser.json())
@@ -14,7 +13,7 @@ async function prepareBackApp (linkGenerator = LinkGenerator, repo = new Reposit
 
         if (req.body !== undefined) {
 
-            const timerId = LinkGenerator.Generate()
+            const timerId = generateLink()
 
             try {
                 const dataObj = {
@@ -23,7 +22,7 @@ async function prepareBackApp (linkGenerator = LinkGenerator, repo = new Reposit
                     workTimeTime: parseInt(req.body.workTime)
                 }
 
-                repo.setEntityById(timerId, dataObj)
+                store.setEntityById(timerId, dataObj)
 
                 res.send(JSON.stringify({
                     id:timerId,

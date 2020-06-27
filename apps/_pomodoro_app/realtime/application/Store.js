@@ -1,9 +1,10 @@
-const AbstractRepository = require('./AbstractRepository')
 const Exceptions = require('./Enums/Exceptions')
 
-class RAMRepository extends AbstractRepository {
+/**
+ * An abstraction over Object, could possibly have multiple impl
+ */
+class Store {
     constructor () {
-        super()
         this._memory = {}
     }
 
@@ -27,4 +28,4 @@ class RAMRepository extends AbstractRepository {
     }
 }
 
-module.exports = RAMRepository
+module.exports = Store

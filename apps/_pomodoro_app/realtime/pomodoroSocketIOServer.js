@@ -1,18 +1,26 @@
 const Timer = require('./application/Timer')
-const SimpleAuthMiddleware = require('./application/SimpleAuthMiddleware')
-const ConsoleLogger = require('./application/ConsoleLogger')
-const Repository = require('./application/Repository')
+
+
+/**
+ * Socket auth middleware
+ * https://socket.io/docs/migrating-from-0-9/
+ * @param socket
+ * @param next
+ */
+function auth(socket, next) {
+    const handshakeData = socket.request;
+    console.log('auth-d', handshakeData._query['timer'])
+    next()
+}
 
 
 /**
  * Realtime server that handles the pomodoro timer application
  * TODO When socket dies we fire out an logger request to create statistics
  * @param io - Socket.io namespace
- * @param logger - an AbstractLogger impl
- * @param auth - an AbstractAuthMiddleware impl
- * @param repo - an AbstractRepository impl
+ * @param store — Storage for timer meta information
  */
-function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware, repo=new Repository()) {
+function init (io, store) {
 
     /**
      * Active timers storage
@@ -20,22 +28,25 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware, repo=n
      */
     const timers = {}
 
-    function _forgeTimer(id, time, period, nextPreiod, nextPeriodLength, paused) {
-        return {
-            id:id,
-            time:time,
-            period:period,
-            nextPeriod:nextPreiod,
-            nextPeriodLength:nextPeriodLength,
-            paused:paused
-        }
-    }
-
+    /**
+     * Forges and emits an event
+     * @param nsp where to emit event
+     * @param timer
+     * @param id
+     * @private
+     */
     function _emitTimerEvent(nsp, timer, id) {
-       nsp.emit('timer', _forgeTimer(id, timer.getTime(), timer.getInterval(), timer.getNextInterval(), timer.getNextIntervalLength(), timer.isPaused()))
+       nsp.emit('timer', {
+           id:id,
+           time:timer.getTime(),
+           period:timer.getInterval(),
+           nextPeriod:timer.getNextInterval(),
+           nextPeriodLength:timer.getNextIntervalLength(),
+           paused:timer.isPaused()
+       })
     }
 
-    io.use(auth.auth)
+    io.use(auth)
 
     io.on('connection', (socket) => {
         const id = socket.request._query['timer']
@@ -47,7 +58,7 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware, repo=n
         //todo(toplenboren) rewrite
         if (!timers.hasOwnProperty(id)) {
             try {
-                const data = repo.getEntityById(id)
+                const data = store.getEntityById(id)
                 console.log(data)
                 timers[id] = new Timer(data.breakTime, data.bigBreakTime, data.workTimeTime)
             } catch (e) {
@@ -59,32 +70,31 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware, repo=n
                 timers[id] = new Timer(data.breakTime, data.bigBreakTime, data.worktimeTime)
             }
         }
-
         const timer = timers[id]
-        logger.log(`timer ${id} has one more connection`)
+        console.log(`timer ${id} has one more connection`)
 
         socket.on('start', () => {
             timer.start()
             _emitTimerEvent(io.in(id), timer, id)
-            logger.log(`started timer for ${id}`)
+            console.log(`started timer for ${id}`)
         })
 
         socket.on('pause', () => {
             timer.pause()
             _emitTimerEvent(io.in(id), timer, id)
-            logger.log(`paused timer for ${id}`)
+            console.log(`paused timer for ${id}`)
         })
 
         socket.on('clear', () => {
             timer.pause()
             timer.reset()
             _emitTimerEvent(io.in(id), timer, id)
-            logger.log(`timer was cleared for ${id}`)
+            console.log(`timer was cleared for ${id}`)
         })
 
         socket.on('check', () => {
             _emitTimerEvent(socket, timer, id)
-            logger.log(timer.getTime())
+            console.log(timer.getTime())
         })
     })
 }

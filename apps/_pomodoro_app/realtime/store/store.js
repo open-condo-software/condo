@@ -1,3 +1,3 @@
-const Repository = require('./../application/Repository')
+const Store = require('../application/Store')
 
-module.exports = new Repository()
+module.exports = new Store()
