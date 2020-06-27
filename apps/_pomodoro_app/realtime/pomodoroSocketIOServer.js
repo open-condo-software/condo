@@ -31,8 +31,8 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware, repo=n
         }
     }
 
-    function _emitTimerEvent(io, timer, id) {
-        io.in(id).emit('timer', _forgeTimer(id, timer.getTime(), timer.getInterval(), timer.getNextInterval(), timer.getNextIntervalLength(), timer.isPaused()))
+    function _emitTimerEvent(nsp, timer, id) {
+       nsp.emit('timer', _forgeTimer(id, timer.getTime(), timer.getInterval(), timer.getNextInterval(), timer.getNextIntervalLength(), timer.isPaused()))
     }
 
     io.use(auth.auth)
@@ -42,11 +42,14 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware, repo=n
 
         socket.join(id)
 
+        // If timer wasnt present in system beforehand -> check the repository for data,
+        // if null -> create a new timer with default values
         //todo(toplenboren) rewrite
         if (!timers.hasOwnProperty(id)) {
             try {
                 const data = repo.getEntityById(id)
-                timers[id] = new Timer(data.breakTime, data.bigBreakTime, data.worktimeTime)
+                console.log(data)
+                timers[id] = new Timer(data.breakTime, data.bigBreakTime, data.workTimeTime)
             } catch (e) {
                 const data = {
                     breakTime:15*60,
@@ -62,25 +65,25 @@ function init (io, logger=new ConsoleLogger(), auth=SimpleAuthMiddleware, repo=n
 
         socket.on('start', () => {
             timer.start()
-            _emitTimerEvent(io, timer, id)
+            _emitTimerEvent(io.in(id), timer, id)
             logger.log(`started timer for ${id}`)
         })
 
         socket.on('pause', () => {
             timer.pause()
-            _emitTimerEvent(io, timer, id)
+            _emitTimerEvent(io.in(id), timer, id)
             logger.log(`paused timer for ${id}`)
         })
 
         socket.on('clear', () => {
             timer.pause()
             timer.reset()
-            _emitTimerEvent(io, timer, id)
+            _emitTimerEvent(io.in(id), timer, id)
             logger.log(`timer was cleared for ${id}`)
         })
 
         socket.on('check', () => {
-            _emitTimerEvent(io, timer, id)
+            _emitTimerEvent(socket, timer, id)
             logger.log(timer.getTime())
         })
     })
