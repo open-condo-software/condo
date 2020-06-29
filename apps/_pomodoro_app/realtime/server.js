@@ -6,15 +6,17 @@ const port = parseInt(process.env.PORT || '3001')
 const { init } = require('./pomodoroSocketIOServer')
 const prepareBackApp = require('./pomodoroExpressBackend')
 const store = require('./store/store')
-const { generateLink } = require('./application/utils/generateLink')
+const generateTimerId = require('./application/utils/createRandomWord')
+
+const storage = new store()
 
 async function prepareSocketIOServer(server) {
     const io = socketio(server)
-    init(io, store)
+    init(io, storage)
 }
 
 async function initServer (port) {
-    const app = await prepareBackApp(store)
+    const app = await prepareBackApp(storage)
     app.set('port', port)
     const server = http.createServer(app)
     await prepareSocketIOServer(server)

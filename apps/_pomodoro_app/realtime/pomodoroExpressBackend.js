@@ -2,7 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 
-const {generateLink} = require('./application/utils/generateLink')
+const createRandomWord = require('./application/utils/createRandomWord')
 
 async function prepareBackApp (store) {
     const app = express()
@@ -15,7 +15,7 @@ async function prepareBackApp (store) {
 
         if (req.body !== undefined) {
 
-            const timerId = generateLink()
+            const timerId = createRandomWord(5) + '-' + createRandomWord(5)
 
             try {
                 const dataObj = {

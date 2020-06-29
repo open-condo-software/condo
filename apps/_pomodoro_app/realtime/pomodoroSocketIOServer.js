@@ -1,4 +1,4 @@
-const Timer = require('./application/Timer')
+const Timer = require('./application/timer')
 
 
 /**
@@ -39,9 +39,9 @@ function init (io, store) {
        nsp.emit('timer', {
            id:id,
            time:timer.getTime(),
-           period:timer.getInterval(),
-           nextPeriod:timer.getNextInterval(),
-           nextPeriodLength:timer.getNextIntervalLength(),
+           period:timer.getPeriod(),
+           nextPeriod:timer.getNextPeriod(),
+           nextPeriodLength:timer.getNextPeriodLength(),
            paused:timer.isPaused()
        })
     }
