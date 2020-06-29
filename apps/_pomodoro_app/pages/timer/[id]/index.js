@@ -24,38 +24,36 @@ const Timer = () => {
 
     if (socket === null) {
         return (<p>Connecting...</p>)
-    } else {
-        return (
-            <>
-                <p>
-                    Last Response: {JSON.stringify(response)}
-                </p>
-                <button onClick={() => {
-                    socket.emit('start')
-                }}>
-                    Run Timer
-                </button>
-
-                <button onClick={() => {
-                    socket.emit('pause')
-                }}>
-                    Pause Timer
-                </button>
-
-                <button onClick={() => {
-                    socket.emit('clear')
-                }}>
-                    Clear Timer
-                </button>
-
-                <button onClick={() => {
-                    socket.emit('check')
-                }}>
-                    Check time (check your server logs!)
-                </button>
-            </>
-        );
     }
+
+    return (<>
+        <p>
+            Last Response: {JSON.stringify(response)}
+        </p>
+        <button onClick={() => {
+            socket.emit('start')
+        }}>
+            Run Timer
+        </button>
+
+        <button onClick={() => {
+            socket.emit('pause')
+        }}>
+            Pause Timer
+        </button>
+
+        <button onClick={() => {
+            socket.emit('clear')
+        }}>
+            Clear Timer
+        </button>
+
+        <button onClick={() => {
+            socket.emit('check')
+        }}>
+            Check time (check your server logs!)
+        </button>
+    </>)
 }
 
 /**
