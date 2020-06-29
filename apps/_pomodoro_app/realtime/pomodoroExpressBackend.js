@@ -1,12 +1,14 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const cors = require('cors')
 
-const {generateLink} = require('./application/utils')
+const {generateLink} = require('./application/utils/generateLink')
 
 async function prepareBackApp (store) {
     const app = express()
 
     app.use(bodyParser.json())
+    app.use(cors())
 
     app.post('/get-timer', (req, res) => {
         res.setHeader('Content-Type', 'application/json')

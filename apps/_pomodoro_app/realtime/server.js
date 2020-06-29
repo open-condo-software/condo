@@ -6,7 +6,7 @@ const port = parseInt(process.env.PORT || '3001')
 const { init } = require('./pomodoroSocketIOServer')
 const prepareBackApp = require('./pomodoroExpressBackend')
 const store = require('./store/store')
-const { generateLink } = require('./application/utils')
+const { generateLink } = require('./application/utils/generateLink')
 
 async function prepareSocketIOServer(server) {
     const io = socketio(server)
