@@ -1,4 +1,4 @@
-const Exceptions = require('./Enums/Exceptions')
+const WrongArgumentError = require('./utils/argumentException')
 
 /**
  * An abstraction over Object, could possibly have multiple impl
@@ -12,7 +12,7 @@ class Store {
         if (id in this._memory){
             return this._memory[id]
         }
-        throw Exceptions.ArgumentException
+        throw new WrongArgumentError(`The item by key: ${id} is not present in our records`)
     }
 
     setEntityById (id, val) {
@@ -23,7 +23,7 @@ class Store {
         if (id in this._memory){
             delete this._memory[id]
         } else {
-            throw Exceptions.ArgumentException
+            throw new WrongArgumentError(`The item by key: ${id} is not present in our records`)
         }
     }
 }
