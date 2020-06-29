@@ -1,5 +1,4 @@
-const CyclicQueue = require('./CyclicQueue');
-const Interval = require('./Interval');
+const CyclicQueue = require('./utils/cyclicQueue');
 
 const status = {
     'paused':'paused',
@@ -28,6 +27,16 @@ function getIntervalQueue(breakTime, bigBreakTime, worktimeTime) {
         workInterval,
         bigBreakInterval
     ])
+}
+
+/**
+ * Period model
+ */
+class Interval {
+    constructor(name, time) {
+        this.name = name
+        this.time = time
+    }
 }
 
 /**
