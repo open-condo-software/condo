@@ -37,7 +37,7 @@ function init (io, store) {
      */
     function _emitTimerEvent(nsp, timer, id) {
        nsp.emit('timer', {
-           id:id,
+           id,
            time:timer.getTime(),
            period:timer.getInterval(),
            nextPeriod:timer.getNextInterval(),
