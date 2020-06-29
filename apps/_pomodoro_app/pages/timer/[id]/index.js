@@ -8,8 +8,7 @@ const ENDPOINT = "http://127.0.0.1:3001";
 const Timer = () => {
     const [response, setResponse] = useState({})
     const [socket, setSocket] = useState(null)
-    const router = useRouter()
-    const {id} = router.query
+    const { query: { id } } = useRouter()
 
     useEffect(() => {
         const sock = io(ENDPOINT, {query: `timer=${id}`})
