@@ -9,7 +9,7 @@ class WrongArgumentError extends Error {
 /**
  * An abstraction over Object, could possibly have multiple impl
  */
-class store {
+class Store {
     constructor () {
         this._memory = {}
     }
@@ -34,4 +34,4 @@ class store {
     }
 }
 
-module.exports = store
+module.exports = Store

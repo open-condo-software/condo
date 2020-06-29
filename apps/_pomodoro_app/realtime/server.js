@@ -1,14 +1,12 @@
 const http = require('http')
 const socketio = require('socket.io')
-const express = require('express')
 const port = parseInt(process.env.PORT || '3001')
 
 const { init } = require('./pomodoroSocketIOServer')
 const prepareBackApp = require('./pomodoroExpressBackend')
-const store = require('./store/store')
-const generateTimerId = require('./application/utils/createRandomWord')
+const Store = require('./store/store')
 
-const storage = new store()
+const storage = new Store()
 
 async function prepareSocketIOServer(server) {
     const io = socketio(server)

@@ -7,14 +7,16 @@ const createRandomWord = require('./application/utils/createRandomWord')
 async function prepareBackApp (store) {
     const app = express()
 
-    app.use(bodyParser.json())
     app.use(cors())
+    app.use(bodyParser.json())
+
 
     app.post('/get-timer', (req, res) => {
         res.setHeader('Content-Type', 'application/json')
 
         if (req.body !== undefined) {
 
+            console.log(req.body)
             const timerId = createRandomWord(5) + '-' + createRandomWord(5)
 
             try {
