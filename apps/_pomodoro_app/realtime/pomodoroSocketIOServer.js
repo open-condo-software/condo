@@ -38,11 +38,11 @@ function init (io, store) {
     function _emitTimerEvent(nsp, timer, id) {
        nsp.emit('timer', {
            id,
-           time:timer.getTime(),
-           period:timer.getInterval(),
-           nextPeriod:timer.getNextInterval(),
-           nextPeriodLength:timer.getNextIntervalLength(),
-           paused:timer.isPaused()
+           time: timer.getTime(),
+           period: timer.getInterval(),
+           nextPeriod: timer.getNextInterval(),
+           nextPeriodLength: timer.getNextIntervalLength(),
+           paused: timer.isPaused()
        })
     }
 
