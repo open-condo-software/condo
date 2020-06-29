@@ -1,20 +1,20 @@
-const Timer = require('../realtime/application/Timer');
+const timer = require('../realtime/application/timer');
 
 //todo(toplenboren) move to utils.js maybe
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-test('Timer start is working', () => {
-    const x = new Timer(10,10,10)
+test('Timer should start', () => {
+    const x = new timer(10,10,10)
     x.start()
     sleep(1000).then(() => {
         expect(x.getTime()).toBe(9);
     })
 });
 
-test('Timer pause is working', () => {
-    const x = new Timer(10,10,10)
+test('Timer should pause', () => {
+    const x = new timer(10,10,10)
     x.start()
     sleep(1000).then(() => {
         x.pause()
@@ -24,8 +24,8 @@ test('Timer pause is working', () => {
     })
 });
 
-test('Timer reset is working', () => {
-    const x = new Timer(10,10,10)
+test('Timer should reset', () => {
+    const x = new timer(10,10,10)
     x.start()
     sleep(1000).then(() => {
         expect(x.getTime()).toBe(9)
@@ -34,8 +34,8 @@ test('Timer reset is working', () => {
     })
 });
 
-test('Timers are async', async () => {
-    const x = new Timer(10,10,10)
+test('Timers should be safe to work async', async () => {
+    const x = new timer(10,10,10)
     const y = x
     const z = x
     // first client pushes start:
@@ -55,22 +55,22 @@ test('Timers are async', async () => {
 // we should wait more then 10 secs in order to pass the last test
 jest.setTimeout(15000)
 
-test('Timers give correct period', async () => {
-    const x = new Timer(2,2,2)
+test('Timers should give correct period', async () => {
+    const x = new timer(2,2,2)
     expect(x.getTime()).toBe(2)
-    expect(x.getInterval()).toBe('WORK')
-    expect(x.getNextInterval()).toBe('BREAK')
+    expect(x.getPeriod()).toBe('WORK')
+    expect(x.getNextPeriod()).toBe('BREAK')
     x.start()
     await sleep(2500)
     expect(x.getTime()).toBe(2)
-    expect(x.getInterval()).toBe('BREAK')
-    expect(x.getNextInterval()).toBe('WORK')
+    expect(x.getPeriod()).toBe('BREAK')
+    expect(x.getNextPeriod()).toBe('WORK')
     await sleep(2000) // work 2
     await sleep(2000) // break 2
     await sleep(2000) // work 3
     await sleep(2000) // break 3
     await sleep(2000) // work 4
     await sleep(2000) // big_break
-    expect(x.getInterval()).toBe('BIG_BREAK')
-    expect(x.getNextInterval()).toBe('WORK')
+    expect(x.getPeriod()).toBe('BIG_BREAK')
+    expect(x.getNextPeriod()).toBe('WORK')
 });
