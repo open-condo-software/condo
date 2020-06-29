@@ -8,8 +8,7 @@ const ENDPOINT = "http://127.0.0.1:3001";
 const Timer = () => {
     const [response, setResponse] = useState({})
     const [socket, setSocket] = useState(null)
-    const router = useRouter()
-    const {id} = router.query
+    const { query: { id } } = useRouter()
 
     useEffect(() => {
         const sock = io(ENDPOINT, {query: `timer=${id}`})
@@ -24,38 +23,36 @@ const Timer = () => {
 
     if (socket === null) {
         return (<p>Connecting...</p>)
-    } else {
-        return (
-            <>
-                <p>
-                    Last Response: {JSON.stringify(response)}
-                </p>
-                <button onClick={() => {
-                    socket.emit('start')
-                }}>
-                    Run Timer
-                </button>
-
-                <button onClick={() => {
-                    socket.emit('pause')
-                }}>
-                    Pause Timer
-                </button>
-
-                <button onClick={() => {
-                    socket.emit('clear')
-                }}>
-                    Clear Timer
-                </button>
-
-                <button onClick={() => {
-                    socket.emit('check')
-                }}>
-                    Check time (check your server logs!)
-                </button>
-            </>
-        );
     }
+
+    return (<>
+        <p>
+            Last Response: {JSON.stringify(response)}
+        </p>
+        <button onClick={() => {
+            socket.emit('start')
+        }}>
+            Run Timer
+        </button>
+
+        <button onClick={() => {
+            socket.emit('pause')
+        }}>
+            Pause Timer
+        </button>
+
+        <button onClick={() => {
+            socket.emit('clear')
+        }}>
+            Clear Timer
+        </button>
+
+        <button onClick={() => {
+            socket.emit('check')
+        }}>
+            Check time (check your server logs!)
+        </button>
+    </>)
 }
 
 /**
