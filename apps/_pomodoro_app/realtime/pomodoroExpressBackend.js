@@ -34,9 +34,9 @@ async function prepareBackApp (store) {
                 }))
             }
         } else {
-        res.status(400).send(JSON.stringify({
-            detail:'Request body was not specified',
-        }))
+            res.status(400).send(JSON.stringify({
+                detail:'Request body was not specified',
+            }))
         }
     })
 
