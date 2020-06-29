@@ -1,4 +1,4 @@
-const {generateLink} = require('../realtime/application/utils/generateLink')
+const {generateLink} = require('../realtime/application/utils/generateTimerId')
 
 test('generateLink() Should generate random links', () => {
     const x = generateLink()
