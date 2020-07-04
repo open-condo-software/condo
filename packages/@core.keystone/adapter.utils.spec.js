@@ -11,3 +11,8 @@ test('getAdapter() Postgres url', () => {
     const adapter = getAdapter('postgresql://postgres:postgres@127.0.0.1/main')
     expect(adapter).toBeInstanceOf(KnexAdapter)
 })
+
+test('getAdapter() undefined', () => {
+    const adapter = getAdapter('undefined')
+    expect(adapter).toBeUndefined()
+})
