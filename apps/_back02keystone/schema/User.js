@@ -6,7 +6,7 @@ const conf = require('@core/config')
 const access = require('@core/keystone/access')
 const faker = require('faker')
 
-const { Stars, MultiCheck } = require('../custom-fields')
+const { Stars, Options } = require('../custom-fields')
 
 const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
     src: `${conf.MEDIA_ROOT}/avatars`,
@@ -17,7 +17,7 @@ const User = BaseUser._override({
     fields: {
         avatar: { type: File, adapter: AVATAR_FILE_ADAPTER },
         rating: { type: Stars, starCount: 5 },
-        settings: { type: MultiCheck, options: ['Feature1', 'Feature2'] },
+        settings: { type: Options, options: ['Feature1', 'Feature2'] },
         aboutMyself: { type: Wysiwyg },
         phone: {
             factory: () => faker.phone.phoneNumberFormat(),
