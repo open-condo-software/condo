@@ -68,7 +68,8 @@ class CustomApp {
 
 class RealtimeApp {
     prepareMiddleware ({ keystone, dev, distDir }) {
-        realtime.start()
+        const middleware = realtime.expressPrepare()
+        return middleware
     }
 }
 
@@ -83,6 +84,7 @@ module.exports = {
     keystone,
     apps: [
         new GraphQLApp(),
+        new RealtimeApp(),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({
             adminPath: '/admin',
@@ -92,6 +94,5 @@ module.exports = {
             authStrategy,
         }),
         (!areWeRunningTests()) ? new NextApp({ dir: __dirname }) : new CustomApp(),
-        new RealtimeApp(),
     ],
 }

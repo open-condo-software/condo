@@ -22,5 +22,7 @@ async function initServer (port) {
 }
 
 module.exports = {
-    start: () => initServer(port).then(() => console.log(` SERVER started at port: ${port}`))
+    start: () => initServer(port).then(() => console.log(` SERVER started at port: ${port}`)),
+    socketIOPrepare: (srv) => prepareSocketIOServer(srv),
+    expressPrepare: () => prepareBackApp(storage)
 };
