@@ -79,17 +79,17 @@ function init (io, store) {
             console.log(`started timer for ${id}`)
         })
 
-        socket.on('pause', () => {
-            timer.pause()
-            _emitTimerEvent(io.in(id), timer, id)
-            console.log(`paused timer for ${id}`)
-        })
-
         socket.on('clear', () => {
             timer.pause()
             timer.reset()
             _emitTimerEvent(io.in(id), timer, id)
             console.log(`timer was cleared for ${id}`)
+        })
+
+        socket.on('pause', () => {
+            timer.pause()
+            _emitTimerEvent(io.in(id), timer, id)
+            console.log(`paused timer for ${id}`)
         })
 
         socket.on('check', () => {

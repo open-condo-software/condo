@@ -13,19 +13,19 @@ const periods = {
 
 function getPeriodQueue(breakTime, bigBreakTime, worktimeTime) {
 
-    const workInterval = new Period(periods.work, worktimeTime)
-    const breakInterval = new Period(periods.break, breakTime)
-    const bigBreakInterval = new Period(periods.bigBreak, bigBreakTime)
+    const workPeriod = new Period(periods.work, worktimeTime)
+    const breakPeriod = new Period(periods.break, breakTime)
+    const bigBreakPeriod = new Period(periods.bigBreak, bigBreakTime)
 
     return new CyclicQueue([
-        workInterval,
-        breakInterval,
-        workInterval,
-        breakInterval,
-        workInterval,
-        breakInterval,
-        workInterval,
-        bigBreakInterval
+        workPeriod,
+        breakPeriod,
+        workPeriod,
+        breakPeriod,
+        workPeriod,
+        breakPeriod,
+        workPeriod,
+        bigBreakPeriod
     ])
 }
 
@@ -68,13 +68,9 @@ class Timer {
         return this.periodQueue.current().name
     }
 
-    getNextPeriod() {
-        return this.periodQueue.peekNext().name
-    }
+    getNextPeriod() {return this.periodQueue.peekNext().name }
 
-    getNextPeriodLength() {
-        return this.periodQueue.peekNext().time
-    }
+    getNextPeriodLength() { return this.periodQueue.peekNext().time }
 
     start() {
         if (this.status === status.paused) {
@@ -91,17 +87,11 @@ class Timer {
         }
     }
 
-    reset() {
-        this.timer = 0
-    }
+    reset() { this.timer = 0 }
 
-    isPaused() {
-        return this.status === status.paused
-    }
+    isPaused() { return this.status === status.paused }
 
-    getTime() {
-        return this.periodQueue.current().time - this.timer
-    }
+    getTime() { return this.periodQueue.current().time - this.timer }
 }
 
 module.exports = Timer
