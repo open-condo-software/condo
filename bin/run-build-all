@@ -1,0 +1,65 @@
+#!/usr/bin/env node
+
+const fs = require('fs')
+const { spawnSync } = require('child_process')
+
+function buildApps (apps) {
+    for (const app of apps) {
+        console.info(`MULTI-RUN: yarn workspace ${app} build`)
+        const child = spawnSync('yarn', ['workspace', app, 'build'], {
+            cwd: process.cwd(),
+            env: process.env,
+            stdio: [process.stdin, process.stdout, process.stderr],
+            encoding: 'utf-8',
+        })
+        console.log(child.status)
+        if (child.status !== 0) {
+            console.error(`MULTI-RUN: ERROR! (yarn workspace ${app} build) EXIT CODE == ${child.status}`)
+            process.exit(child.status)
+        }
+    }
+}
+
+function readJsonSync (path) {
+    return JSON.parse(fs.readFileSync(path))
+}
+
+function findAllBuildableApps () {
+    const buildable = []
+    const apps = fs.readdirSync('./apps', { withFileTypes: true })
+    for (const app of apps) {
+        const path = `./apps/${app.name}/package.json`
+        let pack = null
+        if (!app.isDirectory()) continue
+        if (!fs.existsSync(path)) {
+            console.warn(`MULTI-RUN: NO ${path} !`)
+            continue
+        }
+
+        try {
+            pack = readJsonSync(path)
+        } catch (e) {
+            console.warn(`MULTI-RUN: require path ${path} error: ${e} !`)
+            continue
+        }
+
+        if (pack.scripts && pack.scripts.build && pack.name) {
+            buildable.push(pack.name)
+        }
+    }
+    return buildable
+}
+
+let apps = process.argv.slice(2)
+if (apps.length <= 0) {
+    console.info('MULTI-RUN: try to find all apps with build command')
+    apps = findAllBuildableApps()
+    if (apps.length <= 0) {
+        console.error('MULTI-RUN: no buildable apps! Try to pass related apps paths')
+        console.error('USE: node ./bin/run-build-all @app/_back02keystone @app/_example05app @app/_realtime01app')
+        process.exit(1)
+    }
+}
+
+console.info(`MULTI-RUN: run build for apps: ${apps.join(', ')}`)
+buildApps(apps)

@@ -281,11 +281,11 @@ DEBUG_MONGOOSE=1 yarn dev @app/_back02keystone @app/_example05app @app/_realtime
 
 ### Run multiple apps at the same time ###
 
-You can use `multi-app-server.js` to run more then one app.
+You can use `bin/run-multiple-apps` to run more then one app.
 
 Example:
 ```bash
-node multi-app-server.js @app/_back02keystone @app/_example05app @app/_realtime01app
+node ./bin/run-multiple-apps @app/_back02keystone @app/_example05app @app/_realtime01app
 ```
 
 Every app should have `multi-app-support.js` file. Check `_back02keystone`, `_example05app` and `_realtime01app` examples.
