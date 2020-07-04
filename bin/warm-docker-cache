@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+rm -f -r .docker-cache-warming
+
+find . -type d \( -path \*/.docker-cache-warming \) -prune -o \
+  -type d \( -name node_modules \) -prune -o \
+  -type f \( -name "package.json" \) \
+  -exec bash -c 'dest=".docker-cache-warming/$1" && \
+    mkdir -p -- "$(dirname "$dest")" && \
+    cp -av -- "$1" "$dest"' bash '{}' \;
+# instead of mkdir + cp, you may also want to use
+# rsync if it is available in your environment...

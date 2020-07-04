@@ -1,0 +1,15 @@
+**/.env*
+**/.git*
+**/__*
+**/docker-compose*
+**/*.log
+**/.DS_Store
+**/Dockerfile
+**/.dockerignore
+**/node_modules
+**/.next
+**/dist
+**/out
+**/.idea
+**/.kmigrator
+**/docs

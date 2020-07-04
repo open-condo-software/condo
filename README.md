@@ -104,8 +104,11 @@ git remote set-url origin git@github.com:USERNAME/REPOSITORY.git
 # Add template origin for some core tempate updates
 git remote add template https://github.com/8iq/nodejs-hackathon-boilerplate-starter-kit
 
+# Create .env file!
+cp .env.example .env
+
 # Run databases by docker
-docker-compose up -d
+docker-compose up -d mongodb postgresdb
 
 # Install dependencies and link workspaces
 yarn
@@ -115,7 +118,6 @@ yarn
 
 # Run BACKEND
 yarn dev
-
 ```
 
 Keystone Admin UI is reachable via `http://127.0.0.1:3000/admin`.
@@ -195,6 +197,48 @@ yarn workspace @app/_example01app dev
 
 # You can also check `apps/_example02app` and others examples
 ```
+
+# Deploy #
+
+We use docker-compose to deploy your application.
+You can check the `docker-compose.yml` and important variables in `.env.example` file.
+
+There are two important variables for building production image: 
+ - `DOCKER_FILE_INSTALL_COMMAND` -- install extra packages and system requirements (ex: `python3 -m pip install 'psycopg2-binary>=2.8.5' && python3 -m pip install 'Django>=3.0.6'` or `apt-get -y install nano`)
+ - `DOCKER_FILE_BUILD_COMMAND` -- run build static or prepare some project files for production (ex: `yarn build` or `yarn workspace @app/_example05app build`)
+
+You can build a production docker container by `docker-compose build` command.
+
+There are important variables for runtime:
+ - `DOCKER_COMPOSE_START_APP_COMMAND` -- docker start command (ex: `yarn workspace @app/_back02keystone start`)
+ - `DOCKER_COMPOSE_COOKIE_SECRET` -- the keystone important variable for sessions store (ex: `AWJfbsbaf!` or some secret random string)
+ - `DOCKER_COMPOSE_SERVER_URL` -- the next.js important variable for API calls from frontend to backend (ex: `https://example.dok.8iq.dev`)
+
+That's it!
+
+You can build a production image localy and copy it to the production server by command: 
+`docker save apps:prod | bzip2 | pv | ssh root@dok.8iq.dev 'bunzip2 | docker load'` 
+(required `brew install pv` or just rm it from command)
+
+Final script should looks like:
+```shell script
+# 0. warm docker cache (it's speed up your rebuild)
+bash ./bin/warm-docker-cache
+# 1. You should build a prod image.
+docker-compose build
+# 2.1 Copy to prod server `docker image`
+docker save apps:prod | bzip2 | pv | ssh root@dok.8iq.dev 'bunzip2 | docker load'
+# 2.2 Copy to prod server `docker-compose.yml` and required `.env`
+scp ./docker-compose.yml root@dok.8iq.dev:~
+scp ./.env root@dok.8iq.dev:~
+# 3. Run redeploy command
+ssh root@dok.8iq.dev 'docker-compose down && docker-compose up -d' 
+```
+
+NOTE: If you need some extra containers or you want to customize existing containers you can create 
+`docker-compose.override.yml` file.
+
+# Others #
 
 ### Add package to existing APP ###
 

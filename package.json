@@ -15,6 +15,7 @@
   ],
   "scripts": {
     "dev": "node ./bin/run-multiple-apps",
+    "start": "node ./bin/run-multiple-apps",
     "build": "node ./bin/run-build-all"
   }
 }
