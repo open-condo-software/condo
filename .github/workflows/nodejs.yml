@@ -21,6 +21,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Prepare .env
+        run: cp .env.example .env
       - name: Docker compose up databases
         run: docker-compose up -d
       - name: Use Node.js ${{ matrix.node-version }}
