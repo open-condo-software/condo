@@ -17,7 +17,7 @@ function getCookieSecret (cookieSecret) {
         // NOTE: case for build time!
         return uuidv5(makeid(10), uuidv5.DNS)
     } else if (cookieSecret.startsWith('random')) {
-        // NOTE: some production ready secret! but it's change every time and expire sessions!
+        // NOTE: some production-ready secret! but it will change every time and expire sessions!
         return uuidv5(makeid(10), uuidv5.DNS)
     } else {
         if (cookieSecret.length < 10) return uuidv5(cookieSecret, uuidv5.DNS)
