@@ -5,11 +5,18 @@ const { StaticApp } = require('@keystonejs/app-static')
 const { NextApp } = require('@keystonejs/app-next')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { getAdapter } = require('@core/keystone/adapter.utils')
+const { getCookieSecret } = require('@core/keystone/keystone.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const conf = require('@core/config')
 const fs = require('fs')
 
 const keystone = new Keystone({
+    cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
+    cookie: {
+        sameSite: false,
+        secure: false,
+        maxAge: 1000 * 60 * 60 * 24 * 130, // 130 days
+    },
     name: conf.PROJECT_NAME,
     adapter: getAdapter(conf.DATABASE_URL),
     defaultAccess: { list: false, field: true, custom: false },

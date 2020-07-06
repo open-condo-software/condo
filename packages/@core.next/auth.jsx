@@ -117,6 +117,7 @@ const AuthProvider = ({ children, initialUserValue }) => {
     function onError (error) {
         console.error(error)
         setUser(null)
+        throw error
     }
 
     if (DEBUG_RERENDERS) console.log('AuthProvider()', user)

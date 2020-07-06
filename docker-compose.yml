@@ -1,24 +1,24 @@
 version: '3'
 services:
-#  dev:
-#    image: node:12
-#    volumes:
-#      - .:/app:cached
-#      - ~/.docker_bash_history:/root/.bash_history
-#      - ~/.docker_bash_history:/home/node/.bash_history
-#      - ~/.docker_bashrc:/root/.bashrc
-#      - ~/.docker_bashrc:/home/node/.bashrc
-#    working_dir: /app
-#    command: sleep infinity
-#    ports:
-#      - "127.0.0.1:1337:1337"
-#      - "127.0.0.1:3000:3000"
-#      - "127.0.0.1:9222:9222"
-#      - "127.0.0.1:9229:9229"
-#    environment:
-#      PORT: 3000
-#    networks:
-#      - app-network
+  app:
+    image: apps:${DOCKER_COMPOSE_APP_IMAGE_TAG:?Environment DOCKER_COMPOSE_APP_IMAGE_TAG needs to be set!}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DOCKER_FILE_BUILD_COMMAND: ${DOCKER_FILE_BUILD_COMMAND:?Build argument DOCKER_FILE_BUILD_COMMAND needs to be set!}
+    ports:
+      - "127.0.0.1:3003:3000"
+    command: ${DOCKER_COMPOSE_START_APP_COMMAND:?Environment DOCKER_COMPOSE_START_APP_COMMAND needs to be set!}
+    user: app
+    environment:
+      PORT: 3000
+      COOKIE_SECRET: ${DOCKER_COMPOSE_COOKIE_SECRET:?Environment DOCKER_COMPOSE_COOKIE_SECRET needs to be set!}
+      DATABASE_URL: ${DOCKER_COMPOSE_DATABASE_URL:?Environment DOCKER_COMPOSE_DATABASE_URL needs to be set!}
+      SERVER_URL: ${DOCKER_COMPOSE_SERVER_URL:?Environment DOCKER_COMPOSE_SERVER_URL needs to be set!}
+      NODE_ENV: production
+    networks:
+      - app-network
   mongodb:
     image: mongo:4.2.5
     ports:
