@@ -14,5 +14,5 @@ test('getAdapter() Postgres url', () => {
 
 test('getAdapter() undefined', () => {
     const adapter = getAdapter('undefined')
-    expect(adapter).toBeUndefined()
+    expect(adapter).not.toBeUndefined()
 })
