@@ -1,6 +1,5 @@
 import { getScreenClassName } from './mediaQuery.utils'
 
 test('getScreenClassName()', () => {
-    expect(getScreenClassName()).toBeUndefined()
+    expect(getScreenClassName()).toEqual('md')
 })
-
