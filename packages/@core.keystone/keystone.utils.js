@@ -11,7 +11,12 @@ function makeid (length) {
 }
 
 function getCookieSecret (cookieSecret) {
-    if (!cookieSecret) throw new TypeError('getCookieSecret() call without cookieSecret')
+    if (!cookieSecret) {
+        if (process.env.NODE_ENV === 'production') {
+            throw new TypeError('getCookieSecret() call without cookieSecret (check the COOKIE_SECRET environment)')
+        }
+        return undefined
+    }
     if (typeof cookieSecret !== 'string') throw new TypeError('getCookieSecret() cookieSecret is not a string')
     if (cookieSecret.startsWith('undefined')) {
         // NOTE: case for build time!
