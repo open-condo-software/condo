@@ -37,8 +37,8 @@ jobs:
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
-          export DEBUG=knex:query,knex:tx
-          export DEBUG_MONGOOSE=1
+          # export DEBUG=knex:query,knex:tx
+          # export DEBUG_MONGOOSE=1
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/_back02keystone migrate
           yarn workspace @app/_back02keystone dev &
           sleep 10
