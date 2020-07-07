@@ -12,6 +12,7 @@ import { useIntl } from '@core/next/intl'
 
 import BaseLayout from '../../containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
+import { runMutation } from '../../utils/mutations.utils'
 
 const { Title } = Typography
 
@@ -26,25 +27,25 @@ const REGISTER_NEW_USER_MUTATION = gql`
 `
 
 const layout = {
-    labelCol: {
-        xs: { span: 24 },
-        sm: { span: 10 },
-    },
-    wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 18 },
-    },
+    // labelCol: {
+    //     xs: { span: 24 },
+    //     sm: { span: 10 },
+    // },
+    // wrapperCol: {
+    //     xs: { span: 24 },
+    //     sm: { span: 18 },
+    // },
 }
 const tailLayout = {
     wrapperCol: {
-        xs: {
-            span: 24,
-            offset: 0,
-        },
-        sm: {
-            span: 16,
-            offset: 8,
-        },
+        // xs: {
+        //     span: 24,
+        //     offset: 0,
+        // },
+        // sm: {
+        //     span: 16,
+        //     offset: 8,
+        // },
     },
 }
 
@@ -78,37 +79,30 @@ const RegisterForm = () => {
     const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch', defaultMessage: "The two passwords that you entered do not match!" })
     const WeMustMakeSureThatYouAreHumanMsg = intl.formatMessage({ id: 'pages.auth.WeMustMakeSureThatYouAreHuman', defaultMessage: "We must make sure that your are a human" })
     const IHaveReadAndAcceptTheAgreementMsg = intl.formatMessage({ id: 'pages.auth.IHaveReadAndAcceptTheAgreement', defaultMessage: "I have read and accept the agreement" })
+    const ErrorToFormFieldMsgMapping = {
+        '[register:email:multipleFound]': {
+            name: 'email',
+            errors: [EmailIsAlreadyRegisteredMsg],
+        },
+    }
 
     const onFinish = values => {
         if (values.email) values.email = values.email.toLowerCase()
         setIsLoading(true)
-        register({ variables: values })
-            .then(
-                () => {
-                    notification.success({ message: { RegisteredMsg } })
-                    // TODO(pahaz): push to nextUrl!
-                    signin({ variables: form.getFieldsValue() }).then(() => { Router.push('/') }, console.error)
-                },
-                (e) => {
-                    const errors = []
-                    console.error(e)
-                    notification.error({
-                        message: ServerErrorMsg,
-                        description: e.message,
-                    })
-                    if (e.message.includes('[register:email:multipleFound]')) {
-                        errors.push({
-                            name: 'email',
-                            errors: [EmailIsAlreadyRegisteredMsg],
-                        })
-                    }
-                    if (errors.length) {
-                        form.setFields(errors)
-                    }
-                })
-            .finally(() => {
+        return runMutation({
+            mutation: register,
+            variables: values,
+            onCompleted: () => {
+                signin({ variables: form.getFieldsValue() }).then(() => { Router.push('/') }, console.error)
+            },
+            onFinally: () => {
                 setIsLoading(false)
-            })
+            },
+            intl,
+            form,
+            ErrorToFormFieldMsgMapping,
+            OnCompletedMsg: RegisteredMsg,
+        })
     }
 
     return (
@@ -215,7 +209,7 @@ const RegisterForm = () => {
                     {IHaveReadAndAcceptTheAgreementMsg}<a href="">*</a>.
                 </Checkbox>
             </Form.Item>
-            <Form.Item {...tailLayout}>
+            <Form.Item {...tailLayout} style={{textAlign: "center"}}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {RegisterMsg}
                 </Button>

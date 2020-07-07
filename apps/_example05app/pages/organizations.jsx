@@ -12,8 +12,8 @@ import { useOrganization } from '@core/next/organization'
 import { getQueryParams } from '../utils/url.utils'
 import BaseLayout from '../containers/BaseLayout'
 import { AuthRequired } from '../containers/AuthRequired'
-
-const { Title } = Typography
+import FormList, { CreateFormListItemButton, ExtraDropdownActionsMenu } from '../containers/FormList'
+import { runMutation } from '../utils/mutations.utils'
 
 const DEFAULT_ORGANIZATION_AVATAR_URL = 'https://www.pngitem.com/pimgs/m/226-2261747_company-name-icon-png-transparent-png.png'
 
@@ -110,32 +110,18 @@ const CreateOrganizationForm = ({ onFinish }) => {
 
     function handleFinish (values) {
         setIsLoading(true)
-        create({ variables: { data: values } })
-            .then(
-                () => {
-                    notification.success({ message: DoneMsg })
-                    onFinish()
-                },
-                (e) => {
-                    const errors = []
-                    console.error(e)
-                    notification.error({
-                        message: ServerErrorMsg,
-                        description: e.message,
-                    })
-                    Object.keys(ErrorsMsgMapping).forEach((msg) => {
-                        if (e.message.includes(msg)) {
-                            errors.push(ErrorsMsgMapping[msg])
-                        }
-                    })
-                    if (errors.length) {
-                        form.setFields(errors)
-                    }
-                })
-            .finally(() => {
+        return runMutation({
+            mutation: create,
+            variables: { data: values },
+            onCompleted: () => onFinish(),
+            onFinally: () => {
                 setIsLoading(false)
                 handleCancel()
-            })
+            },
+            intl,
+            form,
+            ErrorToFormFieldMsgMapping,
+        })
     }
 
     function handleSave () {

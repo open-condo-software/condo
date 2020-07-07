@@ -10,6 +10,7 @@ import { useMutation } from '@core/next/apollo'
 
 import BaseLayout from '../../containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
+import { runMutation } from '../../utils/mutations.utils'
 
 const { Title, Paragraph } = Typography
 
@@ -20,12 +21,12 @@ const START_PASSWORD_RECOVERY_MUTATION = gql`
 `
 
 const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
+    // labelCol: { span: 8 },
+    // wrapperCol: { span: 16 },
 }
 
 const tailLayout = {
-    wrapperCol: { offset: 8, span: 16 },
+    // wrapperCol: { offset: 8, span: 16 },
 }
 
 const ForgotForm = () => {
@@ -46,36 +47,27 @@ const ForgotForm = () => {
     const EmailIsNotRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotRegistered' })
     const ForgotPasswordDescriptionMsg = intl.formatMessage({ id: 'pages.auth.ForgotPasswordDescription' })
     const ForgotPasswordStartedDescriptionMsg = intl.formatMessage({ id: 'pages.auth.ForgotPasswordStartedDescription' })
+    const ErrorToFormFieldMsgMapping = {
+        '[unknown-user]': {
+            name: 'email',
+            errors: [EmailIsNotRegisteredMsg],
+        },
+    }
 
     const onFinish = values => {
         if (values.email) values.email = values.email.toLowerCase()
         setIsLoading(true)
-        startPasswordRecovery({ variables: values })
-            .then(
-                (data) => {
-                    notification.success({ message: StartedMsg })
-                    setIsSuccessMessage(true)
-                },
-                (e) => {
-                    console.log(e)
-                    const errors = []
-                    notification.error({
-                        message: ServerErrorMsg,
-                        description: e.message,
-                    })
-                    if (e.message.includes('[unknown-user]')) {
-                        errors.push({
-                            name: 'email',
-                            errors: [EmailIsNotRegisteredMsg],
-                        })
-                    }
-                    if (errors.length) {
-                        form.setFields(errors)
-                    }
-                })
-            .finally(() => {
+        return runMutation({
+            mutation: startPasswordRecovery,
+            variables: values,
+            onCompleted: () => setIsSuccessMessage(true),
+            onFinally: () => {
                 setIsLoading(false)
-            })
+            },
+            intl,
+            form,
+            ErrorToFormFieldMsgMapping,
+        })
     }
 
     if (isSuccessMessage) {
@@ -104,7 +96,7 @@ const ForgotForm = () => {
                 <Input/>
             </Form.Item>
 
-            <Form.Item {...tailLayout}>
+            <Form.Item {...tailLayout} style={{textAlign: "center"}}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {StartRecoveryMsg}
                 </Button>

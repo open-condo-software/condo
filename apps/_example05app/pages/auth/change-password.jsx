@@ -10,6 +10,7 @@ import gql from 'graphql-tag'
 
 import BaseLayout from '../../containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
+import { runMutation } from '../../utils/mutations.utils'
 
 const { Title } = Typography
 
@@ -21,25 +22,25 @@ const CHANGE_PASSWORD_WITH_TOKEN_MUTATION = gql`
 
 const layout = {
     labelCol: {
-        xs: { span: 24 },
-        sm: { span: 10 },
+        // xs: { span: 24 },
+        // sm: { span: 10 },
     },
     wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 18 },
+        // xs: { span: 24 },
+        // sm: { span: 18 },
     },
 }
 
 const tailLayout = {
     wrapperCol: {
-        xs: {
-            span: 24,
-            offset: 0,
-        },
-        sm: {
-            span: 16,
-            offset: 8,
-        },
+        // xs: {
+        //     span: 24,
+        //     offset: 0,
+        // },
+        // sm: {
+        //     span: 16,
+        //     offset: 8,
+        // },
     },
 }
 
@@ -64,29 +65,21 @@ const ChangePasswordForm = () => {
     const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
     const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
+    const ErrorToFormFieldMsgMapping = {}  // TODO(pahaz): password is the same error?!
 
     const onFinish = values => {
         setIsLoading(true)
-        changePassword({ variables: values })
-            .then(
-                (data) => {
-                    notification.success({ message: ChangedMsg })
-                    setIsSuccessMessage(true)
-                },
-                (e) => {
-                    console.log(e)
-                    const errors = []
-                    notification.error({
-                        message: ServerErrorMsg,
-                        description: e.message,
-                    })
-                    if (errors.length) {
-                        form.setFields(errors)
-                    }
-                })
-            .finally(() => {
+        return runMutation({
+            mutation: changePassword,
+            variables: values,
+            onCompleted: () => setIsSuccessMessage(true),
+            onFinally: () => {
                 setIsLoading(false)
-            })
+            },
+            intl,
+            form,
+            ErrorToFormFieldMsgMapping,
+        })
     }
 
     if (isSuccessMessage) {
@@ -155,7 +148,7 @@ const ChangePasswordForm = () => {
             </Form.Item>
 
 
-            <Form.Item {...tailLayout}>
+            <Form.Item {...tailLayout} style={{textAlign: "center"}}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {ChangeMsg}
                 </Button>

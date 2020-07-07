@@ -9,16 +9,17 @@ import { useIntl } from '@core/next/intl'
 
 import BaseLayout from '../../containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
+import { runMutation } from '../../utils/mutations.utils'
 
 const { Title } = Typography
 
 const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
+    // labelCol: { sm: {}, md: { span: 12 } },
+    // wrapperCol: { sm: {}, md: { span: 24 } },
 }
 
 const tailLayout = {
-    wrapperCol: { offset: 8, span: 16 },
+    // wrapperCol: { sm: {}, md: { offset: 12, span: 24 } },
 }
 
 const SignInForm = () => {
@@ -40,43 +41,35 @@ const SignInForm = () => {
     const PleaseInputYourEmailMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
     const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
     const ForgotPasswordMsg = intl.formatMessage({ id: 'pages.auth.ForgotPassword' })
+    const ErrorToFormFieldMsgMapping = {
+        '[passwordAuth:identity:notFound]': {
+            name: 'email',
+            errors: [EmailIsNoFoundMsg],
+        },
+        '[passwordAuth:secret:mismatch]': {
+            name: 'password',
+            errors: [WrongPasswordMsg],
+        }
+    }
 
     const onFinish = values => {
         if (values.email) values.email = values.email.toLowerCase()
         setIsLoading(true)
-        signin({ variables: values })
-            .then(
-                (data) => {
-                    notification.success({ message: LoggedInMsg })
-                    if (initialValues.next) Router.push(initialValues.next)
-                    else Router.push('/')
-                },
-                (e) => {
-                    console.log(e)
-                    const errors = []
-                    notification.error({
-                        message: ServerErrorMsg,
-                        description: e.message,
-                    })
-                    if (e.message.includes('[passwordAuth:identity:notFound]')) {
-                        errors.push({
-                            name: 'email',
-                            errors: [EmailIsNoFoundMsg],
-                        })
-                    }
-                    if (e.message.includes('[passwordAuth:secret:mismatch]')) {
-                        errors.push({
-                            name: 'password',
-                            errors: [WrongPasswordMsg],
-                        })
-                    }
-                    if (errors.length) {
-                        form.setFields(errors)
-                    }
-                })
-            .finally(() => {
+        return runMutation({
+            mutation: signin,
+            variables: values,
+            onCompleted: () => {
+                if (initialValues.next) Router.push(initialValues.next)
+                else Router.push('/')
+            },
+            onFinally: () => {
                 setIsLoading(false)
-            })
+            },
+            intl,
+            form,
+            ErrorToFormFieldMsgMapping,
+            OnCompletedMsg: LoggedInMsg,
+        })
     }
 
     return (
@@ -100,15 +93,15 @@ const SignInForm = () => {
                 label={PasswordMsg}
                 name="password"
                 rules={[{ required: true, message: PleaseInputYourPasswordMsg }]}
-                css={css`margin: 0;`}
+                style={{ margin: '0' }}
             >
                 <Input.Password/>
             </Form.Item>
-            <Form.Item {...tailLayout}>
-                <a onClick={() => Router.push('/auth/forgot')} css={css`float: right;`}>{ForgotPasswordMsg}</a>
+            <Form.Item {...tailLayout} style={{ textAlign: 'right' }}>
+                <a onClick={() => Router.push('/auth/forgot')}>{ForgotPasswordMsg}</a>
             </Form.Item>
 
-            <Form.Item {...tailLayout}>
+            <Form.Item {...tailLayout} style={{ textAlign: 'center' }}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {SignInMsg}
                 </Button>
