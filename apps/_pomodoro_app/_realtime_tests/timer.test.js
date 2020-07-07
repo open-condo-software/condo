@@ -6,7 +6,7 @@ function sleep(ms) {
 }
 
 test('Timer should start', () => {
-    const x = new timer(10,10,10)
+    const x = new Timer(10, 10, 10)
     x.start()
     sleep(1000).then(() => {
         expect(x.getTime()).toBe(9);
