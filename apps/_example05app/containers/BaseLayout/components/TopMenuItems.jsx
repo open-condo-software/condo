@@ -1,5 +1,5 @@
 import { Avatar, Dropdown, Menu, Spin, Tag } from 'antd'
-import { LogoutOutlined } from '@ant-design/icons'
+import { LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 import Router from 'next/router'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
@@ -7,17 +7,16 @@ import { useOrganization } from '@core/next/organization'
 import styled from '@emotion/styled'
 
 const TopMenuLeftWrapper = styled.div`
-  float: left;
-  height: 100%;
-  margin-left: auto;
-  overflow: hidden;
+    float: left;
+    height: 100%;
+    overflow: hidden;
 `
 
 const TopMenuRightWrapper = styled.div`
-  float: right;
-  height: 100%;
-  margin-left: auto;
-  overflow: hidden;
+    float: right;
+    height: 100%;
+    margin-left: auto;
+    overflow: hidden;
 `
 
 const TopMenuItem = styled.div`
@@ -35,9 +34,30 @@ const TopMenuItem = styled.div`
     .avatar {
         margin-right: 8px;
     }
+    
+    @media (max-width: 768px) {
+        padding: 0 12px;
+    }
+    @media (max-width: 480px) {
+        .name {
+            display: none;
+        }
+        .avatar {
+            margin-right: 0;
+        }
+        .tag {
+            display: none;
+        }
+        .ellipsable180 {
+              max-width: 180px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+        }
+    }
 `
 
-const TopMenu = () => {
+function TopMenuItems ({ isMobile, isSideMenuCollapsed, toggleSideMenuCollapsed }) {
     const auth = useAuth()
     const organization = useOrganization()
     const withDropdownMenu = true
@@ -80,25 +100,36 @@ const TopMenu = () => {
 
     const sigin = (
         <TopMenuItem onClick={() => Router.push('/auth/signin')}>
-            <span className="name">{SignInMsg}</span>
+            <span className="link">{SignInMsg}</span>
         </TopMenuItem>
     )
 
     const signedInItems = withDropdownMenu ? (<Dropdown overlay={menu}>{avatar}</Dropdown>) : (avatar)
     const signedOutItems = (sigin)
 
-    const organizationName = (organization && organization.organization) ? <TopMenuItem
-        onClick={() => Router.push('/organizations')}>
-        {organization.organization.name}{' '}
-        {(organization.link && organization.link.role === 'owner') ? <Tag color="error">{OwnerMsg}</Tag> : null}
-    </TopMenuItem> : null
+    const organizationName = (organization && organization.organization) ? <TopMenuLeftWrapper>
+        <TopMenuItem onClick={() => Router.push('/organizations')}>
+            <div className="ellipsable180">
+                {organization.organization.name}{' '}
+                {(organization.link && organization.link.role === 'owner') ?
+                    <Tag color="error" className="tag">{OwnerMsg}</Tag>
+                    :
+                    null}
+            </div>
+        </TopMenuItem>
+    </TopMenuLeftWrapper> : null
+
+    const menuCollapser = isMobile ? <TopMenuLeftWrapper>
+        <TopMenuItem onClick={toggleSideMenuCollapsed}><MenuUnfoldOutlined/></TopMenuItem>
+    </TopMenuLeftWrapper> : null
 
     return (<>
-        <TopMenuLeftWrapper>{organizationName}</TopMenuLeftWrapper>
+        {menuCollapser}
+        {organizationName}
         <TopMenuRightWrapper>
             {auth.isAuthenticated ? signedInItems : signedOutItems}
         </TopMenuRightWrapper>
     </>)
 }
 
-export default TopMenu
+export default TopMenuItems
