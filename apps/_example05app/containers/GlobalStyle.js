@@ -30,6 +30,10 @@ export default function GlobalStyle () {
             white-space: inherit;
         }
         
+        .ant-list-item-action > li:last-child {
+            padding-right: 0;
+        }
+
         ${page}
       `}
         />
@@ -38,8 +42,24 @@ export default function GlobalStyle () {
 
 const page = css`
 .top-menu-only-layout .side-menu {display: none}
-.top-menu-only-layout .page-wrapper {max-width: 600px; min-width: 490px; padding-top: 50px; margin: 0 auto}
 .top-menu-only-layout .page-header {display: none}
+.top-menu-only-layout .page-wrapper {
+    flex: auto;
+    align-self: center;
+    max-width: 600px;
+    min-width: initial; 
+    padding-top: 50px; 
+    margin: 0 auto;
+}
+@media (max-width: 768px) {
+    .top-menu-only-layout .page-wrapper {
+    }
+}
+@media (max-width: 480px) {
+    .top-menu-only-layout .page-wrapper {
+    }
+}
+
 
 .transparent-page-content .page-content {
     padding: 0;
