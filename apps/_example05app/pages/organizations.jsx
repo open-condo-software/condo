@@ -1,20 +1,4 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/core'
-import styled from '@emotion/styled'
-import {
-    Avatar,
-    Button,
-    Form,
-    Input,
-    List,
-    Modal,
-    notification,
-    Popconfirm,
-    Radio,
-    Skeleton,
-    Tag,
-    Typography,
-} from 'antd'
+import { Avatar, Button, Form, Input, Menu, Modal, notification, Popconfirm, Radio, Tag } from 'antd'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import gql from 'graphql-tag'
 import { useState } from 'react'
@@ -32,11 +16,6 @@ import { AuthRequired } from '../containers/AuthRequired'
 const { Title } = Typography
 
 const DEFAULT_ORGANIZATION_AVATAR_URL = 'https://www.pngitem.com/pimgs/m/226-2261747_company-name-icon-png-transparent-png.png'
-
-const ListButtonSlot = styled.div`
-    margin: 24px;
-    text-align: center;
-`
 
 function buildListQueries (gqlListSchemaName, fields = ['id', '_label_']) {
     // TODO(pahaz): remove it! useless and large!
@@ -116,13 +95,10 @@ const CreateOrganizationForm = ({ onFinish }) => {
     const SaveMsg = intl.formatMessage({ id: 'Save' })
     const NameMsg = intl.formatMessage({ id: 'Name' })
     const DescriptionMsg = intl.formatMessage({ id: 'Description' })
+    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const CreateOrganizationButtonLabelMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
-    const ErrorsMsgMapping = {
-        '[register:email:multipleFound]': {
-            name: 'email',
-            errors: [ServerErrorMsg],
-        },
-    }
+    const CreateOrganizationPopupLabelMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationPopupLabel' })
+    const ErrorToFormFieldMsgMapping = {}
 
     function handleCancel () {
         setIsVisible(false)
@@ -167,8 +143,8 @@ const CreateOrganizationForm = ({ onFinish }) => {
     }
 
     return (<>
-        <Button onClick={handleOpen}>{CreateOrganizationButtonLabelMsg}</Button>
-        <Modal title="Change unit form" visible={isVisible} onCancel={handleCancel} footer={[
+        <CreateFormListItemButton onClick={handleOpen} label={CreateOrganizationButtonLabelMsg}/>
+        <Modal title={CreateOrganizationPopupLabelMsg} visible={isVisible} onCancel={handleCancel} footer={[
             <Button key="back" onClick={handleCancel}>{CancelMsg}</Button>,
             <Button key="submit" type="primary" onClick={handleSave} loading={isLoading}>{SaveMsg}</Button>,
         ]}
@@ -177,14 +153,14 @@ const CreateOrganizationForm = ({ onFinish }) => {
                 <Form.Item
                     name="name"
                     label={NameMsg}
-                    rules={[{ required: true }]}
+                    rules={[{ required: true, message: FieldIsRequiredMsg }]}
                 >
                     <Input/>
                 </Form.Item>
                 <Form.Item
                     name="description"
                     label={DescriptionMsg}
-                    rules={[{ required: true }]}
+                    rules={[{ required: true, message: FieldIsRequiredMsg }]}
                 >
                     <Input/>
                 </Form.Item>
@@ -212,8 +188,6 @@ const OrganizationListForm = () => {
     const SelectMsg = intl.formatMessage({ id: 'Select' })
     const OwnerMsg = intl.formatMessage({ id: 'Owner' })
     const AreYouSureMsg = intl.formatMessage({ id: 'AreYouSure' })
-
-    const loadMore = <ListButtonSlot><CreateOrganizationForm onFinish={refetch}/></ListButtonSlot>
 
     function handleAcceptOrReject (item, action) {
         console.log(item, action)
@@ -248,70 +222,71 @@ const OrganizationListForm = () => {
         })
     }
 
-    return (
-        <List
+    return (<>
+        <CreateOrganizationForm onFinish={refetch}/>
+        <FormList
             loading={loading}
-            rowKey="id"
-            itemLayout="horizontal"
-            loadMore={loadMore}
+            // loadMore={loadMore}
+            // TODO(pahaz): add this feature ^^
             dataSource={data && data.list || []}
-            renderItem={item => (
-                <List.Item
-                    actions={[
+            renderItem={item => {
+                return {
+                    itemMeta: { style: (item.isRejected) ? { display: 'none' } : undefined },
+                    avatar: <Avatar src={item.avatar && item.avatar.publicUrl || DEFAULT_ORGANIZATION_AVATAR_URL}/>,
+                    title: <>
+                        {item.organization && item.organization.name}
+                        {'  '}
+                        {item.role === 'owner' ? <Tag color="error">{OwnerMsg}</Tag> : null}
+                    </>,
+                    description: item.organization && item.organization.description,
+                    actions: [
                         (!item.isAccepted && !item.isRejected) ?
-                            <Radio.Group size="small" onChange={(e) => handleAcceptOrReject(item, e.target.value)}>
+                            [<Radio.Group size="small" onChange={(e) => handleAcceptOrReject(item, e.target.value)}>
                                 <Radio.Button value="accept">{AcceptMsg}</Radio.Button>
                                 <Radio.Button value="reject">{RejectMsg}</Radio.Button>
-                            </Radio.Group>
+                            </Radio.Group>]
                             : null,
                         (item.isAccepted) ?
-                            <Popconfirm title={AreYouSureMsg} icon={<QuestionCircleOutlined style={{ color: 'red' }}/>}
-                                        onConfirm={() => handleAcceptOrReject(item, 'leave')}>
-                                <Button size="small" type="dashed" danger>{LeaveMsg}</Button>
-                            </Popconfirm>
+                            [<Button size="small" type={'primary'}
+                                     onClick={() => handleSelect(item)}>{SelectMsg}</Button>]
                             : null,
                         (item.isAccepted) ?
-                            <Button size="small" type={'primary'} onClick={() => handleSelect(item)}>{SelectMsg}</Button>
+                            [<ExtraDropdownActionsMenu actions={[
+                                {
+                                    confirm: {
+                                        title: AreYouSureMsg,
+                                        icon: <QuestionCircleOutlined style={{ color: 'red' }}/>,
+                                    },
+                                    label: LeaveMsg,
+                                    action: () => handleAcceptOrReject(item, 'leave'),
+                                },
+                            ]}/>]
                             : null,
-                    ].filter((x) => Boolean(x))}
-                    key={item.id}
-                    style={(item.isRejected) ? { display: 'none' } : undefined}
-                >
-                    <Skeleton avatar title={false} loading={item.loading} active>
-                        <List.Item.Meta
-                            avatar={<Avatar src={item.avatar && item.avatar.publicUrl || DEFAULT_ORGANIZATION_AVATAR_URL}/>}
-                            title={<>
-                                {item.organization && item.organization.name}
-                                {'  '}
-                                {item.role === 'owner' ? <Tag color="error">{OwnerMsg}</Tag> : null}
-                            </>}
-                            description={item.organization && item.organization.description}
-                        />
-                    </Skeleton>
-                </List.Item>
-            )}
+                    ],
+                }
+            }}
         />
-    )
+    </>)
 }
 
 const OrganizationsPage = () => {
-    const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.organizations.PageTitle' })
     return (<AuthRequired>
-        <Head>
-            <title>{PageTitleMsg}</title>
-        </Head>
-        <Title css={css`text-align: center;`}>{PageTitleMsg}</Title>
         <OrganizationListForm/>
     </AuthRequired>)
 }
 
 function CustomContainer (props) {
-    return (<BaseLayout
-        {...props}
-        logoLocation="topMenu"
-        className="top-menu-only-layout"
-    />)
+    const intl = useIntl()
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.organizations.PageTitle' })
+    return <>
+        <Head>
+            <title>{PageTitleMsg}</title>
+        </Head>
+        <BaseLayout
+            {...props}
+            title={PageTitleMsg}
+        />
+    </>
 }
 
 OrganizationsPage.container = CustomContainer
