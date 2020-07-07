@@ -1,4 +1,3 @@
-const { v4: uuid } = require('uuid')
 const faker = require('faker')
 const { Text, Checkbox, Password, CalendarDay, File, Relationship, DateTime, Select } = require('@keystonejs/fields')
 const { byTracking, atTracking } = require('@keystonejs/list-plugins')
