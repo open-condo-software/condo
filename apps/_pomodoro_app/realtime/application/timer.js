@@ -1,17 +1,17 @@
-const CyclicQueue = require('./utils/cyclicQueue');
+const CyclicQueue = require('./utils/cyclicQueue')
 
 const status = {
-    'paused':'paused',
-    'working':'working',
+    'paused': 'paused',
+    'working': 'working',
 }
 
 const periods = {
     'work': 'WORK',
     'break': 'BREAK',
-    'bigBreak':'BIG_BREAK'
+    'bigBreak': 'BIG_BREAK',
 }
 
-function getPeriodQueue(breakTime, bigBreakTime, worktimeTime) {
+function getPeriodQueue (breakTime, bigBreakTime, worktimeTime) {
 
     const workPeriod = new Period(periods.work, worktimeTime)
     const breakPeriod = new Period(periods.break, breakTime)
@@ -25,7 +25,7 @@ function getPeriodQueue(breakTime, bigBreakTime, worktimeTime) {
         workPeriod,
         breakPeriod,
         workPeriod,
-        bigBreakPeriod
+        bigBreakPeriod,
     ])
 }
 
@@ -33,7 +33,7 @@ function getPeriodQueue(breakTime, bigBreakTime, worktimeTime) {
  * Period model
  */
 class Period {
-    constructor(name, time) {
+    constructor (name, time) {
         this.name = name
         this.time = time
     }
@@ -44,7 +44,7 @@ class Period {
  */
 class Timer {
 
-    constructor(breakTime, bigBreakTime, worktimeTime) {
+    constructor (breakTime, bigBreakTime, worktimeTime) {
         this.timer = 0
         this.counterFunction = 0
         this.status = status.paused
@@ -52,34 +52,34 @@ class Timer {
         this.periodQueue = getPeriodQueue(breakTime, bigBreakTime, worktimeTime)
     }
 
-    _incrementTimer() {
+    _incrementTimer () {
         this.timer++
-        if(this.getTime() === 0) {
+        if (this.getTime() === 0) {
             this._changePeriod()
         }
     }
 
-    _changePeriod() {
+    _changePeriod () {
         this.timer = 0
         return this.periodQueue.pop()
     }
 
-    getPeriod() {
+    getPeriod () {
         return this.periodQueue.current().name
     }
 
-    getNextPeriod() {return this.periodQueue.peekNext().name }
+    getNextPeriod () {return this.periodQueue.peekNext().name }
 
-    getNextPeriodLength() { return this.periodQueue.peekNext().time }
+    getNextPeriodLength () { return this.periodQueue.peekNext().time }
 
-    start() {
+    start () {
         if (this.status === status.paused) {
             this.counterFunction = setInterval(() => { this._incrementTimer() }, 1000)
             this.status = status.working
         }
     }
 
-    pause() {
+    pause () {
         if (this.status === status.working) {
             clearInterval(this.counterFunction)
             this.counterFunction = 0
@@ -87,11 +87,11 @@ class Timer {
         }
     }
 
-    reset() { this.timer = 0 }
+    reset () { this.timer = 0 }
 
-    isPaused() { return this.status === status.paused }
+    isPaused () { return this.status === status.paused }
 
-    getTime() { return this.periodQueue.current().time - this.timer }
+    getTime () { return this.periodQueue.current().time - this.timer }
 }
 
 module.exports = Timer

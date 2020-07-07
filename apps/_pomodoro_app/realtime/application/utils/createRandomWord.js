@@ -1,4 +1,4 @@
-function createRandomWord(length) {
+function createRandomWord (length) {
     const consonants = 'bcdfghjklmnpqrstvwxyz'.split('')
     const vowels = 'aeiou'.split('')
     const rand = (lim) => {return Math.floor(Math.random() * lim)}

@@ -10,7 +10,6 @@ async function prepareBackApp (store) {
     app.use(cors())
     app.use(bodyParser.json())
 
-
     app.post('/get-timer', (req, res) => {
         res.setHeader('Content-Type', 'application/json')
 
@@ -23,23 +22,23 @@ async function prepareBackApp (store) {
                 const dataObj = {
                     breakTime: parseInt(req.body.break),
                     bigBreakTime: parseInt(req.body.bigBreak),
-                    workTimeTime: parseInt(req.body.workTime)
+                    workTimeTime: parseInt(req.body.workTime),
                 }
 
                 store.setEntityById(timerId, dataObj)
 
                 res.send(JSON.stringify({
-                    id:timerId,
-                    data: dataObj
+                    id: timerId,
+                    data: dataObj,
                 }))
             } catch (e) {
                 res.status(400).send(JSON.stringify({
-                    detail:'Request body was bad ' + e,
+                    detail: 'Request body was bad ' + e,
                 }))
             }
         } else {
             res.status(400).send(JSON.stringify({
-                detail:'Request body was not specified',
+                detail: 'Request body was not specified',
             }))
         }
     })

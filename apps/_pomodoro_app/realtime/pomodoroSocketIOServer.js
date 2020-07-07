@@ -1,18 +1,16 @@
 const Timer = require('./application/timer')
 
-
 /**
  * Socket auth middleware
  * https://socket.io/docs/migrating-from-0-9/
  * @param socket
  * @param next
  */
-function auth(socket, next) {
-    const handshakeData = socket.request;
+function auth (socket, next) {
+    const handshakeData = socket.request
     console.log('auth-d', handshakeData._query['timer'])
     next()
 }
-
 
 /**
  * Realtime server that handles the pomodoro timer application
@@ -35,15 +33,15 @@ function init (io, store) {
      * @param id
      * @private
      */
-    function _emitTimerEvent(nsp, timer, id) {
-       nsp.emit('timer', {
-           id,
-           time: timer.getTime(),
-           period: timer.getPeriod(),
-           nextPeriod: timer.getNextPeriod(),
-           nextPeriodLength: timer.getNextPeriodLength(),
-           paused: timer.isPaused()
-       })
+    function _emitTimerEvent (nsp, timer, id) {
+        nsp.emit('timer', {
+            id,
+            time: timer.getTime(),
+            period: timer.getPeriod(),
+            nextPeriod: timer.getNextPeriod(),
+            nextPeriodLength: timer.getNextPeriodLength(),
+            paused: timer.isPaused(),
+        })
     }
 
     io.use(auth)
@@ -63,9 +61,9 @@ function init (io, store) {
                 timers[id] = new Timer(data.breakTime, data.bigBreakTime, data.workTimeTime)
             } catch (e) {
                 const data = {
-                    breakTime:15*60,
-                    bigBreakTime:25*60,
-                    worktimeTime:25*60
+                    breakTime: 15 * 60,
+                    bigBreakTime: 25 * 60,
+                    worktimeTime: 25 * 60,
                 }
                 timers[id] = new Timer(data.breakTime, data.bigBreakTime, data.worktimeTime)
             }

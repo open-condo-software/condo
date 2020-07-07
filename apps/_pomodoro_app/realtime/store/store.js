@@ -1,10 +1,9 @@
 class WrongArgumentError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = this.constructor.name;
+    constructor (message) {
+        super(message)
+        this.name = this.constructor.name
     }
 }
-
 
 /**
  * An abstraction over Object, could possibly have multiple impl
@@ -15,7 +14,7 @@ class Store {
     }
 
     getEntityById (id) {
-        if (id in this._memory){
+        if (id in this._memory) {
             return this._memory[id]
         }
         throw new WrongArgumentError(`The item by key: ${id} is not present in our records`)
@@ -26,7 +25,7 @@ class Store {
     }
 
     removeEntityById (id) {
-        if (id in this._memory){
+        if (id in this._memory) {
             delete this._memory[id]
         } else {
             throw new WrongArgumentError(`The item by key: ${id} is not present in our records`)

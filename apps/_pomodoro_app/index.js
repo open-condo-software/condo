@@ -5,16 +5,15 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
 const { StaticApp } = require('@keystonejs/app-static')
 const express = require('express')
-const realtime = require("./realtime/server")
+const realtime = require('./realtime/server')
 const access = require('@core/keystone/access')
 const { getAdapter } = require('@core/keystone/adapter.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const conf = require('@core/config')
 const { areWeRunningTests } = require('@core/keystone/test.utils')
 
-
 const keystone = new Keystone({
-    name: "Pomodoro timer",
+    name: 'Pomodoro timer',
     adapter: getAdapter(conf.DATABASE_URL),
     defaultAccess: { list: false, field: true, custom: false },
     queryLimits: { maxTotalResults: 1000 },
@@ -29,7 +28,7 @@ const keystone = new Keystone({
                 await keystone.createItems(initialData)
             }
         } catch (e) {
-            console.warn("onConnectError:", e)
+            console.warn('onConnectError:', e)
         }
     },
 })
