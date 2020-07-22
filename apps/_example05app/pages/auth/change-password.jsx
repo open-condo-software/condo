@@ -1,18 +1,16 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { useState } from 'react'
-import { Button, Form, Input, notification, Result, Typography } from 'antd'
+import { Button, Form, Input, Result, Typography } from 'antd'
 import Head from 'next/head'
 import Router from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
 import gql from 'graphql-tag'
 
-import BaseLayout from '../../containers/BaseLayout'
+import { TopMenuOnlyLayout } from '../../containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
 import { runMutation } from '../../utils/mutations.utils'
-
-const { Title } = Typography
 
 const CHANGE_PASSWORD_WITH_TOKEN_MUTATION = gql`
     mutation changePasswordWithToken($token: String!, $password: String!) {
@@ -148,7 +146,7 @@ const ChangePasswordForm = () => {
             </Form.Item>
 
 
-            <Form.Item {...tailLayout} style={{textAlign: "center"}}>
+            <Form.Item {...tailLayout} style={{ textAlign: 'center' }}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {ChangeMsg}
                 </Button>
@@ -164,19 +162,10 @@ const ChangePasswordPage = () => {
         <Head>
             <title>{ChangePasswordTitleMsg}</title>
         </Head>
-        <Title css={css`text-align: center;`} level={2}>{ChangePasswordTitleMsg}</Title>
+        <Typography.Title css={css`text-align: center;`} level={2}>{ChangePasswordTitleMsg}</Typography.Title>
         <ChangePasswordForm/>
     </>)
 }
 
-function CustomContainer (props) {
-    return (<BaseLayout
-        {...props}
-        logoLocation="topMenu"
-        className="top-menu-only-layout"
-    />)
-}
-
-ChangePasswordPage.container = CustomContainer
-
+ChangePasswordPage.container = TopMenuOnlyLayout
 export default ChangePasswordPage

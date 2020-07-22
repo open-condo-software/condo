@@ -33,6 +33,20 @@ export default function GlobalStyle () {
         .ant-list-item-action > li:last-child {
             padding-right: 0;
         }
+        
+        .ant-form .ant-non-field-error .ant-form-item-control-input {
+            display: none;
+        }
+        .ant-form .ant-non-field-error .ant-form-item-explain {
+            margin-bottom: 24px;
+        }
+        .ant-form .ant-non-field-error {
+            margin-bottom: 0;
+        }
+        
+        .ant-card .ant-card-head {
+            margin-bottom: 0;
+        }
 
         ${page}
       `}
@@ -43,27 +57,43 @@ export default function GlobalStyle () {
 const page = css`
 .top-menu-only-layout .side-menu {display: none}
 .top-menu-only-layout .page-header {display: none}
+.top-menu-only-layout .top-menu-side-menu-toggle {display: none}
 .top-menu-only-layout .page-wrapper {
     flex: auto;
     align-self: center;
     max-width: 600px;
-    min-width: initial; 
-    padding-top: 50px; 
+    min-width: initial;
+    padding-top: 64px;
+    padding-bottom: 64px;
     margin: 0 auto;
 }
 @media (max-width: 768px) {
     .top-menu-only-layout .page-wrapper {
+        min-width: initial;
     }
 }
 @media (max-width: 480px) {
     .top-menu-only-layout .page-wrapper {
+        min-width: 100%;
+        padding-top: 0;
+        padding-bottom: 0;
     }
 }
 
-
 .transparent-page-content .page-content {
     padding: 0;
-    background: transparent;
+    background: inherit;
+}
+
+.centered-page-content .page-wrapper {
+    flex: auto;
+    align-self: center;
+    max-width: 600px;
+    min-width: initial;
+}
+
+.hided-side-menu .side-menu {
+    display: none
 }
 `
 

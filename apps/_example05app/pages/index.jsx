@@ -1,27 +1,27 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/core'
-import { Typography } from 'antd'
+import React from 'react'
 import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
 import Chat from '../containers/Chat'
-import { OrganizationRequired } from '../containers/OrganizationRequired'
+import { PageContent, PageHeader, PageWrapper } from '../containers/BaseLayout'
 
-function HomePage () {
-    const auth = useAuth()
+const IndexPage = () => {
+    const { user } = useAuth()
+
     const intl = useIntl()
+    const WelcomeMsg = intl.formatMessage({ id: 'Welcome' }, { name: user ? user.name : 'GUEST' })
+
     return <>
-        <Head><title>Welcome</title></Head>
-        <Typography.Title
-            css={css`text-align: center;`}>{intl.formatMessage({ id: 'welcome' }, { name: auth.user ? auth.user.name : 'GUEST' })}</Typography.Title>
-        <div>
-            <Chat />
-        </div>
+        <Head>
+            <title>{WelcomeMsg}</title>
+        </Head>
+        <PageWrapper>
+            <PageHeader title={WelcomeMsg}/>
+            <PageContent>
+                <Chat/>
+            </PageContent>
+        </PageWrapper>
     </>
 }
 
-function HomePageWrapper () {
-    return <OrganizationRequired><HomePage/></OrganizationRequired>
-}
-
-export default HomePageWrapper
+export default IndexPage

@@ -1,13 +1,13 @@
 import { notification } from 'antd'
 
 function runMutation ({ mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
+    if (!intl) throw new Error('intl prop required')
     const DoneMsg = intl.formatMessage({ id: 'Done' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
-    return mutation({ variables: variables })
+    return mutation({ variables })
         .then(
             (data) => {
-                console.info(`mutation ${mutation} completed`)
                 if (OnCompletedMsg === null) {
                     // we want to SKIP any notifications
                 } else if (typeof OnCompletedMsg === 'undefined') {
@@ -23,8 +23,7 @@ function runMutation ({ mutation, variables, onCompleted, onError, onFinally, in
                 else return data
             },
             (e) => {
-                console.error(`mutation ${mutation} error:`, e)
-
+                console.error(`mutation error:`, e)
                 if (OnErrorMsg === null) {
                     // we want to SKIP any notifications
                 } else if (typeof OnErrorMsg === 'undefined') {

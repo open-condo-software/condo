@@ -1,17 +1,15 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Button, Form, Input, notification, Typography } from 'antd'
+import { Button, Form, Input, Typography } from 'antd'
 import { useState } from 'react'
 import Head from 'next/head'
 import Router from 'next/router'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 
-import BaseLayout from '../../containers/BaseLayout'
+import { TopMenuOnlyLayout } from '../../containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
 import { runMutation } from '../../utils/mutations.utils'
-
-const { Title } = Typography
 
 const layout = {
     // labelCol: { sm: {}, md: { span: 12 } },
@@ -49,7 +47,7 @@ const SignInForm = () => {
         '[passwordAuth:secret:mismatch]': {
             name: 'password',
             errors: [WrongPasswordMsg],
-        }
+        },
     }
 
     const onFinish = values => {
@@ -120,19 +118,10 @@ const SignInPage = () => {
         <Head>
             <title>{SignInTitleMsg}</title>
         </Head>
-        <Title css={css`text-align: center;`}>{SignInTitleMsg}</Title>
+        <Typography.Title css={css`text-align: center;`}>{SignInTitleMsg}</Typography.Title>
         <SignInForm/>
     </>)
 }
 
-function CustomContainer (props) {
-    return (<BaseLayout
-        {...props}
-        logoLocation="topMenu"
-        className="top-menu-only-layout"
-    />)
-}
-
-SignInPage.container = CustomContainer
-
+SignInPage.container = TopMenuOnlyLayout
 export default SignInPage

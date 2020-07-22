@@ -57,9 +57,17 @@ const TopMenuItem = styled.div`
     }
 `
 
+function goToSignin () {
+    Router.push('/auth/signin')
+}
+
+function goToOrganization () {
+    Router.push('/organizations')
+}
+
 function TopMenuItems ({ isMobile, isSideMenuCollapsed, toggleSideMenuCollapsed }) {
     const auth = useAuth()
-    const organization = useOrganization()
+    const org = useOrganization()
     const withDropdownMenu = true
     const avatarUrl = (auth.user && auth.user.avatar && auth.user.avatar.publicUrl) ? auth.user.avatar.publicUrl : 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png'
 
@@ -70,7 +78,7 @@ function TopMenuItems ({ isMobile, isSideMenuCollapsed, toggleSideMenuCollapsed 
     const OwnerMsg = intl.formatMessage({ id: 'Owner' })
     const GuestUsernameMsg = intl.formatMessage({ id: 'baselayout.menuheader.GuestUsername' })
 
-    if (organization && organization.isLoading || auth.isLoading) {
+    if (org && org.isLoading || auth.isLoading) {
         return (
             <div>
                 <Spin size="small" style={{ marginLeft: 16, marginRight: 16 }}/>
@@ -99,7 +107,7 @@ function TopMenuItems ({ isMobile, isSideMenuCollapsed, toggleSideMenuCollapsed 
     )
 
     const sigin = (
-        <TopMenuItem onClick={() => Router.push('/auth/signin')}>
+        <TopMenuItem onClick={goToSignin}>
             <span className="link">{SignInMsg}</span>
         </TopMenuItem>
     )
@@ -107,11 +115,11 @@ function TopMenuItems ({ isMobile, isSideMenuCollapsed, toggleSideMenuCollapsed 
     const signedInItems = withDropdownMenu ? (<Dropdown overlay={menu}>{avatar}</Dropdown>) : (avatar)
     const signedOutItems = (sigin)
 
-    const organizationName = (organization && organization.organization) ? <TopMenuLeftWrapper>
-        <TopMenuItem onClick={() => Router.push('/organizations')}>
+    const organizationName = (org && org.organization) ? <TopMenuLeftWrapper>
+        <TopMenuItem onClick={goToOrganization}>
             <div className="ellipsable180">
-                {organization.organization.name}{' '}
-                {(organization.link && organization.link.role === 'owner') ?
+                {org.organization.name}{' '}
+                {(org.link && org.link.role === 'owner') ?
                     <Tag color="error" className="tag">{OwnerMsg}</Tag>
                     :
                     null}
@@ -119,7 +127,7 @@ function TopMenuItems ({ isMobile, isSideMenuCollapsed, toggleSideMenuCollapsed 
         </TopMenuItem>
     </TopMenuLeftWrapper> : null
 
-    const menuCollapser = isMobile ? <TopMenuLeftWrapper>
+    const menuCollapser = isMobile ? <TopMenuLeftWrapper className={'top-menu-side-menu-toggle'}>
         <TopMenuItem onClick={toggleSideMenuCollapsed}><MenuUnfoldOutlined/></TopMenuItem>
     </TopMenuLeftWrapper> : null
 

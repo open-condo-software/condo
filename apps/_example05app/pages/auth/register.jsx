@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Button, Checkbox, Col, Form, Input, notification, Row, Tooltip, Typography } from 'antd'
+import { Button, Checkbox, Col, Form, Input, Row, Tooltip, Typography } from 'antd'
 import { useState } from 'react'
 import { useMutation } from '@core/next/apollo'
 import Head from 'next/head'
@@ -10,11 +10,9 @@ import Router from 'next/router'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 
-import BaseLayout from '../../containers/BaseLayout'
+import { TopMenuOnlyLayout } from '../../containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
 import { runMutation } from '../../utils/mutations.utils'
-
-const { Title } = Typography
 
 const REGISTER_NEW_USER_MUTATION = gql`
     mutation registerNewUser($name: String!, $email: String!, $password: String!, $captcha: String!) {
@@ -228,19 +226,10 @@ const RegisterPage = () => {
         <Head>
             <title>{RegistrationTitleMsg}</title>
         </Head>
-        <Title css={css`text-align: center;`}>{RegistrationTitleMsg}</Title>
+        <Typography.Title css={css`text-align: center;`}>{RegistrationTitleMsg}</Typography.Title>
         <RegisterForm/>
     </>)
 }
 
-function CustomContainer (props) {
-    return (<BaseLayout
-        {...props}
-        logoLocation="topMenu"
-        className="top-menu-only-layout"
-    />)
-}
-
-RegisterPage.container = CustomContainer
-
+RegisterPage.container = TopMenuOnlyLayout
 export default RegisterPage
