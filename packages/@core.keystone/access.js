@@ -52,6 +52,7 @@ const readOnlyField = {
     update: false,
 }
 
+// TODO(pahaz): think about naming! ListAccessCheck and FieldAccessCheck has different arguments
 module.exports = {
     userIsAuthenticated,
     userIsAdmin,
