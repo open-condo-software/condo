@@ -1,28 +1,17 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { useState } from 'react'
-import { Layout, Menu, PageHeader } from 'antd'
-import {
-    DesktopOutlined,
-    FileOutlined,
-    PieChartOutlined,
-    TeamOutlined,
-    UserOutlined,
-    DashboardOutlined,
-    FormOutlined,
-    TableOutlined,
-    ProfileOutlined,
-    CheckCircleOutlined,
-    WarningOutlined,
-    HighlightOutlined,
-} from '@ant-design/icons'
+import { createContext, useContext, useState } from 'react'
+import { Drawer, Layout, Menu, PageHeader as AntPageHeader } from 'antd'
+import { DashboardOutlined } from '@ant-design/icons'
 import Router from 'next/router'
-import { useRouter } from 'next/router'
 
 import './antd-custom.less'
-import TopMenu from './components/TopMenu'
+import TopMenuItems from './components/TopMenuItems'
 import { useIntl } from '@core/next/intl'
+import { useAntdMediaQuery } from '../../utils/mediaQuery.utils'
 
+const LayoutContext = createContext({})
+const useLayoutContext = () => useContext(LayoutContext)
 const { Header, Sider, Content } = Layout
 const { SubMenu } = Menu
 
@@ -33,7 +22,7 @@ const DEFAULT_MENU = [
         locale: 'menu.Home',
     },
     {
-        path: '/auth',
+        path: '/auth/signin',
         locale: 'menu.Auth',
         hideInMenu: true,
         children: [
@@ -59,36 +48,20 @@ const DEFAULT_MENU = [
 
 const layoutCss = css`
     height: 100%;
+    display: flex;
+    align-items: stretch;
 `
 
-const layoutSideMenuCss = css`
+const subLayoutCss = css`
+    width: 100%;
+    display: flex;
+    align-items: stretch;
+`
+
+const sideMenuSiderCss = css`
     z-index: 10;
     box-shadow: 2px 0 6px rgba(0,21,41,.35);
-`
-
-const topMenuCss = css`
-    z-index: 9;
-    background: #fff;
-    padding: 0;
-    box-shadow: 2px 0 6px rgba(0,21,41,.35);
-    min-width: 100%;
-    clear: both;
-`
-
-const pageWrapperCss = css`
-`
-
-const pageHeaderCss = css`
-    padding: 12px 24px 12px;
-    background-color: #fff;
-`
-
-const pageContentCss = css`
-    margin: 24px;
-    padding: 24px;
-    min-height: 280px;
-    background: white;
-    border-radius: 2px;
+    min-height: 100%;
 `
 
 const sideMenuLogoCss = css`
@@ -105,11 +78,63 @@ const sideMenuLogoCss = css`
     }
 `
 
+const topMenuCss = css`
+    z-index: 9;
+    background: #fff;
+    padding: 0;
+    box-shadow: 2px 0 6px rgba(0,21,41,.35);
+    min-width: 100%;
+    clear: both;
+`
+
 const topMenuLogoCss = css`
     float: left;
     height: 64px;
     margin: 0 24px;
     cursor: pointer;
+
+    @media (max-width: 768px) {
+        margin: 0 12px;
+        border-radius: 0;
+    }
+    @media (max-width: 480px) {
+        margin: 0 12px;
+        border-radius: 0;
+    }
+`
+
+const pageWrapperCss = css`
+    margin: 0;
+    padding: 0;
+`
+
+const pageHeaderCss = css`
+    margin: 0 24px 24px;
+    padding: 24px;
+    background: #fff;
+
+    @media (max-width: 768px) {
+        margin: 0 0 12px;
+    }
+    @media (max-width: 480px) {
+        margin: 0 0 12px;
+    }
+`
+
+const pageContentCss = css`
+    margin: 24px;
+    padding: 24px;
+    background: #fff;
+    border-radius: 2px;
+    
+    @media (max-width: 768px) {
+        margin: 12px 0;
+        border-radius: 0;
+    }
+    @media (max-width: 480px) {
+        margin: 12px 0;
+        border-radius: 0;
+    }
 `
 
 function renderMenuData (menuData, menuItemRender, localeRender, onClickMenuItem) {
@@ -130,29 +155,48 @@ function renderMenuData (menuData, menuItemRender, localeRender, onClickMenuItem
     })
 }
 
-function getBreadcrumbFromMenuData(menuData, pathname, menuItemRender, localeRender, onClickMenuItem) {
-    let result = null
-    const find = menuData => {
-        for (const item of menuData) {
-            if (pathname.startsWith(item.path)) {
-                result = item.breadcrumb ? item.breadcrumb : null
-                if (item.children) find(item.children)
-                return
-            }
-        }
-    }
-    find(menuData)
-    return result
+function SideMenu ({ logoLocation, onLogoClick, menuData, menuItemRender, localeRender, onClickMenuItem, sideMenuWidth, isMobile, isSideMenuCollapsed, toggleSideMenuCollapsed }) {
+    const logo = <img css={sideMenuLogoCss} src="/logo.svg" onClick={onLogoClick}/>
+    const menu = <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
+        {renderMenuData(menuData, menuItemRender, localeRender, onClickMenuItem)}
+    </Menu>
+    return isMobile ? (
+        <Drawer
+            closable={false}
+            visible={!isSideMenuCollapsed}
+            placement="left"
+            style={{
+                padding: 0,
+                height: '100vh',
+            }}
+            width={sideMenuWidth}
+            bodyStyle={{ height: '100vh', padding: 0 }}
+            className="side-menu"
+            onClose={toggleSideMenuCollapsed}
+        >
+            <Sider css={sideMenuSiderCss} as="aside" width={sideMenuWidth}
+                   collapsible collapsed={false} onCollapse={toggleSideMenuCollapsed}
+            >
+                {logo}{menu}
+            </Sider>
+        </Drawer>
+    ) : (
+        <Sider className="side-menu" css={sideMenuSiderCss} as="aside" width={sideMenuWidth}
+               collapsible collapsed={isSideMenuCollapsed} onCollapse={toggleSideMenuCollapsed}
+        >
+            {(logoLocation === 'sideMenu') ? logo : null}{menu}
+        </Sider>
+    )
 }
 
-function BaseLayout (props) {
+function BaseLayout ({ children, logoLocation = 'sideMenu', className, style, ...props }) {
     // .layout { .top-menu .side-menu .page-wrapper { .page-header .page-content } }
     // try to be compatible with https://github.com/ant-design/ant-design-pro-layout/blob/master/README.md#api
-    const [collapsed, setCollapsed] = useState(false)
-    const { pathname } = useRouter()
     const intl = useIntl()
+    const colSize = useAntdMediaQuery()
+    const isMobile = (colSize === 'xs') && !props.disableMobile
+    console.log(isMobile, colSize)
 
-    const logoLocation = props.logoLocation || 'sideMenu'
     const localeRender = (locale) => intl.formatMessage({ id: locale })
     const menuDataRender = props.menuDataRender || (() => DEFAULT_MENU)
     const menuItemRender = props.menuItemRender || ((props, item) => item)
@@ -160,47 +204,66 @@ function BaseLayout (props) {
     const onClickMenuItem = props.onClickMenuItem || ((item) => (item.children) ? null : Router.push(item.path))
     const menuData = menuDataRender()
 
-    const title = props.title || null
-    const subTitle = props.subTitle || null
-    const pageHeaderContent = props.pageHeaderContent || null
-    const pageHeaderExtra = props.pageHeaderExtra || null
-    const breadcrumbData = getBreadcrumbFromMenuData(menuData, pathname, menuItemRender, localeRender, onClickMenuItem)
-    const hasPageHeader = Boolean(title || subTitle || breadcrumbData)
+    const sideMenuWidth = 200
 
-    const toggleCollapsed = () => {
-        setCollapsed(!collapsed)
+    const [isSideMenuCollapsed, setIsSideMenuCollapsed] = useState((isMobile) ? false : true)
+
+    function toggleSideMenuCollapsed () {
+        setIsSideMenuCollapsed(!isSideMenuCollapsed)
     }
 
-    return (
-        <Layout className={`layout ${props.className ? props.className : ''}`} css={layoutCss} as="section">
-            <Sider className="side-menu" css={layoutSideMenuCss} as="aside"
-                   collapsible collapsed={collapsed} onCollapse={toggleCollapsed}
-            >
-                {logoLocation === 'sideMenu' ? <img css={sideMenuLogoCss} src="/logo.svg" onClick={onLogoClick}/> : null}
-                <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
-                    {renderMenuData(menuData, menuItemRender, localeRender, onClickMenuItem)}
-                </Menu>
-            </Sider>
-            <Layout>
+    return (<LayoutContext.Provider value={{ isMobile }}>
+        <Layout className={`layout ${className || ''}`} style={style} css={layoutCss} as="section">
+            <SideMenu {...{
+                logoLocation,
+                onLogoClick,
+                menuData,
+                menuItemRender,
+                localeRender,
+                onClickMenuItem,
+                sideMenuWidth,
+                isMobile,
+                isSideMenuCollapsed,
+                toggleSideMenuCollapsed,
+            }} />
+            <Layout css={subLayoutCss}>
                 <Header className="top-menu" css={topMenuCss}>
-                    {logoLocation === 'topMenu' ? <img css={topMenuLogoCss} src="/logo.svg" onClick={onLogoClick}/> : null}
-                    <TopMenu/>
+                    {logoLocation === 'topMenu' ? <img css={topMenuLogoCss} src="/logo.svg"
+                                                       onClick={onLogoClick}/> : null}
+                    <TopMenuItems isMobile={isMobile} isSideMenuCollapsed={isSideMenuCollapsed}
+                                  toggleSideMenuCollapsed={toggleSideMenuCollapsed}/>
                 </Header>
-                <Content className="page-wrapper" css={pageWrapperCss} as="main">
-                    <PageHeader className="page-header" css={pageHeaderCss}
-                                style={{display: (hasPageHeader) ? 'block' : 'none'}}
-                                title={title} subTitle={subTitle}
-                                extra={pageHeaderExtra}
-                                breadcrumb={{routes: breadcrumbData}}>
-                        {pageHeaderContent}
-                    </PageHeader>
-                    <div className="page-content" css={pageContentCss}>
-                        {props.children}
-                    </div>
-                </Content>
+                {children}
             </Layout>
         </Layout>
-    )
+    </LayoutContext.Provider>)
+}
+
+function PageWrapper ({ children, className, style }) {
+    return <Content className={`page-wrapper ${className || ''}`} css={pageWrapperCss} as="main" style={style}>
+        {children}
+    </Content>
+}
+
+function PageHeader ({ children, className, style, title, subTitle }) {
+    return <AntPageHeader
+        className={`page-header ${className || ''}`} css={pageHeaderCss} style={style}
+        title={title} subTitle={subTitle}
+    >
+        {children}
+    </AntPageHeader>
+}
+
+function PageContent ({ children, className, style }) {
+    return <div className={`page-content ${className || ''}`} css={pageContentCss} style={style}>
+        {children}
+    </div>
 }
 
 export default BaseLayout
+export {
+    useLayoutContext,
+    PageWrapper,
+    PageHeader,
+    PageContent,
+}

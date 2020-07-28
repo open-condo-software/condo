@@ -21,8 +21,8 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 }
 
 function menuDataRender() {
-    const organization = useOrganization()
-    if (organization && organization.link && organization.link.role === 'owner') {
+    const org = useOrganization()
+    if (org && org.link && org.link.role === 'owner') {
         return [
             {
                 path: '/',
@@ -40,7 +40,7 @@ function menuDataRender() {
                 locale: 'menu.Employee',
             },
         ]
-    } else if (organization && organization.link && organization.link.role === 'member') {
+    } else if (org && org.link && org.link.role === 'member') {
         return [
             {
                 path: '/',

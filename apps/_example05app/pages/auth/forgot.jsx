@@ -1,17 +1,16 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { useState } from 'react'
-import { Button, Form, Input, notification, Result, Typography } from 'antd'
+import { Button, Form, Input, Result, Typography } from 'antd'
 import Head from 'next/head'
 import Router from 'next/router'
 import { useIntl } from '@core/next/intl'
 import gql from 'graphql-tag'
 import { useMutation } from '@core/next/apollo'
 
-import BaseLayout from '../../containers/BaseLayout'
+import { TopMenuOnlyLayout } from '../../containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
-
-const { Title, Paragraph } = Typography
+import { runMutation } from '../../utils/mutations.utils'
 
 const START_PASSWORD_RECOVERY_MUTATION = gql`
     mutation startPasswordRecovery($email: String!){
@@ -20,12 +19,12 @@ const START_PASSWORD_RECOVERY_MUTATION = gql`
 `
 
 const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
+    // labelCol: { span: 8 },
+    // wrapperCol: { span: 16 },
 }
 
 const tailLayout = {
-    wrapperCol: { offset: 8, span: 16 },
+    // wrapperCol: { offset: 8, span: 16 },
 }
 
 const ForgotForm = () => {
@@ -46,36 +45,27 @@ const ForgotForm = () => {
     const EmailIsNotRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotRegistered' })
     const ForgotPasswordDescriptionMsg = intl.formatMessage({ id: 'pages.auth.ForgotPasswordDescription' })
     const ForgotPasswordStartedDescriptionMsg = intl.formatMessage({ id: 'pages.auth.ForgotPasswordStartedDescription' })
+    const ErrorToFormFieldMsgMapping = {
+        '[unknown-user]': {
+            name: 'email',
+            errors: [EmailIsNotRegisteredMsg],
+        },
+    }
 
     const onFinish = values => {
         if (values.email) values.email = values.email.toLowerCase()
         setIsLoading(true)
-        startPasswordRecovery({ variables: values })
-            .then(
-                (data) => {
-                    notification.success({ message: StartedMsg })
-                    setIsSuccessMessage(true)
-                },
-                (e) => {
-                    console.log(e)
-                    const errors = []
-                    notification.error({
-                        message: ServerErrorMsg,
-                        description: e.message,
-                    })
-                    if (e.message.includes('[unknown-user]')) {
-                        errors.push({
-                            name: 'email',
-                            errors: [EmailIsNotRegisteredMsg],
-                        })
-                    }
-                    if (errors.length) {
-                        form.setFields(errors)
-                    }
-                })
-            .finally(() => {
+        return runMutation({
+            mutation: startPasswordRecovery,
+            variables: values,
+            onCompleted: () => setIsSuccessMessage(true),
+            onFinally: () => {
                 setIsLoading(false)
-            })
+            },
+            intl,
+            form,
+            ErrorToFormFieldMsgMapping,
+        })
     }
 
     if (isSuccessMessage) {
@@ -94,7 +84,7 @@ const ForgotForm = () => {
             onFinish={onFinish}
             initialValues={initialValues}
         >
-            <Paragraph css={css`text-align: center;`}>{ForgotPasswordDescriptionMsg}</Paragraph>
+            <Typography.Paragraph css={css`text-align: center;`}>{ForgotPasswordDescriptionMsg}</Typography.Paragraph>
             <Form.Item
                 label={EmailMsg}
                 name="email"
@@ -104,7 +94,7 @@ const ForgotForm = () => {
                 <Input/>
             </Form.Item>
 
-            <Form.Item {...tailLayout}>
+            <Form.Item {...tailLayout} style={{ textAlign: 'center' }}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {StartRecoveryMsg}
                 </Button>
@@ -123,19 +113,10 @@ const ForgotPage = () => {
         <Head>
             <title>{ForgotPasswordTitleMsg}</title>
         </Head>
-        <Title css={css`text-align: center;`} level={2}>{ForgotPasswordTitleMsg}</Title>
+        <Typography.Title css={css`text-align: center;`} level={2}>{ForgotPasswordTitleMsg}</Typography.Title>
         <ForgotForm/>
     </>)
 }
 
-function CustomContainer (props) {
-    return (<BaseLayout
-        {...props}
-        logoLocation="topMenu"
-        className="top-menu-only-layout"
-    />)
-}
-
-ForgotPage.container = CustomContainer
-
+ForgotPage.container = TopMenuOnlyLayout
 export default ForgotPage
