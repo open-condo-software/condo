@@ -14,8 +14,11 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] docs: how-to write backend app
  - [x] docs: how-to upgrade packages versions
  - [x] docs: how-to use with postgres
+ - [ ] docs: how-to debug react rerenders
+ - [ ] docs: how-to deploy to dokku / heroku
  - [x] example: Ant Design Pro + Next.js
  - [x] example: Internationalization (react-intl)
+ - [ ] example: Upload Attachments Antd Form
  - [x] ForgotUserPassword: Schema, API, Tests
  - [x] ForgotUserPassword: Page (example)
  - [x] ForgotUserPassword: Email notification hook
@@ -23,25 +26,36 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] ChangePassword: Schema, API, Tests
  - [x] ChangePassword: Page (example)
  - [x] Auth: Schema, API, Test
- - [x] Auth: Page (example)
+ - [x] Auth: SignIn/SignOut Page (example)
+ - [x] Auth: SignIn next url support
+ - [x] Auth: AuthRequired component
  - [ ] Auth: Options captcha support
  - [x] User: Schema, API, Tests
  - [x] Organization: Schema, API, Tests
  - [x] Organization: Page (example)
+ - [x] Organization: OrganizationRequired component
  - [x] Organization: accept/reject/leave/select logic: Schema, API, Tests
  - [x] Organization: accept/reject/leave/select logic: Page (example)
- - [ ] Organization: invite/apply logic
+ - [x] Organization: invite logic: Schema, API, Tests
+ - [x] Organization: invite logic: Page (example)
+ - [ ] Organization: accept invite by email code logic: Page (example)
  - [x] User: reusable customization (like django.auth.user)
+ - [ ] User: unique phone/email check (for mongo/postgres)! 
  - [x] Register: Schema, API, Test
  - [x] Register: Page (example)
- - [ ] Register: Email verification
+ - [ ] Register: Email verification (isEmailVerified)
+ - [ ] Register: Phone verification (isPhoneVerified)
  - [ ] Register: Extensibility (like django-registrations)
  - [ ] Register: Options captcha support
+ - [x] Layout: Extensible base layout
+ - [x] Layout: Mobile first support
+ - [x] Layout: FormList container (container for list of items)
+ - [x] Layout: FormTable container (container for table items)
+ - [ ] Layout: Dark mode
+ - [ ] Layout: Antd compatible theme example (global variables for padding/margin/colors)
+ - [ ] Layout: change site language widget
  - [ ] docs: project structure
- - [ ] docs: Deploy
- - [ ] CI: Deploy
- - [ ] prettier
- - [ ] linter
+ - [x] docs: Deploy
  - [ ] UserNotifications: Schema, API, Tests
  - [ ] UserNotifications: Page (example 05 top menu) 
  - [ ] UserProfileSettings: Schema, API, Tests
@@ -52,10 +66,19 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] Core: Monorepo with packages and apps
  - [x] Core: Multiple express backend support 
  - [x] Core: docker-compose
- - [x] Core: CI
+ - [x] Core: CI Tests
+ - [ ] Core: CI Deploy
+ - [x] Core: Internationalization (react-intl)
+ - [x] Core: SSR (by Next.js)
+ - [x] Core: SSR + Apollo cache (don't query already received data)
+ - [x] Core: SSR + Auth (authenticate queries on the server side)
+ - [x] Core: SSR + Internationalization (same language as on client side)
  - [ ] Core: KeystoneJS AuthProvider (with isActive check!)
- - [ ] Core: Realtime support
- - [ ] Core: Attachment
+ - [ ] Core: isActive == false (need to kill all user sessions)
+ - [ ] Core: KeystoneJS AuthProvider (login by phone / email!)
+ - [ ] Core: KeystoneJS AuthProvider (optional email / phone field)
+ - [ ] Core: Realtime update support (gql Subscriptions example)
+ - [ ] Core: Attachment scale
  - [ ] Core: Background tasks
  - [ ] Core: Background scheduled tasks
  - [ ] Core: Metrics
@@ -63,6 +86,8 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] Core: Logging
  - [ ] Core: lerna?
  - [ ] Core: benchmarks?
+ - [ ] Core: prettier
+ - [ ] Core: linter
  - Auth my social apps? (https://www.keystonejs.com/keystonejs/auth-passport/)
  - CRDT example?
 
