@@ -87,7 +87,7 @@ const GET_ORGANIZATION_WITH_LINKS_QUERY = gql`
 `
 
 const REGISTER_NEW_ORGANIZATION_MUTATION = gql`
-    mutation reg($data: OrganizationRegisterNewInput!) {
+    mutation reg($data: RegisterNewOrganizationInput!) {
         obj: registerNewOrganization(data: $data) {
             id
             userLinks {
@@ -141,6 +141,15 @@ const CREATE_ORGANIZATION_TO_USER_LINK_MUTATION = gql`
                 id
             }
             role
+        }
+    }
+`
+
+const GET_ORGANIZATION_TO_USER_LINK_CODE_BY_ID_QUERY = gql`
+    query getCode($id: ID!){
+        obj: OrganizationToUserLink(where: {id: $id}) {
+            id
+            code
         }
     }
 `
@@ -414,7 +423,33 @@ test('no access to change another organization', async () => {
     })
 })
 
-test('owner: has access to create/update/delete OrganizationToUserLinks', async () => {
+const INVITE_NEW_USER_MUTATION = gql`
+    mutation inviteNewUser($data: InviteNewUserToOrganizationInput!) {
+        obj: inviteNewUserToOrganization(data: $data) {
+            id
+            role
+            user {
+                id
+            }
+        }
+    }
+`
+
+async function inviteNewUser (client, organizationId, email) {
+    const { data, errors } = await client.mutate(INVITE_NEW_USER_MUTATION, {
+        data: {
+            organization: { id: organizationId },
+            email: email,
+            name: 'user2',
+        },
+    })
+    expect(errors).toEqual(undefined)
+    expect(data.obj.id).toMatch(/^[0-9a-zA-Z-_]+$/)
+    expect(data.obj.role).toEqual('member')
+    return { data }
+}
+
+test('owner: invite new user', async () => {
     const user = await createUser()
     const user2 = await createUser()
     const client = await makeLoggedInClient(user)
@@ -423,16 +458,66 @@ test('owner: has access to create/update/delete OrganizationToUserLinks', async 
     })
     expect(errors).toEqual(undefined)
 
-    // create
-    const { data: d2, errors: err2 } = await client.mutate(CREATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
-        data: {
-            organization: { connect: { id: data.obj.id } },
-            user: { connect: { id: user2.id } },
-            role: 'member',
-        },
+    // invite
+    const { data: d2 } = await inviteNewUser(client, data.obj.id, user2.email)
+    expect(d2.obj.user.id).toEqual(user2.id)
+})
+
+test('owner: try to invite already invited user', async () => {
+    const user = await createUser()
+    const user2 = await createUser()
+    const client = await makeLoggedInClient(user)
+    const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+        data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
     })
-    expect(err2).toEqual(undefined)
-    expect(d2.obj.id).toMatch(/^[0-9a-zA-Z-_]+$/)
+    expect(errors).toEqual(undefined)
+
+    // invite
+    await inviteNewUser(client, data.obj.id, user2.email)
+    {
+        const { errors } = await client.mutate(INVITE_NEW_USER_MUTATION, {
+            data: {
+                organization: { id: data.obj.id },
+                email: user2.email,
+                name: 'user2',
+            },
+        })
+        expect(JSON.stringify(errors)).toContain('[error.already.exists]')
+    }
+})
+
+test('owner: try to invite already invited email', async () => {
+    const user = await createUser()
+    const client = await makeLoggedInClient(user)
+    const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+        data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
+    })
+    expect(errors).toEqual(undefined)
+
+    // invite
+    await inviteNewUser(client, data.obj.id, 'xm2' + user.email)
+    {
+        const { errors } = await client.mutate(INVITE_NEW_USER_MUTATION, {
+            data: {
+                organization: { id: data.obj.id },
+                email: 'xm2' + user.email,
+                name: 'user2',
+            },
+        })
+        expect(JSON.stringify(errors)).toContain('[error.already.exists]')
+    }
+})
+
+test('owner: has access to invite/update/delete OrganizationToUserLinks', async () => {
+    const user = await createUser()
+    const user2 = await createUser()
+    const client = await makeLoggedInClient(user)
+    const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+        data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
+    })
+    expect(errors).toEqual(undefined)
+
+    const { data: d2 } = await inviteNewUser(client, data.obj.id, user2.email)
 
     // update
     const { data: d3, errors: err3 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
@@ -462,22 +547,13 @@ test('owner: has no access to update OrganizationToUserLinks organization/user a
     })
     expect(errors).toEqual(undefined)
 
-    // create
-    const { data: d2, errors: err2 } = await client.mutate(CREATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
-        data: {
-            organization: { connect: { id: data.obj.id } },
-            user: { connect: { id: user2.id } },
-            role: 'member',
-        },
-    })
-    expect(err2).toEqual(undefined)
-    expect(d2.obj.id).toMatch(/^[0-9a-zA-Z-_]+$/)
+    const { data: d2 } = await inviteNewUser(client, data.obj.id, user2.email)
 
     // update organization
     const { errors: err3 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
         id: d2.obj.id,
         data: {
-            organization: { connect: {id: organizationId}},
+            organization: { connect: { id: organizationId } },
         },
     })
     expect(err3[0]).toMatchObject({
@@ -490,7 +566,7 @@ test('owner: has no access to update OrganizationToUserLinks organization/user a
     const { errors: err4 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
         id: d2.obj.id,
         data: {
-            user: { connect: {id: user2.id}},
+            user: { connect: { id: user2.id } },
         },
     })
     expect(err4[0]).toMatchObject({
@@ -501,13 +577,25 @@ test('owner: has no access to update OrganizationToUserLinks organization/user a
     })
 })
 
-const ACCEPT_OR_REJECT_MUTATION = gql`
-    mutation acceptOrReject($id: ID!, $data: OrganizationToUserLinkAcceptOrRejectInput!){
-        status: acceptOrRejectOrganizationToUserLink(id: $id, data: $data)
+const ACCEPT_OR_REJECT_BY_ID_MUTATION = gql`
+    mutation acceptOrReject($id: ID!, $data: AcceptOrRejectOrganizationInviteInput!){
+        obj: acceptOrRejectOrganizationInviteById(id: $id, data: $data) {
+            id isAccepted isRejected
+        }
     }
 `
 
-test('user: accept/reject OrganizationToUserLinks', async () => {
+const ACCEPT_OR_REJECT_BY_CODE_MUTATION = gql`
+    mutation acceptOrReject($code: String!, $data: AcceptOrRejectOrganizationInviteInput!){
+        obj: acceptOrRejectOrganizationInviteByCode(code: $code, data: $data) {
+            id isAccepted isRejected
+        }
+    }
+`
+
+// TODO(pahaz): check antonymous ACCEPT_OR_REJECT_BY_ID_MUTATION
+
+test('user: accept/reject OrganizationToUserLinks by ID', async () => {
     const user = await createUser()
     const user2 = await createUser()
     const client = await makeLoggedInClient(user)
@@ -517,34 +605,88 @@ test('user: accept/reject OrganizationToUserLinks', async () => {
     expect(errors).toEqual(undefined)
 
     // create
-    const { data: d2, errors: err2 } = await client.mutate(CREATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
-        data: {
-            organization: { connect: { id: data.obj.id } },
-            user: { connect: { id: user2.id } },
-            role: 'member',
-        },
-    })
-    expect(err2).toEqual(undefined)
-    expect(d2.obj.id).toMatch(/^[0-9a-zA-Z-_]+$/)
+    const { data: d2 } = await inviteNewUser(client, data.obj.id, user2.email)
 
     // accept
     const member_client = await makeLoggedInClient(user2)
-    const { data: d3, errors: err3 } = await member_client.mutate(ACCEPT_OR_REJECT_MUTATION, {
+    const { data: d3, errors: err3 } = await member_client.mutate(ACCEPT_OR_REJECT_BY_ID_MUTATION, {
         id: d2.obj.id,
         data: {
             isAccepted: true,
         },
     })
     expect(err3).toEqual(undefined)
-    expect(d3.status).toEqual('ok')
+    expect(d3.obj).toEqual({
+        id: d2.obj.id,
+        isAccepted: true,
+        isRejected: false,
+    })
 
     // reject
-    const { data: d4, errors: err4 } = await member_client.mutate(ACCEPT_OR_REJECT_MUTATION, {
+    const { data: d4, errors: err4 } = await member_client.mutate(ACCEPT_OR_REJECT_BY_ID_MUTATION, {
         id: d2.obj.id,
         data: {
             isRejected: true,
         },
     })
     expect(err4).toEqual(undefined)
-    expect(d4.status).toEqual('ok')
+    expect(d4.obj).toEqual({
+        id: d2.obj.id,
+        isAccepted: false,
+        isRejected: true,
+    })
+})
+
+async function getInviteCode (id) {
+    const admin = await makeLoggedInAdminClient()
+    const { data, errors } = await admin.query(GET_ORGANIZATION_TO_USER_LINK_CODE_BY_ID_QUERY, { id })
+    expect(errors).toEqual(undefined)
+    expect(data.obj.id).toEqual(id)
+    console.log(data)
+    return data.obj.code
+}
+
+test('user: accept/reject OrganizationToUserLinks by CODE', async () => {
+    const user = await createUser()
+    const client = await makeLoggedInClient(user)
+    const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+        data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
+    })
+    expect(errors).toEqual(undefined)
+
+    // create
+    const { data: d2 } = await inviteNewUser(client, data.obj.id, 'x2' + user.email)
+    expect(d2.obj.user).toBeNull()
+
+    const code = await getInviteCode(d2.obj.id)
+
+    // accept
+    const user2 = await createUser()
+    const member_client = await makeLoggedInClient(user2)
+    const { data: d3, errors: err3 } = await member_client.mutate(ACCEPT_OR_REJECT_BY_CODE_MUTATION, {
+        code,
+        data: {
+            isAccepted: true,
+        },
+    })
+    expect(err3).toEqual(undefined)
+    expect(d3.obj).toEqual({
+        id: d2.obj.id,
+        isAccepted: true,
+        isRejected: false,
+    })
+
+    // second time!
+    const { errors: err4 } = await member_client.mutate(ACCEPT_OR_REJECT_BY_CODE_MUTATION, {
+        code,
+        data: {
+            isAccepted: true,
+        },
+    })
+    expect(err4[0]).toMatchObject({
+        'data': { 'target': 'acceptOrRejectOrganizationInviteByCode', 'type': 'mutation' },
+        'message': 'You do not have access to this resource',
+        'name': 'AccessDeniedError',
+        'path': ['obj'],
+    })
 })
