@@ -24,13 +24,30 @@ function runMutation ({ mutation, variables, onCompleted, onError, onFinally, in
             },
             (e) => {
                 console.error(`mutation error:`, e)
+
+                let friendlyDescription = null
+                if (ErrorToFormFieldMsgMapping) {
+                    const errors = []
+                    const errorString = `${e}`
+                    Object.keys(ErrorToFormFieldMsgMapping).forEach((msg) => {
+                        if (errorString.includes(msg)) {
+                            errors.push(ErrorToFormFieldMsgMapping[msg])
+                            friendlyDescription = ErrorToFormFieldMsgMapping[msg]
+                        }
+                    })
+                    // TODO(pahaz): if there is some error without ErrorToFormFieldMsgMapping. We should add NON FIELD FORM ERROR? Is the ant support it?
+                    if (form && errors.length) {
+                        form.setFields(errors)
+                    }
+                }
+
                 if (OnErrorMsg === null) {
                     // we want to SKIP any notifications
                 } else if (typeof OnErrorMsg === 'undefined') {
                     // default notification message
                     notification.error({
                         message: ServerErrorMsg,
-                        description: e.message,
+                        description: friendlyDescription || e.message,
                     })
                 } else {
                     // custom notification message
@@ -39,20 +56,6 @@ function runMutation ({ mutation, variables, onCompleted, onError, onFinally, in
                         message: ServerErrorMsg,
                         description: OnErrorMsg,
                     })
-                }
-
-                if (form && ErrorToFormFieldMsgMapping) {
-                    const errors = []
-                    const errorString = `${e}`
-                    Object.keys(ErrorToFormFieldMsgMapping).forEach((msg) => {
-                        if (errorString.includes(msg)) {
-                            errors.push(ErrorToFormFieldMsgMapping[msg])
-                        }
-                    })
-                    // TODO(pahaz): if there is some error without ErrorToFormFieldMsgMapping. We should add NON FIELD FORM ERROR? Is the ant support it?
-                    if (errors.length) {
-                        form.setFields(errors)
-                    }
                 }
 
                 if (onError) return onError(e)

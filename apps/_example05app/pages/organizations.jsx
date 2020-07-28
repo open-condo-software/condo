@@ -23,20 +23,22 @@ const DEFAULT_ORGANIZATION_AVATAR_URL = 'https://www.pngitem.com/pimgs/m/226-226
 
 const ORGANIZATION_FIELDS = '{ id name description avatar { publicUrl } }'
 const REGISTER_NEW_ORGANIZATION_MUTATION = gql`
-    mutation registerNewOrganization($data: OrganizationRegisterNewInput!) {
+    mutation registerNewOrganization($data: RegisterNewOrganizationInput!) {
         obj: registerNewOrganization(data: $data) ${ORGANIZATION_FIELDS}
     }
 `
-const ORGANIZATION_TO_USER_LINK_FIELDS = `{ id organization ${ORGANIZATION_FIELDS} user { id name } role isRejected isAccepted }`
+const ORGANIZATION_TO_USER_LINK_FIELDS = `{ id organization ${ORGANIZATION_FIELDS} user { id name } name email phone role isRejected isAccepted }`
 const GET_ALL_ORGANIZATION_TO_USER_LINKS_WITH_META_QUERY = gql`
     query getAllOrganizationToUserLinksWithMeta($where: OrganizationToUserLinkWhereInput) {
         meta: _allOrganizationToUserLinksMeta { count }
         objs: allOrganizationToUserLinks (where: $where) ${ORGANIZATION_TO_USER_LINK_FIELDS}
     }
 `
-const ACCEPT_OR_REJECT_ORGANIZATION_TO_USER_LINK_MUTATION = gql`
-    mutation acceptOrRejectOrganizationToUserLink($id: ID!, $data: OrganizationToUserLinkAcceptOrRejectInput!){
-        status: acceptOrRejectOrganizationToUserLink(id: $id, data: $data)
+const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION = gql`
+    mutation acceptOrRejectOrganizationToUserLink($id: ID!, $data: AcceptOrRejectOrganizationInviteInput!){
+        obj: acceptOrRejectOrganizationInviteById(id: $id, data: $data) {
+            id
+        }
     }
 `
 
@@ -118,7 +120,7 @@ const OrganizationListForm = () => {
     const { loading, data, refetch } = useQuery(GET_ALL_ORGANIZATION_TO_USER_LINKS_WITH_META_QUERY, {
         variables: { where: user ? { user: { id: user.id } } : {} },
     })
-    const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_TO_USER_LINK_MUTATION)
+    const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION)
 
     const intl = useIntl()
     const DoneMsg = intl.formatMessage({ id: 'Done' })
