@@ -1,11 +1,11 @@
-import { Button, Dropdown, Form, Input, List, Menu, Modal, Popconfirm, Skeleton, Typography, Empty } from 'antd'
-import { PlusOutlined, DownOutlined } from '@ant-design/icons'
+import { Button, Dropdown, Empty, Form, Input, List, Menu, Modal, Popconfirm, Skeleton, Typography } from 'antd'
+import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
+
 import { runMutation } from '../utils/mutations.utils'
-import { func } from 'prop-types'
 
 const identity = (x) => !!x
 const NON_FIELD_ERROR_NAME = '_NON_FIELD_ERROR_'
@@ -185,7 +185,7 @@ function useCreateAndEditModalForm () {
     return { visible, editableItem, openCreateModal, openEditModal, cancelModal }
 }
 
-function CreateModalForm ({ CreateButtonLabelMsg, OnCreatedMsg, ...props }) {
+function CreateModalFormWithButton ({ CreateButtonLabelMsg, OnCreatedMsg, ...props }) {
     const { visible, openCreateModal, cancelModal } = useCreateAndEditModalForm()
 
     const intl = useIntl()
@@ -204,6 +204,10 @@ function CreateModalForm ({ CreateButtonLabelMsg, OnCreatedMsg, ...props }) {
             OnCompletedMsg: OnCreatedMsg || CreatedMsg,
         }} />
     </>
+}
+
+function CRUDListBlock () {
+    // TODO(pahaz): inside organizations
 }
 
 function BaseModalForm ({ mutation, mutationOptions, mutationExtraData = {}, formValuesToMutationDataPreprocessor, formValuesToMutationDataPreprocessorContext, formInitialValues, children, onMutationCompleted, onFormValuesChange, modalExtraFooter = [], visible, cancelModal, ModalTitleMsg, ModalCancelButtonLabelMsg, ModalSaveButtonLabelMsg, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
@@ -230,7 +234,19 @@ function BaseModalForm ({ mutation, mutationOptions, mutationExtraData = {}, for
             data = (formValuesToMutationDataPreprocessor) ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext) : values
         } catch (err) {
             if (err instanceof ValidationError) {
-                form.setFields([{ name: err.field || NON_FIELD_ERROR_NAME, errors: [String(err.message)] }])
+                let errors = []
+                if (ErrorToFormFieldMsgMapping) {
+                    const errorString = `${err}`
+                    Object.keys(ErrorToFormFieldMsgMapping).forEach((msg) => {
+                        if (errorString.includes(msg)) {
+                            errors.push(ErrorToFormFieldMsgMapping[msg])
+                        }
+                    })
+                }
+                if (errors.length === 0) {
+                    errors = [{ name: err.field || NON_FIELD_ERROR_NAME, errors: [String(err.message)] }]
+                }
+                form.setFields(errors)
                 return
             } else {
                 form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [ClientSideErrorMsg] }])

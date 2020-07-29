@@ -2,6 +2,15 @@ import { notification } from 'antd'
 
 function runMutation ({ mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
     if (!intl) throw new Error('intl prop required')
+    if (ErrorToFormFieldMsgMapping) {
+        if (typeof ErrorToFormFieldMsgMapping !== 'object') throw new Error('ErrorToFormFieldMsgMapping prop is not an object')
+        Object.entries(ErrorToFormFieldMsgMapping).forEach(([k, v]) => {
+            if (typeof v !== 'object') throw new Error(`ErrorToFormFieldMsgMapping["${k}"] is not an object`)
+            if (!v['name']) throw new Error(`ErrorToFormFieldMsgMapping["${k}"] has no "name" attr`)
+            if (!v['errors']) throw new Error(`ErrorToFormFieldMsgMapping["${k}"] has no "errors" attr`)
+            if (!Array.isArray(v['errors'])) throw new Error(`ErrorToFormFieldMsgMapping["${k}"]["errors"] is not an array`)
+        })
+    }
     const DoneMsg = intl.formatMessage({ id: 'Done' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
@@ -32,7 +41,9 @@ function runMutation ({ mutation, variables, onCompleted, onError, onFinally, in
                     Object.keys(ErrorToFormFieldMsgMapping).forEach((msg) => {
                         if (errorString.includes(msg)) {
                             errors.push(ErrorToFormFieldMsgMapping[msg])
-                            friendlyDescription = ErrorToFormFieldMsgMapping[msg]
+                            if (ErrorToFormFieldMsgMapping[msg] && Array.isArray(ErrorToFormFieldMsgMapping[msg].errors)) {
+                                friendlyDescription = ErrorToFormFieldMsgMapping[msg].errors[0]
+                            }
                         }
                     })
                     // TODO(pahaz): if there is some error without ErrorToFormFieldMsgMapping. We should add NON FIELD FORM ERROR? Is the ant support it?

@@ -59,13 +59,13 @@ function EditableRow ({ ...props }) {
     const [rowContext, setRowContext] = useState(rowContextInitialState || {})
     const [form] = Form.useForm()
     return (
-            <Form form={form} component={false}>
-                <RowFormContext.Provider value={form}>
-                    <RowContext.Provider value={{ ...rowContext, setRowContext }}>
-                        <tr {...props} />
-                    </RowContext.Provider>
-                </RowFormContext.Provider>
-            </Form>
+        <Form form={form} component={false}>
+            <RowFormContext.Provider value={form}>
+                <RowContext.Provider value={{ ...rowContext, setRowContext }}>
+                    <tr {...props} />
+                </RowContext.Provider>
+            </RowFormContext.Provider>
+        </Form>
     )
 }
 

@@ -72,7 +72,10 @@ function ResidentsBlock () {
     const UserIsAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
     const InviteNewUserButtonLabelMsg = intl.formatMessage({ id: 'pages.users.InviteNewUserButtonLabel' })
     const ErrorToFormFieldMsgMapping = {
-        '[error.already.exists]': UserIsAlreadyInListMsg,
+        '[error.already.exists]': {
+            name: 'email',
+            errors: [UserIsAlreadyInListMsg],
+        },
     }
 
     const [pagination, setPagination] = useState({ current: 1, pageSize: 2 })
