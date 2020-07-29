@@ -25,12 +25,12 @@ ALTER TABLE "OrganizationToUserLink" ADD COLUMN "phone" text NULL;
 -- Add field isEmailVerified to user
 --
 ALTER TABLE "User" ADD COLUMN "isEmailVerified" boolean DEFAULT false NOT NULL;
-ALTER TABLE "User" ALTER COLUMN "isEmailVerified" DROP DEFAULT;
+-- ALTER TABLE "User" ALTER COLUMN "isEmailVerified" DROP DEFAULT;
 --
 -- Add field isPhoneVerified to user
 --
 ALTER TABLE "User" ADD COLUMN "isPhoneVerified" boolean DEFAULT false NOT NULL;
-ALTER TABLE "User" ALTER COLUMN "isPhoneVerified" DROP DEFAULT;
+-- ALTER TABLE "User" ALTER COLUMN "isPhoneVerified" DROP DEFAULT;
 --
 -- Alter field user on organizationtouserlink
 --
