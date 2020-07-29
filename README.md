@@ -115,6 +115,13 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
 3. JS Egghead.io courses: https://egghead.io/
 4. Docker compose: https://docs.docker.com/compose/
 
+# Philosophy
+
+ 1) BACKEND: You write domain models and services on backend side (it's better if each service have only one action)
+ 2) TESTS: TDD is matter! Tests should work parallel and independently! You should write tests in mind of extensibility (you don't need to rewrite the test if you add extra fields). You can move test to another git repository. You can run the tests on a remote production API by URL! We should test not only the our Unit.
+ 3) STYLE: You should follow the common style or change the whole style everywhere (not only in your files)
+ 4) THINK AND DESCRIBE BEFORE CODE! TODO(pahaz): write diagrams like c4 before write a code!
+
 # Init new Project
 
 You should have `docker-compose`, `git` and `node` commands.
@@ -262,6 +269,34 @@ ssh root@dok.8iq.dev 'docker-compose down && docker-compose up -d'
 
 NOTE: If you need some extra containers or you want to customize existing containers you can create 
 `docker-compose.override.yml` file.
+
+# DOKKU Deploy #
+
+```shell script
+export APP=node4
+export DOCKER_IMAGE=apps:coddi
+export APP_VERSION=v4
+export START_COMMAND='yarn workspace @app/CODDI start'
+
+dokku apps:create ${APP}
+dokku postgres:create ${APP}
+dokku postgres:link ${APP} ${APP}
+
+dokku config:set --no-restart ${APP} NODE_ENV=production
+dokku config:set --no-restart ${APP} SERVER_URL=https://${APP}.dok.8iq.dev
+dokku config:set --no-restart ${APP} DOKKU_DOCKERFILE_START_CMD="${START_COMMAND}"
+dokku config:set --no-restart ${APP} COOKIE_SECRET=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+dokku checks:disable ${APP}
+dokku proxy:ports-set ${APP} http:80:5000
+dokku nginx:set ${APP} hsts false
+dokku nginx:set ${APP} hsts-include-subdomains false
+
+docker tag ${DOCKER_IMAGE} dokku/${APP}:${APP_VERSION}
+dokku tags:deploy ${APP} ${APP_VERSION}
+docker exec -it -u root ${APP}.web.1 yarn workspace @app/CODDI migrate
+
+dokku letsencrypt ${APP}
+```
 
 # Others #
 
