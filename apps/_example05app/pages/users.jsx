@@ -88,63 +88,6 @@ function ResidentsBlock () {
         },
     })
 
-    function toFormValidator ({ status, message, cleanedValue, formattedValue }) {
-        if (status === 'ok') return Promise.resolve(cleanedValue)
-        else if (status === 'error' || status === 'warn') return Promise.reject(message)
-        else throw new Error('unknown status')
-    }
-
-    function handleCreateOrUpdate (values, item) {
-        if (values.email) values.email = values.email.toLowerCase()
-        const mutation = (item && item.isNotSaved) ? create : update
-        const variables = (item && item.isNotSaved) ?
-            {
-                data: {
-                    ...values,
-                    organization: { id: organization.id },
-                },
-            } :
-            {
-                id: item.id,
-                data: {
-                    ...values,
-                },
-            }
-        return runMutation(
-            {
-                mutation,
-                variables,
-                onCompleted: () => {
-                    const exitingData = newData.findIndex((x) => x.id === item.id)
-                    console.log(exitingData, newData)
-                    if (exitingData !== -1) {
-                        newData.splice(exitingData, 1)
-                        console.log(exitingData, newData)
-                        setNewData([...newData])
-                    }
-                    if (refetch) refetch({})
-                },
-                intl,
-                ErrorToFormFieldMsgMapping,
-            },
-        )
-    }
-
-    function handleDelete (values) {
-        return runMutation(
-            {
-                mutation: del,
-                variables: {
-                    id: values.id,
-                },
-                onFinally: () => {
-                    if (refetch) refetch({})
-                },
-                intl,
-            },
-        )
-    }
-
     const columns = [
         {
             title: NameMsg,
@@ -231,11 +174,75 @@ function ResidentsBlock () {
         },
     ]
 
+    function handleCreateOrUpdate (values, item) {
+        if (values.email) values.email = values.email.toLowerCase()
+        const mutation = (item && item.isNotSaved) ? create : update
+        const variables = (item && item.isNotSaved) ?
+            {
+                data: {
+                    ...values,
+                    organization: { id: organization.id },
+                },
+            } :
+            {
+                id: item.id,
+                data: {
+                    ...values,
+                },
+            }
+        return runMutation(
+            {
+                mutation,
+                variables,
+                onCompleted: () => {
+                    const exitingData = newData.findIndex((x) => x.id === item.id)
+                    if (exitingData !== -1) {
+                        newData.splice(exitingData, 1)
+                        setNewData([...newData])
+                    }
+                    if (refetch) refetch({})
+                },
+                intl,
+                ErrorToFormFieldMsgMapping,
+            },
+        )
+    }
+
+    function handleDelete (values) {
+        return runMutation(
+            {
+                mutation: del,
+                variables: {
+                    id: values.id,
+                },
+                onFinally: () => {
+                    if (refetch) refetch({})
+                },
+                intl,
+            },
+        )
+    }
+
+    function handleAdd () {
+        console.log('handleAdd')
+        setNewData([...newData, createNewGQLItem()])
+    }
+
+    function handleTableChange (pagination, filters, sorter) {
+        setPagination(pagination)
+        console.log({
+            sortField: sorter.field,
+            sortOrder: sorter.order,
+            pagination,
+            ...filters,
+        })
+    }
+
     function renderItem (item) {
         return { ...item }
     }
 
-    function newDataRenderCellWrapper ({ column, record, form, children }) {
+    function renderCellFormWrapper ({ column, record, form, children }) {
         const { editable, dataIndex, rules, normalize } = column
         const { editing, setRowContext, ...props } = useContext(FormTable.RowContext)
 
@@ -270,21 +277,6 @@ function ResidentsBlock () {
         </Form.Item>
     }
 
-    function handleAdd () {
-        console.log('handleAdd')
-        setNewData([...newData, createNewGQLItem()])
-    }
-
-    function handleTableChange (pagination, filters, sorter) {
-        setPagination(pagination)
-        console.log({
-            sortField: sorter.field,
-            sortOrder: sorter.order,
-            pagination,
-            ...filters,
-        })
-    }
-
     return <>
         <CreateFormListItemButton
             onClick={handleAdd} label={InviteNewUserButtonLabelMsg}
@@ -296,7 +288,7 @@ function ResidentsBlock () {
                 dataSource={newData}
                 columns={columns.filter((x => x.create))}
                 renderItem={renderItem}
-                renderCellWrapper={newDataRenderCellWrapper}
+                renderCellWrapper={renderCellFormWrapper}
                 rowContextInitialState={{ editing: true }}
                 tableLayout={'fixed'}
             />
@@ -305,7 +297,7 @@ function ResidentsBlock () {
             dataSource={data && data.objs}
             columns={columns}
             renderItem={renderItem}
-            renderCellWrapper={newDataRenderCellWrapper}
+            renderCellWrapper={renderCellFormWrapper}
             rowContextInitialState={{ editing: false }}
             tableLayout={'fixed'}
             onChange={handleTableChange}
