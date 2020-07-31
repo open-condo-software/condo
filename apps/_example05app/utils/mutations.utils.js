@@ -35,6 +35,7 @@ function runMutation ({ mutation, variables, onCompleted, onError, onFinally, in
                 console.error(`mutation error:`, e)
 
                 let friendlyDescription = null
+                let notificationContext = null
                 if (ErrorToFormFieldMsgMapping) {
                     const errors = []
                     const errorString = `${e}`
@@ -56,19 +57,22 @@ function runMutation ({ mutation, variables, onCompleted, onError, onFinally, in
                     // we want to SKIP any notifications
                 } else if (typeof OnErrorMsg === 'undefined') {
                     // default notification message
-                    notification.error({
+                    notificationContext = {
                         message: ServerErrorMsg,
                         description: friendlyDescription || e.message,
-                    })
+                    }
                 } else {
                     // custom notification message
                     // TODO(pahaz): think about more complex notifications. OnCompletedMsg many be an object! (if we want to have come actions inside a notification)
-                    notification.error({
+                    notificationContext = {
                         message: ServerErrorMsg,
                         description: OnErrorMsg,
-                    })
+                    }
                 }
 
+                e.notification = notificationContext
+                e.friendlyDescription = friendlyDescription
+                if (notificationContext) notification.error(notificationContext)
                 if (onError) return onError(e)
                 else throw e
             })
