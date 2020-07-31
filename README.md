@@ -31,14 +31,15 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] Auth: AuthRequired component
  - [ ] Auth: Options captcha support
  - [x] User: Schema, API, Tests
- - [x] Organization: Schema, API, Tests
- - [x] Organization: Page (example)
- - [x] Organization: OrganizationRequired component
- - [x] Organization: accept/reject/leave/select logic: Schema, API, Tests
- - [x] Organization: accept/reject/leave/select logic: Page (example)
- - [x] Organization: invite logic: Schema, API, Tests
- - [x] Organization: invite logic: Page (example)
- - [ ] Organization: accept invite by email code logic: Page (example)
+ - [x] Organization: CRUD: Schema, API, Tests
+ - [x] Organization: CRUD: Page (example)
+ - [x] Organization: required to select Organization component
+ - [x] Organization: invite user by email: Schema, API, Tests
+ - [x] Organization: invite user by email for existing emails: Page (example)
+ - [ ] Organization: invite user by email for new emails: Page (example)
+ - [x] Organization: invited users list: Page (example)
+ - [x] Organization: accept/reject invites: Schema, API, Tests
+ - [x] Organization: accept/reject invites: Page (example)
  - [x] User: reusable customization (like django.auth.user)
  - [ ] User: unique phone/email check (for mongo/postgres)! 
  - [x] Register: Schema, API, Test
@@ -51,6 +52,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] Layout: Mobile first support
  - [x] Layout: FormList container (container for list of items)
  - [x] Layout: FormTable container (container for table items)
+ - [ ] Layout: Excel export container (container for exporting excel data)
  - [ ] Layout: Dark mode
  - [ ] Layout: Antd compatible theme example (global variables for padding/margin/colors)
  - [ ] Layout: change site language widget
