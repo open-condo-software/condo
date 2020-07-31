@@ -19,10 +19,6 @@ const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
 const User = new GQLListSchema('User', {
     // labelResolver: item => `${item.name}`,
     fields: {
-        name: {
-            factory: () => faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}'),
-            type: Text,
-        },
         email: {
             factory: () => faker.internet.exampleEmail().toLowerCase(),
             type: Text,
@@ -36,6 +32,16 @@ const User = new GQLListSchema('User', {
                 },
             },
         },
+        // TODO(pahaz): verification by email!
+        isEmailVerified: {
+            type: Checkbox,
+            defaultValue: false,
+            access: {
+                read: true,
+                create: access.userIsAdmin,
+                update: access.userIsAdmin,
+            },
+        },
         isAdmin: {
             type: Checkbox,
             defaultValue: false,
@@ -45,6 +51,11 @@ const User = new GQLListSchema('User', {
                 update: access.userIsAdmin,
             },
         },
+        name: {
+            factory: () => faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}'),
+            type: Text,
+        },
+        // TODO(pahaz): check is active on login!
         isActive: { type: Checkbox, defaultValue: true },
         password: {
             factory: () => faker.internet.password(),

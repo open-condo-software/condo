@@ -11,7 +11,7 @@ CREATE TABLE "Test" ("id" serial NOT NULL PRIMARY KEY, "heroColor" text NULL, "i
 --
 -- Create model user
 --
-CREATE TABLE "User" ("id" serial NOT NULL PRIMARY KEY, "name" text NULL, "email" text NULL UNIQUE, "isAdmin" boolean NOT NULL, "isActive" boolean NOT NULL, "password" varchar(60) NULL, "avatar" jsonb NULL, "dob" date NULL, "rating" integer NULL, "settings" text NULL, "aboutMyself" text NULL, "updatedAt_utc" timestamp with time zone NULL, "updatedAt_offset" text NULL, "createdAt_utc" timestamp with time zone NULL, "createdAt_offset" text NULL, "createdBy" integer NULL, "updatedBy" integer NULL);
+CREATE TABLE "User" ("id" serial NOT NULL PRIMARY KEY, "name" text NULL, "email" text NULL UNIQUE, "isAdmin" boolean NOT NULL DEFAULT false, "isActive" boolean NOT NULL, "password" varchar(60) NULL, "avatar" jsonb NULL, "dob" date NULL, "rating" integer NULL, "settings" text NULL, "aboutMyself" text NULL, "updatedAt_utc" timestamp with time zone NULL, "updatedAt_offset" text NULL, "createdAt_utc" timestamp with time zone NULL, "createdAt_offset" text NULL, "createdBy" integer NULL, "updatedBy" integer NULL);
 --
 -- Create model todo
 --

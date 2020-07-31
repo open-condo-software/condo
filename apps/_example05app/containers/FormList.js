@@ -1,11 +1,11 @@
-import { Button, Dropdown, Form, Input, List, Menu, Modal, Popconfirm, Skeleton, Typography, Empty } from 'antd'
-import { PlusOutlined, DownOutlined } from '@ant-design/icons'
+import { Button, Dropdown, Empty, Form, Input, List, Menu, Modal, Popconfirm, Skeleton, Typography } from 'antd'
+import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
+
 import { runMutation } from '../utils/mutations.utils'
-import { func } from 'prop-types'
 
 const identity = (x) => !!x
 const NON_FIELD_ERROR_NAME = '_NON_FIELD_ERROR_'
@@ -58,13 +58,16 @@ const SListActionsUl = styled.ul`
     }
 `
 
-function FormList ({ renderItem, ...extra }) {
+function FormList ({ dataSource, renderItem, ...extra }) {
+    if (!renderItem) throw new Error('renderItem prop is required')
+
     const intl = useIntl()
     const NoDataMsg = intl.formatMessage({ id: 'NoData' })
 
     return <List
         size="large"
         itemLayout={'horizontal'}
+        dataSource={dataSource}
         renderItem={renderItemWrapper}
         locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={NoDataMsg}/> }}
         {...extra}
@@ -125,10 +128,11 @@ function CreateFormListItemButton ({ label, ...extra }) {
 }
 
 function ExtraDropdownActionsMenu ({ actions }) {
+    const actionsLine = actions.filter(identity)
     const [popConfirmProps, setPopConfirmProps] = useState({ visible: false, title: null, icon: null })
 
     function handleAction ({ key }) {
-        const action = actions[key]
+        const action = actionsLine[key]
         if (action.confirm) {
             setPopConfirmProps({
                 visible: true,
@@ -144,7 +148,7 @@ function ExtraDropdownActionsMenu ({ actions }) {
 
     return <Popconfirm {...popConfirmProps}>
         <Dropdown overlay={<Menu onClick={handleAction}>
-            {actions.map((action, i) => <Menu.Item key={i}>{action.label}</Menu.Item>)}
+            {actionsLine.map((action, i) => <Menu.Item key={i}>{action.label}</Menu.Item>)}
         </Menu>}>
             <a> ... <DownOutlined/></a>
         </Dropdown>
@@ -181,7 +185,7 @@ function useCreateAndEditModalForm () {
     return { visible, editableItem, openCreateModal, openEditModal, cancelModal }
 }
 
-function CreateModalForm ({ CreateButtonLabelMsg, OnCreatedMsg, ...props }) {
+function CreateModalFormWithButton ({ CreateButtonLabelMsg, OnCreatedMsg, ...props }) {
     const { visible, openCreateModal, cancelModal } = useCreateAndEditModalForm()
 
     const intl = useIntl()
@@ -200,6 +204,10 @@ function CreateModalForm ({ CreateButtonLabelMsg, OnCreatedMsg, ...props }) {
             OnCompletedMsg: OnCreatedMsg || CreatedMsg,
         }} />
     </>
+}
+
+function CRUDListBlock () {
+    // TODO(pahaz): inside organizations
 }
 
 function BaseModalForm ({ mutation, mutationOptions, mutationExtraData = {}, formValuesToMutationDataPreprocessor, formValuesToMutationDataPreprocessorContext, formInitialValues, children, onMutationCompleted, onFormValuesChange, modalExtraFooter = [], visible, cancelModal, ModalTitleMsg, ModalCancelButtonLabelMsg, ModalSaveButtonLabelMsg, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
@@ -226,7 +234,19 @@ function BaseModalForm ({ mutation, mutationOptions, mutationExtraData = {}, for
             data = (formValuesToMutationDataPreprocessor) ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext) : values
         } catch (err) {
             if (err instanceof ValidationError) {
-                form.setFields([{ name: err.field || NON_FIELD_ERROR_NAME, errors: [String(err.message)] }])
+                let errors = []
+                if (ErrorToFormFieldMsgMapping) {
+                    const errorString = `${err}`
+                    Object.keys(ErrorToFormFieldMsgMapping).forEach((msg) => {
+                        if (errorString.includes(msg)) {
+                            errors.push(ErrorToFormFieldMsgMapping[msg])
+                        }
+                    })
+                }
+                if (errors.length === 0) {
+                    errors = [{ name: err.field || NON_FIELD_ERROR_NAME, errors: [String(err.message)] }]
+                }
+                form.setFields(errors)
                 return
             } else {
                 form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [ClientSideErrorMsg] }])

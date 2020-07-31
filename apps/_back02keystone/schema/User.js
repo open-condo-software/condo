@@ -30,6 +30,15 @@ const User = BaseUser._override({
                 },
             },
         },
+        isPhoneVerified: {
+            type: Checkbox,
+            defaultValue: false,
+            access: {
+                read: true,
+                create: access.userIsAdmin,
+                update: access.userIsAdmin,
+            },
+        },
     },
 })
 

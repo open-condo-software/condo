@@ -2,6 +2,15 @@ import { notification } from 'antd'
 
 function runMutation ({ mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
     if (!intl) throw new Error('intl prop required')
+    if (ErrorToFormFieldMsgMapping) {
+        if (typeof ErrorToFormFieldMsgMapping !== 'object') throw new Error('ErrorToFormFieldMsgMapping prop is not an object')
+        Object.entries(ErrorToFormFieldMsgMapping).forEach(([k, v]) => {
+            if (typeof v !== 'object') throw new Error(`ErrorToFormFieldMsgMapping["${k}"] is not an object`)
+            if (!v['name']) throw new Error(`ErrorToFormFieldMsgMapping["${k}"] has no "name" attr`)
+            if (!v['errors']) throw new Error(`ErrorToFormFieldMsgMapping["${k}"] has no "errors" attr`)
+            if (!Array.isArray(v['errors'])) throw new Error(`ErrorToFormFieldMsgMapping["${k}"]["errors"] is not an array`)
+        })
+    }
     const DoneMsg = intl.formatMessage({ id: 'Done' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
@@ -24,13 +33,32 @@ function runMutation ({ mutation, variables, onCompleted, onError, onFinally, in
             },
             (e) => {
                 console.error(`mutation error:`, e)
+
+                let friendlyDescription = null
+                if (ErrorToFormFieldMsgMapping) {
+                    const errors = []
+                    const errorString = `${e}`
+                    Object.keys(ErrorToFormFieldMsgMapping).forEach((msg) => {
+                        if (errorString.includes(msg)) {
+                            errors.push(ErrorToFormFieldMsgMapping[msg])
+                            if (ErrorToFormFieldMsgMapping[msg] && Array.isArray(ErrorToFormFieldMsgMapping[msg].errors)) {
+                                friendlyDescription = ErrorToFormFieldMsgMapping[msg].errors[0]
+                            }
+                        }
+                    })
+                    // TODO(pahaz): if there is some error without ErrorToFormFieldMsgMapping. We should add NON FIELD FORM ERROR? Is the ant support it?
+                    if (form && errors.length) {
+                        form.setFields(errors)
+                    }
+                }
+
                 if (OnErrorMsg === null) {
                     // we want to SKIP any notifications
                 } else if (typeof OnErrorMsg === 'undefined') {
                     // default notification message
                     notification.error({
                         message: ServerErrorMsg,
-                        description: e.message,
+                        description: friendlyDescription || e.message,
                     })
                 } else {
                     // custom notification message
@@ -39,20 +67,6 @@ function runMutation ({ mutation, variables, onCompleted, onError, onFinally, in
                         message: ServerErrorMsg,
                         description: OnErrorMsg,
                     })
-                }
-
-                if (form && ErrorToFormFieldMsgMapping) {
-                    const errors = []
-                    const errorString = `${e}`
-                    Object.keys(ErrorToFormFieldMsgMapping).forEach((msg) => {
-                        if (errorString.includes(msg)) {
-                            errors.push(ErrorToFormFieldMsgMapping[msg])
-                        }
-                    })
-                    // TODO(pahaz): if there is some error without ErrorToFormFieldMsgMapping. We should add NON FIELD FORM ERROR? Is the ant support it?
-                    if (errors.length) {
-                        form.setFields(errors)
-                    }
                 }
 
                 if (onError) return onError(e)

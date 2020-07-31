@@ -14,8 +14,11 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] docs: how-to write backend app
  - [x] docs: how-to upgrade packages versions
  - [x] docs: how-to use with postgres
+ - [ ] docs: how-to debug react rerenders
+ - [ ] docs: how-to deploy to dokku / heroku
  - [x] example: Ant Design Pro + Next.js
  - [x] example: Internationalization (react-intl)
+ - [ ] example: Upload Attachments Antd Form
  - [x] ForgotUserPassword: Schema, API, Tests
  - [x] ForgotUserPassword: Page (example)
  - [x] ForgotUserPassword: Email notification hook
@@ -23,25 +26,38 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] ChangePassword: Schema, API, Tests
  - [x] ChangePassword: Page (example)
  - [x] Auth: Schema, API, Test
- - [x] Auth: Page (example)
+ - [x] Auth: SignIn/SignOut Page (example)
+ - [x] Auth: SignIn next url support
+ - [x] Auth: AuthRequired component
  - [ ] Auth: Options captcha support
  - [x] User: Schema, API, Tests
- - [x] Organization: Schema, API, Tests
- - [x] Organization: Page (example)
- - [x] Organization: accept/reject/leave/select logic: Schema, API, Tests
- - [x] Organization: accept/reject/leave/select logic: Page (example)
- - [ ] Organization: invite/apply logic
+ - [x] Organization: CRUD: Schema, API, Tests
+ - [x] Organization: CRUD: Page (example)
+ - [x] Organization: required to select Organization component
+ - [x] Organization: invite user by email: Schema, API, Tests
+ - [x] Organization: invite user by email for existing emails: Page (example)
+ - [ ] Organization: invite user by email for new emails: Page (example)
+ - [x] Organization: invited users list: Page (example)
+ - [x] Organization: accept/reject invites: Schema, API, Tests
+ - [x] Organization: accept/reject invites: Page (example)
  - [x] User: reusable customization (like django.auth.user)
+ - [ ] User: unique phone/email check (for mongo/postgres)! 
  - [x] Register: Schema, API, Test
  - [x] Register: Page (example)
- - [ ] Register: Email verification
+ - [ ] Register: Email verification (isEmailVerified)
+ - [ ] Register: Phone verification (isPhoneVerified)
  - [ ] Register: Extensibility (like django-registrations)
  - [ ] Register: Options captcha support
+ - [x] Layout: Extensible base layout
+ - [x] Layout: Mobile first support
+ - [x] Layout: FormList container (container for list of items)
+ - [x] Layout: FormTable container (container for table items)
+ - [ ] Layout: Excel export container (container for exporting excel data)
+ - [ ] Layout: Dark mode
+ - [ ] Layout: Antd compatible theme example (global variables for padding/margin/colors)
+ - [ ] Layout: change site language widget
  - [ ] docs: project structure
- - [ ] docs: Deploy
- - [ ] CI: Deploy
- - [ ] prettier
- - [ ] linter
+ - [x] docs: Deploy
  - [ ] UserNotifications: Schema, API, Tests
  - [ ] UserNotifications: Page (example 05 top menu) 
  - [ ] UserProfileSettings: Schema, API, Tests
@@ -52,10 +68,19 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] Core: Monorepo with packages and apps
  - [x] Core: Multiple express backend support 
  - [x] Core: docker-compose
- - [x] Core: CI
+ - [x] Core: CI Tests
+ - [ ] Core: CI Deploy
+ - [x] Core: Internationalization (react-intl)
+ - [x] Core: SSR (by Next.js)
+ - [x] Core: SSR + Apollo cache (don't query already received data)
+ - [x] Core: SSR + Auth (authenticate queries on the server side)
+ - [x] Core: SSR + Internationalization (same language as on client side)
  - [ ] Core: KeystoneJS AuthProvider (with isActive check!)
- - [ ] Core: Realtime support
- - [ ] Core: Attachment
+ - [ ] Core: isActive == false (need to kill all user sessions)
+ - [ ] Core: KeystoneJS AuthProvider (login by phone / email!)
+ - [ ] Core: KeystoneJS AuthProvider (optional email / phone field)
+ - [ ] Core: Realtime update support (gql Subscriptions example)
+ - [ ] Core: Attachment scale
  - [ ] Core: Background tasks
  - [ ] Core: Background scheduled tasks
  - [ ] Core: Metrics
@@ -63,6 +88,8 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] Core: Logging
  - [ ] Core: lerna?
  - [ ] Core: benchmarks?
+ - [ ] Core: prettier
+ - [ ] Core: linter
  - Auth my social apps? (https://www.keystonejs.com/keystonejs/auth-passport/)
  - CRDT example?
 
@@ -89,6 +116,13 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
 2. CSS animations: https://css-animations.io/ (base level), https://tympanus.net/codrops/ (pro examples)
 3. JS Egghead.io courses: https://egghead.io/
 4. Docker compose: https://docs.docker.com/compose/
+
+# Philosophy
+
+ 1) BACKEND: You write domain models and services on backend side (it's better if each service have only one action)
+ 2) TESTS: TDD is matter! Tests should work parallel and independently! You should write tests in mind of extensibility (you don't need to rewrite the test if you add extra fields). You can move test to another git repository. You can run the tests on a remote production API by URL! We should test not only the our Unit.
+ 3) STYLE: You should follow the common style or change the whole style everywhere (not only in your files)
+ 4) THINK AND DESCRIBE BEFORE CODE! TODO(pahaz): write diagrams like c4 before write a code!
 
 # Init new Project
 
@@ -237,6 +271,34 @@ ssh root@dok.8iq.dev 'docker-compose down && docker-compose up -d'
 
 NOTE: If you need some extra containers or you want to customize existing containers you can create 
 `docker-compose.override.yml` file.
+
+# DOKKU Deploy #
+
+```shell script
+export APP=node4
+export DOCKER_IMAGE=apps:coddi
+export APP_VERSION=v4
+export START_COMMAND='yarn workspace @app/CODDI start'
+
+dokku apps:create ${APP}
+dokku postgres:create ${APP}
+dokku postgres:link ${APP} ${APP}
+
+dokku config:set --no-restart ${APP} NODE_ENV=production
+dokku config:set --no-restart ${APP} SERVER_URL=https://${APP}.dok.8iq.dev
+dokku config:set --no-restart ${APP} DOKKU_DOCKERFILE_START_CMD="${START_COMMAND}"
+dokku config:set --no-restart ${APP} COOKIE_SECRET=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+dokku checks:disable ${APP}
+dokku proxy:ports-set ${APP} http:80:5000
+dokku nginx:set ${APP} hsts false
+dokku nginx:set ${APP} hsts-include-subdomains false
+
+docker tag ${DOCKER_IMAGE} dokku/${APP}:${APP_VERSION}
+dokku tags:deploy ${APP} ${APP_VERSION}
+docker exec -it -u root ${APP}.web.1 yarn workspace @app/CODDI migrate
+
+dokku letsencrypt ${APP}
+```
 
 # Others #
 
