@@ -1,23 +1,6 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/core'
-import styled from '@emotion/styled'
-import {
-    Avatar,
-    Button,
-    Form,
-    Input,
-    List,
-    Modal,
-    notification,
-    Popconfirm,
-    Radio,
-    Skeleton,
-    Tag,
-    Typography,
-} from 'antd'
+import { Avatar, Button, Form, Input, notification, Radio, Tag } from 'antd'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import gql from 'graphql-tag'
-import { useState } from 'react'
 import Head from 'next/head'
 import Router from 'next/router'
 import { useAuth } from '@core/next/auth'
@@ -26,194 +9,139 @@ import { useMutation, useQuery } from '@core/next/apollo'
 import { useOrganization } from '@core/next/organization'
 
 import { getQueryParams } from '../utils/url.utils'
-import BaseLayout from '../containers/BaseLayout'
 import { AuthRequired } from '../containers/AuthRequired'
-
-const { Title } = Typography
+import FormList, {
+    BaseModalForm,
+    CreateFormListItemButton,
+    ExpandableDescription,
+    ExtraDropdownActionsMenu,
+    useCreateAndEditModalForm,
+    ValidationError,
+} from '../containers/FormList'
+import { PageContent, PageHeader, PageWrapper } from '../containers/BaseLayout'
 
 const DEFAULT_ORGANIZATION_AVATAR_URL = 'https://www.pngitem.com/pimgs/m/226-2261747_company-name-icon-png-transparent-png.png'
 
-const ListButtonSlot = styled.div`
-    margin: 24px;
-    text-align: center;
+const ORGANIZATION_FIELDS = '{ id name description avatar { publicUrl } }'
+const REGISTER_NEW_ORGANIZATION_MUTATION = gql`
+    mutation registerNewOrganization($data: RegisterNewOrganizationInput!) {
+        obj: registerNewOrganization(data: $data) ${ORGANIZATION_FIELDS}
+    }
+`
+const UPDATE_ORGANIZATION_BY_ID_MUTATION = gql`
+    mutation updateOrganizationById($id: ID!, $data: OrganizationUpdateInput!) {
+        obj: updateOrganization(id: $id, data: $data) ${ORGANIZATION_FIELDS}
+    }
 `
 
-function buildListQueries (gqlListSchemaName, fields = ['id', '_label_']) {
-    // TODO(pahaz): remove it! useless and large!
-    const fieldsToStr = (fields) => '{ ' + fields.map((f) => Array.isArray(f) ? fieldsToStr(f) : f).join(' ') + ' }'
-    const gqlFields = fieldsToStr(fields)
-
-    const _itemQueryName = gqlListSchemaName
-    const _listQueryName = gqlListSchemaName + 's'
-    const gqlNames = {
-        itemQueryName: _itemQueryName,
-        listQueryName: `all${_listQueryName}`,
-        listQueryMetaName: `_all${_listQueryName}Meta`,
-        listMetaName: `_${_listQueryName}Meta`,
-        listSortName: `Sort${_listQueryName}By`,
-        deleteMutationName: `delete${_itemQueryName}`,
-        updateMutationName: `update${_itemQueryName}`,
-        createMutationName: `create${_itemQueryName}`,
-        deleteManyMutationName: `delete${_listQueryName}`,
-        updateManyMutationName: `update${_listQueryName}`,
-        createManyMutationName: `create${_listQueryName}`,
-        whereInputName: `${_itemQueryName}WhereInput`,
-        whereUniqueInputName: `${_itemQueryName}WhereUniqueInput`,
-        updateInputName: `${_itemQueryName}UpdateInput`,
-        createInputName: `${_itemQueryName}CreateInput`,
-        updateManyInputName: `${_listQueryName}UpdateInput`,
-        createManyInputName: `${_listQueryName}CreateInput`,
-        relateToManyInputName: `${_itemQueryName}RelateToManyInput`,
-        relateToOneInputName: `${_itemQueryName}RelateToOneInput`,
+const ORGANIZATION_TO_USER_LINK_FIELDS = `{ id organization ${ORGANIZATION_FIELDS} user { id name } name email phone role isRejected isAccepted }`
+const GET_ALL_ORGANIZATION_TO_USER_LINKS_WITH_META_QUERY = gql`
+    query getAllOrganizationToUserLinksWithMeta($where: OrganizationToUserLinkWhereInput) {
+        meta: _allOrganizationToUserLinksMeta { count }
+        objs: allOrganizationToUserLinks (where: $where) ${ORGANIZATION_TO_USER_LINK_FIELDS}
     }
+`
+const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION = gql`
+    mutation acceptOrRejectOrganizationToUserLink($id: ID!, $data: AcceptOrRejectOrganizationInviteInput!){
+        obj: acceptOrRejectOrganizationInviteById(id: $id, data: $data) {
+            id
+        }
+    }
+`
 
+function convertGQLItemToUIState (item) {
+    // NOTE: DESERIALIZE
+    // NOTE: Put here some GQL Item data transformation and validation!
+    // NOTE: Add UI only attributes here (for example: `href`)
+    if (item && item.__typename !== 'Organization') throw new Error('Wrong list type')
+    const { id, name, description, ...othersAttrs } = item
+    return { id, name, description, ...othersAttrs }
+}
+
+function convertUIStateToGQLItem (state, item = null) {
+    // NOTE: SERIALIZE
+    // NOTE: Put here some UI State data transformation and validation!
+    // NOTE: You can add some extra UI hidden attributes here (for example: senderId)
+    const baseItemValues = (item) ? item : {}
+    const { id, name, description, ...othersStateAttrs } = state
+    if (name.length < 2) {
+        throw new ValidationError('[name.is.too.short]')
+    }
     return {
-        create: gql`
-            mutation create($data: ${gqlNames.createInputName}!) {
-            obj: ${gqlNames.createMutationName}(data: $data) ${gqlFields}
-            }
-        `,
-        list: gql`
-            query list($where: ${gqlNames.whereInputName}){
-            meta: ${gqlNames.listQueryMetaName} { count }
-            list: ${gqlNames.listQueryName} (where: $where) ${gqlFields}
-            }
-        `,
-        gqlNames,
-        gqlFields,
+        id, name, description,
+        ...othersStateAttrs,
     }
 }
 
-const gqlOrganization = buildListQueries('Organization', ['id', 'name', 'description', 'avatar', ['publicUrl']])
-gqlOrganization.registerNew = gql`
-    mutation registerNew($data: ${gqlOrganization.gqlNames.itemQueryName}RegisterNewInput!) {
-    obj: registerNew${gqlOrganization.gqlNames.itemQueryName}(data: $data) ${gqlOrganization.gqlFields}
-    }
-`
-
-const gqlOrganizationLink = buildListQueries('OrganizationToUserLink', ['id', 'organization', ['id', 'name', 'description', 'avatar', ['publicUrl']], 'user', ['id', 'name'], 'role', 'isRejected', 'isAccepted'])
-
-const ACCEPT_REJECT_ORGANIZATION = gql`
-    mutation acceptOrReject($id: ID!, $data: OrganizationToUserLinkAcceptOrRejectInput!){
-        status: acceptOrRejectOrganizationToUserLink(id: $id, data: $data)
-    }
-`
-
-const CreateOrganizationForm = ({ onFinish }) => {
-    const [isVisible, setIsVisible] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
-    const [form] = Form.useForm()
-    const [create] = useMutation(gqlOrganization.registerNew, {
-        update: (cache, mutationResult) => {
-            console.log('result', mutationResult)
-        },
-    })
-
+function CreateAndEditOrganizationModalForm ({ visible, editableItem, cancelModal, onFinish }) {
     const intl = useIntl()
-    const DoneMsg = intl.formatMessage({ id: 'Done' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const CancelMsg = intl.formatMessage({ id: 'Cancel' })
-    const SaveMsg = intl.formatMessage({ id: 'Save' })
+    const ValueIsTooShortMsg = intl.formatMessage({ id: 'ValueIsTooShort' })
+    const CreateOrganizationModalTitleMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationModalTitle' })
+    const EditOrganizationModalTitleMsg = intl.formatMessage({ id: 'pages.organizations.EditOrganizationModalTitle' })
+    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const NameMsg = intl.formatMessage({ id: 'Name' })
     const DescriptionMsg = intl.formatMessage({ id: 'Description' })
-    const CreateOrganizationButtonLabelMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
-    const ErrorsMsgMapping = {
-        '[register:email:multipleFound]': {
-            name: 'email',
-            errors: [ServerErrorMsg],
+
+    const formInitialValues = { ...(editableItem) ? convertGQLItemToUIState(editableItem) : {} }
+    const mutationExtraData = {}
+    const ErrorToFormFieldMsgMapping = {
+        '[name.is.too.short]': {
+            name: 'name',
+            errors: [ValueIsTooShortMsg],
         },
     }
 
-    function handleCancel () {
-        setIsVisible(false)
-    }
-
-    function handleOpen () {
-        setIsVisible(!isVisible)
-    }
-
-    function handleFinish (values) {
-        setIsLoading(true)
-        create({ variables: { data: values } })
-            .then(
-                () => {
-                    notification.success({ message: DoneMsg })
-                    onFinish()
-                },
-                (e) => {
-                    const errors = []
-                    console.error(e)
-                    notification.error({
-                        message: ServerErrorMsg,
-                        description: e.message,
-                    })
-                    Object.keys(ErrorsMsgMapping).forEach((msg) => {
-                        if (e.message.includes(msg)) {
-                            errors.push(ErrorsMsgMapping[msg])
-                        }
-                    })
-                    if (errors.length) {
-                        form.setFields(errors)
-                    }
-                })
-            .finally(() => {
-                setIsLoading(false)
-                handleCancel()
-            })
-    }
-
-    function handleSave () {
-        form.submit()
-    }
-
-    return (<>
-        <Button onClick={handleOpen}>{CreateOrganizationButtonLabelMsg}</Button>
-        <Modal title="Change unit form" visible={isVisible} onCancel={handleCancel} footer={[
-            <Button key="back" onClick={handleCancel}>{CancelMsg}</Button>,
-            <Button key="submit" type="primary" onClick={handleSave} loading={isLoading}>{SaveMsg}</Button>,
-        ]}
+    return <BaseModalForm
+        /* NOTE: we need to recreate form if editableItem changed because the form initialValues are cached */
+        key={editableItem}
+        mutation={(editableItem) ? UPDATE_ORGANIZATION_BY_ID_MUTATION : REGISTER_NEW_ORGANIZATION_MUTATION}
+        mutationOptions={(editableItem) ? { variables: { id: editableItem.id } } : {}}
+        mutationExtraData={mutationExtraData}
+        formValuesToMutationDataPreprocessor={convertUIStateToGQLItem}
+        formValuesToMutationDataPreprocessorContext={editableItem}
+        formInitialValues={formInitialValues}
+        visible={visible}
+        cancelModal={cancelModal}
+        onMutationCompleted={onFinish}
+        ModalTitleMsg={(editableItem) ? EditOrganizationModalTitleMsg : CreateOrganizationModalTitleMsg}
+        ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
+    >
+        <Form.Item
+            name="name"
+            label={NameMsg}
+            rules={[{ required: true, message: FieldIsRequiredMsg }]}
         >
-            <Form form={form} layout="vertical" name="create-organization-form" onFinish={handleFinish}>
-                <Form.Item
-                    name="name"
-                    label={NameMsg}
-                    rules={[{ required: true }]}
-                >
-                    <Input/>
-                </Form.Item>
-                <Form.Item
-                    name="description"
-                    label={DescriptionMsg}
-                    rules={[{ required: true }]}
-                >
-                    <Input/>
-                </Form.Item>
-            </Form>
-        </Modal>
-    </>)
+            <Input/>
+        </Form.Item>
+        <Form.Item
+            name="description"
+            label={DescriptionMsg}
+            rules={[{ required: true, message: FieldIsRequiredMsg }]}
+        >
+            <Input.TextArea/>
+        </Form.Item>
+    </BaseModalForm>
 }
 
-const OrganizationListForm = () => {
+function OrganizationCRUDListBlock () {
     const { user } = useAuth()
-    const organization = useOrganization()
-    const where = user ? { user: { id: user.id } } : {}
-    const { loading, data, refetch } = useQuery(gqlOrganizationLink.list, {
-        variables: { where },
-        errorPolicy: 'all',
+    const { selectLink } = useOrganization()
+    const { loading, data, refetch } = useQuery(GET_ALL_ORGANIZATION_TO_USER_LINKS_WITH_META_QUERY, {
+        variables: { where: user ? { user: { id: user.id } } : {} },
     })
-    const [acceptOrReject] = useMutation(ACCEPT_REJECT_ORGANIZATION)
+    const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION)
 
     const intl = useIntl()
     const DoneMsg = intl.formatMessage({ id: 'Done' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const AcceptMsg = intl.formatMessage({ id: 'Accept' })
     const RejectMsg = intl.formatMessage({ id: 'Reject' })
+    const EditMsg = intl.formatMessage({ id: 'Edit' })
     const LeaveMsg = intl.formatMessage({ id: 'Leave' })
     const SelectMsg = intl.formatMessage({ id: 'Select' })
     const OwnerMsg = intl.formatMessage({ id: 'Owner' })
     const AreYouSureMsg = intl.formatMessage({ id: 'AreYouSure' })
-
-    const loadMore = <ListButtonSlot><CreateOrganizationForm onFinish={refetch}/></ListButtonSlot>
+    const CreateOrganizationButtonLabelMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
 
     function handleAcceptOrReject (item, action) {
         console.log(item, action)
@@ -241,79 +169,92 @@ const OrganizationListForm = () => {
     }
 
     function handleSelect (item) {
-        organization.selectLink(item).then(() => {
+        selectLink(item).then(() => {
             const query = getQueryParams()
             if (query.next) Router.push(query.next)
             else Router.push('/')
         })
     }
 
-    return (
-        <List
+    const { visible, editableItem, cancelModal, openCreateModal, openEditModal } = useCreateAndEditModalForm()
+
+    return (<>
+        <CreateFormListItemButton onClick={openCreateModal} label={CreateOrganizationButtonLabelMsg}/>
+        <CreateAndEditOrganizationModalForm
+            visible={visible}
+            editableItem={editableItem}
+            cancelModal={cancelModal}
+            onFinish={refetch}
+        />
+        <FormList
             loading={loading}
-            rowKey="id"
-            itemLayout="horizontal"
-            loadMore={loadMore}
-            dataSource={data && data.list || []}
-            renderItem={item => (
-                <List.Item
-                    actions={[
-                        (!item.isAccepted && !item.isRejected) ?
-                            <Radio.Group size="small" onChange={(e) => handleAcceptOrReject(item, e.target.value)}>
+            // loadMore={loadMore}
+            // TODO(pahaz): add this feature ^^
+            dataSource={data && data.objs || []}
+            renderItem={(item) => {
+                const { organization = {}, role, avatar, isRejected, isAccepted } = item
+                return {
+                    itemMeta: { style: (isRejected) ? { display: 'none' } : undefined },
+                    avatar: <Avatar src={avatar && avatar.publicUrl || DEFAULT_ORGANIZATION_AVATAR_URL}/>,
+                    title: <>
+                        {organization.name}
+                        {'  '}
+                        {role === 'owner' ? <Tag color="error">{OwnerMsg}</Tag> : null}
+                    </>,
+                    description: <ExpandableDescription>{organization.description}</ExpandableDescription>,
+                    actions: [
+                        (!isAccepted && !isRejected) ?
+                            [<Radio.Group size="small" onChange={(e) => handleAcceptOrReject(item, e.target.value)}>
                                 <Radio.Button value="accept">{AcceptMsg}</Radio.Button>
                                 <Radio.Button value="reject">{RejectMsg}</Radio.Button>
-                            </Radio.Group>
+                            </Radio.Group>]
                             : null,
-                        (item.isAccepted) ?
-                            <Popconfirm title={AreYouSureMsg} icon={<QuestionCircleOutlined style={{ color: 'red' }}/>}
-                                        onConfirm={() => handleAcceptOrReject(item, 'leave')}>
-                                <Button size="small" type="dashed" danger>{LeaveMsg}</Button>
-                            </Popconfirm>
+                        (isAccepted) ?
+                            [<Button size="small" type={'primary'}
+                                     onClick={() => handleSelect(item)}>{SelectMsg}</Button>]
                             : null,
-                        (item.isAccepted) ?
-                            <Button size="small" type={'primary'} onClick={() => handleSelect(item)}>{SelectMsg}</Button>
+                        (isAccepted) ?
+                            [<ExtraDropdownActionsMenu actions={[
+                                (role === 'owner') ?
+                                    {
+                                        label: EditMsg,
+                                        action: () => openEditModal(item.organization),
+                                    } :
+                                    null,
+                                {
+                                    confirm: {
+                                        title: AreYouSureMsg,
+                                        icon: <QuestionCircleOutlined style={{ color: 'red' }}/>,
+                                    },
+                                    label: LeaveMsg,
+                                    action: () => handleAcceptOrReject(item, 'leave'),
+                                },
+                            ]}/>]
                             : null,
-                    ].filter((x) => Boolean(x))}
-                    key={item.id}
-                    style={(item.isRejected) ? { display: 'none' } : undefined}
-                >
-                    <Skeleton avatar title={false} loading={item.loading} active>
-                        <List.Item.Meta
-                            avatar={<Avatar src={item.avatar && item.avatar.publicUrl || DEFAULT_ORGANIZATION_AVATAR_URL}/>}
-                            title={<>
-                                {item.organization && item.organization.name}
-                                {'  '}
-                                {item.role === 'owner' ? <Tag color="error">{OwnerMsg}</Tag> : null}
-                            </>}
-                            description={item.organization && item.organization.description}
-                        />
-                    </Skeleton>
-                </List.Item>
-            )}
+                    ],
+                }
+            }}
         />
-    )
+    </>)
 }
 
 const OrganizationsPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.organizations.PageTitle' })
-    return (<AuthRequired>
+
+    return <>
         <Head>
             <title>{PageTitleMsg}</title>
         </Head>
-        <Title css={css`text-align: center;`}>{PageTitleMsg}</Title>
-        <OrganizationListForm/>
-    </AuthRequired>)
+        <PageWrapper>
+            <PageHeader title={PageTitleMsg}/>
+            <AuthRequired>
+                <PageContent>
+                    <OrganizationCRUDListBlock/>
+                </PageContent>
+            </AuthRequired>
+        </PageWrapper>
+    </>
 }
-
-function CustomContainer (props) {
-    return (<BaseLayout
-        {...props}
-        logoLocation="topMenu"
-        className="top-menu-only-layout"
-    />)
-}
-
-OrganizationsPage.container = CustomContainer
 
 export default OrganizationsPage

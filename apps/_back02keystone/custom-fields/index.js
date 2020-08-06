@@ -1,7 +1,9 @@
 const Stars = require('./Stars')
-const MultiCheck = require('./MultiCheck')
+const Options = require('./Options')
+const JsonText = require('./JsonText')
 
 module.exports = {
     Stars,
-    MultiCheck,
+    Options,
+    JsonText,
 }

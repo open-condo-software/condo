@@ -8,12 +8,21 @@ const express = require('express')
 const realtime = require('./realtime/server')
 const access = require('@core/keystone/access')
 const { getAdapter } = require('@core/keystone/adapter.utils')
+const { getCookieSecret } = require('@core/keystone/keystone.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const conf = require('@core/config')
 const { areWeRunningTests } = require('@core/keystone/test.utils')
 
 const keystone = new Keystone({
-    name: 'Pomodoro timer',
+
+    cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
+    cookie: {
+        sameSite: false,
+        secure: false,
+        maxAge: 1000 * 60 * 60 * 24 * 130, // 130 days
+    },
+    name: "Pomodoro timer",
+
     adapter: getAdapter(conf.DATABASE_URL),
     defaultAccess: { list: false, field: true, custom: false },
     queryLimits: { maxTotalResults: 1000 },

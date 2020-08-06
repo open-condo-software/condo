@@ -105,6 +105,11 @@ class GQLCustomSchema {
         this._keystone = null
     }
 
+    _override (schema) {
+        const mergedSchema = { ...this.schema, ...schema }
+        return new GQLCustomSchema(this.name, mergedSchema)
+    }
+
     _register (keystone) {
         if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
         SCHEMAS.set(this.name, this)
@@ -132,9 +137,16 @@ async function find (schemaName, condition) {
     return await schemaList._keystone.lists[schemaName].adapter.find(condition)
 }
 
-async function findById (schemaName, id) {
+async function getByCondition (schemaName, condition) {
+    const res = await find(schemaName, condition)
+    if (res.length > 1) throw new Error('getByCondition() returns multiple objects')
+    else if (res.length === 1) return res[0]
+    else return null
+}
+
+async function getById (schemaName, id) {
     const res = await find(schemaName, { id })
-    if (res.length > 1) throw new Error('findById() returns multiple objects')
+    if (res.length > 1) throw new Error('getById() returns multiple objects')
     else if (res.length === 1) return res[0]
     else return null
 }
@@ -145,7 +157,8 @@ module.exports = {
     registerSchemas,
     unregisterAllSchemas,
     find,
-    findById,
+    getById,
+    getByCondition,
     GQL_CUSTOM_SCHEMA_TYPE,
     GQL_LIST_SCHEMA_TYPE,
 }

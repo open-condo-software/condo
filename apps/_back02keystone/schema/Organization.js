@@ -1,12 +1,9 @@
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const { Text, Checkbox, Password, CalendarDay, File, Relationship, DateTime } = require('@keystonejs/fields')
-const { Organization: BaseOrganization, OrganizationToUserLink: BaseOrganizationToUserLink, OrganizationService } = require('@core/keystone/schemas/Organization')
-const access = require('@core/keystone/access')
+const { Organization: BaseOrganization, OrganizationToUserLink: BaseOrganizationToUserLink, RegisterNewOrganizationService: BaseRegisterNewOrganizationService, InviteNewUserToOrganizationService: BaseInviteNewUserToOrganizationService, AcceptOrRejectOrganizationInviteService } = require('@core/keystone/schemas/Organization')
 const conf = require('@core/config')
 const faker = require('faker')
-const { findById } = require('@core/keystone/schema')
-const { GQLCustomSchema } = require('@core/keystone/schema')
 
 const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
     src: `${conf.MEDIA_ROOT}/orgavatars`,
@@ -26,87 +23,48 @@ const Organization = BaseOrganization._override({
 
 const OrganizationToUserLink = BaseOrganizationToUserLink._override({
     fields: {
-        isAccepted: {
-            type: Checkbox,
-            defaultValue: false,
-            knexOptions: { isNotNullable: false },
-            access: {
-                read: true,
-                create: access.userIsAdmin,
-                update: access.userIsAdmin,
-            },
-        },
-        isRejected: {
-            type: Checkbox,
-            defaultValue: false,
-            knexOptions: { isNotNullable: false },
-            access: {
-                read: true,
-                create: access.userIsAdmin,
-                update: access.userIsAdmin,
+        phone: {
+            factory: () => faker.phone.phoneNumberFormat(),
+            type: Text,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    return resolvedData['phone'] && resolvedData['phone'].toLowerCase().replace(/\D/g, '')
+                },
             },
         },
     },
 })
 
-OrganizationService.on('beforeRegisterNewOrganization', async ({ data, extraLinkData, extraOrganizationData }) => {
-    extraLinkData.isAccepted = true
-    extraLinkData.isRejected = false
-})
-
-const OrganizationAcceptRejectService = new GQLCustomSchema('OrganizationAcceptRejectService', {
+const RegisterNewOrganizationService = BaseRegisterNewOrganizationService._override({
     types: [
         {
             access: true,
-            type: 'input OrganizationToUserLinkAcceptOrRejectInput { isRejected: Boolean, isAccepted: Boolean }',
+            type: 'input RegisterNewOrganizationInput { name: String!, description: String!, avatar: Upload }',
         },
-    ],
-    mutations: [
+    ]
+})
+
+RegisterNewOrganizationService.on('beforeRegisterNewOrganization', async ({ data, extraLinkData, extraOrganizationData, context }) => {
+    extraLinkData.phone = context.authedItem.phone
+})
+
+const InviteNewUserToOrganizationService = BaseInviteNewUserToOrganizationService._override({
+    types: [
         {
-            access: accessOnlyForOwnOrganizationToUserLinks,
-            schema: 'acceptOrRejectOrganizationToUserLink(id: ID!, data: OrganizationToUserLinkAcceptOrRejectInput!): String',
-            resolver: async (_, { id, data: { isRejected, isAccepted } }, context, info, { query }) => {
-                isRejected = isRejected || false
-                isAccepted = isAccepted || false
-                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
-                const { errors: err1, data: data1 } = await query(
-                    `
-                        mutation accept($id: ID!, $data: OrganizationToUserLinkUpdateInput!) {
-                          obj: updateOrganizationToUserLink(id: $id, data: $data) {
-                            id
-                          }
-                        }
-                    `,
-                    {
-                        variables: {
-                            id,
-                            data: { isRejected, isAccepted },
-                        }, skipAccessControl: true,
-                    },
-                )
-
-                if (err1 || !data1.obj || !data1.obj.id) {
-                    const msg = '[error] Unable to update state'
-                    console.error(msg, err1)
-                    throw new Error(msg)
-                }
-
-                return 'ok'
-            },
+            access: true,  // TODO(pahaz): how-to be with phone! there is not a part of core logic!
+            type: 'input InviteNewUserToOrganizationInput { organization: OrganizationWhereUniqueInput!, name: String, email: String!, phone: String }',
         },
     ],
 })
 
-async function accessOnlyForOwnOrganizationToUserLinks ({ args: { id }, context }) {
-    if (!context.authedItem || !context.authedItem.id) return false
-    const link = await findById('OrganizationToUserLink', id)
-    if (!link) return false
-    return String(link.user) === String(context.authedItem.id)
-}
+InviteNewUserToOrganizationService.on('afterInviteNewUserToOrganization', (ctx) => {
+    console.log('Fake send security email!', JSON.stringify(ctx))
+})
 
 module.exports = {
     Organization,
     OrganizationToUserLink,
-    OrganizationService,
-    OrganizationAcceptRejectService,
+    RegisterNewOrganizationService,
+    InviteNewUserToOrganizationService,
+    AcceptOrRejectOrganizationInviteService,
 }

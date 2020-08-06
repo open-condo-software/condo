@@ -21,8 +21,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Prepare .env
+        run: cp .env.example .env
       - name: Docker compose up databases
-        run: docker-compose up -d
+        run: docker-compose up -d mongodb postgresdb
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
@@ -35,8 +37,8 @@ jobs:
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
-          export DEBUG=knex:query,knex:tx
-          export DEBUG_MONGOOSE=1
+          # export DEBUG=knex:query,knex:tx
+          # export DEBUG_MONGOOSE=1
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/_back02keystone migrate
           yarn workspace @app/_back02keystone dev &
           sleep 10

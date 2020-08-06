@@ -8,6 +8,7 @@ const express = require('express')
 const { GQL_LIST_SCHEMA_TYPE } = require('@core/keystone/schema')
 const util = require('util')
 const faker = require('faker')
+const conf = require('@core/config')
 
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
 
@@ -312,7 +313,16 @@ class EmptyApp {
     }
 }
 
+const isPostgres = () => {
+    return conf.DATABASE_URL.startsWith('postgres')
+}
+
+const isMongo = () => {
+    return conf.DATABASE_URL.startsWith('mongo')
+}
+
 module.exports = {
+    isPostgres, isMongo,
     EmptyApp,
     areWeRunningTests,
     prepareKeystoneExpressApp,
