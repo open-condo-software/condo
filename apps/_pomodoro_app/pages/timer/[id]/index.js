@@ -18,7 +18,11 @@ const Timer = () => {
             setResponse(data)
         })
 
-        return () => socket.disconnect()
+        return () => {
+            sock.disconnect()
+            setSocket(null)
+        }
+
     }, [])
 
     if (socket === null) {
