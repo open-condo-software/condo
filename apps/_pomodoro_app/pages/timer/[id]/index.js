@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 import io from 'socket.io-client'
 // TODO(toplenboren): remove hardcoded ENDPOINT value
-const ENDPOINT = "http://127.0.0.1:3001";
+const ENDPOINT = 'http://127.0.0.1:3001'
 
 const Timer = () => {
     const [response, setResponse] = useState({})
@@ -11,14 +11,14 @@ const Timer = () => {
     const { query: { id } } = useRouter()
 
     useEffect(() => {
-        const sock = io(ENDPOINT, {query: `timer=${id}`})
+        const sock = io(ENDPOINT, { query: `timer=${id}` })
         setSocket(sock)
 
         sock.on('timer', (data) => {
             setResponse(data)
         })
 
-        return () => socket.disconnect();
+        return () => socket.disconnect()
     }, [])
 
     if (socket === null) {
@@ -60,7 +60,7 @@ const Timer = () => {
  * more: https://nextjs.org/docs/routing/dynamic-routes#caveats
  * @return {Promise<{}>}
  */
-export async function getServerSideProps() {
+export async function getServerSideProps () {
     return { props: {} }
 }
 

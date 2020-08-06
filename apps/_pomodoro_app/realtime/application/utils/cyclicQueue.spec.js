@@ -1,4 +1,4 @@
-const CyclicQueue = require('../realtime/application/utils/cyclicQueue')
+const CyclicQueue = require('./cyclicQueue')
 
 test('Cyclic queue should work as a queue', () => {
     const x = new CyclicQueue([1, 2, 3])

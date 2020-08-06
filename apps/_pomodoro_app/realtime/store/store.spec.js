@@ -1,4 +1,4 @@
-const store = require('../realtime/store/store')
+const store = require('./store')
 
 test('Should get and set entites by ID', () => {
     const x = new store()
