@@ -46,7 +46,7 @@ class Timer {
 
     constructor (breakTime, bigBreakTime, worktimeTime) {
         this.timer = 0
-        this.counterFunction = 0
+        this.counterFunction = undefined
         this.status = status.paused
 
         this.periodQueue = getPeriodQueue(breakTime, bigBreakTime, worktimeTime)
@@ -82,7 +82,7 @@ class Timer {
     pause () {
         if (this.status === status.working) {
             clearInterval(this.counterFunction)
-            this.counterFunction = 0
+            this.counterFunction = undefined
             this.status = status.paused
         }
     }
