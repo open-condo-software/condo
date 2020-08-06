@@ -15,7 +15,6 @@ async function prepareBackApp (store) {
 
         if (req.body !== undefined) {
 
-            console.log(req.body)
             const timerId = createRandomWord(5) + '-' + createRandomWord(5)
 
             try {

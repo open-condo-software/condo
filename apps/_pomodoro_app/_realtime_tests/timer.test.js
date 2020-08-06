@@ -1,4 +1,4 @@
-const timer = require('../realtime/application/timer')
+const Timer = require('../realtime/application/timer')
 
 //todo(toplenboren) move to utils.js maybe
 function sleep (ms) {
@@ -6,7 +6,7 @@ function sleep (ms) {
 }
 
 test('Timer should start', () => {
-    const x = new timer(10, 10, 10)
+    const x = new Timer(10, 10, 10)
     x.start()
     sleep(1000).then(() => {
         expect(x.getTime()).toBe(9)
@@ -14,7 +14,7 @@ test('Timer should start', () => {
 })
 
 test('Timer should pause', () => {
-    const x = new timer(10, 10, 10)
+    const x = new Timer(10, 10, 10)
     x.start()
     sleep(1000).then(() => {
         x.pause()
@@ -25,7 +25,7 @@ test('Timer should pause', () => {
 })
 
 test('Timer should reset', () => {
-    const x = new timer(10, 10, 10)
+    const x = new Timer(10, 10, 10)
     x.start()
     sleep(1000).then(() => {
         expect(x.getTime()).toBe(9)
@@ -35,7 +35,7 @@ test('Timer should reset', () => {
 })
 
 test('Timers should be safe to work async', async () => {
-    const x = new timer(10, 10, 10)
+    const x = new Timer(10, 10, 10)
     const y = x
     const z = x
     // first client pushes start:
@@ -56,7 +56,7 @@ test('Timers should be safe to work async', async () => {
 jest.setTimeout(15000)
 
 test('Timers should give correct period', async () => {
-    const x = new timer(2, 2, 2)
+    const x = new Timer(2, 2, 2)
     expect(x.getTime()).toBe(2)
     expect(x.getPeriod()).toBe('WORK')
     expect(x.getNextPeriod()).toBe('BREAK')
@@ -73,4 +73,4 @@ test('Timers should give correct period', async () => {
     await sleep(2000) // big_break
     expect(x.getPeriod()).toBe('BIG_BREAK')
     expect(x.getNextPeriod()).toBe('WORK')
-})
+});
