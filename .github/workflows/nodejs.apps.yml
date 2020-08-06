@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn install --verbose
+      - run: yarn install --verbose --registry https://registry.npmjs.org
       - run: yarn run jest ./packages
       - run: yarn workspace @app/_example01app test
       - run: yarn workspace @app/_example02app test
