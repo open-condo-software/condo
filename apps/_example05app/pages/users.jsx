@@ -14,7 +14,7 @@ import FormTable from '../containers/FormTable'
 import { CreateFormListItemButton, ExtraDropdownActionsMenu } from '../containers/FormList'
 import { runMutation } from '../utils/mutations.utils'
 import ExcelExporterButton from '../containers/FormTableExcelImport'
-import { emailValidator, nameValidator, phoneValidator } from '../utils/excal.utils'
+import { emailValidator, nameValidator, phoneValidator } from '../utils/excel.utils'
 
 const MODEL = 'OrganizationToUserLink'
 const MODELs = 'OrganizationToUserLinks'

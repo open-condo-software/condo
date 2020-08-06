@@ -59,6 +59,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] Layout: change site language widget
  - [ ] docs: project structure
  - [x] docs: Deploy
+ - [ ] docs: step by step create new project example (like Next.js, like Django app)
  - [ ] UserNotifications: Schema, API, Tests
  - [ ] UserNotifications: Page (example 05 top menu) 
  - [ ] UserProfileSettings: Schema, API, Tests

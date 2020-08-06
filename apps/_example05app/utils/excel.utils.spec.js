@@ -1,4 +1,4 @@
-import { toExData, reValidateExData, validate, fromExData } from './excal.utils'
+import { toExData, reValidateExData, validate, fromExData } from './excel.utils'
 
 test('toExData()', () => {
     expect(toExData([[1, 2], [3, 4], [5, 6]])).toEqual([[{ value: 1 }, { value: 2 }], [{ value: 3 }, { value: 4 }], [{ value: 5 }, { value: 6 }]])

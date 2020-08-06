@@ -92,6 +92,7 @@
   "containers.FormTableExcelImport.Column": "Column",
   "containers.FormTableExcelImport.Step1Text": "1. Upload file",
   "containers.FormTableExcelImport.Step2Text": "2. Choose, which columns match the data and click \"next\"",
+  "containers.FormTableExcelImport.Step3Text": "3. Edit and save data",
   "containers.FormTableExcelImport.ClickOrDragImportFileText": "Click or drag EXCEL file to this area to upload",
   "containers.FormTableExcelImport.ClickOrDragImportFileHint": "Import list from file",
   "containers.FormTableExcelImport.ImportFromFileButtonLabel": "Import list from file",
