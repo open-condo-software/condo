@@ -279,6 +279,7 @@ ENDOFFILE
 yarn
 yarn workspace @app/_mobile01 postinstall
 
+yarn workspace @app/_mobile01 start --clear
 ```
 
 # Deploy #
@@ -324,9 +325,17 @@ NOTE: If you need some extra containers or you want to customize existing contai
 # DOKKU Deploy #
 
 ```shell script
-export APP=node4
+# BUILD CONTAINER LOCALY AND SEND IT TO DOKKU SERVER
+export DOCKER_COMPOSE_APP_IMAGE_TAG=coddi
+docker-compose build
+docker save apps:${DOCKER_COMPOSE_APP_IMAGE_TAG} | bzip2 | pv | ssh root@dok.8iq.dev 'bunzip2 | docker load'
+```
+
+```shell script
+# CREATE DOKKU APPLICATION ON DOKKU SERVER SIDE
+export APP=node5
+export APP_VERSION=v5
 export DOCKER_IMAGE=apps:coddi
-export APP_VERSION=v4
 export START_COMMAND='yarn workspace @app/CODDI start'
 
 dokku apps:create ${APP}
