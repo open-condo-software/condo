@@ -203,6 +203,7 @@ function BaseLayout ({ children, logoLocation = 'sideMenu', className, style, ..
     const onLogoClick = props.onLogoClick || (() => Router.push('/'))
     const onClickMenuItem = props.onClickMenuItem || ((item) => (item.children) ? null : Router.push(item.path))
     const menuData = menuDataRender()
+    const isMenuEmpty = !menuData || menuData.length === 0
 
     const sideMenuWidth = 200
 
@@ -210,6 +211,12 @@ function BaseLayout ({ children, logoLocation = 'sideMenu', className, style, ..
 
     function toggleSideMenuCollapsed () {
         setIsSideMenuCollapsed(!isSideMenuCollapsed)
+    }
+
+    // FIXES
+    if (isMenuEmpty) {
+        logoLocation = 'topMenu'
+        className = className + ' hided-side-menu'
     }
 
     return (<LayoutContext.Provider value={{ isMobile }}>

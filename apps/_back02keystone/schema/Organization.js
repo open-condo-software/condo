@@ -51,13 +51,14 @@ RegisterNewOrganizationService.on('beforeRegisterNewOrganization', async ({ data
 const InviteNewUserToOrganizationService = BaseInviteNewUserToOrganizationService._override({
     types: [
         {
-            access: true,  // TODO(pahaz): how-to be with phone! there is not a part of core logic!
+            access: true,
             type: 'input InviteNewUserToOrganizationInput { organization: OrganizationWhereUniqueInput!, name: String, email: String!, phone: String }',
         },
     ],
 })
 
 InviteNewUserToOrganizationService.on('afterInviteNewUserToOrganization', (ctx) => {
+    // TODO(pahaz): show invite link! and create invite page (for not registered email)
     console.log('Fake send security email!', JSON.stringify(ctx))
 })
 
