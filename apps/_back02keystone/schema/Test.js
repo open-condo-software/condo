@@ -1,23 +1,24 @@
 const {
     Checkbox,
-    Color,
     Decimal,
     Float,
     Integer,
-    Location,
     Select,
     Slug,
     Url,
     Uuid,
     Relationship,
 } = require('@keystonejs/fields')
-const { Content } = require('@keystonejs/fields-content');
-const {GQLListSchema} = require('@core/keystone/schema')
+const { Content } = require('@keystonejs/fields-content')
+const { GQLListSchema } = require('@core/keystone/schema')
+const { Color } = require('@keystonejs/fields-color')
+const { LocationGoogle } = require('@keystonejs/fields-location-google')
 
 const Test = new GQLListSchema('Test', {
     fields: {
-        heroColor: {type: Color},
-        isEnabled: {type: Checkbox, isRequired: true},
+        heroColor: { type: Color },
+
+        isEnabled: { type: Checkbox, isRequired: true },
 
         body: {
             type: Content,
@@ -31,15 +32,15 @@ const Test = new GQLListSchema('Test', {
             ],
         },
 
-        rating1: {type: Integer, isRequired: true},
-        rating2: {type: Float},
-        rating3: {type: Decimal},
+        rating1: { type: Integer, isRequired: true },
+        rating2: { type: Float },
+        rating3: { type: Decimal },
         venue: {
-            type: Location,
+            type: LocationGoogle,
             googleMapsKey: 'no',
         },
 
-        status_renamed: {type: Select, options: 'pending, processed', isRequired: true},
+        status_renamed: { type: Select, options: 'pending, processed', isRequired: true },
         uuid: {
             type: Uuid,
             isRequired: true,
