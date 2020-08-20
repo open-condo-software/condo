@@ -11,7 +11,7 @@ const {
     Uuid,
     Relationship,
 } = require('@keystonejs/fields')
-const { Content } = require('@keystonejs/field-content');
+const { Content } = require('@keystonejs/fields-content');
 const {GQLListSchema} = require('@core/keystone/schema')
 
 const Test = new GQLListSchema('Test', {
