@@ -26,7 +26,6 @@
     "antd": "^4.5.4",
     "babel-jest": "^26.3.0",
     "cross-env": "^7.0.0",
-    "date-fns": "^2.15.0",
     "emotion": "^10.0.27",
     "emotion-server": "^10.0.27",
     "express": "^4.17.1",
