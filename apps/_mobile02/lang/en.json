@@ -52,8 +52,6 @@
   "GoToLogin": "GoToLogin",
   "GoToSignIn": "GoToSignIn",
   "ValueIsTooShort": "The value is too short!",
-  "Attention": "Attention",
-  "Document": "Document",
   "EnterPhoneNumber": "Enter phone number",
   "SendVerificationCode": "Send verification code",
   "ResendVerificationCode": "Resend verification code",

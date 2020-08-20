@@ -52,8 +52,6 @@
   "GoToLogin": "Перейти на страницу входа",
   "GoToSignIn": "Перейти на страницу входа",
   "ValueIsTooShort": "Значение слишком короткое!",
-  "Attention": "Внимание",
-  "Document": "Документ",
   "EnterPhoneNumber": "Введите номер телефона",
   "SendVerificationCode": "Отправть код подтверждения",
   "ResendVerificationCode": "Повторно отправить код",
