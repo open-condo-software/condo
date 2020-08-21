@@ -24,29 +24,6 @@ const REGISTER_NEW_USER_MUTATION = gql`
     }
 `
 
-const layout = {
-    // labelCol: {
-    //     xs: { span: 24 },
-    //     sm: { span: 10 },
-    // },
-    // wrapperCol: {
-    //     xs: { span: 24 },
-    //     sm: { span: 18 },
-    // },
-}
-const tailLayout = {
-    wrapperCol: {
-        // xs: {
-        //     span: 24,
-        //     offset: 0,
-        // },
-        // sm: {
-        //     span: 16,
-        //     offset: 8,
-        // },
-    },
-}
-
 const RegisterForm = () => {
     const [form] = Form.useForm()
     const [isLoading, setIsLoading] = useState(false)
@@ -74,9 +51,9 @@ const RegisterForm = () => {
     const EmailIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
     const ShouldAcceptAgreementMsg = intl.formatMessage({ id: 'pages.auth.ShouldAcceptAgreement' })
-    const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch', defaultMessage: "The two passwords that you entered do not match!" })
-    const WeMustMakeSureThatYouAreHumanMsg = intl.formatMessage({ id: 'pages.auth.WeMustMakeSureThatYouAreHuman', defaultMessage: "We must make sure that your are a human" })
-    const IHaveReadAndAcceptTheAgreementMsg = intl.formatMessage({ id: 'pages.auth.IHaveReadAndAcceptTheAgreement', defaultMessage: "I have read and accept the agreement" })
+    const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
+    const WeMustMakeSureThatYouAreHumanMsg = intl.formatMessage({ id: 'pages.auth.WeMustMakeSureThatYouAreHuman' })
+    const IHaveReadAndAcceptTheAgreementMsg = intl.formatMessage({ id: 'pages.auth.IHaveReadAndAcceptTheAgreement' })
     const ErrorToFormFieldMsgMapping = {
         '[register:email:multipleFound]': {
             name: 'email',
@@ -105,7 +82,6 @@ const RegisterForm = () => {
 
     return (
         <Form
-            {...layout}
             form={form}
             name="register"
             onFinish={onFinish}
@@ -114,7 +90,12 @@ const RegisterForm = () => {
             <Form.Item
                 name="name"
                 label={
-                    <span> {NameMsg}&nbsp; <Tooltip title={WhatDoYouWantOthersToCallYouMsg}><QuestionCircleOutlined/></Tooltip></span>
+                    <span>
+                        {NameMsg}{' '}
+                        <Tooltip title={WhatDoYouWantOthersToCallYouMsg}>
+                            <QuestionCircleOutlined/>
+                        </Tooltip>
+                    </span>
                 }
                 rules={[{ required: true, message: PleaseInputYourNameMsg, whitespace: true }]}
             >
@@ -200,14 +181,13 @@ const RegisterForm = () => {
                 rules={[
                     { validator: (_, value) => value ? Promise.resolve() : Promise.reject(ShouldAcceptAgreementMsg) },
                 ]}
-                {...tailLayout}
             >
                 <Checkbox>
                     {/* TODO(pahaz): agreement link! */}
                     {IHaveReadAndAcceptTheAgreementMsg}<a href="">*</a>.
                 </Checkbox>
             </Form.Item>
-            <Form.Item {...tailLayout} style={{textAlign: "center"}}>
+            <Form.Item style={{ textAlign: 'center' }}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {RegisterMsg}
                 </Button>
@@ -233,3 +213,6 @@ const RegisterPage = () => {
 
 RegisterPage.container = TopMenuOnlyLayout
 export default RegisterPage
+export {
+    RegisterForm,
+}
