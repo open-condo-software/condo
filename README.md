@@ -12,10 +12,12 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
 
  - [x] docs: how-to create frontend app 
  - [x] docs: how-to write backend app
+ - [x] docs: how-to write mobile app
  - [x] docs: how-to upgrade packages versions
  - [x] docs: how-to use with postgres
  - [ ] docs: how-to debug react rerenders
- - [ ] docs: how-to deploy to dokku / heroku
+ - [x] docs: how-to deploy to dokku / heroku
+ - [ ] docs: how-to write reusable components (mobile + web + ssr)
  - [x] example: Ant Design Pro + Next.js
  - [x] example: Internationalization (react-intl)
  - [ ] example: Upload Attachments Antd Form
@@ -49,6 +51,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] Register: Phone verification (isPhoneVerified)
  - [ ] Register: Extensibility (like django-registrations)
  - [ ] Register: Options captcha support
+ - [ ] Register: Phone verification (example)
  - [x] Layout: Extensible base layout
  - [x] Layout: Mobile first support
  - [x] Layout: FormList container (container for list of items)
@@ -72,6 +75,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] Core: docker-compose
  - [x] Core: CI Tests
  - [ ] Core: CI Deploy
+ - [ ] Core: CI Mobile app
  - [x] Core: Internationalization (react-intl)
  - [x] Core: SSR (by Next.js)
  - [x] Core: SSR + Apollo cache (don't query already received data)
@@ -92,6 +96,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] Core: benchmarks?
  - [ ] Core: prettier
  - [ ] Core: linter
+ - [ ] Core: Jest + workspace + Next.js (check problems, write examples)
  - Auth my social apps? (https://www.keystonejs.com/keystonejs/auth-passport/)
  - CRDT example?
 
