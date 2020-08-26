@@ -366,29 +366,33 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     parent, args, context, info, extra,
                 })
 
-                const { data: { name, email, password } } = args
-                // TODO(pahaz): check email is valid!
-                // TODO(pahaz): check phone is valid!
-                const { errors: errors1, data: data1 } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
+                const { data } = args
+                const extraUserData = extra.extraUserData || {}
+                const { email, password } = data
+
+                {
+                    // TODO(pahaz): check email is valid!
+                    const { errors: errors1, data: data1 } = await context.executeGraphQL({
+                        context: context.createContext({ skipAccessControl: true }),
+                        query: `
                         query findUserByEmail($email: String!) {
                           users: allUsers(where: { email: $email }) {
                             id
                           }
                         }
                     `,
-                    variables: { email },
-                })
+                        variables: { email },
+                    })
 
-                if (errors1) {
-                    const msg = '[error] Unable to call find service'
-                    console.error(msg, errors1)
-                    throw new Error(msg)
-                }
+                    if (errors1) {
+                        const msg = '[error] Unable to call find service'
+                        console.error(msg, errors1)
+                        throw new Error(msg)
+                    }
 
-                if (data1.users.length !== 0) {
-                    throw new Error(`[register:email:multipleFound] User with this email is already registered`)
+                    if (data1.users.length !== 0) {
+                        throw new Error(`[register:email:multipleFound] User with this email is already registered`)
+                    }
                 }
 
                 if (password.length < 8) {
@@ -398,8 +402,8 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 const { errors: errors2, data: data2 } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
-                        mutation createNewUser($email: String!, $password: String!, $name: String!) {
-                          user: createUser(data: { email: $email, password: $password, name: $name }) {
+                        mutation create($data: UserCreateInput!) {
+                          user: createUser(data: $data) {
                             id
                             name
                             email
@@ -408,7 +412,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                           }
                         }
                     `,
-                    variables: { name, email, password },
+                    variables: { data: { ...data, ...extraUserData } },
                 })
 
                 if (errors2) {

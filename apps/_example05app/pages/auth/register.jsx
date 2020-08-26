@@ -64,11 +64,14 @@ const RegisterForm = ({ children }) => {
 
     const onFinish = values => {
         if (values.email) values.email = values.email.toLowerCase()
-        const { name, email, password } = values
+        const { name, email, password, confirm, agreement, ...extra  } = values
+        const extraData = Object.fromEntries(Object.entries(extra).filter(([k, v]) => !k.startsWith('_')))
+        const data = { name, email, password, ...extraData }
+        console.log(values, data)
         setIsLoading(true)
         return runMutation({
             mutation: register,
-            variables: { data: { name, email, password } },
+            variables: { data: data },
             onCompleted: () => {
                 signin({ variables: form.getFieldsValue() }).then(() => { Router.push('/') }, console.error)
             },
@@ -161,21 +164,6 @@ const RegisterForm = ({ children }) => {
                 ]}
             >
                 <Input.Password/>
-            </Form.Item>
-
-            <Form.Item label={CaptchaMsg} extra={WeMustMakeSureThatYouAreHumanMsg} style={{ display: 'none' }}>
-                <Row gutter={8}>
-                    <Col span={12}>
-                        <Form.Item
-                            name="captcha"
-                        >
-                            <Input value="0571"/>
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Button>???</Button>
-                    </Col>
-                </Row>
             </Form.Item>
 
             <Form.Item

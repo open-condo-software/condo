@@ -1,10 +1,11 @@
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const { Text, Checkbox, Password, CalendarDay, File, Relationship, DateTime } = require('@keystonejs/fields')
-const { User: BaseUser, ForgotPasswordAction, ForgotPasswordService, RegisterNewUserService } = require('@core/keystone/schemas/User')
+const { User: BaseUser, ForgotPasswordAction, ForgotPasswordService, RegisterNewUserService: BaseRegisterNewUserService } = require('@core/keystone/schemas/User')
 const conf = require('@core/config')
 const access = require('@core/keystone/access')
 const faker = require('faker')
+const { admin } = require('../utils/firebase')
 
 const { Stars, Options, JsonText } = require('../custom-fields')
 
@@ -55,8 +56,26 @@ const User = BaseUser._override({
     },
 })
 
-RegisterNewUserService.on('afterRegisterNewUser', async ({ parent, args, context, info, extra, result }) => {
-    console.log('Fake send welcome email!', JSON.stringify(result))
+const RegisterNewUserService = BaseRegisterNewUserService._override({
+    types: [
+        {
+            access: true,
+            type: 'input RegisterNewUserInput { name: String!, email: String!, password: String!, firebaseIdToken: String }',
+        },
+    ],
+})
+
+RegisterNewUserService.on('beforeRegisterNewUser', async ({ parent, args, context, info, extra }) => {
+    const idToken = args.data.firebaseIdToken
+    if (!idToken) return
+
+    delete args.data.firebaseIdToken
+    const { uid, phone_number } = await admin.auth().verifyIdToken(idToken)
+    extra.extraUserData = {
+        phone: phone_number,
+        isPhoneVerified: true,
+        importId: uid,
+    }
 })
 
 ForgotPasswordService.on('afterStartPasswordRecovery', ({ parent, args, context, info, extra, result }) => {

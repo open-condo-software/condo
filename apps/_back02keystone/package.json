@@ -29,6 +29,7 @@
     "cross-env": "^7.0.0",
     "date-fns": "^2.15.0",
     "express": "^4.17.1",
+    "firebase-admin": "^9.1.1",
     "jest": "^26.4.0",
     "validator": "^13.1.1"
   }
