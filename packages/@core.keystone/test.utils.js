@@ -234,7 +234,7 @@ const createUser = async (args = {}) => {
         name: 'Mr#' + getRandomString(),
         email: 'xx' + getRandomString().toLowerCase() + '@example.com',
         password: getRandomString(),
-        phone: faker.phone.phoneNumberFormat(),
+        // phone: faker.phone.phoneNumberFormat(),
         ...args,
     }
     const result = await client.mutate(CREATE_USER_MUTATION, { data })

@@ -117,3 +117,31 @@ test('List.override(): inherit events', async () => {
     expect(baseEventListener.mock.calls).toEqual([[{ id: 1 }], [{ id: 2 }]])
     expect(overrideEventListener.mock.calls).toEqual([[{ id: 1 }], [{ id: 2 }]])
 })
+
+const CALCULATOR_SERVICE = new GQLCustomSchema('CalculatorService', {
+    types: [
+        {
+            access: true,
+            type: 'input CalculatorInput { op: String!, l: String, r: String }',
+        },
+    ],
+    mutations: [
+        {
+            access: true,
+            schema: 'calculate(data: CalculatorInput!): String',
+            // https://www.apollographql.com/docs/apollo-server/data/resolvers/#resolver-arguments
+            // https://www.keystonejs.com/keystonejs/keystone/#config-1
+            resolver: async (parent, args, context, info, extra) => {
+                const { op, l, r } = args
+                return String(eval(`${l} ${op} ${r}`))
+            },
+        },
+    ],
+})
+
+test('execute mutation func', async () => {
+    const [parent, args, context, info, extra] = [jest.fn(), jest.fn(), jest.fn(), jest.fn(), jest.fn()]
+    const res = await CALCULATOR_SERVICE.schema.mutations[0].resolver(
+        parent, { op: '+', l: 2, r: 2 }, context, info, extra)
+    expect(res).toEqual('4')
+})

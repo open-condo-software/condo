@@ -1,7 +1,7 @@
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const { Text, Checkbox, Password, CalendarDay, File, Relationship, DateTime } = require('@keystonejs/fields')
-const { User: BaseUser, ForgotPasswordAction, ForgotPasswordService, RegisterService } = require('@core/keystone/schemas/User')
+const { User: BaseUser, ForgotPasswordAction, ForgotPasswordService, RegisterNewUserService } = require('@core/keystone/schemas/User')
 const conf = require('@core/config')
 const access = require('@core/keystone/access')
 const faker = require('faker')
@@ -23,10 +23,14 @@ const User = BaseUser._override({
         phone: {
             factory: () => faker.phone.phoneNumberFormat(),
             type: Text,
-            access: access.userIsAdminOrIsThisItem,
+            access: {
+                read: true,
+                create: access.userIsAdmin,
+                update: access.userIsAdmin,
+            },
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
-                    return resolvedData['phone'] && resolvedData['phone'].toLowerCase().replace(/\D/g,'')
+                    return resolvedData['phone'] && resolvedData['phone'].toLowerCase().replace(/\D/g, '')
                 },
             },
         },
@@ -39,24 +43,33 @@ const User = BaseUser._override({
                 update: access.userIsAdmin,
             },
         },
+        importId: {
+            factory: () => faker.random.uuid(),
+            type: Text,
+            access: {
+                read: true,
+                create: access.userIsAdmin,
+                update: access.userIsAdmin,
+            },
+        },
     },
 })
 
-RegisterService.on('afterRegisterNewUser', async (ctx) => {
-    console.log('Fake send welcome email!', JSON.stringify(ctx))
+RegisterNewUserService.on('afterRegisterNewUser', async ({ parent, args, context, info, extra, result }) => {
+    console.log('Fake send welcome email!', JSON.stringify(result))
 })
 
-ForgotPasswordService.on('afterStartPasswordRecovery', (ctx) => {
-    console.log('Fake send security email!', JSON.stringify(ctx))
+ForgotPasswordService.on('afterStartPasswordRecovery', ({ parent, args, context, info, extra, result }) => {
+    console.log('Fake send security email!', JSON.stringify(result))
 })
 
-ForgotPasswordService.on('afterChangePasswordWithToken', (ctx) => {
-    console.log('Fake send security email!', JSON.stringify(ctx))
+ForgotPasswordService.on('afterChangePasswordWithToken', ({ parent, args, context, info, extra, result }) => {
+    console.log('Fake send security email!', JSON.stringify(result))
 })
 
 module.exports = {
     User,
     ForgotPasswordAction,
     ForgotPasswordService,
-    RegisterService,
+    RegisterNewUserService,
 }

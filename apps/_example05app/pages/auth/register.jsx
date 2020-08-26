@@ -15,8 +15,8 @@ import { getQueryParams } from '../../utils/url.utils'
 import { runMutation } from '../../utils/mutations.utils'
 
 const REGISTER_NEW_USER_MUTATION = gql`
-    mutation registerNewUser($name: String!, $email: String!, $password: String!, $captcha: String!) {
-        user: registerNewUser(name: $name, email: $email, password: $password, captcha: $captcha) {
+    mutation registerNewUser($data: RegisterNewUserInput!) {
+        user: registerNewUser(data: $data) {
             id
             name
             isAdmin
@@ -24,7 +24,7 @@ const REGISTER_NEW_USER_MUTATION = gql`
     }
 `
 
-const RegisterForm = () => {
+const RegisterForm = ({ children }) => {
     const [form] = Form.useForm()
     const [isLoading, setIsLoading] = useState(false)
     const { signin } = useAuth()
@@ -37,6 +37,7 @@ const RegisterForm = () => {
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const EmailMsg = intl.formatMessage({ id: 'Email' })
     const NameMsg = intl.formatMessage({ id: 'Name' })
+    const ExampleNameMsg = intl.formatMessage({ id: 'example.Name' })
     const PasswordMsg = intl.formatMessage({ id: 'Password' })
     const ConfirmPasswordMsg = intl.formatMessage({ id: 'ConfirmPassword' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
@@ -66,7 +67,7 @@ const RegisterForm = () => {
         setIsLoading(true)
         return runMutation({
             mutation: register,
-            variables: values,
+            variables: { data: values },
             onCompleted: () => {
                 signin({ variables: form.getFieldsValue() }).then(() => { Router.push('/') }, console.error)
             },
@@ -87,6 +88,7 @@ const RegisterForm = () => {
             onFinish={onFinish}
             initialValues={initialValues}
         >
+            {children}
             <Form.Item
                 name="name"
                 label={
@@ -99,7 +101,7 @@ const RegisterForm = () => {
                 }
                 rules={[{ required: true, message: PleaseInputYourNameMsg, whitespace: true }]}
             >
-                <Input/>
+                <Input placeholder={ExampleNameMsg}/>
             </Form.Item>
 
             <Form.Item
@@ -116,7 +118,7 @@ const RegisterForm = () => {
                     },
                 ]}
             >
-                <Input/>
+                <Input placeholder={'name@example.org'}/>
             </Form.Item>
 
             <Form.Item

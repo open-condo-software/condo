@@ -60,6 +60,8 @@
   "EnterVerificationCode": "Enter verification code",
   "ConfirmVerificationCode": "Confirm verification code",
   "VerificationCodeHasBeenSentToYourPhone": "Verification code has been sent to your phone",
+  "example.Name": "Jon Johnson",
+  "example.Phone": "+1 (300) 300 22 22",
   "pages.auth.LoggedIn": "Logged in",
   "pages.auth.EmailIsNoFound": "Email is not found",
   "pages.auth.WrongPassword": "Wrong password",

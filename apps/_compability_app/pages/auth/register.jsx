@@ -21,8 +21,8 @@ import { useIntl } from 'react-intl'
 const { Title } = Typography
 
 const REGISTER_NEW_USER_MUTATION = gql`
-    mutation registerNewUser($name: String!, $email: String!, $password: String!, $captcha: String!) {
-        user: registerNewUser(name: $name, email: $email, password: $password, captcha: $captcha) {
+    mutation registerNewUser($data: RegisterNewUserInput!) {
+        user: registerNewUser(data: $data) {
             id
             name
             isAdmin
@@ -84,7 +84,7 @@ const RegisterForm = () => {
 
     const onFinish = values => {
         setIsLoading(true)
-        register({ variables: values })
+        register({ variables: {data: values} })
             .then(
                 () => {
                     notification.success({ message: { RegisteredMsg } })
