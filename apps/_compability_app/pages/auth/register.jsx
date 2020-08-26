@@ -83,8 +83,9 @@ const RegisterForm = () => {
     const IHaveReadAndAcceptTheAgreementMsg = intl.formatMessage({ id: 'pages.auth.IHaveReadAndAcceptTheAgreement', defaultMessage: "I have read and accept the agreement" })
 
     const onFinish = values => {
+        const { name, email, password } = values
         setIsLoading(true)
-        register({ variables: {data: values} })
+        register({ variables: { data: { name, email, password } } })
             .then(
                 () => {
                     notification.success({ message: { RegisteredMsg } })
@@ -187,21 +188,6 @@ const RegisterForm = () => {
                 ]}
             >
                 <Input.Password/>
-            </Form.Item>
-
-            <Form.Item label={CaptchaMsg} extra={WeMustMakeSureThatYouAreHumanMsg} style={{ display: 'none' }}>
-                <Row gutter={8}>
-                    <Col span={12}>
-                        <Form.Item
-                            name="captcha"
-                        >
-                            <Input value="0571"/>
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Button>???</Button>
-                    </Col>
-                </Row>
             </Form.Item>
 
             <Form.Item

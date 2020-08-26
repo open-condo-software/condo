@@ -64,10 +64,11 @@ const RegisterForm = ({ children }) => {
 
     const onFinish = values => {
         if (values.email) values.email = values.email.toLowerCase()
+        const { name, email, password } = values
         setIsLoading(true)
         return runMutation({
             mutation: register,
-            variables: { data: values },
+            variables: { data: { name, email, password } },
             onCompleted: () => {
                 signin({ variables: form.getFieldsValue() }).then(() => { Router.push('/') }, console.error)
             },

@@ -354,7 +354,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
     types: [
         {
             access: true,
-            type: 'input RegisterNewUserInput { name: String!, email: String!, password: String!, captcha: String! }',
+            type: 'input RegisterNewUserInput { name: String!, email: String!, password: String! }',
         },
     ],
     mutations: [
