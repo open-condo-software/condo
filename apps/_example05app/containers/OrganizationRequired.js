@@ -25,7 +25,7 @@ function RedirectToOrganizations () {
             clearTimeout(clearHandle)
         }
     })
-    return <Typography.Text css={css`text-align: center;`}>{RedirectingMsg}</Typography.Text>
+    return <Typography.Text css={css`display: block; text-align: center;`}>{RedirectingMsg}</Typography.Text>
 }
 
 function OrganizationRequiredAfterAuthRequired ({ children }) {
@@ -41,7 +41,7 @@ function OrganizationRequiredAfterAuthRequired ({ children }) {
     }
 
     if (!link) return <>
-        <Typography.Title css={css`text-align: center;`}>{SelectOrganizationRequiredMsg}</Typography.Title>
+        <Typography.Title css={css`display: block; text-align: center;`}>{SelectOrganizationRequiredMsg}</Typography.Title>
         <RedirectToOrganizations/>
     </>
 

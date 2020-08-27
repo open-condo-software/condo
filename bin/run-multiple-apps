@@ -1,0 +1,48 @@
+#!/usr/bin/env node
+
+const express = require('express')
+const http = require('http')
+
+const PORT = parseInt(process.env.PORT || '3000')
+let BACKENDS = []
+
+function prepareAppsBackends (apps) {
+    BACKENDS = apps.map((m) => require(m + '/multi-app-support'))
+}
+
+async function initApp () {
+    const app = express()
+    await Promise.all(BACKENDS.map(async (back) => {
+        if (!back.prepareBackApp) return
+        const backApp = await back.prepareBackApp()
+        if (!backApp) return
+        app.use(back.URL_PREFIX, backApp)
+        console.info(`MULTI-RUN: USE APP ${back.NAME} AT URL ${back.URL_PREFIX}`)
+    }))
+    return app
+}
+
+async function startServer (port) {
+    const app = await initApp()
+    app.set('port', port)
+    const server = http.createServer(app)
+    await Promise.all(BACKENDS.map(async (back) => {
+        if (!back.prepareBackServer) return
+        await back.prepareBackServer(server)
+        console.info(`MULTI-RUN: PATCH SERVER BY ${back.NAME}`)
+    }))
+    return server.listen(port)
+}
+
+const apps = process.argv.slice(2)
+if (apps.length <= 0) {
+    console.error('MULTI-RUN: you should pass related apps paths')
+    console.error('USE: node ./bin/run-multiple-apps @app/_back02keystone @app/_example05app @app/_realtime01app')
+    process.exit(1)
+}
+
+console.info(`MULTI-RUN: run for apps: ${apps.join(', ')}`)
+prepareAppsBackends(apps)
+startServer(PORT).then(() => {
+    console.info(`MULTI-RUN: READY on ${PORT}`)
+})

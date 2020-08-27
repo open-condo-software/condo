@@ -3,7 +3,9 @@ module.exports = {
         {
             name: 'Admin',
             email: 'admin@example.com',
+            isEmailVerified: false,
             phone: '89068888888',
+            isPhoneVerified: false,
             isAdmin: true,
             isActive: true,
             dob: '1990-01-02',
@@ -12,7 +14,9 @@ module.exports = {
         {
             name: 'JustUser',
             email: 'user@example.com',
+            isEmailVerified: false,
             phone: '89068888811',
+            isPhoneVerified: false,
             isAdmin: false,
             isActive: true,
             dob: '1995-06-09',

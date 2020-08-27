@@ -16,27 +16,29 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x]
+        node-version: [12.x, 14.x]
         database: ["postgresql://postgres:postgres@127.0.0.1/main", "mongodb://mongo:mongo@127.0.0.1/main?authSource=admin"]
 
     steps:
       - uses: actions/checkout@v2
+      - name: Prepare .env
+        run: cp .env.example .env
       - name: Docker compose up databases
-        run: docker-compose up -d
+        run: docker-compose up -d mongodb postgresdb
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
       - name: install packages
         run: |
-          yarn
+          yarn install --verbose --registry https://registry.npmjs.org
           pip3 install django
           pip3 install psycopg2-binary
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
-          export DEBUG=knex:query,knex:tx
-          export DEBUG_MONGOOSE=1
+          # export DEBUG=knex:query,knex:tx
+          # export DEBUG_MONGOOSE=1
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/_back02keystone migrate
           yarn workspace @app/_back02keystone dev &
           sleep 10

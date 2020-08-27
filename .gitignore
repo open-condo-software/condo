@@ -6,6 +6,7 @@ out
 .env
 .kmigrator
 .DS_Store
+.docker-cache-warming
 yarn.lock
 __media
 _example.js

@@ -5,15 +5,23 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
 const { StaticApp } = require('@keystonejs/app-static')
 const express = require('express')
-const realtime = require('./realtime/server')
+const realtime = require("./realtime/server")
 const access = require('@core/keystone/access')
 const { getAdapter } = require('@core/keystone/adapter.utils')
+const { getCookieSecret } = require('@core/keystone/keystone.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const conf = require('@core/config')
 const { areWeRunningTests } = require('@core/keystone/test.utils')
 
+
 const keystone = new Keystone({
-    name: 'Pomodoro timer',
+    cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
+    cookie: {
+        sameSite: false,
+        secure: false,
+        maxAge: 1000 * 60 * 60 * 24 * 130, // 130 days
+    },
+    name: "Pomodoro timer",
     adapter: getAdapter(conf.DATABASE_URL),
     defaultAccess: { list: false, field: true, custom: false },
     queryLimits: { maxTotalResults: 1000 },
@@ -28,7 +36,7 @@ const keystone = new Keystone({
                 await keystone.createItems(initialData)
             }
         } catch (e) {
-            console.warn('onConnectError:', e)
+            console.warn("onConnectError:", e)
         }
     },
 })
@@ -67,8 +75,7 @@ class CustomApp {
 
 class RealtimeApp {
     prepareMiddleware ({ keystone, dev, distDir }) {
-        const middleware = realtime.expressPrepare()
-        return middleware
+        realtime.start()
     }
 }
 
@@ -83,7 +90,6 @@ module.exports = {
     keystone,
     apps: [
         new GraphQLApp(),
-        new RealtimeApp(),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({
             adminPath: '/admin',
@@ -93,5 +99,6 @@ module.exports = {
             authStrategy,
         }),
         (!areWeRunningTests()) ? new NextApp({ dir: __dirname }) : new CustomApp(),
+        new RealtimeApp(),
     ],
 }

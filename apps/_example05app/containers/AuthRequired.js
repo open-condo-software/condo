@@ -22,7 +22,7 @@ function RedirectToLogin () {
             clearTimeout(clearHandle)
         }
     })
-    return <Typography.Text css={css`text-align: center;`}>{RedirectingMsg}</Typography.Text>
+    return <Typography.Text css={css`display: block; text-align: center;`}>{RedirectingMsg}</Typography.Text>
 }
 
 export function AuthRequired ({ children }) {
@@ -38,7 +38,7 @@ export function AuthRequired ({ children }) {
 
     if (!isAuthenticated) {
         return <>
-            <Typography.Title css={css`text-align: center;`}>{SignInRequiredMsg}</Typography.Title>
+            <Typography.Title css={css`display: block; text-align: center;`}>{SignInRequiredMsg}</Typography.Title>
             <RedirectToLogin/>
         </>
     }

@@ -92,6 +92,7 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
         setCookieLinkId('')
         setLinkIdState(null)
         setLink(null)
+        throw error
     }
 
     function handleSelectItem (linkItem) {
