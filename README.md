@@ -12,10 +12,12 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
 
  - [x] docs: how-to create frontend app 
  - [x] docs: how-to write backend app
+ - [x] docs: how-to write mobile app
  - [x] docs: how-to upgrade packages versions
  - [x] docs: how-to use with postgres
  - [ ] docs: how-to debug react rerenders
- - [ ] docs: how-to deploy to dokku / heroku
+ - [x] docs: how-to deploy to dokku / heroku
+ - [ ] docs: how-to write reusable components (mobile + web + ssr)
  - [x] example: Ant Design Pro + Next.js
  - [x] example: Internationalization (react-intl)
  - [ ] example: Upload Attachments Antd Form
@@ -49,6 +51,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] Register: Phone verification (isPhoneVerified)
  - [ ] Register: Extensibility (like django-registrations)
  - [ ] Register: Options captcha support
+ - [ ] Register: Phone verification (example)
  - [x] Layout: Extensible base layout
  - [x] Layout: Mobile first support
  - [x] Layout: FormList container (container for list of items)
@@ -72,6 +75,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] Core: docker-compose
  - [x] Core: CI Tests
  - [ ] Core: CI Deploy
+ - [ ] Core: CI Mobile app
  - [x] Core: Internationalization (react-intl)
  - [x] Core: SSR (by Next.js)
  - [x] Core: SSR + Apollo cache (don't query already received data)
@@ -92,6 +96,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] Core: benchmarks?
  - [ ] Core: prettier
  - [ ] Core: linter
+ - [ ] Core: Jest + workspace + Next.js (check problems, write examples)
  - Auth my social apps? (https://www.keystonejs.com/keystonejs/auth-passport/)
  - CRDT example?
 
@@ -234,6 +239,54 @@ yarn workspace @app/_example01app dev
 # You can also check `apps/_example02app` and others examples
 ```
 
+## Write mobile app ##
+
+### Create Expo APP
+
+```shell script
+cd apps
+expo init _mobile01
+cd ..
+# based on https://stackoverflow.com/questions/59920012/monorepo-expo-with-yarn-workspace-and-using-expo-install
+cat > apps/_mobile01/package.json << ENDOFFILE
+{
+  "name": "@app/_mobile01",
+  "version": "1.0.0",
+  "main": "__generated__/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "eject": "expo eject",
+    "postinstall": "expo-yarn-workspaces postinstall"
+  },
+  "dependencies": {
+    "expo": "~38.0.8",
+    "expo-status-bar": "^1.0.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-38.0.2.tar.gz",
+    "react-native-web": "~0.11.7"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.6",
+    "babel-preset-expo": "~8.1.0",
+    "expo-yarn-workspaces": "^1.2.1"
+  }
+}
+ENDOFFILE
+cat > apps/_mobile01/metro.config.js << ENDOFFILE
+const { createMetroConfiguration } = require("expo-yarn-workspaces");
+
+module.exports = createMetroConfiguration(__dirname);
+ENDOFFILE
+yarn
+yarn workspace @app/_mobile01 postinstall
+
+yarn workspace @app/_mobile01 start --clear
+```
+
 # Deploy #
 
 We use docker-compose to deploy your application.
@@ -277,9 +330,17 @@ NOTE: If you need some extra containers or you want to customize existing contai
 # DOKKU Deploy #
 
 ```shell script
-export APP=node4
+# BUILD CONTAINER LOCALY AND SEND IT TO DOKKU SERVER
+export DOCKER_COMPOSE_APP_IMAGE_TAG=coddi
+docker-compose build
+docker save apps:${DOCKER_COMPOSE_APP_IMAGE_TAG} | bzip2 | pv | ssh root@dok.8iq.dev 'bunzip2 | docker load'
+```
+
+```shell script
+# CREATE DOKKU APPLICATION ON DOKKU SERVER SIDE
+export APP=node5
+export APP_VERSION=v5
 export DOCKER_IMAGE=apps:coddi
-export APP_VERSION=v4
 export START_COMMAND='yarn workspace @app/CODDI start'
 
 dokku apps:create ${APP}

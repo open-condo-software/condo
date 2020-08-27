@@ -146,16 +146,17 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
         {
             access: access.userIsAuthenticated,
             schema: 'registerNewOrganization(data: RegisterNewOrganizationInput!): Organization',
-            resolver: async (_, { data }, context, info, { query }) => {
+            resolver: async (_, { data }, context) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const extraLinkData = {}
                 const extraOrganizationData = {}
                 await RegisterNewOrganizationService.emit('beforeRegisterNewOrganization', {
-                    data, extraLinkData, extraOrganizationData, context, query,
+                    data, extraLinkData, extraOrganizationData, context,
                 })
 
-                const { errors: err1, data: data1 } = await query(
-                    `
+                const { errors: err1, data: data1 } = await context.executeGraphQL({
+                    context: context.createContext({ skipAccessControl: true }),
+                    query: `
                         mutation create($data: OrganizationToUserLinkCreateInput!) {
                           obj: createOrganizationToUserLink(data: $data) {
                             id
@@ -165,21 +166,19 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                           }
                         }
                     `,
-                    {
-                        variables: {
-                            'data': {
-                                'organization': { 'create': { ...data, ...extraOrganizationData } },
-                                'user': { 'connect': { 'id': context.authedItem.id } },
-                                'role': 'owner',
-                                isAccepted: true,
-                                isRejected: false,
-                                name: context.authedItem.name,
-                                email: context.authedItem.email,
-                                ...extraLinkData,
-                            },
-                        }, skipAccessControl: true,
+                    variables: {
+                        'data': {
+                            'organization': { 'create': { ...data, ...extraOrganizationData } },
+                            'user': { 'connect': { 'id': context.authedItem.id } },
+                            'role': 'owner',
+                            isAccepted: true,
+                            isRejected: false,
+                            name: context.authedItem.name,
+                            email: context.authedItem.email,
+                            ...extraLinkData,
+                        },
                     },
-                )
+                })
 
                 if (err1 || !data1.obj || !data1.obj.id) {
                     const msg = '[error] Unable to create organization'
@@ -206,32 +205,31 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
         {
             access: allowAccessForRoleOwnerForInviteNewUserToOrganizationService,
             schema: 'inviteNewUserToOrganization(data: InviteNewUserToOrganizationInput!): OrganizationToUserLink',
-            resolver: async (_, { data }, context, info, { query }) => {
+            resolver: async (_, { data }, context) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const extraLinkData = {}
                 await InviteNewUserToOrganizationService.emit('beforeInviteNewUserToOrganization', {
-                    data, extraLinkData, context, query,
+                    data, extraLinkData, context,
                 })
                 const { organization, email, name, ...restData } = data
                 let user = (extraLinkData.user) ? extraLinkData.user : undefined
 
                 // Note: check is already exists (email + organization)
                 {
-                    const { errors, data } = await query(
-                        `
-                        query findOrganizationToUserLinkEmailConstraint($organizationId: ID!, $email: String!) {
-                          objs: allOrganizationToUserLinks(where: {email: $email, organization: {id: $organizationId}}) {
-                            id
-                          }
-                        }
-                    `,
-                        {
-                            variables: {
-                                'organizationId': organization.id,
-                                'email': email,
-                            }, skipAccessControl: true,
+                    const { errors, data } = await context.executeGraphQL({
+                        context: context.createContext({ skipAccessControl: true }),
+                        query: `
+                            query findOrganizationToUserLinkEmailConstraint($organizationId: ID!, $email: String!) {
+                              objs: allOrganizationToUserLinks(where: {email: $email, organization: {id: $organizationId}}) {
+                                id
+                              }
+                            }
+                        `,
+                        variables: {
+                            'organizationId': organization.id,
+                            'email': email,
                         },
-                    )
+                    })
 
                     if (errors) {
                         const msg = '[error] Unable to check email link service'
@@ -247,22 +245,21 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                 }
 
                 if (!user) {
-                    const { errors: err0, data: data0 } = await query(
-                        `
-                        query findUserByEmail($email: String!) {
-                          objs: allUsers(where: {email: $email}) {
-                            id
-                            email
-                            name
-                          }
-                        }
-                    `,
-                        {
-                            variables: {
-                                'email': email,
-                            }, skipAccessControl: true,
+                    const { errors: err0, data: data0 } = await context.executeGraphQL({
+                        context: context.createContext({ skipAccessControl: true }),
+                        query: `
+                            query findUserByEmail($email: String!) {
+                              objs: allUsers(where: {email: $email}) {
+                                id
+                                email
+                                name
+                              }
+                            }
+                        `,
+                        variables: {
+                            'email': email,
                         },
-                    )
+                    })
 
                     if (err0) {
                         const msg = '[error] Unable to access find user service'
@@ -277,22 +274,21 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
 
                 // Note: check is already exists (user + organization)
                 if (user) {
-                    const { errors, data } = await query(
-                        `
-                        query findOrganizationToUserLinkConstraint($organizationId: ID!, $userId: ID!) {
-                          objs: allOrganizationToUserLinks(where: {user: {id: $userId}, organization: {id: $organizationId}}) {
-                            id
-                            role
-                          }
-                        }
-                    `,
-                        {
-                            variables: {
-                                'organizationId': organization.id,
-                                'userId': user.id,
-                            }, skipAccessControl: true,
+                    const { errors, data } = await context.executeGraphQL({
+                        context: context.createContext({ skipAccessControl: true }),
+                        query: `
+                            query findOrganizationToUserLinkConstraint($organizationId: ID!, $userId: ID!) {
+                              objs: allOrganizationToUserLinks(where: {user: {id: $userId}, organization: {id: $organizationId}}) {
+                                id
+                                role
+                              }
+                            }
+                        `,
+                        variables: {
+                            'organizationId': organization.id,
+                            'userId': user.id,
                         },
-                    )
+                    })
 
                     if (errors) {
                         const msg = '[error] Unable to check organization link service'
@@ -307,8 +303,9 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                     }
                 }
 
-                const { errors: err1, data: data1 } = await query(
-                    `
+                const { errors: err1, data: data1 } = await context.executeGraphQL({
+                    context: context.createContext({ skipAccessControl: true }),
+                    query: `
                         mutation create($data: OrganizationToUserLinkCreateInput!) {
                           obj: createOrganizationToUserLink(data: $data) {
                             id
@@ -318,19 +315,17 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                           }
                         }
                     `,
-                    {
-                        variables: {
-                            'data': {
-                                user: (user) ? { connect: { id: user.id } } : undefined,
-                                organization: { connect: { id: data.organization.id } },
-                                email,
-                                name,
-                                ...restData,
-                                ...extraLinkData,
-                            },
-                        }, skipAccessControl: true,
+                    variables: {
+                        'data': {
+                            user: (user) ? { connect: { id: user.id } } : undefined,
+                            organization: { connect: { id: data.organization.id } },
+                            email,
+                            name,
+                            ...restData,
+                            ...extraLinkData,
+                        },
                     },
-                )
+                })
 
                 if (err1 || !data1.obj || !data1.obj.id) {
                     const msg = '[error] Unable to create organization link'
@@ -357,11 +352,11 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
         {
             access: allowAccessForNotAssignedInvitesForAcceptOrRejectOrganizationInviteService,
             schema: 'acceptOrRejectOrganizationInviteByCode(code: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationToUserLink',
-            resolver: async (_, { code, data }, context, info, { query }) => {
+            resolver: async (_, { code, data }, context) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const extraLinkData = {}
                 await AcceptOrRejectOrganizationInviteService.emit('beforeAcceptOrRejectOrganizationInviteInput', {
-                    code, data, extraLinkData, context, query,
+                    code, data, extraLinkData, context,
                 })
                 let { isRejected, isAccepted, ...restData } = data
                 isRejected = isRejected || false
@@ -369,27 +364,26 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
 
                 const link = await getByCondition('OrganizationToUserLink', { code, user_is_null: true })
 
-                const { errors: err1, data: data1 } = await query(
-                    `
+                const { errors: err1, data: data1 } = await context.executeGraphQL({
+                    context: context.createContext({ skipAccessControl: true }),
+                    query: `
                         mutation acceptOrReject($id: ID!, $data: OrganizationToUserLinkUpdateInput!) {
                           obj: updateOrganizationToUserLink(id: $id, data: $data) {
                             id
                           }
                         }
                     `,
-                    {
-                        variables: {
-                            id: link.id,
-                            data: {
-                                user: {connect: {id: context.authedItem.id}},
-                                isRejected,
-                                isAccepted,
-                                ...restData,
-                                ...extraLinkData
-                            },
-                        }, skipAccessControl: true,
+                    variables: {
+                        id: link.id,
+                        data: {
+                            user: { connect: { id: context.authedItem.id } },
+                            isRejected,
+                            isAccepted,
+                            ...restData,
+                            ...extraLinkData,
+                        },
                     },
-                )
+                })
 
                 if (err1 || !data1.obj || !data1.obj.id) {
                     const msg = '[error] Unable to update link state'
@@ -405,31 +399,30 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
         {
             access: allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService,
             schema: 'acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationToUserLink',
-            resolver: async (_, { id, data }, context, info, { query }) => {
+            resolver: async (_, { id, data }, context) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const extraLinkData = {}
                 await AcceptOrRejectOrganizationInviteService.emit('beforeAcceptOrRejectOrganizationInviteInput', {
-                    id, data, extraLinkData, context, query,
+                    id, data, extraLinkData, context,
                 })
                 let { isRejected, isAccepted, ...restData } = data
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
 
-                const { errors: err1, data: data1 } = await query(
-                    `
+                const { errors: err1, data: data1 } = await context.executeGraphQL({
+                    context: context.createContext({ skipAccessControl: true }),
+                    query: `
                         mutation acceptOrReject($id: ID!, $data: OrganizationToUserLinkUpdateInput!) {
                           obj: updateOrganizationToUserLink(id: $id, data: $data) {
                             id
                           }
                         }
                     `,
-                    {
-                        variables: {
-                            id,
-                            data: { isRejected, isAccepted, ...restData, ...extraLinkData },
-                        }, skipAccessControl: true,
+                    variables: {
+                        id,
+                        data: { isRejected, isAccepted, ...restData, ...extraLinkData },
                     },
-                )
+                })
 
                 if (err1 || !data1.obj || !data1.obj.id) {
                     const msg = '[error] Unable to update link state'

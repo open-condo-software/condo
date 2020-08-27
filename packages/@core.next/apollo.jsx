@@ -1,17 +1,17 @@
 import React from 'react'
 import Head from 'next/head'
 import {
+    ApolloClient,
+    InMemoryCache,
     ApolloProvider,
     useApolloClient,
     useMutation,
     useQuery,
     useSubscription,
     useLazyQuery,
-} from '@apollo/react-hooks'
+} from '@apollo/client'
 import fetch from 'isomorphic-unfetch'
 import getConfig from 'next/config'
-import { ApolloClient } from 'apollo-client'
-import { InMemoryCache } from 'apollo-cache-inmemory'
 import { createUploadLink } from 'apollo-upload-client'
 
 const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
@@ -167,7 +167,7 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
                     try {
                         // Import `@apollo/react-ssr` dynamically.
                         // We don't want to have this in our client bundle.
-                        const { getDataFromTree } = await import('@apollo/react-ssr')
+                        const { getDataFromTree } = await import('@apollo/client/react/ssr')
 
                         // Since AppComponents and PageComponents have different context types
                         // we need to modify their props a little.
