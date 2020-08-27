@@ -5,6 +5,7 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
 const { StaticApp } = require('@keystonejs/app-static')
 const express = require('express')
+const realtime = require('./realtime/server')
 const access = require('@core/keystone/access')
 const { getAdapter } = require('@core/keystone/adapter.utils')
 const { getCookieSecret } = require('@core/keystone/keystone.utils')
@@ -16,13 +17,14 @@ const { createItems } = require('@keystonejs/server-side-graphql-client')
 const realtime = require('./realtime/server')
 
 const keystone = new Keystone({
+
     cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
     cookie: {
         sameSite: false,
         secure: false,
         maxAge: 1000 * 60 * 60 * 24 * 130, // 130 days
     },
-    name: 'Pomodoro timer',
+    name: "Pomodoro timer",
     adapter: getAdapter(conf.DATABASE_URL),
     defaultAccess: { list: false, field: true, custom: false },
     queryLimits: { maxTotalResults: 1000 },
