@@ -108,8 +108,19 @@ function PhoneAuthForm () {
     const EnterVerificationCodeMsg = intl.formatMessage({ id: 'EnterVerificationCode' })
     const ConfirmVerificationCodeMsg = intl.formatMessage({ id: 'ConfirmVerificationCode' })
     const VerificationCodeHasBeenSentToYourPhoneMsg = intl.formatMessage({ id: 'VerificationCodeHasBeenSentToYourPhone' })
+    const PhoneIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsAlreadyRegistered' })
     const PhoneMsg = intl.formatMessage({ id: 'Phone' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
+    const ExtraErrorToFormFieldMsgMapping = {
+        '[unique:importId:multipleFound]': {
+            name: '_phone',
+            errors: [PhoneIsAlreadyRegisteredMsg],
+        },
+        '[unique:phone:multipleFound]': {
+            name: '_phone',
+            errors: [PhoneIsAlreadyRegisteredMsg],
+        },
+    }
 
     useEffect(() => {
         const recapcha = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
@@ -170,7 +181,7 @@ function PhoneAuthForm () {
     }
 
     if (user) {
-        return <RegisterForm>
+        return <RegisterForm ExtraErrorToFormFieldMsgMapping={ExtraErrorToFormFieldMsgMapping}>
             <Form.Item
                 name="_phone"
                 label={

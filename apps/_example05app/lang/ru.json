@@ -70,6 +70,7 @@
   "pages.auth.ForgotPassword": "Забыли пароль?",
   "pages.auth.Registered": "Зарегистрирован",
   "pages.auth.EmailIsAlreadyRegistered": "Данный адрес уже зарегистрирован!",
+  "pages.auth.PhoneIsAlreadyRegistered": "Данный номер телефона уже зарегистрирован!",
   "pages.auth.WhatDoYouWantOthersToCallYou": "Как вас будут называть другие?",
   "pages.auth.PleaseInputYourName": "Введите имя",
   "pages.auth.PleaseConfirmYourPassword": "Введите пароль повторно для подтверждения",

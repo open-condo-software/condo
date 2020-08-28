@@ -31,9 +31,11 @@ const User = BaseUser._override({
             },
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
-                    return resolvedData['phone'] && resolvedData['phone'].toLowerCase().replace(/\D/g, '')
+                    return resolvedData['phone'] && resolvedData['phone'].toLowerCase().replace(/[^+0-9]/g, '')
                 },
             },
+            // TODO(pahaz): think about mongodb!
+            kmigratorOptions: { unique: true },  // Just for postgres (bug with mongo)
         },
         isPhoneVerified: {
             type: Checkbox,
@@ -52,6 +54,8 @@ const User = BaseUser._override({
                 create: access.userIsAdmin,
                 update: access.userIsAdmin,
             },
+            // TODO(pahaz): think about mongodb!
+            kmigratorOptions: { unique: true },  // Just for postgres (bug with mongo)
         },
     },
 })
@@ -65,12 +69,38 @@ const RegisterNewUserService = BaseRegisterNewUserService._override({
     ],
 })
 
+async function checkUnique (context, model, models, field, value) {
+    const { errors, data } = await context.executeGraphQL({
+        context: context.createContext({ skipAccessControl: true }),
+        query: `
+            query find($where: ${model}WhereInput!) {
+              objs: all${models}(where: $where) {
+                id
+              }
+            }
+        `,
+        variables: { where: { [field]: value } },
+    })
+
+    if (errors) {
+        const msg = `[error] Unable to check field ${field} uniques`
+        console.error(msg, errors)
+        throw new Error(msg)
+    }
+
+    if (data.objs.length !== 0) {
+        throw new Error(`[unique:${field}:multipleFound] ${models} with this ${field} is already exists`)
+    }
+}
+
 RegisterNewUserService.on('beforeRegisterNewUser', async ({ parent, args, context, info, extra }) => {
     const idToken = args.data.firebaseIdToken
     if (!idToken) return
 
     delete args.data.firebaseIdToken
     const { uid, phone_number } = await admin.auth().verifyIdToken(idToken)
+    await checkUnique(context, 'User', 'Users', 'phone', phone_number)
+    await checkUnique(context, 'User', 'Users', 'importId', uid)
     extra.extraUserData = {
         phone: phone_number,
         isPhoneVerified: true,

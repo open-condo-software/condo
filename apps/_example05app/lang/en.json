@@ -70,6 +70,7 @@
   "pages.auth.ForgotPassword": "Forgot password?",
   "pages.auth.Registered": "Registered",
   "pages.auth.EmailIsAlreadyRegistered": "This email is already registered!",
+  "pages.auth.PhoneIsAlreadyRegistered": "This phone is already registered!",
   "pages.auth.WhatDoYouWantOthersToCallYou": "What do you want others to call you?",
   "pages.auth.PleaseInputYourName": "Please input your Name",
   "pages.auth.PleaseConfirmYourPassword": "Please confirm your password",

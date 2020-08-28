@@ -24,7 +24,7 @@ const REGISTER_NEW_USER_MUTATION = gql`
     }
 `
 
-const RegisterForm = ({ children }) => {
+const RegisterForm = ({ children, ExtraErrorToFormFieldMsgMapping = {} }) => {
     const [form] = Form.useForm()
     const [isLoading, setIsLoading] = useState(false)
     const { signin } = useAuth()
@@ -60,6 +60,7 @@ const RegisterForm = ({ children }) => {
             name: 'email',
             errors: [EmailIsAlreadyRegisteredMsg],
         },
+        ...ExtraErrorToFormFieldMsgMapping,
     }
 
     const onFinish = values => {
