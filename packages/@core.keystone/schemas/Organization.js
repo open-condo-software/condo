@@ -146,13 +146,15 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
         {
             access: access.userIsAuthenticated,
             schema: 'registerNewOrganization(data: RegisterNewOrganizationInput!): Organization',
-            resolver: async (_, { data }, context) => {
-                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
-                const extraLinkData = {}
-                const extraOrganizationData = {}
+            resolver: async (parent, args, context, info, extra = {}) => {
                 await RegisterNewOrganizationService.emit('beforeRegisterNewOrganization', {
-                    data, extraLinkData, extraOrganizationData, context,
+                    parent, args, context, info, extra,
                 })
+
+                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
+                const { data } = args
+                const extraLinkData = extra.extraLinkData || {}
+                const extraOrganizationData = extra.extraOrganizationData || {}
 
                 const { errors: err1, data: data1 } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
@@ -187,7 +189,9 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                 }
 
                 const result = await getById('Organization', data1.obj.organization.id)
-                await RegisterNewOrganizationService.emit('afterRegisterNewOrganization', result)
+                await RegisterNewOrganizationService.emit('afterRegisterNewOrganization', {
+                    parent, args, context, info, extra, result,
+                })
                 return result
             },
         },
@@ -205,14 +209,16 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
         {
             access: allowAccessForRoleOwnerForInviteNewUserToOrganizationService,
             schema: 'inviteNewUserToOrganization(data: InviteNewUserToOrganizationInput!): OrganizationToUserLink',
-            resolver: async (_, { data }, context) => {
-                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
-                const extraLinkData = {}
+            resolver: async (parent, args, context, info, extra = {}) => {
                 await InviteNewUserToOrganizationService.emit('beforeInviteNewUserToOrganization', {
-                    data, extraLinkData, context,
+                    parent, args, context, info, extra,
                 })
+
+                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
+                const { data } = args
+                const extraLinkData = extra.extraLinkData || {}
                 const { organization, email, name, ...restData } = data
-                let user = (extraLinkData.user) ? extraLinkData.user : undefined
+                let user = extraLinkData.user
 
                 // Note: check is already exists (email + organization)
                 {
@@ -334,7 +340,9 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                 }
 
                 const result = await getById('OrganizationToUserLink', data1.obj.id)
-                await InviteNewUserToOrganizationService.emit('afterInviteNewUserToOrganization', result)
+                await InviteNewUserToOrganizationService.emit('afterInviteNewUserToOrganization', {
+                    parent, args, context, info, extra, result,
+                })
                 return result
             },
         },
@@ -352,12 +360,14 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
         {
             access: allowAccessForNotAssignedInvitesForAcceptOrRejectOrganizationInviteService,
             schema: 'acceptOrRejectOrganizationInviteByCode(code: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationToUserLink',
-            resolver: async (_, { code, data }, context) => {
-                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
-                const extraLinkData = {}
+            resolver: async (parent, args, context, info, extra = {}) => {
                 await AcceptOrRejectOrganizationInviteService.emit('beforeAcceptOrRejectOrganizationInviteInput', {
-                    code, data, extraLinkData, context,
+                    parent, args, context, info, extra,
                 })
+
+                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
+                const { code, data } = args
+                const extraLinkData = extra.extraLinkData || {}
                 let { isRejected, isAccepted, ...restData } = data
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
@@ -392,19 +402,22 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 }
 
                 const result = await getById('OrganizationToUserLink', data1.obj.id)
-                await AcceptOrRejectOrganizationInviteService.emit('afterAcceptOrRejectOrganizationInviteInput', result)
+                await AcceptOrRejectOrganizationInviteService.emit('afterAcceptOrRejectOrganizationInviteInput', {
+                    parent, args, context, info, extra, result,
+                })
                 return result
             },
         },
         {
             access: allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService,
             schema: 'acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationToUserLink',
-            resolver: async (_, { id, data }, context) => {
-                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
-                const extraLinkData = {}
+            resolver: async (parent, args, context, info, extra = {}) => {
                 await AcceptOrRejectOrganizationInviteService.emit('beforeAcceptOrRejectOrganizationInviteInput', {
-                    id, data, extraLinkData, context,
+                    parent, args, context, info, extra,
                 })
+                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
+                const { id, data } = args
+                const extraLinkData = extra.extraLinkData || {}
                 let { isRejected, isAccepted, ...restData } = data
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
@@ -431,7 +444,9 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 }
 
                 const result = await getById('OrganizationToUserLink', data1.obj.id)
-                await AcceptOrRejectOrganizationInviteService.emit('afterAcceptOrRejectOrganizationInviteInput', result)
+                await AcceptOrRejectOrganizationInviteService.emit('afterAcceptOrRejectOrganizationInviteInput', {
+                    parent, args, context, info, extra, result,
+                })
                 return result
             },
         },

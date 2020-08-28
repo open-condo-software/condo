@@ -41,11 +41,11 @@ const RegisterNewOrganizationService = BaseRegisterNewOrganizationService._overr
             access: true,
             type: 'input RegisterNewOrganizationInput { name: String!, description: String!, avatar: Upload }',
         },
-    ]
+    ],
 })
 
-RegisterNewOrganizationService.on('beforeRegisterNewOrganization', async ({ data, extraLinkData, extraOrganizationData, context }) => {
-    extraLinkData.phone = context.authedItem.phone
+RegisterNewOrganizationService.on('beforeRegisterNewOrganization', async ({ parent, args, context, info, extra }) => {
+    extra.extraLinkData = { phone: context.authedItem.phone }
 })
 
 const InviteNewUserToOrganizationService = BaseInviteNewUserToOrganizationService._override({
@@ -57,9 +57,9 @@ const InviteNewUserToOrganizationService = BaseInviteNewUserToOrganizationServic
     ],
 })
 
-InviteNewUserToOrganizationService.on('afterInviteNewUserToOrganization', (ctx) => {
+InviteNewUserToOrganizationService.on('afterInviteNewUserToOrganization', ({ parent, args, context, info, extra, result }) => {
     // TODO(pahaz): show invite link! and create invite page (for not registered email)
-    console.log('Fake send security email!', JSON.stringify(ctx))
+    console.log('Fake send security email!', JSON.stringify(result))
 })
 
 module.exports = {

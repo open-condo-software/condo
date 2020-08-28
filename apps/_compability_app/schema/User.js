@@ -3,7 +3,7 @@ const {
     User: BaseUser,
     ForgotPasswordAction,
     ForgotPasswordService,
-    RegisterService,
+    RegisterNewUserService,
 } = require('@core/keystone/schemas/User')
 
 const User = BaseUser._override({
@@ -16,5 +16,5 @@ module.exports = {
     User,
     ForgotPasswordAction,
     ForgotPasswordService,
-    RegisterService,
+    RegisterNewUserService,
 }

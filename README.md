@@ -16,6 +16,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] docs: how-to upgrade packages versions
  - [x] docs: how-to use with postgres
  - [ ] docs: how-to debug react rerenders
+ - [ ] docs: how-to use phone verification by firebase!
  - [x] docs: how-to deploy to dokku / heroku
  - [ ] docs: how-to write reusable components (mobile + web + ssr)
  - [x] example: Ant Design Pro + Next.js
@@ -48,7 +49,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] Register: Schema, API, Test
  - [x] Register: Page (example)
  - [ ] Register: Email verification (isEmailVerified)
- - [ ] Register: Phone verification (isPhoneVerified)
+ - [x] Register: Phone verification (isPhoneVerified)
  - [ ] Register: Extensibility (like django-registrations)
  - [ ] Register: Options captcha support
  - [ ] Register: Phone verification (example)
@@ -328,6 +329,13 @@ NOTE: If you need some extra containers or you want to customize existing contai
 `docker-compose.override.yml` file.
 
 # DOKKU Deploy #
+
+```shell script
+# Prepare dokku
+dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
+dokku plugin:install https://github.com/dokku/dokku-postgres.git postgres
+dokku config:set --global DOKKU_LETSENCRYPT_EMAIL=contact@8iq.dev
+```
 
 ```shell script
 # BUILD CONTAINER LOCALY AND SEND IT TO DOKKU SERVER
