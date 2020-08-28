@@ -5,14 +5,15 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
 const { StaticApp } = require('@keystonejs/app-static')
 const express = require('express')
-const realtime = require("./realtime/server")
 const access = require('@core/keystone/access')
 const { getAdapter } = require('@core/keystone/adapter.utils')
 const { getCookieSecret } = require('@core/keystone/keystone.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const conf = require('@core/config')
 const { areWeRunningTests } = require('@core/keystone/test.utils')
+const { createItems } = require('@keystonejs/server-side-graphql-client')
 
+const realtime = require('./realtime/server')
 
 const keystone = new Keystone({
     cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
@@ -21,7 +22,7 @@ const keystone = new Keystone({
         secure: false,
         maxAge: 1000 * 60 * 60 * 24 * 130, // 130 days
     },
-    name: "Pomodoro timer",
+    name: 'Pomodoro timer',
     adapter: getAdapter(conf.DATABASE_URL),
     defaultAccess: { list: false, field: true, custom: false },
     queryLimits: { maxTotalResults: 1000 },
@@ -33,10 +34,16 @@ const keystone = new Keystone({
             const users = await keystone.lists.User.adapter.findAll()
             if (!users.length) {
                 const initialData = require('./initial-data')
-                await keystone.createItems(initialData)
+                for (let { listKey, items } of initialData) {
+                    await createItems({
+                        keystone,
+                        listKey,
+                        items,
+                    })
+                }
             }
         } catch (e) {
-            console.warn("onConnectError:", e)
+            console.warn('onConnectError:', e)
         }
     },
 })

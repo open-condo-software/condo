@@ -31,7 +31,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: install packages
         run: |
-          yarn install --verbose --registry https://registry.npmjs.org
+          yarn install --verbose
           pip3 install django
           pip3 install psycopg2-binary
       - name: run tests for ${{ matrix.database }}

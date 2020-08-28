@@ -30,6 +30,7 @@ export function restructData(path, ref, destination) {
 
     const sdlStruct = intlToSdl(schema_source)
 
+    // TODO(pahaz): need to fix it! check `initial-data.js` structure! (part#2)
     fs.writeFileSync(destination, createSdlFileSource(sdlStruct), function (err) {
             if (err) {
                 throw err

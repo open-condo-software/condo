@@ -10,7 +10,7 @@ const { getAdapter } = require('@core/keystone/adapter.utils')
 const { getCookieSecret } = require('@core/keystone/keystone.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const conf = require('@core/config')
-const { areWeRunningTests } = require('@core/keystone/test.utils')
+const { createItems } = require('@keystonejs/server-side-graphql-client')
 
 const keystone = new Keystone({
     cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
@@ -31,10 +31,16 @@ const keystone = new Keystone({
             const users = await keystone.lists.User.adapter.findAll()
             if (!users.length) {
                 const initialData = require('./initial-data')
-                await keystone.createItems(initialData)
+                for (let { listKey, items } of initialData) {
+                    await createItems({
+                        keystone,
+                        listKey,
+                        items,
+                    })
+                }
             }
         } catch (e) {
-            console.warn("onConnectError:", e)
+            console.warn('onConnectError:', e)
         }
     },
 })

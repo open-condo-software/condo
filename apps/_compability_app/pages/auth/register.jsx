@@ -8,7 +8,7 @@ import {
     Checkbox,
 } from 'antd'
 import { useState } from 'react'
-import { useMutation } from '@apollo/react-hooks'
+import { useMutation } from '@core/next/apollo'
 import Head from 'next/head'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import gql from 'graphql-tag'

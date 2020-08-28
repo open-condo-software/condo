@@ -9,6 +9,7 @@ const { getCookieSecret } = require('@core/keystone/keystone.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const conf = require('@core/config')
 const fs = require('fs')
+const { createItems } = require('@keystonejs/server-side-graphql-client')
 
 const keystone = new Keystone({
     cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
@@ -28,9 +29,16 @@ const keystone = new Keystone({
         try {
             const users = await keystone.lists.User.adapter.findAll()
             if (!users.length) {
-                const users_data = require('./initial_data')
-                await keystone.createItems(users_data)
+                const initialData = require('./initial-data')
+                for (let { listKey, items } of initialData) {
+                    await createItems({
+                        keystone,
+                        listKey,
+                        items,
+                    })
+                }
             }
+            // TODO(pahaz): need to fix it!!! `keystone.createItems` replaced to `createItems`! example above ^^ (part#1)
             fs.readdirSync('./db_source').forEach(async file => {
                 const users_data = require(`./db_source/${file}`)
                 await keystone.createItems(users_data)
