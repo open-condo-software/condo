@@ -86,6 +86,7 @@ function AuthState ({ children, initialUser }) {
 }
 
 function PhoneAuthForm () {
+    // TODO(pahaz): how-to change phone!? If you want to register new user?!?!
     const { user, sendCode, verifyCode } = useContext(AuthContext)
     const recaptchaVerifier = useRef(null)
     const verificationCodeTextInput = useRef(null)
