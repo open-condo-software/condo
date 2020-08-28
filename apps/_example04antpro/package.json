@@ -8,14 +8,14 @@
     "test": "next build && next export"
   },
   "dependencies": {
-    "@ant-design/pro-layout": "^6.4.9",
+    "@ant-design/pro-layout": "^6.4.12",
     "@zeit/next-less": "^1.0.1",
-    "antd": "^4.5.4",
+    "antd": "^4.6.1",
     "isomorphic-unfetch": "^3.0.0",
     "less": "^3.12.2",
     "next": "9.5.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-intl": "^5.6.8"
+    "react-intl": "^5.7.1"
   }
 }

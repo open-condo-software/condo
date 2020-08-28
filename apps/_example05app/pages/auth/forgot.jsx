@@ -18,15 +18,6 @@ const START_PASSWORD_RECOVERY_MUTATION = gql`
     }
 `
 
-const layout = {
-    // labelCol: { span: 8 },
-    // wrapperCol: { span: 16 },
-}
-
-const tailLayout = {
-    // wrapperCol: { offset: 8, span: 16 },
-}
-
 const ForgotForm = () => {
     const [form] = Form.useForm()
     const intl = useIntl()
@@ -78,7 +69,6 @@ const ForgotForm = () => {
 
     return (
         <Form
-            {...layout}
             form={form}
             name="forgot"
             onFinish={onFinish}
@@ -94,7 +84,7 @@ const ForgotForm = () => {
                 <Input/>
             </Form.Item>
 
-            <Form.Item {...tailLayout} style={{ textAlign: 'center' }}>
+            <Form.Item style={{ textAlign: 'center' }}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {StartRecoveryMsg}
                 </Button>

@@ -89,11 +89,11 @@ class OptionsImplementation extends Implementation {
         ]
     }
 
-    get gqlUpdateInputFields () {
+    gqlUpdateInputFields () {
         return [`${this.path}: ${this.graphQLInputType}`]
     }
 
-    get gqlCreateInputFields () {
+    gqlCreateInputFields () {
         return [`${this.path}: ${this.graphQLInputType}`]
     }
 

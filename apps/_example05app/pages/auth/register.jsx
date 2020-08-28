@@ -15,8 +15,8 @@ import { getQueryParams } from '../../utils/url.utils'
 import { runMutation } from '../../utils/mutations.utils'
 
 const REGISTER_NEW_USER_MUTATION = gql`
-    mutation registerNewUser($name: String!, $email: String!, $password: String!, $captcha: String!) {
-        user: registerNewUser(name: $name, email: $email, password: $password, captcha: $captcha) {
+    mutation registerNewUser($data: RegisterNewUserInput!) {
+        user: registerNewUser(data: $data) {
             id
             name
             isAdmin
@@ -24,30 +24,7 @@ const REGISTER_NEW_USER_MUTATION = gql`
     }
 `
 
-const layout = {
-    // labelCol: {
-    //     xs: { span: 24 },
-    //     sm: { span: 10 },
-    // },
-    // wrapperCol: {
-    //     xs: { span: 24 },
-    //     sm: { span: 18 },
-    // },
-}
-const tailLayout = {
-    wrapperCol: {
-        // xs: {
-        //     span: 24,
-        //     offset: 0,
-        // },
-        // sm: {
-        //     span: 16,
-        //     offset: 8,
-        // },
-    },
-}
-
-const RegisterForm = () => {
+const RegisterForm = ({ children, ExtraErrorToFormFieldMsgMapping = {} }) => {
     const [form] = Form.useForm()
     const [isLoading, setIsLoading] = useState(false)
     const { signin } = useAuth()
@@ -60,6 +37,7 @@ const RegisterForm = () => {
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const EmailMsg = intl.formatMessage({ id: 'Email' })
     const NameMsg = intl.formatMessage({ id: 'Name' })
+    const ExampleNameMsg = intl.formatMessage({ id: 'example.Name' })
     const PasswordMsg = intl.formatMessage({ id: 'Password' })
     const ConfirmPasswordMsg = intl.formatMessage({ id: 'ConfirmPassword' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
@@ -74,22 +52,27 @@ const RegisterForm = () => {
     const EmailIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
     const ShouldAcceptAgreementMsg = intl.formatMessage({ id: 'pages.auth.ShouldAcceptAgreement' })
-    const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch', defaultMessage: "The two passwords that you entered do not match!" })
-    const WeMustMakeSureThatYouAreHumanMsg = intl.formatMessage({ id: 'pages.auth.WeMustMakeSureThatYouAreHuman', defaultMessage: "We must make sure that your are a human" })
-    const IHaveReadAndAcceptTheAgreementMsg = intl.formatMessage({ id: 'pages.auth.IHaveReadAndAcceptTheAgreement', defaultMessage: "I have read and accept the agreement" })
+    const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
+    const WeMustMakeSureThatYouAreHumanMsg = intl.formatMessage({ id: 'pages.auth.WeMustMakeSureThatYouAreHuman' })
+    const IHaveReadAndAcceptTheAgreementMsg = intl.formatMessage({ id: 'pages.auth.IHaveReadAndAcceptTheAgreement' })
     const ErrorToFormFieldMsgMapping = {
         '[register:email:multipleFound]': {
             name: 'email',
             errors: [EmailIsAlreadyRegisteredMsg],
         },
+        ...ExtraErrorToFormFieldMsgMapping,
     }
 
     const onFinish = values => {
         if (values.email) values.email = values.email.toLowerCase()
+        const { name, email, password, confirm, agreement, ...extra  } = values
+        const extraData = Object.fromEntries(Object.entries(extra).filter(([k, v]) => !k.startsWith('_')))
+        const data = { name, email, password, ...extraData }
+        console.log(values, data)
         setIsLoading(true)
         return runMutation({
             mutation: register,
-            variables: values,
+            variables: { data: data },
             onCompleted: () => {
                 signin({ variables: form.getFieldsValue() }).then(() => { Router.push('/') }, console.error)
             },
@@ -105,20 +88,25 @@ const RegisterForm = () => {
 
     return (
         <Form
-            {...layout}
             form={form}
             name="register"
             onFinish={onFinish}
             initialValues={initialValues}
         >
+            {children}
             <Form.Item
                 name="name"
                 label={
-                    <span> {NameMsg}&nbsp; <Tooltip title={WhatDoYouWantOthersToCallYouMsg}><QuestionCircleOutlined/></Tooltip></span>
+                    <span>
+                        {NameMsg}{' '}
+                        <Tooltip title={WhatDoYouWantOthersToCallYouMsg}>
+                            <QuestionCircleOutlined/>
+                        </Tooltip>
+                    </span>
                 }
                 rules={[{ required: true, message: PleaseInputYourNameMsg, whitespace: true }]}
             >
-                <Input/>
+                <Input placeholder={ExampleNameMsg}/>
             </Form.Item>
 
             <Form.Item
@@ -135,7 +123,7 @@ const RegisterForm = () => {
                     },
                 ]}
             >
-                <Input/>
+                <Input placeholder={'name@example.org'}/>
             </Form.Item>
 
             <Form.Item
@@ -179,35 +167,19 @@ const RegisterForm = () => {
                 <Input.Password/>
             </Form.Item>
 
-            <Form.Item label={CaptchaMsg} extra={WeMustMakeSureThatYouAreHumanMsg} style={{ display: 'none' }}>
-                <Row gutter={8}>
-                    <Col span={12}>
-                        <Form.Item
-                            name="captcha"
-                        >
-                            <Input value="0571"/>
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Button>???</Button>
-                    </Col>
-                </Row>
-            </Form.Item>
-
             <Form.Item
                 name="agreement"
                 valuePropName="checked"
                 rules={[
                     { validator: (_, value) => value ? Promise.resolve() : Promise.reject(ShouldAcceptAgreementMsg) },
                 ]}
-                {...tailLayout}
             >
                 <Checkbox>
                     {/* TODO(pahaz): agreement link! */}
                     {IHaveReadAndAcceptTheAgreementMsg}<a href="">*</a>.
                 </Checkbox>
             </Form.Item>
-            <Form.Item {...tailLayout} style={{textAlign: "center"}}>
+            <Form.Item style={{ textAlign: 'center' }}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {RegisterMsg}
                 </Button>
@@ -233,3 +205,6 @@ const RegisterPage = () => {
 
 RegisterPage.container = TopMenuOnlyLayout
 export default RegisterPage
+export {
+    RegisterForm,
+}

@@ -18,30 +18,6 @@ const CHANGE_PASSWORD_WITH_TOKEN_MUTATION = gql`
     }
 `
 
-const layout = {
-    labelCol: {
-        // xs: { span: 24 },
-        // sm: { span: 10 },
-    },
-    wrapperCol: {
-        // xs: { span: 24 },
-        // sm: { span: 18 },
-    },
-}
-
-const tailLayout = {
-    wrapperCol: {
-        // xs: {
-        //     span: 24,
-        //     offset: 0,
-        // },
-        // sm: {
-        //     span: 16,
-        //     offset: 8,
-        // },
-    },
-}
-
 const ChangePasswordForm = () => {
     const [form] = Form.useForm()
     const intl = useIntl()
@@ -93,7 +69,6 @@ const ChangePasswordForm = () => {
 
     return (
         <Form
-            {...layout}
             form={form}
             name="change-password"
             onFinish={onFinish}
@@ -146,7 +121,7 @@ const ChangePasswordForm = () => {
             </Form.Item>
 
 
-            <Form.Item {...tailLayout} style={{ textAlign: 'center' }}>
+            <Form.Item style={{ textAlign: 'center' }}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {ChangeMsg}
                 </Button>
