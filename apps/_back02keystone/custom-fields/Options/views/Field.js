@@ -2,7 +2,7 @@
 import { jsx, css } from '@emotion/core'
 import { useEffect, useState } from 'react'
 import { FieldContainer, FieldDescription, FieldInput } from '@arch-ui/fields'
-import { ShieldIcon } from '@arch-ui/icons'
+import { ShieldIcon } from '@primer/octicons-react'
 import { Lozenge } from '@arch-ui/lozenge'
 import { colors, gridSize } from '@arch-ui/theme'
 import { CheckboxPrimitive } from '@arch-ui/controls'
