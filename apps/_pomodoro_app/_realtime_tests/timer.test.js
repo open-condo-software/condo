@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const Timer = require('../realtime/application/timer')
 
 //todo(toplenboren) move to utils.js maybe

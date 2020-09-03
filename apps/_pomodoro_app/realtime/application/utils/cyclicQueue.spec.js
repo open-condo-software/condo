@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const CyclicQueue = require('./cyclicQueue')
 
 test('Cyclic queue should work as a queue', () => {

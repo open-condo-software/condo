@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const store = require('./store')
 
 test('Should get and set entites by ID', () => {

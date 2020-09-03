@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const createRandomWord = require('../realtime/application/utils/createRandomWord')
 
 test('Should generate random words', () => {

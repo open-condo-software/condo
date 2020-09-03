@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const { getSchemaObject } = require('@core/keystone/test.utils')
 const { createSchemaObject } = require('@core/keystone/test.utils')
 const { makeLoggedInClient, makeLoggedInAdminClient, makeClient, createUser, gql } = require('@core/keystone/test.utils')
