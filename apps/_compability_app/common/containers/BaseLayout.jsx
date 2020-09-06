@@ -1,50 +1,40 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { Layout } from 'antd'
-import Router from 'next/router'
 
 import MenuHeader from '../components/MenuHeader'
 
 const { Header, Content } = Layout
+
 const layoutCss = css`
     min-height: 100vh;
     background: radial-gradient(#CECECE, #fff);
 `
 
 const topMenuCss = css`
-    background: #fff;
+    background: #156E8F;
     padding: 0;
     box-shadow: 2px 0 6px rgba(0,21,41,.35);
     min-width: 100%;
+    color: #fff;
 `
 
 const mainContentCss = css`
     display:flex;
     flex-direction:column;
-    margin: 16px;
+    margin: auto;
     padding: 24px;
     height: 100%;
-    background: white;
+    max-width: 1024px;
+    background: none;
     border-radius: 2px;
 `
 
-const logoTopCss = css`
-    height: 64px;
-    margin: 0 16px;
-    cursor: pointer;
-`
-
-export function BaseLayout (props) {
-    const logo = props.logo || 'sideMenu'
-    const handleLogoClick = () => {
-        Router.push('/')
-    }
-
+export function BaseLayout(props) {
     return (
         <Layout css={layoutCss} as="section">
             <Layout style={props.topMenuWrapperStyle}>
                 <Header css={topMenuCss} style={props.topMenuStyle}>
-                    {logo === 'topMenu' ? <img css={logoTopCss} src="/logo.svg" onClick={handleLogoClick}/> : null}
                     <MenuHeader/>
                 </Header>
                 <Content as="div" style={props.mainContentWrapperStyle}>

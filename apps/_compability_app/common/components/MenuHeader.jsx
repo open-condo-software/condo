@@ -1,17 +1,21 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Avatar, Dropdown, Menu, Spin } from 'antd'
+import { Dropdown, Menu, Spin } from 'antd'
 import { useIntl } from 'react-intl'
 import { LogoutOutlined } from '@ant-design/icons'
 import Router from 'next/router'
 
 import { useAuth } from '@core/next/auth'
+import {CustomAvatar} from "./CustomAvatar";
 
 const headerRightWrapper = css`
-  float: right;
-  height: 100%;
-  margin-left: auto;
-  overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    justify_content: space-between;
+    max-width: 1024px;
+    margin:auto;
+    height: 100%;
+    overflow: hidden;
 `
 
 const headerItem = css`
@@ -31,6 +35,11 @@ const headerItem = css`
     }
 `
 
+const customAvatar = css`
+    ${headerItem};
+    margin-left: auto;
+`
+
 const headerDropdownMenu = css`
 `
 
@@ -39,12 +48,9 @@ const MenuHeader = (props) => {
     const intl = useIntl()
     const loading = Boolean(props.loading)
     const withDropdownMenu = true
-    const avatarUrl = (auth.user && auth.user.avatar && auth.user.avatar.publicUrl) ? auth.user.avatar.publicUrl : 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png'
 
     const SignOutMsg = intl.formatMessage({id: 'SignOut'})
     const SignInMsg = intl.formatMessage({id: 'SignIn'})
-    const AvatarMsg = intl.formatMessage({id: 'Avatar'})
-    const GuestUsernameMsg = intl.formatMessage({id: 'baselayout.menuheader.GuestUsername'})
 
     const menu = (
         <Menu css={headerDropdownMenu}>
@@ -52,18 +58,6 @@ const MenuHeader = (props) => {
                 <LogoutOutlined/> {SignOutMsg}
             </Menu.Item>
         </Menu>
-    )
-
-    const avatar = (
-        <div css={headerItem}>
-            <Avatar
-                size="small"
-                src={avatarUrl}
-                alt={AvatarMsg}
-                className="avatar"
-            />
-            <span className="name">{auth.user ? auth.user.name : GuestUsernameMsg}</span>
-        </div>
     )
 
     const sigin = (
@@ -80,12 +74,17 @@ const MenuHeader = (props) => {
         )
     }
 
-    const signedInItems = withDropdownMenu ? (<Dropdown overlay={menu}>{avatar}</Dropdown>) : (avatar)
-    const signedOutItems = (sigin)
+    const signedInItems = withDropdownMenu
+        ? (
+            <Dropdown overlay={menu}>
+                <CustomAvatar auth={auth} styles={customAvatar}/>
+            </Dropdown>
+        )
+        : <CustomAvatar auth={auth} styles={customAvatar}/>
 
     return (
         <div css={headerRightWrapper}>
-            {auth.isAuthenticated ? signedInItems : signedOutItems}
+            {auth.isAuthenticated ? signedInItems : sigin}
         </div>
     )
 }
