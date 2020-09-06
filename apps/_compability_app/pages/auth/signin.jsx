@@ -5,7 +5,7 @@ import { useState } from 'react'
 import Head from 'next/head'
 import Router from 'next/router'
 
-import { BaseLayout } from '../../containers'
+import { BaseLayout } from '../../common/containers'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from 'react-intl'
 

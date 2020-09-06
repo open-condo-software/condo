@@ -1,7 +1,7 @@
 import { Typography } from 'antd'
 
-import CustomLink from '../components/CustomLink'
-import Translate from '../components/Translate'
+import CustomLink from '../common/components/CustomLink'
+import Translate from '../common/components/Translate'
 
 function HomePage () {
     return (

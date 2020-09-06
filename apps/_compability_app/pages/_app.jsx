@@ -3,7 +3,6 @@ import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import "antd/dist/antd.css";
-
 import { flatten } from '../util'
 import { withApollo } from '@core/next/apollo'
 import { withAuth } from '@core/next/auth'

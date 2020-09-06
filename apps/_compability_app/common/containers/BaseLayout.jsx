@@ -11,12 +11,6 @@ const layoutCss = css`
     background: radial-gradient(#CECECE, #fff);
 `
 
-const topMenuWrapperCss = css`
-`
-
-const mainContentWrapperCss = css`
-`
-
 const topMenuCss = css`
     background: #fff;
     padding: 0;
@@ -48,12 +42,12 @@ export function BaseLayout (props) {
 
     return (
         <Layout css={layoutCss} as="section">
-            <Layout css={topMenuWrapperCss} style={props.topMenuWrapperStyle}>
+            <Layout style={props.topMenuWrapperStyle}>
                 <Header css={topMenuCss} style={props.topMenuStyle}>
                     {logo === 'topMenu' ? <img css={logoTopCss} src="/logo.svg" onClick={handleLogoClick}/> : null}
                     <MenuHeader/>
                 </Header>
-                <Content css={mainContentWrapperCss} as="div" style={props.mainContentWrapperStyle}>
+                <Content as="div" style={props.mainContentWrapperStyle}>
                     <div css={mainContentCss} as="main" style={props.mainContentStyle}>
                         {props.children}
                     </div>

@@ -14,7 +14,7 @@ import { QuestionCircleOutlined } from '@ant-design/icons'
 import gql from 'graphql-tag'
 
 import Router from 'next/router'
-import { BaseLayout } from '../../containers'
+import { BaseLayout } from '../../common/containers'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from 'react-intl'
 
