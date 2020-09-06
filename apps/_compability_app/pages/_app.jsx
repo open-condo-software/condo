@@ -7,7 +7,7 @@ import { flatten } from '../util'
 import { withApollo } from '@core/next/apollo'
 import { withAuth } from '@core/next/auth'
 import { withIntl } from '@core/next/intl'
-import { BaseLayout, GlobalErrorBoundary } from '../containers'
+import { BaseLayout, GlobalErrorBoundary } from '../common/containers'
 
 const MyApp = ({ Component, pageProps }) => {
     const LayoutComponent = Component.container || BaseLayout
