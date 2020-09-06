@@ -7,7 +7,7 @@ import { AuthLayout } from "../common/containers";
 
 function HomePage () {
     return (
-        <AuthLayout redirect>
+        <AuthLayout>
             <Typography.Title>
                 <Translate id={"pages.index.title"}/>
             </Typography.Title>

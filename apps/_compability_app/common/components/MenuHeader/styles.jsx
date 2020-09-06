@@ -1,5 +1,10 @@
 import {css} from "@emotion/core";
 
+export const addition_menu_style = {
+    background: "#156E8F",
+    borderBottom: "none",
+};
+
 export const headerRightWrapper = css`
     display: flex;
     flex-direction: row;
@@ -8,7 +13,7 @@ export const headerRightWrapper = css`
     margin:auto;
     height: 100%;
     overflow: hidden;
-`
+`;
 
 export const headerItem = css`
     display: inline-block;

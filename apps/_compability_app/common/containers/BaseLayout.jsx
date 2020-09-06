@@ -5,12 +5,12 @@ import { Layout } from 'antd'
 import { MenuHeader } from '../components'
 import {useAuth} from "@core/next/auth";
 
-const { Header, Content } = Layout
+const { Header, Content } = Layout;
 
 const layoutCss = css`
     min-height: 100vh;
     background: radial-gradient(#CECECE, #fff);
-`
+`;
 
 const topMenuCss = css`
     background: #156E8F;
@@ -18,7 +18,7 @@ const topMenuCss = css`
     box-shadow: 2px 0 6px rgba(0,21,41,.35);
     min-width: 100%;
     color: #fff;
-`
+`;
 
 const mainContentCss = css`
     display:flex;
@@ -29,7 +29,7 @@ const mainContentCss = css`
     max-width: 1024px;
     background: none;
     border-radius: 2px;
-`
+`;
 
 export function BaseLayout(props) {
     const auth = useAuth();
