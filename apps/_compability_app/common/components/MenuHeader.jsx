@@ -33,39 +33,14 @@ const headerItem = css`
     .avatar {
         margin-right: 8px;
     }
-`
+`;
 
 const customAvatar = css`
     ${headerItem};
     margin-left: auto;
-`
+`;
 
-const headerDropdownMenu = css`
-`
-
-const MenuHeader = (props) => {
-    const auth = useAuth()
-    const intl = useIntl()
-    const loading = Boolean(props.loading)
-    const withDropdownMenu = true
-
-    const SignOutMsg = intl.formatMessage({id: 'SignOut'})
-    const SignInMsg = intl.formatMessage({id: 'SignIn'})
-
-    const menu = (
-        <Menu css={headerDropdownMenu}>
-            <Menu.Item key="signout" onClick={auth.signout}>
-                <LogoutOutlined/> {SignOutMsg}
-            </Menu.Item>
-        </Menu>
-    )
-
-    const sigin = (
-        <div css={headerItem} onClick={() => Router.push('/auth/signin')}>
-            <span className="name">{SignInMsg}</span>
-        </div>
-    )
-
+const MenuHeader = ({ loading }) => {
     if (loading) {
         return (
             <div css={headerRightWrapper}>
@@ -74,17 +49,38 @@ const MenuHeader = (props) => {
         )
     }
 
-    const signedInItems = withDropdownMenu
-        ? (
-            <Dropdown overlay={menu}>
-                <CustomAvatar auth={auth} styles={customAvatar}/>
-            </Dropdown>
-        )
-        : <CustomAvatar auth={auth} styles={customAvatar}/>
+    const auth = useAuth();
+    const intl = useIntl();
+
+    const menu = (
+        <Menu>
+            <Menu.Item key="signout" onClick={auth.signout}>
+                <LogoutOutlined/>
+                {intl.formatMessage({id: 'SignOut'})}
+            </Menu.Item>
+        </Menu>
+    )
+
 
     return (
         <div css={headerRightWrapper}>
-            {auth.isAuthenticated ? signedInItems : sigin}
+            {
+                auth.isAuthenticated
+                    ?  (
+                        <Dropdown overlay={menu} trigger={['click']}>
+                            {/*FIXME(ddanev): dropdown doesn't work without this div wrapper*/}
+                            <div css={customAvatar}>
+                                <CustomAvatar auth={auth}/>
+                            </div>
+                        </Dropdown>)
+                    : (
+                        <div css={headerItem} onClick={() => Router.push('/auth/signin')}>
+                            <span className="name">
+                                {intl.formatMessage({id: 'SignIn'})}
+                            </span>
+                        </div>
+                    )
+            }
         </div>
     )
 }
