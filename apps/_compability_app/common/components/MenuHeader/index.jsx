@@ -87,12 +87,18 @@ export class MenuHeader extends React.Component {
 
     handleMenuItemClick = (e) => {
         this.setState({ active: e.key }, () => {
-            Router.push(e.route);
+            const route_config = this.routes_config.find(({key}) => key === e.key);
+
+            if (!route_config) {
+                return;
+            }
+
+            Router.push(route_config.route);
         });
     };
 
     renderMenuItems() {
-        return this.menu_scheme.map((menuItem) => {
+        return this.routes_config.map((menuItem) => {
             const {key} = menuItem;
 
             return (
@@ -112,7 +118,7 @@ export class MenuHeader extends React.Component {
         color: "#fff",
     };
 
-    menu_scheme = [
+    routes_config = [
         {
             key: "home",
             title: "Home",

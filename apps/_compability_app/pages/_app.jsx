@@ -1,8 +1,8 @@
+import "antd/dist/antd.css";
 import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
-import "antd/dist/antd.css";
 import { flatten } from '../util'
 import { withApollo } from '@core/next/apollo'
 import { withAuth } from '@core/next/auth'
@@ -10,7 +10,7 @@ import { withIntl } from '@core/next/intl'
 import { BaseLayout, GlobalErrorBoundary } from '../common/containers'
 
 const MyApp = ({ Component, pageProps }) => {
-    const LayoutComponent = Component.container || BaseLayout
+    const LayoutComponent = Component.container || BaseLayout;
 
     return (
         <GlobalErrorBoundary>
@@ -28,15 +28,15 @@ const MyApp = ({ Component, pageProps }) => {
             </CacheProvider>
         </GlobalErrorBoundary>
     )
-}
+};
 
 function messagesImporter(locale) {
     return import(`../lang/${locale}.json`).then(data => flatten(data.default))
 }
 
 function getApolloClientConfig() {
-    const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
-    const apolloGraphQLUrl = `${serverUrl}/admin/api`
+    const serverUrl = process.env.SERVER_URL || 'http://localhost:3000';
+    const apolloGraphQLUrl = `${serverUrl}/admin/api`;
 
     return {
         serverUrl,
