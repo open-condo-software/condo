@@ -31,6 +31,18 @@ const MyApp = ({ Component, pageProps }) => {
     )
 }
 
-const messagesImporter = (locale) => import(`../lang/${locale}.json`).then(data => flatten(data.default));
+function messagesImporter(locale) {
+    return import(`../lang/${locale}.json`).then(data => flatten(data.default))
+}
 
-export default withApollo({ ssr: true })(withIntl({ ssr: true, messagesImporter })(withAuth({ ssr: false })(MyApp)))
+function getApolloClientConfig() {
+    const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
+    const apolloGraphQLUrl = `${serverUrl}/admin/api`
+
+    return {
+        serverUrl,
+        apolloGraphQLUrl
+    }
+}
+
+export default withApollo({ ssr: true, getApolloClientConfig })(withIntl({ ssr: true, messagesImporter })(withAuth({ ssr: false })(MyApp)))
