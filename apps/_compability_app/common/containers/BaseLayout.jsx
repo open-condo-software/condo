@@ -3,6 +3,7 @@ import { css, jsx } from '@emotion/core'
 import { Layout } from 'antd'
 
 import { MenuHeader } from '../components'
+import {useAuth} from "@core/next/auth";
 
 const { Header, Content } = Layout
 
@@ -31,11 +32,14 @@ const mainContentCss = css`
 `
 
 export function BaseLayout(props) {
+    const auth = useAuth();
+
     return (
         <Layout css={layoutCss} as="section">
             <Layout style={props.topMenuWrapperStyle}>
                 <Header css={topMenuCss} style={props.topMenuStyle}>
-                    <MenuHeader/>
+                    {/*TODO(ddanev): add auth header/menu*/}
+                    {auth.isAuthenticated ? <MenuHeader/> : null}
                 </Header>
                 <Content as="div" style={props.mainContentWrapperStyle}>
                     <div css={mainContentCss} as="main" style={props.mainContentStyle}>

@@ -33,23 +33,12 @@ const MenuHeader = ({ loading }) => {
 
     return (
         <div css={headerRightWrapper}>
-            {
-                auth.isAuthenticated
-                    ?  (
-                        <Dropdown overlay={menu} trigger={['click']}>
-                            {/*FIXME(ddanev): dropdown doesn't work without this div wrapper*/}
-                            <div css={customAvatar}>
-                                <CustomAvatar auth={auth}/>
-                            </div>
-                        </Dropdown>)
-                    : (
-                        <div css={headerItem} onClick={() => Router.push('/auth/signin')}>
-                            <span className="name">
-                                {intl.formatMessage({id: 'SignIn'})}
-                            </span>
-                        </div>
-                    )
-            }
+            <Dropdown overlay={menu} trigger={['click']}>
+                {/*FIXME(ddanev): dropdown doesn't work without this div wrapper*/}
+                <div css={customAvatar}>
+                    <CustomAvatar auth={auth}/>
+                </div>
+            </Dropdown>
         </div>
     )
 }
