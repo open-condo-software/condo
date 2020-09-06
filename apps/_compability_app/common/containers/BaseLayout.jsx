@@ -2,7 +2,7 @@
 import { css, jsx } from '@emotion/core'
 import { Layout } from 'antd'
 
-import MenuHeader from '../components/MenuHeader'
+import { MenuHeader } from '../components'
 
 const { Header, Content } = Layout
 

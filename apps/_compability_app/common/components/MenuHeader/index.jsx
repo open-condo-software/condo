@@ -1,44 +1,13 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core'
+import { jsx } from '@emotion/core'
 import { Dropdown, Menu, Spin } from 'antd'
 import { useIntl } from 'react-intl'
 import { LogoutOutlined } from '@ant-design/icons'
 import Router from 'next/router'
 
 import { useAuth } from '@core/next/auth'
-import {CustomAvatar} from "./CustomAvatar";
-
-const headerRightWrapper = css`
-    display: flex;
-    flex-direction: row;
-    justify_content: space-between;
-    max-width: 1024px;
-    margin:auto;
-    height: 100%;
-    overflow: hidden;
-`
-
-const headerItem = css`
-    display: inline-block;
-    height: 100%;
-    padding: 0 16px;
-    cursor: pointer;
-    transition: all 0.3s;
-    > i {
-        vertical-align: middle;
-    }
-    &:hover {
-        background: rgba(0, 0, 0, 0.025);
-    }
-    .avatar {
-        margin-right: 8px;
-    }
-`;
-
-const customAvatar = css`
-    ${headerItem};
-    margin-left: auto;
-`;
+import { CustomAvatar } from "../CustomAvatar";
+import { headerRightWrapper, headerItem, customAvatar } from "./styles"
 
 const MenuHeader = ({ loading }) => {
     if (loading) {
@@ -85,4 +54,4 @@ const MenuHeader = ({ loading }) => {
     )
 }
 
-export default MenuHeader
+export { MenuHeader }
