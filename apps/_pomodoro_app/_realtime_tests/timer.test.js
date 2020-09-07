@@ -14,6 +14,7 @@ test('Timer should start', () => {
     x.start()
     sleep(1000).then(() => {
         expect(x.getTime()).toBe(9)
+        x.pause()
     })
 })
 
@@ -35,11 +36,13 @@ test('Timer should reset', () => {
         expect(x.getTime()).toBe(9)
         x.reset()
         expect(x.getTime()).toBe(10)
+        x.pause()
     })
 })
 
 test('Timers should be safe to work async', async () => {
     const x = new Timer(10, 10, 10)
+    // noinspection JSSuspiciousNameCombination
     const y = x
     const z = x
     // first client pushes start:
@@ -54,6 +57,9 @@ test('Timers should be safe to work async', async () => {
     y.pause()
     await sleep(1000)
     expect(x.getTime()).toBe(8)
+    x.pause()
+    y.pause()
+    z.pause()
 })
 
 // we should wait more then 10 secs in order to pass the last test
@@ -77,4 +83,5 @@ test('Timers should give correct period', async () => {
     await sleep(2000) // big_break
     expect(x.getPeriod()).toBe('BIG_BREAK')
     expect(x.getNextPeriod()).toBe('WORK')
+    x.pause()
 });
