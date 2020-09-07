@@ -26,9 +26,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: yarn install --verbose --registry https://registry.npmjs.org
       - run: yarn run jest ./packages
+      - run: yarn workspace @app/_pomodoro_app test
       - run: yarn workspace @app/_example01app test
       - run: yarn workspace @app/_example02app test
       - run: yarn workspace @app/_example03ant test
       - run: yarn workspace @app/_example04antpro test
       - run: yarn workspace @app/_example05app test
-      - run: yarn workspace @app/_pomodoro_app test
