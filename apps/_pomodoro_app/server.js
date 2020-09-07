@@ -4,6 +4,7 @@ const { keystone, apps } = require('./index.js')
 const realtime = require('./realtime/server')
 const port = parseInt(process.env.PORT || '3001')
 
+// todo(toplenboren) Remove Keystone.js — we don't need it
 keystone
     .prepare({
         apps: apps,
