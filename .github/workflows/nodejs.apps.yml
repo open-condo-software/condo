@@ -31,3 +31,4 @@ jobs:
       - run: yarn workspace @app/_example03ant test
       - run: yarn workspace @app/_example04antpro test
       - run: yarn workspace @app/_example05app test
+      - run: yarn workspace @app/_pomodoro_app test
