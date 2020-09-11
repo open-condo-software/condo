@@ -39,10 +39,10 @@ const keystone = new Keystone({
                 }
             }
             // TODO(pahaz): need to fix it!!! `keystone.createItems` replaced to `createItems`! example above ^^ (part#1)
-            fs.readdirSync('./db_source').forEach(async file => {
-                const users_data = require(`./db_source/${file}`)
-                await keystone.createItems(users_data)
-            });
+            // fs.readdirSync('./db_source').forEach(async file => {
+            //     const users_data = require(`./db_source/${file}`)
+            //     await keystone.createItems(users_data)
+            // });
         } catch (e) {
             console.warn('Keystone.onConnect() Error:', e)
         }

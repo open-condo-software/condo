@@ -9,8 +9,8 @@ import {
     Divider,
 } from 'antd'
 
-import { AuthLayout } from '../../containers'
-import Translate from '../../components/Translate'
+import { AuthLayout } from '../../common/containers'
+import Translate from '../../common/components/Translate'
 
 export default function DiscTest({disc_data}) {
     const [form] = Form.useForm()
