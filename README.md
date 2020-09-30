@@ -486,4 +486,4 @@ Every app should have `multi-app-support.js` file. Check `_back02keystone`, `_ex
  - `yarn prettier --check <directory>` check if files in directory are processed with prettier
  - To ignore a whole application change the global `.prettierignore` 
 
-[//]: # "last point would be changed if this > (see this: https://github.com/prettier/prettier/pull/6203) get merged into master"
+[//]: # "last point would be changed if this > https://github.com/prettier/prettier/pull/6203 gets merged into master"
