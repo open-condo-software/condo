@@ -479,3 +479,11 @@ Every app should have `multi-app-support.js` file. Check `_back02keystone`, `_ex
  - `yarn <command>` -- run command (`yarn dev`)
  - `yarn workspace @app/<name> <command>` -- run command inside workspace (`yarn workspace @app/web dev`)
  - `yarn --cwd <app-path-name> <command>` -- run command inside app (`yarn --cwd apps/web dev`)
+
+### prettier
+
+ - `yarn prettier --write <directory>` process files in directory by prettier
+ - `yarn prettier --check <directory>` check if files in directory are processed with prettier
+ - To ignore a whole application change the global `.prettierignore` 
+
+[//]: # "last point would be changed if this > (see this: https://github.com/prettier/prettier/pull/6203) get merged into master"
