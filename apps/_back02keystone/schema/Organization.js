@@ -1,6 +1,6 @@
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
-const { Text, Checkbox, Password, CalendarDay, File, Relationship, DateTime } = require('@keystonejs/fields')
+const { Text, File } = require('@keystonejs/fields')
 const { Organization: BaseOrganization, OrganizationToUserLink: BaseOrganizationToUserLink, RegisterNewOrganizationService: BaseRegisterNewOrganizationService, InviteNewUserToOrganizationService: BaseInviteNewUserToOrganizationService, AcceptOrRejectOrganizationInviteService } = require('@core/keystone/schemas/Organization')
 const conf = require('@core/config')
 const faker = require('faker')
