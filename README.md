@@ -32,6 +32,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] Auth: SignIn/SignOut Page (example)
  - [x] Auth: SignIn next url support
  - [x] Auth: AuthRequired component
+ - [x] Auth: ByPhone (API, example)
  - [ ] Auth: Options captcha support
  - [x] User: Schema, API, Tests
  - [x] Organization: CRUD: Schema, API, Tests
@@ -48,6 +49,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] User: unique phone/email check (for mongo/postgres)! 
  - [x] Register: Schema, API, Test
  - [x] Register: Page (example)
+ - [x] Register: ByPhone (API, example)
  - [ ] Register: Email verification (isEmailVerified)
  - [x] Register: Phone verification (isPhoneVerified)
  - [ ] Register: Extensibility (like django-registrations)

@@ -1,5 +1,5 @@
-import BasicLayout from "./BasicLayout";
-import PageHeaderWrapper from "./PageHeaderWrapper";
-import GridContent from "./GridContent";
+import BasicLayout from './BasicLayout'
+import PageHeaderWrapper from './PageHeaderWrapper'
+import GridContent from './GridContent'
 
-export { BasicLayout, PageHeaderWrapper, GridContent };
+export { BasicLayout, PageHeaderWrapper, GridContent }

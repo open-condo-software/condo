@@ -12,7 +12,7 @@ import { useMutation } from '@core/next/apollo'
 import { TopMenuOnlyLayout } from '../../containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
 import { runMutation } from '../../utils/mutations.utils'
-import { PhoneAuthForm, AuthState } from './register.phone'
+import { AuthState, PhoneAuthForm } from './register.phone'
 
 let SIGNIN_BY_FIREBASE_ID_TOKEN_MUTATION = gql`
     mutation authenticateUserWithFirebaseIdToken ($token: String!) {
