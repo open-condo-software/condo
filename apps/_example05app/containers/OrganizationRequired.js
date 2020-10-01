@@ -41,7 +41,9 @@ function OrganizationRequiredAfterAuthRequired ({ children }) {
     }
 
     if (!link) return <>
-        <Typography.Title css={css`display: block; text-align: center;`}>{SelectOrganizationRequiredMsg}</Typography.Title>
+        <Typography.Title css={css`display: block; text-align: center;`}>
+            {SelectOrganizationRequiredMsg}
+        </Typography.Title>
         <RedirectToOrganizations/>
     </>
 

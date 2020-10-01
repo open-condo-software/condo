@@ -65,7 +65,7 @@ const RegisterForm = ({ children, ExtraErrorToFormFieldMsgMapping = {} }) => {
 
     const onFinish = values => {
         if (values.email) values.email = values.email.toLowerCase()
-        const { name, email, password, confirm, agreement, ...extra  } = values
+        const { name, email, password, confirm, agreement, ...extra } = values
         const extraData = Object.fromEntries(Object.entries(extra).filter(([k, v]) => !k.startsWith('_')))
         const data = { name, email, password, ...extraData }
         console.log(values, data)
