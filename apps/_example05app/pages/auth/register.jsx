@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Button, Checkbox, Col, Form, Input, Row, Tooltip, Typography } from 'antd'
+import { Button, Checkbox, Form, Input, Tooltip, Typography } from 'antd'
 import { useState } from 'react'
 import { useMutation } from '@core/next/apollo'
 import Head from 'next/head'
