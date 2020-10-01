@@ -29,7 +29,7 @@ const AuthenticateUserWithFirebaseIdTokenService = new GQLCustomSchema('Authenti
 
                 const { uid, phone_number } = await admin.auth().verifyIdToken(firebaseIdToken)
 
-                const { errors: err1, data: data1 } = await context.executeGraphQL({
+                const { errors: findErrors, data: findData } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
                         query findUserByImportId($uid: String!) {
@@ -44,23 +44,23 @@ const AuthenticateUserWithFirebaseIdTokenService = new GQLCustomSchema('Authenti
                     variables: { uid },
                 })
 
-                if (err1 || !data1.objs || data1.objs.length !== 1 || !data1.objs[0].id) {
+                if (findErrors || !findData.objs || findData.objs.length !== 1 || !findData.objs[0].id) {
                     const msg = '[notfound.error] Unable to find user. Try to register'
-                    console.error(msg, err1)
+                    console.error(msg, findErrors)
                     throw new Error(msg)
                 }
 
-                const userObj = data1.objs[0]
+                const userData = findData.objs[0]
 
-                if (userObj.phone !== phone_number) {
+                if (userData.phone !== phone_number) {
                     // TODO(pahaz): need to replace obj.phone by Firebase.phone_number
                 }
 
                 const { keystone } = await getSchemaCtx(AuthenticateUserWithFirebaseIdTokenService)
-                await context.startAuthedSession({ item: userObj, list: keystone.lists['User'] })
+                await context.startAuthedSession({ item: userData, list: keystone.lists['User'] })
 
                 const result = {
-                    item: await getById('User', userObj.id),
+                    item: await getById('User', userData.id),
                 }
                 await AuthenticateUserWithFirebaseIdTokenService.emit('afterAuthenticateUserWithFirebaseIdToken', {
                     parent, args, context, info, extra, result,
