@@ -1,5 +1,5 @@
 import { IntlProvider, useIntl } from 'react-intl'
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import cookie from 'js-cookie'
 import nextCookie from 'next-cookies'
 
