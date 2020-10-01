@@ -64,25 +64,12 @@ const AuthProvider = ({ children, initialUserValue }) => {
     const client = useApolloClient()
     const [user, setUser] = useState(initialUserValue)
 
-    // useEffect(() => {
-    //     // validate current user state without avoidable useQuery re-renders
-    //     client.query({ query: USER_QUERY }).then(({ data: { authenticatedUser, error } }) => {
-    //         if (error) { return onError(error) }
-    //         if (JSON.stringify(authenticatedUser) === JSON.stringify(user)) return
-    //         if (DEBUG_RERENDERS) console.log('AuthProvider() newUser', authenticatedUser)
-    //         setUser(authenticatedUser)
-    //     }, onError)
-    // }, [user])
-
-    const { loading: userLoading } = useQuery(USER_QUERY, {
-        onCompleted: ({ authenticatedUser, error }) => {
-            if (error) { return onError(error) }
-            if (JSON.stringify(authenticatedUser) === JSON.stringify(user)) return
-            if (DEBUG_RERENDERS) console.log('AuthProvider() newUser', authenticatedUser)
-            setUser(authenticatedUser)
-        },
+    const { data: userData, loading: userLoading, refetch } = useQuery(USER_QUERY, {
+        onCompleted: onData,
         onError,
     })
+
+    useEffect(() => { onData(userData) }, [userData])
 
     const [signin, { loading: signinLoading }] = useMutation(SIGNIN_MUTATION, {
         onCompleted: async ({ authenticateUserWithPassword: { item } = {}, error }) => {
@@ -120,6 +107,14 @@ const AuthProvider = ({ children, initialUserValue }) => {
         throw error
     }
 
+    function onData (data) {
+        if (data.error) { return onError(data.error) }
+        if (!data.authenticatedUser) { console.warn('Unexpected auth.onData(..) call') }
+        if (JSON.stringify(data.authenticatedUser) === JSON.stringify(user)) return
+        if (DEBUG_RERENDERS) console.log('AuthProvider() newUser', data.authenticatedUser)
+        setUser(data.authenticatedUser)
+    }
+
     if (DEBUG_RERENDERS) console.log('AuthProvider()', user)
 
     return (
@@ -127,6 +122,7 @@ const AuthProvider = ({ children, initialUserValue }) => {
             value={{
                 isAuthenticated: !!user,
                 isLoading: userLoading || signinLoading || signoutLoading,
+                refetch,
                 signin,
                 signout,
                 user,

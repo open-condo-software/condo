@@ -372,7 +372,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
 
                 {
                     // TODO(pahaz): check email is valid!
-                    const { errors: errors1, data: data1 } = await context.executeGraphQL({
+                    const { errors, data } = await context.executeGraphQL({
                         context: context.createContext({ skipAccessControl: true }),
                         query: `
                         query findUserByEmail($email: String!) {
@@ -384,13 +384,13 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                         variables: { email },
                     })
 
-                    if (errors1) {
+                    if (errors) {
                         const msg = '[error] Unable to call find service'
-                        console.error(msg, errors1)
+                        console.error(msg, errors)
                         throw new Error(msg)
                     }
 
-                    if (data1.users.length !== 0) {
+                    if (data.users.length !== 0) {
                         throw new Error(`[register:email:multipleFound] User with this email is already registered`)
                     }
                 }

@@ -151,11 +151,30 @@ async function getById (schemaName, id) {
     else return null
 }
 
+async function getSchemaCtx(schemaObjOrName) {
+    let name
+    if (typeof schemaObjOrName === 'object' && GQL_SCHEMA_TYPES.includes(schemaObjOrName._type) && schemaObjOrName.name) {
+        name = schemaObjOrName.name
+    } else if (typeof schemaObjOrName === 'string') {
+        name = schemaObjOrName
+    } else {
+        throw new Error('unexpected type')
+    }
+
+    if (!SCHEMAS.has(name)) throw new Error(`Schema ${name} is not registered yet`)
+    const schema = SCHEMAS.get(name)
+    return {
+        name: schema.name,
+        keystone: schema._keystone,
+    }
+}
+
 module.exports = {
     GQLListSchema,
     GQLCustomSchema,
     registerSchemas,
     unregisterAllSchemas,
+    getSchemaCtx,
     find,
     getById,
     getByCondition,
