@@ -1,39 +1,38 @@
-import { IntlProvider as BaseIntlProvider } from "react-intl";
-
+import { IntlProvider as BaseIntlProvider } from 'react-intl'
 
 const LocaleContext = React.createContext({
     locale: 'en',
-    setLocale: () => null
-});
+    setLocale: () => null,
+})
 
 const getMessages = async (locale) => {
     try {
         return require(`../../lang/${locale}.json`)
     } catch (error) {
-        console.error(error);
+        console.error(error)
         return require(`../../lang/en.json`)
     }
-};
+}
 
 const getLanguage = () => {
-    let language = null;
+    let language = null
     if (typeof window !== 'undefined') {
         if (localStorage) {
-            language = localStorage.getItem('locale');
+            language = localStorage.getItem('locale')
         }
         if (!language && navigator) {
-            language = navigator.language.slice(0, 2);
+            language = navigator.language.slice(0, 2)
         }
     }
-    return language || 'en';
-};
+    return language || 'en'
+}
 
-function IntlProvider(props) {
-    const [locale, setLocale] = React.useState(getLanguage());
-    const [messages, setMessages] = React.useState({});
+function IntlProvider (props) {
+    const [locale, setLocale] = React.useState(getLanguage())
+    const [messages, setMessages] = React.useState({})
     React.useEffect(() => {
-        getMessages(locale).then(messages => setMessages(messages));
-    }, [locale]);
+        getMessages(locale).then(messages => setMessages(messages))
+    }, [locale])
 
     return (
         <BaseIntlProvider key={locale} locale={locale} messages={messages}>
@@ -41,9 +40,9 @@ function IntlProvider(props) {
                 {props.children}
             </LocaleContext.Provider>
         </BaseIntlProvider>
-    );
+    )
 }
 
-IntlProvider.LocaleContext = LocaleContext;
+IntlProvider.LocaleContext = LocaleContext
 
-export default IntlProvider;
+export default IntlProvider

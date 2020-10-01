@@ -1,22 +1,22 @@
-import React from "react";
+import React from 'react'
 
-import { Avatar, Dropdown, Menu, Spin } from "antd";
-import { LogoutOutlined } from '@ant-design/icons';
+import { Avatar, Dropdown, Menu, Spin } from 'antd'
+import { LogoutOutlined } from '@ant-design/icons'
 
-import style from './MenuHeader.less';
+import style from './MenuHeader.less'
 
 const MenuHeader = () => {
-    const loading = false;
-    const withDropdownMenu = true;
+    const loading = false
+    const withDropdownMenu = true
 
     const menu = (
-        <Menu className={"umi-plugin-layout-menu"}>
+        <Menu className={'umi-plugin-layout-menu'}>
             <Menu.Item key="logout" onClick={console.log}>
-                <LogoutOutlined />
+                <LogoutOutlined/>
                 Logout
             </Menu.Item>
         </Menu>
-    );
+    )
 
     const avatar = (
         <span className="umi-plugin-layout-action umi-plugin-layout-account">
@@ -30,14 +30,14 @@ const MenuHeader = () => {
           Username!
         </span>
       </span>
-    );
+    )
 
     if (loading) {
         return (
             <div className="umi-plugin-layout-right">
                 <Spin size="small" style={{ marginLeft: 8, marginRight: 8 }}/>
             </div>
-        );
+        )
     }
     return (
         <div className="umi-plugin-layout-right">
@@ -52,7 +52,7 @@ const MenuHeader = () => {
                 avatar
             )}
         </div>
-    );
-};
+    )
+}
 
-export default MenuHeader;
+export default MenuHeader
