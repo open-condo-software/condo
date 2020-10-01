@@ -1,14 +1,13 @@
-import React, { Fragment } from 'react';
-import { Button, Card, Steps, Result, Descriptions } from 'antd';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { DingdingOutlined } from '@ant-design/icons';
+import React, { Fragment } from 'react'
+import { Button, Card, Steps, Result, Descriptions } from 'antd'
+import { FormattedMessage, useIntl } from 'react-intl'
+import { DingdingOutlined } from '@ant-design/icons'
 
-import { GridContent } from "../../layout/BasicLayout";
+import { GridContent } from '../../layout/BasicLayout'
 
-import './success.less';
+import './success.less'
 
-
-const { Step } = Steps;
+const { Step } = Steps
 const desc1 = (
     <div className="title">
         <div
@@ -16,7 +15,7 @@ const desc1 = (
                 margin: '8px 0 4px',
             }}
         >
-            <FormattedMessage id="resultandsuccess.success.step1-operator" defaultMessage="Qu Lili" />
+            <FormattedMessage id="resultandsuccess.success.step1-operator" defaultMessage="Qu Lili"/>
             <DingdingOutlined
                 style={{
                     marginLeft: 8,
@@ -26,7 +25,7 @@ const desc1 = (
         </div>
         <div>2016-12-12 12:32</div>
     </div>
-);
+)
 const desc2 = (
     <div
         style={{
@@ -39,7 +38,7 @@ const desc2 = (
                 margin: '8px 0 4px',
             }}
         >
-            <FormattedMessage id="resultandsuccess.success.step2-operator" defaultMessage="Zhou Maomao" />
+            <FormattedMessage id="resultandsuccess.success.step2-operator" defaultMessage="Zhou Maomao"/>
             <a href="">
                 <DingdingOutlined
                     style={{
@@ -47,11 +46,11 @@ const desc2 = (
                         marginLeft: 8,
                     }}
                 />
-                <FormattedMessage id="resultandsuccess.success.step2-extra" defaultMessage="Urge" />
+                <FormattedMessage id="resultandsuccess.success.step2-extra" defaultMessage="Urge"/>
             </a>
         </div>
     </div>
-);
+)
 const content = (
     <>
         <Descriptions
@@ -74,10 +73,10 @@ const content = (
             </Descriptions.Item>
             <Descriptions.Item
                 label={
-                    <FormattedMessage id="resultandsuccess.success.principal" defaultMessage="Principal：" />
+                    <FormattedMessage id="resultandsuccess.success.principal" defaultMessage="Principal："/>
                 }
             >
-                <FormattedMessage id="resultandsuccess.success.step1-operator" defaultMessage="Qu Lili" />
+                <FormattedMessage id="resultandsuccess.success.step1-operator" defaultMessage="Qu Lili"/>
             </Descriptions.Item>
             <Descriptions.Item
                 label={
@@ -90,7 +89,7 @@ const content = (
                 2016-12-12 ~ 2017-12-12
             </Descriptions.Item>
         </Descriptions>
-        <br />
+        <br/>
         <Steps progressDot current={1}>
             <Step
                 title={
@@ -143,28 +142,28 @@ const content = (
                             fontSize: 14,
                         }}
                     >
-            <FormattedMessage id="resultandsuccess.success.step4-title" defaultMessage="Finish" />
+            <FormattedMessage id="resultandsuccess.success.step4-title" defaultMessage="Finish"/>
           </span>
                 }
             />
         </Steps>
     </>
-);
+)
 const extra = (
     <Fragment>
         <Button type="primary">
-            <FormattedMessage id="resultandsuccess.success.btn-return" defaultMessage="Back to list" />
+            <FormattedMessage id="resultandsuccess.success.btn-return" defaultMessage="Back to list"/>
         </Button>
         <Button>
-            <FormattedMessage id="resultandsuccess.success.btn-project" defaultMessage="View project" />
+            <FormattedMessage id="resultandsuccess.success.btn-project" defaultMessage="View project"/>
         </Button>
         <Button>
-            <FormattedMessage id="resultandsuccess.success.btn-print" defaultMessage="Print" />
+            <FormattedMessage id="resultandsuccess.success.btn-print" defaultMessage="Print"/>
         </Button>
     </Fragment>
-);
+)
 export default () => {
-    const intl = useIntl();
+    const intl = useIntl()
 
     return (<GridContent>
         <Card bordered={false}>
@@ -184,5 +183,5 @@ export default () => {
                 {content}
             </Result>
         </Card>
-    </GridContent>);
+    </GridContent>)
 };

@@ -1,10 +1,9 @@
-import React from 'react';
-import { Alert, Card, Typography } from 'antd';
-import { HeartTwoTone, SmileTwoTone } from '@ant-design/icons';
-import { FormattedMessage } from "react-intl";
+import React from 'react'
+import { Alert, Card, Typography } from 'antd'
+import { HeartTwoTone, SmileTwoTone } from '@ant-design/icons'
+import { FormattedMessage } from 'react-intl'
 
-import { PageHeaderWrapper } from "../layout/BasicLayout";
-
+import { PageHeaderWrapper } from '../layout/BasicLayout'
 
 const HomePage = () => (
     <PageHeaderWrapper content="Hello admin title">
@@ -24,7 +23,7 @@ const HomePage = () => (
             </Typography.Title>
             <Typography.Title level={2} style={{ textAlign: 'center' }}>
                 <FormattedMessage id="pages.index.greeting" defaultMessage="Hello, {name}!"
-                                  values={{name: '🧑USER'}}
+                                  values={{ name: '🧑USER' }}
                 />
             </Typography.Title>
         </Card>
@@ -36,6 +35,6 @@ const HomePage = () => (
             。
         </p>
     </PageHeaderWrapper>
-);
+)
 
-export default HomePage;
+export default HomePage
