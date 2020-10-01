@@ -149,6 +149,7 @@ class OptionsImplementation extends Implementation {
 const CommonFieldAdapterInterface = superclass =>
     class extends superclass {
         getQueryConditions (dbPath) {
+            // https://github.com/Vincit/objection.js/blob/0.9.4/lib/queryBuilder/operations/jsonApi/postgresJsonApi.js
             return {
                 ...this.equalityConditions(dbPath),
                 ...this.inConditions(dbPath),
