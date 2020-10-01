@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { Button, Card, Steps, Result, Descriptions } from 'antd'
+import { Button, Card, Descriptions, Result, Steps } from 'antd'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { DingdingOutlined } from '@ant-design/icons'
 

@@ -3,7 +3,7 @@ import React from 'react'
 import { Avatar, Dropdown, Menu, Spin } from 'antd'
 import { LogoutOutlined } from '@ant-design/icons'
 
-import style from './MenuHeader.less'
+import './MenuHeader.less'
 
 const MenuHeader = () => {
     const loading = false

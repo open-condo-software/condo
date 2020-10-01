@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { jsx, css } from '@emotion/core'
+import { css, jsx } from '@emotion/core'
 import { useEffect, useState } from 'react'
 import { FieldContainer, FieldDescription, FieldInput } from '@arch-ui/fields'
 import { ShieldIcon } from '@primer/octicons-react'
