@@ -22,4 +22,4 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: yarn install --verbose --registry https://registry.npmjs.org
-      - run: prettier --check .
+      - run: yarn prettier --check .
