@@ -1,6 +1,6 @@
-import React from 'react';
-import { Button, Result } from 'antd';
-import Router from "next/router";
+import React from 'react'
+import { Button, Result } from 'antd'
+import Router from 'next/router'
 
 const ServerErrorPage = () => (
     <Result
@@ -13,6 +13,6 @@ const ServerErrorPage = () => (
             </Button>
         }
     />
-);
+)
 
-export default ServerErrorPage;
+export default ServerErrorPage

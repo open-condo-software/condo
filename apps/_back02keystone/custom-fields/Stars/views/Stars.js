@@ -1,13 +1,12 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
+import StarEmpty from './star-empty'
+import StarFull from './star-full'
 
 const STAR_WIDTH = 22
 const GUTTER = 4
 
 const calcWidth = n => n * STAR_WIDTH + (n - 1) * GUTTER
-
-import StarEmpty from './star-empty'
-import StarFull from './star-full'
 
 const Stars = ({ count = 5, value, onChange = () => {} }) => {
     return (

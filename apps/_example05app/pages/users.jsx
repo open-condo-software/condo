@@ -65,7 +65,7 @@ function useFormTableRowContext (onFinish) {
     }
 
     function setEditing (value) {
-        setRowContext(x => ({ ...x, editing: value}))
+        setRowContext(x => ({ ...x, editing: value }))
     }
 
     return {

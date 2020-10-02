@@ -1,3 +1,3 @@
-import IntlProvider from "./IntlProvider";
+import IntlProvider from './IntlProvider'
 
-export { IntlProvider };
+export { IntlProvider }

@@ -1,11 +1,11 @@
-import React, { Fragment } from 'react';
-import { Button, Card, Result } from 'antd';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { CloseCircleOutlined, RightOutlined } from '@ant-design/icons';
+import React, { Fragment } from 'react'
+import { Button, Card, Result } from 'antd'
+import { FormattedMessage, useIntl } from 'react-intl'
+import { CloseCircleOutlined, RightOutlined } from '@ant-design/icons'
 
-import { GridContent } from "../../layout/BasicLayout";
+import { GridContent } from '../../layout/BasicLayout'
 
-import './failure.less';
+import './failure.less'
 
 const Content = (
     <Fragment>
@@ -35,8 +35,8 @@ const Content = (
                     marginLeft: 16,
                 }}
             >
-                <FormattedMessage id="resultandfail.error.hint-btn1" defaultMessage="Thaw immediately" />
-                <RightOutlined />
+                <FormattedMessage id="resultandfail.error.hint-btn1" defaultMessage="Thaw immediately"/>
+                <RightOutlined/>
             </a>
         </div>
         <div>
@@ -55,14 +55,14 @@ const Content = (
                     marginLeft: 16,
                 }}
             >
-                <FormattedMessage id="resultandfail.error.hint-btn2" defaultMessage="Upgrade immediately" />
-                <RightOutlined />
+                <FormattedMessage id="resultandfail.error.hint-btn2" defaultMessage="Upgrade immediately"/>
+                <RightOutlined/>
             </a>
         </div>
     </Fragment>
-);
+)
 export default () => {
-    const intl = useIntl();
+    const intl = useIntl()
 
     return (<GridContent>
         <Card bordered={false}>
@@ -87,5 +87,5 @@ export default () => {
                 {Content}
             </Result>
         </Card>
-    </GridContent>);
+    </GridContent>)
 };

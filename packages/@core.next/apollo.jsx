@@ -2,13 +2,13 @@ import React from 'react'
 import Head from 'next/head'
 import {
     ApolloClient,
-    InMemoryCache,
     ApolloProvider,
+    InMemoryCache,
     useApolloClient,
+    useLazyQuery,
     useMutation,
     useQuery,
     useSubscription,
-    useLazyQuery,
 } from '@apollo/client'
 import fetch from 'isomorphic-unfetch'
 import getConfig from 'next/config'

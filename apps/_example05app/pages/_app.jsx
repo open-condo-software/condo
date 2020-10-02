@@ -20,7 +20,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     })
 }
 
-function menuDataRender() {
+function menuDataRender () {
     const org = useOrganization()
     if (org && org.link && org.link.role === 'owner') {
         return [

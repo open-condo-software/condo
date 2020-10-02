@@ -1,7 +1,7 @@
 const { OptionsMongooseFieldAdapter } = require('../Options/Implementation')
 const { OptionsKnexFieldAdapter } = require('../Options/Implementation')
 const { JsonTextImplementation } = require('./Implementation')
-const { Text } = require('@keystonejs/fields');
+const { Text } = require('@keystonejs/fields')
 
 module.exports = {
     type: 'JsonText',

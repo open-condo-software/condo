@@ -1,6 +1,6 @@
 import React from 'react'
 
-import BaseLayout, { PageWrapper, PageContent } from './BaseLayout'
+import BaseLayout, { PageContent, PageWrapper } from './BaseLayout'
 
 function TopMenuOnlyLayout ({ children, ...props }) {
     return <BaseLayout

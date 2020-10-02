@@ -1,18 +1,12 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Button, Checkbox, Col, Form, Input, Row, Tooltip, Typography } from 'antd'
-import { useContext, useEffect, useRef, useState, createContext } from 'react'
-import { useMutation } from '@core/next/apollo'
+import { Button, Form, Input, Typography } from 'antd'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import Head from 'next/head'
-import { QuestionCircleOutlined } from '@ant-design/icons'
-import gql from 'graphql-tag'
 import Router from 'next/router'
-import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 
 import { TopMenuOnlyLayout } from '../../containers/BaseLayout'
-import { getQueryParams } from '../../utils/url.utils'
-import { runMutation } from '../../utils/mutations.utils'
 import firebase, { isFirebaseConfigValid } from '../../utils/firebase'
 import { RegisterForm } from './register'
 
@@ -85,7 +79,7 @@ function AuthState ({ children, initialUser }) {
     )
 }
 
-function PhoneAuthForm () {
+function PhoneAuthForm ({ onPhoneAuthenticated }) {
     // TODO(pahaz): how-to change phone!? If you want to register new user?!?!
     const { user, sendCode, verifyCode } = useContext(AuthContext)
     const recaptchaVerifier = useRef(null)
@@ -109,19 +103,8 @@ function PhoneAuthForm () {
     const EnterVerificationCodeMsg = intl.formatMessage({ id: 'EnterVerificationCode' })
     const ConfirmVerificationCodeMsg = intl.formatMessage({ id: 'ConfirmVerificationCode' })
     const VerificationCodeHasBeenSentToYourPhoneMsg = intl.formatMessage({ id: 'VerificationCodeHasBeenSentToYourPhone' })
-    const PhoneIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsAlreadyRegistered' })
     const PhoneMsg = intl.formatMessage({ id: 'Phone' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
-    const ExtraErrorToFormFieldMsgMapping = {
-        '[unique:importId:multipleFound]': {
-            name: '_phone',
-            errors: [PhoneIsAlreadyRegisteredMsg],
-        },
-        '[unique:phone:multipleFound]': {
-            name: '_phone',
-            errors: [PhoneIsAlreadyRegisteredMsg],
-        },
-    }
 
     useEffect(() => {
         const recapcha = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
@@ -182,36 +165,14 @@ function PhoneAuthForm () {
     }
 
     if (user) {
-        return <RegisterForm ExtraErrorToFormFieldMsgMapping={ExtraErrorToFormFieldMsgMapping}>
-            <Form.Item
-                name="_phone"
-                label={
-                    <span>
-                        {PhoneMsg}{' '}
-                    </span>
-                }
-                rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                key={user.phoneNumber}
-                initialValue={user.phoneNumber}
-            >
-                <Input disabled={true}/>
-            </Form.Item>
-            <Form.Item
-                name="firebaseIdToken"
-                noStyle={true}
-                key={user.token}
-                initialValue={user.token}
-            >
-                <Input disabled={true} hidden={true}/>
-            </Form.Item>
-        </RegisterForm>
+        return onPhoneAuthenticated({ user })
     }
 
     return <>
         <div id={'recaptcha-container'}/>
         <Form
             form={form}
-            name="register.phone"
+            name="auth.phone"
             // onFinish={onFinish}
         >
             <div>
@@ -262,6 +223,49 @@ function PhoneAuthForm () {
     </>
 }
 
+function RegisterByPhoneForm () {
+    const intl = useIntl()
+    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
+    const PhoneIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsAlreadyRegistered' })
+    const PhoneMsg = intl.formatMessage({ id: 'Phone' })
+    const ExtraErrorToFormFieldMsgMapping = {
+        '[unique:importId:multipleFound]': {
+            name: '_phone',
+            errors: [PhoneIsAlreadyRegisteredMsg],
+        },
+        '[unique:phone:multipleFound]': {
+            name: '_phone',
+            errors: [PhoneIsAlreadyRegisteredMsg],
+        },
+    }
+
+    return <PhoneAuthForm onPhoneAuthenticated={({ user }) => {
+        return <RegisterForm ExtraErrorToFormFieldMsgMapping={ExtraErrorToFormFieldMsgMapping}>
+            <Form.Item
+                name="_phone"
+                label={
+                    <span>
+                        {PhoneMsg}{' '}
+                    </span>
+                }
+                rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                key={user.phoneNumber}
+                initialValue={user.phoneNumber}
+            >
+                <Input disabled={true}/>
+            </Form.Item>
+            <Form.Item
+                name="firebaseIdToken"
+                noStyle={true}
+                key={user.token}
+                initialValue={user.token}
+            >
+                <Input disabled={true} hidden={true}/>
+            </Form.Item>
+        </RegisterForm>
+    }}/>
+}
+
 const RegisterPage = () => {
     const intl = useIntl()
     const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
@@ -271,10 +275,14 @@ const RegisterPage = () => {
         </Head>
         <Typography.Title css={css`text-align: center;`}>{RegistrationTitleMsg}</Typography.Title>
         <AuthState>
-            <PhoneAuthForm/>
+            <RegisterByPhoneForm/>
         </AuthState>
     </>)
 }
 
 RegisterPage.container = TopMenuOnlyLayout
 export default RegisterPage
+export {
+    AuthState,
+    PhoneAuthForm,
+}

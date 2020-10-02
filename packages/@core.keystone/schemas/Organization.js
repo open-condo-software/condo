@@ -156,7 +156,7 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                 const extraLinkData = extra.extraLinkData || {}
                 const extraOrganizationData = extra.extraOrganizationData || {}
 
-                const { errors: err1, data: data1 } = await context.executeGraphQL({
+                const { errors: createErrors, data: createData } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
                         mutation create($data: OrganizationToUserLinkCreateInput!) {
@@ -182,13 +182,13 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                     },
                 })
 
-                if (err1 || !data1.obj || !data1.obj.id) {
+                if (createErrors || !createData.obj || !createData.obj.id) {
                     const msg = '[error] Unable to create organization'
-                    console.error(msg, err1)
+                    console.error(msg, createErrors)
                     throw new Error(msg)
                 }
 
-                const result = await getById('Organization', data1.obj.organization.id)
+                const result = await getById('Organization', createData.obj.organization.id)
                 await RegisterNewOrganizationService.emit('afterRegisterNewOrganization', {
                     parent, args, context, info, extra, result,
                 })
@@ -251,7 +251,7 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                 }
 
                 if (!user) {
-                    const { errors: err0, data: data0 } = await context.executeGraphQL({
+                    const { errors, data } = await context.executeGraphQL({
                         context: context.createContext({ skipAccessControl: true }),
                         query: `
                             query findUserByEmail($email: String!) {
@@ -267,14 +267,14 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                         },
                     })
 
-                    if (err0) {
+                    if (errors) {
                         const msg = '[error] Unable to access find user service'
-                        console.error(msg, err0)
+                        console.error(msg, errors)
                         throw new Error(msg)
                     }
 
-                    if (data0 && data0.objs && data0.objs.length === 1) {
-                        user = data0.objs[0]
+                    if (data && data.objs && data.objs.length === 1) {
+                        user = data.objs[0]
                     }
                 }
 
@@ -309,7 +309,7 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                     }
                 }
 
-                const { errors: err1, data: data1 } = await context.executeGraphQL({
+                const { errors: createErrors, data: createData } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
                         mutation create($data: OrganizationToUserLinkCreateInput!) {
@@ -333,13 +333,13 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                     },
                 })
 
-                if (err1 || !data1.obj || !data1.obj.id) {
+                if (createErrors || !createData.obj || !createData.obj.id) {
                     const msg = '[error] Unable to create organization link'
-                    console.error(msg, err1)
+                    console.error(msg, createErrors)
                     throw new Error(msg)
                 }
 
-                const result = await getById('OrganizationToUserLink', data1.obj.id)
+                const result = await getById('OrganizationToUserLink', createData.obj.id)
                 await InviteNewUserToOrganizationService.emit('afterInviteNewUserToOrganization', {
                     parent, args, context, info, extra, result,
                 })
@@ -374,7 +374,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
 
                 const link = await getByCondition('OrganizationToUserLink', { code, user_is_null: true })
 
-                const { errors: err1, data: data1 } = await context.executeGraphQL({
+                const { errors: acceptOrRejectErrors, data: acceptOrRejectData } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
                         mutation acceptOrReject($id: ID!, $data: OrganizationToUserLinkUpdateInput!) {
@@ -395,13 +395,13 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                     },
                 })
 
-                if (err1 || !data1.obj || !data1.obj.id) {
+                if (acceptOrRejectErrors || !acceptOrRejectData.obj || !acceptOrRejectData.obj.id) {
                     const msg = '[error] Unable to update link state'
-                    console.error(msg, err1)
+                    console.error(msg, acceptOrRejectErrors)
                     throw new Error(msg)
                 }
 
-                const result = await getById('OrganizationToUserLink', data1.obj.id)
+                const result = await getById('OrganizationToUserLink', acceptOrRejectData.obj.id)
                 await AcceptOrRejectOrganizationInviteService.emit('afterAcceptOrRejectOrganizationInviteInput', {
                     parent, args, context, info, extra, result,
                 })
@@ -422,7 +422,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
 
-                const { errors: err1, data: data1 } = await context.executeGraphQL({
+                const { errors: acceptOrRejectErrors, data: acceptOrRejectData } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
                         mutation acceptOrReject($id: ID!, $data: OrganizationToUserLinkUpdateInput!) {
@@ -437,13 +437,13 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                     },
                 })
 
-                if (err1 || !data1.obj || !data1.obj.id) {
+                if (acceptOrRejectErrors || !acceptOrRejectData.obj || !acceptOrRejectData.obj.id) {
                     const msg = '[error] Unable to update link state'
-                    console.error(msg, err1)
+                    console.error(msg, acceptOrRejectErrors)
                     throw new Error(msg)
                 }
 
-                const result = await getById('OrganizationToUserLink', data1.obj.id)
+                const result = await getById('OrganizationToUserLink', acceptOrRejectData.obj.id)
                 await AcceptOrRejectOrganizationInviteService.emit('afterAcceptOrRejectOrganizationInviteInput', {
                     parent, args, context, info, extra, result,
                 })
