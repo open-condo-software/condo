@@ -1,6 +1,3 @@
-# Ignore specific apps
-apps/_compability_app
-
 # Ignore artifacts in apps
 apps/**/.next
 apps/**/node_modules
