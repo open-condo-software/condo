@@ -1,4 +1,4 @@
-name: TEST CODESTYLE
+name: TEST CODESTYLE (CURRENTLY DISABLED)
 
 on:
   push:
