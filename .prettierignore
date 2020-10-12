@@ -1,0 +1,4 @@
+# Ignore artifacts in apps
+apps/**/.next
+apps/**/node_modules
+apps/**/out

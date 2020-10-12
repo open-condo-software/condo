@@ -13,5 +13,14 @@
     "dev": "node ./bin/run-multiple-apps",
     "start": "node ./bin/run-multiple-apps",
     "build": "node ./bin/run-build-all"
+  },
+  "devDependencies": {
+    "prettier": "^2.1.2"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 4,
+    "semi": false,
+    "singleQuote": true
   }
 }
