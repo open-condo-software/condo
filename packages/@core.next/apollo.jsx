@@ -26,9 +26,12 @@ let getApolloClientConfig = () => {
 
 let createApolloClient = (initialState, ctx) => {
     const { serverUrl, apolloGraphQLUrl } = getApolloClientConfig()
-    const isOnClientSide = typeof window !== 'undefined'
+    if (DEBUG_RERENDERS) console.log('WithApollo(): getApolloClientConfig()', { serverUrl, apolloGraphQLUrl })
 
-    if (isOnClientSide) {
+    // Note: isOnClientSide === true for browser and expo
+    const isOnClientSide = typeof window !== 'undefined'
+    if (isOnClientSide && window.location && window.location.href) {
+        // Note: window.location === undefined on expo
         if (!window.location.href.startsWith(serverUrl)) {
             // If location is on a another domain: you can open 127.0.0.1 instead of localhost.
             console.warn(`Your serverUrl=${serverUrl}! Your window.location have another domain! `)
@@ -63,7 +66,9 @@ let globalApolloClient = null
 const initApolloClient = (initialState, ctx) => {
     // Make sure to create a new client for every server-side request so that data
     // isn't shared between connections (which would be bad)
-    if (typeof window === 'undefined') {
+    // It's isOnServerSide === false for expo APP
+    const isOnServerSide = typeof window === 'undefined'
+    if (isOnServerSide) {
         return createApolloClient(initialState, ctx)
     }
 
@@ -123,10 +128,10 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
         if (DEBUG_RERENDERS) console.log('WithApollo()', apolloState)
         let client
         if (apolloClient) {
-            // Happens on: getDataFromTree & next.js ssr
+            // Happens on: getDataFromTree && next.js ssr
             client = apolloClient
         } else {
-            // Happens on: next.js csr
+            // Happens on: next.js csr || expo
             client = initApolloClient(apolloState, undefined)
         }
 
