@@ -18,9 +18,6 @@ function AuthState ({ children, initialUser }) {
     useEffect(() => {
         return firebase.auth().onAuthStateChanged(async function (user) {
             console.log('onAuthStateChanged', user)
-            // const jsonUser = JSON.parse(JSON.stringify(user))
-            // console.log('getCurrentUser() ->>', jsonUser)
-            // clearTimeout(timeout)
             if (user) {
                 const token = await user.getIdToken(true)
                 console.log('auth:', token)

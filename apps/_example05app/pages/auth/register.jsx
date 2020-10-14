@@ -56,6 +56,10 @@ const RegisterForm = ({ children, ExtraErrorToFormFieldMsgMapping = {} }) => {
     const WeMustMakeSureThatYouAreHumanMsg = intl.formatMessage({ id: 'pages.auth.WeMustMakeSureThatYouAreHuman' })
     const IHaveReadAndAcceptTheAgreementMsg = intl.formatMessage({ id: 'pages.auth.IHaveReadAndAcceptTheAgreement' })
     const ErrorToFormFieldMsgMapping = {
+        '[register:password:minLength]': {
+            name: 'password',
+            errors: [PasswordIsTooShortMsg],
+        },
         '[register:email:multipleFound]': {
             name: 'email',
             errors: [EmailIsAlreadyRegisteredMsg],
