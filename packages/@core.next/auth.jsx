@@ -64,12 +64,12 @@ const AuthProvider = ({ children, initialUserValue }) => {
     const client = useApolloClient()
     const [user, setUser] = useState(initialUserValue)
 
-    const { data: userData, loading: userLoading, refetch } = useQuery(USER_QUERY, {
-        onCompleted: onData,
-        onError,
-    })
+    const { data: userData, loading: userLoading, error: userError, refetch } = useQuery(USER_QUERY)
 
-    useEffect(() => { onData(userData) }, [userData])
+    useEffect(() => {
+        if (userData) onData(userData)
+        if (userError) onError(userError)
+    }, [userData, userError])
 
     const [signin, { loading: signinLoading }] = useMutation(SIGNIN_MUTATION, {
         onCompleted: async ({ authenticateUserWithPassword: { item } = {}, error }) => {
@@ -83,7 +83,6 @@ const AuthProvider = ({ children, initialUserValue }) => {
             // Ensure there's no old unauthenticated data hanging around
             await client.resetStore()
         },
-        onError,
     })
 
     const [signout, { loading: signoutLoading }] = useMutation(SIGNOUT_MUTATION, {
@@ -98,18 +97,19 @@ const AuthProvider = ({ children, initialUserValue }) => {
             // Ensure there's no old authenticated data hanging around
             await client.resetStore()
         },
-        onError,
     })
 
     function onError (error) {
-        console.error(error)
-        setUser(null)
-        throw error
+        console.warn('auth.onError(..)', error)
+        if (user) setUser(null)
     }
 
     function onData (data) {
-        if (data.error) { return onError(data.error) }
-        if (!data.authenticatedUser) { console.warn('Unexpected auth.onData(..) call') }
+        if (data && data.error) { return onError(data.error) }
+        if (!data || !data.authenticatedUser) {
+            console.warn('Unexpected auth.onData(..) call', data)
+            return
+        }
         if (JSON.stringify(data.authenticatedUser) === JSON.stringify(user)) return
         if (DEBUG_RERENDERS) console.log('AuthProvider() newUser', data.authenticatedUser)
         setUser(data.authenticatedUser)
