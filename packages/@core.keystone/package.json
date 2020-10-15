@@ -18,10 +18,10 @@
     "ow": "0.17.0",
     "supertest": "4.0.2",
     "tough-cookie": "4.0.0",
-    "validator": "13.1.1"
+    "validator": "13.1.1",
+    "uuid": "8.3.0"
   },
   "peerDependencies": {
-    "pluralize": "^7.0.0",
-    "uuid": "^3.4.0"
+    "pluralize": "^7.0.0"
   }
 }

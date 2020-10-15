@@ -20,9 +20,7 @@
     "@keystonejs/keystone": "14.0.0",
     "@keystonejs/server-side-graphql-client": "1.1.1",
     "cross-env": "7.0.2",
-    "express": "4.17.1"
-  },
-  "peerDependencies": {
+    "express": "4.17.1",
     "react": "16.13.1",
     "react-dom": "16.13.1"
   }
