@@ -31,5 +31,9 @@
     "firebase-admin": "9.1.1",
     "jest": "26.4.2",
     "validator": "13.1.1"
+  },
+  "peerDependencies": {
+    "react": "16.13.1",
+    "react-dom": "16.13.1"
   }
 }

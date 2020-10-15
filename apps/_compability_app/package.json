@@ -11,6 +11,7 @@
     "create-tables": "keystone create-tables"
   },
   "dependencies": {
+    "@emotion/core": "10.0.35",
     "@emotion/styled": "10.0.27",
     "@keystonejs/adapter-knex": "11.0.2",
     "@keystonejs/adapter-mongoose": "9.0.3",
@@ -32,14 +33,15 @@
     "facepaint": "1.2.1",
     "get-contrast": "2.0.0",
     "lodash": "4.17.20",
-    "next": "9.5.2",
+    "next": "9.5.2"
+  },
+  "peerDependencies": {
+    "graphql": "14.7.0",
+    "graphql-tag": "2.11.0",
+    "less": "3.12.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-intl": "5.7.1"
-  },
-  "peerDependencies": {
-    "graphql": "^14.7.0",
-    "graphql-tag": "^2.11.0"
   },
   "devDependencies": {
     "@babel/core": "7.11.4",

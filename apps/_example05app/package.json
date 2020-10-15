@@ -9,6 +9,7 @@
     "test": "next build && next export && jest"
   },
   "dependencies": {
+    "@emotion/core": "10.0.35",
     "@emotion/styled": "10.0.27",
     "@testing-library/jest-dom": "5.11.4",
     "@testing-library/react": "10.4.9",
@@ -31,8 +32,6 @@
     "prop-types": "15.7.2",
     "qs": "6.9.4",
     "rc-queue-anim": "1.8.5",
-    "react": "16.13.1",
-    "react-dom": "16.13.1",
     "react-fittext": "1.0.0",
     "react-markdown": "4.3.1",
     "react-responsive": "8.1.0",
@@ -43,6 +42,9 @@
     "xlsx": "0.16.6"
   },
   "peerDependencies": {
+    "less": "3.12.2",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
     "graphql": "^14.7.0",
     "graphql-tag": "^2.11.0"
   }
