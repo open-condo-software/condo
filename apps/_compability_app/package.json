@@ -31,13 +31,15 @@
     "express": "4.17.1",
     "facepaint": "1.2.1",
     "get-contrast": "2.0.0",
-    "graphql": "15.3.0",
-    "graphql-tag": "2.11.0",
     "lodash": "4.17.20",
     "next": "9.5.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-intl": "5.7.1"
+  },
+  "peerDependencies": {
+    "graphql": "^14.7.0",
+    "graphql-tag": "^2.11.0"
   },
   "devDependencies": {
     "@babel/core": "7.11.4",

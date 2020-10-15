@@ -16,10 +16,12 @@
     "faker": "5.0.0",
     "lodash": "4.17.20",
     "ow": "0.17.0",
-    "pluralize": "8.0.0",
     "supertest": "4.0.2",
     "tough-cookie": "4.0.0",
-    "uuid": "8.3.0",
     "validator": "13.1.1"
+  },
+  "peerDependencies": {
+    "pluralize": "^7.0.0",
+    "uuid": "^3.4.0"
   }
 }

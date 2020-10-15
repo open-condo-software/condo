@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "dependencies": {
     "@apollo/client": "3.1.3",
-    "apollo-upload-client": "14.1.1",
-    "graphql": "15.3.0",
-    "graphql-tag": "2.11.0",
     "isomorphic-unfetch": "3.0.0",
     "js-cookie": "2.2.1",
     "next": "9.5.2",
@@ -13,5 +10,10 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-intl": "5.7.1"
+  },
+  "peerDependencies": {
+    "apollo-upload-client": "^14.1.1",
+    "graphql": "^14.7.0",
+    "graphql-tag": "^2.11.0"
   }
 }
