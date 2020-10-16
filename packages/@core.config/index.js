@@ -36,7 +36,7 @@ if (root !== cwd) {
 if (DEBUG) console.log(`@core.config: inited! namespace=${namespace}, cwd=${cwd}, root=${root}`)
 if (DEBUG) console.dir(process.env)
 
-function getEnv (namespace, name, defaultValue) {
+function getEnv(namespace, name, defaultValue) {
     return preprocessEnv(process.env[`${namespace}_${name}`] || process.env[`${name}`] || defaultValue)
 }
 
@@ -68,8 +68,10 @@ function getConfig(namespace) {
     }
 
     const setter = () => {
-        throw new TypeError('config object is not settable! If you want to change value, you should set ' +
-            'an environment variable or change value inside .env file')
+        throw new TypeError(
+            'config object is not settable! If you want to change value, you should set ' +
+                'an environment variable or change value inside .env file'
+        )
     }
 
     return new Proxy(baseConfigs, { get: getter, set: setter })
