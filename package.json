@@ -15,6 +15,7 @@
     "build": "node ./bin/run-build-all"
   },
   "devDependencies": {
+    "@manypkg/cli": "^0.16.1",
     "prettier": "^2.1.2"
   },
   "prettier": {
