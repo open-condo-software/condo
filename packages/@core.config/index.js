@@ -40,7 +40,7 @@ function getEnv (namespace, name, defaultValue) {
     return preprocessEnv(process.env[`${namespace}_${name}`] || process.env[`${name}`] || defaultValue)
 }
 
-function preprocessEnv (v) {
+function preprocessEnv(v) {
     if (!v) return v
     if (v.includes('${ROOT}')) {
         v = v.replace('${ROOT}', root)
@@ -48,9 +48,9 @@ function preprocessEnv (v) {
     return v
 }
 
-function getConfig (namespace) {
-    namespace = (namespace) ? namespace.toUpperCase().replace('_', '') : ''
-    namespace = (namespace) ? namespace + '__' : ''
+function getConfig(namespace) {
+    namespace = namespace ? namespace.toUpperCase().replace('_', '') : ''
+    namespace = namespace ? namespace + '__' : ''
 
     const baseConfigs = {
         NODE_ENV: getEnv(namespace, 'NODE_ENV', 'production'),
