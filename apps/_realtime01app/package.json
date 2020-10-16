@@ -12,9 +12,9 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "4.17.1",
-    "jest": "26.4.2",
-    "socket.io": "2.3.0"
+    "express": "^4.17.1",
+    "jest": "^26.4.2",
+    "socket.io": "^2.3.0"
   },
   "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_realtime01app"
 }

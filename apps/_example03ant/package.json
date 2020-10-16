@@ -11,6 +11,7 @@
     "@zeit/next-less": "^1.0.1",
     "antd": "^4.6.1",
     "isomorphic-unfetch": "^3.0.0",
+    "less": "^3.12.2",
     "next": "^9.5.2"
   },
   "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_example03ant"
