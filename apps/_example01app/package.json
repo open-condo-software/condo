@@ -8,11 +8,7 @@
     "test": "next build"
   },
   "dependencies": {
-    "next": "9.5.2"
-  },
-  "devDependencies": {
-    "react": "16.13.1",
-    "react-dom": "16.13.1"
+    "next": "^9.5.2"
   },
   "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_example01app"
 }
