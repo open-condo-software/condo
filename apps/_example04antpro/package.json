@@ -14,9 +14,10 @@
     "next": "9.5.2",
     "react-intl": "5.7.1"
   },
-  "peerDependencies": {
+  "devDependencies": {
     "less": "3.12.2",
     "react": "16.13.1",
     "react-dom": "16.13.1"
-  }
+  },
+  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_example04antpro"
 }

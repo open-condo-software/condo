@@ -23,5 +23,6 @@
     "express": "4.17.1",
     "react": "16.13.1",
     "react-dom": "16.13.1"
-  }
+  },
+  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_back01keystone"
 }

@@ -35,19 +35,18 @@
     "lodash": "4.17.20",
     "next": "9.5.2"
   },
-  "peerDependencies": {
-    "graphql": "14.7.0",
-    "graphql-tag": "2.11.0",
-    "less": "3.12.2",
-    "react": "16.13.1",
-    "react-dom": "16.13.1",
-    "react-intl": "5.7.1"
-  },
   "devDependencies": {
     "@babel/core": "7.11.4",
     "@babel/preset-env": "7.11.0",
     "@babel/preset-react": "7.10.4",
     "babel-jest": "26.3.0",
-    "jest": "26.4.2"
-  }
+    "graphql": "14.7.0",
+    "graphql-tag": "2.11.0",
+    "jest": "26.4.2",
+    "less": "3.12.2",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "react-intl": "5.7.1"
+  },
+  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_compability_app"
 }

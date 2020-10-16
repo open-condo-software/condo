@@ -41,11 +41,12 @@
     "validator": "13.1.1",
     "xlsx": "0.16.6"
   },
-  "peerDependencies": {
+  "devDependencies": {
+    "graphql": "^14.7.0",
+    "graphql-tag": "^2.11.0",
     "less": "3.12.2",
     "react": "16.13.1",
-    "react-dom": "16.13.1",
-    "graphql": "^14.7.0",
-    "graphql-tag": "^2.11.0"
-  }
+    "react-dom": "16.13.1"
+  },
+  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_example05app"
 }
