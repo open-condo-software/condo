@@ -14,13 +14,15 @@
     "start": "node ./bin/run-multiple-apps",
     "build": "node ./bin/run-build-all"
   },
-  "devDependencies": {
-    "prettier": "^2.1.2"
-  },
   "prettier": {
+    "printWidth": 120,
     "trailingComma": "es5",
     "tabWidth": 4,
     "semi": false,
     "singleQuote": true
+  },
+  "dependencies": {
+    "@manypkg/cli": "^0.16.1",
+    "prettier": "^2.1.2"
   }
 }

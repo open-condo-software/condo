@@ -1,8 +1,7 @@
 import React, { useContext } from 'react'
 import { SafeAreaView, StyleSheet } from 'react-native'
-import { Button, Divider, Layout, TopNavigation, useTheme } from '@ui-kitten/components'
+import { Button, Divider, Icon, Layout, TopNavigation, useTheme } from '@ui-kitten/components'
 import { Entypo } from '@expo/vector-icons'
-import { Icon } from '@ui-kitten/components'
 
 import { ThemeContext } from '../context/theme'
 
