@@ -16,14 +16,13 @@ const { createItems } = require('@keystonejs/server-side-graphql-client')
 const realtime = require('./realtime/server')
 
 const keystone = new Keystone({
-
     cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
     cookie: {
         sameSite: false,
         secure: false,
         maxAge: 1000 * 60 * 60 * 24 * 130, // 130 days
     },
-    name: "Pomodoro timer",
+    name: 'Pomodoro timer',
     adapter: getAdapter(conf.DATABASE_URL),
     defaultAccess: { list: false, field: true, custom: false },
     queryLimits: { maxTotalResults: 1000 },
@@ -49,10 +48,7 @@ const keystone = new Keystone({
     },
 })
 
-registerSchemas(keystone, [
-    require('./schema/User'),
-    require('./schema/Team'),
-])
+registerSchemas(keystone, [require('./schema/User'), require('./schema/Team')])
 
 keystone.extendGraphQLSchema({
     types: [{ type: 'type FooBar { foo: Int, bar: Float }' }],
@@ -75,14 +71,14 @@ keystone.extendGraphQLSchema({
 })
 
 class CustomApp {
-    prepareMiddleware ({ keystone, dev, distDir }) {
+    prepareMiddleware({ keystone, dev, distDir }) {
         const middleware = express()
         return middleware
     }
 }
 
 class RealtimeApp {
-    prepareMiddleware ({ keystone, dev, distDir }) {
+    prepareMiddleware({ keystone, dev, distDir }) {
         realtime.start()
     }
 }
@@ -93,8 +89,7 @@ const authStrategy = keystone.createAuthStrategy({
 })
 
 module.exports = {
-    configureExpress: (app) => {
-    },
+    configureExpress: (app) => {},
     keystone,
     apps: [
         new GraphQLApp(),
@@ -106,7 +101,7 @@ module.exports = {
             isAccessAllowed: access.userIsAdmin,
             authStrategy,
         }),
-        (!areWeRunningTests()) ? new NextApp({ dir: __dirname }) : new CustomApp(),
+        !areWeRunningTests() ? new NextApp({ dir: __dirname }) : new CustomApp(),
         new RealtimeApp(),
     ],
 }
