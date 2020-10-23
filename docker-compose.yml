@@ -31,7 +31,7 @@ services:
     networks:
       - app-network
   postgresdb:
-    image: postgres:12.2
+    image: postgres:13.0
     ports:
       - "127.0.0.1:5432:5432"
     environment:
