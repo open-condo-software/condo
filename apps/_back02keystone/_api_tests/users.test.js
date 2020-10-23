@@ -86,14 +86,14 @@ test('user: convert email to lower case', async () => {
     const user = await createUser({ email })
 
     const { data } = await client.query(GET_USER_BY_ID_QUERY, { id: user.id })
-    expect(data.user).toEqual({ email: email.toLowerCase(), id: user.id, name: user.name})
+    expect(data.user).toEqual({ email: email.toLowerCase(), id: user.id, name: user.name })
 
-    const client2 = await makeLoggedInClient({email: email.toLowerCase(), password: user.password})
+    const client2 = await makeLoggedInClient({ email: email.toLowerCase(), password: user.password })
     expect(client2.user.id).toEqual(user.id)
 
     // TODO(pahaz): fix in a future (it's no OK if you can't logged in by upper case email)
     const checkAuthByUpperCaseEmail = async () => {
-        await makeLoggedInClient({email, password: user.password})
+        await makeLoggedInClient({ email, password: user.password })
     }
     await expect(checkAuthByUpperCaseEmail).rejects.toThrow(/passwordAuth:identity:notFound/)
 })

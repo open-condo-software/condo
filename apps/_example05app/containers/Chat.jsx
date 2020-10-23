@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, Global, jsx } from '@emotion/core'
-import { useRef, useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Input } from 'antd'
 import { SendOutlined } from '@ant-design/icons'
 import QueueAnim from 'rc-queue-anim'

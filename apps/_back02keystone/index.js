@@ -32,6 +32,7 @@ const keystone = new Keystone({
             if (!users.length) {
                 const initialData = require('./initial-data')
                 for (let { listKey, items } of initialData) {
+                    console.log(`🗿 createItems(${listKey}) -> ${items.length}`)
                     await createItems({
                         keystone,
                         listKey,

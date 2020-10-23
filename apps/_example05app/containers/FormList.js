@@ -294,7 +294,13 @@ function BaseModalForm ({ mutation, mutationOptions, mutationExtraData = {}, for
             </Button>,
         ]}
     >
-        <Form form={form} layout="vertical" onFinish={handleFormSubmit} initialValues={formInitialValues} onValuesChange={handleChangeForm}>
+        <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleFormSubmit}
+            initialValues={formInitialValues}
+            onValuesChange={handleChangeForm}
+        >
             <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input/></Form.Item>
             {children}
         </Form>

@@ -27,10 +27,11 @@ const GET_MY_USERINFO = gql`
 
 test('anonymous: try to sign in', async () => {
     const client = await makeClient()
-    const { data } = await client.mutate(SIGNIN_MUTATION, {
+    const { data, errors } = await client.mutate(SIGNIN_MUTATION, {
         'identity': DEFAULT_TEST_USER_IDENTITY,
         'secret': DEFAULT_TEST_USER_SECRET,
     })
+    expect(errors).toEqual(undefined)
     expect(data.auth.user.id).toMatch(/[a-zA-Z0-9-_]+/)
 })
 

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { useMutation, useApolloClient, useQuery } from './apollo'
+import { useApolloClient, useMutation, useQuery } from './apollo'
 import gql from 'graphql-tag'
 
 const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
@@ -64,25 +64,12 @@ const AuthProvider = ({ children, initialUserValue }) => {
     const client = useApolloClient()
     const [user, setUser] = useState(initialUserValue)
 
-    // useEffect(() => {
-    //     // validate current user state without avoidable useQuery re-renders
-    //     client.query({ query: USER_QUERY }).then(({ data: { authenticatedUser, error } }) => {
-    //         if (error) { return onError(error) }
-    //         if (JSON.stringify(authenticatedUser) === JSON.stringify(user)) return
-    //         if (DEBUG_RERENDERS) console.log('AuthProvider() newUser', authenticatedUser)
-    //         setUser(authenticatedUser)
-    //     }, onError)
-    // }, [user])
+    const { data: userData, loading: userLoading, error: userError, refetch } = useQuery(USER_QUERY)
 
-    const { loading: userLoading } = useQuery(USER_QUERY, {
-        onCompleted: ({ authenticatedUser, error }) => {
-            if (error) { return onError(error) }
-            if (JSON.stringify(authenticatedUser) === JSON.stringify(user)) return
-            if (DEBUG_RERENDERS) console.log('AuthProvider() newUser', authenticatedUser)
-            setUser(authenticatedUser)
-        },
-        onError,
-    })
+    useEffect(() => {
+        if (userData) onData(userData)
+        if (userError) onError(userError)
+    }, [userData, userError])
 
     const [signin, { loading: signinLoading }] = useMutation(SIGNIN_MUTATION, {
         onCompleted: async ({ authenticateUserWithPassword: { item } = {}, error }) => {
@@ -96,7 +83,6 @@ const AuthProvider = ({ children, initialUserValue }) => {
             // Ensure there's no old unauthenticated data hanging around
             await client.resetStore()
         },
-        onError,
     })
 
     const [signout, { loading: signoutLoading }] = useMutation(SIGNOUT_MUTATION, {
@@ -111,13 +97,22 @@ const AuthProvider = ({ children, initialUserValue }) => {
             // Ensure there's no old authenticated data hanging around
             await client.resetStore()
         },
-        onError,
     })
 
     function onError (error) {
-        console.error(error)
-        setUser(null)
-        throw error
+        console.warn('auth.onError(..)', error)
+        if (user) setUser(null)
+    }
+
+    function onData (data) {
+        if (data && data.error) { return onError(data.error) }
+        if (!data || !data.authenticatedUser) {
+            console.warn('Unexpected auth.onData(..) call', data)
+            return
+        }
+        if (JSON.stringify(data.authenticatedUser) === JSON.stringify(user)) return
+        if (DEBUG_RERENDERS) console.log('AuthProvider() newUser', data.authenticatedUser)
+        setUser(data.authenticatedUser)
     }
 
     if (DEBUG_RERENDERS) console.log('AuthProvider()', user)
@@ -127,6 +122,7 @@ const AuthProvider = ({ children, initialUserValue }) => {
             value={{
                 isAuthenticated: !!user,
                 isLoading: userLoading || signinLoading || signoutLoading,
+                refetch,
                 signin,
                 signout,
                 user,

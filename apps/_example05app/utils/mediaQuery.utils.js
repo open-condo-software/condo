@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
 
 const DEFAULT_MEDIA = 'md'

@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Button, Checkbox, Col, Form, Input, Row, Tooltip, Typography } from 'antd'
+import { Button, Checkbox, Form, Input, Tooltip, Typography } from 'antd'
 import { useState } from 'react'
 import { useMutation } from '@core/next/apollo'
 import Head from 'next/head'
@@ -56,6 +56,10 @@ const RegisterForm = ({ children, ExtraErrorToFormFieldMsgMapping = {} }) => {
     const WeMustMakeSureThatYouAreHumanMsg = intl.formatMessage({ id: 'pages.auth.WeMustMakeSureThatYouAreHuman' })
     const IHaveReadAndAcceptTheAgreementMsg = intl.formatMessage({ id: 'pages.auth.IHaveReadAndAcceptTheAgreement' })
     const ErrorToFormFieldMsgMapping = {
+        '[register:password:minLength]': {
+            name: 'password',
+            errors: [PasswordIsTooShortMsg],
+        },
         '[register:email:multipleFound]': {
             name: 'email',
             errors: [EmailIsAlreadyRegisteredMsg],
@@ -65,7 +69,7 @@ const RegisterForm = ({ children, ExtraErrorToFormFieldMsgMapping = {} }) => {
 
     const onFinish = values => {
         if (values.email) values.email = values.email.toLowerCase()
-        const { name, email, password, confirm, agreement, ...extra  } = values
+        const { name, email, password, confirm, agreement, ...extra } = values
         const extraData = Object.fromEntries(Object.entries(extra).filter(([k, v]) => !k.startsWith('_')))
         const data = { name, email, password, ...extraData }
         console.log(values, data)

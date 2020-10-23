@@ -9,6 +9,7 @@
     "test": "next build && next export && jest"
   },
   "dependencies": {
+    "@emotion/core": "^10.0.35",
     "@emotion/styled": "^10.0.27",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^10.4.9",
@@ -23,10 +24,9 @@
     "facepaint": "^1.2.1",
     "firebase": "^7.19.0",
     "get-contrast": "^2.0.0",
-    "graphql": "^15.3.0",
-    "graphql-tag": "^2.11.0",
     "immer": "^7.0.8",
     "jest": "^26.4.2",
+    "less": "^3.12.2",
     "lodash": "^4.17.20",
     "next": "^9.5.2",
     "next-transpile-modules": "^4.1.0",
@@ -43,5 +43,6 @@
     "use-immer": "^0.4.1",
     "validator": "^13.1.1",
     "xlsx": "^0.16.6"
-  }
+  },
+  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_example05app"
 }

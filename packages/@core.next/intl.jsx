@@ -1,5 +1,5 @@
 import { IntlProvider, useIntl } from 'react-intl'
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import cookie from 'js-cookie'
 import nextCookie from 'next-cookies'
 
@@ -10,7 +10,10 @@ const LocaleContext = React.createContext({})
 // TODO(pahaz): probably it's better to get it from next config!
 let defaultLocale = 'en'
 
-let messagesImporter = (locale) => import(`./${locale}.json`)
+let messagesImporter = (locale) => {
+    throw new Error('You should define your own "messagesImporter(locale)" function. ' +
+        'Like so: "withIntl({ ..., messagesImporter: (locale) => import(`../lang/${locale}`) })(...)"')
+}
 
 let getMessages = async (locale) => {
     try {
@@ -98,6 +101,8 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
 
     const WithIntl = ({ locale, messages, ...pageProps }) => {
         // in there is no locale and no messages => client side rerender (we should use some client side cache)
+        if (!locale) locale = getLocale()
+        if (!messages) messages = {}
         if (DEBUG_RERENDERS) console.log('WithIntl()', locale)
         return (
             <Intl initialLocale={locale} initialMessages={messages} onError={onIntlError}>

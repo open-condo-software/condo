@@ -1,5 +1,5 @@
 import { Avatar, Dropdown, Menu, Spin, Tag } from 'antd'
-import { LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
+import { LogoutOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 import Router from 'next/router'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'

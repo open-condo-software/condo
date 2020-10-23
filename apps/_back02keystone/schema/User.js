@@ -1,6 +1,6 @@
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
-const { Text, Checkbox, Password, CalendarDay, File, Relationship, DateTime } = require('@keystonejs/fields')
+const { Text, Checkbox, File } = require('@keystonejs/fields')
 const { User: BaseUser, ForgotPasswordAction, ForgotPasswordService, RegisterNewUserService: BaseRegisterNewUserService } = require('@core/keystone/schemas/User')
 const conf = require('@core/config')
 const access = require('@core/keystone/access')
