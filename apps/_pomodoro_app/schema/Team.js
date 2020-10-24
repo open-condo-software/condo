@@ -1,36 +1,36 @@
-const access = require("@core/keystone/access");
-const { GQLListSchema } = require("@core/keystone/schema");
-const { Text, Relationship } = require("@keystonejs/fields");
+const access = require('@core/keystone/access')
+const { GQLListSchema } = require('@core/keystone/schema')
+const { Text, Relationship } = require('@keystonejs/fields')
 
-const Team = new GQLListSchema("Team", {
-  labelField: "title",
-  fields: {
-    title: {
-      type: Text,
-      isRequired: true,
+const Team = new GQLListSchema('Team', {
+    labelField: 'title',
+    fields: {
+        title: {
+            type: Text,
+            isRequired: true,
+        },
+        users: {
+            type: Relationship,
+            ref: 'User',
+            many: true,
+        },
+        code: {
+            type: Text,
+            isRequired: false,
+        },
     },
-    users: {
-      type: Relationship,
-      ref: "User",
-      many: true,
+    queryLimits: {
+        maxResults: 100,
     },
-    code: {
-      type: Text,
-      isRequired: false,
+    access: {
+        read: access.canReadOnlyIfInUsers,
+        create: true,
+        update: true,
+        delete: true,
+        auth: true,
     },
-  },
-  queryLimits: {
-    maxResults: 100,
-  },
-  access: {
-    read: access.canReadOnlyIfInUsers,
-    create: true,
-    update: true,
-    delete: true,
-    auth: true,
-  },
-});
+})
 
 module.exports = {
-  Team,
-};
+    Team,
+}

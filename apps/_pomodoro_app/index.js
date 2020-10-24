@@ -55,7 +55,7 @@ keystone.extendGraphQLSchema({
     queries: [
         {
             schema: 'getUserByName(name: String!): Boolean',
-            resolver: async (item, context, info) => 'hohoho',
+            resolver: async () => 'hohoho',
             access: true,
         },
     ],
@@ -63,7 +63,7 @@ keystone.extendGraphQLSchema({
         {
             schema: 'double(x: Int): Int',
             resolver: (_, { x }) => 2 * x,
-            access: ({ authentication: { item, listKey } }) => {
+            access: () => {
                 return true
             },
         },
@@ -71,14 +71,14 @@ keystone.extendGraphQLSchema({
 })
 
 class CustomApp {
-    prepareMiddleware({ keystone, dev, distDir }) {
+    prepareMiddleware() {
         const middleware = express()
         return middleware
     }
 }
 
 class RealtimeApp {
-    prepareMiddleware({ keystone, dev, distDir }) {
+    prepareMiddleware() {
         realtime.start()
     }
 }
@@ -89,7 +89,7 @@ const authStrategy = keystone.createAuthStrategy({
 })
 
 module.exports = {
-    configureExpress: (app) => {},
+    configureExpress: () => {},
     keystone,
     apps: [
         new GraphQLApp(),
