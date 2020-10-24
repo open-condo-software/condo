@@ -12,17 +12,53 @@
   "scripts": {
     "dev": "node ./bin/run-multiple-apps",
     "start": "node ./bin/run-multiple-apps",
-    "build": "node ./bin/run-build-all"
+    "build": "node ./bin/run-build-all",
+    "lint": "yarn run eslint ."
   },
-  "prettier": {
-    "printWidth": 120,
-    "trailingComma": "es5",
-    "tabWidth": 4,
-    "semi": false,
-    "singleQuote": true
+  "devDependencies": {
+    "eslint": "^7.11.0",
+    "eslint-plugin-react": "^7.21.5",
+    "babel-eslint": "^10.1.0"
   },
-  "dependencies": {
-    "@manypkg/cli": "^0.16.1",
-    "prettier": "^2.1.2"
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2021": true,
+      "node": true,
+      "jest": true
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:react/recommended"
+    ],
+    "parser": "babel-eslint",
+    "parserOptions": {
+      "ecmaFeatures": {
+        "jsx": true
+      },
+      "ecmaVersion": 2019,
+      "sourceType": "module"
+    },
+    "plugins": [
+      "react"
+    ],
+    "rules": {
+      "indent": [
+        "error",
+        4
+      ],
+      "quotes": [
+        "error",
+        "single"
+      ],
+      "semi": [
+        "error",
+        "never"
+      ],
+      "react/react-in-jsx-scope": "warn",
+      "react/prop-types": "warn",
+      "react/display-name": "warn",
+      "no-prototype-builtins": "warn"
+    }
   }
 }

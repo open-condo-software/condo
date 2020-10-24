@@ -97,8 +97,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] Core: Logging
  - [ ] Core: lerna?
  - [ ] Core: benchmarks?
- - [x] Core: prettier
- - [ ] Core: linter
+ - [x] Core: linter
  - [ ] Core: Jest + workspace + Next.js (check problems, write examples)
  - Auth my social apps? (https://www.keystonejs.com/keystonejs/auth-passport/)
  - CRDT example?
@@ -482,27 +481,24 @@ Every app should have `multi-app-support.js` file. Check `_back02keystone`, `_ex
  - `yarn workspace @app/<name> <command>` -- run command inside workspace (`yarn workspace @app/web dev`)
  - `yarn --cwd <app-path-name> <command>` -- run command inside app (`yarn --cwd apps/web dev`)
 
-### prettier
+### linter
 
-We run [prettier](https://prettier.io/docs/en/install.html) on `CI`.
+We use [eslint](https://eslint.org) as our linter. It enforces code-style and best-practices
 
-The configuration for the [prettier](https://prettier.io/docs/en/install.html) is found under package.json
+We don't allow bad code into the repo. To ensure this we run [eslint](https://eslint.org) on `CI`.
+
+The configuration for the [eslint](https://eslint.org) is found under `package.json`
 
 **Available CLI-commands:**
 
- - `yarn prettier --write <directory>` process files in directory by prettier
- - `yarn prettier --check <directory>` check if files in directory are processed with prettier
- - To ignore a whole application change the global `.prettierignore` 
-
-[//]: # "last point would be changed if this > https://github.com/prettier/prettier/pull/6203 gets merged into master"
-
+ - `yarn lint` lint whole project <- this command runs on CI
+ - `yarn run eslint <directory>` check files in `<directory>`
+ - `yarn run eslint --fix <directory>` check files in `<directory>` and fix them if possible
 
 **Editor integrations:**
 
-[Webstorm integration:](https://prettier.io/docs/en/webstorm.html#:~:text=Using%20Prettier%20in%20WebStorm&text=To%20run%20Prettier%20on%20save,files%20will%20be%20formatted%20automatically.)
-Use the Reformat with Prettier action (Opt-Shift-Cmd-P on macOS or Alt-Shift-Ctrl-P on Windows and Linux) to format the selected code, a file, or a whole directory.
+[Webstorm integration:](https://plugins.jetbrains.com/plugin/7494-eslint)
 
-[VSCode integration:](https://github.com/prettier/prettier-vscode)
-prettier-vscode can be installed using the extension sidebar – it’s called “Prettier - Code formatter.” After the installation use (CMD/CTRL + Shift + P) to reformat file
+[VSCode integration:](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 
-[Other editors](https://prettier.io/docs/en/editors.html)
+[Other editors](https://eslint.org/docs/user-guide/integrations#editors)

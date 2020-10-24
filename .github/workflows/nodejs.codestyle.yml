@@ -1,4 +1,4 @@
-name: TEST CODESTYLE (CURRENTLY DISABLED)
+name: LINTER
 
 on:
   push:
@@ -17,11 +17,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Check lint with prettier
+      - name: Check lint with eslint
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn
-      #- run: yarn prettier --check .
-      - name: Check packages.json
-        run: yarn manypkg check
+      - run: yarn lint

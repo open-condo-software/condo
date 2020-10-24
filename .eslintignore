@@ -1,0 +1,7 @@
+# Ignore artifacts
+**/.next
+**/node_modules
+**/out
+
+# Ignore test files
+**/test*
