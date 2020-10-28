@@ -5,3 +5,7 @@
 
 # Ignore test files
 **/test*
+
+# Ignore other files
+package.json
+README.md
