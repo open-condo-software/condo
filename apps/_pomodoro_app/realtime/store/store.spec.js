@@ -27,6 +27,3 @@ test('Should delete entities', () => {
         expect(e.name).toBe('WrongArgumentError')
     }
 })
-
-
-

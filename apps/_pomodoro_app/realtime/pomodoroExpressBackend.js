@@ -4,7 +4,7 @@ const cors = require('cors')
 
 const createRandomWord = require('./application/utils/createRandomWord')
 
-async function prepareBackApp (store) {
+async function prepareBackApp(store) {
     const app = express()
 
     app.use(cors())
@@ -14,7 +14,6 @@ async function prepareBackApp (store) {
         res.setHeader('Content-Type', 'application/json')
 
         if (req.body !== undefined) {
-
             const timerId = createRandomWord(5) + '-' + createRandomWord(5)
 
             try {
@@ -26,19 +25,25 @@ async function prepareBackApp (store) {
 
                 store.setEntityById(timerId, dataObj)
 
-                res.send(JSON.stringify({
-                    id: timerId,
-                    data: dataObj,
-                }))
+                res.send(
+                    JSON.stringify({
+                        id: timerId,
+                        data: dataObj,
+                    })
+                )
             } catch (e) {
-                res.status(400).send(JSON.stringify({
-                    detail: 'Request body was bad ' + e,
-                }))
+                res.status(400).send(
+                    JSON.stringify({
+                        detail: 'Request body was bad ' + e,
+                    })
+                )
             }
         } else {
-            res.status(400).send(JSON.stringify({
-                detail: 'Request body was not specified',
-            }))
+            res.status(400).send(
+                JSON.stringify({
+                    detail: 'Request body was not specified',
+                })
+            )
         }
     })
 

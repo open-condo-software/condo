@@ -5,8 +5,8 @@
 const Timer = require('../realtime/application/timer')
 
 //todo(toplenboren) move to utils.js maybe
-function sleep (ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 test('Timer should start', () => {
@@ -84,4 +84,4 @@ test('Timers should give correct period', async () => {
     expect(x.getPeriod()).toBe('BIG_BREAK')
     expect(x.getNextPeriod()).toBe('WORK')
     x.pause()
-});
+})

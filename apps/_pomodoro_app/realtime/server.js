@@ -8,12 +8,12 @@ const Store = require('./store/store')
 
 const storage = new Store()
 
-async function prepareSocketIOServer (server) {
+async function prepareSocketIOServer(server) {
     const io = socketio(server)
     init(io, storage)
 }
 
-async function initServer (port) {
+async function initServer(port) {
     const app = await prepareBackApp(storage)
     app.set('port', port)
     const server = http.createServer(app)

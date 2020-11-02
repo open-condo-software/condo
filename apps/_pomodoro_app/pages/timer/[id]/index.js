@@ -8,7 +8,9 @@ const ENDPOINT = 'http://127.0.0.1:3001'
 const Timer = () => {
     const [response, setResponse] = useState({})
     const [socket, setSocket] = useState(null)
-    const { query: { id } } = useRouter()
+    const {
+        query: { id },
+    } = useRouter()
 
     useEffect(() => {
         const sock = io(ENDPOINT, { query: `timer=${id}` })
@@ -22,41 +24,48 @@ const Timer = () => {
             sock.disconnect()
             setSocket(null)
         }
-
     }, [])
 
     if (socket === null) {
-        return (<p>Connecting...</p>)
+        return <p>Connecting...</p>
     }
 
-    return (<>
-        <p>
-            Last Response: {JSON.stringify(response)}
-        </p>
-        <button onClick={() => {
-            socket.emit('start')
-        }}>
-            Run Timer
-        </button>
+    return (
+        <>
+            <p>Last Response: {JSON.stringify(response)}</p>
+            <button
+                onClick={() => {
+                    socket.emit('start')
+                }}
+            >
+                Run Timer
+            </button>
 
-        <button onClick={() => {
-            socket.emit('pause')
-        }}>
-            Pause Timer
-        </button>
+            <button
+                onClick={() => {
+                    socket.emit('pause')
+                }}
+            >
+                Pause Timer
+            </button>
 
-        <button onClick={() => {
-            socket.emit('clear')
-        }}>
-            Clear Timer
-        </button>
+            <button
+                onClick={() => {
+                    socket.emit('clear')
+                }}
+            >
+                Clear Timer
+            </button>
 
-        <button onClick={() => {
-            socket.emit('check')
-        }}>
-            Check time (check your server logs!)
-        </button>
-    </>)
+            <button
+                onClick={() => {
+                    socket.emit('check')
+                }}
+            >
+                Check time (check your server logs!)
+            </button>
+        </>
+    )
 }
 
 /**
@@ -64,7 +73,7 @@ const Timer = () => {
  * more: https://nextjs.org/docs/routing/dynamic-routes#caveats
  * @return {Promise<{}>}
  */
-export async function getServerSideProps () {
+export async function getServerSideProps() {
     return { props: {} }
 }
 
