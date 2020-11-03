@@ -1,14 +1,11 @@
 import React, { useContext } from 'react'
 import { SafeAreaView, StyleSheet } from 'react-native'
-import { Button, Divider, Icon, Layout, TopNavigation, useTheme } from '@ui-kitten/components'
+import { Button, Divider, Icon, Layout, TopNavigation } from '@ui-kitten/components'
 import { Entypo } from '@expo/vector-icons'
 
 import { ThemeContext } from '../context/theme'
 
-export const IndexScreen = (props) => {
-    const theme = useTheme()
-
-    const { navigation } = props
+export const IndexScreen = ({ navigation }) => {
     const themeContext = useContext(ThemeContext)
 
     const navigateDetails = () => {
@@ -20,7 +17,7 @@ export const IndexScreen = (props) => {
             <TopNavigation title='MyApp' alignment='center'/>
             <Divider/>
             <Layout style={styles.container}>
-                <Button onPress={navigateDetails}>OPEN TANIKA!</Button>
+                <Button onPress={navigateDetails}>OPEN!</Button>
                 <Entypo size={32} name="folder" color="black"/>
                 <Icon
                     style={styles.icon}
