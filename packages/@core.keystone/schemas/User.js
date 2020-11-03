@@ -391,12 +391,12 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     }
 
                     if (data.users.length !== 0) {
-                        throw new Error(`[register:email:multipleFound] User with this email is already registered`)
+                        throw new Error('[register:email:multipleFound] User with this email is already registered')
                     }
                 }
 
                 if (password.length < 8) {
-                    throw new Error(`[register:password:minLength] Password length less then 7 character`)
+                    throw new Error('[register:password:minLength] Password length less then 7 character')
                 }
 
                 const { errors: errors2, data: data2 } = await context.executeGraphQL({

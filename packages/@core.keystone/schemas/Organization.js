@@ -1,11 +1,10 @@
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
-const { Text, Checkbox, Password, CalendarDay, File, Relationship, Uuid, Select } = require('@keystonejs/fields')
+const { Text, Checkbox, Relationship, Uuid, Select } = require('@keystonejs/fields')
 const { byTracking, atTracking } = require('@keystonejs/list-plugins')
 
 const { GQLListSchema, GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@core/keystone/access')
-const conf = require('@core/config')
 const { getByCondition } = require('../schema')
 const { find } = require('../schema')
 const { getById } = require('../schema')

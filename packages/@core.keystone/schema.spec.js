@@ -140,7 +140,7 @@ const CALCULATOR_SERVICE = new GQLCustomSchema('CalculatorService', {
 })
 
 test('execute mutation func', async () => {
-    const [parent, args, context, info, extra] = [jest.fn(), jest.fn(), jest.fn(), jest.fn(), jest.fn()]
+    const [parent, context, info, extra] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()]
     const res = await CALCULATOR_SERVICE.schema.mutations[0].resolver(
         parent, { op: '+', l: 2, r: 2 }, context, info, extra)
     expect(res).toEqual('4')
