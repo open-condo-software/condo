@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-function HomePage () {
+function HomePage() {
     return (
         <div className="HomePage">
             <h1> Pomodoro! </h1>

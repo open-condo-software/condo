@@ -100,8 +100,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] Core: Logging
  - [ ] Core: lerna?
  - [ ] Core: benchmarks?
- - [ ] Core: prettier
- - [ ] Core: linter
+ - [x] Core: linter
  - [ ] Core: Jest + workspace + Next.js (check problems, write examples)
  - Auth my social apps? (https://www.keystonejs.com/keystonejs/auth-passport/)
  - CRDT example?
@@ -485,10 +484,24 @@ Every app should have `multi-app-support.js` file. Check `_back02keystone`, `_ex
  - `yarn workspace @app/<name> <command>` -- run command inside workspace (`yarn workspace @app/web dev`)
  - `yarn --cwd <app-path-name> <command>` -- run command inside app (`yarn --cwd apps/web dev`)
 
-### prettier
+### linter
 
- - `yarn prettier --write <directory>` process files in directory by prettier
- - `yarn prettier --check <directory>` check if files in directory are processed with prettier
- - To ignore a whole application change the global `.prettierignore` 
+We use [eslint](https://eslint.org) as our linter. It enforces code-style and best-practices
 
-[//]: # "last point would be changed if this > https://github.com/prettier/prettier/pull/6203 gets merged into master"
+We don't allow bad code into the repo. To ensure this we run [eslint](https://eslint.org) on `CI`.
+
+The configuration for the [eslint](https://eslint.org) is found under `package.json`
+
+**Available CLI-commands:**
+
+ - `yarn lint` lint whole project <- this command runs on CI
+ - `yarn run eslint <directory>` check files in `<directory>`
+ - `yarn run eslint --fix <directory>` check files in `<directory>` and fix them if possible
+
+**Editor integrations:**
+
+[Webstorm integration:](https://plugins.jetbrains.com/plugin/7494-eslint)
+
+[VSCode integration:](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+
+[Other editors](https://eslint.org/docs/user-guide/integrations#editors)

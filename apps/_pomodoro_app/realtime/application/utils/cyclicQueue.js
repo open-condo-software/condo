@@ -3,13 +3,13 @@
  * Master queue is immutable
  */
 class CyclicQueue {
-    constructor (queue) {
+    constructor(queue) {
         this._queue = queue
         this._master = queue.slice()
         this.cycles = 0
     }
 
-    pop () {
+    pop() {
         const val = this._queue.shift()
         if (this._queue.length === 0) {
             this._queue = this._master.slice()
@@ -18,11 +18,11 @@ class CyclicQueue {
         return val
     }
 
-    current () {
+    current() {
         return this._queue[0]
     }
 
-    peekNext () {
+    peekNext() {
         if (this._queue.length < 2) {
             return this._master[0]
         }
