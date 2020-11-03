@@ -57,24 +57,26 @@ function MappingForm ({ columns, cols, onChangeMapping, onFinish }) {
     })
 
     const selectColumnComponent = (
-        <Select allowClear={true}
-                showSearch
-                placeholder={SelectColumnMsg}
-                optionFilterProp="children"
-                filterOption={(input, option) =>
-                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }
+        <Select
+            allowClear={true}
+            showSearch
+            placeholder={SelectColumnMsg}
+            optionFilterProp="children"
+            filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
         >
-            {cols.length > 0 ?
-                cols.map((col) => {
-                    if (Object.values(values).includes(col.title)) {
-                        return null
-                    }
-                    return <Select.Option key={col.title} value={col.title}>{col.title}</Select.Option>
-                })
-                :
-                null}
-            })
+            {
+                cols.length > 0 ?
+                    cols.map((col) => {
+                        if (Object.values(values).includes(col.title)) {
+                            return null
+                        }
+                        return <Select.Option key={col.title} value={col.title}>{col.title}</Select.Option>
+                    })
+                    :
+                    null
+            }
         </Select>
     )
 
@@ -171,11 +173,12 @@ function ExcelExporterButton ({ columns, setExportedData }) {
             <Typography.Paragraph>{StepHelpText[step]}</Typography.Paragraph>
             : null}
 
-        <Upload.Dragger style={{ marginBottom: '16px', padding: '10px', display: step === 1 ? 'block' : 'none' }}
-                        accept={SHEET_JS_ACCEPT_FILES}
-                        showUploadList={false}
-                        customRequest={() => {}}
-                        action={handleFile}
+        <Upload.Dragger
+            style={{ marginBottom: '16px', padding: '10px', display: step === 1 ? 'block' : 'none' }}
+            accept={SHEET_JS_ACCEPT_FILES}
+            showUploadList={false}
+            customRequest={() => {}}
+            action={handleFile}
         >
             <p className="ant-upload-drag-icon">
                 <InboxOutlined/>
@@ -192,16 +195,21 @@ function ExcelExporterButton ({ columns, setExportedData }) {
                     borderBottom: 'none',
                     padding: '8px',
                 }}>
-                    <MappingForm columns={columns} cols={tableState.cols} onChangeMapping={handleChangeMapping}
-                                 onFinish={handleFinish}/>
+                    <MappingForm
+                        columns={columns}
+                        cols={tableState.cols}
+                        onChangeMapping={handleChangeMapping}
+                        onFinish={handleFinish}
+                    />
                 </Col>
             </Row>
             <Row style={{ 'overflowX': 'scroll' }}>
                 <Col xs={24}>
-                    <Table size={'small'} bordered
-                           columns={tableState.cols}
-                           dataSource={tableState.data}
-                           tableLayout={'fixed'}
+                    <Table
+                        size={'small'} bordered
+                        columns={tableState.cols}
+                        dataSource={tableState.data}
+                        tableLayout={'fixed'}
                     />
                 </Col>
             </Row>

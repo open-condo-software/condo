@@ -97,6 +97,8 @@ const page = css`
 }
 `
 
+// TODO(pahaz): remove or use it!
+// eslint-disable-next-line no-unused-vars
 const normalize = css`
 /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
 

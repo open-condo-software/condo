@@ -185,7 +185,8 @@ function useCreateAndEditModalForm () {
     return { visible, editableItem, openCreateModal, openEditModal, cancelModal }
 }
 
-function CreateModalFormWithButton ({ CreateButtonLabelMsg, OnCreatedMsg, ...props }) {
+function CreateModalFormWithButton ({ CreateButtonLabelMsg, OnCreatedMsg, ...props }) { // eslint-disable-line no-unused-vars
+    // TODO(pahaz): use it somewhere as example! (and remove eslint-disable-line)
     const { visible, openCreateModal, cancelModal } = useCreateAndEditModalForm()
 
     const intl = useIntl()
@@ -206,8 +207,8 @@ function CreateModalFormWithButton ({ CreateButtonLabelMsg, OnCreatedMsg, ...pro
     </>
 }
 
-function CRUDListBlock () {
-    // TODO(pahaz): inside organizations
+function CRUDListBlock () { // eslint-disable-line no-unused-vars
+    // TODO(pahaz): inside organizations logic here (and remove eslint-disable-line)
 }
 
 function BaseModalForm ({ mutation, mutationOptions, mutationExtraData = {}, formValuesToMutationDataPreprocessor, formValuesToMutationDataPreprocessorContext, formInitialValues, children, onMutationCompleted, onFormValuesChange, modalExtraFooter = [], visible, cancelModal, ModalTitleMsg, ModalCancelButtonLabelMsg, ModalSaveButtonLabelMsg, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
