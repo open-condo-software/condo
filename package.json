@@ -54,7 +54,10 @@
     "rules": {
       "indent": [
         "error",
-        4
+        4,
+        {
+          "SwitchCase": 1
+        }
       ],
       "quotes": [
         "error",
@@ -65,6 +68,12 @@
         "never"
       ],
       "no-prototype-builtins": "off",
+      "no-unused-vars": [
+        "error",
+        {
+          "args": "none"
+        }
+      ],
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
       "react/display-name": "warn",
