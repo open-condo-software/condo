@@ -322,7 +322,7 @@ function ResidentsBlock () {
         return { ...item }
     }
 
-    function renderCellFormWrapper ({ column, record, form, children }) {
+    function RenderCellFormWrapper ({ column, record, form, children }) {
         const { editable, dataIndex, rules, normalize } = column
         const { validateFields, editing } = useFormTableRowContext((form, values) => handleCreateOrUpdate(values, record, form))
 
@@ -370,7 +370,7 @@ function ResidentsBlock () {
                 dataSource={newData}
                 columns={genColumns({ isCreateTable: true }).filter((x => x.create))}
                 renderItem={renderItem}
-                renderCellWrapper={renderCellFormWrapper}
+                renderCellWrapper={RenderCellFormWrapper}
                 rowContextInitialState={{ editing: true }}
                 tableLayout={'fixed'}
             />
@@ -379,7 +379,7 @@ function ResidentsBlock () {
             dataSource={existingData}
             columns={genColumns({ isCreateTable: false })}
             renderItem={renderItem}
-            renderCellWrapper={renderCellFormWrapper}
+            renderCellWrapper={RenderCellFormWrapper}
             rowContextInitialState={{ editing: false }}
             tableLayout={'fixed'}
             onChange={handleTableChange}
