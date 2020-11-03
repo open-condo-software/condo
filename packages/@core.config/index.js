@@ -26,7 +26,7 @@ if (root !== cwd) {
         const env2 = dotenv.parse(fs.readFileSync(path.join(cwd, '.env')))
         for (const k in env2) {
             if (!env0.hasOwnProperty(k)) {
-                if (DEBUG) console.log(`@core.config: [app.env] process.env[${k}] = ${env1[k]}`)
+                if (DEBUG) console.log(`@core.config: [app.env] process.env[${k}] = ${env2[k]}`)
                 process.env[k] = env2[k]
             }
         }
