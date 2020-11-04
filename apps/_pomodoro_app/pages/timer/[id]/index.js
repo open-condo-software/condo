@@ -73,7 +73,7 @@ const Timer = () => {
  * more: https://nextjs.org/docs/routing/dynamic-routes#caveats
  * @return {Promise<{}>}
  */
-export async function getServerSideProps() {
+export async function getServerSideProps () {
     return { props: {} }
 }
 

@@ -13,7 +13,7 @@ const fs = require('fs')
 * }
 * */
 
-export function restructData(path, ref, destination) {
+export function restructData (path, ref, destination) {
     let json_data
 
     try {
@@ -41,11 +41,11 @@ export function restructData(path, ref, destination) {
     )
 }
 
-function createSdlFileSource(content) {
+function createSdlFileSource (content) {
     return `// generated at ${Date.now().toString()}\nmodule.exports = ${JSON.stringify(content)}`
 }
 
-function intlToSdl(intl_object) {
+function intlToSdl (intl_object) {
     const initial_data = {
         Test: [],
         Question: [],
@@ -85,6 +85,6 @@ function intlToSdl(intl_object) {
     return initial_data
 }
 
-function includes(source, value) {
+function includes (source, value) {
     return source.filter(({ name }) => name === value).length === 0
 }

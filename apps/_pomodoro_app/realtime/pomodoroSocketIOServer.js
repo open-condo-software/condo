@@ -6,7 +6,7 @@ const Timer = require('./application/timer')
  * @param socket
  * @param next
  */
-function auth(socket, next) {
+function auth (socket, next) {
     const handshakeData = socket.request
     console.log('auth-d', handshakeData._query['timer'])
     next()
@@ -18,7 +18,7 @@ function auth(socket, next) {
  * @param io - Socket.io namespace
  * @param store — Storage for timer meta information
  */
-function init(io, store) {
+function init (io, store) {
     /**
      * Active timers storage
      * @type {{string, Timer}}
@@ -32,7 +32,7 @@ function init(io, store) {
      * @param id
      * @private
      */
-    function _emitTimerEvent(nsp, timer, id) {
+    function _emitTimerEvent (nsp, timer, id) {
         nsp.emit('timer', {
             id,
             time: timer.getTime(),
