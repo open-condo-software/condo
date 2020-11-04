@@ -1,5 +1,5 @@
 const get = require('lodash/get')
-const fs = require('fs');
+const fs = require('fs')
 
 /*
 * @path:string - path for json source;
@@ -32,12 +32,12 @@ export function restructData(path, ref, destination) {
 
     // TODO(pahaz): need to fix it! check `initial-data.js` structure! (part#2)
     fs.writeFileSync(destination, createSdlFileSource(sdlStruct), function (err) {
-            if (err) {
-                throw err
-            }
-
-            console.log('Sdl structure parsed!\nSdl source generated.')
+        if (err) {
+            throw err
         }
+
+        console.log('Sdl structure parsed!\nSdl source generated.')
+    }
     )
 }
 
@@ -52,7 +52,7 @@ function intlToSdl(intl_object) {
         Answer: [],
     }
 
-    for (name in intl_object) {
+    for (let name in intl_object) {
         if (includes(initial_data.Test, name)) {
             const test = {
                 name: name,
@@ -82,7 +82,7 @@ function intlToSdl(intl_object) {
         }
     }
 
-    return initial_data;
+    return initial_data
 }
 
 function includes(source, value) {

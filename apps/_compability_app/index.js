@@ -49,7 +49,7 @@ const keystone = new Keystone({
     },
 })
 
-const modules_list = fs.readdirSync('./schema').map(file => require(`./schema/${file}`));
+const modules_list = fs.readdirSync('./schema').map(file => require(`./schema/${file}`))
 registerSchemas(keystone, modules_list)
 
 const auth_strategy = keystone.createAuthStrategy({

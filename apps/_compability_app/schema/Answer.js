@@ -2,7 +2,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { Text } = require('@keystonejs/fields')
 const access = require('@core/keystone/access')
 
-const Answer = new GQLListSchema("Answer", {
+const Answer = new GQLListSchema('Answer', {
     fields: {
         name: {
             type: Text,

@@ -1,5 +1,5 @@
 module.exports = api => {
-    const isTest = api.env('test');
+    const isTest = api.env('test')
 
     if (isTest) {
         return {
@@ -14,6 +14,6 @@ module.exports = api => {
     }
 
     return {
-        "presets": ["next/babel"],
-    };
-};
+        'presets': ['next/babel'],
+    }
+}
