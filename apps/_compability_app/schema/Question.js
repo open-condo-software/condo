@@ -12,7 +12,7 @@ const Question = new GQLListSchema('Question', {
             type: Relationship,
             required: true,
             many: true,
-            ref: 'Answer'
+            ref: 'Answer',
         },
     },
     access: {

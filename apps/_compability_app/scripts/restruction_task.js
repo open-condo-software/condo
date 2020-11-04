@@ -63,7 +63,7 @@ function intlToSdl (intl_object) {
                 if (includes(initial_data.Question, title)) {
                     const question = {
                         name: title,
-                        answers: []
+                        answers: [],
                     }
 
                     options.forEach((option) => {

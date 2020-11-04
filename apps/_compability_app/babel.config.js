@@ -6,8 +6,8 @@ module.exports = api => {
             presets: [
                 ['@babel/preset-env', {
                     targets: {
-                        node: 'current'
-                    }
+                        node: 'current',
+                    },
                 }],
             ],
         }

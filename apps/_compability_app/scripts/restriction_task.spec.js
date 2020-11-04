@@ -31,7 +31,7 @@ describe('Restriction_task', () => {
                         'Second',
                         'Third',
                         'Fourth',
-                    ]
+                    ],
                 },
                 {
                     'title': 'Second question Title',
@@ -40,88 +40,88 @@ describe('Restriction_task', () => {
                         'Second1',
                         'Third1',
                         'Fourth1',
-                    ]
+                    ],
                 },
-            ]
+            ],
         }
         const expected = {
             'Answer': [
                 {
-                    'name': 'First'
+                    'name': 'First',
                 },
                 {
-                    'name': 'Second'
+                    'name': 'Second',
                 },
                 {
-                    'name': 'Third'
+                    'name': 'Third',
                 },
                 {
-                    'name': 'Fourth'
+                    'name': 'Fourth',
                 },
                 {
-                    'name': 'First1'
+                    'name': 'First1',
                 },
                 {
-                    'name': 'Second1'
+                    'name': 'Second1',
                 },
                 {
-                    'name': 'Third1'
+                    'name': 'Third1',
                 },
                 {
-                    'name': 'Fourth1'
-                }
+                    'name': 'Fourth1',
+                },
             ],
             'Question': [
                 {
                     'answers': [
                         {
                             'where': {
-                                'name': 'First'
-                            }
+                                'name': 'First',
+                            },
                         },
                         {
                             'where': {
-                                'name': 'Second'
-                            }
+                                'name': 'Second',
+                            },
                         },
                         {
                             'where': {
-                                'name': 'Third'
-                            }
+                                'name': 'Third',
+                            },
                         },
                         {
                             'where': {
-                                'name': 'Fourth'
-                            }
-                        }
+                                'name': 'Fourth',
+                            },
+                        },
                     ],
-                    'name': 'First question Title'
+                    'name': 'First question Title',
                 },
                 {
                     'answers': [
                         {
                             'where': {
-                                'name': 'First1'
-                            }
+                                'name': 'First1',
+                            },
                         },
                         {
                             'where': {
-                                'name': 'Second1'
-                            }
+                                'name': 'Second1',
+                            },
                         },
                         {
                             'where': {
-                                'name': 'Third1'
-                            }
+                                'name': 'Third1',
+                            },
                         },
                         {
                             'where': {
-                                'name': 'Fourth1'
-                            }
-                        }
+                                'name': 'Fourth1',
+                            },
+                        },
                     ],
-                    'name': 'Second question Title'
-                }
+                    'name': 'Second question Title',
+                },
             ],
             'Test': [
                 {
@@ -129,17 +129,17 @@ describe('Restriction_task', () => {
                     'questions': [
                         {
                             'where': {
-                                'name': 'First question Title'
-                            }
+                                'name': 'First question Title',
+                            },
                         },
                         {
                             'where': {
-                                'name': 'Second question Title'
-                            }
-                        }
-                    ]
-                }
-            ]
+                                'name': 'Second question Title',
+                            },
+                        },
+                    ],
+                },
+            ],
         }
 
         fs.writeFileSync(`${tmp_dir}/mock.json`, JSON.stringify(mock_data))

@@ -6,9 +6,9 @@ describe('utils', function () {
             const mock_object = {
                 foo: {
                     bar: {
-                        baz: 'fiz'
-                    }
-                }
+                        baz: 'fiz',
+                    },
+                },
             }
 
             expect(flatten(mock_object)).toStrictEqual({ 'foo.bar.baz': 'fiz' })
@@ -18,9 +18,9 @@ describe('utils', function () {
             const mock_object = {
                 foo: {
                     bar: {
-                        baz: ['fiz', 'fuz', 'faz']
-                    }
-                }
+                        baz: ['fiz', 'fuz', 'faz'],
+                    },
+                },
             }
 
             expect(flatten(mock_object)).toStrictEqual({
