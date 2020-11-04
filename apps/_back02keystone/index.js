@@ -90,6 +90,7 @@ module.exports = {
     },
     keystone,
     apps: [
+        new CustomApp(),
         new GraphQLApp(),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({
