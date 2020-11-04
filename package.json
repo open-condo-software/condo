@@ -69,6 +69,7 @@
         "never"
       ],
       "space-before-function-paren": ["error", "always"],
+      "object-curly-spacing": ["error", "always"],
       "no-prototype-builtins": "off",
       "no-unused-vars": [
         "error",

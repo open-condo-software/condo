@@ -4,7 +4,7 @@ export const flatten = (object) => {
             ...Object.keys(objectBit).map(
                 key => typeof objectBit[key] === 'object' ?
                     _flatten(objectBit[key],`${path}${prefix}${key}`, '.') :
-                    ({[`${path}${prefix}${key}`]: objectBit[key] })
+                    ({ [`${path}${prefix}${key}`]: objectBit[key] })
             )
         )
     }(object))

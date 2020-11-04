@@ -69,7 +69,7 @@ function intlToSdl (intl_object) {
                     options.forEach((option) => {
                         if (includes(initial_data.Answer, option)) {
                             initial_data.Answer.push({ name: option })
-                            question.answers.push({ where: { name: option }})
+                            question.answers.push({ where: { name: option } })
                         }
                     })
 
