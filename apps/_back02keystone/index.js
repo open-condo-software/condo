@@ -2,7 +2,7 @@ const { Keystone } = require('@keystonejs/keystone')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
-const { NextApp } = require('@keystonejs/app-next')
+// const { NextApp } = require('@keystonejs/app-next')
 const { StaticApp } = require('@keystonejs/app-static')
 const express = require('express')
 const access = require('@core/keystone/access')
@@ -90,6 +90,7 @@ module.exports = {
     },
     keystone,
     apps: [
+        new CustomApp(),
         new GraphQLApp(),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({

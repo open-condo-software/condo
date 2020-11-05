@@ -6,7 +6,7 @@ module.exports = {
     ],
     testPathIgnorePatterns: ['/node_modules/', '/.next/'],
     transform: {
-        '^.+\\.(js|jsx)?$': 'babel-jest'
+        '^.+\\.(js|jsx)?$': 'babel-jest',
     },
     transformIgnorePatterns: [
         'node_modules', '.next',

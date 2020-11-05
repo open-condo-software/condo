@@ -73,6 +73,9 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] UserProfileSettings: Extensibility
  - [ ] GlobalSettings: Schema, API, Tests
  - [ ] GlobalSettings: Admin and example
+ - [ ] Core: Upload files
+ - [ ] Core: https://www.apollographql.com/docs/apollo-server/data/errors/ 
+ - [ ] Core: https://www.apollographql.com/docs/apollo-server/data/subscriptions/ example
  - [x] Core: Monorepo with packages and apps
  - [x] Core: Multiple express backend support 
  - [x] Core: docker-compose

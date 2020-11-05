@@ -9,16 +9,16 @@
     "create-tables": "keystone create-tables"
   },
   "dependencies": {
-    "@keystonejs/adapter-knex": "^11.0.2",
-    "@keystonejs/adapter-mongoose": "^9.0.3",
-    "@keystonejs/app-admin-ui": "^7.3.2",
+    "@keystonejs/adapter-knex": "^12.0.1",
+    "@keystonejs/adapter-mongoose": "^10.0.0",
+    "@keystonejs/app-admin-ui": "^7.3.8",
     "@keystonejs/app-graphql": "^6.1.0",
     "@keystonejs/app-static": "^5.1.2",
     "@keystonejs/auth-password": "^5.1.14",
-    "@keystonejs/fields": "^17.0.0",
+    "@keystonejs/fields": "^19.1.0",
     "@keystonejs/fields-wysiwyg-tinymce": "^5.3.6",
-    "@keystonejs/keystone": "^14.0.0",
-    "@keystonejs/server-side-graphql-client": "^1.1.1",
+    "@keystonejs/keystone": "^17.1.0",
+    "@keystonejs/server-side-graphql-client": "^1.1.2",
     "cross-env": "^7.0.0"
   },
   "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_back01keystone"

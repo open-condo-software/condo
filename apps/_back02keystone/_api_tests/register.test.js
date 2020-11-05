@@ -31,6 +31,6 @@ test('register user with existed email', async () => {
     const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
     const password = faker.internet.password()
     const email = user.email
-    const { data, errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, { data: { name, password, email } })
+    const { errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, { data: { name, password, email } })
     expect(JSON.stringify(errors)).toMatch(/register:email:multipleFound/)
 })

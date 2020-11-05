@@ -51,7 +51,7 @@ class JsonTextImplementation extends Implementation {
         resolvedData,
         context,
     }) {
-        const previousData = existingItem && existingItem[this.path] || {}
+        // const previousData = existingItem && existingItem[this.path] || {}
         const uploadData = resolvedData[this.path]
         let result
 

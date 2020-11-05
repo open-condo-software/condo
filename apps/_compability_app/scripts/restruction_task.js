@@ -1,5 +1,5 @@
 const get = require('lodash/get')
-const fs = require('fs');
+const fs = require('fs')
 
 /*
 * @path:string - path for json source;
@@ -13,7 +13,7 @@ const fs = require('fs');
 * }
 * */
 
-export function restructData(path, ref, destination) {
+export function restructData (path, ref, destination) {
     let json_data
 
     try {
@@ -32,27 +32,27 @@ export function restructData(path, ref, destination) {
 
     // TODO(pahaz): need to fix it! check `initial-data.js` structure! (part#2)
     fs.writeFileSync(destination, createSdlFileSource(sdlStruct), function (err) {
-            if (err) {
-                throw err
-            }
-
-            console.log('Sdl structure parsed!\nSdl source generated.')
+        if (err) {
+            throw err
         }
+
+        console.log('Sdl structure parsed!\nSdl source generated.')
+    }
     )
 }
 
-function createSdlFileSource(content) {
+function createSdlFileSource (content) {
     return `// generated at ${Date.now().toString()}\nmodule.exports = ${JSON.stringify(content)}`
 }
 
-function intlToSdl(intl_object) {
+function intlToSdl (intl_object) {
     const initial_data = {
         Test: [],
         Question: [],
         Answer: [],
     }
 
-    for (name in intl_object) {
+    for (let name in intl_object) {
         if (includes(initial_data.Test, name)) {
             const test = {
                 name: name,
@@ -63,13 +63,13 @@ function intlToSdl(intl_object) {
                 if (includes(initial_data.Question, title)) {
                     const question = {
                         name: title,
-                        answers: []
+                        answers: [],
                     }
 
                     options.forEach((option) => {
                         if (includes(initial_data.Answer, option)) {
                             initial_data.Answer.push({ name: option })
-                            question.answers.push({ where: { name: option }})
+                            question.answers.push({ where: { name: option } })
                         }
                     })
 
@@ -82,9 +82,9 @@ function intlToSdl(intl_object) {
         }
     }
 
-    return initial_data;
+    return initial_data
 }
 
-function includes(source, value) {
+function includes (source, value) {
     return source.filter(({ name }) => name === value).length === 0
 }

@@ -4,7 +4,7 @@ const cors = require('cors')
 
 const createRandomWord = require('./application/utils/createRandomWord')
 
-async function prepareBackApp(store) {
+async function prepareBackApp (store) {
     const app = express()
 
     app.use(cors())

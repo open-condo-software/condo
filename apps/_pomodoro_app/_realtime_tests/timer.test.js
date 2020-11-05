@@ -5,7 +5,7 @@
 const Timer = require('../realtime/application/timer')
 
 //todo(toplenboren) move to utils.js maybe
-function sleep(ms) {
+function sleep (ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
 

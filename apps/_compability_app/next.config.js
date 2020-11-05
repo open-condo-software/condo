@@ -14,4 +14,4 @@ module.exports = withTM(withLess(withCSS({
     lessLoaderOptions: {
         javascriptEnabled: true,
     },
-})));
+})))

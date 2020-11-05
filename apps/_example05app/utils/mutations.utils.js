@@ -32,7 +32,7 @@ function runMutation ({ mutation, variables, onCompleted, onError, onFinally, in
                 else return data
             },
             (e) => {
-                console.error(`mutation error:`, e)
+                console.error('mutation error:', e)
 
                 let friendlyDescription = null
                 let notificationContext = null

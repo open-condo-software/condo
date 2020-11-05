@@ -6,7 +6,11 @@ const RowFormContext = React.createContext()
 const RowContext = React.createContext()
 const TableContext = React.createContext()
 
-function defaultRenderCellWrapper ({ dataIndex, record, column, children, form }) {
+function NullRenderCellWrapper () {
+    return null
+}
+
+function DefaultRenderCellWrapper ({ dataIndex, record, column, children, form }) {
     const inputRef = useRef()
     const [editing, setEditing] = useState(false)
     const { editable } = column
@@ -77,9 +81,17 @@ function EditableCell ({
 }) {
     const form = useContext(RowFormContext)
     const { renderCellWrapper } = useContext(TableContext)
-    if (!column || !record || !children || !form) return null
-    const render = record.renderCellWrapper || column.renderCellWrapper || renderCellWrapper || defaultRenderCellWrapper
-    return <td {...restProps}>{render({ column, record, children, form })}</td>
+    let Wrapper
+    if (!column || !record || !children || !form) {
+        Wrapper = NullRenderCellWrapper
+    } else {
+        Wrapper = record.renderCellWrapper || column.renderCellWrapper || renderCellWrapper || DefaultRenderCellWrapper
+    }
+    return <td {...restProps}>
+        <Wrapper column={column} record={record} form={form}>
+            {children}
+        </Wrapper>
+    </td>
 }
 
 function EditableWrapper (props) {

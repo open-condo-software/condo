@@ -99,7 +99,7 @@ function nameValidator (value) {
             message: '[is.number]',
         }
     }
-    if (/[™×÷‼‽⁇⁈⁉©®±°¢£¤¥¦§{}()_=+*;:&^%$#@!?<>|№\/\\\[\]]/g.test(value)) {
+    if (/[™×÷‼‽⁇⁈⁉©®±°¢£¤¥¦§{}()_=+*;:&^%$#@!?<>|№\\/[\]]/g.test(value)) {
         return {
             status: 'error',
             message: '[has.bad.char]',
@@ -160,7 +160,6 @@ function emailValidator (value) {
 function phoneValidator (value) {
     value = value.replace(/^\s+|\s+$/g, '')
     let digits = (value.match(/[0-9]+/g) || []).join('')
-    let nonDigits = (value.match(/[^0-9]+/g) || []).join('')
     if (digits.length < 10) {
         return {
             status: 'error',

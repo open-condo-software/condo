@@ -1,19 +1,19 @@
 module.exports = api => {
-    const isTest = api.env('test');
+    const isTest = api.env('test')
 
     if (isTest) {
         return {
             presets: [
                 ['@babel/preset-env', {
                     targets: {
-                        node: 'current'
-                    }
+                        node: 'current',
+                    },
                 }],
             ],
         }
     }
 
     return {
-        "presets": ["next/babel"],
-    };
-};
+        'presets': ['next/babel'],
+    }
+}

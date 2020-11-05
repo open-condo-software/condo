@@ -30,7 +30,7 @@ const OptionsField = ({ onChange, autoFocus, field, value, errors }) => {
     const [values, setValues] = useState(initialState)
     useEffect(() => {
         onChange(values)
-    }, [values])
+    }, [values, onChange])
 
     const handleChange = newValue => {
         setValues({ ...values, ...newValue })

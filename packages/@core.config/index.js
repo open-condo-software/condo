@@ -26,7 +26,7 @@ if (root !== cwd) {
         const env2 = dotenv.parse(fs.readFileSync(path.join(cwd, '.env')))
         for (const k in env2) {
             if (!env0.hasOwnProperty(k)) {
-                if (DEBUG) console.log(`@core.config: [app.env] process.env[${k}] = ${env1[k]}`)
+                if (DEBUG) console.log(`@core.config: [app.env] process.env[${k}] = ${env2[k]}`)
                 process.env[k] = env2[k]
             }
         }
@@ -36,11 +36,11 @@ if (root !== cwd) {
 if (DEBUG) console.log(`@core.config: inited! namespace=${namespace}, cwd=${cwd}, root=${root}`)
 if (DEBUG) console.dir(process.env)
 
-function getEnv(namespace, name, defaultValue) {
+function getEnv (namespace, name, defaultValue) {
     return preprocessEnv(process.env[`${namespace}_${name}`] || process.env[`${name}`] || defaultValue)
 }
 
-function preprocessEnv(v) {
+function preprocessEnv (v) {
     if (!v) return v
     if (v.includes('${ROOT}')) {
         v = v.replace('${ROOT}', root)
@@ -48,7 +48,7 @@ function preprocessEnv(v) {
     return v
 }
 
-function getConfig(namespace) {
+function getConfig (namespace) {
     namespace = namespace ? namespace.toUpperCase().replace('_', '') : ''
     namespace = namespace ? namespace + '__' : ''
 

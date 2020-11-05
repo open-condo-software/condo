@@ -16,7 +16,7 @@ function preventInfinityLoop (ctx) {
             if (url) {
                 errors[url] = (errors[url] || 0) + 1
                 if (errors[url] >= 10) {
-                    const msg = `preventInfinityLoop(): catch loop! Probably you don't have some URL`
+                    const msg = 'preventInfinityLoop(): catch loop! Probably you don\'t have some URL'
                     console.dir(ctx.router)
                     throw new Error(msg)
                 }

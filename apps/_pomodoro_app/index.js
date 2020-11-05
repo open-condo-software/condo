@@ -71,14 +71,14 @@ keystone.extendGraphQLSchema({
 })
 
 class CustomApp {
-    prepareMiddleware() {
+    prepareMiddleware () {
         const middleware = express()
         return middleware
     }
 }
 
 class RealtimeApp {
-    prepareMiddleware() {
+    prepareMiddleware () {
         realtime.start()
     }
 }

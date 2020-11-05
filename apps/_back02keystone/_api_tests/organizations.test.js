@@ -51,23 +51,6 @@ const COUNT_OF_ORGANIZATION_TO_USER_LINKS_QUERY = gql`
     }
 `
 
-const GET_ORGANIZATION_TO_USER_LINKS_BY_ORGANIZATION_ID_QUERY = gql`
-    query getObj($id: ID!) {
-        objs: allOrganizationToUserLinks (where: {organization: {id: $id}}) {
-            id
-            organization {
-                id
-                name
-                description
-            }
-            user {
-                id
-            }
-            role
-        }
-    }
-`
-
 const GET_ORGANIZATION_WITH_LINKS_QUERY = gql`
     query q($id: ID!) {
         obj: Organization (where: {id: $id}) {
@@ -118,21 +101,6 @@ const DELETE_ORGANIZATION_TO_USER_LINK_MUTATION = gql`
 const UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION = gql`
     mutation update($id: ID!, $data: OrganizationToUserLinkUpdateInput){
         obj: updateOrganizationToUserLink(id: $id, data: $data) {
-            id
-            organization {
-                id
-            }
-            user {
-                id
-            }
-            role
-        }
-    }
-`
-
-const CREATE_ORGANIZATION_TO_USER_LINK_MUTATION = gql`
-    mutation create($data: OrganizationToUserLinkCreateInput){
-        obj: createOrganizationToUserLink(data: $data) {
             id
             organization {
                 id
@@ -225,7 +193,7 @@ test('user: get all OrganizationToUserLinks', async () => {
     const client = await makeLoggedInClient(user)
     const { data, errors } = await client.query(ALL_ORGANIZATION_TO_USER_LINKS_QUERY)
     expect(errors).toEqual(undefined)
-    expect(data.objs.length).toEqual(0)
+    expect(data.objs).toHaveLength(0)
 })
 
 test('user: get count of OrganizationToUserLinks', async () => {

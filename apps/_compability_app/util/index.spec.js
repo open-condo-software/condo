@@ -1,4 +1,4 @@
-import {flatten} from './index'
+import { flatten } from './index'
 
 describe('utils', function () {
     describe('flatten', () => {
@@ -6,27 +6,27 @@ describe('utils', function () {
             const mock_object = {
                 foo: {
                     bar: {
-                        baz: "fiz"
-                    }
-                }
+                        baz: 'fiz',
+                    },
+                },
             }
 
-            expect(flatten(mock_object)).toStrictEqual({"foo.bar.baz": "fiz"})
+            expect(flatten(mock_object)).toStrictEqual({ 'foo.bar.baz': 'fiz' })
         })
 
         it('should correctly flatten an object with nested array', () => {
             const mock_object = {
                 foo: {
                     bar: {
-                        baz: ["fiz", "fuz", "faz"]
-                    }
-                }
+                        baz: ['fiz', 'fuz', 'faz'],
+                    },
+                },
             }
 
             expect(flatten(mock_object)).toStrictEqual({
-                "foo.bar.baz.0": "fiz",
-                "foo.bar.baz.1": "fuz",
-                "foo.bar.baz.2": "faz",
+                'foo.bar.baz.0': 'fiz',
+                'foo.bar.baz.1': 'fuz',
+                'foo.bar.baz.2': 'faz',
             })
         })
 

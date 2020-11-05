@@ -2,6 +2,7 @@
 **/.next
 **/node_modules
 **/out
+**/__generated__
 
 # Ignore test files
 **/test*

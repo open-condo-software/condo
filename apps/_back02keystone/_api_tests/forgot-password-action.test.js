@@ -80,7 +80,7 @@ test('reset forgotten password', async () => {
 
     // get created token
     const { data: { passwordTokens } } = await adm.query(ALL_TOKENS_FOR_USER_QUERY, { email: user.email })
-    expect(passwordTokens.length).toEqual(1)
+    expect(passwordTokens).toHaveLength(1)
     const token = passwordTokens[0].token
     expect(token).toMatch(/^[a-zA-Z0-9-]{7,40}$/g)
 
