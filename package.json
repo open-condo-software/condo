@@ -23,7 +23,6 @@
     "eslint-plugin-react-hooks": "^4.2.0"
   },
   "eslintConfig": {
-    "ignorePatterns": ["**/__generated__/*.js"],
     "env": {
       "browser": true,
       "es2021": true,
