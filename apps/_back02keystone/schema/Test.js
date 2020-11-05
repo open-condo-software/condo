@@ -1,3 +1,4 @@
+const { versioned } = require('../custom-plugins/versioned')
 const {
     Checkbox,
     Decimal,
@@ -13,6 +14,7 @@ const { Content } = require('@keystonejs/fields-content')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Color } = require('@keystonejs/fields-color')
 const { LocationGoogle } = require('@keystonejs/fields-location-google')
+const { byTracking, atTracking } = require('@keystonejs/list-plugins')
 
 const Test = new GQLListSchema('Test', {
     fields: {
@@ -78,6 +80,7 @@ const Test = new GQLListSchema('Test', {
         delete: true,
         auth: true,
     },
+    plugins: [byTracking(), atTracking(), versioned()],
 })
 
 module.exports = {

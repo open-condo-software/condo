@@ -31,7 +31,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 1, 1)
+VERSION = (1, 1, 2)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -42,6 +42,7 @@ DJANGO_MODEL_GENERATOR_SCRIPT = '''
 import json
 from django.template import Library, Template, Engine, Context
 import keyword
+import sys
 
 DATA = '__KNEX_SCHEMA_DATA__'
 NAME = '_django_model_generator'
@@ -144,6 +145,7 @@ def to_fieldtype(value, fieldname=None):
             {'field_class': 'models.IntegerField', 'choices': [(i, str(i)) for i in choices]}) if type(
             choices[0]) == int else x.update(
             {'field_class': 'models.CharField', 'max_length': 50, 'choices': [(i, i) for i in choices]}),
+        "defaultTo": lambda x, v: x.update({'default': v}),
         "kmigrator": lambda x, options: x.update(options),
     }
 
@@ -155,6 +157,8 @@ def to_fieldtype(value, fieldname=None):
     if fieldname:
         ctx.update({'db_column': q(fieldname)})
     for v in value:
+        if v[0] not in processors:
+            raise RuntimeError('no processor: {0}(ctx, *{1!r})'.format(v[0], v[1:]))
         processors[v[0]](ctx, *v[1:])
     field_class = ctx.pop('field_class')
     if not ctx['db_index'] and field_class != 'models.ForeignKey':
@@ -217,6 +221,13 @@ function createFakeTable (tableName) {
         const p = new Proxy({}, {
             get: function (target, prop) {
                 return (...args) => {
+                    try {
+                        JSON.stringify(args)
+                    } catch (e) {
+                        // knex.raw may not to be serializable
+                        console.warn('IS_NOT_SERIALIZABLE:', tableName, name, args, e)
+                        return p
+                    }
                     schema[name].push([prop].concat(args))
                     return p
                 }
@@ -340,7 +351,12 @@ function createFakeTable (tableName) {
         console.error('\\nERROR: No KNEX adapter connection settings! Check the DATABASE_URL')
         process.exit(3)
     }
-    fs.writeFileSync(knexSchemaFile, JSON.stringify(tableCache))
+    try {
+        fs.writeFileSync(knexSchemaFile, JSON.stringify(tableCache))
+    } catch (e) {
+        console.error(e)
+        process.exit(7)
+    }
     process.exit(0)
 })()
 """
