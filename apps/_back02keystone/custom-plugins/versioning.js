@@ -8,7 +8,7 @@ const composeHook = (originalHook, newHook) => async params => {
     return newHook({ ...params, resolvedData })
 }
 
-const versioned = ({ versionField = 'v', startBy = 1 } = {}) => ({ fields = {}, hooks = {}, ...rest }) => {
+const versioning = ({ versionField = 'v', startBy = 1 } = {}) => ({ fields = {}, hooks = {}, ...rest }) => {
     const versionOptions = {
         type: Integer,
         isRequired: true,
@@ -36,5 +36,5 @@ const versioned = ({ versionField = 'v', startBy = 1 } = {}) => ({ fields = {}, 
 }
 
 module.exports = {
-    versioned,
+    versioning,
 }

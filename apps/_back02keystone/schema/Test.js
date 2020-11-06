@@ -1,4 +1,4 @@
-const { versioned } = require('../custom-plugins/versioned')
+const { versioning } = require('../custom-plugins')
 const {
     Checkbox,
     Decimal,
@@ -8,6 +8,7 @@ const {
     Slug,
     Url,
     Uuid,
+    Text,
     Relationship,
 } = require('@keystonejs/fields')
 const { Content } = require('@keystonejs/fields-content')
@@ -15,12 +16,14 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { Color } = require('@keystonejs/fields-color')
 const { LocationGoogle } = require('@keystonejs/fields-location-google')
 const { byTracking, atTracking } = require('@keystonejs/list-plugins')
+const { v4: uuid } = require('uuid')
+const { Stars, Options, JsonText } = require('../custom-fields')
 
 const Test = new GQLListSchema('Test', {
     fields: {
         heroColor: { type: Color },
 
-        isEnabled: { type: Checkbox, isRequired: true },
+        isEnabled: { type: Checkbox, isRequired: true, defaultValue: false },
 
         body: {
             type: Content,
@@ -34,7 +37,7 @@ const Test = new GQLListSchema('Test', {
             ],
         },
 
-        rating1: { type: Integer, isRequired: true },
+        rating1: { type: Integer, isRequired: true, defaultValue: 3 },
         rating2: { type: Float },
         rating3: { type: Decimal },
         venue: {
@@ -42,20 +45,21 @@ const Test = new GQLListSchema('Test', {
             googleMapsKey: 'no',
         },
 
-        status_renamed: { type: Select, options: 'pending, processed', isRequired: true },
+        status_renamed: { type: Select, options: 'pending, processed', isRequired: true, defaultValue: 'no' },
         uuid: {
             type: Uuid,
             isRequired: true,
+            defaultValue: () => uuid(),
         },
         url: {
             type: Url,
             isRequired: true,
-
+            defaultValue: () => '/'
         },
         slug: {
             type: Slug,
             isRequired: true,
-
+            from: 'id',
         },
         users: {
             type: Relationship,
@@ -72,6 +76,11 @@ const Test = new GQLListSchema('Test', {
             ref: 'Test',
             many: true,
         },
+
+        rating: { type: Stars, starCount: 5 },
+        settings: { type: Options, options: ['Feature1', 'Feature2'] },
+        meta: { type: JsonText },
+        text: { type: Text },
     },
     access: {
         read: true,
@@ -80,7 +89,7 @@ const Test = new GQLListSchema('Test', {
         delete: true,
         auth: true,
     },
-    plugins: [byTracking(), atTracking(), versioned()],
+    plugins: [byTracking(), atTracking(), versioning()],
 })
 
 module.exports = {

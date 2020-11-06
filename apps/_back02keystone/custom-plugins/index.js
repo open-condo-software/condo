@@ -1,5 +1,5 @@
-const { versioned } = require('./versioned')
+const { versioning } = require('./versioning')
 
 module.exports = {
-    versioned,
+    versioning,
 }
