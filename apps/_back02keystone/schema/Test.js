@@ -110,7 +110,7 @@ const Test = new GQLListSchema('Test', {
         delete: true,
         auth: true,
     },
-    plugins: [byTracking(), atTracking(), versioning()],
+    plugins: [byTracking(), atTracking(), versioning(), historical()],
 })
 
 module.exports = {
