@@ -31,7 +31,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 1, 2)
+VERSION = (1, 1, 3)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -131,7 +131,7 @@ def to_fieldtype(value, fieldname=None):
         "string": lambda x, max_length: x.update({'field_class': 'models.CharField', 'max_length': max_length}),
         "json": lambda x: x.update({'field_class': 'JSONField'}),
         "date": lambda x: x.update({'field_class': 'models.DateField'}),
-        "timestamp": lambda x: x.update({'field_class': 'models.DateTimeField'}),
+        "timestamp": lambda x, tz, precision: x.update({'field_class': 'models.DateTimeField'}),
         "integer": lambda x: x.update({'field_class': 'models.IntegerField'}),
         "unsigned": lambda x: x.update({'field_class': 'models.PositiveIntegerField'}),
         "index": lambda x: x.update({'db_index': True}),
@@ -254,9 +254,7 @@ function createFakeTable (tableName) {
         datetime: (name) => chinable(name, ['datetime']),
         time: (name) => chinable(name, ['time']),
         timestamp: (name, {useTz, precision} = {}) => {
-            if (useTz !== false) throw new Error('timestamp(useTz = true) not supported')
-            if (precision) throw new Error('timestamp(precision) not supported')
-            return chinable(name, ['timestamp'])
+            return chinable(name, ['timestamp', Boolean(useTz), precision])
         },
         // timestamp: (name, {useTz, precision} = {}) => {throw new Error('timestamp() not supported')},
         timestamps: () => {throw new Error('timestamps() not supported')},

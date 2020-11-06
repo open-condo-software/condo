@@ -1,3 +1,4 @@
+const { historical } = require('../custom-plugins')
 const { versioning } = require('../custom-plugins')
 const {
     Checkbox,
@@ -10,6 +11,12 @@ const {
     Uuid,
     Text,
     Relationship,
+    DateTimeUtc,
+    DateTime,
+    CalendarDay,
+    File,
+    Password,
+    Virtual,
 } = require('@keystonejs/fields')
 const { Content } = require('@keystonejs/fields-content')
 const { GQLListSchema } = require('@core/keystone/schema')
@@ -18,9 +25,23 @@ const { LocationGoogle } = require('@keystonejs/fields-location-google')
 const { byTracking, atTracking } = require('@keystonejs/list-plugins')
 const { v4: uuid } = require('uuid')
 const { Stars, Options, JsonText } = require('../custom-fields')
+const { LocalFileAdapter } = require('@keystonejs/file-adapters');
+const conf = require('@core/config')
+
+const adapter = new LocalFileAdapter({
+    src: `${conf.MEDIA_ROOT}/test`,
+    path: `${conf.MEDIA_URL}/test`,
+})
 
 const Test = new GQLListSchema('Test', {
     fields: {
+        date1: { type: DateTime },
+        utc: { type: DateTimeUtc },
+        day: { type: CalendarDay },
+        file: { type: File, adapter },
+        pass: { type: Password },
+        vir1: { type: Virtual, resolver: () => String(Math.random()) },
+
         heroColor: { type: Color },
 
         isEnabled: { type: Checkbox, isRequired: true, defaultValue: false },
@@ -54,7 +75,7 @@ const Test = new GQLListSchema('Test', {
         url: {
             type: Url,
             isRequired: true,
-            defaultValue: () => '/'
+            defaultValue: '/',
         },
         slug: {
             type: Slug,
