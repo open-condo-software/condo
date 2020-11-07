@@ -113,6 +113,35 @@ const Test = new GQLListSchema('Test', {
     plugins: [byTracking(), atTracking(), versioning(), historical()],
 })
 
+const TestItem = new GQLListSchema('TestItem', {
+    fields: {
+        id: {
+            type: Uuid,
+            defaultValue: () => uuid(),
+            isRequired: true,
+        },
+        test: {
+            type: Relationship,
+            ref: 'Test',
+            isRequired: true,
+        },
+        meta: {
+            type: JsonText,
+            defaultValue: {},
+            isRequired: true,
+        },
+    },
+    access: {
+        read: true,
+        create: true,
+        update: true,
+        delete: true,
+        auth: true,
+    },
+    plugins: [byTracking(), atTracking(), versioning(), historical()],
+})
+
 module.exports = {
     Test,
+    TestItem,
 }
