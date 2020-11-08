@@ -1,9 +1,11 @@
-const Stars = require('./Stars')
-const Options = require('./Options')
+const Json = require('./Json')
 const JsonText = require('./JsonText')
+const Options = require('./Options')
+const Stars = require('./Stars')
 
 module.exports = {
-    Stars,
-    Options,
+    Json,
     JsonText,
+    Options,
+    Stars,
 }

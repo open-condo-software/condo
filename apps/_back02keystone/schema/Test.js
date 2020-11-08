@@ -24,8 +24,8 @@ const { Color } = require('@keystonejs/fields-color')
 const { LocationGoogle } = require('@keystonejs/fields-location-google')
 const { byTracking, atTracking } = require('@keystonejs/list-plugins')
 const { v4: uuid } = require('uuid')
-const { Stars, Options, JsonText } = require('../custom-fields')
-const { LocalFileAdapter } = require('@keystonejs/file-adapters');
+const { Stars, Options, JsonText, Json } = require('../custom-fields')
+const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const conf = require('@core/config')
 
 const adapter = new LocalFileAdapter({
@@ -40,7 +40,11 @@ const Test = new GQLListSchema('Test', {
         day: { type: CalendarDay },
         file: { type: File, adapter },
         pass: { type: Password },
-        vir1: { type: Virtual, resolver: () => String(Math.random()) },
+        vir1: {
+            type: Virtual,
+            access: { create: false, update: false, delete: false, read: true },
+            resolver: (item) => item.day ? '!' : 'no date!',
+        },
 
         heroColor: { type: Color },
 
@@ -66,7 +70,7 @@ const Test = new GQLListSchema('Test', {
             googleMapsKey: 'no',
         },
 
-        status_renamed: { type: Select, options: 'pending, processed', isRequired: true, defaultValue: 'no' },
+        status_renamed: { type: Select, options: 'pending, processed, no', isRequired: true, defaultValue: 'no' },
         uuid: {
             type: Uuid,
             isRequired: true,
@@ -75,7 +79,7 @@ const Test = new GQLListSchema('Test', {
         url: {
             type: Url,
             isRequired: true,
-            defaultValue: '/',
+            defaultValue: 'scheme:[//authority]path[?query][#fragment]',
         },
         slug: {
             type: Slug,
@@ -100,7 +104,8 @@ const Test = new GQLListSchema('Test', {
 
         rating: { type: Stars, starCount: 5 },
         settings: { type: Options, options: ['Feature1', 'Feature2'] },
-        meta: { type: JsonText },
+        meta: { type: Json },
+        metaString: { type: JsonText },
         text: { type: Text },
     },
     access: {

@@ -1,17 +1,12 @@
-const { Implementation } = require('@keystonejs/fields')
+const { JsonKnexFieldAdapter, JsonMongooseFieldAdapter, JsonImplementation } = require('../Json/Implementation')
 
-class JsonTextImplementation extends Implementation {
-    constructor (path, { isMultiline }) {
+class JsonTextImplementation extends JsonImplementation {
+    constructor (path, options) {
         super(...arguments)
-        this.isMultiline = isMultiline
-        this.isOrderable = false
+        this.gqlBaseType = 'String'
     }
 
     // Output
-
-    gqlOutputFields () {
-        return [`${this.path}: String`]
-    }
 
     gqlOutputFieldResolvers () {
         return {
@@ -24,26 +19,6 @@ class JsonTextImplementation extends Implementation {
     }
 
     // Input
-
-    gqlQueryInputFields () {
-        return [
-            ...this.equalityInputFields('String'),
-            ...this.inInputFields('String'),
-        ]
-    }
-
-    gqlUpdateInputFields () {
-        return [`${this.path}: String`]
-    }
-
-    gqlCreateInputFields () {
-        return [`${this.path}: String`]
-    }
-
-    extendAdminMeta (meta) {
-        const { isMultiline } = this
-        return { isMultiline, ...meta }
-    }
 
     async resolveInput ({
         existingItem,
@@ -85,4 +60,6 @@ class JsonTextImplementation extends Implementation {
 
 module.exports = {
     JsonTextImplementation,
+    JsonTextKnexFieldAdapter: JsonKnexFieldAdapter,
+    JsonTextMongooseFieldAdapter: JsonMongooseFieldAdapter,
 }
