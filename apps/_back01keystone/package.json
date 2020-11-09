@@ -9,15 +9,15 @@
     "create-tables": "keystone create-tables"
   },
   "dependencies": {
-    "@keystonejs/adapter-knex": "^12.0.1",
-    "@keystonejs/adapter-mongoose": "^10.0.0",
-    "@keystonejs/app-admin-ui": "^7.3.8",
+    "@keystonejs/adapter-knex": "^12.0.2",
+    "@keystonejs/adapter-mongoose": "^10.0.1",
+    "@keystonejs/app-admin-ui": "^7.3.9",
     "@keystonejs/app-graphql": "^6.1.0",
     "@keystonejs/app-static": "^5.1.2",
-    "@keystonejs/auth-password": "^5.1.14",
-    "@keystonejs/fields": "^19.1.0",
-    "@keystonejs/fields-wysiwyg-tinymce": "^5.3.6",
-    "@keystonejs/keystone": "^17.1.0",
+    "@keystonejs/auth-password": "^5.1.17",
+    "@keystonejs/fields": "^20.0.0",
+    "@keystonejs/fields-wysiwyg-tinymce": "^5.3.13",
+    "@keystonejs/keystone": "^17.1.1",
     "@keystonejs/server-side-graphql-client": "^1.1.2",
     "cross-env": "^7.0.0"
   },
