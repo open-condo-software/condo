@@ -15,7 +15,6 @@ function genGetAllGQL (MODEL, MODELs, MODEL_FIELDS) {
 }
 
 const FIELDS = '{ id v text }'
-const GET_ALL_TEST_OBJS_QUERY = genGetAllGQL('Test', 'Tests', FIELDS)
 const HISTORY_FIELDS = '{ id v text history_id history_action history_date }'
 const GET_ALL_TEST_HISTORY_OBJS_QUERY = genGetAllGQL('TestHistoryRecord', 'TestHistoryRecords', HISTORY_FIELDS)
 
