@@ -1,11 +1,6 @@
-const { Relationship, Text } = require('@keystonejs/fields')
+const { Text } = require('@keystonejs/fields')
 
-class HiddenRelationshipImplementation extends Relationship.implementation {
-    constructor () {
-        super(...arguments)
-        this.isRelationship = false
-    }
-
+class HiddenRelationshipImplementation extends Text.implementation {
     gqlQueryInputFields () {
         return [
             ...this.equalityInputFields('String'),
@@ -31,6 +26,13 @@ class HiddenRelationshipImplementation extends Relationship.implementation {
 }
 
 class HiddenKnexRelationshipInterface extends Text.adapters.knex {
+    constructor () {
+        super(...arguments)
+        const [refListKey, refFieldPath] = this.config.ref.split('.')
+        this.refListKey = refListKey
+        this.refFieldPath = refFieldPath
+    }
+
     addToTableSchema (table, rels) {
         const refList = this.getListByKey(this.refListKey)
         const refId = refList.getPrimaryKey()
@@ -48,7 +50,7 @@ class HiddenKnexRelationshipInterface extends Text.adapters.knex {
 class HiddenMongoRelationshipInterface extends Text.adapters.mongoose {}
 
 // TODO(pahaz): test it
-class HiddenPrismaRelationshipInterface extends Relationship.adapters.prisma {}
+class HiddenPrismaRelationshipInterface extends Text.adapters.prisma {}
 
 const HiddenRelationship = {
     type: 'Relationship',

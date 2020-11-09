@@ -77,12 +77,10 @@ function preprocessFields (listKey, listFields, historyField, ignoreFieldTypes) 
         AuthedRelationship: (field) => ({
             type: HiddenRelationship,
             ref: field.ref,
-            kmigratorOptions: { 'db_constraint': false, db_index: false },
         }),
         Relationship: (field) => ({
             type: HiddenRelationship,
             ref: field.ref,
-            kmigratorOptions: { 'db_constraint': false, db_index: false },
         }),
     }
     const ignoreTypes = ignoreFieldTypes || []
@@ -128,7 +126,7 @@ function preprocessFields (listKey, listFields, historyField, ignoreFieldTypes) 
             many: false,
             ref: `${listKey}`,
             isRequired: true,
-            kmigratorOptions: { 'db_constraint': false, null: false },
+            kmigratorOptions: { null: false },
         },
     }
 }
