@@ -141,7 +141,7 @@ yarn workspace @app/_example01app dev
 
 ### Create Expo APP ###
 
-```shell script
+```bash
 cd apps
 expo init _mobile01
 cd ..
@@ -184,6 +184,7 @@ yarn workspace @app/_mobile01 postinstall
 
 yarn workspace @app/_mobile01 start --clear
 ```
+
 
 # Others #
 
