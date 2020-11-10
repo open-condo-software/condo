@@ -139,7 +139,7 @@ yarn workspace @app/_example01app dev
 
 ## Write mobile app ##
 
-### Create Expo APP
+### Create Expo APP ###
 
 ```shell script
 cd apps
