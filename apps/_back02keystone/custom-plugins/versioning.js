@@ -1,12 +1,5 @@
 const { Integer } = require('@keystonejs/fields')
-
-const composeHook = (originalHook, newHook) => async params => {
-    let { resolvedData } = params
-    if (originalHook) {
-        resolvedData = await originalHook(params)
-    }
-    return newHook({ ...params, resolvedData })
-}
+const { composeHook } = require('./_common')
 
 const versioning = ({ versionField = 'v', startBy = 1 } = {}) => ({ fields = {}, hooks = {}, ...rest }) => {
     const versionOptions = {

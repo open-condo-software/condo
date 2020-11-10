@@ -1,5 +1,4 @@
-const { historical } = require('../custom-plugins')
-const { versioning } = require('../custom-plugins')
+const { historical, versioning, uuiding } = require('../custom-plugins')
 const {
     Checkbox,
     Decimal,
@@ -120,11 +119,6 @@ const Test = new GQLListSchema('Test', {
 
 const TestItem = new GQLListSchema('TestItem', {
     fields: {
-        id: {
-            type: Uuid,
-            defaultValue: () => uuid(),
-            isRequired: true,
-        },
         test: {
             type: Relationship,
             ref: 'Test',
@@ -143,7 +137,7 @@ const TestItem = new GQLListSchema('TestItem', {
         delete: true,
         auth: true,
     },
-    plugins: [byTracking(), atTracking(), versioning(), historical()],
+    plugins: [uuiding(), byTracking(), atTracking(), versioning(), historical()],
 })
 
 module.exports = {

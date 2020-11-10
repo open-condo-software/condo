@@ -6,16 +6,9 @@ const { v4: uuid } = require('uuid')
 const { getType } = require('@keystonejs/utils')
 const { Json } = require('../../custom-fields')
 const { HiddenRelationship } = require('./field')
+const { composeHook } = require('../_common')
 
 const GQL_TYPE_SUFFIX = 'HistoryRecord'
-
-const composeHook = (originalHook, newHook) => async params => {
-    let { resolvedData } = params
-    if (originalHook) {
-        resolvedData = await originalHook(params)
-    }
-    return newHook({ ...params, resolvedData })
-}
 
 function createHistoricalList (keystone, access, historicalListKey, historicalFields) {
     let historicalAccess = access
