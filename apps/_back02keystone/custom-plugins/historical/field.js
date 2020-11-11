@@ -1,6 +1,55 @@
-const { Text } = require('@keystonejs/fields')
+const { Implementation, Text } = require('@keystonejs/fields')
+const { AutoIncrement } = require('@keystonejs/fields-auto-increment')
 
-class HiddenRelationshipImplementation extends Text.implementation {
+class HiddenRelationshipImplementation extends Implementation {
+    constructor (path, { ref }) {
+        super(...arguments)
+        const [refListKey, refFieldPath] = ref.split('.')
+        this.refListKey = refListKey
+        this.refFieldPath = refFieldPath
+    }
+
+    tryResolveRefList () {
+        const { listKey, path, refListKey, refFieldPath } = this
+        const refList = this.getListByKey(refListKey)
+
+        if (!refList) {
+            throw new Error(`Unable to resolve related list '${refListKey}' from ${listKey}.${path}`)
+        }
+
+        let refField
+
+        if (refFieldPath) {
+            refField = refList.getFieldByPath(refFieldPath)
+
+            if (!refField) {
+                throw new Error(
+                    `Unable to resolve two way relationship field '${refListKey}.${refFieldPath}' from ${listKey}.${path}`,
+                )
+            }
+        } else {
+            refField = refList.getPrimaryKey()
+        }
+
+        return { refList, refField }
+    }
+
+    tryDetermineRefType () {
+        const { refField } = this.tryResolveRefList()
+        let refType = 'String'
+        if (refField && refField instanceof AutoIncrement.implementation) {
+            refType = 'Int'
+        }
+        return refType
+    }
+
+    getRefTypeWrapper () {
+        const refType = this.tryDetermineRefType()
+        if (refType === 'String') return String
+        else if (refType === 'Int') return Number
+        throw new Error('Unknown REF type!')
+    }
+
     gqlQueryInputFields () {
         return [
             ...this.equalityInputFields('String'),
@@ -13,7 +62,7 @@ class HiddenRelationshipImplementation extends Text.implementation {
     }
 
     gqlOutputFieldResolvers () {
-        return { [`${this.path}`]: item => String(item[this.path]) }
+        return { [`${this.path}`]: item => (item[this.path]) ? String(item[this.path]) : item[this.path] }
     }
 
     gqlUpdateInputFields () {
@@ -22,6 +71,12 @@ class HiddenRelationshipImplementation extends Text.implementation {
 
     gqlCreateInputFields () {
         return [`${this.path}: String`]
+    }
+
+    async resolveInput ({ resolvedData }) {
+        let value = resolvedData[this.path]
+        if (typeof value === 'number') value = String(value)
+        return value
     }
 }
 
@@ -53,7 +108,7 @@ class HiddenMongoRelationshipInterface extends Text.adapters.mongoose {}
 class HiddenPrismaRelationshipInterface extends Text.adapters.prisma {}
 
 const HiddenRelationship = {
-    type: 'Relationship',
+    type: 'HiddenRelationship',
     implementation: HiddenRelationshipImplementation,
     views: Text.views,
     adapters: {

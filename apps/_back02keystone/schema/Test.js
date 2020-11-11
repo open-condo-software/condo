@@ -106,6 +106,10 @@ const Test = new GQLListSchema('Test', {
         meta: { type: Json },
         metaString: { type: JsonText },
         text: { type: Text },
+        item: {
+            type: Relationship,
+            ref: 'TestItem',
+        }
     },
     access: {
         read: true,
@@ -125,7 +129,7 @@ const TestItem = new GQLListSchema('TestItem', {
             isRequired: true,
         },
         meta: {
-            type: JsonText,
+            type: Json,
             defaultValue: {},
             isRequired: true,
         },

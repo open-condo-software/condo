@@ -116,7 +116,6 @@ function preprocessFields (listKey, listFields, historyField, ignoreFieldTypes) 
         [`${historyField}_action`]: { type: Select, options: 'c, u, d', isRequired: true },
         [`${historyField}_id`]: {
             type: HiddenRelationship,
-            many: false,
             ref: `${listKey}`,
             isRequired: true,
             kmigratorOptions: { null: false },
@@ -124,7 +123,36 @@ function preprocessFields (listKey, listFields, historyField, ignoreFieldTypes) 
     }
 }
 
-const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'] } = {}) => ({ fields = {}, hooks = {}, access, ...rest }, { listKey, keystone }) => {
+function prepareHistoryRecordInput ({
+        operation,
+        existingItem,
+        updatedItem,
+    },
+    historyField,
+    historicalFields,
+    historicalList,
+) {
+    const op = operation[0]
+    const item = updatedItem || existingItem
+    const hist = { ...item }
+    hist[`${historyField}_id`] = item['id']
+    hist[`${historyField}_action`] = op
+    hist[`${historyField}_date`] = (new Date()).toUTCString()
+    for (let name in hist) {
+        if (!historicalFields.hasOwnProperty(name)) {
+            delete hist[name]
+            continue
+        }
+        // stringify relations
+        if (historicalFields[name].type.type === 'HiddenRelationship') {
+            hist[name] = (hist[name]) ? String(hist[name]) : hist[name]
+        }
+    }
+    delete hist['id']
+    return hist
+}
+
+const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'], isStrictMode = true } = {}) => ({ fields = {}, hooks = {}, access, ...rest }, { listKey, keystone }) => {
     const historicalFields = preprocessFields(listKey, fields, historyField, ignoreFieldTypes)
     const historicalListKey = `${listKey}${GQL_TYPE_SUFFIX}`
     const query = `
@@ -133,7 +161,7 @@ const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'] }
       }
     `
 
-    createHistoricalList(keystone, access, historicalListKey, historicalFields)
+    const historicalList = createHistoricalList(keystone, access, historicalListKey, historicalFields)
 
     const afterChange = async ({
         operation,
@@ -142,25 +170,18 @@ const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'] }
         updatedItem,
         context,
     }) => {
-        const op = existingItem ? 'u' : 'c'
-        const hist = { ...updatedItem }
-        for (let name in hist) {
-            if (!historicalFields.hasOwnProperty(name)) {
-                delete hist[name]
-            }
-        }
-        hist[`${historyField}_id`] = updatedItem['id'] || existingItem['id']
-        hist[`${historyField}_action`] = op
-        hist[`${historyField}_date`] = (new Date()).toUTCString()
-        delete hist['id']
-
-        await context.executeGraphQL({
+        const hist = prepareHistoryRecordInput({ operation, existingItem, updatedItem }, historyField, historicalFields, historicalList)
+        const { errors } = await context.executeGraphQL({
             context: context.createContext({ skipAccessControl: true }),
             query: query,
             variables: {
                 data: hist,
             },
         })
+        if (errors) {
+            console.warn(errors)
+            if (isStrictMode) throw new Error('Cant\' create history record')
+        }
     }
 
     const beforeDelete = async ({
@@ -168,25 +189,18 @@ const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'] }
         existingItem,
         context,
     }) => {
-        const op = 'd'
-        const hist = { ...existingItem }
-        for (let name in hist) {
-            if (!historicalFields.hasOwnProperty(name)) {
-                delete hist[name]
-            }
-        }
-        hist[`${historyField}_id`] = existingItem['id']
-        hist[`${historyField}_action`] = op
-        hist[`${historyField}_date`] = (new Date()).toUTCString()
-        delete hist['id']
-
-        await context.executeGraphQL({
+        const hist = prepareHistoryRecordInput({ operation, existingItem }, historyField, historicalFields, historicalList)
+        const { errors } = await context.executeGraphQL({
             context: context.createContext({ skipAccessControl: true }),
             query: query,
             variables: {
                 data: hist,
             },
         })
+        if (errors) {
+            console.warn(errors)
+            if (isStrictMode) throw new Error('Cant\' create history record')
+        }
     }
 
     const originalAfterChange = hooks.afterChange
