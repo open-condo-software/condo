@@ -1,55 +1,6 @@
 const { Implementation, Text } = require('@keystonejs/fields')
-const { AutoIncrement } = require('@keystonejs/fields-auto-increment')
 
 class HiddenRelationshipImplementation extends Implementation {
-    constructor (path, { ref }) {
-        super(...arguments)
-        const [refListKey, refFieldPath] = ref.split('.')
-        this.refListKey = refListKey
-        this.refFieldPath = refFieldPath
-    }
-
-    tryResolveRefList () {
-        const { listKey, path, refListKey, refFieldPath } = this
-        const refList = this.getListByKey(refListKey)
-
-        if (!refList) {
-            throw new Error(`Unable to resolve related list '${refListKey}' from ${listKey}.${path}`)
-        }
-
-        let refField
-
-        if (refFieldPath) {
-            refField = refList.getFieldByPath(refFieldPath)
-
-            if (!refField) {
-                throw new Error(
-                    `Unable to resolve two way relationship field '${refListKey}.${refFieldPath}' from ${listKey}.${path}`,
-                )
-            }
-        } else {
-            refField = refList.getPrimaryKey()
-        }
-
-        return { refList, refField }
-    }
-
-    tryDetermineRefType () {
-        const { refField } = this.tryResolveRefList()
-        let refType = 'String'
-        if (refField && refField instanceof AutoIncrement.implementation) {
-            refType = 'Int'
-        }
-        return refType
-    }
-
-    getRefTypeWrapper () {
-        const refType = this.tryDetermineRefType()
-        if (refType === 'String') return String
-        else if (refType === 'Int') return Number
-        throw new Error('Unknown REF type!')
-    }
-
     gqlQueryInputFields () {
         return [
             ...this.equalityInputFields('String'),

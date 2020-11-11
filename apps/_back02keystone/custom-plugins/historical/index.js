@@ -45,7 +45,7 @@ function createHistoricalList (keystone, access, historicalListKey, historicalFi
     return historicalList
 }
 
-function preprocessFields (listKey, listFields, historyField, ignoreFieldTypes) {
+function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFieldTypes) {
     const defaultMapping = (field) => ({ type: Json })
     const typeMapping = {
         Stars: (field) => ({ type: Stars, starCount: field.starCount }),
@@ -132,7 +132,9 @@ function prepareHistoryRecordInput ({
     historicalFields,
     historicalList,
 ) {
+    // create / update / delete
     const op = operation[0]
+    // no updatedItem on delete
     const item = updatedItem || existingItem
     const hist = { ...item }
     hist[`${historyField}_id`] = item['id']
@@ -153,7 +155,7 @@ function prepareHistoryRecordInput ({
 }
 
 const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'], isStrictMode = true } = {}) => ({ fields = {}, hooks = {}, access, ...rest }, { listKey, keystone }) => {
-    const historicalFields = preprocessFields(listKey, fields, historyField, ignoreFieldTypes)
+    const historicalFields = prepareHistoryRecordFields(listKey, fields, historyField, ignoreFieldTypes)
     const historicalListKey = `${listKey}${GQL_TYPE_SUFFIX}`
     const query = `
       mutation create${historicalListKey} ($data: ${historicalListKey}CreateInput!) {
@@ -163,33 +165,9 @@ const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'], 
 
     const historicalList = createHistoricalList(keystone, access, historicalListKey, historicalFields)
 
-    const afterChange = async ({
-        operation,
-        existingItem,
-        originalInput,
-        updatedItem,
-        context,
-    }) => {
-        const hist = prepareHistoryRecordInput({ operation, existingItem, updatedItem }, historyField, historicalFields, historicalList)
-        const { errors } = await context.executeGraphQL({
-            context: context.createContext({ skipAccessControl: true }),
-            query: query,
-            variables: {
-                data: hist,
-            },
-        })
-        if (errors) {
-            console.warn(errors)
-            if (isStrictMode) throw new Error('Cant\' create history record')
-        }
-    }
-
-    const beforeDelete = async ({
-        operation,
-        existingItem,
-        context,
-    }) => {
-        const hist = prepareHistoryRecordInput({ operation, existingItem }, historyField, historicalFields, historicalList)
+    const hook = async (hookArgs) => {
+        const hist = prepareHistoryRecordInput(hookArgs, historyField, historicalFields, historicalList)
+        const { context } = hookArgs
         const { errors } = await context.executeGraphQL({
             context: context.createContext({ skipAccessControl: true }),
             query: query,
@@ -204,9 +182,9 @@ const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'], 
     }
 
     const originalAfterChange = hooks.afterChange
-    hooks.afterChange = composeHook(originalAfterChange, afterChange)
+    hooks.afterChange = composeHook(originalAfterChange, hook)
     const originalBeforeDelete = hooks.beforeDelete
-    hooks.beforeDelete = composeHook(originalBeforeDelete, beforeDelete)
+    hooks.beforeDelete = composeHook(originalBeforeDelete, hook)
     return { fields, hooks, access, ...rest }
 }
 
