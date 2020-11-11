@@ -162,6 +162,7 @@ describe('historical()', () => {
 describe('uuiding()', () => {
     test('auto generating', async () => {
         const client = await makeClient()
-        let obj = await createTestObj(client, { item: { create: {} } })
+        let obj = await createTestItemObj(client, { test: { create: { text: 'autoGen' } } })
+        expect(obj.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
     })
 })
