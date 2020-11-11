@@ -43,15 +43,21 @@ class JsonImplementation extends Implementation {
         const { isMultiline } = this
         return { isMultiline, ...meta }
     }
+
+    async resolveInput ({ resolvedData }) {
+        return JSON.stringify(resolvedData[this.path])
+    }
 }
 
 const CommonFieldAdapterInterface = superclass =>
     class extends superclass {
         getQueryConditions (dbPath) {
             // https://github.com/Vincit/objection.js/blob/0.9.4/lib/queryBuilder/operations/jsonApi/postgresJsonApi.js
+            // TODO(pahaz): gql type `[JSON]` accepts not lists types like true, null.
+            // The result is INTERNAL_SERVER_ERROR like "TypeError: Cannot read property 'includes' of null"
             return {
-                ...this.equalityConditions(dbPath),
-                ...this.inConditions(dbPath),
+                ...this.equalityConditions(dbPath, JSON.stringify),
+                ...this.inConditions(dbPath, JSON.stringify),
             }
         }
     }

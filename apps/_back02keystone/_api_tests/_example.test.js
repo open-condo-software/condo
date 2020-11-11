@@ -5,6 +5,7 @@
 const { makeClient, gql, setFakeClientMode } = require('@core/keystone/test.utils')
 const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
+const faker = require('faker')
 
 function genGetAllGQL (MODEL, MODELs, MODEL_FIELDS) {
     return gql`
@@ -38,10 +39,11 @@ function genDeleteGQL (MODEL, MODELs, MODEL_FIELDS) {
     `
 }
 
-const FIELDS = '{ id v text }'
+const FIELDS = '{ id v text meta }'
 const ITEM_FIELDS = `{ id v meta test ${FIELDS} }`
 const HISTORY_FIELDS = '{ id v text history_id history_action history_date }'
 const ITEM_HISTORY_FIELDS = '{ id v meta test history_id history_action history_date }'
+const GET_ALL_TEST_OBJS_QUERY = genGetAllGQL('Test', 'Tests', FIELDS)
 const GET_ALL_TEST_HISTORY_OBJS_QUERY = genGetAllGQL('TestHistoryRecord', 'TestHistoryRecords', HISTORY_FIELDS)
 const GET_ALL_TEST_ITEM_HISTORY_OBJS_QUERY = genGetAllGQL('TestItemHistoryRecord', 'TestItemHistoryRecords', ITEM_HISTORY_FIELDS)
 const CREATE_TEST_ITEM_OBJ_MUTATION = genCreateGQL('TestItem', 'TestItems', ITEM_FIELDS)
@@ -95,6 +97,12 @@ async function deleteTestItemObj (client, id) {
     return data.obj
 }
 
+async function getTestObjs (client, where) {
+    const { data, errors } = await client.query(GET_ALL_TEST_OBJS_QUERY, { where: where })
+    expect(errors).toEqual(undefined)
+    return data.objs
+}
+
 async function getTestHistoryObjs (client, history_id) {
     const { data, errors } = await client.query(GET_ALL_TEST_HISTORY_OBJS_QUERY, { where: { history_id } })
     expect(errors).toEqual(undefined)
@@ -106,6 +114,158 @@ async function getTestItemHistoryObjs (client, history_id) {
     expect(errors).toEqual(undefined)
     return data.objs
 }
+
+describe('Json field', () => {
+    async function testJsonValue (value) {
+        const client = await makeClient()
+        let obj = await createTestObj(client, { meta: value })
+        expect(obj.meta).toStrictEqual(value)
+    }
+
+    test('object as value', async () => {
+        await testJsonValue({ foo: 'foo', bar: 2, buz: false, no: null, yes: true })
+    })
+    test('object with array as value', async () => {
+        await testJsonValue({
+            foo: ['foo', 1, 33.3],
+            bar: 2,
+            buz: false,
+            no: [null, false],
+            yes: true,
+            e1: [],
+            e2: {},
+        })
+    })
+    test('{} as value', async () => {
+        await testJsonValue({})
+    })
+    test('null as value', async () => {
+        await testJsonValue(null)
+    })
+    test('true as value', async () => {
+        await testJsonValue(true)
+    })
+    test('false as value', async () => {
+        await testJsonValue(false)
+    })
+    test('"" as value', async () => {
+        await testJsonValue('')
+    })
+    test('[] as value', async () => {
+        await testJsonValue([])
+    })
+    test('0 as value', async () => {
+        await testJsonValue(0)
+    })
+    test('{"":[{}]} as value', async () => {
+        await testJsonValue({ '': [{}] })
+        await testJsonValue({ '': [{ '': [{}] }] })
+    })
+    test('number as value', async () => {
+        await testJsonValue(faker.random.number())
+        await testJsonValue(faker.random.float())
+    })
+    test('string as value', async () => {
+        await testJsonValue(faker.internet.email())
+        await testJsonValue(JSON.stringify(JSON.stringify(faker.internet.email())))
+        await testJsonValue('\'')
+        await testJsonValue('"')
+        await testJsonValue('--')
+        await testJsonValue('%')
+        await testJsonValue('~')
+        await testJsonValue('~~')
+    })
+    test('array as value', async () => {
+        await testJsonValue(faker.random.arrayElements())
+    })
+})
+
+describe('Json field exact match filter', () => {
+    async function testFilterByValue (value, metaSuffix = '') {
+        const client = await makeClient()
+        const obj = await createTestObj(client, { meta: value })
+        const objs = await getTestObjs(client, { ['meta' + metaSuffix]: value })
+        const objsIds = objs.map(x => x.id)
+        const objsMetas = [...(new Set(objs.map(x => JSON.stringify(x.meta))))].map(JSON.parse)
+        expect(objsIds).toContain(obj.id)
+        expect(objsMetas).toStrictEqual([value])
+    }
+
+    test('object as value', async () => {
+        await testFilterByValue({ foo: 'foo', bar: 2, buz: false, no: null, yes: true })
+        // await testFilterByValue({ foo: 'foo', bar: 2, buz: false, no: null, yes: true }, '_in') // ok
+    })
+    test('object with array as value', async () => {
+        await testFilterByValue({
+            foo: ['foo', 1, 33.3],
+            bar: 2,
+            buz: false,
+            no: [null, false],
+            yes: true,
+            e1: [],
+            e2: {},
+        })
+        // await testFilterByValue({
+        //         foo: ['foo', 1, 33.3],
+        //         bar: 2,
+        //         buz: false,
+        //         no: [null, false],
+        //         yes: true,
+        //         e1: [],
+        //         e2: {},
+        //     },
+        //     '_in',
+        // ) // ok
+    })
+    test('{} as value', async () => {
+        await testFilterByValue({})
+        // await testFilterByValue({}, '_in') // ok
+    })
+    test('null as value', async () => {
+        await testFilterByValue(null)
+        // await testFilterByValue(null, '_in') // err
+    })
+    test('true as value', async () => {
+        await testFilterByValue(true)
+        // await testFilterByValue(true, '_in') // err
+    })
+    test('false as value', async () => {
+        await testFilterByValue(false)
+        // await testFilterByValue(false, '_in') // ok
+    })
+    test('by ""', async () => {
+        await testFilterByValue('')
+        // await testFilterByValue('', '_in') // ok
+    })
+    test('by []', async () => {
+        await testFilterByValue([])
+        // await testFilterByValue([], '_in') // err
+    })
+    test('by 0', async () => {
+        await testFilterByValue(0)
+    })
+    test('by {"":[{}]}', async () => {
+        await testFilterByValue({ '': [{}] })
+        await testFilterByValue({ '': [{ '': [{}] }] })
+    })
+    test('by number', async () => {
+        await testFilterByValue(faker.random.number())
+        await testFilterByValue(faker.random.float())
+    })
+    test('by string', async () => {
+        await testFilterByValue(faker.internet.email())
+        await testFilterByValue(JSON.stringify(JSON.stringify(faker.internet.email())))
+        await testFilterByValue('\'')
+        await testFilterByValue('"')
+        await testFilterByValue('--')
+        await testFilterByValue('%')
+        await testFilterByValue('~')
+        await testFilterByValue('~~')
+    })
+    test('by array', async () => {
+        await testFilterByValue(faker.random.arrayElements())
+    })
+})
 
 describe('versioning()', () => {
     test('check v field autoincrement', async () => {
@@ -135,6 +295,7 @@ describe('historical()', () => {
             expect.objectContaining({ history_action: 'd', history_id: obj.id, text: 'no', v: 3 }),
         ])
     })
+
     test('delete related object and set FK null without history update', async () => {
         const client = await makeClient()
         let obj = await createTestItemObj(client, { test: { create: { text: 'new1' } }, meta: { foo: 1 } })
@@ -152,9 +313,27 @@ describe('historical()', () => {
 
         histObjs = await getTestItemHistoryObjs(client, obj.id)
         expect(histObjs).toEqual([
-            expect.objectContaining({ history_action: 'c', history_id: obj.id, meta: { foo: 1 }, v: 1, test: String(obj.test.id) }),
-            expect.objectContaining({ history_action: 'u', history_id: obj.id, meta: { foo: 2 }, v: 2, test: String(obj.test.id) }),
-            expect.objectContaining({ history_action: 'd', history_id: obj.id, meta: { foo: 2 }, v: 2, test: null }),
+            expect.objectContaining({
+                history_action: 'c',
+                history_id: obj.id,
+                meta: { foo: 1 },
+                v: 1,
+                test: String(obj.test.id),
+            }),
+            expect.objectContaining({
+                history_action: 'u',
+                history_id: obj.id,
+                meta: { foo: 2 },
+                v: 2,
+                test: String(obj.test.id),
+            }),
+            expect.objectContaining({
+                history_action: 'd',
+                history_id: obj.id,
+                meta: { foo: 2 },
+                v: 2,
+                test: null,
+            }),
         ])
     })
 })
