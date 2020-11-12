@@ -1,6 +1,7 @@
 const { Implementation } = require('@keystonejs/fields')
 const { MongooseFieldAdapter } = require('@keystonejs/adapter-mongoose')
 const { KnexFieldAdapter } = require('@keystonejs/adapter-knex')
+const stringify = JSON.stringify
 
 class JsonImplementation extends Implementation {
     constructor (path, { isMultiline }) {
@@ -45,7 +46,7 @@ class JsonImplementation extends Implementation {
     }
 
     async resolveInput ({ resolvedData }) {
-        return JSON.stringify(resolvedData[this.path])
+        return resolvedData[this.path]
     }
 }
 
@@ -56,8 +57,8 @@ const CommonFieldAdapterInterface = superclass =>
             // TODO(pahaz): gql type `[JSON]` accepts not lists types like true, null.
             // The result is INTERNAL_SERVER_ERROR like "TypeError: Cannot read property 'includes' of null"
             return {
-                ...this.equalityConditions(dbPath, JSON.stringify),
-                ...this.inConditions(dbPath, JSON.stringify),
+                ...this.equalityConditions(dbPath),
+                ...this.inConditions(dbPath),
             }
         }
     }
@@ -87,10 +88,53 @@ class JsonKnexFieldAdapter extends CommonFieldAdapterInterface(KnexFieldAdapter)
         }
     }
 
+    setupHooks ({ addPreSaveHook, addPostReadHook }) {
+        addPreSaveHook(item => {
+            // Only run the hook if the item actually contains the field
+            // NOTE: Can't use hasOwnProperty here
+            if (!(this.path in item)) {
+                return item
+            }
+
+            // ref#PGDB/NULL: convert null to 'null' as pgdb json value!
+            // NOTE: there are two types of null in PGDB! null as JSON field value and null as DB default NULL value!
+            item[this.path] = stringify(item[this.path])
+            return item
+        })
+    }
+
     addToTableSchema (table) {
         const column = table.jsonb(this.path)
         if (this.isNotNullable) column.notNullable()
         if (this.defaultTo) column.defaultTo(this.defaultTo)
+    }
+
+    inConditions (dbPath, f = stringify) {
+        // ref#PGDB/NULL: convert null to 'null' as pgdb json value!
+        return {
+            [`${this.path}_in`]: value => b =>
+                value.includes(null)
+                    ? b.whereIn(dbPath, value.map(f)).orWhereNull(dbPath)
+                    : b.whereIn(dbPath, value.map(f)),
+            [`${this.path}_not_in`]: value => b =>
+                value.includes(null)
+                    ? b.whereNotIn(dbPath, value.map(f)).whereNotNull(dbPath)
+                    : b.whereNotIn(dbPath, value.map(f)).orWhereNull(dbPath),
+        }
+    }
+
+    equalityConditions (dbPath, f = stringify) {
+        // ref#PGDB/NULL: convert null to 'null' as pgdb json value!
+        return {
+            [this.path]: value => b =>
+                value === null ?
+                    b.where(dbPath, f(value)).orWhereNull(dbPath) :
+                    b.where(dbPath, f(value)),
+            [`${this.path}_not`]: value => b =>
+                value === null
+                    ? b.where(dbPath, '!=', f(value)).whereNotNull(dbPath)
+                    : b.where(dbPath, '!=', f(value)),
+        }
     }
 }
 
