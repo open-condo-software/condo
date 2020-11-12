@@ -123,11 +123,8 @@ function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFi
     }
 }
 
-function prepareHistoryRecordInput ({
-        operation,
-        existingItem,
-        updatedItem,
-    },
+function prepareHistoryRecordInput (
+    { operation, existingItem, updatedItem },
     historyField,
     historicalFields,
     historicalList,

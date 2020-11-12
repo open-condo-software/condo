@@ -23,7 +23,7 @@ const { Color } = require('@keystonejs/fields-color')
 const { LocationGoogle } = require('@keystonejs/fields-location-google')
 const { byTracking, atTracking } = require('@keystonejs/list-plugins')
 const { v4: uuid } = require('uuid')
-const { Stars, Options, JsonText, Json } = require('../custom-fields')
+const { Stars, Options, Json } = require('../custom-fields')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const conf = require('@core/config')
 
@@ -104,7 +104,6 @@ const Test = new GQLListSchema('Test', {
         rating: { type: Stars, starCount: 5 },
         settings: { type: Options, options: ['Feature1', 'Feature2'] },
         meta: { type: Json },
-        metaString: { type: JsonText },
         text: { type: Text },
         item: {
             type: Relationship,
