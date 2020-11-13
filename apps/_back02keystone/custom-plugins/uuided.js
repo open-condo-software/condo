@@ -8,7 +8,7 @@ const uuided = () => ({ fields = {}, hooks = {}, ...rest }) => {
         isRequired: true,
     }
 
-    fields['id'] = idOptions
+    fields['id'] = { ...idOptions }
 
     return { fields, hooks, ...rest }
 }

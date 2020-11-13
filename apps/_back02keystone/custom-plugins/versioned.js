@@ -14,7 +14,7 @@ const versioned = ({ versionField = 'v', startBy = 1 } = {}) => ({ fields = {}, 
         knexOptions: { defaultTo: knex => startBy },
     }
 
-    fields[versionField] = versionOptions
+    fields[versionField] = { ...versionOptions }
 
     const newResolveInput = ({ resolvedData, existingItem }) => {
         if (existingItem) {
