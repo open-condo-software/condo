@@ -1,4 +1,4 @@
-const { historical, versioned, uuided } = require('../custom-plugins')
+const { historical, versioned, uuided, tracked } = require('../custom-plugins')
 const {
     Checkbox,
     Decimal,
@@ -21,7 +21,6 @@ const { Content } = require('@keystonejs/fields-content')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Color } = require('@keystonejs/fields-color')
 const { LocationGoogle } = require('@keystonejs/fields-location-google')
-const { byTracking, atTracking } = require('@keystonejs/list-plugins')
 const { v4: uuid } = require('uuid')
 const { Stars, Options, Json } = require('../custom-fields')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
@@ -117,7 +116,7 @@ const Test = new GQLListSchema('Test', {
         delete: true,
         auth: true,
     },
-    plugins: [byTracking(), atTracking(), versioned(), historical()],
+    plugins: [versioned(), tracked(), historical()],
 })
 
 const TestItem = new GQLListSchema('TestItem', {
@@ -140,7 +139,7 @@ const TestItem = new GQLListSchema('TestItem', {
         delete: true,
         auth: true,
     },
-    plugins: [uuided(), byTracking(), atTracking(), versioned(), historical()],
+    plugins: [uuided(), versioned(), tracked(), historical()],
 })
 
 module.exports = {

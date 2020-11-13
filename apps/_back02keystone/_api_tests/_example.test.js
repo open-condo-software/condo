@@ -6,7 +6,12 @@ const { makeClient, gql, setFakeClientMode } = require('@core/keystone/test.util
 const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 const faker = require('faker')
+const { makeLoggedInClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { isMongo } = require('@core/keystone/test.utils')
+
+const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 function genGetAllGQL (MODEL, MODELs, MODEL_FIELDS) {
     return gql`
@@ -40,7 +45,7 @@ function genDeleteGQL (MODEL, MODELs, MODEL_FIELDS) {
     `
 }
 
-const FIELDS = '{ id v text meta }'
+const FIELDS = '{ id v text meta createdAt updatedAt createdBy { id } updatedBy { id } }'
 const ITEM_FIELDS = `{ id v meta test ${FIELDS} }`
 const HISTORY_FIELDS = '{ id v text history_id history_action history_date }'
 const ITEM_HISTORY_FIELDS = '{ id v meta test history_id history_action history_date }'
@@ -279,18 +284,6 @@ describe('Json field exact match filter', () => {
     })
 })
 
-describe('versioned()', () => {
-    test('check v field autoincrement', async () => {
-        const client = await makeClient()
-
-        let obj = await createTestObj(client, {})
-        expect(obj.v).toBe(1)
-
-        obj = await updateTestObj(client, obj.id, { text: 'hello' })
-        expect(obj.v).toBe(2)
-    })
-})
-
 describe('historical()', () => {
     test('create/update/delete history', async () => {
         const client = await makeClient()
@@ -351,10 +344,72 @@ describe('historical()', () => {
     })
 })
 
+describe('versioned()', () => {
+    test('check v field autoincrement', async () => {
+        const client = await makeClient()
+
+        let obj = await createTestObj(client, {})
+        expect(obj.v).toBe(1)
+
+        obj = await updateTestObj(client, obj.id, { text: 'hello' })
+        expect(obj.v).toBe(2)
+    })
+    test('try to set v', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const { data, errors } = await admin.mutate(CREATE_TEST_OBJ_MUTATION, {
+            data: { v: 5 },
+        })
+        expect(data).toEqual(undefined)
+        expect(JSON.stringify(errors)).toMatch(/Field [\\"']+v[\\"']+ is not defined by type [\\"']+TestCreateInput[\\"']+/i)
+    })
+})
+
 describe('uuided()', () => {
-    test('auto generating', async () => {
+    test('chek id field is uuid', async () => {
         const client = await makeClient()
         let obj = await createTestItemObj(client, { test: { create: { text: 'autoGen' } } })
-        expect(obj.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+        expect(obj.id).toMatch(UUID_RE)
+    })
+})
+
+describe('tracked()', () => {
+    test('check createAt/updateAt for anonymous', async () => {
+        const client = await makeClient()
+        let { id, createdAt, updatedAt } = await createTestObj(client, {})
+        expect(createdAt).toMatch(DATETIME_RE)
+        expect(updatedAt).toMatch(DATETIME_RE)
+        expect(updatedAt).toEqual(createdAt)
+        let obj = await updateTestObj(client, id, { text: 'new' })
+        expect(obj.createdAt).toEqual(createdAt)
+        expect(obj.updatedAt).toMatch(DATETIME_RE)
+        expect(obj.updatedAt).not.toEqual(createdAt)
+    })
+    test('check createBy/updateBy for anonymous', async () => {
+        const client = await makeClient()
+        let { id, createdBy, updatedBy } = await createTestObj(client, {})
+        expect(createdBy).toBe(null)
+        expect(updatedBy).toBe(null)
+        let obj = await updateTestObj(client, id, { text: 'new' })
+        expect(obj.createdBy).toBe(null)
+        expect(obj.updatedBy).toBe(null)
+    })
+    test('check createBy/updateBy for user1/user2', async () => {
+        const client = await makeLoggedInClient()
+        const admin = await makeLoggedInAdminClient()
+        let { id, createdBy, updatedBy } = await createTestObj(client, {})
+        expect(createdBy).toEqual({ id: client.user.id })
+        expect(updatedBy).toEqual({ id: client.user.id })
+        let obj = await updateTestObj(admin, id, { text: 'new' })
+        expect(obj.createdBy).toEqual({ id: client.user.id })
+        expect(obj.updatedBy).toEqual({ id: admin.user.id })
+    })
+    test('try to set createBy', async () => {
+        const client = await makeLoggedInClient()
+        const admin = await makeLoggedInAdminClient()
+        const { data, errors } = await client.mutate(CREATE_TEST_OBJ_MUTATION, {
+            data: { createdBy: { connect: { id: admin.user.id } } },
+        })
+        expect(data).toEqual(undefined)
+        expect(JSON.stringify(errors)).toMatch(/Field [\\"']+createdBy[\\"']+ is not defined by type [\\"']+TestCreateInput[\\"']+/i)
     })
 })
