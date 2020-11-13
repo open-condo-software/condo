@@ -127,6 +127,8 @@ describe('Json field', () => {
         await testJsonValue({ foo: 'foo', bar: 2, buz: false, no: null, yes: true })
     })
     test('object with array as value', async () => {
+        if (isMongo()) return console.error('SKIP() Mongo: {} === null!')
+
         await testJsonValue({
             foo: ['foo', 1, 33.3],
             bar: 2,
@@ -138,6 +140,7 @@ describe('Json field', () => {
         })
     })
     test('{} as value', async () => {
+        if (isMongo()) return console.error('SKIP() Mongo: {} === null!')
         await testJsonValue({})
     })
     test('null as value', async () => {
@@ -306,6 +309,7 @@ describe('historical()', () => {
     })
 
     test('delete related object and set FK null without history update', async () => {
+        if (isMongo()) return console.error('SKIP() Mongo: doesn\'t support UUID fk!')
         const client = await makeClient()
         let obj = await createTestItemObj(client, { test: { create: { text: 'new1' } }, meta: { foo: 1 } })
         await updateTestItemObj(client, obj.id, { meta: { foo: 2 } })
