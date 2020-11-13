@@ -279,7 +279,7 @@ describe('Json field exact match filter', () => {
     })
 })
 
-describe('versioning()', () => {
+describe('versioned()', () => {
     test('check v field autoincrement', async () => {
         const client = await makeClient()
 
@@ -351,7 +351,7 @@ describe('historical()', () => {
     })
 })
 
-describe('uuiding()', () => {
+describe('uuided()', () => {
     test('auto generating', async () => {
         const client = await makeClient()
         let obj = await createTestItemObj(client, { test: { create: { text: 'autoGen' } } })

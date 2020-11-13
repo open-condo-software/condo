@@ -1,9 +1,9 @@
-const { versioning } = require('./versioning')
+const { versioned } = require('./versioned')
 const { historical } = require('./historical')
-const { uuiding } = require('./uuiding')
+const { uuided } = require('./uuided')
 
 module.exports = {
-    versioning,
+    versioned,
     historical,
-    uuiding,
+    uuided,
 }

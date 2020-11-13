@@ -1,7 +1,7 @@
 const { v4: uuid } = require('uuid')
 const { Uuid } = require('@keystonejs/fields')
 
-const uuiding = () => ({ fields = {}, hooks = {}, ...rest }) => {
+const uuided = () => ({ fields = {}, hooks = {}, ...rest }) => {
     const idOptions = {
         type: Uuid,
         defaultValue: () => uuid(),
@@ -14,5 +14,5 @@ const uuiding = () => ({ fields = {}, hooks = {}, ...rest }) => {
 }
 
 module.exports = {
-    uuiding,
+    uuided,
 }

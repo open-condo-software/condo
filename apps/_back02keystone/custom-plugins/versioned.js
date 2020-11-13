@@ -1,7 +1,7 @@
 const { Integer } = require('@keystonejs/fields')
 const { composeHook } = require('./_common')
 
-const versioning = ({ versionField = 'v', startBy = 1 } = {}) => ({ fields = {}, hooks = {}, ...rest }) => {
+const versioned = ({ versionField = 'v', startBy = 1 } = {}) => ({ fields = {}, hooks = {}, ...rest }) => {
     const versionOptions = {
         type: Integer,
         isRequired: true,
@@ -29,5 +29,5 @@ const versioning = ({ versionField = 'v', startBy = 1 } = {}) => ({ fields = {},
 }
 
 module.exports = {
-    versioning,
+    versioned,
 }

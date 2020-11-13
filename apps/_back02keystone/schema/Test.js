@@ -1,4 +1,4 @@
-const { historical, versioning, uuiding } = require('../custom-plugins')
+const { historical, versioned, uuided } = require('../custom-plugins')
 const {
     Checkbox,
     Decimal,
@@ -117,7 +117,7 @@ const Test = new GQLListSchema('Test', {
         delete: true,
         auth: true,
     },
-    plugins: [byTracking(), atTracking(), versioning(), historical()],
+    plugins: [byTracking(), atTracking(), versioned(), historical()],
 })
 
 const TestItem = new GQLListSchema('TestItem', {
@@ -140,7 +140,7 @@ const TestItem = new GQLListSchema('TestItem', {
         delete: true,
         auth: true,
     },
-    plugins: [uuiding(), byTracking(), atTracking(), versioning(), historical()],
+    plugins: [uuided(), byTracking(), atTracking(), versioned(), historical()],
 })
 
 module.exports = {
