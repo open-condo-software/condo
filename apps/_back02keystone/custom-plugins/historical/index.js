@@ -6,7 +6,7 @@ const { v4: uuid } = require('uuid')
 const { getType } = require('@keystonejs/utils')
 const { Json } = require('../../custom-fields')
 const { HiddenRelationship } = require('./field')
-const { composeHook } = require('../_common')
+const { composeHook, isValidDate } = require('../_common')
 
 const GQL_TYPE_SUFFIX = 'HistoryRecord'
 
@@ -136,15 +136,19 @@ function prepareHistoryRecordInput (
     const hist = { ...item }
     hist[`${historyField}_id`] = item['id']
     hist[`${historyField}_action`] = op
-    hist[`${historyField}_date`] = (new Date()).toUTCString()
+    hist[`${historyField}_date`] = (new Date()).toISOString()
     for (let name in hist) {
         if (!historicalFields.hasOwnProperty(name)) {
             delete hist[name]
             continue
         }
-        // stringify relations
+
         if (historicalFields[name].type.type === 'HiddenRelationship') {
+            // stringify relations
             hist[name] = (hist[name]) ? String(hist[name]) : hist[name]
+        } else if (isValidDate(hist[name])) {
+            // stringify datetime
+            hist[name] = hist[name].toISOString()
         }
     }
     delete hist['id']

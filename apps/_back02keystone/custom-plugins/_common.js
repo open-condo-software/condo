@@ -6,6 +6,11 @@ const composeHook = (originalHook, newHook) => async params => {
     return newHook({ ...params, resolvedData })
 }
 
+function isValidDate (date) {
+    return date && Object.prototype.toString.call(date) === '[object Date]' && !isNaN(date)
+}
+
 module.exports = {
     composeHook,
+    isValidDate,
 }
