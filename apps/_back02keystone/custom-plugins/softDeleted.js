@@ -14,6 +14,7 @@ const softDeleted = ({ deletedAtField = 'deletedAt' } = {}) => ({ fields = {}, h
             create: false,
             update: true,
         },
+        kmigratorOptions: { null: true, db_index: true },
     }
 
     fields[deletedAtField] = { ...datedOptions }
