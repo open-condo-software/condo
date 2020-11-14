@@ -104,6 +104,9 @@ const TEST_ITEM_HISTORY_FIELDS = '{ id v meta test history_id history_action his
 const TestHistoryRecord = genTestGQLUtils('TestHistoryRecord', 'TestHistoryRecords', TEST_HISTORY_FIELDS)
 const TestItemHistoryRecord = genTestGQLUtils('TestItemHistoryRecord', 'TestItemHistoryRecords', TEST_ITEM_HISTORY_FIELDS)
 
+const TEST_SOFT_DELETED_FIELDS = '{ id v meta deletedAt }'
+const TestSoftDeletedObj = genTestGQLUtils('TestSoftDeletedObj', 'TestSoftDeletedObjs', TEST_SOFT_DELETED_FIELDS)
+
 describe('Json field', () => {
     async function testJsonValue (value) {
         const client = await makeClient()
@@ -394,7 +397,29 @@ describe('tracked()', () => {
     })
 })
 
-// describe('softDeleted()', () => {
-//     test('check createAt/updateAt for anonymous', async () => {
-//     })
-// })
+describe('softDeleted()', () => {
+    test('check deletedAt is auto generated and accept any string', async () => {
+        const client = await makeClient()
+        let obj = await TestSoftDeletedObj.create(client)
+        obj = await TestSoftDeletedObj.update(client, obj.id, { deletedAt: 'true' })
+        expect(obj.deletedAt).toMatch(DATETIME_RE)
+    })
+    test('check delete after delete', async () => {
+        const client = await makeClient()
+        let obj = await TestSoftDeletedObj.create(client)
+        obj = await TestSoftDeletedObj.update(client, obj.id, { deletedAt: 'true' })
+        const { errors } = await TestSoftDeletedObj.update(client, obj.id, { deletedAt: new Date().toISOString() }, { raw: true })
+        expect(errors[0]).toMatchObject({
+            'message': 'Already deleted',
+            'name': 'GraphQLError',
+        })
+    })
+    test('check create deleted obj', async () => {
+        const client = await makeClient()
+        const { errors } = await TestSoftDeletedObj.create(client, { deletedAt: 'true' }, { raw: true })
+        expect(errors[0]).toMatchObject({
+            'message': 'Variable "$data" got invalid value { deletedAt: "true" }; Field "deletedAt" is not defined by type "TestSoftDeletedObjCreateInput".',
+            'name': 'GraphQLError',
+        })
+    })
+})

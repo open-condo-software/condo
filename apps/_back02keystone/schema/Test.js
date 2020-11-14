@@ -1,4 +1,4 @@
-const { historical, versioned, uuided, tracked } = require('../custom-plugins')
+const { historical, versioned, uuided, tracked, softDeleted } = require('../custom-plugins')
 const {
     Checkbox,
     Decimal,
@@ -107,7 +107,7 @@ const Test = new GQLListSchema('Test', {
         item: {
             type: Relationship,
             ref: 'TestItem',
-        }
+        },
     },
     access: {
         read: true,
@@ -142,7 +142,24 @@ const TestItem = new GQLListSchema('TestItem', {
     plugins: [uuided(), versioned(), tracked(), historical()],
 })
 
+const TestSoftDeletedObj = new GQLListSchema('TestSoftDeletedObj', {
+    fields: {
+        meta: {
+            type: Json,
+        },
+    },
+    access: {
+        read: true,
+        create: true,
+        update: true,
+        delete: true,
+        auth: true,
+    },
+    plugins: [versioned(), tracked(), softDeleted(), historical()]
+})
+
 module.exports = {
     Test,
     TestItem,
+    TestSoftDeletedObj,
 }
