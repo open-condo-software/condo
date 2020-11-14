@@ -1,3 +1,5 @@
+const { HiddenRelationship } = require('./HiddenRelationship')
+
 const composeHook = (originalHook, newHook) => async params => {
     let { resolvedData } = params
     if (originalHook) {
@@ -11,6 +13,7 @@ function isValidDate (date) {
 }
 
 module.exports = {
+    HiddenRelationship,
     composeHook,
     isValidDate,
 }

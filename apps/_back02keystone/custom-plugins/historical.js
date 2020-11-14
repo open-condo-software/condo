@@ -1,12 +1,13 @@
-const { Stars } = require('../../custom-fields')
+const { v4: uuid } = require('uuid')
 const {
     Select, DateTimeUtc, Uuid, DateTime, CalendarDay, Checkbox, Decimal, Float, Text, Integer,
 } = require('@keystonejs/fields')
-const { v4: uuid } = require('uuid')
 const { getType } = require('@keystonejs/utils')
-const { Json } = require('../../custom-fields')
-const { HiddenRelationship } = require('./field')
-const { composeHook, isValidDate } = require('../_common')
+
+const { Json, Stars } = require('../custom-fields')
+
+const { HiddenRelationship } = require('./utils')
+const { composeHook, isValidDate } = require('./utils')
 
 const GQL_TYPE_SUFFIX = 'HistoryRecord'
 

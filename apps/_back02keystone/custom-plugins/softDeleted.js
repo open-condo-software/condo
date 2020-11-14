@@ -1,7 +1,8 @@
 const { DateTimeUtc } = require('@keystonejs/fields')
-const { HiddenRelationship } = require('./historical/field')
-const { composeHook } = require('./_common')
 const { getType } = require('@keystonejs/utils')
+
+const { HiddenRelationship } = require('./utils')
+const { composeHook } = require('./utils')
 
 const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}) => ({ fields = {}, hooks = {}, access, ...rest }, { listKey, keystone }) => {
     // TODO(pahaz):
