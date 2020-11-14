@@ -414,6 +414,16 @@ describe('softDeleted()', () => {
             'name': 'GraphQLError',
         })
     })
+    test('check update after delete', async () => {
+        const client = await makeClient()
+        let obj = await TestSoftDeletedObj.create(client)
+        obj = await TestSoftDeletedObj.update(client, obj.id, { deletedAt: 'true' })
+        const { errors } = await TestSoftDeletedObj.update(client, obj.id, { meta: { foo: 1 } }, { raw: true })
+        expect(errors[0]).toMatchObject({
+            'message': 'Already deleted',
+            'name': 'GraphQLError',
+        })
+    })
     test('check create deleted obj', async () => {
         const client = await makeClient()
         const { errors } = await TestSoftDeletedObj.create(client, { deletedAt: 'true' }, { raw: true })
@@ -421,5 +431,25 @@ describe('softDeleted()', () => {
             'message': 'Variable "$data" got invalid value { deletedAt: "true" }; Field "deletedAt" is not defined by type "TestSoftDeletedObjCreateInput".',
             'name': 'GraphQLError',
         })
+    })
+    test('check disallow to hard delete', async () => {
+        const client = await makeLoggedInAdminClient()
+        let obj = await TestSoftDeletedObj.create(client)
+        const { errors } = await TestSoftDeletedObj.delete(client, obj.id, { raw: true })
+        expect(errors[0]).toMatchObject({
+            'message': 'You do not have access to this resource',
+            'name': 'AccessDeniedError',
+        })
+    })
+    test('check filter by default deletedAt = null', async () => {
+        const client = await makeLoggedInAdminClient()
+        const rand = faker.random.number()
+        let obj1 = await TestSoftDeletedObj.create(client, { meta: { rand } })
+        let obj2 = await TestSoftDeletedObj.create(client, { meta: { rand } })
+
+        await TestSoftDeletedObj.update(client, obj1.id, { deletedAt: 'true' })
+
+        const objs = await TestSoftDeletedObj.getAll(client, { meta: { rand } })
+        expect(objs.map(x => x.id)).toEqual([obj2.id])
     })
 })
