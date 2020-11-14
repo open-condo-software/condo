@@ -449,7 +449,7 @@ describe('softDeleted()', () => {
 
         await TestSoftDeletedObj.update(client, obj1.id, { deletedAt: 'true' })
 
-        const objs = await TestSoftDeletedObj.getAll(client, { meta: { rand } })
+        const objs = await TestSoftDeletedObj.getAll(client, { meta_in: [{ rand }] })
         expect(objs.map(x => x.id)).toEqual([obj2.id])
     })
 })
