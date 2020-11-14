@@ -94,27 +94,15 @@ function genTestGQLUtils (MODEL, MODELs, MODEL_FIELDS) {
     }
 }
 
-const FIELDS = '{ id v text meta createdAt updatedAt createdBy { id } updatedBy { id } }'
-const ITEM_FIELDS = `{ id v meta test ${FIELDS} }`
-const Test = genTestGQLUtils('Test', 'Tests', FIELDS)
-const TestItem = genTestGQLUtils('TestItem', 'TestItems', ITEM_FIELDS)
+const TEST_FIELDS = '{ id v text meta createdAt updatedAt createdBy { id } updatedBy { id } }'
+const TEST_ITEM_FIELDS = `{ id v meta test ${TEST_FIELDS} }`
+const Test = genTestGQLUtils('Test', 'Tests', TEST_FIELDS)
+const TestItem = genTestGQLUtils('TestItem', 'TestItems', TEST_ITEM_FIELDS)
 
-const HISTORY_FIELDS = '{ id v text history_id history_action history_date }'
-const ITEM_HISTORY_FIELDS = '{ id v meta test history_id history_action history_date }'
-const GET_ALL_TEST_HISTORY_OBJS_QUERY = genGetAllGQL('TestHistoryRecord', 'TestHistoryRecords', HISTORY_FIELDS)
-const GET_ALL_TEST_ITEM_HISTORY_OBJS_QUERY = genGetAllGQL('TestItemHistoryRecord', 'TestItemHistoryRecords', ITEM_HISTORY_FIELDS)
-
-async function getTestHistoryObjs (client, history_id) {
-    const { data, errors } = await client.query(GET_ALL_TEST_HISTORY_OBJS_QUERY, { where: { history_id } })
-    expect(errors).toEqual(undefined)
-    return data.objs
-}
-
-async function getTestItemHistoryObjs (client, history_id) {
-    const { data, errors } = await client.query(GET_ALL_TEST_ITEM_HISTORY_OBJS_QUERY, { where: { history_id } })
-    expect(errors).toEqual(undefined)
-    return data.objs
-}
+const TEST_HISTORY_FIELDS = '{ id v text history_id history_action history_date }'
+const TEST_ITEM_HISTORY_FIELDS = '{ id v meta test history_id history_action history_date }'
+const TestHistoryRecord = genTestGQLUtils('TestHistoryRecord', 'TestHistoryRecords', TEST_HISTORY_FIELDS)
+const TestItemHistoryRecord = genTestGQLUtils('TestItemHistoryRecord', 'TestItemHistoryRecords', TEST_ITEM_HISTORY_FIELDS)
 
 describe('Json field', () => {
     async function testJsonValue (value) {
@@ -186,7 +174,8 @@ describe('Json field', () => {
 
 describe('Json field exact match filter', () => {
     async function testFilterByValue (value, metaSuffix = '') {
-        const client = await makeClient()
+        // NOTE: the test may fail by access denied to createdBy { id } field!
+        const client = await makeLoggedInClient()
         const obj = await Test.create(client, { meta: value })
         const objs = await Test.getAll(client, { ['meta' + metaSuffix]: value })
         const objsIds = objs.map(x => x.id)
@@ -287,7 +276,7 @@ describe('historical()', () => {
         await Test.update(client, obj.id, { text: 'no' })
         await Test.delete(client, obj.id)
 
-        let histObjs = await getTestHistoryObjs(client, obj.id)
+        let histObjs = await TestHistoryRecord.getAll(client, { history_id: obj.id })
         expect(histObjs).toEqual([
             expect.objectContaining({ history_action: 'c', history_id: obj.id, text: null, v: 1 }),
             expect.objectContaining({ history_action: 'u', history_id: obj.id, text: 'hello', v: 2 }),
@@ -305,14 +294,14 @@ describe('historical()', () => {
         await Test.delete(client, obj.test.id)
         await TestItem.delete(client, obj.id)
 
-        let histObjs = await getTestHistoryObjs(client, obj.test.id)
+        let histObjs = await TestHistoryRecord.getAll(client, { history_id: obj.test.id })
         expect(histObjs).toEqual([
             expect.objectContaining({ history_action: 'c', history_id: obj.test.id, text: 'new1', v: 1 }),
             expect.objectContaining({ history_action: 'u', history_id: obj.test.id, text: 'new2', v: 2 }),
             expect.objectContaining({ history_action: 'd', history_id: obj.test.id, text: 'new2', v: 2 }),
         ])
 
-        histObjs = await getTestItemHistoryObjs(client, obj.id)
+        histObjs = await TestItemHistoryRecord.getAll(client, { history_id: obj.id })
         expect(histObjs).toEqual([
             expect.objectContaining({
                 history_action: 'c',
