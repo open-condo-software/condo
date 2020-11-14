@@ -79,41 +79,37 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
 
 function getOpAccess (op, keystone, access, args) {
     const type = getType(access)
-    switch (type) {
-        case 'Boolean':
-            return access || false
-        case 'Function':
-            return access(args) || false
-        case 'Object':
-            const opAccess = access[op]
-            if (opAccess) return getOpAccess(op, keystone, opAccess, args)
-            return keystone.defaultAccess.list || false
-        case 'Undefined':
-            return keystone.defaultAccess.list || false
-        default:
-            throw new Error(
-                `getOpAccess(), received ${type}.`,
-            )
+    if (type === 'Boolean') {
+        return access || false
+    } else if (type === 'Function') {
+        return access(args) || false
+    } else if (type === 'Object') {
+        const opAccess = access[op]
+        if (opAccess) return getOpAccess(op, keystone, opAccess, args)
+        return keystone.defaultAccess.list || false
+    } else if (type === 'Undefined') {
+        return keystone.defaultAccess.list || false
     }
+    throw new Error(
+        `getOpAccess(), received ${type}.`,
+    )
 }
 
 function applySoftDeletedFilters (access, deletedAtField) {
     const type = getType(access)
-    switch (type) {
-        case 'Boolean':
-            return (access) ? { [deletedAtField]: null } : false
-        case 'Object':
-            const anyFilterByDeleted = Object.keys(access).find((x) => x.startsWith(deletedAtField))
-            if (anyFilterByDeleted) return access
-            return {
-                ...access,
-                [deletedAtField]: null,
-            }
-        default:
-            throw new Error(
-                `applySoftDeletedFilters() accept a boolean or a object, received ${type}.`,
-            )
+    if (type === 'Boolean') {
+        return (access) ? { [deletedAtField]: null } : false
+    } else if (type === 'Object') {
+        const anyFilterByDeleted = Object.keys(access).find((x) => x.startsWith(deletedAtField))
+        if (anyFilterByDeleted) return access
+        return {
+            ...access,
+            [deletedAtField]: null,
+        }
     }
+    throw new Error(
+        `applySoftDeletedFilters() accept a boolean or a object, received ${type}.`,
+    )
 }
 
 module.exports = {
