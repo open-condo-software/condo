@@ -113,12 +113,16 @@ function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFi
     return {
         ...historyFields,
         [`${historyField}_date`]: { type: DateTimeUtc, isRequired: true },
-        [`${historyField}_action`]: { type: Select, options: 'c, u, d', isRequired: true },
+        [`${historyField}_action`]: {
+            type: Select,
+            options: 'c, u, d',
+            isRequired: true,
+        },
         [`${historyField}_id`]: {
             type: HiddenRelationship,
             ref: `${listKey}`,
             isRequired: true,
-            kmigratorOptions: { null: false },
+            kmigratorOptions: { null: false, db_index: true },
         },
     }
 }
