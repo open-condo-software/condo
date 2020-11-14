@@ -1,13 +1,20 @@
 const { DateTimeUtc } = require('@keystonejs/fields')
+const { HiddenRelationship } = require('./historical/field')
 const { composeHook } = require('./_common')
 const { getType } = require('@keystonejs/utils')
 
-const softDeleted = ({ deletedAtField = 'deletedAt' } = {}) => ({ fields = {}, hooks = {}, access, ...rest }, { keystone }) => {
+const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}) => ({ fields = {}, hooks = {}, access, ...rest }, { listKey, keystone }) => {
     // TODO(pahaz):
     //  [x] 1) filter by default deletedAt = null (access.read), how-to change it?!
     //  [x] 2) allow update only for deletedAt = null (access.update)
     //  [x] 3) disallow access to hard delete (access.delete)
     //  [ ] 4) what if some object has FK (Relation) to SoftDeletedList ?
+    // TODO(pahaz): WIP
+    //  [x] 1) filter by default newId = null (access.read) --> newId is set deketedAt by default
+    //  [x] 2) allow update only for newId = null (access.update) --> newId is set deketedAt by default
+    //  [ ] 3) what if some object has FK (Relation) to mergeable() list ?
+    //  [ ] 4) check is newId object have newId (merge merged list)
+    //  [ ] 5) check access to newId
 
     const datedOptions = {
         type: DateTimeUtc,
@@ -18,15 +25,36 @@ const softDeleted = ({ deletedAtField = 'deletedAt' } = {}) => ({ fields = {}, h
         },
         kmigratorOptions: { null: true, db_index: true },
     }
+    const newIdOptions = {
+        type: HiddenRelationship,
+        ref: listKey,
+        access: {
+            read: true,
+            create: false,
+            update: true,
+        },
+        kmigratorOptions: { null: true },
+    }
 
     fields[deletedAtField] = { ...datedOptions }
+    fields[newIdField] = { ...newIdOptions }
 
     const newResolveInput = ({ resolvedData, existingItem }) => {
+        if (existingItem && existingItem[deletedAtField]) {
+            throw new Error('Already deleted')
+        }
+        if (existingItem && existingItem[newIdField]) {
+            throw new Error('Already merged')
+        }
         if (resolvedData[deletedAtField]) {
             resolvedData[deletedAtField] = new Date().toISOString()
         }
-        if (existingItem && existingItem[deletedAtField]) {
-            throw new Error('Already deleted')
+        if (resolvedData[newIdField]) {
+            // TODO(pahaz): check newIdField ID!
+            if (!resolvedData[deletedAtField]) {
+                // NOTE: merged == deleted
+                resolvedData[deletedAtField] = new Date().toISOString()
+            }
         }
         return resolvedData
     }

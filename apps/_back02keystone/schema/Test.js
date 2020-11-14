@@ -1,4 +1,4 @@
-const { historical, versioned, uuided, tracked, softDeleted, mergeable } = require('../custom-plugins')
+const { historical, versioned, uuided, tracked, softDeleted } = require('../custom-plugins')
 const {
     Checkbox,
     Decimal,
@@ -155,7 +155,7 @@ const TestSoftDeletedObj = new GQLListSchema('TestSoftDeletedObj', {
         delete: true,
         auth: true,
     },
-    plugins: [versioned(), tracked(), softDeleted(), mergeable(), historical()]
+    plugins: [versioned(), tracked(), softDeleted(), historical()]
 })
 
 module.exports = {

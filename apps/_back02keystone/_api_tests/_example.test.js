@@ -452,9 +452,6 @@ describe('softDeleted()', () => {
         const objs = await TestSoftDeletedObj.getAll(client, { meta_in: [{ rand }] })
         expect(objs.map(x => x.id)).toEqual([obj2.id])
     })
-})
-
-describe('mergeable()', () => {
     test('check filter by default newId = null', async () => {
         const client = await makeLoggedInAdminClient()
         const rand = faker.random.number()
