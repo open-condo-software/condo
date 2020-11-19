@@ -2,10 +2,11 @@
  * @jest-environment node
  */
 
-const { makeClient, gql, setFakeClientMode } = require('@core/keystone/test.utils')
+const { makeClient, setFakeClientMode } = require('@core/keystone/test.utils')
 const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 const faker = require('faker')
+const { genTestGQLUtils } = require('@core/keystone/gen.gql.utils')
 const { makeLoggedInClient } = require('@core/keystone/test.utils')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { isMongo } = require('@core/keystone/test.utils')
@@ -13,99 +14,18 @@ const { isMongo } = require('@core/keystone/test.utils')
 const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-function genGetAllGQL (MODEL, MODELs, MODEL_FIELDS) {
-    return gql`
-        query getAll${MODELs}($where: ${MODEL}WhereInput, $first: Int, $skip: Int) {
-            objs: all${MODELs}(where: $where, first: $first, skip: $skip) ${MODEL_FIELDS}
-        }
-    `
-}
-
-function genCreateGQL (MODEL, MODELs, MODEL_FIELDS) {
-    return gql`
-        mutation create${MODEL}($data: ${MODEL}CreateInput) {
-            obj: create${MODEL}(data: $data) ${MODEL_FIELDS}
-        }
-    `
-}
-
-function genUpdateGQL (MODEL, MODELs, MODEL_FIELDS) {
-    return gql`
-        mutation update${MODEL}($id: ID!, $data: ${MODEL}UpdateInput) {
-            obj: update${MODEL}(id: $id, data: $data) ${MODEL_FIELDS}
-        }
-    `
-}
-
-function genDeleteGQL (MODEL, MODELs, MODEL_FIELDS) {
-    return gql`
-        mutation delete${MODEL}($id: ID!) {
-            obj: delete${MODEL}(id: $id) ${MODEL_FIELDS}
-        }
-    `
-}
-
-function genTestGQLUtils (MODEL, MODELs, MODEL_FIELDS) {
-    const GET_ALL_OBJS_QUERY = genGetAllGQL(MODEL, MODELs, MODEL_FIELDS)
-    const CREATE_OBJ_MUTATION = genCreateGQL(MODEL, MODELs, MODEL_FIELDS)
-    const UPDATE_OBJ_MUTATION = genUpdateGQL(MODEL, MODELs, MODEL_FIELDS)
-    const DELETE_OBJ_MUTATION = genDeleteGQL(MODEL, MODELs, MODEL_FIELDS)
-
-    async function getAll (client, where, { raw = false } = {}) {
-        const { data, errors } = await client.query(GET_ALL_OBJS_QUERY, { where: where })
-        if (raw) return { data, errors }
-        expect(errors).toEqual(undefined)
-        return data.objs
-    }
-
-    async function create (client, attrs = {}, { raw = false } = {}) {
-        const { data, errors } = await client.mutate(CREATE_OBJ_MUTATION, {
-            data: { ...attrs },
-        })
-        if (raw) return { data, errors }
-        expect(errors).toEqual(undefined)
-        return data.obj
-    }
-
-    async function update (client, id, attrs = {}, { raw = false } = {}) {
-        const { data, errors } = await client.mutate(UPDATE_OBJ_MUTATION, {
-            id, data: { ...attrs },
-        })
-        if (raw) return { data, errors }
-        expect(errors).toEqual(undefined)
-        return data.obj
-    }
-
-    async function delete_ (client, id, { raw = false } = {}) {
-        const { data, errors } = await client.mutate(DELETE_OBJ_MUTATION, { id })
-        if (raw) return { data, errors }
-        expect(errors).toEqual(undefined)
-        return data.obj
-    }
-
-    return {
-        MODEL_FIELDS,
-        GET_ALL_OBJS_QUERY,
-        CREATE_OBJ_MUTATION,
-        UPDATE_OBJ_MUTATION,
-        DELETE_OBJ_MUTATION,
-        getAll, create, update,
-        delete: delete_,
-    }
-}
-
 const TEST_FIELDS = '{ id v text meta createdAt updatedAt createdBy { id } updatedBy { id } }'
 const TEST_ITEM_FIELDS = `{ id v meta test ${TEST_FIELDS} }`
-const Test = genTestGQLUtils('Test', 'Tests', TEST_FIELDS)
-const TestItem = genTestGQLUtils('TestItem', 'TestItems', TEST_ITEM_FIELDS)
+const Test = genTestGQLUtils('Test', TEST_FIELDS)
+const TestItem = genTestGQLUtils('TestItem', TEST_ITEM_FIELDS)
 
 const TEST_HISTORY_FIELDS = '{ id v text history_id history_action history_date }'
 const TEST_ITEM_HISTORY_FIELDS = '{ id v meta test history_id history_action history_date }'
-const TestHistoryRecord = genTestGQLUtils('TestHistoryRecord', 'TestHistoryRecords', TEST_HISTORY_FIELDS)
-const TestItemHistoryRecord = genTestGQLUtils('TestItemHistoryRecord', 'TestItemHistoryRecords', TEST_ITEM_HISTORY_FIELDS)
+const TestHistoryRecord = genTestGQLUtils('TestHistoryRecord', TEST_HISTORY_FIELDS)
+const TestItemHistoryRecord = genTestGQLUtils('TestItemHistoryRecord', TEST_ITEM_HISTORY_FIELDS)
 
 const TEST_SOFT_DELETED_FIELDS = '{ id v meta deletedAt }'
-const TestSoftDeletedObj = genTestGQLUtils('TestSoftDeletedObj', 'TestSoftDeletedObjs', TEST_SOFT_DELETED_FIELDS)
+const TestSoftDeletedObj = genTestGQLUtils('TestSoftDeletedObj', TEST_SOFT_DELETED_FIELDS)
 
 describe('Json field', () => {
     async function testJsonValue (value) {
