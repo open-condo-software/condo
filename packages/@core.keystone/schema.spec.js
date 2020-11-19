@@ -46,7 +46,7 @@ const EVENT_LIST = new GQLListSchema('Event', {
 test('List.factory(): has fields', () => {
     const obj = USER_LIST._factory()
     expect(Object.keys(obj)).toEqual(['name', 'email', 'isAdmin'])
-    expect(obj['name']).toMatch(/^[\w .]+$/g)
+    expect(obj['name']).toMatch(/^[\w .']+$/g)
     expect(obj['email']).toMatch(/^[a-z0-9A-Z._]+@example\.(org|com|net)$/g)
     expect(obj['isAdmin']).toEqual(false)
 })
