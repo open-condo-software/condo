@@ -163,7 +163,6 @@ const TestAutoIncrementNumber = new GQLListSchema('TestAutoIncrementNumber', {
         number: {
             type: AutoIncrementInteger,
             isRequired: false,
-            // knexOptions: { defaultTo: (knex) => { return knex.raw('coalesce(select max(number) from TestAutoIncrementNumber, 1) + 1') }},
             kmigratorOptions: { unique: true, null: false },
         },
     },
