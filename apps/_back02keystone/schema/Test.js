@@ -22,7 +22,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { Color } = require('@keystonejs/fields-color')
 const { LocationGoogle } = require('@keystonejs/fields-location-google')
 const { v4: uuid } = require('uuid')
-const { Stars, Options, Json } = require('../custom-fields')
+const { Stars, Options, Json, AutoIncrementInteger } = require('../custom-fields')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const conf = require('@core/config')
 
@@ -158,8 +158,27 @@ const TestSoftDeletedObj = new GQLListSchema('TestSoftDeletedObj', {
     plugins: [versioned(), tracked(), softDeleted(), historical()]
 })
 
+const TestAutoIncrementNumber = new GQLListSchema('TestAutoIncrementNumber', {
+    fields: {
+        number: {
+            type: AutoIncrementInteger,
+            isRequired: false,
+            // knexOptions: { defaultTo: (knex) => { return knex.raw('coalesce(select max(number) from TestAutoIncrementNumber, 1) + 1') }},
+            kmigratorOptions: { unique: true, null: false },
+        },
+    },
+    access: {
+        read: true,
+        create: true,
+        update: true,
+        delete: true,
+        auth: true,
+    },
+})
+
 module.exports = {
     Test,
     TestItem,
     TestSoftDeletedObj,
+    TestAutoIncrementNumber,
 }

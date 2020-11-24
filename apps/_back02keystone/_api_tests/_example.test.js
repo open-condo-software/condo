@@ -27,6 +27,8 @@ const TestItemHistoryRecord = genTestGQLUtils('TestItemHistoryRecord', TEST_ITEM
 const TEST_SOFT_DELETED_FIELDS = '{ id v meta deletedAt }'
 const TestSoftDeletedObj = genTestGQLUtils('TestSoftDeletedObj', TEST_SOFT_DELETED_FIELDS)
 
+const TestAutoIncrementNumber = genTestGQLUtils('TestAutoIncrementNumber', '{ id number }')
+
 describe('Json field', () => {
     async function testJsonValue (value) {
         const client = await makeClient()
@@ -382,5 +384,37 @@ describe('softDeleted()', () => {
 
         let objs = await TestSoftDeletedObj.getAll(client, { meta_in: [{ rand }] })
         expect(objs.map(x => x.id)).toEqual([obj2.id])
+    })
+})
+
+describe('TestAutoIncrementNumber field', () => {
+    test('generate incremental number', async () => {
+        const client = await makeLoggedInClient()
+        const obj = await TestAutoIncrementNumber.create(client)
+        expect(typeof obj.number).toBe('number')
+        const obj2 = await TestAutoIncrementNumber.create(client)
+        expect(obj2.number > obj.number).toBe(true)
+    })
+
+    test('set number by hands', async () => {
+        const client = await makeLoggedInClient()
+        const number = faker.random.number(10000)
+        const obj = await TestAutoIncrementNumber.create(client, { number })
+        expect(obj.number).toBe(number)
+    })
+
+    test('set existing number', async () => {
+        const client = await makeLoggedInClient()
+        const obj = await TestAutoIncrementNumber.create(client)
+        const { data, errors } = await TestAutoIncrementNumber.create(client, { number: obj.number }, { raw: true })
+        expect(data).toStrictEqual({ 'obj': null })
+        expect(errors[0]).toMatchObject({
+            message: 'You attempted to perform an invalid mutation',
+            name: 'ValidationFailureError',
+            data: {
+                messages: ['[number.is.not.unique] Field number should be unique'],
+            },
+            path: ['obj'],
+        })
     })
 })
