@@ -388,6 +388,8 @@ describe('softDeleted()', () => {
 })
 
 describe('TestAutoIncrementNumber field', () => {
+    if (isMongo()) return console.error('SKIP() Mongo: Need to implement AutoIncrementIntegerMongooseFieldAdapter!')
+
     test('generate incremental number', async () => {
         const client = await makeLoggedInClient()
         const obj = await TestAutoIncrementNumber.create(client)

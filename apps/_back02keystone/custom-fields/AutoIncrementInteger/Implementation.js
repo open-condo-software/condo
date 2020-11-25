@@ -33,8 +33,19 @@ class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
 }
 
 // TODO(pahaz): add mongo support for AutoIncrementInteger
+class AutoIncrementIntegerMongooseFieldAdapter extends Integer.adapters.mongoose {
+    setupHooks ({ addPreSaveHook, addPostReadHook }) {
+        addPreSaveHook(item => {
+            throw new Error('Is not supported yet!')
+        })
+        addPostReadHook(item => {
+            throw new Error('Is not supported yet!')
+        })
+    }
+}
 
 module.exports = {
     AutoIncrementInteger,
     AutoIncrementIntegerKnexFieldAdapter,
+    AutoIncrementIntegerMongooseFieldAdapter,
 }
