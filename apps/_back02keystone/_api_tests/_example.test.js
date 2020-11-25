@@ -400,7 +400,7 @@ describe('TestAutoIncrementNumber field', () => {
 
     test('set number by hands', async () => {
         const client = await makeLoggedInClient()
-        const number = faker.random.number(10000)
+        const number = faker.random.number(1000, 10000000)
         const obj = await TestAutoIncrementNumber.create(client, { number })
         expect(obj.number).toBe(number)
     })
