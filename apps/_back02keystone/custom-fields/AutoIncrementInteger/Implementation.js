@@ -1,6 +1,4 @@
 const { Integer } = require('@keystonejs/fields')
-const { KnexFieldAdapter } = require('@keystonejs/adapter-knex')
-// const { MongooseFieldAdapter } = require('@keystonejs/adapter-mongoose')
 
 class AutoIncrementInteger extends Integer.implementation {
     async validateInput ({ resolvedData, addFieldValidationError }) {
@@ -16,7 +14,7 @@ class AutoIncrementInteger extends Integer.implementation {
     }
 }
 
-class AutoIncrementIntegerKnexFieldAdapter extends KnexFieldAdapter {
+class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
     setupHooks ({ addPreSaveHook, addPostReadHook }) {
         addPreSaveHook(item => {
             if (this.path in item) {
@@ -27,7 +25,7 @@ class AutoIncrementIntegerKnexFieldAdapter extends KnexFieldAdapter {
             const fieldName = this.dbPath
             const knex = this.listAdapter.parentAdapter.knex
             item[this.path] = knex.raw(
-                `coalesce( (select max(:fieldName:) as max from :tableName:), 0) + 1`, { tableName, fieldName })
+                'coalesce( (select max(:fieldName:) as max from :tableName:), 0) + 1', { tableName, fieldName })
                 .wrap('(', ')')
             return item
         })
