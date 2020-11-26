@@ -10,6 +10,7 @@ import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 
 import { AuthRequired } from './AuthRequired'
+import { isFunction } from '../utils/ecmascript.utils'
 
 function RedirectToOrganizations () {
     const { asPath } = useRouter()
@@ -30,7 +31,8 @@ function RedirectToOrganizations () {
 
 function OrganizationRequiredAfterAuthRequired ({ children }) {
     const { isLoading: isLoadingAuth } = useAuth()
-    const { isLoading, link } = useOrganization()
+    const organization = useOrganization()
+    const { isLoading, link } = organization
 
     const intl = useIntl()
     const SelectOrganizationRequiredMsg = intl.formatMessage({ id: 'SelectOrganizationRequired' })
@@ -46,6 +48,10 @@ function OrganizationRequiredAfterAuthRequired ({ children }) {
         </Typography.Title>
         <RedirectToOrganizations/>
     </>
+
+    if (isFunction(children)) {
+        return children(organization)
+    }
 
     return children
 }
