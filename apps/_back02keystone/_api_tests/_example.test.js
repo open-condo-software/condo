@@ -414,7 +414,7 @@ describe('TestAutoIncrementNumber field', () => {
             message: 'You attempted to perform an invalid mutation',
             name: 'ValidationFailureError',
             data: {
-                messages: ['[number.is.not.unique] Field number should be unique'],
+                messages: ['[unique:alreadyExists:number] Field number should be unique'],
             },
             path: ['obj'],
         })

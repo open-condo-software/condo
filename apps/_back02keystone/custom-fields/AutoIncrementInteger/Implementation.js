@@ -6,9 +6,9 @@ class AutoIncrementInteger extends Integer.implementation {
         if (value) {
             const list = this.getListByKey(this.listKey)
             const listAdapter = list.adapter
-            const count = await listAdapter.itemsQuery({ [this.path]: value }, { meta: true })
+            const { count } = await listAdapter.itemsQuery({ where: { [this.path]: value } }, { meta: true })
             if (count) {
-                addFieldValidationError(`[${this.path}.is.not.unique] Field ${this.path} should be unique`)
+                addFieldValidationError(`[unique:alreadyExists:${this.path}] Field ${this.path} should be unique`)
             }
         }
     }
