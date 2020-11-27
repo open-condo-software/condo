@@ -17,6 +17,8 @@
   "Captcha": "Captcha",
   "ConfirmPassword": "Confirm password",
   "ServerError": "Server error",
+  "ServerErrorPleaseTryAgainLater": "There are problems on the server, try to visit the page after a while",
+  "AccessError": "You don't have access to complete this request",
   "ClientSideError": "Client code error",
   "StartRecovery": "Start recovery",
   "Started": "Started",

@@ -7,35 +7,22 @@ const { makeLoggedInAdminClient, createUser, gql } = require('@core/keystone/tes
 const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
+const USER_FIELDS = '{ id settings { Feature1 Feature2 } }'
 const GET_USER_BY_ID_QUERY = gql`
     query getUserById($id: ID!) {
-        user: User(where: {id: $id}) {
-            id
-            settings {
-                Feature1
-                Feature2
-            }
-        }
+        user: User(where: {id: $id}) ${USER_FIELDS}
     }
 `
 
 const UPDATE_USER_BY_ID_MUTATION = gql`
     mutation updateUserById($id:ID!, $data: UserUpdateInput!) {
-        user: updateUser(id: $id, data: $data) {
-            id
-            settings {
-                Feature1
-                Feature2
-            }
-        }
+        user: updateUser(id: $id, data: $data) ${USER_FIELDS}
     }
 `
 
 const ALL_USERS_QUERY = gql`
     query getAll($data: UserWhereInput!) {
-        users: allUsers(where: $data) {
-            id
-        }
+        users: allUsers(where: $data) ${USER_FIELDS}
     }
 `
 
@@ -147,7 +134,7 @@ test('user: merge settings', async () => {
 })
 
 test('user: filter settings by EQ', async () => {
-    if (isMongo()) return // skip Mongo! some problem with adapter
+    if (isMongo()) return console.error('SKIP() Mongo: need a custom query parser!')
 
     const client = await makeLoggedInAdminClient()
     const user1 = await createUser({ settings: { 'Feature1': true } })

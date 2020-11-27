@@ -31,7 +31,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 1, 1)
+VERSION = (1, 1, 5)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -42,6 +42,7 @@ DJANGO_MODEL_GENERATOR_SCRIPT = '''
 import json
 from django.template import Library, Template, Engine, Context
 import keyword
+import sys
 
 DATA = '__KNEX_SCHEMA_DATA__'
 NAME = '_django_model_generator'
@@ -99,6 +100,8 @@ def to_fieldtype(value, fieldname=None):
     """
     >>> to_fieldtype([['increments'], ['notNullable']])
     'models.AutoField(primary_key=True)'
+    >>> to_fieldtype([["uuid"], ["primary"], ["notNullable"]])
+    'models.UUIDField(primary_key=True)'
     >>> to_fieldtype([['text']])
     'models.TextField(null=True, blank=True)'
     >>> to_fieldtype([["integer"],["unsigned"],["index"],["foreign"],["references","id"],["inTable","public.Condo"]])
@@ -128,9 +131,9 @@ def to_fieldtype(value, fieldname=None):
         "unique": lambda x: x.update({'unique': True}),
         "boolean": lambda x: x.update({'field_class': 'models.BooleanField'}),
         "string": lambda x, max_length: x.update({'field_class': 'models.CharField', 'max_length': max_length}),
-        "json": lambda x: x.update({'field_class': 'JSONField'}),
+        "json": lambda x: x.update({'field_class': 'models.JSONField'}),
         "date": lambda x: x.update({'field_class': 'models.DateField'}),
-        "timestamp": lambda x: x.update({'field_class': 'models.DateTimeField'}),
+        "timestamp": lambda x, tz, precision: x.update({'field_class': 'models.DateTimeField'}),
         "integer": lambda x: x.update({'field_class': 'models.IntegerField'}),
         "unsigned": lambda x: x.update({'field_class': 'models.PositiveIntegerField'}),
         "index": lambda x: x.update({'db_index': True}),
@@ -144,17 +147,22 @@ def to_fieldtype(value, fieldname=None):
             {'field_class': 'models.IntegerField', 'choices': [(i, str(i)) for i in choices]}) if type(
             choices[0]) == int else x.update(
             {'field_class': 'models.CharField', 'max_length': 50, 'choices': [(i, i) for i in choices]}),
+        "defaultTo": lambda x, v: x.update({'default': v}),
         "kmigrator": lambda x, options: x.update(options),
     }
 
     if ['increments'] in value:
         return 'models.AutoField(primary_key=True)'
-    ctx = dict(field_class='JSONField',
+    if ["uuid"] in value and ["primary"] in value:
+        return 'models.UUIDField(primary_key=True)'
+    ctx = dict(field_class='models.JSONField',
                db_index=False, unique=False,
                null=True, blank=True)
     if fieldname:
         ctx.update({'db_column': q(fieldname)})
     for v in value:
+        if v[0] not in processors:
+            raise RuntimeError('no processor: {0}(ctx, *{1!r})'.format(v[0], v[1:]))
         processors[v[0]](ctx, *v[1:])
     field_class = ctx.pop('field_class')
     if not ctx['db_index'] and field_class != 'models.ForeignKey':
@@ -217,6 +225,13 @@ function createFakeTable (tableName) {
         const p = new Proxy({}, {
             get: function (target, prop) {
                 return (...args) => {
+                    try {
+                        JSON.stringify(args)
+                    } catch (e) {
+                        // knex.raw may not to be serializable
+                        console.warn('IS_NOT_SERIALIZABLE:', tableName, name, args, e)
+                        return p
+                    }
                     schema[name].push([prop].concat(args))
                     return p
                 }
@@ -243,9 +258,7 @@ function createFakeTable (tableName) {
         datetime: (name) => chinable(name, ['datetime']),
         time: (name) => chinable(name, ['time']),
         timestamp: (name, {useTz, precision} = {}) => {
-            if (useTz !== false) throw new Error('timestamp(useTz = true) not supported')
-            if (precision) throw new Error('timestamp(precision) not supported')
-            return chinable(name, ['timestamp'])
+            return chinable(name, ['timestamp', Boolean(useTz), precision])
         },
         // timestamp: (name, {useTz, precision} = {}) => {throw new Error('timestamp() not supported')},
         timestamps: () => {throw new Error('timestamps() not supported')},
@@ -340,9 +353,19 @@ function createFakeTable (tableName) {
         console.error('\\nERROR: No KNEX adapter connection settings! Check the DATABASE_URL')
         process.exit(3)
     }
-    fs.writeFileSync(knexSchemaFile, JSON.stringify(tableCache))
+    try {
+        fs.writeFileSync(knexSchemaFile, JSON.stringify(tableCache))
+    } catch (e) {
+        console.error(e)
+        process.exit(7)
+    }
     process.exit(0)
 })()
+
+process.on('unhandledRejection', error => {
+    console.error('unhandledRejection', error)
+    process.exit(5)
+})
 """
 RUN_KEYSTONE_KNEX_SCRIPT = """
 const entryFile = '__KEYSTONE_ENTRY_PATH__'

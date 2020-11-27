@@ -1,9 +1,11 @@
-const Stars = require('./Stars')
+const Json = require('./Json')
 const Options = require('./Options')
-const JsonText = require('./JsonText')
+const Stars = require('./Stars')
+const AutoIncrementInteger = require('./AutoIncrementInteger')
 
 module.exports = {
-    Stars,
+    Json,
     Options,
-    JsonText,
+    Stars,
+    AutoIncrementInteger,
 }

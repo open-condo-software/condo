@@ -8,6 +8,8 @@ import qs from 'qs'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 
+import { isFunction } from '../utils/ecmascript.utils'
+
 function RedirectToLogin () {
     const { asPath } = useRouter()
 
@@ -26,7 +28,8 @@ function RedirectToLogin () {
 }
 
 export function AuthRequired ({ children }) {
-    const { isAuthenticated, isLoading } = useAuth()
+    const auth = useAuth()
+    const { isAuthenticated, isLoading } = auth
 
     const intl = useIntl()
     const SignInRequiredMsg = intl.formatMessage({ id: 'SignInRequired' })
@@ -41,6 +44,10 @@ export function AuthRequired ({ children }) {
             <Typography.Title css={css`display: block; text-align: center;`}>{SignInRequiredMsg}</Typography.Title>
             <RedirectToLogin/>
         </>
+    }
+
+    if (isFunction(children)) {
+        return children(auth)
     }
 
     return children
