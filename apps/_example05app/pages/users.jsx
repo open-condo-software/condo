@@ -1,20 +1,22 @@
 import Head from 'next/head'
-import { Button, Form, Input } from 'antd'
+import { Space } from 'antd'
 import gql from 'graphql-tag'
-import React, { createRef, useContext, useEffect, useState } from 'react'
-import { QuestionCircleOutlined, SaveOutlined, SortAscendingOutlined } from '@ant-design/icons'
+import React, { useEffect, useMemo } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useMutation, useQuery } from '@core/next/apollo'
-import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 
 import { PageContent, PageHeader, PageWrapper } from '../containers/BaseLayout'
 import { OrganizationRequired } from '../containers/OrganizationRequired'
-import FormTable from '../containers/FormTable'
-import { CreateFormListItemButton, ExtraDropdownActionsMenu } from '../containers/FormList'
 import { runMutation } from '../utils/mutations.utils'
-import ExcelExporterButton from '../containers/FormTableExcelImport'
 import { emailValidator, nameValidator, phoneValidator } from '../utils/excel.utils'
+import {
+    NewOrExportTableBlock,
+    renderActionsColumn,
+    toGQLSortBy,
+    toGQLWhere, useTable,
+    ViewOrEditTableBlock,
+} from '../containers/FormTableBlocks'
 
 const MODEL = 'OrganizationToUserLink'
 const MODELs = 'OrganizationToUserLinks'
@@ -33,9 +35,9 @@ const INVITE_NEW_USER_TO_ORGANIZATION_MUTATION = gql`
 `
 
 const GET_ALL_ORGANIZATION_LINKS_WITH_COUNT_QUERY = gql`
-    query getAll${MODELs}WithMeta($where: ${MODEL}WhereInput, $first: Int, $skip: Int) {
-    meta: _all${MODELs}Meta(where: $where) { count }
-    objs: all${MODELs}(where: $where, first: $first, skip: $skip) ${MODEL_FIELDS}
+    query getAll${MODELs}WithMeta($where: ${MODEL}WhereInput, $first: Int, $skip: Int, $sortBy: [Sort${MODELs}By!]) {
+    meta: _all${MODELs}Meta(where: $where, sortBy: id_DESC) { count }
+    objs: all${MODELs}(where: $where, first: $first, skip: $skip, sortBy: $sortBy) ${MODEL_FIELDS}
     }
 `
 
@@ -45,49 +47,12 @@ const UPDATE_ORGANIZATION_LINK_BY_ID_MUTATION = gql`
     }
 `
 
-function createNewGQLItem () {
-    return {
-        id: Math.random(),
-        isNotSaved: true,
-    }
-}
-
-function useFormTableRowContext (onFinish) {
-    const form = useContext(FormTable.RowFormContext)
-    const { editing, loading, setRowContext } = useContext(FormTable.RowContext)
-
-    function validateFields () {
-        setRowContext((x) => ({ ...x, loading: true }))
-        form.validateFields()
-            .then((values) => onFinish(form, values))
-            .then(() => setRowContext(x => ({ ...x, editing: false, loading: false })))
-            .catch(() => setRowContext(x => ({ ...x, editing: true, loading: false })))
-    }
-
-    function setEditing (value) {
-        setRowContext(x => ({ ...x, editing: value }))
-    }
-
-    return {
-        editing, loading,
-        validateFields,
-        setEditing,
-    }
-}
-
-function ResidentsBlock () {
-    const { organization } = useOrganization()
-    const { user } = useAuth()
-
+function _useUserColumns () {
     const intl = useIntl()
-    const AreYouSureMsg = intl.formatMessage({ id: 'AreYouSure' })
-    const DeleteMsg = intl.formatMessage({ id: 'Delete' })
-    const EditMsg = intl.formatMessage({ id: 'Edit' })
     const NameMsg = intl.formatMessage({ id: 'Name' })
     const EmailMsg = intl.formatMessage({ id: 'Email' })
     const StatusMsg = intl.formatMessage({ id: 'Status' })
     const PhoneMsg = intl.formatMessage({ id: 'Phone' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const EmailIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
@@ -95,41 +60,8 @@ function ResidentsBlock () {
     const StatusRejectedMsg = intl.formatMessage({ id: 'pages.users.status.Rejected' })
     const StatusWaitAcceptOrRejectMsg = intl.formatMessage({ id: 'pages.users.status.WaitAcceptOrReject' })
     const StatusNotActiveMsg = intl.formatMessage({ id: 'pages.users.status.NotActive' })
-    const UserIsAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
-    const InviteNewUserButtonLabelMsg = intl.formatMessage({ id: 'pages.users.InviteNewUserButtonLabel' })
-    const ErrorToFormFieldMsgMapping = {
-        '[error.already.exists]': {
-            name: 'email',
-            errors: [UserIsAlreadyInListMsg],
-        },
-    }
 
-    const [pagination, setPagination] = useState({ current: 1, pageSize: 20 })
-    const [newData, setNewData] = useState([])
-    const [create] = useMutation(INVITE_NEW_USER_TO_ORGANIZATION_MUTATION)
-    const [update] = useMutation(UPDATE_ORGANIZATION_LINK_BY_ID_MUTATION)
-    const [del] = useMutation(DELETE_ORGANIZATION_LINK_BY_ID_MUTATION)
-    const { loading, data, refetch, error } = useQuery(GET_ALL_ORGANIZATION_LINKS_WITH_COUNT_QUERY, {
-        variables: {
-            first: pagination.pageSize,
-            skip: (pagination.current - 1) * pagination.pageSize,
-            where: { organization: { id: organization.id } },
-        },
-    })
-    const existingData = data && data.objs || []
-
-    const [isSaveAllRunning, setSaveAllIsRunning] = useState(false)
-    const [saveButtonRefs, setSaveButtonRefs] = useState([])
-    useEffect(() => {
-        setSaveButtonRefs(elRefs => (
-            {
-                ...Object.fromEntries(newData.map(x => [x.id, elRefs[x.id] || createRef()])),
-                ...Object.fromEntries(existingData.map(x => [x.id, elRefs[x.id] || createRef()])),
-            }
-        ))
-    }, [newData.length, existingData.length])
-
-    const genColumns = ({ isCreateTable }) => [
+    return [
         {
             title: NameMsg,
             dataIndex: 'name',
@@ -137,6 +69,30 @@ function ResidentsBlock () {
             create: true,
             importFromFile: true,
             importValidator: nameValidator,
+            filters: [
+                {
+                    text: 'Joe',
+                    value: '{ "name_contains": "Joe" }',
+                },
+                {
+                    text: 'Bad',
+                    value: '{ "name_contains": "Bad" }',
+                },
+                {
+                    text: 'Submenu',
+                    value: 'Submenu',
+                    children: [
+                        {
+                            text: 'Pahaz',
+                            value: '{ "name_contains": "Pahaz" }',
+                        },
+                        {
+                            text: 'Black',
+                            value: '{ "name_contains": "Black" }',
+                        },
+                    ],
+                },
+            ],
         },
         {
             title: EmailMsg,
@@ -149,6 +105,7 @@ function ResidentsBlock () {
                 { type: 'email', message: EmailIsNotValidMsg },
                 { required: true, message: FieldIsRequiredMsg },
             ],
+            sorter: true,
         },
         {
             title: PhoneMsg,
@@ -161,11 +118,23 @@ function ResidentsBlock () {
                 { pattern: /^[+]?[0-9-. ()]{7,}[0-9]$/gi, message: PhoneIsNotValidMsg },
                 { required: true, message: FieldIsRequiredMsg },
             ],
+            filterMultiple: false,
+            filters: [
+                {
+                    text: '7 xxx',
+                    value: '{ "phone_starts_with": "7" }',
+                },
+                {
+                    text: '8 xxx',
+                    value: '{ "phone_starts_with": "8" }',
+                },
+            ],
         },
         {
             title: StatusMsg,
             dataIndex: 'status',
             create: false,
+            sorter: true,
             render: (_, item) => {
                 const { isRejected, isAccepted } = item
                 if (item.user) {
@@ -177,79 +146,47 @@ function ResidentsBlock () {
             },
         },
         {
-            title: ({ sortOrder, sortColumn, filters }) => {
-                if (isCreateTable) {
-                    return <Button size="small" onClick={handleSaveAllClick} loading={isSaveAllRunning}>
-                        <SaveOutlined/><SortAscendingOutlined/>
-                    </Button>
-                }
-                return ''
-            },
+            title: '',
             dataIndex: 'actions',
             create: true,
-            render: (_, item) => {
-                const { isNotSaved } = item
-                const { validateFields, setEditing, editing, loading } = useFormTableRowContext((form, values) => handleCreateOrUpdate(values, item, form))
-
-                return <>
-                    {(isNotSaved || editing) ?
-                        <Button size="small" type={'primary'} onClick={validateFields} loading={loading}
-                                ref={saveButtonRefs[item.id]}>
-                            <SaveOutlined/>
-                        </Button>
-                        : null}
-                    {(isNotSaved) ?
-                        null :
-                        <ExtraDropdownActionsMenu actions={[
-                            (item.user && item.user.id === user.id) ? null : {
-                                confirm: {
-                                    title: AreYouSureMsg,
-                                    icon: <QuestionCircleOutlined style={{ color: 'red' }}/>,
-                                },
-                                label: DeleteMsg,
-                                action: () => handleDelete(item),
-                            },
-                            {
-                                label: EditMsg,
-                                action: () => {
-                                    setEditing(true)
-                                },
-                            },
-                        ]}/>
-                    }
-                </>
-            },
+            render: renderActionsColumn,
         },
     ]
+}
 
-    function fakeJob () {
-        return new Promise(res => {
-            setTimeout(() => res(1), 1200)
-        })
+function UserTableBlock () {
+    const { organization } = useOrganization()
+
+    const newDataTable = useTable()
+    const table = useTable()
+    const columns = _useUserColumns()
+
+    const intl = useIntl()
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const UserIsAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
+    const ErrorToFormFieldMsgMapping = {
+        '[error.already.exists]': {
+            name: 'email',
+            errors: [UserIsAlreadyInListMsg],
+        },
     }
 
-    async function handleSaveAllClick () {
-        setSaveAllIsRunning(true)
-        if (typeof window !== 'undefined') window.saveButtonRefs = saveButtonRefs
-        try {
-            await fakeJob()
-            for (let values of newData) {
-                const ref = saveButtonRefs[values.id]
-                if (ref && ref.current) {
-                    ref.current.focus()
-                    ref.current.click()
-                }
-                await fakeJob()
-            }
-        } finally {
-            setSaveAllIsRunning(false)
-        }
-    }
+    const [create] = useMutation(INVITE_NEW_USER_TO_ORGANIZATION_MUTATION)
+    const [update] = useMutation(UPDATE_ORGANIZATION_LINK_BY_ID_MUTATION)
+    const [del] = useMutation(DELETE_ORGANIZATION_LINK_BY_ID_MUTATION)
+    const { data, refetch, error } = useQuery(GET_ALL_ORGANIZATION_LINKS_WITH_COUNT_QUERY, {
+        variables: {
+            first: table.state.pagination.pageSize,
+            skip: (table.state.pagination.current - 1) * table.state.pagination.pageSize,
+            sortBy: toGQLSortBy(table.state.sorter),
+            where: { ...toGQLWhere(table.state.filters), organization: { id: organization.id } },
+        },
+    })
 
-    function handleCreateOrUpdate (values, item, form) {
+    function handleCreateOrUpdate ({ values, item, form }) {
         if (values.email) values.email = values.email.toLowerCase()
-        const mutation = (item && item.isNotSaved) ? create : update
-        const variables = (item && item.isNotSaved) ?
+        const mutation = (item && item.isUnsavedNew) ? create : update
+        const variables = (item && item.isUnsavedNew) ?
             {
                 data: {
                     ...values,
@@ -267,12 +204,7 @@ function ResidentsBlock () {
                 mutation,
                 variables,
                 onCompleted: () => {
-                    const exitingData = newData.findIndex((x) => x.id === item.id)
-                    if (exitingData !== -1) {
-                        newData.splice(exitingData, 1)
-                        setNewData([...newData])
-                    }
-                    if (refetch) refetch({})
+                    if (refetch) refetch()
                 },
                 onError: (e) => {
                     console.log(e.friendlyDescription, form)
@@ -288,7 +220,7 @@ function ResidentsBlock () {
         )
     }
 
-    function handleDelete (values) {
+    function handleDelete ({ values, item, form }) {
         return runMutation(
             {
                 mutation: del,
@@ -296,99 +228,64 @@ function ResidentsBlock () {
                     id: values.id,
                 },
                 onFinally: () => {
-                    if (refetch) refetch({})
+                    if (refetch) refetch()
                 },
                 intl,
             },
         )
     }
 
-    function handleAdd () {
-        console.log('handleAdd')
-        setNewData([...newData, createNewGQLItem()])
-    }
+    // function fakeJob () {
+    //     return new Promise(res => {
+    //         setTimeout(() => res(1), 1200)
+    //     })
+    // }
+    //
+    // async function handleSaveAll ({ values }) {
+    //     await fakeJob()
+    //     values.forEach((item) => {
+    //
+    //     })
+    //     // for (let index in values) {
+    //     //     const ref = saveButtonRefs[index]
+    //     //     console.log(ref)
+    //     //     if (ref && ref.current) {
+    //     //         ref.current.focus()
+    //     //         ref.current.click()
+    //     //     }
+    //     //     await fakeJob()
+    //     // }
+    // }
 
-    function handleTableChange (pagination, filters, sorter) {
-        setPagination(pagination)
-        console.log({
-            sortField: sorter.field,
-            sortOrder: sorter.order,
-            pagination,
-            ...filters,
-        })
-    }
-
-    function renderItem (item) {
-        return { ...item }
-    }
-
-    function RenderCellFormWrapper ({ column, record, form, children }) {
-        const { editable, dataIndex, rules, normalize } = column
-        const { validateFields, editing } = useFormTableRowContext((form, values) => handleCreateOrUpdate(values, record, form))
-
-        useEffect(() => {
-            form.setFieldsValue({
-                // GET
-                [dataIndex]: record[dataIndex],
-            })
-        }, [])
-
-        if (!editable) return children
-        if (!editing) return children
-
-        return <Form.Item
-            style={{ margin: 0 }}
-            name={dataIndex}
-            normalize={normalize}
-            rules={rules || [
-                {
-                    required: true,
-                    message: FieldIsRequiredMsg,
-                },
-            ]}
-        >
-            <Input onPressEnter={validateFields}/>
-        </Form.Item>
-    }
-
-    function handleSetExportData (data) {
-        setNewData(data.map(x => {
-            return { ...createNewGQLItem(), ...x }
-        }))
-    }
-
-    return <>
-        <ExcelExporterButton columns={genColumns({ isCreateTable: true }).filter((x => x.importFromFile))}
-                             setExportedData={handleSetExportData}/>
-        <CreateFormListItemButton
-            onClick={handleAdd} label={InviteNewUserButtonLabelMsg}
-            style={{ marginBottom: '16px', width: '100%' }}/>
-        {(newData.length) ?
-            <FormTable
-                style={{ marginBottom: '16px' }}
-                pagination={false}
-                dataSource={newData}
-                columns={genColumns({ isCreateTable: true }).filter((x => x.create))}
-                renderItem={renderItem}
-                renderCellWrapper={RenderCellFormWrapper}
-                rowContextInitialState={{ editing: true }}
-                tableLayout={'fixed'}
-            />
-            : null}
-        <FormTable
-            dataSource={existingData}
-            columns={genColumns({ isCreateTable: false })}
-            renderItem={renderItem}
-            renderCellWrapper={RenderCellFormWrapper}
-            rowContextInitialState={{ editing: false }}
-            tableLayout={'fixed'}
-            onChange={handleTableChange}
-            pagination={{
+    useEffect(() => {
+        if (data) {
+            table.setData(data.objs)
+            table.updateFilterPaginationSort({
                 total: (data && data.meta) ? data.meta.count : undefined,
-                ...pagination,
-            }}
-        />
-    </>
+            })
+            const actions = {
+                CreateOrUpdate: handleCreateOrUpdate,
+                Delete: handleDelete,
+                // SaveAll: handleSaveAll,
+            }
+            newDataTable.updateActions(actions)
+            table.updateActions(actions)
+        }
+    }, [data])
+
+    const createColumns = useMemo(() => {return columns}, [])
+    const editColumns = useMemo(() => {return columns}, [])
+
+    if (error) {
+        return <Space direction="vertical">
+            {error}
+        </Space>
+    }
+
+    return <Space direction="vertical">
+        <NewOrExportTableBlock columns={createColumns} table={newDataTable}/>
+        <ViewOrEditTableBlock columns={editColumns} table={table}/>
+    </Space>
 }
 
 const ResidentsPage = () => {
@@ -403,7 +300,7 @@ const ResidentsPage = () => {
             <PageHeader title={PageTitleMsg}/>
             <PageContent>
                 <OrganizationRequired>
-                    <ResidentsBlock/>
+                    <UserTableBlock/>
                 </OrganizationRequired>
             </PageContent>
         </PageWrapper>
