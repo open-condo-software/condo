@@ -12,7 +12,7 @@ import { runMutation } from '../utils/mutations.utils'
 import { emailValidator, nameValidator, phoneValidator } from '../utils/excel.utils'
 import {
     NewOrExportTableBlock,
-    renderActionsColumn,
+    RenderActionsColumn,
     toGQLSortBy,
     toGQLWhere, useTable,
     ViewOrEditTableBlock,
@@ -149,7 +149,7 @@ function _useUserColumns () {
             title: '',
             dataIndex: 'actions',
             create: true,
-            render: renderActionsColumn,
+            render: RenderActionsColumn,
         },
     ]
 }
