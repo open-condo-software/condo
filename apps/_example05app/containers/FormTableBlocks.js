@@ -122,7 +122,7 @@ function _useTableRowForm () {
     }
 }
 
-function renderActionsColumn (text, item, index) {
+function RenderActionsColumn (text, item, index) {
     const { user } = useAuth()
 
     const intl = useIntl()
@@ -303,7 +303,7 @@ function ViewOrEditTableBlock ({ columns, table }) {
 
 export {
     useTable,
-    renderActionsColumn,
+    RenderActionsColumn,
     toGQLSortBy,
     toGQLWhere,
     NewOrExportTableBlock,
