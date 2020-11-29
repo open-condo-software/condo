@@ -196,7 +196,7 @@ function toGQLWhere (filters) {
     const where = {}
     Object.keys(filters).forEach((key) => {
         const v = filters[key]
-        if (!v) {} else if (v && v.length === 1) {
+        if (v && v.length === 1) {
             Object.assign(where, JSON.parse(v[0]))
         } else if (v && v.length >= 1) {
             if (where.OR) {
