@@ -154,7 +154,7 @@ function _useUserColumns () {
     ]
 }
 
-function UserTableBlock () {
+function UserBlock () {
     const { organization } = useOrganization()
 
     const newDataTable = useTable()
@@ -300,7 +300,7 @@ const ResidentsPage = () => {
             <PageHeader title={PageTitleMsg}/>
             <PageContent>
                 <OrganizationRequired>
-                    <UserTableBlock/>
+                    <UserBlock/>
                 </OrganizationRequired>
             </PageContent>
         </PageWrapper>
