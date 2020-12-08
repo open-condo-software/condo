@@ -1,9 +1,11 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { createContext, useContext, useState } from 'react'
-import { Drawer, Layout, Menu, PageHeader as AntPageHeader } from 'antd'
+import { ConfigProvider, Drawer, Layout, Menu, PageHeader as AntPageHeader } from 'antd'
 import { DashboardOutlined } from '@ant-design/icons'
 import Router from 'next/router'
+import enUS from 'antd/lib/locale/en_US'
+import ruRU from 'antd/lib/locale/ru_RU'
 
 import './antd-custom.less'
 import TopMenuItems from './components/TopMenuItems'
@@ -14,6 +16,12 @@ const LayoutContext = createContext({})
 const useLayoutContext = () => useContext(LayoutContext)
 const { Header, Sider, Content } = Layout
 const { SubMenu } = Menu
+
+const ANT_DEFAULT_LOCALE = enUS
+const ANT_LOCALES = {
+    ru: ruRU,
+    en: enUS,
+}
 
 const DEFAULT_MENU = [
     {
@@ -219,31 +227,34 @@ function BaseLayout ({ children, logoLocation = 'sideMenu', className, style, ..
         className = className + ' hided-side-menu'
     }
 
-    return (<LayoutContext.Provider value={{ isMobile }}>
-        <Layout className={`layout ${className || ''}`} style={style} css={layoutCss} as="section">
-            <SideMenu {...{
-                logoLocation,
-                onLogoClick,
-                menuData,
-                menuItemRender,
-                localeRender,
-                onClickMenuItem,
-                sideMenuWidth,
-                isMobile,
-                isSideMenuCollapsed,
-                toggleSideMenuCollapsed,
-            }} />
-            <Layout css={subLayoutCss}>
-                <Header className="top-menu" css={topMenuCss}>
-                    {logoLocation === 'topMenu' ? <img css={topMenuLogoCss} src="/logo.svg"
-                                                       onClick={onLogoClick}/> : null}
-                    <TopMenuItems isMobile={isMobile} isSideMenuCollapsed={isSideMenuCollapsed}
-                                  toggleSideMenuCollapsed={toggleSideMenuCollapsed}/>
-                </Header>
-                {children}
+    // TODO(pahaz): should we move locale logic from here to other place? (Like AntLocale ?)
+    return (<ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE}>
+        <LayoutContext.Provider value={{ isMobile }}>
+            <Layout className={`layout ${className || ''}`} style={style} css={layoutCss} as="section">
+                <SideMenu {...{
+                    logoLocation,
+                    onLogoClick,
+                    menuData,
+                    menuItemRender,
+                    localeRender,
+                    onClickMenuItem,
+                    sideMenuWidth,
+                    isMobile,
+                    isSideMenuCollapsed,
+                    toggleSideMenuCollapsed,
+                }} />
+                <Layout css={subLayoutCss}>
+                    <Header className="top-menu" css={topMenuCss}>
+                        {logoLocation === 'topMenu' ? <img css={topMenuLogoCss} src="/logo.svg"
+                                                           onClick={onLogoClick}/> : null}
+                        <TopMenuItems isMobile={isMobile} isSideMenuCollapsed={isSideMenuCollapsed}
+                                      toggleSideMenuCollapsed={toggleSideMenuCollapsed}/>
+                    </Header>
+                    {children}
+                </Layout>
             </Layout>
-        </Layout>
-    </LayoutContext.Provider>)
+        </LayoutContext.Provider>
+    </ConfigProvider>)
 }
 
 function PageWrapper ({ children, className, style }) {

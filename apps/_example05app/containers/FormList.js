@@ -1,4 +1,4 @@
-import { Button, Dropdown, Empty, Form, Input, List, Menu, Modal, Popconfirm, Skeleton, Typography } from 'antd'
+import { Button, Dropdown, Form, Input, List, Menu, Modal, Popconfirm, Skeleton, Typography } from 'antd'
 import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import React, { useState } from 'react'
@@ -61,15 +61,11 @@ const SListActionsUl = styled.ul`
 function FormList ({ dataSource, renderItem, ...extra }) {
     if (!renderItem) throw new Error('renderItem prop is required')
 
-    const intl = useIntl()
-    const NoDataMsg = intl.formatMessage({ id: 'NoData' })
-
     return <List
         size="large"
         itemLayout={'horizontal'}
         dataSource={dataSource}
         renderItem={renderItemWrapper}
-        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={NoDataMsg}/> }}
         {...extra}
     />
 
