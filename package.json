@@ -85,6 +85,7 @@
       ],
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
+      "react/no-children-prop": "off",
       "react/display-name": "warn",
       "jest/no-disabled-tests": "warn",
       "jest/no-focused-tests": "error",
