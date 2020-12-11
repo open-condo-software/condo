@@ -26,8 +26,14 @@ DOCKER_COMPOSE_COOKIE_SECRET=random
 DOCKER_COMPOSE_SERVER_URL=http://localhost:3003
 ENDOFFILE
 
-docker-compose up -d mongodb postgresdb
+docker-compose up -d postgresdb
 yarn
+
+bash ./bin/warm-docker-cache
+docker-compose build
+
+# migrate!
+docker-compose run app yarn workspace @app/sberhack migrate
 
 yarn workspace @app/sberhack dev
 ```

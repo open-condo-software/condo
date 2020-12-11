@@ -12,6 +12,8 @@ services:
       - "127.0.0.1:3003:3000"
     command: ${DOCKER_COMPOSE_START_APP_COMMAND:?Environment DOCKER_COMPOSE_START_APP_COMMAND needs to be set (check READEME.md)!}
     user: app
+    volumes:
+      - ./apps/:/home/app/apps
     environment:
       PORT: 3000
       COOKIE_SECRET: ${DOCKER_COMPOSE_COOKIE_SECRET:?Environment DOCKER_COMPOSE_COOKIE_SECRET needs to be set (check READEME.md)!}
