@@ -1,7 +1,10 @@
 import { notification } from 'antd'
 
-function runMutation ({ mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
+function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
     if (!intl) throw new Error('intl prop required')
+    if (!mutation && !action) throw new Error('mutation or action prop required')
+    if (action && mutation) throw new Error('impossible to pass mutation and action prop')
+    if (action && variables) throw new Error('impossible to pass action and variables prop')
     if (ErrorToFormFieldMsgMapping) {
         if (typeof ErrorToFormFieldMsgMapping !== 'object') throw new Error('ErrorToFormFieldMsgMapping prop is not an object')
         Object.entries(ErrorToFormFieldMsgMapping).forEach(([k, v]) => {
@@ -14,7 +17,9 @@ function runMutation ({ mutation, variables, onCompleted, onError, onFinally, in
     const DoneMsg = intl.formatMessage({ id: 'Done' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
-    return mutation({ variables })
+    action = (action) ? action : () => mutation({ variables })
+
+    return action()
         .then(
             (data) => {
                 if (OnCompletedMsg === null) {

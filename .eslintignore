@@ -1,3 +1,5 @@
+apps/sberhack
+
 # Ignore artifacts
 **/.next
 **/node_modules

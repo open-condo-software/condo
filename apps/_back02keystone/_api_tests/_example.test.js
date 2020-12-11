@@ -10,9 +10,7 @@ const { genTestGQLUtils } = require('@core/keystone/gen.gql.utils')
 const { makeLoggedInClient } = require('@core/keystone/test.utils')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { isMongo } = require('@core/keystone/test.utils')
-
-const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const { UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const TEST_FIELDS = '{ id v text meta createdAt updatedAt createdBy { id } updatedBy { id } }'
 const TEST_ITEM_FIELDS = `{ id v meta test ${TEST_FIELDS} }`

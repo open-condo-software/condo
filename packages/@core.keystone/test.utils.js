@@ -12,6 +12,10 @@ const conf = require('@core/config')
 
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
 
+const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
+const NUMBER_RE = /^[1-9][0-9]*$/i
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
 const API_PATH = '/admin/api'
 const URL = `http://127.0.0.1:3000${API_PATH}`
 const DEFAULT_TEST_USER_IDENTITY = 'user@example.com'
@@ -338,4 +342,7 @@ module.exports = {
     DEFAULT_TEST_USER_IDENTITY,
     DEFAULT_TEST_USER_SECRET,
     getRandomString,
+    DATETIME_RE,
+    UUID_RE,
+    NUMBER_RE,
 }

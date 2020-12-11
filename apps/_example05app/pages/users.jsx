@@ -65,10 +65,15 @@ function _useUserColumns () {
         {
             title: NameMsg,
             dataIndex: 'name',
-            editable: true,
-            create: true,
-            importFromFile: true,
-            importValidator: nameValidator,
+            create: true,  // include in create form (table-row form / modal form)
+            editable: true,  // include in edit form (table-row form / modal form)
+            rules: [  // edit form validation rules
+                { required: true, message: FieldIsRequiredMsg },
+            ],
+            importFromFile: true,  // include in import form (table-row import form)
+            importValidator: nameValidator,  // import form validation rules
+
+            sorter: true,  // sort by this field!
             filters: [
                 {
                     text: 'Joe',
@@ -92,33 +97,38 @@ function _useUserColumns () {
                         },
                     ],
                 },
-            ],
+            ],  // filter by this field! Filter menu config | object[]
+            filterMultiple: true,  // Whether multiple filters can be selected | boolean
         },
         {
             title: EmailMsg,
             dataIndex: 'email',
-            editable: true,
             create: true,
-            importFromFile: true,
-            importValidator: emailValidator,
+            editable: true,
             rules: [
                 { type: 'email', message: EmailIsNotValidMsg },
                 { required: true, message: FieldIsRequiredMsg },
             ],
+            importFromFile: true,
+            importValidator: emailValidator,
+
             sorter: true,
+            filters: null,
+            filterMultiple: null,
         },
         {
             title: PhoneMsg,
             dataIndex: 'phone',
-            editable: true,
             create: true,
-            importFromFile: true,
-            importValidator: phoneValidator,
+            editable: true,
             rules: [
                 { pattern: /^[+]?[0-9-. ()]{7,}[0-9]$/gi, message: PhoneIsNotValidMsg },
                 { required: true, message: FieldIsRequiredMsg },
             ],
-            filterMultiple: false,
+            importFromFile: true,
+            importValidator: phoneValidator,
+
+            sorter: true,
             filters: [
                 {
                     text: '7 xxx',
@@ -129,12 +139,20 @@ function _useUserColumns () {
                     value: '{ "phone_starts_with": "8" }',
                 },
             ],
+            filterMultiple: false,
         },
         {
             title: StatusMsg,
             dataIndex: 'status',
             create: false,
-            sorter: true,
+            editable: false,
+            rules: null,
+            importFromFile: false,
+            importValidator: null,
+
+            sorter: false,
+            filters: null,
+            filterMultiple: null,
             render: (_, item) => {
                 const { isRejected, isAccepted } = item
                 if (item.user) {
@@ -154,7 +172,7 @@ function _useUserColumns () {
     ]
 }
 
-function UserTableBlock () {
+function UserCRUDTableBlock () {
     const { organization } = useOrganization()
 
     const newDataTable = useTable()
@@ -278,7 +296,7 @@ function UserTableBlock () {
 
     if (error) {
         return <Space direction="vertical">
-            {error}
+            {String(error)}
         </Space>
     }
 
@@ -300,7 +318,7 @@ const ResidentsPage = () => {
             <PageHeader title={PageTitleMsg}/>
             <PageContent>
                 <OrganizationRequired>
-                    <UserTableBlock/>
+                    <UserCRUDTableBlock/>
                 </OrganizationRequired>
             </PageContent>
         </PageWrapper>

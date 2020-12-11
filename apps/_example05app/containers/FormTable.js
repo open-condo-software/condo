@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { Empty, Form, Input, Table } from 'antd'
-import { useIntl } from '@core/next/intl'
+import { Form, Input, Table } from 'antd'
 
 const DEFAULT_ROW_CONTEXT = { editing: false }
 const RowFormContext = React.createContext()
@@ -107,7 +106,7 @@ function EditableRow ({
         ...rowContextInitialState || DEFAULT_ROW_CONTEXT,
         ...rowContext,
         setRowContext,
-    }), [rowContext, setRowContext])
+    }), [rowContext])
 
     // console.log('EditableRow', rowIndex, record, children, props)
 
@@ -162,7 +161,7 @@ function _addExtraCellProps (columns) {
         })
 }
 
-function _addExtraRowProps (onRow) {
+function _addExtraRowProps (columns, onRow = null) {
     // add: record, rowIndex
     return (record, rowIndex) => {
         const baseOnRow = (onRow) ? onRow(record, rowIndex) : {}
@@ -177,11 +176,9 @@ function _addExtraRowProps (onRow) {
 function FormTable ({ columns, dataSource, pagination, onChangeFilterPaginationSort, rowContextInitialState, tableContextInitialState, RowInner, CellInner }) {
     // Each row has RowContext and RowFormContext!
     if (!columns) throw new Error('columns prop is required')
-    const intl = useIntl()
-    const NoDataMsg = intl.formatMessage({ id: 'NoData' })
 
     const fixedColumns = useMemo(() => _addExtraCellProps(columns), [columns])
-    const fixedOnRow = useMemo(() => _addExtraRowProps(), [columns])
+    const fixedOnRow = useMemo(() => _addExtraRowProps(columns), [columns])
 
     // TODO(pahaz): add CellWrapper, RowWrapper if you know any use case?!
     return <TableContext.Provider value={{ ...tableContextInitialState, rowContextInitialState, RowInner, CellInner }}>
@@ -192,7 +189,6 @@ function FormTable ({ columns, dataSource, pagination, onChangeFilterPaginationS
             bordered
             components={TABLE_COMPONENTS}
             dataSource={dataSource}
-            locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={NoDataMsg}/> }}
             columns={fixedColumns}
             onRow={fixedOnRow}
             pagination={pagination}
