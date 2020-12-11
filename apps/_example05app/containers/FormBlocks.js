@@ -1,5 +1,5 @@
 import { useApolloClient } from '@core/next/apollo'
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Select } from 'antd'
 
 function SearchInput ({ search, ...props }) {
@@ -7,9 +7,10 @@ function SearchInput ({ search, ...props }) {
     const [selected, setSelected] = useState('')
     const [data, setData] = useState([])
     const [value, setValue] = useState('')
-    const options = useMemo(() => data.map(
-        d => <Select.Option key={d.value} value={d.value}>{d.text}</Select.Option>),
-        [data, value])
+    const options = useMemo(
+        () => data.map(d => <Select.Option key={d.value} value={d.value}>{d.text}</Select.Option>),
+        [data, value],
+    )
 
     async function handleSearch (value) {
         const data = await search(client, (selected) ? selected + ' ' + value : value)
