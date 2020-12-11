@@ -1,0 +1,7 @@
+{
+  "pages.index.PageTitle": "SberHack",
+  "pages.library.index.PageTitle": "CodeLibraries",
+  "menu.Home": "Dashboard",
+  "menu.Users": "Users",
+  "menu.Library": "Libs"
+}
