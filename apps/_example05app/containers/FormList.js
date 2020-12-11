@@ -226,7 +226,7 @@ function BaseModalForm ({ action, mutation, mutationExtraVariables, mutationExtr
     const [isLoading, setIsLoading] = useState(false)
     let create = null
     if (!action) {
-        [create] = useMutation(mutation)
+        [create] = useMutation(mutation) // eslint-disable-line react-hooks/rules-of-hooks
     }
 
     const intl = useIntl()
@@ -236,7 +236,6 @@ function BaseModalForm ({ action, mutation, mutationExtraVariables, mutationExtr
 
     function handleFormSubmit (values) {
         if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
-        console.log(values)
         let data
         try {
             data = (formValuesToMutationDataPreprocessor) ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext) : values

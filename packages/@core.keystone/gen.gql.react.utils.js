@@ -63,7 +63,7 @@ function genReactHooks (TestUtils, { convertGQLItemToUIState, convertUIStateToGQ
             const { data, error } = await rowAction({
                 variables: {
                     id: obj.id,
-                    data: convertUIStateToGQLItem({ ...state, ...attrs }, obj)
+                    data: convertUIStateToGQLItem({ ...state, ...attrs }, obj),
                 },
             })
             if (data && data.obj) {
