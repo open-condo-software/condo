@@ -18,7 +18,7 @@ SERVER_URL=http://localhost:3000
 
 # production docker deploy envs!
 DOCKER_FILE_INSTALL_COMMAND=python3 -m pip install 'psycopg2-binary>=2.8.5' && python3 -m pip install 'Django>=3.0.6'
-DOCKER_FILE_BUILD_COMMAND=yarn workspace @app/sberhack build
+DOCKER_FILE_BUILD_COMMAND=echo yarn workspace @app/sberhack build
 DOCKER_COMPOSE_APP_IMAGE_TAG=sberhack
 DOCKER_COMPOSE_START_APP_COMMAND=yarn workspace @app/sberhack start
 DOCKER_COMPOSE_DATABASE_URL=postgresql://postgres:postgres@postgresdb/main
