@@ -207,16 +207,27 @@ function CRUDListBlock () { // eslint-disable-line no-unused-vars
     // TODO(pahaz): inside organizations logic here (and remove eslint-disable-line)
 }
 
-function BaseModalForm ({ mutation, mutationOptions, mutationExtraData = {}, formValuesToMutationDataPreprocessor, formValuesToMutationDataPreprocessorContext, formInitialValues, children, onMutationCompleted, onFormValuesChange, modalExtraFooter = [], visible, cancelModal, ModalTitleMsg, ModalCancelButtonLabelMsg, ModalSaveButtonLabelMsg, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
+function BaseModalForm ({ action, mutation, mutationExtraVariables, mutationExtraData, mutationOptions, formValuesToMutationDataPreprocessor, formValuesToMutationDataPreprocessorContext, formInitialValues, children, onMutationCompleted, onFormValuesChange, modalExtraFooter = [], visible, cancelModal, ModalTitleMsg, ModalCancelButtonLabelMsg, ModalSaveButtonLabelMsg, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
+    // TODO(pahaz): refactor all (mutation, mutationExtraVariables, mutationOptions, mutationExtraData) and remove it
+    if (mutationOptions) throw new Error('mutationOptions is not supported!')
     if (!children) throw new Error('need to define Form.Item inside ModalForm')
-    if (!mutation) throw new Error('need to pass mutation prop')
+    if (!mutation && !action) throw new Error('need to pass mutation or action prop')
+    if (action && mutation) throw new Error('impossible to pass mutation and action prop')
+    if (action && mutationExtraVariables) throw new Error('impossible to pass action and mutationExtraVariables prop')
+    if (action && mutationExtraData) throw new Error('impossible to pass action and mutationExtraData prop')
     if (typeof visible === 'undefined') throw new Error('need to pass visible prop')
     if (typeof cancelModal === 'undefined') throw new Error('need to pass cancelModal prop')
-    if (typeof mutationExtraData !== 'object' || mutationExtraData === null) throw new Error('wrong mutationExtraData prop')
+    if (!mutationExtraData) mutationExtraData = {}
+    if (!mutationExtraVariables) mutationExtraVariables = {}
+    if (typeof mutationExtraData !== 'object') throw new Error('wrong mutationExtraData prop')
+    if (typeof mutationExtraVariables !== 'object') throw new Error('wrong mutationExtraVariables prop')
 
     const [form] = Form.useForm()
     const [isLoading, setIsLoading] = useState(false)
-    const [create] = useMutation(mutation, mutationOptions)
+    let create = null
+    if (!action) {
+        [create] = useMutation(mutation)
+    }
 
     const intl = useIntl()
     const CancelMsg = intl.formatMessage({ id: 'Cancel' })
@@ -252,9 +263,13 @@ function BaseModalForm ({ mutation, mutationOptions, mutationExtraData = {}, for
         }
         form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [] }])
         setIsLoading(true)
+
+        const actionOrMutationProps = (!action) ?
+            { mutation: create, variables: { data: { ...data, ...mutationExtraData }, ...mutationExtraVariables } } :
+            { action: () => action({ ...data }) }
+
         return runMutation({
-            mutation: create,
-            variables: { data: { ...data, ...mutationExtraData } },
+            ...actionOrMutationProps,
             onCompleted: () => {
                 if (onMutationCompleted) onMutationCompleted()
                 form.resetFields()

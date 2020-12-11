@@ -45,6 +45,7 @@ NOTE: If you need some extra containers or you want to customize existing contai
 dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
 dokku plugin:install https://github.com/dokku/dokku-postgres.git postgres
 dokku config:set --global DOKKU_LETSENCRYPT_EMAIL=contact@8iq.dev
+dokku letsencrypt:cron-job --add
 ```
 
 ```shell script

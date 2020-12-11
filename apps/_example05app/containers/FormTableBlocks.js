@@ -210,7 +210,7 @@ function toGQLWhere (filters) {
 }
 
 function TableCellInner ({ children, record, rowIndex, column }) {
-    const { editable, dataIndex, rules, normalize } = column
+    const { editable, dataIndex, rules, normalize, editableInput } = column
     const { form, editing } = _useTableRowForm()
 
     const intl = useIntl()
@@ -218,15 +218,17 @@ function TableCellInner ({ children, record, rowIndex, column }) {
 
     useEffect(() => {
         form.setFieldsValue({
-            // GET
-            [dataIndex]: record[dataIndex],
+            // TODO(pahaz): think about normalize!
+            [dataIndex]: (normalize) ? normalize(record[dataIndex]) : record[dataIndex],
         })
     }, [])
 
     if (!editable || !editing) return children
+    const input = (editableInput) ? editableInput() : <Input/>
 
     return <Form.Item
         style={{ margin: 0 }}
+        key={dataIndex}
         name={dataIndex}
         normalize={normalize}
         rules={rules || [
@@ -236,7 +238,7 @@ function TableCellInner ({ children, record, rowIndex, column }) {
             },
         ]}
     >
-        <Input/>
+        {input}
     </Form.Item>
 }
 

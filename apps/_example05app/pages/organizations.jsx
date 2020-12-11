@@ -95,7 +95,7 @@ function CreateAndEditOrganizationModalForm ({ visible, editableItem, cancelModa
         /* NOTE: we need to recreate form if editableItem changed because the form initialValues are cached */
         key={editableItem}
         mutation={(editableItem) ? UPDATE_ORGANIZATION_BY_ID_MUTATION : REGISTER_NEW_ORGANIZATION_MUTATION}
-        mutationOptions={(editableItem) ? { variables: { id: editableItem.id } } : {}}
+        mutationExtraVariables={(editableItem) ? { id: editableItem.id } : {}}
         mutationExtraData={mutationExtraData}
         formValuesToMutationDataPreprocessor={convertUIStateToGQLItem}
         formValuesToMutationDataPreprocessorContext={editableItem}
@@ -248,11 +248,11 @@ const OrganizationsPage = () => {
         </Head>
         <PageWrapper>
             <PageHeader title={PageTitleMsg}/>
-            <AuthRequired>
-                <PageContent>
+            <PageContent>
+                <AuthRequired>
                     <OrganizationCRUDListBlock/>
-                </PageContent>
-            </AuthRequired>
+                </AuthRequired>
+            </PageContent>
         </PageWrapper>
     </>
 }
