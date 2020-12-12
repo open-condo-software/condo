@@ -68,7 +68,7 @@ const NewFunction = () => {
                 </Form.Item>
                 <Row>
                     <Form.Item label={'language'} name='language' required={true}>
-                        <Select style={{ width: 180 }} defaultValue={LANGUAGES[0]}>
+                        <Select style={{ width: 180 }} defaultValue={LANGUAGES[0]} onChange={value => setMode(value.toLowerCase()) }>
                             {LANGUAGES.map((value) => (<Select.Option value={value}>{value}</Select.Option>))}
                         </Select>
                     </Form.Item>
@@ -112,13 +112,15 @@ const NewFunction = () => {
                         </Form.List>
                     </Col>
                     <Form.Item label={'return type'} name={'return_type'} required={true}>
-                        <Select style={{ width: 180 }} defaultValue={TYPES[0]} onChange={value => setMode(value.toLowerCase()) } >
+                        <Select style={{ width: 180 }} defaultValue={TYPES[0]}>
                             {TYPES.map((value) => (<Select.Option value={value}>{value}</Select.Option>))}
                         </Select>
                     </Form.Item>
                 </Row>
             </Form>
-            <CodeMirrorHack mode={mode} value={code.current} onChange={cm => code.current = cm.getValue()} />
+            <div>
+                <CodeMirrorHack mode={mode} value={code.current} onChange={cm => code.current = cm.getValue()} />
+            </div>
             <Button onClick={create}>PUBLISH</Button>
         </>
     )

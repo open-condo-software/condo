@@ -5,10 +5,8 @@ import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/material.css'
 
 export default (props) => (
-    <div>
-        <CodeMirror
-            {...props}
-            options={{ theme: 'material', mode: props.mode }}
-        />
-    </div>
+    <CodeMirror
+        {...props}
+        options={{ theme: 'material', mode: props.mode }}
+    />
 )

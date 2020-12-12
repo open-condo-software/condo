@@ -15,7 +15,6 @@ const FUNCTION_LIST_QUERY = gql`
             description
             markerplaceName
             body
-            id
         }
     }
 `

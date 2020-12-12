@@ -18,7 +18,7 @@ const Wrapper = styled.div`
 
 export const Card = ({ item }) => {
     const router = useRouter();
-    const { marketplace_name, owner, id, description } = item;
+    const { markerplaceName, owner, id, description } = item;
 
     return (
         <List.Item onClick={() => {
@@ -26,7 +26,7 @@ export const Card = ({ item }) => {
         }}>
             <Container>
                 <Typography.Title level={5}>
-                    {marketplace_name}
+                    {markerplaceName}
                 </Typography.Title>
                 <Wrapper>
                     {description}
