@@ -2,7 +2,7 @@ import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
-import { ExceptionOutlined, UserOutlined } from '@ant-design/icons'
+import { SecurityScanOutlined } from '@ant-design/icons'
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 import { withApollo } from '@core/next/apollo'
@@ -22,40 +22,21 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 
 function menuDataRender () {
     const org = useOrganization()
+
     if (org && org.link && org.link.role === 'owner') {
         return [
-            // {
-            //     path: '/dashboard',
-            //     icon: <DashboardOutlined/>,
-            //     locale: 'menu.Home',
-            // },
             {
-                path: '/library',
-                icon: <ExceptionOutlined/>,
-                locale: 'menu.Modules',
-            },
-            {
-                path: '/users',
-                icon: <UserOutlined/>,
-                locale: 'menu.Users',
+                path: '/marketplace',
+                icon: <SecurityScanOutlined/>,
+                locale: 'menu.Market',
             },
         ]
     } else if (org && org.link && org.link.role === 'member') {
         return [
-            // {
-            //     path: '/dashboard',
-            //     icon: <DashboardOutlined/>,
-            //     locale: 'menu.Home',
-            // },
             {
-                path: '/library',
-                icon: <ExceptionOutlined/>,
-                locale: 'menu.Library',
-            },
-            {
-                path: '/users',
-                icon: <UserOutlined/>,
-                locale: 'menu.Users',
+                path: '/marketplace',
+                icon: <SecurityScanOutlined />,
+                locale: 'menu.Market',
             },
         ]
     } else {

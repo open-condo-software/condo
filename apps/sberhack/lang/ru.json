@@ -1,7 +1,9 @@
 {
   "pages.index.PageTitle": "СберХак",
   "pages.library.index.PageTitle": "Библиотеки",
+  "pages.marketplace.index.PageTitle": "Маркетплейс",
   "menu.Home": "Дашборд",
   "menu.Users": "Пользователи",
-  "menu.Library": "Библиотеки"
+  "menu.Library": "Библиотеки",
+  "menu.Market": "Маркетплейс"
 }
