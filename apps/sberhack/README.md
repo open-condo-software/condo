@@ -15,6 +15,7 @@ NODE_ENV=development
 DISABLE_LOGGING=true
 COOKIE_SECRET=random
 SERVER_URL=http://localhost:3000
+TESTS_FAKE_CLIENT_MODE=true
 
 # production docker deploy envs!
 DOCKER_FILE_INSTALL_COMMAND=python3 -m pip install 'psycopg2-binary>=2.8.5' && python3 -m pip install 'Django>=3.0.6'
@@ -38,3 +39,12 @@ docker-compose run app yarn workspace @app/sberhack migrate
 yarn workspace @app/sberhack dev
 ```
 
+# create new schema
+
+```
+# create migration script at migrations/20201212124723-00xx_name.js
+docker-compose run app yarn workspace @app/sberhack makemigrations
+
+# migrate current DB to new schema
+docker-compose run app yarn workspace @app/sberhack migrate
+```
