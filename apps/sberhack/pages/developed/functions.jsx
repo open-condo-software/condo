@@ -5,10 +5,13 @@ import {Button, Form, Select, Input, Row, Col} from 'antd'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { useMutation } from '@core/next/apollo'
 import gql from 'graphql-tag'
-import {useState} from 'react'
+import {useState, useRef} from 'react'
 import {useAuth} from "@core/next/auth";
-import {PageContent, PageHeader, PageWrapper} from "@app/_example05app/containers/BaseLayout";
-import {AuthRequired} from "@app/_example05app/containers/AuthRequired";
+import {PageContent, PageHeader, PageWrapper} from "@app/_example05app/containers/BaseLayout"
+import {AuthRequired} from "@app/_example05app/containers/AuthRequired"
+
+import dynamic from 'next/dynamic'
+const CodeMirrorHack = dynamic(import('../../components/CodeMirrorHack'), {ssr: false})
 
 const CREATE_FUNCTION_MUTATION = gql`
     mutation createFunction($data: FunctionCreateInput!) {
@@ -22,6 +25,8 @@ const LANGUAGES = ['Javascript', 'Python']
 const TYPES = ['int', 'float', 'string', 'bool']
 
 const NewFunction = () => {
+    const code = useRef('')
+    const [mode, setMode] = useState(LANGUAGES[0].toLowerCase())
     const { user } = useAuth()
     const [form] = Form.useForm()
 
@@ -39,7 +44,7 @@ const NewFunction = () => {
                 return: result.return_type || TYPES[0],
             }),
             description: result.description,
-            body: result.body,
+            body: code.current,
         }
 
         createNewFunction({
@@ -107,15 +112,13 @@ const NewFunction = () => {
                         </Form.List>
                     </Col>
                     <Form.Item label={'return type'} name={'return_type'} required={true}>
-                        <Select style={{ width: 180 }} defaultValue={TYPES[0]}>
+                        <Select style={{ width: 180 }} defaultValue={TYPES[0]} onChange={value => setMode(value.toLowerCase()) } >
                             {TYPES.map((value) => (<Select.Option value={value}>{value}</Select.Option>))}
                         </Select>
                     </Form.Item>
                 </Row>
-                <Form.Item name={'body'} required={true} label='code'>
-                    <Input.TextArea rows={5} />
-                </Form.Item>
             </Form>
+            <CodeMirrorHack mode={mode} value={code.current} onChange={cm => code.current = cm.getValue()} />
             <Button onClick={create}>PUBLISH</Button>
         </>
     )
