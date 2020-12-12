@@ -8,7 +8,7 @@ import {css} from "@emotion/core";
 
 const pageContentCss = css`
     background: transparent;
-    padding: 24px;
+    padding: 26px;
 `
 
 const MarketplacePage = () => {
