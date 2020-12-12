@@ -5,6 +5,7 @@ import {AuthRequired} from "@app/_example05app/containers/AuthRequired"
 import {useRouter} from "next/router"
 import {useQuery} from "@core/next/apollo"
 import gql from "graphql-tag"
+import {PaymentModal} from "./PaymentModal";
 
 console.log(gql);
 
@@ -26,6 +27,7 @@ const FUNCTION_QUERY = gql`
             id
             signature
             description
+            body
         }
     }
 `
@@ -52,11 +54,8 @@ const FunctionPage = () => {
                             <Typography.Title level={2}>{function_id}</Typography.Title>
                             <Typography.Paragraph>{data.allFunctions[0].description}</Typography.Paragraph>
                             <Divider/>
-                            <Descriptions>
-                                <Descriptions.Item label="Сигнатура функции">
-                                    <Signature signature={data.allFunctions[0].signature}/>
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Исходный код функции">Cloud Database</Descriptions.Item>
+                            <Descriptions layout="vertical" colon={false}>
+                                <Descriptions.Item label="Исходный код функции">{data.allFunctions[0].body}</Descriptions.Item>
                             </Descriptions>
                             <Divider/>
                             <Typography.Title level={4}>Попробуй вызвать</Typography.Title>
@@ -71,6 +70,8 @@ const FunctionPage = () => {
                                     maxLength={25}
                                 />
                             </Tooltip>
+                            <Divider/>
+                            <PaymentModal/>
                         </div>
                     </AuthRequired>
                 </PageContent>

@@ -2,7 +2,7 @@ import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
-import { SecurityScanOutlined } from '@ant-design/icons'
+import { SecurityScanOutlined, FunctionOutlined } from '@ant-design/icons'
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 import { withApollo } from '@core/next/apollo'
@@ -30,6 +30,11 @@ function menuDataRender () {
                 icon: <SecurityScanOutlined/>,
                 locale: 'menu.Market',
             },
+            {
+                path: '/developed/functions',
+                icon: <FunctionOutlined />,
+                locale: 'menu.Function',
+            },
         ]
     } else if (org && org.link && org.link.role === 'member') {
         return [
@@ -37,6 +42,11 @@ function menuDataRender () {
                 path: '/marketplace',
                 icon: <SecurityScanOutlined />,
                 locale: 'menu.Market',
+            },
+            {
+                path: '/developed/functions',
+                icon: <FunctionOutlined />,
+                locale: 'menu.Function',
             },
         ]
     } else {
