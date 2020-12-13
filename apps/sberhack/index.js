@@ -46,8 +46,9 @@ const keystone = new Keystone({
 })
 
 registerSchemas(keystone, [
-    require('@app/_back02keystone/schema/User'),
+    require('./schema/User'),
     require('@app/_back02keystone/schema/Organization'),
+    require('./schema/Function')
 ])
 
 const authStrategy = keystone.createAuthStrategy({
