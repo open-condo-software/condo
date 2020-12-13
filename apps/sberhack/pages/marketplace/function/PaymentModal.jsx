@@ -1,16 +1,15 @@
-import { Modal, Button } from 'antd';
+import { Modal, Button, Typography } from 'antd'
+import { useAuth } from '@core/next/auth'
 
-export const PaymentModal = () => {
-    const [visible, setVisible] = React.useState(false);
-    const [confirmLoading, setConfirmLoading] = React.useState(false);
-    const [modalText, setModalText] = React.useState("Запускаем процесс покупки");
+export const PaymentModal = ({ function_data }) => {
+    const [visible, setVisible] = React.useState(false)
+    const [confirmLoading, setConfirmLoading] = React.useState(false)
 
     const showModal = () => {
         setVisible(true);
     };
 
     const handleOk = () => {
-        setModalText('Оплачиваем');
         setConfirmLoading(true);
         setTimeout(() => {
             setVisible(false);
@@ -25,16 +24,17 @@ export const PaymentModal = () => {
     return (
         <>
             <Button type="primary" onClick={showModal}>
-                Оплатить
+                Купить
             </Button>
             <Modal
-                title="Title"
+                title={`Подтверждение покупки`}
                 visible={visible}
                 onOk={handleOk}
                 confirmLoading={confirmLoading}
                 onCancel={handleCancel}
             >
-                <p>{modalText}</p>
+                {function_data.markerplaceName}
+                <Typography.Paragraph>Покупаем?</Typography.Paragraph>
             </Modal>
         </>
     );

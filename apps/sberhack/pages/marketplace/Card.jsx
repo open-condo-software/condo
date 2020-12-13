@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import {Divider, List, Typography, Card as AntCard} from "antd"
+import {Divider, List, Typography} from "antd"
 import { useRouter } from "next/router"
 
 const Container = styled.div`

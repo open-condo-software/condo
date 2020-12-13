@@ -7,25 +7,11 @@ import {useQuery} from "@core/next/apollo"
 import gql from "graphql-tag"
 import {PaymentModal} from "./PaymentModal";
 import dynamic from "next/dynamic";
-import {jsx} from "@emotion/core";
-
-const CodeMirrorHack = dynamic(import('../../../components/CodeMirrorHack'), {ssr: false})
-
-// const Signature = ({signature}) => {
-//     const parsed_signature = JSON.parse(signature);
-//
-//     return (
-//         <div>
-//             <Descriptions.Item label="name">{parsed_signature.name}</Descriptions.Item>
-//             <Descriptions.Item label="args">{parsed_signature.arguments.map(({name, type}) => (`${name}:${type};`)).join(", ")}</Descriptions.Item>
-//             <Descriptions.Item label="return">{parsed_signature.return}</Descriptions.Item>
-//         </div>
-//     )
-// };
 
 const FUNCTION_QUERY = gql`
     query getFunctionById($id: ID!){
         allFunctions(where: {id: $id}) {
+            markerplaceName
             id
             signature
             description
@@ -38,29 +24,26 @@ const FunctionPage = () => {
     const router = useRouter();
     const { function_id } = router.query;
     const { data } = useQuery(FUNCTION_QUERY, {variables: {id: function_id}});
+    const function_data = data?.allFunctions[0]
 
-    if (!data || !data.allFunctions.length) {
+    if (!function_data) {
         return null;
     }
+
+    console.log(function_data);
 
     return (
         <>
             <Head>
-                <title>{function_id}</title>
+                <title>{function_data.markerplaceName}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={`Описание ${function_id}`}/>
+                <PageHeader title={"Описание"}/>
                 <PageContent>
                     <AuthRequired>
                         <div>
-                            <Typography.Title level={2}>{function_id}</Typography.Title>
-                            <Typography.Paragraph>{data.allFunctions[0].description}</Typography.Paragraph>
-                            <Divider/>
-                            <Descriptions colon={false}>
-                                <Descriptions.Item label="Исходный код функции">
-                                </Descriptions.Item>
-                            </Descriptions>
-                            <CodeMirrorHack mode={"javascript"} value={data.allFunctions[0].body}/>
+                            <Typography.Title level={2}>{function_data.markerplaceName}</Typography.Title>
+                            <Typography.Paragraph>{function_data.description}</Typography.Paragraph>
                             <Divider/>
                             <Typography.Title level={4}>Попробуй вызвать</Typography.Title>
                             <Tooltip
@@ -75,7 +58,7 @@ const FunctionPage = () => {
                                 />
                             </Tooltip>
                             <Divider/>
-                            <PaymentModal/>
+                            <PaymentModal function_data={function_data}/>
                         </div>
                     </AuthRequired>
                 </PageContent>
