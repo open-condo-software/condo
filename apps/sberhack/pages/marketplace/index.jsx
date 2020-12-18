@@ -3,10 +3,10 @@ import {PageContent, PageHeader, PageWrapper} from "@app/_example05app/container
 import {AuthRequired} from "@app/_example05app/containers/AuthRequired";
 import {useIntl} from "@core/next/intl";
 import {ItemList} from "./List";
-import {css} from "@emotion/core";
+import styled from '@emotion/styled'
 
 
-const pageContentCss = css`
+const CustomPageContent = styled(PageContent)`
     background: transparent;
     padding: 26px;
 `
@@ -22,13 +22,13 @@ const MarketplacePage = () => {
             </Head>
             <PageWrapper>
                 <PageHeader title={PageTitleMsg}/>
-                <PageContent css={pageContentCss}>
+                <CustomPageContent>
                     <AuthRequired>
                         <div>
                             <ItemList/>
                         </div>
                     </AuthRequired>
-                </PageContent>
+                </CustomPageContent>
             </PageWrapper>
         </>
     )
