@@ -13,7 +13,8 @@
     "dev": "node ./bin/run-multiple-apps",
     "start": "node ./bin/run-multiple-apps",
     "build": "node ./bin/run-build-all",
-    "lint": "yarn run eslint ."
+    "lint": "yarn run eslint .",
+    "createapp": "node ./bin/createapp"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
