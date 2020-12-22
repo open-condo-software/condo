@@ -169,9 +169,9 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                     `,
                     variables: {
                         'data': {
-                            'organization': { 'create': { ...data, ...extraOrganizationData } },
-                            'user': { 'connect': { 'id': context.authedItem.id } },
-                            'role': 'owner',
+                            organization: { create: { ...data, ...extraOrganizationData } },
+                            user: { connect: { id: context.authedItem.id } },
+                            role: 'owner',
                             isAccepted: true,
                             isRejected: false,
                             name: context.authedItem.name,
