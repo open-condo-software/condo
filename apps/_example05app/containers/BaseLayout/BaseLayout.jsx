@@ -272,8 +272,8 @@ function PageHeader ({ children, className, style, title, subTitle }) {
     </AntPageHeader>
 }
 
-function PageContent ({ children, className, style, css }) {
-    return <div className={`page-content ${className || ''}`} css={css || pageContentCss} style={style}>
+function PageContent ({ children, className, style }) {
+    return <div className={`page-content ${className || ''}`} css={pageContentCss} style={style}>
         {children}
     </div>
 }
