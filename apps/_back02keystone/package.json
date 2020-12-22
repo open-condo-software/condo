@@ -8,8 +8,8 @@
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build": "keystone build",
     "start": "keystone start",
-    "makemigrations": "./kmigrator.py makemigrations",
-    "migrate": "./kmigrator.py migrate"
+    "makemigrations": "./../../bin/kmigrator.py makemigrations",
+    "migrate": "./../../bin/kmigrator.py migrate"
   },
   "dependencies": {
     "@keystonejs/adapter-knex": "^12.0.2",
