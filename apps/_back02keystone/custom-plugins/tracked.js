@@ -6,6 +6,7 @@ const { composeHook } = require('./utils')
 const tracked = ({ createdAtField = 'createdAt', createdByField = 'createdBy', updatedAtField = 'updatedAt', updatedByField = 'updatedBy' } = {}) => ({ fields = {}, hooks = {}, ...rest }) => {
     const datedOptions = {
         type: DateTimeUtc,
+        kmigratorOptions: { db_index: true },
         access: {
             read: true,
             create: false,
