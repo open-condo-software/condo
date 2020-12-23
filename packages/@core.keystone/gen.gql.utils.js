@@ -10,8 +10,8 @@ function _genGQLName (key) {
 function genGetAllGQL (key, fields) {
     const [MODEL, MODELs] = _genGQLName(key)
     return gql`
-        query getAll${MODELs}($where: ${MODEL}WhereInput, $first: Int, $skip: Int) {
-            objs: all${MODELs}(where: $where, first: $first, skip: $skip) ${fields}
+        query getAll${MODELs}($where: ${MODEL}WhereInput, $first: Int, $skip: Int, $sortBy: [Sort${MODELs}By!]) {
+            objs: all${MODELs}(where: $where, first: $first, skip: $skip, sortBy: $sortBy) ${fields}
         }
     `
 }
