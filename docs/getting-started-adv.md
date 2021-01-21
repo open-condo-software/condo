@@ -3,10 +3,13 @@
 ## Update from 8iq repo
 
 ```bash
-# 1) Pull changes
+# 1) Add 8iq git remote origin for easy updates
+git remote add template git@github.com:8iq/nodejs-hackathon-boilerplate-starter-kit.git
+
+# 2) Pull changes
 git pull template master --allow-unrelated-histories
 
-# 2) Resolve conflicts if exists (check by git status) and create merge commit
+# 3) Resolve conflicts if exists (check by git status) and create merge commit
 git commit
 ```
 
