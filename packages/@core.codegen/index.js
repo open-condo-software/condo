@@ -7,6 +7,7 @@ const ncp = require('ncp')
 const { promisify } = require('util')
 const nunjucks = require('nunjucks')
 const { Readable } = require('stream')
+const conf = require('@core/config')
 
 const DEFAULT_PROJECT_TEMPLATE = 'app00'
 const access = promisify(fs.access)
@@ -48,6 +49,7 @@ async function renderTemplates (templateDirectory, targetDirectory, templateCont
 async function generate (template, ctx) {
     const targetDirectory = path.resolve(process.cwd(), `./apps/${ctx.name}`)
     const templateDirectory = path.resolve(path.dirname(__filename), 'templates', template.toLowerCase())
+    const readmeFile = path.join(targetDirectory, 'README.md')
 
     try {
         await access(templateDirectory, fs.constants.R_OK)
@@ -56,10 +58,13 @@ async function generate (template, ctx) {
         process.exit(1)
     }
 
-    console.log('Render app files')
     await renderTemplates(templateDirectory, targetDirectory, ctx)
 
     console.log('%s Project ready', chalk.green.bold('DONE'))
+    if (fs.existsSync(readmeFile)) {
+        console.log('%s cat ' + readmeFile, chalk.blue.bold('The next step is:'))
+    }
+
     return true
 }
 
@@ -92,7 +97,7 @@ function createapp (argv) {
                 }
                 const msgBox = boxen(greeting, boxenOptions)
                 console.log(msgBox)
-                generate(DEFAULT_PROJECT_TEMPLATE, { name })
+                generate(conf.CODEGEN_TEMPLATE || DEFAULT_PROJECT_TEMPLATE, { name })
             },
         )
 
