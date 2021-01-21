@@ -189,7 +189,7 @@ function toGQLSortBy (sorter) {
             return `${field}_${order}`
         }
     }
-    return 'id_DESC'
+    return undefined
 }
 
 function toGQLWhere (filters) {
