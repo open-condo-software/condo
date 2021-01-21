@@ -1,0 +1,5 @@
+{
+  "pages.index.PageTitle": "{{ name }}",
+  "menu.Home": "Дашборд",
+  "menu.Users": "Пользователи"
+}

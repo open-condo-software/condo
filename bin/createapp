@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+const { createapp } = require('@core/codegen')
+createapp(process.argv)
