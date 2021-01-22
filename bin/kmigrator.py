@@ -31,7 +31,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 1, 5)
+VERSION = (1, 1, 6)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -131,7 +131,7 @@ def to_fieldtype(value, fieldname=None):
         "unique": lambda x: x.update({'unique': True}),
         "boolean": lambda x: x.update({'field_class': 'models.BooleanField'}),
         "string": lambda x, max_length: x.update({'field_class': 'models.CharField', 'max_length': max_length}),
-        "json": lambda x: x.update({'field_class': 'models.JSONField'}),
+        "json": lambda x: x.update({'field_class': 'JSONField'}),
         "date": lambda x: x.update({'field_class': 'models.DateField'}),
         "timestamp": lambda x, tz, precision: x.update({'field_class': 'models.DateTimeField'}),
         "integer": lambda x: x.update({'field_class': 'models.IntegerField'}),
@@ -155,7 +155,7 @@ def to_fieldtype(value, fieldname=None):
         return 'models.AutoField(primary_key=True)'
     if ["uuid"] in value and ["primary"] in value:
         return 'models.UUIDField(primary_key=True)'
-    ctx = dict(field_class='models.JSONField',
+    ctx = dict(field_class='JSONField',
                db_index=False, unique=False,
                null=True, blank=True)
     if fieldname:
