@@ -14,6 +14,9 @@ services:
     user: app
     volumes:
       - ./apps/:/home/app/apps
+      - ./packages/:/home/app/packages
+      - ./bin/:/home/app/bin
+      - ./package.json:/home/app/package.json
     environment:
       PORT: 3000
       COOKIE_SECRET: ${DOCKER_COMPOSE_COOKIE_SECRET:?Environment DOCKER_COMPOSE_COOKIE_SECRET needs to be set (check READEME.md)!}
