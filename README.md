@@ -1,5 +1,7 @@
 ![Hackathon workflow](https://image.shutterstock.com/image-vector/banner-hackathon-design-sprintlike-event-260nw-1418226719.jpg)
 
+[Look At Screenshot folder!](https://drive.google.com/file/d/1ahJ9XZCXKVmorXD1qj6mWneYoyLZoVJx/view)
+
 # Rapid Development Node.js Hackathon template 
 
 This template based on [KeystoneJS](https://github.com/keystonejs/keystone) and [Next.js](https://github.com/vercel/next.js).
@@ -37,17 +39,17 @@ Our primary focus is startup developers and hackaton teams
 
 **VERSION**: 0.0.1 **𝛼**
 
-* Based on Appolo, KeystoneJS and NextJS
-* Authentication workflow
+* Based on ApolloGraphql, KeystoneJS and NextJS
+* Auth flow
   * Registration
   * Authentication and Authorization
   * Change password
   * Reset password
 * Organization entity
-  * Managment of organization members
-  * Invite users by email
-  * Add users from excel table
-* With frontend — fronend templates based on Ant design
+  * Management of organization members
+  * Invite users
+  * Import users from excel
+* Ant design based frontend
 * A lot of examples — check /apps
 * Pluggable — use only what you need
 * Deployable — check [deploy.md](docs/deploy.md)
@@ -62,6 +64,6 @@ Check [getting-started.md](docs/getting-started.md)
 
 Check [deploy.md](docs/deploy.md)
 
-## Contibuting
+## Contributing
 
-Check [contibuting.md](docs/contributing.md)
+Check [contributing.md](docs/contributing.md)
