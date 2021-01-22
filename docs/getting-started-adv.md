@@ -82,7 +82,7 @@ yarn workspace @app/_example01app dev
 # You can run `yarn <command>` inside new app workspace by
 # `yarn workspace @app/_example01app <command>`
 
-# You can also check `apps/_example02app` and others examples
+# You can also check `apps/_example05app` and others examples
 ```
 
 ## Write mobile (Expo) APP by hands

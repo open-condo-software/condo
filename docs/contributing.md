@@ -59,7 +59,7 @@ Features that aren't checked are available to take
  - [x] Layout: FormList container (container for list of items)
  - [x] Layout: FormTable container (container for table items)
  - [x] Layout: Excel export container (container for exporting excel data)
- - [ ] Layout: Dark mode
+ - [ ] Layout: Dark mode (theme)
  - [ ] Layout: Antd compatible theme example (global variables for padding/margin/colors)
  - [ ] Layout: change site language widget
  - [ ] docs: project structure
@@ -74,7 +74,7 @@ Features that aren't checked are available to take
  - [ ] GlobalSettings: Admin and example
  - [ ] Core: Upload files
  - [ ] Core: https://www.apollographql.com/docs/apollo-server/data/errors/ (should be the same format for strings: \[part1:field:detail]) 
- - [ ] Core: https://www.apollographql.com/docs/apollo-server/data/subscriptions/ example
+ - [ ] Core: Realtime update support (gql Subscriptions example) https://www.apollographql.com/docs/apollo-server/data/subscriptions/ example
  - [x] Core: Monorepo with packages and apps
  - [x] Core: Multiple express backend support 
  - [x] Core: docker-compose
@@ -88,10 +88,6 @@ Features that aren't checked are available to take
  - [x] Core: SSR + Internationalization (same language as on client side)
  - [ ] Core: KeystoneJS AuthProvider (with isActive check!)
  - [ ] Core: isActive == false (need to kill all user sessions)
- - [ ] Core: KeystoneJS AuthProvider (login by phone / email!)
- - [ ] Core: KeystoneJS AuthProvider (optional email / phone field)
- - [ ] Core: Realtime update support (gql Subscriptions example)
- - [ ] Core: Attachment scale
  - [ ] Core: Background tasks
  - [ ] Core: Background scheduled tasks
  - [ ] Core: Metrics
