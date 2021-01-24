@@ -9,7 +9,8 @@ const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
 const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
 
 const isNotNullObject = (v) => typeof v === 'object' && v !== null
-const registerSchemas = (keystone, modulesList) => {
+
+function registerSchemas (keystone, modulesList) {
     modulesList.forEach(
         (module) => {
             if (GQL_SCHEMA_TYPES.includes(module._type)) {
@@ -26,10 +27,15 @@ const registerSchemas = (keystone, modulesList) => {
             }
         })
 }
-const unregisterAllSchemas = () => {
+
+async function unregisterAllSchemas () {
     console.warn('unregisterAllSchemas() called! It\'just for debug/tests purposes. Don\'t use it in prod!')
     EVENTS = new Emittery()
     SCHEMAS = new Map()
+}
+
+async function getAllRegisteredSchemasNames () {
+    return [...SCHEMAS.keys()]
 }
 
 class GQLListSchema {
@@ -174,6 +180,7 @@ module.exports = {
     GQLCustomSchema,
     registerSchemas,
     unregisterAllSchemas,
+    getAllRegisteredSchemasNames,
     getSchemaCtx,
     find,
     getById,
