@@ -1,5 +1,5 @@
 {
-  "name": "@app/_example01app",
+  "name": "@app/ex01front",
   "version": "1.0.0",
   "scripts": {
     "dev": "next",
@@ -10,5 +10,5 @@
   "dependencies": {
     "next": "^9.5.2"
   },
-  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_example01app"
+  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_ex01front"
 }
