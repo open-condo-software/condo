@@ -1,8 +1,9 @@
 {
-  "name": "@app/_mobile01",
+  "name": "@app/ex01mobile",
   "version": "1.0.0",
   "main": "__generated__/AppEntry.js",
   "scripts": {
+    "dev": "expo start",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
@@ -37,5 +38,5 @@
     "babel-preset-expo": "~8.1.0",
     "expo-yarn-workspaces": "^1.2.1"
   },
-  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_mobile01"
+  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_ex01mobile"
 }
