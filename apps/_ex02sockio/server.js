@@ -1,5 +1,5 @@
 const http = require('http')
-const { prepareBackApp, prepareBackServer } = require('./multi-server')
+const { prepareBackApp, prepareBackServer } = require('./multi-app-support')
 const port = parseInt(process.env.PORT || '3000')
 
 async function initServer (port) {
