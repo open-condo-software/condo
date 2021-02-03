@@ -28,5 +28,5 @@ jobs:
       - name: Show all node_modules dirs
         run: find . -name "node_modules" -type d -prune | xargs ls -lah
       - run: yarn run jest ./packages
-      - run: yarn workspace @app/_example01app test
-      - run: yarn workspace @app/_example05app test
+      - run: yarn workspace @app/ex01front test
+      - run: yarn workspace @app/ex02front test

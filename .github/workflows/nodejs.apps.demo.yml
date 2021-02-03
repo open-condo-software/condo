@@ -39,10 +39,10 @@ jobs:
           set -x
           # export DEBUG=knex:query,knex:tx
           # export DEBUG_MONGOOSE=1
-          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/_back02keystone migrate
-          yarn workspace @app/_back02keystone dev &
+          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/demo migrate
+          yarn workspace @app/demo dev &
           sleep 10
-          yarn workspace @app/_back02keystone test
+          yarn workspace @app/demo test
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
