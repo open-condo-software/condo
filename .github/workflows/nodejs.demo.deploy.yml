@@ -16,14 +16,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Prepare .env
-        run: cp .env.example .env
-      - name: Docker build
+      - name: Prepare
         run: |
-          bash ./bin/warm-docker-cache
-          docker-compose build
-      - name: Deploy image
-        run: |
+          set -e
+
+          cp .env.example .env
+
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           cat > ~/.ssh/known_hosts << ENDOFFILE
@@ -32,6 +30,14 @@ jobs:
           ENDOFFILE
           chmod 700 ~/.ssh/
           chmod 600 ~/.ssh/id_rsa
+
+          apt install -y pv
+      - name: Docker build
+        run: |
+          bash ./bin/warm-docker-cache
+          docker-compose build
+      - name: Deploy image
+        run: |
           docker save apps:${DOCKER_COMPOSE_APP_IMAGE_TAG} | bzip2 | pv | ssh root@dok.8iq.dev 'bunzip2 | docker load'
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
