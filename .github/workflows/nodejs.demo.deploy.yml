@@ -43,4 +43,4 @@ jobs:
           export APP=demo
           ssh root@dok.8iq.dev "docker tag apps:${APP} dokku/${APP}:${APP_VERSION}"
           ssh root@dok.8iq.dev "dokku tags:deploy ${APP} ${APP_VERSION}"
-          ssh root@dok.8iq.dev "docker exec -it -u root ${APP}.web.1 yarn workspace @app/${APP} migrate"
+          ssh root@dok.8iq.dev "docker exec -i -u root ${APP}.web.1 yarn workspace @app/${APP} migrate"
