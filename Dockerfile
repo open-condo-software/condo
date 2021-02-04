@@ -1,4 +1,4 @@
-FROM buildpack-deps:buster as base
+FROM buildpack-deps:buster AS base
 # https://hub.docker.com/_/node
 # https://github.com/nodejs/docker-node/blob/18ed56ea9ba03c16f48372927f5eb2553033e8de/14/buster/Dockerfile
 # https://hub.docker.com/_/python
@@ -43,9 +43,10 @@ RUN echo "# Build time .env config!" >> /home/app/.env && \
 	echo "NODE_ENV=production" >> /home/app/.env
 # If you don't have this directory, you can create it by command `bash ./bin/warm-docker-cache` or just create empty ./.docker-cache-warming dir (no cache mode)
 ADD --chown=app:app ./.docker-cache-warming /home/app
+# Cache packages!
 RUN set -ex && yarn install
 ADD --chown=app:app . /home/app
-RUN set -ex && yarn install && bash -c "${DOCKER_FILE_BUILD_COMMAND:?Build argument DOCKER_FILE_BUILD_COMMAND needs to be set (check READEME.md)!}" && yarn cache clean && rm /home/app/.env
+RUN set -ex && yarn && bash -c "${DOCKER_FILE_BUILD_COMMAND:?Build argument DOCKER_FILE_BUILD_COMMAND needs to be set (check READEME.md)!}" && yarn cache clean && rm /home/app/.env
 
 # Runtime container
 FROM base
