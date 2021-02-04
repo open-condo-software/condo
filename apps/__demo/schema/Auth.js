@@ -1,7 +1,7 @@
 const { getById, getSchemaCtx } = require('@core/keystone/schema')
 const { GQLCustomSchema } = require('@core/keystone/schema')
 
-const { admin } = require('../utils/firebase')
+const { admin } = require('../utils/firebase.back.utils')
 
 const AuthenticateUserWithFirebaseIdTokenService = new GQLCustomSchema('AuthenticateUserWithFirebaseIdTokenService', {
     types: [

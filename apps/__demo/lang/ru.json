@@ -1,5 +1,6 @@
 {
-  "pages.index.PageTitle": "noname1",
+  "pages.index.PageTitle": "Демо",
   "menu.Home": "Дашборд",
-  "menu.Users": "Пользователи"
+  "menu.Users": "Пользователи",
+  "WeAreStillDevelopingThisPage": "Мы еще **разрабатываем** эту страницу, она пока недоступна"
 }

@@ -1,5 +1,6 @@
 {
-  "pages.index.PageTitle": "noname1",
+  "pages.index.PageTitle": "demo",
   "menu.Home": "Dashboard",
-  "menu.Users": "Users"
+  "menu.Users": "Users",
+  "WeAreStillDevelopingThisPage": "We are still **developing** this page, it is not **yet** available"
 }
