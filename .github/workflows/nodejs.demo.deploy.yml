@@ -31,7 +31,7 @@ jobs:
           chmod 700 ~/.ssh/
           chmod 600 ~/.ssh/id_rsa
 
-          apt install -y pv
+          sudo apt install -y pv
       - name: Docker build
         run: |
           bash ./bin/warm-docker-cache
