@@ -5,7 +5,7 @@ const { User: BaseUser, ForgotPasswordAction, ForgotPasswordService, RegisterNew
 const conf = require('@core/config')
 const access = require('@core/keystone/access')
 const faker = require('faker')
-const { admin } = require('../utils/firebase')
+const { admin } = require('../utils/firebase.back.utils')
 
 const { Json } = require('@core/keystone/fields')
 
