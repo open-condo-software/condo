@@ -13,3 +13,6 @@
 **/.idea
 **/.kmigrator
 **/docs
+**/.config
+**/.yarn
+**/.cache
