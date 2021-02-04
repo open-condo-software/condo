@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "jest",
-    "dev": "keystone dev",
+    "test": "jest --testTimeout=10000",
+    "dev": "nodemon --exec keystone dev",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build": "keystone build",
     "start": "keystone start",
@@ -65,5 +65,5 @@
     "uuid": "^8.3.0",
     "validator": "^13.1.1"
   },
-  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/__demo"
+  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_demo"
 }
