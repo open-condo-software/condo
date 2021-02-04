@@ -64,6 +64,7 @@ class CustomGQLPluginExample {
     }
 
     requestDidStart (requestContext) {
+        if (conf.NODE_ENV !== 'production') return
         // console.log('GQL!o :', requestContext.operation)
         console.log('GQL!op:', requestContext.request.operationName)
         console.log('GQL!q :', requestContext.request.query.replace(/\n/g, '').replace(/\s+/g, ' '))
