@@ -2,14 +2,14 @@
  * @jest-environment node
  */
 
-const { makeClient, setFakeClientMode } = require('@core/keystone/test.utils')
 const conf = require('@core/config')
+const { setFakeClientMode } = require('@core/keystone/test.utils')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
+
 const faker = require('faker')
-const { genTestGQLUtils } = require('@core/keystone/gen.gql.utils')
-const { makeLoggedInClient } = require('@core/keystone/test.utils')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { isMongo } = require('@core/keystone/test.utils')
+const { makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { genTestGQLUtils } = require('@core/keystone/gen.gql.utils')
 const { UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const TEST_FIELDS = '{ id v text meta createdAt updatedAt createdBy { id } updatedBy { id } }'

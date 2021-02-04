@@ -1,4 +1,4 @@
-const { historical, versioned, uuided, tracked, softDeleted } = require('../custom-plugins')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const {
     Checkbox,
     Decimal,
@@ -22,7 +22,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { Color } = require('@keystonejs/fields-color')
 const { LocationGoogle } = require('@keystonejs/fields-location-google')
 const { v4: uuid } = require('uuid')
-const { Stars, Options, Json, AutoIncrementInteger } = require('../custom-fields')
+const { Stars, Options, Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const conf = require('@core/config')
 

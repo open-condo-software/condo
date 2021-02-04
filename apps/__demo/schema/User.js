@@ -7,7 +7,7 @@ const access = require('@core/keystone/access')
 const faker = require('faker')
 const { admin } = require('../utils/firebase.back.utils')
 
-const { Json } = require('@core/keystone/fields')
+const { Stars, Json, Options } = require('@core/keystone/fields')
 
 const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
     src: `${conf.MEDIA_ROOT}/avatars`,
@@ -17,6 +17,8 @@ const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
 const User = BaseUser._override({
     fields: {
         avatar: { type: File, adapter: AVATAR_FILE_ADAPTER },
+        rating: { type: Stars, starCount: 5 },
+        settings: { type: Options, options: ['Feature1', 'Feature2'] },
         meta: { type: Json },
         aboutMyself: { type: Wysiwyg },
         phone: {
