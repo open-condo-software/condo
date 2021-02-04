@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "jest --testTimeout=10000",
+    "test": "jest",
     "dev": "nodemon --exec keystone dev",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build": "keystone build",

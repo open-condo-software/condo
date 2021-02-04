@@ -64,26 +64,24 @@ class CustomGQLPluginExample {
     }
 
     requestDidStart (requestContext) {
-        return undefined
-
-        console.log('GQL!o :', requestContext.operation)
+        // console.log('GQL!o :', requestContext.operation)
         console.log('GQL!op:', requestContext.request.operationName)
         console.log('GQL!q :', requestContext.request.query.replace(/\n/g, '').replace(/\s+/g, ' '))
-        console.log('GQL!v :', requestContext.request.variables)
-        console.log('GQL!u :', requestContext.context.authedItem && requestContext.context.authedItem.id)
-        console.log('GQL!l :', requestContext.context.authedListKey)
+        // console.log('GQL!v :', requestContext.request.variables)
+        // console.log('GQL!u :', requestContext.context.authedItem && requestContext.context.authedItem.id)
+        // console.log('GQL!l :', requestContext.context.authedListKey)
         // console.log('req!req:', requestContext.context.req)
         const { req } = requestContext.context
         // console.log('REQ.body:', req.body)
         // console.log('REQ.query:', req.query)
         // console.log('REQ.cookies:', req.cookies)
         // console.log('REQ.hostname:', req.hostname)
-        console.log('REQ.headers:', req.headers)
+        // console.log('REQ.headers:', req.headers)
         // console.log('REQ.rawHeaders:', req.rawHeaders)
         console.log('REQ.ip:', req.ip)
         // console.log('REQ.ips:', req.ips)
         console.log('REQ.protocol:', req.protocol)
-        console.log('REQ.method:', req.method)
+        // console.log('REQ.method:', req.method)
         console.log('REQ.sessionID:', req.sessionID)
         console.log('REQ.id:', req.id)
         // console.log('REQ.originalUrl:', req.originalUrl)
