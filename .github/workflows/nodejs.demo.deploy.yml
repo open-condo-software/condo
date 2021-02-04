@@ -36,4 +36,9 @@ jobs:
       - name: Upload builded image
         run: docker save apps:demo | bzip2 | pv | ssh root@dok.8iq.dev 'bunzip2 | docker load'
       - name: Restart demo app
-        run: echo "NO!"
+        run: |
+          export APP_VERSION=$GITHUB_SHA
+          export APP=demo
+          ssh root@dok.8iq.dev "docker tag apps:${APP} dokku/${APP}:${APP_VERSION}"
+          ssh root@dok.8iq.dev "dokku tags:deploy ${APP} ${APP_VERSION}"
+          ssh root@dok.8iq.dev "docker exec -it -u root ${APP}.web.1 yarn workspace @app/${APP} migrate"

@@ -46,7 +46,8 @@ ADD --chown=app:app ./.docker-cache-warming /home/app
 # Cache packages!
 RUN set -ex && yarn install
 ADD --chown=app:app . /home/app
-RUN set -ex && yarn && bash -c "${DOCKER_FILE_BUILD_COMMAND:?Build argument DOCKER_FILE_BUILD_COMMAND needs to be set (check READEME.md)!}" && yarn cache clean && rm /home/app/.env
+RUN set -ex && yarn && bash -c "${DOCKER_FILE_BUILD_COMMAND:?Build argument DOCKER_FILE_BUILD_COMMAND needs to be set (check READEME.md)!}" && \
+    yarn cache clean && rm -rf /home/app/{.env,.config,.yarn,.cache}
 
 # Runtime container
 FROM base
