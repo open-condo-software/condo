@@ -4,7 +4,7 @@ const {
 } = require('@keystonejs/fields')
 const { getType } = require('@keystonejs/utils')
 
-const { Json, Stars } = require('../custom-fields')
+const { Json, Stars } = require('../fields')
 
 const { HiddenRelationship } = require('./utils')
 const { composeHook, isValidDate } = require('./utils')

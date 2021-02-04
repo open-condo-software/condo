@@ -22,12 +22,15 @@
     "@keystonejs/app-next": "^5.2.1",
     "@keystonejs/app-static": "^5.1.2",
     "@keystonejs/auth-password": "^5.1.17",
-    "@keystonejs/fields": "^20.1.3",
     "@keystonejs/fields-wysiwyg-tinymce": "^5.3.13",
     "@keystonejs/file-adapters": "^7.0.3",
     "@keystonejs/keystone": "^17.1.1",
     "@keystonejs/server-side-graphql-client": "^1.1.2",
     "@keystonejs/utils": "^6.0.1",
+    "@keystonejs/fields-color": "^1.0.7",
+    "@keystonejs/fields-content": "^9.0.2",
+    "@keystonejs/fields-location-google": "^3.0.2",
+    "@keystonejs/list-plugins": "^7.1.4",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^10.4.9",
     "@welldone-software/why-did-you-render": "^5.0.0-alpha.1",
@@ -62,5 +65,5 @@
     "uuid": "^8.3.0",
     "validator": "^13.1.1"
   },
-  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/noname1"
+  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/__demo"
 }
