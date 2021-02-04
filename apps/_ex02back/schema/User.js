@@ -3,6 +3,7 @@ const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const { File } = require('@keystonejs/fields')
 
 const conf = require('@core/config')
+const { ...UserSchemas } = require('@core/keystone/schemas/User')
 const { User: BaseUser } = require('@core/keystone/schemas/User')
 const { Json } = require('@core/keystone/fields')
 
@@ -20,5 +21,6 @@ const User = BaseUser._override({
 })
 
 module.exports = {
+    ...UserSchemas,
     User,
 }
