@@ -1,2 +1,2 @@
-import OrganizationsPage from '@app/_example05app/pages/organizations'
+import OrganizationsPage from '@app/ex02front/pages/organizations'
 export default OrganizationsPage

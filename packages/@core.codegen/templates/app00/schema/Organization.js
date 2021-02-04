@@ -1,1 +1,1 @@
-module.exports = require('@app/_back02keystone/schema/Organization')
+module.exports = require('@app/ex02back/schema/Organization')

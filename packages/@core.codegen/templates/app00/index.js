@@ -2,27 +2,19 @@ const { Keystone } = require('@keystonejs/keystone')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
-const { NextApp } = require('@keystonejs/app-next')
 const { StaticApp } = require('@keystonejs/app-static')
-const access = require('@core/keystone/access')
-const { getAdapter } = require('@core/keystone/adapter.utils')
-const { getCookieSecret } = require('@core/keystone/keystone.utils')
-const { registerSchemas } = require('@core/keystone/schema')
-const conf = require('@core/config')
-const { areWeRunningTests, EmptyApp } = require('@core/keystone/test.utils')
+const { NextApp } = require('@keystonejs/app-next')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 
+const conf = require('@core/config')
+const access = require('@core/keystone/access')
+const { areWeRunningTests } = require('@core/keystone/test.utils')
+const { EmptyApp } = require('@core/keystone/test.utils')
+const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
+const { registerSchemas } = require('@core/keystone/schema')
+
 const keystone = new Keystone({
-    name: conf.PROJECT_NAME,
-    cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
-    cookie: {
-        sameSite: false,
-        secure: false,
-        maxAge: 1000 * 60 * 60 * 24 * 130, // 130 days
-    },
-    adapter: getAdapter(conf.DATABASE_URL),
-    defaultAccess: { list: false, field: true, custom: false },
-    queryLimits: { maxTotalResults: 1000 },
+    ...prepareDefaultKeystoneConfig(conf),
     onConnect: async () => {
         // Initialise some data
         if (conf.NODE_ENV !== 'development') return // Just for dev env purposes!
@@ -30,8 +22,9 @@ const keystone = new Keystone({
         try {
             const users = await keystone.lists.User.adapter.findAll()
             if (!users.length) {
-                const initialData = require('./initial-data')
+                const initialData = require('./initialData')
                 for (let { listKey, items } of initialData) {
+                    console.log(`🗿 createItems(${listKey}) -> ${items.length}`)
                     await createItems({
                         keystone,
                         listKey,
@@ -58,7 +51,7 @@ const authStrategy = keystone.createAuthStrategy({
 module.exports = {
     keystone,
     apps: [
-        new GraphQLApp({ apollo: { debug: conf.NODE_ENV === 'development' } }),
+        new GraphQLApp({ apollo: { debug: conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test' } }),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({
             adminPath: '/admin',

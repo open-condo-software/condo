@@ -19,19 +19,27 @@ DOCKER_COMPOSE_COOKIE_SECRET=random
 DOCKER_COMPOSE_SERVER_URL=http://localhost:3003
 ENDOFFILE
 
+# up database on default port
 docker-compose up -d postgresdb
+
+# install dependencies and link yarn workspaces
 yarn
 
+# build first image!
 bash ./bin/warm-docker-cache
 docker-compose build
+
+# create first migration!
+docker-compose run app yarn workspace @app/{{ name }} makemigrations
 
 # migrate!
 docker-compose run app yarn workspace @app/{{ name }} migrate
 
+# run dev server!
 yarn workspace @app/{{ name }} dev
 ```
 
-# create postgres schema migration
+# postgres schema migration
 
 ```
 # create migration script at migrations/20201212124723-00xx_name.js
