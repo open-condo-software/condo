@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "test": "jest",
-    "dev": "nodemon --exec keystone dev",
+    "dev": "keystone dev",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build": "keystone build",
     "start": "keystone start",
