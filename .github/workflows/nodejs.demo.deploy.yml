@@ -32,12 +32,15 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
           sudo apt install -y pv
+
+          ssh root@dok.8iq.dev 'id'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
       - name: Docker build
         run: |
           bash ./bin/warm-docker-cache
           docker-compose build
-      - name: Deploy image
-        run: |
-          docker save apps:${DOCKER_COMPOSE_APP_IMAGE_TAG} | bzip2 | pv | ssh root@dok.8iq.dev 'bunzip2 | docker load'
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+      - name: Upload builded image
+        run: docker save apps:demo | bzip2 | pv | ssh root@dok.8iq.dev 'bunzip2 | docker load'
+      - name: Restart demo app
+        run: echo "NO!"
