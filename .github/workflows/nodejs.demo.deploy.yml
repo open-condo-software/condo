@@ -24,7 +24,10 @@ jobs:
           docker-compose build
       - name: Deploy image
         run: |
+          mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 700 ~/.ssh/
+          chmod 600 ~/.ssh/id_rsa
           docker save apps:${DOCKER_COMPOSE_APP_IMAGE_TAG} | bzip2 | pv | ssh root@dok.8iq.dev 'bunzip2 | docker load'
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
