@@ -26,6 +26,10 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          cat > .ssh/known_hosts << ENDOFFILE
+          |1|64wtn+Hc01gnRV6/eyw0FYXtZrc=|2+vpvkhlHGqjhS+SJem1HOAC970= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEWjpGnBDFfbqkp5Q1mEMf2QztT2dKk6oaosnuNqia6ZMcGCNuVCRo3iRuWXhcFEMgjbPeq2W1rx+VxjJJQSZxg=
+          |1|oG0GC5p7+hY+Q3PSz8F3mKKUp9c=|jjbidF6CfU0wBqCIlURlBis7Huk= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEWjpGnBDFfbqkp5Q1mEMf2QztT2dKk6oaosnuNqia6ZMcGCNuVCRo3iRuWXhcFEMgjbPeq2W1rx+VxjJJQSZxg=
+          ENDOFFILE
           chmod 700 ~/.ssh/
           chmod 600 ~/.ssh/id_rsa
           docker save apps:${DOCKER_COMPOSE_APP_IMAGE_TAG} | bzip2 | pv | ssh root@dok.8iq.dev 'bunzip2 | docker load'
