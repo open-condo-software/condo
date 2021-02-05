@@ -82,7 +82,7 @@ yarn workspace @app/_example01app dev
 # You can run `yarn <command>` inside new app workspace by
 # `yarn workspace @app/_example01app <command>`
 
-# You can also check `apps/_example05app` and others examples
+# You can also check `apps/_ex02front` and others examples
 ```
 
 ## Write mobile (Expo) APP by hands
@@ -144,7 +144,7 @@ You need to set `DATABASE_URL` like `mongodb://mongo:mongo@127.0.0.1/main?authSo
 Check is your database really running? or run it by docker `docker-compose up -d mongodb`.
 Then, create tables.
 ```bash
-yarn workspace @app/_back02keystone create-tables
+yarn workspace @app/ex02back keystone create-tables
 ```
 
 ## Use postgresql
@@ -154,7 +154,7 @@ Check is your database really running? or run it by docker `docker-compose up -d
 
 Then, create tables.
 ```bash
-yarn workspace @app/_back02keystone create-tables
+yarn workspace @app/ex02back migrate
 ```
 
 ## Postgres migrations
@@ -163,7 +163,7 @@ https://github.com/keystonejs/keystone/discussions/3067
 
 ```bash
 # download
-curl -o kmigrator https://raw.githubusercontent.com/8iq/nodejs-hackathon-boilerplate-starter-kit/master/apps/_back02keystone/kmigrator.py
+curl -o kmigrator https://raw.githubusercontent.com/8iq/nodejs-hackathon-boilerplate-starter-kit/master/bin/kmigrator.py
 chmod +x kmigrator
 # install dependencies
 python3 -m pip install django
@@ -214,12 +214,12 @@ And use IDE integrations for easy debugging.
 
 For postgres you can set env `DEBUG=knex:query,knex:tx`. Example:
 ```bash
-DEBUG=knex:query,knex:tx yarn dev @app/_back02keystone @app/_example05app @app/_realtime01app
+DEBUG=knex:query,knex:tx yarn workspace @app/ex02back dev
 ```
 
 For mongo you can set env `DEBUG_MONGOOSE=1`. Example:
 ```bash
-DEBUG_MONGOOSE=1 yarn dev @app/_back02keystone @app/_example05app @app/_realtime01app
+DEBUG_MONGOOSE=1 yarn workspace @app/ex02back dev
 ```
 
 ## Run multiple apps at the same time
@@ -228,10 +228,10 @@ You can use `bin/run-multiple-apps` to run more then one app.
 
 Example:
 ```bash
-node ./bin/run-multiple-apps @app/_back02keystone @app/_example05app @app/_realtime01app
+node ./bin/run-multiple-apps @app/ex02back @app/ex02front @app/ex03sockeio 
 ```
 
-Every app should have `multi-app-support.js` file. Check `_back02keystone`, `_example05app` and `_realtime01app` examples.
+Every app should have `multi-app-support.js` file. Check `ex02back`, `ex02front` and `ex02sockio` examples.
 
 ## linter
 

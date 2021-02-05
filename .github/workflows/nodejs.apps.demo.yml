@@ -1,0 +1,53 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: RUN DEMO TESTS
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x, 14.x]
+        database: ["postgresql://postgres:postgres@127.0.0.1/main", "mongodb://mongo:mongo@127.0.0.1/main?authSource=admin"]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Prepare .env
+        run: cp .env.example .env
+      - name: Docker compose up databases
+        run: docker-compose up -d mongodb postgresdb
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: install packages
+        run: |
+          yarn
+          pip3 install django
+          pip3 install psycopg2-binary
+      - name: run tests for ${{ matrix.database }}
+        run: |
+          set -x
+          # export DEBUG=knex:query,knex:tx
+          # export DEBUG_MONGOOSE=1
+          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/demo migrate
+          yarn workspace @app/demo dev &
+          # Wait until server is up!
+          while ! [[ $(curl -s 'http://localhost:3000/admin/api' --data-raw '{"operationName":null,"variables":{},"query":"{appVersion}"}' -H 'content-type: application/json') == *"appVersion"* ]]; do
+            sleep 0.5
+          done
+          sleep 1
+          yarn workspace @app/demo test
+        env:
+          DATABASE_URL: ${{ matrix.database }}
+          NODE_ENV: development
+          DISABLE_LOGGING: true

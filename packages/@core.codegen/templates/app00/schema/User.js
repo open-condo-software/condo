@@ -1,1 +1,1 @@
-module.exports = require('@app/_back02keystone/schema/User')
+module.exports = require('@app/ex02back/schema/User')
