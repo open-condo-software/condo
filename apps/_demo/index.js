@@ -1,4 +1,3 @@
-const express = require('express')
 const { Keystone } = require('@keystonejs/keystone')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
@@ -46,66 +45,21 @@ registerSchemas(keystone, [
     require('./schema/Test'),
 ])
 
-class CustomAppExample {
-    prepareMiddleware ({ keystone, dev, distDir }) {
-        const app = express()
-        app.use(function (req, res, next) {
-            req._CustomApp_requestLevelData = { foo: 22 }
-            // console.log('Time:', Date.now())
-            next()
-        })
-        return app
-    }
-}
-
-class CustomGQLPluginExample {
-    serverWillStart () {
-        console.log('Server starting!')
-    }
-
-    requestDidStart (requestContext) {
-        if (conf.NODE_ENV !== 'production') return
-        // console.log('GQL!o :', requestContext.operation)
-        console.log('GQL!op:', requestContext.request.operationName)
-        console.log('GQL!q :', requestContext.request.query.replace(/\n/g, '').replace(/\s+/g, ' '))
-        // console.log('GQL!v :', requestContext.request.variables)
-        // console.log('GQL!u :', requestContext.context.authedItem && requestContext.context.authedItem.id)
-        // console.log('GQL!l :', requestContext.context.authedListKey)
-        // console.log('req!req:', requestContext.context.req)
-        const { req } = requestContext.context
-        // console.log('REQ.body:', req.body)
-        // console.log('REQ.query:', req.query)
-        // console.log('REQ.cookies:', req.cookies)
-        // console.log('REQ.hostname:', req.hostname)
-        // console.log('REQ.headers:', req.headers)
-        // console.log('REQ.rawHeaders:', req.rawHeaders)
-        console.log('REQ.ip:', req.ip)
-        // console.log('REQ.ips:', req.ips)
-        console.log('REQ.protocol:', req.protocol)
-        // console.log('REQ.method:', req.method)
-        console.log('REQ.sessionID:', req.sessionID)
-        console.log('REQ.id:', req.id)
-        // console.log('REQ.originalUrl:', req.originalUrl)
-        // console.log('REQ.url:', req.url)
-        // console.log('Request starting!', requestContext)
-    }
-}
-
 const authStrategy = keystone.createAuthStrategy({
     type: PasswordAuthStrategy,
     list: 'User',
 })
 
 module.exports = {
-    configureExpress: (app) => {
+    configureExpress: app => {
+        // The express application variable trust proxy must be set to support reverse proxying
+        app.set('trust proxy', true)
     },
     keystone,
     apps: [
-        new CustomAppExample(),
         new GraphQLApp({
             apollo: {
                 debug: conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test',
-                plugins: [new CustomGQLPluginExample()],
             },
         }),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
