@@ -4,12 +4,25 @@ import { Button, Form, Input, Typography } from 'antd'
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import Head from 'next/head'
 import Router from 'next/router'
+import gql from 'graphql-tag'
+
 import { useIntl } from '@core/next/intl'
 
 import { TopMenuOnlyLayout } from '@app/ex02front/containers/BaseLayout'
 import { RegisterForm } from '@app/ex02front/pages/auth/register'
 
 import firebase, { isFirebaseConfigValid } from '../../utils/firebase.front.utils'
+import { useMutation } from '@core/next/apollo'
+
+const REGISTER_NEW_USER_MUTATION = gql`
+    mutation registerNewUser($data: RegisterNewUserInput!) {
+        user: registerNewUser(data: $data) {
+            id
+            name
+            isAdmin
+        }
+    }
+`
 
 const AuthContext = createContext({})
 
@@ -222,6 +235,8 @@ function PhoneAuthForm ({ onPhoneAuthenticated }) {
 }
 
 function RegisterByPhoneForm () {
+    const [register] = useMutation(REGISTER_NEW_USER_MUTATION)
+
     const intl = useIntl()
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const PhoneIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsAlreadyRegistered' })
@@ -238,7 +253,7 @@ function RegisterByPhoneForm () {
     }
 
     return <PhoneAuthForm onPhoneAuthenticated={({ user }) => {
-        return <RegisterForm ExtraErrorToFormFieldMsgMapping={ExtraErrorToFormFieldMsgMapping}>
+        return <RegisterForm register={register} ExtraErrorToFormFieldMsgMapping={ExtraErrorToFormFieldMsgMapping}>
             <Form.Item
                 name="_phone"
                 label={

@@ -17,6 +17,7 @@ const tracked = ({ createdAtField = 'createdAt', createdByField = 'createdBy', u
     const relationshipOptions = {
         type: AuthedRelationship,
         ref: 'User',
+        kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         access: {
             read: true,
             create: false,

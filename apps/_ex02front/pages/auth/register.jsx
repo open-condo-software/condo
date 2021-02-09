@@ -24,11 +24,11 @@ const REGISTER_NEW_USER_MUTATION = gql`
     }
 `
 
-const RegisterForm = ({ children, ExtraErrorToFormFieldMsgMapping = {} }) => {
+const RegisterForm = ({ children, register, registerExtraData = {}, ExtraErrorToFormFieldMsgMapping = {} }) => {
     const [form] = Form.useForm()
     const [isLoading, setIsLoading] = useState(false)
     const { signin } = useAuth()
-    const [register, ctx] = useMutation(REGISTER_NEW_USER_MUTATION)
+
     let initialValues = getQueryParams()
     initialValues = { ...initialValues, password: '', confirm: '', captcha: 'no' }
 
@@ -71,7 +71,7 @@ const RegisterForm = ({ children, ExtraErrorToFormFieldMsgMapping = {} }) => {
         if (values.email) values.email = values.email.toLowerCase()
         const { name, email, password, confirm, agreement, ...extra } = values
         const extraData = Object.fromEntries(Object.entries(extra).filter(([k, v]) => !k.startsWith('_')))
-        const data = { name, email, password, ...extraData }
+        const data = { name, email, password, ...extraData, ...registerExtraData }
         console.log(values, data)
         setIsLoading(true)
         return runMutation({
@@ -198,12 +198,13 @@ const RegisterForm = ({ children, ExtraErrorToFormFieldMsgMapping = {} }) => {
 const RegisterPage = () => {
     const intl = useIntl()
     const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
+    const [register] = useMutation(REGISTER_NEW_USER_MUTATION)
     return (<>
         <Head>
             <title>{RegistrationTitleMsg}</title>
         </Head>
         <Typography.Title css={css`text-align: center;`}>{RegistrationTitleMsg}</Typography.Title>
-        <RegisterForm/>
+        <RegisterForm register={register}/>
     </>)
 }
 
