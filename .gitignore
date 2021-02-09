@@ -1,0 +1,28 @@
+node_modules
+dist
+out
+.next
+.idea
+.env
+.kmigrator
+.DS_Store
+.docker-cache-warming
+.expo
+.expo-shared
+web-build
+__generated__
+__media
+_example.js
+
+# yarn + npm
+yarn-error.log
+yarn.lock
+npm-debug.*
+
+# mobile
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*

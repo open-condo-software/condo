@@ -1,0 +1,44 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: DEPLOY DEMO
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.SSH_DOCK_SERVER_KNOWN_HOSTS }}
+      - name: Prepare
+        run: |
+          cp .env.example .env
+          sudo apt install -y pv
+          ssh root@dok.8iq.dev 'id'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+      - name: Docker build
+        run: |
+          bash ./bin/warm-docker-cache
+          docker-compose build
+      - name: Upload builded image
+        run: |
+          ssh root@dok.8iq.dev "docker rmi apps:demo || echo no image"
+          docker save apps:demo | bzip2 | pv | ssh root@dok.8iq.dev 'bunzip2 | docker load'
+      - name: Restart demo app
+        run: |
+          export APP_VERSION=$GITHUB_SHA
+          export APP=demo
+          ssh root@dok.8iq.dev "docker tag apps:${APP} dokku/${APP}:${APP_VERSION}"
+          ssh root@dok.8iq.dev "dokku tags:deploy ${APP} ${APP_VERSION}"
+          ssh root@dok.8iq.dev "docker exec -i -u root ${APP}.web.1 yarn workspace @app/${APP} migrate"

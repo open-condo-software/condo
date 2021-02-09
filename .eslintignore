@@ -1,0 +1,14 @@
+apps/sberhack
+
+# Ignore artifacts
+**/.next
+**/node_modules
+**/out
+**/__generated__
+
+# Ignore test files
+**/test*
+
+# Ignore other files
+package.json
+README.md

@@ -1,0 +1,8 @@
+{
+    "name": "@core/config",
+    "version": "1.0.0",
+    "dependencies": {
+        "dotenv": "^8.2.0"
+    },
+    "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/packages/@core.config"
+}

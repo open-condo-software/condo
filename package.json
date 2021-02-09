@@ -1,0 +1,95 @@
+{
+  "name": "start-up-kit",
+  "description": "Easy and Fast StartUp development kit",
+  "private": true,
+  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit",
+  "homepage": "https://github.com/pahaz/hackathon-boilerplate-starter-kit",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "lint": "yarn run eslint .",
+    "createapp": "node ./bin/createapp"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.13.0",
+    "eslint-plugin-jest": "^24.1.0",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.2.0"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2021": true,
+      "node": true,
+      "jest/globals": true
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:react/recommended",
+      "plugin:react-hooks/recommended"
+    ],
+    "parser": "babel-eslint",
+    "parserOptions": {
+      "ecmaFeatures": {
+        "jsx": true
+      },
+      "ecmaVersion": 2019,
+      "sourceType": "module"
+    },
+    "plugins": [
+      "react",
+      "jest"
+    ],
+    "settings": {
+      "react": {
+        "version": "detect"
+      }
+    },
+    "rules": {
+      "indent": [
+        "error",
+        4,
+        {
+          "SwitchCase": 1
+        }
+      ],
+      "quotes": [
+        "error",
+        "single"
+      ],
+      "semi": [
+        "error",
+        "never"
+      ],
+      "space-before-function-paren": ["error", "always"],
+      "comma-dangle": ["error", {
+        "functions": "only-multiline",
+        "arrays": "always-multiline",
+        "imports": "always-multiline",
+        "exports": "always-multiline",
+        "objects": "always-multiline"
+      }],
+      "object-curly-spacing": ["error", "always"],
+      "no-prototype-builtins": "off",
+      "no-unused-vars": [
+        "error",
+        {
+          "args": "none"
+        }
+      ],
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+      "react/no-children-prop": "off",
+      "react/display-name": "warn",
+      "jest/no-disabled-tests": "warn",
+      "jest/no-focused-tests": "error",
+      "jest/no-identical-title": "error",
+      "jest/prefer-to-have-length": "warn",
+      "jest/valid-expect": "error"
+    }
+  }
+}

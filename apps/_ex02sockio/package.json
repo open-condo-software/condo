@@ -1,0 +1,20 @@
+{
+  "name": "@app/ex02sockio",
+  "version": "1.0.0",
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "scripts": {
+    "test": "jest",
+    "dev": "node server.js",
+    "debug": "node inspect server.js",
+    "build": "node -e \"console.log('no')\"",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "jest": "^26.6.3",
+    "socket.io": "^2.3.0"
+  },
+  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/_ex02sockio"
+}
