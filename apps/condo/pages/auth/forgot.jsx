@@ -1,2 +1,2 @@
-import ForgotPage from '@app/ex02front/pages/auth/forgot'
+import ForgotPage from '@app/demo/pages/auth/forgot'
 export default ForgotPage

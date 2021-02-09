@@ -15,6 +15,8 @@ import GoogleAnalytics from '@app/ex02front/containers/GoogleAnalytics'
 import BaseLayout from '@app/ex02front/containers/BaseLayout'
 import GlobalErrorBoundary from '@app/ex02front/containers/GlobalErrorBoundery'
 
+import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '../schema/Organization.gql'
+
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
         logOnDifferentValues: true,
@@ -79,5 +81,8 @@ export default (
     withApollo({ ssr: true })(
         withIntl({ ssr: true, messagesImporter })(
             withAuth({ ssr: true })(
-                withOrganization({ ssr: true })(
+                withOrganization({
+                    ssr: true,
+                    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
+                })(
                     MyApp)))))
