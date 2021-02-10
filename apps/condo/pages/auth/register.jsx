@@ -12,7 +12,7 @@ import { useIntl } from '@core/next/intl'
 import { TopMenuOnlyLayout } from '@app/ex02front/containers/BaseLayout'
 import { RegisterForm } from '@app/ex02front/pages/auth/register'
 
-import firebase, { isFirebaseConfigValid } from '@app/demo/utils/firebase.front.utils'
+import firebase, { isFirebaseConfigValid } from '../../utils/firebase.front.utils'
 import { getClientSideSenderInfo } from '../../utils/userid.utils'
 
 const REGISTER_NEW_USER_MUTATION = gql`

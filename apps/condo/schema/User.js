@@ -14,7 +14,7 @@ const { RegisterNewUserService: BaseRegisterNewUserService } = require('@core/ke
 const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { admin } = require('@app/demo/utils/firebase.back.utils')
+const { admin } = require('../utils/firebase.back.utils')
 
 const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
     src: `${conf.MEDIA_ROOT}/avatars`,

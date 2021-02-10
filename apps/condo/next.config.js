@@ -4,7 +4,7 @@ const withCSS = require('@zeit/next-css')
 // Tell webpack to compile the "@core/next" package, necessary
 // https://www.npmjs.com/package/next-transpile-modules
 // NOTE: FormTable require rc-table module
-const withTM = require('next-transpile-modules')(['@core/next', '@core/keystone', '@app/ex02front', '@app/demo', 'rc-table'])
+const withTM = require('next-transpile-modules')(['@core/next', '@core/keystone', '@app/ex02front', 'rc-table'])
 
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
