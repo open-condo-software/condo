@@ -71,7 +71,7 @@ class GQLListSchema {
     _override (schema) {
         const mergedSchema = { ...this.schema, ...schema }
         Object.keys(schema).forEach((key) => {
-            if (isNotNullObject(schema[key]) && isNotNullObject(this.schema[key])) {
+            if (isNotNullObject(schema[key]) && isNotNullObject(this.schema[key]) && !Array.isArray(schema[key])) {
                 mergedSchema[key] = { ...this.schema[key], ...schema[key] }
             }
         })
