@@ -9,9 +9,9 @@ import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
 
-import { TopMenuOnlyLayout } from '@app/ex02front/containers/BaseLayout'
-import { getQueryParams } from '@app/ex02front/utils/url.utils'
-import { runMutation } from '@app/ex02front/utils/mutations.utils'
+import { TopMenuOnlyLayout } from '../../containers/BaseLayout'
+import { getQueryParams } from '../../utils/url.utils'
+import { runMutation } from '../../utils/mutations.utils'
 
 import { AuthState, PhoneAuthForm } from './register'
 

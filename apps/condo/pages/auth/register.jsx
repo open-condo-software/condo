@@ -9,7 +9,7 @@ import gql from 'graphql-tag'
 import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 
-import { TopMenuOnlyLayout } from '@app/ex02front/containers/BaseLayout'
+import { TopMenuOnlyLayout } from '../../containers/BaseLayout'
 import { RegisterForm } from '@app/ex02front/pages/auth/register'
 
 import firebase, { isFirebaseConfigValid } from '../../utils/firebase.front.utils'

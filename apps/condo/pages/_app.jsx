@@ -10,10 +10,10 @@ import { withAuth } from '@core/next/auth'
 import { withIntl } from '@core/next/intl'
 import { useOrganization, withOrganization } from '@core/next/organization'
 
-import GlobalStyle from '@app/ex02front/containers/GlobalStyle'
-import GoogleAnalytics from '@app/ex02front/containers/GoogleAnalytics'
-import BaseLayout from '@app/ex02front/containers/BaseLayout'
-import GlobalErrorBoundary from '@app/ex02front/containers/GlobalErrorBoundery'
+import GlobalStyle from '../containers/GlobalStyle'
+import GoogleAnalytics from '../containers/GoogleAnalytics'
+import BaseLayout from '../containers/BaseLayout'
+import GlobalErrorBoundary from '../containers/GlobalErrorBoundery'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '../schema/Organization.gql'
 
