@@ -71,9 +71,14 @@ const MyApp = ({ Component, pageProps }) => {
     )
 }
 
+async function messagesImporter (locale) {
+    const locale_data = await import(`../lang/${locale}`)
+    return { ...locale_data.default }
+}
+
 export default (
     withApollo({ ssr: true })(
-        withIntl({ ssr: true })(
+        withIntl({ ssr: true, messagesImporter })(
             withAuth({ ssr: true })(
                 withOrganization({
                     ssr: true,
