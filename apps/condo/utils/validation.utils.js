@@ -1,4 +1,4 @@
-const { REQUIRED_NO_VALUE_ERROR } = require('../consts/errors')
+const { REQUIRED_NO_VALUE_ERROR } = require('../constants/errors')
 
 function hasRequestAndDbFields (requestRequired, databaseRequired, resolvedData, existingItem, addFieldValidationError) {
     if (typeof resolvedData === 'undefined') throw new Error('unexpected undefined resolvedData arg')

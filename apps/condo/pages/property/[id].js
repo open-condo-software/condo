@@ -10,7 +10,7 @@ import { OrganizationRequired } from '../../containers/OrganizationRequired'
 
 import { useObject, useUpdate } from '../../schema/Property.uistate'
 import LoadingOrErrorPage from '../../containers/LoadingOrErrorPage'
-import { buildingMapJson } from '../../consts/property.example'
+import { buildingMapJson } from '../../constants/property.example'
 import BBuilder from '../../containers/BBuilder'
 
 function PropertyDescriptionBlock ({ obj }) {
