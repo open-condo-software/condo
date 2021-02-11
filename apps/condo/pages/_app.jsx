@@ -71,15 +71,9 @@ const MyApp = ({ Component, pageProps }) => {
     )
 }
 
-async function messagesImporter (locale) {
-    const base = await import(`../../_ex02front/lang/${locale}`)
-    const override = await import(`../lang/${locale}`)
-    return { ...base.default, ...override.default }
-}
-
 export default (
     withApollo({ ssr: true })(
-        withIntl({ ssr: true, messagesImporter })(
+        withIntl({ ssr: true })(
             withAuth({ ssr: true })(
                 withOrganization({
                     ssr: true,
