@@ -16,6 +16,7 @@ import { getClientSideSenderInfo } from '../../utils/userid.utils'
 import { getQueryParams } from '../../utils/url.utils'
 import { useAuth } from '@core/next/auth'
 import { QuestionCircleOutlined } from '@ant-design/icons'
+import { runMutation } from '../../utils/mutations.utils'
 
 const REGISTER_NEW_USER_MUTATION = gql`
     mutation registerNewUser($data: RegisterNewUserInput!) {
