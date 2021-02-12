@@ -33,9 +33,8 @@
   "pages.condo.buildings.PageTitle": "Flats",
   "menu.Home": "Dashboard",
   "menu.Users": "Users",
-  "menu.Buildings": "Buildings/objects",
-  "menu.Tickets": "Tickets",
-  "menu.EVoting": "E-Voting",
+  "menu.Property": "Buildings/objects",
+  "menu.Ticket": "Tickets",
   "menu.Employee": "Employee",
   "menu.Residents": "Residents"
 }
