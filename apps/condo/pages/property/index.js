@@ -1,9 +1,9 @@
-import { useIntl } from '@core/next/intl'
 import Head from 'next/head'
 import Link from 'next/link'
 import React, { useEffect } from 'react'
 import { Avatar, Button, Form, Input, Select } from 'antd'
 
+import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 
