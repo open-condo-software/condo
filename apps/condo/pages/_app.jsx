@@ -2,7 +2,8 @@ import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
-import { DashboardOutlined, UserOutlined } from '@ant-design/icons'
+import { DashboardOutlined, ExceptionOutlined, HomeOutlined, UserOutlined } from '@ant-design/icons'
+
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 import { withApollo } from '@core/next/apollo'
@@ -25,12 +26,22 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 
 function menuDataRender () {
     const org = useOrganization()
-    if (org && org.link && org.link.role === 'owner') {
+    if (org && org.link) {
         return [
             {
                 path: '/',
                 icon: <DashboardOutlined/>,
                 locale: 'menu.Home',
+            },
+            {
+                path: '/property',
+                icon: <HomeOutlined/>,
+                locale: 'menu.Property',
+            },
+            {
+                path: '/ticket',
+                icon: <ExceptionOutlined/>,
+                locale: 'menu.Ticket',
             },
             {
                 path: '/users',
