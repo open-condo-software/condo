@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 
 import { useIntl } from '@core/next/intl'
 
-import { PageContent, PageHeader, PageWrapper } from '@app/ex02front/containers/BaseLayout'
+import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 
 import LoadingOrErrorPage from '../../containers/LoadingOrErrorPage'
 import { useObject, useUpdate } from '../../schema/Ticket.uistate'

@@ -5,10 +5,10 @@ const { Text, Relationship, Uuid, Integer, DateTimeUtc } = require('@keystonejs/
 const access = require('@core/keystone/access')
 const { Json } = require('@core/keystone/fields')
 
-const { JSON_EXPECT_OBJECT_ERROR } = require('../consts/errors')
-const { JSON_WRONG_VERSION_FORMAT_ERROR } = require('../consts/errors')
-const { REQUIRED_NO_VALUE_ERROR } = require('../consts/errors')
-const { JSON_UNKNOWN_VERSION_ERROR } = require('../consts/errors')
+const { JSON_EXPECT_OBJECT_ERROR } = require('../constants/errors')
+const { JSON_WRONG_VERSION_FORMAT_ERROR } = require('../constants/errors')
+const { REQUIRED_NO_VALUE_ERROR } = require('../constants/errors')
+const { JSON_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
 
 const DV_FIELD = {
     factory: () => 1,

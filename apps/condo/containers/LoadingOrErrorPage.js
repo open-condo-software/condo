@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { PageContent, PageHeader, PageWrapper } from '@app/ex02front/containers/BaseLayout'
+import { PageContent, PageHeader, PageWrapper } from './BaseLayout'
 import React from 'react'
 import { Typography } from 'antd'
 import { useIntl } from '@core/next/intl'

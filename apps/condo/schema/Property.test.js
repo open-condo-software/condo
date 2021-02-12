@@ -11,7 +11,7 @@ const { genTestGQLUtils } = require('@core/keystone/gen.gql.utils')
 const { makeLoggedInClient } = require('@core/keystone/test.utils')
 const { UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { buildingMapJson } = require('../consts/property.example')
+const { buildingMapJson } = require('../constants/property.example')
 const { Property } = require('./Property.gql')
 
 Property.DEFAULT_ORGANIZATION_ID = '640eee89-a45d-4d3f-8b27-e63156c0c156'
