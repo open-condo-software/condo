@@ -372,16 +372,15 @@ function PhoneAuthForm ({ onPhoneAuthenticated }) {
                 <Input placeholder={ExamplePhoneMsg}/>
             </Form.Item>
 
-            {(verificationId) ?
-                <Form.Item
+            {(verificationId)
+                ? <Form.Item
                     name="code"
                     label={EnterVerificationCodeMsg}
                     rules={[{ required: true, message: FieldIsRequiredMsg }]}
                 >
                     <Input ref={verificationCodeTextInput}/>
                 </Form.Item>
-                :
-                null
+                : null
             }
 
             <Form.Item style={{ textAlign: 'center' }}>
