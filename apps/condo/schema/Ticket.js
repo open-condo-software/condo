@@ -1,6 +1,7 @@
 const { Text, Relationship, Uuid, Integer, Select, DateTimeUtc, Virtual } = require('@keystonejs/fields')
 
 const access = require('@core/keystone/access')
+const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('./_common')
 const { ORGANIZATION_OWNED_FIELD } = require('./_common')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
@@ -34,7 +35,7 @@ const TicketClassifier = new GQLListSchema('TicketClassifier', {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        organization: ORGANIZATION_OWNED_FIELD,
+        organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
 
         parent: {
             schemaDoc: 'Multi level classification support',
@@ -63,7 +64,7 @@ const TicketStatus = new GQLListSchema('TicketStatus', {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        organization: ORGANIZATION_OWNED_FIELD,
+        organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
 
         type: {
             type: Select,
@@ -88,7 +89,7 @@ const TicketSource = new GQLListSchema('TicketSource', {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        organization: ORGANIZATION_OWNED_FIELD,
+        organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
 
         type: {
             type: Select,
