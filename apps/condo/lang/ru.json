@@ -100,6 +100,7 @@
   "EnterVerificationCode": "Введите код подтверждения",
   "ConfirmVerificationCode": "Подтвердить",
   "VerificationCodeHasBeenSentToYourPhone": "Код подтверждения был отправлен на телефон",
+  "WeAreStillDevelopingThisPage": "Мы еще **разрабатываем** эту страницу, она пока недоступна",
   "example.Name": "Иванов Сергей",
   "example.Phone": "+7 (900) 800 22 22",
   "pages.auth.LoggedIn": "Авторизован",
@@ -150,8 +151,5 @@
   "containers.FormTableExcelImport.ImportFromFileButtonLabel": "Загрузить список из файла",
   "containers.FormTableExcelImport.SelectColumn": "Выбери колонку",
   "containers.FormTableExcelImport.NextStepButtonLabel": "Продолжить импорт",
-  "menu.Home": "Дашборд",
-  "menu.Tickets": "Заявки",
-  "menu.Employee": "Сотрудники",
   "logout": "Выйти"
 }

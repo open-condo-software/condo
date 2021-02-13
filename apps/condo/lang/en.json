@@ -100,6 +100,7 @@
   "EnterVerificationCode": "Enter verification code",
   "ConfirmVerificationCode": "Confirm verification code",
   "VerificationCodeHasBeenSentToYourPhone": "Verification code has been sent to your phone",
+  "WeAreStillDevelopingThisPage": "We are still **developing** this page, it is not **yet** available",
   "example.Name": "Jon Johnson",
   "example.Phone": "+1 (300) 300 22 22",
   "pages.auth.LoggedIn": "Logged in",
@@ -150,8 +151,5 @@
   "containers.FormTableExcelImport.ImportFromFileButtonLabel": "Import list from file",
   "containers.FormTableExcelImport.SelectColumn": "Select column",
   "containers.FormTableExcelImport.NextStepButtonLabel": "Next",
-  "menu.Home": "Dashboard",
-  "menu.Tickets": "Tickets",
-  "menu.Employee": "Employee",
   "logout": "Logout"
 }
