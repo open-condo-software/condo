@@ -14,7 +14,7 @@ const { WRONG_EMAIL_ERROR } = require('../constants/errors')
 const { WRONG_PASSWORD_ERROR } = require('../constants/errors')
 const { GET_MY_USERINFO } = require('./User.gql')
 const { SIGNIN_MUTATION } = require('./User.gql')
-const { getRandomString, isMongo, DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET, gql } = require('@core/keystone/test.utils')
+const { getRandomString, DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
 const { makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 const { User } = require('./User.gql')
@@ -116,7 +116,6 @@ describe('User', () => {
 })
 
 describe('SIGNIN', () => {
-
     test('anonymous: SIGNIN_MUTATION', async () => {
         const client = await makeClient()
         const { data, errors } = await client.mutate(SIGNIN_MUTATION, {
@@ -186,15 +185,22 @@ describe('SIGNIN', () => {
 })
 
 describe('REGISTER', () => {
-
     test('register new user', async () => {
         const client = await makeClient()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
         const password = faker.internet.password()
         const email = faker.internet.exampleEmail()
         const dv = 1
-        const sender = {dv: 1, fingerprint: 'tests'}
-        const { data, errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, { data: { dv, sender, name, password, email } })
+        const sender = { dv: 1, fingerprint: 'tests' }
+        const { data, errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, {
+            data: {
+                dv,
+                sender,
+                name,
+                password,
+                email,
+            },
+        })
         expect(data.user.id).toMatch(/^[0-9a-zA-Z-_]+$/)
         expect(errors).toEqual(
             [
@@ -221,8 +227,16 @@ describe('REGISTER', () => {
         const password = faker.internet.password()
         const email = userAttrs.email
         const dv = 1
-        const sender = {dv: 1, fingerprint: 'tests'}
-        const { errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, { data: { dv, sender, name, password, email } })
+        const sender = { dv: 1, fingerprint: 'tests' }
+        const { errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, {
+            data: {
+                dv,
+                sender,
+                name,
+                password,
+                email,
+            },
+        })
         expect(JSON.stringify(errors)).toMatch(EMAIL_ALREADY_REGISTERED_ERROR)
     })
 })
