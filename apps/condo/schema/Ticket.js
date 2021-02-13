@@ -9,7 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { SENDER_FIELD, DV_FIELD } = require('./_common')
 const { hasRequestAndDbFields } = require('../utils/validation.utils')
-const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR } = require('../consts/errors')
+const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
 
 const ACCESS_TO_ALL = {
     read: true,

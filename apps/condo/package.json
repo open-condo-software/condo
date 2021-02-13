@@ -45,6 +45,8 @@
     "emotion-server": "^10.0.27",
     "express": "^4.17.1",
     "facepaint": "^1.2.1",
+    "firebase": "^7.19.0",
+    "firebase-admin": "^9.5.0",
     "get-contrast": "^2.0.0",
     "immer": "^8.0.1",
     "jest": "^26.6.3",
@@ -63,7 +65,8 @@
     "react-test-renderer": "^16.13.1",
     "use-immer": "^0.4.1",
     "uuid": "^8.3.0",
-    "validator": "^13.1.1"
+    "validator": "^13.1.1",
+    "xlsx": "^0.16.9"
   },
   "devDependencies": {
     "graphql-tag": "^2.11.0"

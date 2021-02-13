@@ -7,16 +7,16 @@ import { useIntl } from '@core/next/intl'
 import { useMutation, useQuery } from '@core/next/apollo'
 import { useOrganization } from '@core/next/organization'
 
-import { getQueryParams } from '@app/ex02front/utils/url.utils'
-import { AuthRequired } from '@app/ex02front/containers/AuthRequired'
+import { getQueryParams } from '../utils/url.utils'
+import { AuthRequired } from '../containers/AuthRequired'
 import FormList, {
     BaseModalForm,
     CreateFormListItemButton,
     ExpandableDescription,
     ExtraDropdownActionsMenu,
     useCreateAndEditModalForm,
-} from '@app/ex02front/containers/FormList'
-import { PageContent, PageHeader, PageWrapper } from '@app/ex02front/containers/BaseLayout'
+} from '../containers/FormList'
+import { PageContent, PageHeader, PageWrapper } from '../containers/BaseLayout'
 import {
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
     GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY,

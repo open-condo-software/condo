@@ -9,9 +9,9 @@ import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
 
-import { TopMenuOnlyLayout } from '@app/ex02front/containers/BaseLayout'
-import { getQueryParams } from '@app/ex02front/utils/url.utils'
-import { runMutation } from '@app/ex02front/utils/mutations.utils'
+import { TopMenuOnlyLayout } from '../../containers/BaseLayout'
+import { getQueryParams } from '../../utils/url.utils'
+import { runMutation } from '../../utils/mutations.utils'
 
 import { AuthState, PhoneAuthForm } from './register'
 
@@ -41,6 +41,7 @@ const SignInForm = ({ firebaseUser, children, ExtraErrorToFormFieldMsgMapping = 
     const LoggedInMsg = intl.formatMessage({ id: 'pages.auth.LoggedIn' })
     const EmailIsNoFoundMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNoFound' })
     const WrongPasswordMsg = intl.formatMessage({ id: 'pages.auth.WrongPassword' })
+    const UserIsNotFoundMsg = intl.formatMessage({ id: 'pages.auth.UserIsNotFound' })
     const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
     const ForgotPasswordMsg = intl.formatMessage({ id: 'pages.auth.ForgotPassword' })
     const ErrorToFormFieldMsgMapping = {
@@ -51,6 +52,10 @@ const SignInForm = ({ firebaseUser, children, ExtraErrorToFormFieldMsgMapping = 
         '[passwordAuth:secret:mismatch]': {
             name: 'password',
             errors: [WrongPasswordMsg],
+        },
+        '[notfound.error]': {
+            name: 'user',
+            errors: [UserIsNotFoundMsg],
         },
         ...ExtraErrorToFormFieldMsgMapping,
     }
@@ -69,6 +74,9 @@ const SignInForm = ({ firebaseUser, children, ExtraErrorToFormFieldMsgMapping = 
             },
             onFinally: () => {
                 setIsLoading(false)
+            },
+            onError: (e) => {
+                console.log(e.friendlyDescription)
             },
             intl,
             form,

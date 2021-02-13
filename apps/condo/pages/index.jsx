@@ -4,8 +4,8 @@ import ReactMarkdown from 'react-markdown'
 
 import { useIntl } from '@core/next/intl'
 
-import { PageContent, PageHeader, PageWrapper } from '@app/ex02front/containers/BaseLayout'
-import { OrganizationRequired } from '@app/ex02front/containers/OrganizationRequired'
+import { PageContent, PageHeader, PageWrapper } from '../containers/BaseLayout'
+import { OrganizationRequired } from '../containers/OrganizationRequired'
 
 const IndexPage = () => {
     const intl = useIntl()

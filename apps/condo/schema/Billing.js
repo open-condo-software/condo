@@ -2,13 +2,13 @@ const { Text, Relationship, Uuid, Integer, Select, DateTimeUtc, Virtual, Checkbo
 
 const access = require('@core/keystone/access')
 const { ORGANIZATION_OWNED_FIELD } = require('./_common')
-const { JSON_UNKNOWN_VERSION_ERROR } = require('../consts/errors')
+const { JSON_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
 const { SENDER_FIELD, DV_FIELD } = require('./_common')
-const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR } = require('../consts/errors')
+const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
 const { hasRequestAndDbFields } = require('../utils/validation.utils')
 
 const ACCESS_TO_ALL = {
