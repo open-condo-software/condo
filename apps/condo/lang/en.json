@@ -124,6 +124,7 @@
   "pages.auth.ForgotPasswordTitle": "Restore password",
   "pages.auth.IsNotImplementedYet": "Is not implemented yet ...",
   "pages.auth.EmailIsNotRegistered": "This email is not registered yet",
+  "pages.auth.UserIsNotFound": "User not found, please try to register",
   "pages.auth.ForgotPasswordDescription": "You can change your password for security reasons or reset it if you forget it. You will get an email with the steps to recover your account password",
   "pages.auth.ForgotPasswordStartedDescription": "You successfully started the recovery process. Usually, it takes some time to deliver recovery instructions email. If you don’t get an email: check your Spam folder",
   "pages.auth.ChangePasswordTitle": "Change password",
