@@ -113,14 +113,34 @@ describe('REGISTER_NEW_ORGANIZATION_MUTATION', () => {
         const client = await makeLoggedInClient(userAttrs)
 
         const name = faker.company.companyName()
-        const [obj] = await registerNewOrganization(client, { name })
+        const [org] = await registerNewOrganization(client, { name })
 
-        expect(obj.id).toMatch(/^[0-9a-zA-Z-_]+$/)
-        expect(obj).toEqual(expect.objectContaining({
+        expect(org.id).toMatch(/^[0-9a-zA-Z-_]+$/)
+        expect(org).toEqual(expect.objectContaining({
             name,
         }))
 
-        // TODO(pahaz): validate EmployeeObject and Role!
+        // Validate Employee and Role!
+        const employees = await OrganizationEmployee.getAll(admin, { organization: { id: org.id } })
+        expect(employees).toEqual([
+            expect.objectContaining({
+                user: expect.objectContaining({
+                    id: user.id,
+                }),
+                organization: expect.objectContaining({
+                    id: org.id,
+                    name,
+                }),
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                isAccepted: true,
+                isRejected: false,
+                role: expect.objectContaining({
+                    canManageUsers: true,
+                }),
+            }),
+        ])
     })
 })
 

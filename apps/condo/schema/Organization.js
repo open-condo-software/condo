@@ -7,16 +7,15 @@ const { File, Text, Relationship, Select, Uuid, Checkbox } = require('@keystonej
 
 const conf = require('@core/config')
 const access = require('@core/keystone/access')
-const { getByCondition } = require('@core/keystone/schema')
-const { getById } = require('@core/keystone/schema')
-const { GQLCustomSchema } = require('@core/keystone/schema')
+const { getByCondition, getById, GQLCustomSchema, GQLListSchema } = require('@core/keystone/schema')
+const { Json } = require('@core/keystone/fields')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+
 const { ORGANIZATION_OWNED_FIELD } = require('./_common')
 const { SENDER_FIELD } = require('./_common')
 const { DV_FIELD } = require('./_common')
-const { COUNTRIES } = require('../constants/countries')
-const { Json } = require('@core/keystone/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const countries = require('../constants/countries')
+const OrganizationGQL = require('./Organization.gql')
 
 const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
     src: `${conf.MEDIA_ROOT}/orgavatars`,
@@ -33,7 +32,7 @@ const Organization = new GQLListSchema('Organization', {
             schemaDoc: 'Country level specific',
             isRequired: true,
             type: Select,
-            options: COUNTRIES,
+            options: countries.COUNTRIES,
         },
         name: {
             schemaDoc: 'Customer-friendly name',
@@ -198,6 +197,84 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
     },
 })
 
+async function execGqlWithoutAccess (context, { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj' }) {
+    if (!context) throw new Error('wrong context argument')
+    if (!query) throw new Error('wrong query argument')
+    if (!variables) throw new Error('wrong variables argument')
+    const { errors, data } = await context.executeGraphQL({
+        context: context.createContext({ skipAccessControl: true }),
+        query,
+        variables,
+    })
+
+    if (errors) {
+        console.error(errors)
+        const error = new Error(errorMessage)
+        error.errors = errors
+        throw error
+    }
+
+    if (!data || typeof data !== 'object') {
+        throw new Error('wrong query result')
+    }
+
+    return data[dataPath]
+}
+
+async function createOrganization (context, data) {
+    return await execGqlWithoutAccess(context, {
+        query: OrganizationGQL.Organization.CREATE_OBJ_MUTATION,
+        variables: { data },
+        errorMessage: '[error] Create organization internal error',
+        dataPath: 'obj',
+    })
+}
+
+async function createAdminRole (context, organization, data) {
+    if (!organization.id) throw new Error('wrong organization.id argument')
+    if (!organization.country) throw new Error('wrong organization.country argument')
+    const adminRoleName = countries[organization.country].adminRoleName
+    return await execGqlWithoutAccess(context, {
+        query: OrganizationGQL.OrganizationEmployeeRole.CREATE_OBJ_MUTATION,
+        variables: {
+            data: {
+                organization: { connect: { id: organization.id } },
+                canManageUsers: true,
+                name: adminRoleName,
+                ...data,
+            },
+        },
+        errorMessage: '[error] Create admin role internal error',
+        dataPath: 'obj',
+    })
+}
+
+async function createConfirmedEmployee (context, organization, user, role, data) {
+    if (!organization.id) throw new Error('wrong organization.id argument')
+    if (!organization.country) throw new Error('wrong organization.country argument')
+    if (!user.id) throw new Error('wrong user.id argument')
+    if (!user.name) throw new Error('wrong user.name argument')
+    if (!role.id) throw new Error('wrong role.id argument')
+    return await execGqlWithoutAccess(context, {
+        query: OrganizationGQL.OrganizationEmployee.CREATE_OBJ_MUTATION,
+        variables: {
+            data: {
+                organization: { connect: { id: organization.id } },
+                user: { connect: { id: user.id } },
+                role: { connect: { id: role.id } },
+                isAccepted: true,
+                isRejected: false,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                ...data,
+            },
+        },
+        errorMessage: '[error] Create employee internal error',
+        dataPath: 'obj',
+    })
+}
+
 const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizationService', {
     types: [
         {
@@ -212,44 +289,13 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
             resolver: async (parent, args, context, info, extra = {}) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data } = args
-                const extraLinkData = extra.extraLinkData || {}
-                const extraOrganizationData = extra.extraOrganizationData || {}
+                const extraData = { dv: data.dv, sender: data.sender }
 
-                const { errors: createErrors, data: createData } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
-                        mutation create($data: OrganizationEmployeeCreateInput!) {
-                          obj: createOrganizationEmployee(data: $data) {
-                            id
-                            organization {
-                              id
-                            }
-                          }
-                        }
-                    `,
-                    variables: {
-                        'data': {
-                            dv: data.dv,
-                            sender: data.sender,
-                            organization: { create: { ...data, ...extraOrganizationData } },
-                            user: { connect: { id: context.authedItem.id } },
-                            isAccepted: true,
-                            isRejected: false,
-                            name: context.authedItem.name,
-                            email: context.authedItem.email,
-                            phone: context.authedItem.phone,
-                            ...extraLinkData,
-                        },
-                    },
-                })
+                const organization = await createOrganization(context, data)
+                const role = await createAdminRole(context, organization, extraData)
+                await createConfirmedEmployee(context, organization, context.authedItem, role, extraData)
 
-                if (createErrors || !createData.obj || !createData.obj.id) {
-                    const msg = '[error] Unable to create organization'
-                    console.error(msg, createErrors)
-                    throw new Error(msg)
-                }
-
-                return await getById('Organization', createData.obj.organization.id)
+                return await getById('Organization', organization.id)
             },
         },
     ],
