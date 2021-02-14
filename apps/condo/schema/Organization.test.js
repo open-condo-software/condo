@@ -8,6 +8,9 @@ const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 const faker = require('faker')
+const { addAdminAccess } = require('./User.test')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('./User.test')
+const { registerNewUser } = require('./User.test')
 
 const { createUser } = require('./User.test')
 const { Organization, OrganizationEmployee, OrganizationEmployeeRole } = require('./Organization.gql')
@@ -62,8 +65,15 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
     return [data.obj, attrs]
 }
 
+async function makeClientWithRegisteredOrganization () {
+    const client = await makeClientWithNewRegisteredAndLoggedInUser()
+    const [organization] = await registerNewOrganization(client)
+    client.organization = organization
+    return client
+}
+
 describe('Organization', () => {
-    test('anonymous: getAll', async () => {
+    test('anonymous: no access to getAll', async () => {
         const client = await makeClient()
         const { data, errors } = await Organization.getAll(client, {}, { raw: true })
         expect(errors[0]).toMatchObject({
@@ -75,7 +85,7 @@ describe('Organization', () => {
         expect(data).toEqual({ 'objs': null })
     })
 
-    test('anonymous: count', async () => {
+    test('anonymous: no access to count', async () => {
         const client = await makeClient()
         const { data, errors } = await Organization.count(client, {}, { raw: true })
         expect(errors[0]).toMatchObject({
@@ -87,7 +97,7 @@ describe('Organization', () => {
         expect(data).toEqual({ meta: { count: null } })
     })
 
-    test('user: getAll', async () => {
+    test('user: allow to getAll', async () => {
         const admin = await makeLoggedInAdminClient()
         const [org] = await createOrganization(admin)
         const [user, userAttrs] = await createUser(admin)
@@ -96,7 +106,7 @@ describe('Organization', () => {
         expect(objs.length).toBeGreaterThan(0)
     })
 
-    test('user: count', async () => {
+    test('user: allow to count', async () => {
         const admin = await makeLoggedInAdminClient()
         const [org] = await createOrganization(admin)
         const [user, userAttrs] = await createUser(admin)
@@ -104,6 +114,67 @@ describe('Organization', () => {
         const count = await Organization.count(client, {})
         expect(count).toBeGreaterThan(0)
     })
+})
+
+describe('OrganizationEmployee', () => {
+    test('anonymous: no access to getAll', async () => {
+        const client = await makeClient()
+        const { data, errors } = await OrganizationEmployee.getAll(client, {}, { raw: true })
+        expect(errors[0]).toMatchObject({
+            'data': { 'target': 'allOrganizationEmployees', 'type': 'query' },
+            'message': 'You do not have access to this resource',
+            'name': 'AccessDeniedError',
+            'path': ['objs'],
+        })
+        expect(data).toEqual({ 'objs': null })
+    })
+
+    test('anonymous: no access to count', async () => {
+        const client = await makeClient()
+        const { data, errors } = await OrganizationEmployee.count(client, {}, { raw: true })
+        expect(errors[0]).toMatchObject({
+            'data': { 'target': '_allOrganizationEmployeesMeta', 'type': 'query' },
+            'message': 'You do not have access to this resource',
+            'name': 'AccessDeniedError',
+            'path': ['meta', 'count'],
+        })
+        expect(data).toEqual({ meta: { count: null } })
+    })
+
+    test('user: allow to getAll only for employee', async () => {
+        const client1 = await makeClientWithRegisteredOrganization()
+        const client2 = await makeClientWithRegisteredOrganization()
+        const objs1 = await OrganizationEmployee.getAll(client1, {})
+        const objs2 = await OrganizationEmployee.getAll(client2, {})
+        expect(objs1).toHaveLength(1)
+        expect(objs2).toHaveLength(1)
+        expect(objs1[0].id).not.toEqual(objs2[0].id)
+    })
+
+    test('user: allow to count ony for employee', async () => {
+        const client1 = await makeClientWithRegisteredOrganization()
+        const client2 = await makeClientWithRegisteredOrganization()
+        const count1 = await OrganizationEmployee.count(client1, {})
+        const count2 = await OrganizationEmployee.count(client2, {})
+        expect(count1).toEqual(1)
+        expect(count2).toEqual(1)
+    })
+
+    test('admin: allow to getAll', async () => {
+        const client1 = await makeClientWithRegisteredOrganization()
+        await addAdminAccess(client1.user)
+        const objs1 = await OrganizationEmployee.getAll(client1, {})
+        expect(objs1.length).toBeGreaterThan(1)
+    })
+
+    test('admin: allow to count all', async () => {
+        const client1 = await makeClientWithRegisteredOrganization()
+        await addAdminAccess(client1.user)
+        const count1 = await OrganizationEmployee.count(client1, {})
+        expect(count1).toBeGreaterThan(1)
+    })
+
+    // TODO(pahaz): can create/update/(change organization field)/delete ? (user/anonimous)
 })
 
 describe('REGISTER_NEW_ORGANIZATION_MUTATION', () => {
@@ -132,12 +203,14 @@ describe('REGISTER_NEW_ORGANIZATION_MUTATION', () => {
                     name,
                 }),
                 name: user.name,
-                email: user.email,
-                phone: user.phone,
+                email: userAttrs.email,
+                phone: userAttrs.phone,
                 isAccepted: true,
                 isRejected: false,
                 role: expect.objectContaining({
-                    canManageUsers: true,
+                    canManageOrganization: true,
+                    canManageEmployees: true,
+                    canManageRoles: true,
                 }),
             }),
         ])

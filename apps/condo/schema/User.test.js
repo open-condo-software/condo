@@ -7,6 +7,7 @@ const { setFakeClientMode } = require('@core/keystone/test.utils')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 const faker = require('faker')
+const { UserAdmin } = require('./User.gql')
 const { EMAIL_ALREADY_REGISTERED_ERROR } = require('../constants/errors')
 const { REGISTER_NEW_USER_MUTATION } = require('./User.gql')
 const { EMPTY_PASSWORD_ERROR } = require('../constants/errors')
@@ -21,10 +22,10 @@ const { User } = require('./User.gql')
 
 async function createUser (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
     const email = faker.internet.email().toLowerCase()
-    const phone = faker.phone.phoneNumber()
+    const phone = faker.phone.phoneNumber().replace(/[^0-9]/g, '')
     const password = getRandomString()
     const meta = {
         dv: 1, city: faker.address.city(), county: faker.address.county(),
@@ -41,6 +42,46 @@ async function createUser (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
+    const name = faker.name.firstName()
+    const email = faker.internet.email().toLowerCase()
+    // const phone = faker.phone.phoneNumber().replace(/[^0-9]/g, '')
+    const password = getRandomString()
+    const meta = {
+        dv: 1, city: faker.address.city(), county: faker.address.county(),
+    }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        name, email,
+        // phone,
+        password, meta,
+        ...extraAttrs,
+    }
+
+    const { data, errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, {
+        data: attrs,
+    })
+    if (raw) return { data, errors }
+    expect(errors).toEqual(undefined)
+    return [data.user, attrs]
+}
+
+async function makeClientWithNewRegisteredAndLoggedInUser () {
+    const client = await makeClient()
+    const [user, userAttrs] = await registerNewUser(client)
+    client.user = user
+    return await makeLoggedInClient(userAttrs)
+}
+
+async function addAdminAccess (user) {
+    const admin = await makeLoggedInAdminClient()
+    await User.update(admin, user.id, { isAdmin: true })
+}
+
 describe('User', () => {
     test('createUser()', async () => {
         const admin = await makeLoggedInAdminClient()
@@ -55,7 +96,7 @@ describe('User', () => {
         const email = 'XXX' + getRandomString() + '@example.com'
         const [user, userAttrs] = await createUser(admin, { email })
 
-        const objs = await User.getAll(admin, { id: user.id })
+        const objs = await UserAdmin.getAll(admin, { id: user.id })
         expect(objs[0]).toEqual(expect.objectContaining({ email: email.toLowerCase(), id: user.id }))
 
         const client2 = await makeLoggedInClient({ ...userAttrs, email: email.toLowerCase() })
@@ -96,11 +137,10 @@ describe('User', () => {
         const admin = await makeLoggedInAdminClient()
         const [user, userAttrs] = await createUser(admin)
         const client = await makeLoggedInClient(userAttrs)
-        const { data, errors } = await User.getAll(client, {}, { raw: true })
-        console.log(data)
+        const { data } = await UserAdmin.getAll(client, {}, { raw: true })
         expect(data.objs).toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ id: user.id, name: user.name, email: user.email }),
+                expect.objectContaining({ id: user.id, email: userAttrs.email }),
                 expect.objectContaining({ email: null }),
             ]),
         )
@@ -123,21 +163,7 @@ describe('SIGNIN', () => {
             'secret': DEFAULT_TEST_USER_SECRET,
         })
         expect(data.auth.user.id).toMatch(/[a-zA-Z0-9-_]+/)
-        expect(errors).toEqual(
-            [
-                expect.objectContaining({
-                    message: 'You do not have access to this resource',
-                    name: 'AccessDeniedError',
-                    data: { type: 'query', target: 'email' },
-                    path: ['auth', 'user', 'email'],
-                }),
-                expect.objectContaining({
-                    message: 'You do not have access to this resource',
-                    name: 'AccessDeniedError',
-                    data: { type: 'query', target: 'phone' },
-                    path: ['auth', 'user', 'phone'],
-                }),
-            ])
+        expect(errors).toEqual(undefined)
     })
 
     test('anonymous: GET_MY_USERINFO', async () => {
@@ -161,7 +187,7 @@ describe('SIGNIN', () => {
             'secret': 'wrong password',
         })
         expect(data).toEqual({ 'auth': null })
-        expect(JSON.stringify(errors)).toEqual(expect.stringMatching(WRONG_PASSWORD_ERROR))
+        expect(JSON.stringify(errors)).toMatch((WRONG_PASSWORD_ERROR))
     })
 
     test('anonymous: SIGNIN_MUTATION by wrong email', async () => {
@@ -171,7 +197,7 @@ describe('SIGNIN', () => {
             'secret': 'wrong password',
         })
         expect(data).toEqual({ 'auth': null })
-        expect(JSON.stringify(errors)).toEqual(expect.stringMatching(WRONG_EMAIL_ERROR))
+        expect(JSON.stringify(errors)).toMatch((WRONG_EMAIL_ERROR))
     })
 
     test('check auth by empty password', async () => {
@@ -188,35 +214,9 @@ describe('REGISTER', () => {
     test('register new user', async () => {
         const client = await makeClient()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
-        const password = faker.internet.password()
-        const email = faker.internet.exampleEmail()
-        const dv = 1
-        const sender = { dv: 1, fingerprint: 'tests' }
-        const { data, errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, {
-            data: {
-                dv,
-                sender,
-                name,
-                password,
-                email,
-            },
-        })
-        expect(data.user.id).toMatch(/^[0-9a-zA-Z-_]+$/)
-        expect(errors).toEqual(
-            [
-                expect.objectContaining({
-                    message: 'You do not have access to this resource',
-                    name: 'AccessDeniedError',
-                    data: { type: 'query', target: 'email' },
-                    path: ['user', 'email'],
-                }),
-                expect.objectContaining({
-                    message: 'You do not have access to this resource',
-                    name: 'AccessDeniedError',
-                    data: { type: 'query', target: 'phone' },
-                    path: ['user', 'phone'],
-                }),
-            ])
+        const [user] = await registerNewUser(client, { name })
+        expect(user.id).toMatch(/^[0-9a-zA-Z-_]+$/)
+        expect(user.name).toMatch(name)
     })
 
     test('register user with existed email', async () => {
@@ -348,4 +348,7 @@ describe('REGISTER', () => {
 
 module.exports = {
     createUser,
+    registerNewUser,
+    addAdminAccess,
+    makeClientWithNewRegisteredAndLoggedInUser,
 }

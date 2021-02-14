@@ -141,7 +141,7 @@ const RegisterNewUserService = BaseRegisterNewUserService._override({
     types: [
         {
             access: true,
-            type: 'input RegisterNewUserInput { dv: Int!, sender: JSON!, name: String!, email: String!, password: String!, firebaseIdToken: String }',
+            type: 'input RegisterNewUserInput { dv: Int!, sender: JSON!, name: String!, email: String!, password: String!, firebaseIdToken: String, meta: JSON }',
         },
     ],
 })
