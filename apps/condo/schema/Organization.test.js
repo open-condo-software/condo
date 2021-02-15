@@ -81,7 +81,7 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
 
 async function makeClientWithRegisteredOrganization () {
     const client = await makeClientWithNewRegisteredAndLoggedInUser()
-    const [, organization] = await registerNewOrganization(client)
+    const [organization] = await registerNewOrganization(client)
     client.organization = organization
     return client
 }
@@ -612,7 +612,7 @@ describe('REGISTER_NEW_ORGANIZATION_MUTATION', () => {
 //     }
 // `
 //
-// // TODO(pahaz): check a apps/condo/schema/User.test.js ntonymous ACCEPT_OR_REJECT_BY_ID_MUTATION
+// // TODO(pahaz): check antonymous ACCEPT_OR_REJECT_BY_ID_MUTATION
 //
 // test('user: accept/reject OrganizationToUserLinks by ID', async () => {
 //     const user = await createUser()

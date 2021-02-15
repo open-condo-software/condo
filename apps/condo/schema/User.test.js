@@ -148,7 +148,7 @@ describe('User', () => {
 
     test('user: count', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [userAttrs] = await createUser(admin)
+        const [, userAttrs] = await createUser(admin)
         const client = await makeLoggedInClient(userAttrs)
         const count = await User.count(client)
         expect(count).toBeGreaterThanOrEqual(2)
