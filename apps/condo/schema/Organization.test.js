@@ -81,7 +81,7 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
 
 async function makeClientWithRegisteredOrganization () {
     const client = await makeClientWithNewRegisteredAndLoggedInUser()
-    const [organization] = await registerNewOrganization(client)
+    const [, organization] = await registerNewOrganization(client)
     client.organization = organization
     return client
 }
@@ -114,7 +114,7 @@ describe('Organization', () => {
     test('user: allow to getAll', async () => {
         const admin = await makeLoggedInAdminClient()
         await createOrganization(admin)
-        const [userAttrs] = await createUser(admin)
+        const [, userAttrs] = await createUser(admin)
         const client = await makeLoggedInClient(userAttrs)
         const objs = await Organization.getAll(client, {})
         expect(objs.length).toBeGreaterThan(0)
@@ -123,7 +123,7 @@ describe('Organization', () => {
     test('user: allow to count', async () => {
         const admin = await makeLoggedInAdminClient()
         await createOrganization(admin)
-        const [userAttrs] = await createUser(admin)
+        const [, userAttrs] = await createUser(admin)
         const client = await makeLoggedInClient(userAttrs)
         const count = await Organization.count(client, {})
         expect(count).toBeGreaterThan(0)
@@ -612,7 +612,7 @@ describe('REGISTER_NEW_ORGANIZATION_MUTATION', () => {
 //     }
 // `
 //
-// // TODO(pahaz): check antonymous ACCEPT_OR_REJECT_BY_ID_MUTATION
+// // TODO(pahaz): check a apps/condo/schema/User.test.js ntonymous ACCEPT_OR_REJECT_BY_ID_MUTATION
 //
 // test('user: accept/reject OrganizationToUserLinks by ID', async () => {
 //     const user = await createUser()
