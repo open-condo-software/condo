@@ -17,8 +17,7 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^7.13.0",
     "eslint-plugin-jest": "^24.1.0",
-    "eslint-plugin-react": "^7.21.5",
-    "eslint-plugin-react-hooks": "^4.2.0"
+    "eslint-plugin-react": "^7.21.5"
   },
   "eslintConfig": {
     "env": {
@@ -65,15 +64,24 @@
         "error",
         "never"
       ],
-      "space-before-function-paren": ["error", "always"],
-      "comma-dangle": ["error", {
-        "functions": "only-multiline",
-        "arrays": "always-multiline",
-        "imports": "always-multiline",
-        "exports": "always-multiline",
-        "objects": "always-multiline"
-      }],
-      "object-curly-spacing": ["error", "always"],
+      "space-before-function-paren": [
+        "error",
+        "always"
+      ],
+      "comma-dangle": [
+        "error",
+        {
+          "functions": "only-multiline",
+          "arrays": "always-multiline",
+          "imports": "always-multiline",
+          "exports": "always-multiline",
+          "objects": "always-multiline"
+        }
+      ],
+      "object-curly-spacing": [
+        "error",
+        "always"
+      ],
       "no-prototype-builtins": "off",
       "no-unused-vars": [
         "error",
