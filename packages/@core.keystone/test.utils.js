@@ -206,23 +206,25 @@ const makeClient = async () => {
     return await makeRealClient()
 }
 
-const makeLoggedInClient = async (args = {}) => {
-    const variables = {
-        email: DEFAULT_TEST_USER_IDENTITY,
-        password: DEFAULT_TEST_USER_SECRET,
-        ...args,
+const makeLoggedInClient = async (args) => {
+    if (!args) {
+        args = {
+            email: DEFAULT_TEST_USER_IDENTITY,
+            password: DEFAULT_TEST_USER_SECRET,
+        }
     }
+    if (!args.email && !args.password) throw new Error('no credentials')
     const client = await makeClient()
     const { data, errors } = await client.mutate(SIGNIN_MUTATION, {
-        identity: variables.email,
-        secret: variables.password,
+        identity: args.email,
+        secret: args.password,
     })
     if (errors && errors.length > 0) {
         throw new Error(errors[0].message)
     }
     client.user = {
-        email: variables.email,
-        password: variables.password,
+        email: args.email,
+        password: args.password,
         id: data.auth.user.id,
     }
     return client
