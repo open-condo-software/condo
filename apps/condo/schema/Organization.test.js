@@ -10,10 +10,9 @@ if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 const faker = require('faker')
 const { addAdminAccess } = require('./User.test')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('./User.test')
-const { registerNewUser } = require('./User.test')
 
 const { createUser } = require('./User.test')
-const { Organization, OrganizationEmployee, OrganizationEmployeeRole } = require('./Organization.gql')
+const { Organization, OrganizationEmployee } = require('./Organization.gql')
 const { REGISTER_NEW_ORGANIZATION_MUTATION } = require('./Organization.gql')
 
 async function createOrganization (client, extraAttrs = {}) {
@@ -114,8 +113,8 @@ describe('Organization', () => {
 
     test('user: allow to getAll', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [org] = await createOrganization(admin)
-        const [user, userAttrs] = await createUser(admin)
+        await createOrganization(admin)
+        const [userAttrs] = await createUser(admin)
         const client = await makeLoggedInClient(userAttrs)
         const objs = await Organization.getAll(client, {})
         expect(objs.length).toBeGreaterThan(0)
@@ -123,8 +122,8 @@ describe('Organization', () => {
 
     test('user: allow to count', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [org] = await createOrganization(admin)
-        const [user, userAttrs] = await createUser(admin)
+        await createOrganization(admin)
+        const [userAttrs] = await createUser(admin)
         const client = await makeLoggedInClient(userAttrs)
         const count = await Organization.count(client, {})
         expect(count).toBeGreaterThan(0)

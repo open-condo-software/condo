@@ -3,14 +3,12 @@
  * @test-style 3
  */
 
-const { makeClient, setFakeClientMode } = require('@core/keystone/test.utils')
+const { setFakeClientMode } = require('@core/keystone/test.utils')
 const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 const faker = require('faker')
 const { NUMBER_RE, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
-const { genTestGQLUtils } = require('@core/keystone/gen.gql.utils')
 const { makeLoggedInClient } = require('@core/keystone/test.utils')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 const { Ticket } = require('./Ticket.gql')
 
@@ -19,9 +17,6 @@ Ticket.UNKNOWN_CLASSIFIER_ID = '4f4b43d5-0951-425c-9428-945dc6193361'
 Ticket.OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
 Ticket.DEFAULT_ORGANIZATION_ID = '1'
 Ticket.DEFAULT_PROPERTY_ID = '5c7df4a7-6064-454e-bde2-eac3006cc09b'
-
-const TICKET_HISTORY_FIELDS = '{ id v text history_id history_action history_date }'
-const TicketHistoryRecord = genTestGQLUtils('TicketHistoryRecord', TICKET_HISTORY_FIELDS)
 
 test('create ticket by minimal fields (dv, organization, sender, source, classifier, status, details)', async () => {
     const client = await makeLoggedInClient()

@@ -9,10 +9,10 @@ const UNIQUE_ALREADY_EXISTS_ERROR = '[unique:alreadyExists:'
 const REQUIRED_NO_VALUE_ERROR = '[required:noValue:'
 const DV_UNKNOWN_VERSION_ERROR = '[dv:unknownDataVersion:'
 
-const WRONG_PASSWORD_ERROR = "[passwordAuth:secret:mismatch"
-const EMPTY_PASSWORD_ERROR = "[passwordAuth:secret:notSet"
-const WRONG_EMAIL_ERROR = "[passwordAuth:identity:notFound"
-const EMAIL_ALREADY_REGISTERED_ERROR = "[register:email:multipleFound"
+const WRONG_PASSWORD_ERROR = '[passwordAuth:secret:mismatch'
+const EMPTY_PASSWORD_ERROR = '[passwordAuth:secret:notSet'
+const WRONG_EMAIL_ERROR = '[passwordAuth:identity:notFound'
+const EMAIL_ALREADY_REGISTERED_ERROR = '[register:email:multipleFound'
 
 module.exports = {
     JSON_UNKNOWN_VERSION_ERROR,

@@ -1,4 +1,5 @@
-const { Text, Relationship, Uuid, Integer, Select, DateTimeUtc, Virtual } = require('@keystonejs/fields')
+const { Text, Relationship, Integer, Select, Virtual } = require('@keystonejs/fields')
+const { JSON_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
 
 const access = require('@core/keystone/access')
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('./_common')

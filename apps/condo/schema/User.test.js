@@ -148,7 +148,7 @@ describe('User', () => {
 
     test('user: count', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [user, userAttrs] = await createUser(admin)
+        const [userAttrs] = await createUser(admin)
         const client = await makeLoggedInClient(userAttrs)
         const count = await User.count(client)
         expect(count).toBeGreaterThanOrEqual(2)
@@ -202,7 +202,7 @@ describe('SIGNIN', () => {
 
     test('check auth by empty password', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [user, userAttrs] = await createUser(admin, { password: '' })
+        const [userAttrs] = await createUser(admin, { password: '' })
         const checkAuthByEmptyPassword = async () => {
             await makeLoggedInClient({ email: userAttrs.email, password: '' })
         }
@@ -221,7 +221,7 @@ describe('REGISTER', () => {
 
     test('register user with existed email', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [user, userAttrs] = await createUser(admin)
+        const [userAttrs] = await createUser(admin)
         const client = await makeClient()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
         const password = faker.internet.password()
