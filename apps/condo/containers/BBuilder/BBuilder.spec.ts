@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createNewBBuildingSectionData, BBuildingData, addNewBBuildingUnitToSectionData } from './BBuilder'
 
 const ONE_SECTION_TWO_FLOORS = {

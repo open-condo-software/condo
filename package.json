@@ -65,15 +65,24 @@
         "error",
         "never"
       ],
-      "space-before-function-paren": ["error", "always"],
-      "comma-dangle": ["error", {
-        "functions": "only-multiline",
-        "arrays": "always-multiline",
-        "imports": "always-multiline",
-        "exports": "always-multiline",
-        "objects": "always-multiline"
-      }],
-      "object-curly-spacing": ["error", "always"],
+      "space-before-function-paren": [
+        "error",
+        "always"
+      ],
+      "comma-dangle": [
+        "error",
+        {
+          "functions": "only-multiline",
+          "arrays": "always-multiline",
+          "imports": "always-multiline",
+          "exports": "always-multiline",
+          "objects": "always-multiline"
+        }
+      ],
+      "object-curly-spacing": [
+        "error",
+        "always"
+      ],
       "no-prototype-builtins": "off",
       "no-unused-vars": [
         "error",

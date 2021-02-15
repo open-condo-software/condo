@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useState } from 'react'
 import XLSX from 'xlsx'
 import { Button, Col, Form, Input, Progress, Row, Select, Table, Tooltip, Typography, Upload } from 'antd'

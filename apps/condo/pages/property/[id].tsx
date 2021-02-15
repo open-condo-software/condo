@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Descriptions } from 'antd'
 import React from 'react'
 import Head from 'next/head'

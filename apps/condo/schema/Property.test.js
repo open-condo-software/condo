@@ -3,11 +3,10 @@
  * @test-style 3
  */
 
-const { makeClient, setFakeClientMode } = require('@core/keystone/test.utils')
+const { setFakeClientMode } = require('@core/keystone/test.utils')
 const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 const faker = require('faker')
-const { genTestGQLUtils } = require('@core/keystone/gen.gql.utils')
 const { makeLoggedInClient } = require('@core/keystone/test.utils')
 const { UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
@@ -15,9 +14,6 @@ const { buildingMapJson } = require('../constants/property.example')
 const { Property } = require('./Property.gql')
 
 Property.DEFAULT_ORGANIZATION_ID = '640eee89-a45d-4d3f-8b27-e63156c0c156'
-
-const PROPERTY_HISTORY_FIELDS = '{ id v name history_id history_action history_date }'
-const PropertyHistoryRecord = genTestGQLUtils('PropertyHistoryRecord', PROPERTY_HISTORY_FIELDS)
 
 async function createProperty (client, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }

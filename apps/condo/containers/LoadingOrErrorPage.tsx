@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Head from 'next/head'
 import { PageContent, PageHeader, PageWrapper } from './BaseLayout'
 import React from 'react'

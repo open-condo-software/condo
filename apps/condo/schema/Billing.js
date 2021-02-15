@@ -1,4 +1,4 @@
-const { Text, Relationship, Uuid, Integer, Select, DateTimeUtc, Virtual, Checkbox, CalendarDay } = require('@keystonejs/fields')
+const { Text, Relationship, Integer, DateTimeUtc, CalendarDay } = require('@keystonejs/fields')
 
 const access = require('@core/keystone/access')
 const { ORGANIZATION_OWNED_FIELD } = require('./_common')

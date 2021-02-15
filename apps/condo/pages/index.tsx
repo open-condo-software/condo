@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Head from 'next/head'
 import { Typography } from 'antd'
 import ReactMarkdown from 'react-markdown'

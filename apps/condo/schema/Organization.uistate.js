@@ -6,8 +6,6 @@ import { genReactHooks } from '@core/keystone/gen.gql.react.utils'
 import { OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION } from './Organization.gql'
 import { getClientSideSenderInfo } from '../utils/userid.utils'
 
-const DEFAULT_ORGANIZATION_AVATAR_URL = 'https://www.pngitem.com/pimgs/m/226-2261747_company-name-icon-png-transparent-png.png'
-
 function convertGQLItemToUIState (item) {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return { ...item, dv: undefined }

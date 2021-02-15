@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Form, Input, Table } from 'antd'
 

@@ -1,6 +1,4 @@
-const { v4: uuid } = require('uuid')
-
-const { Text, Relationship, Uuid, Integer, Select } = require('@keystonejs/fields')
+const { Text, Relationship, Select } = require('@keystonejs/fields')
 
 const access = require('@core/keystone/access')
 const { GQLListSchema } = require('@core/keystone/schema')

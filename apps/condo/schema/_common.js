@@ -1,8 +1,5 @@
-const { v4: uuid } = require('uuid')
+const { Relationship, Integer } = require('@keystonejs/fields')
 
-const { Text, Relationship, Uuid, Integer, DateTimeUtc } = require('@keystonejs/fields')
-
-const access = require('@core/keystone/access')
 const { Json } = require('@core/keystone/fields')
 
 const { JSON_EXPECT_OBJECT_ERROR } = require('../constants/errors')
