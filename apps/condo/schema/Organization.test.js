@@ -8,6 +8,9 @@ const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 const faker = require('faker')
+const { addAdminAccess } = require('./User.test')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('./User.test')
+const { registerNewUser } = require('./User.test')
 
 const { createUser } = require('./User.test')
 const { Organization, OrganizationEmployee, OrganizationEmployeeRole } = require('./Organization.gql')
@@ -32,6 +35,21 @@ async function createOrganization (client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await Organization.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function createOrganizationEmployee (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!extraAttrs.organization) throw new Error('no extraAttrs.organization')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const email = faker.internet.email().toLowerCase()
+
+    const attrs = {
+        dv: 1,
+        sender, email,
+        ...extraAttrs,
+    }
+    const obj = await OrganizationEmployee.create(client, attrs)
     return [obj, attrs]
 }
 
@@ -62,8 +80,15 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
     return [data.obj, attrs]
 }
 
+async function makeClientWithRegisteredOrganization () {
+    const client = await makeClientWithNewRegisteredAndLoggedInUser()
+    const [organization] = await registerNewOrganization(client)
+    client.organization = organization
+    return client
+}
+
 describe('Organization', () => {
-    test('anonymous: getAll', async () => {
+    test('anonymous: no access to getAll', async () => {
         const client = await makeClient()
         const { data, errors } = await Organization.getAll(client, {}, { raw: true })
         expect(errors[0]).toMatchObject({
@@ -75,7 +100,7 @@ describe('Organization', () => {
         expect(data).toEqual({ 'objs': null })
     })
 
-    test('anonymous: count', async () => {
+    test('anonymous: no access to count', async () => {
         const client = await makeClient()
         const { data, errors } = await Organization.count(client, {}, { raw: true })
         expect(errors[0]).toMatchObject({
@@ -87,7 +112,7 @@ describe('Organization', () => {
         expect(data).toEqual({ meta: { count: null } })
     })
 
-    test('user: getAll', async () => {
+    test('user: allow to getAll', async () => {
         const admin = await makeLoggedInAdminClient()
         const [org] = await createOrganization(admin)
         const [user, userAttrs] = await createUser(admin)
@@ -96,13 +121,142 @@ describe('Organization', () => {
         expect(objs.length).toBeGreaterThan(0)
     })
 
-    test('user: count', async () => {
+    test('user: allow to count', async () => {
         const admin = await makeLoggedInAdminClient()
         const [org] = await createOrganization(admin)
         const [user, userAttrs] = await createUser(admin)
         const client = await makeLoggedInClient(userAttrs)
         const count = await Organization.count(client, {})
         expect(count).toBeGreaterThan(0)
+    })
+})
+
+describe('OrganizationEmployee', () => {
+    test('anonymous: no access to getAll', async () => {
+        const client = await makeClient()
+        const { data, errors } = await OrganizationEmployee.getAll(client, {}, { raw: true })
+        expect(errors[0]).toMatchObject({
+            'data': { 'target': 'allOrganizationEmployees', 'type': 'query' },
+            'message': 'You do not have access to this resource',
+            'name': 'AccessDeniedError',
+            'path': ['objs'],
+        })
+        expect(data).toEqual({ 'objs': null })
+    })
+
+    test('anonymous: no access to count', async () => {
+        const client = await makeClient()
+        const { data, errors } = await OrganizationEmployee.count(client, {}, { raw: true })
+        expect(errors[0]).toMatchObject({
+            'data': { 'target': '_allOrganizationEmployeesMeta', 'type': 'query' },
+            'message': 'You do not have access to this resource',
+            'name': 'AccessDeniedError',
+            'path': ['meta', 'count'],
+        })
+        expect(data).toEqual({ meta: { count: null } })
+    })
+
+    test('user: allow to getAll only for employee', async () => {
+        const client1 = await makeClientWithRegisteredOrganization()
+        const client2 = await makeClientWithRegisteredOrganization()
+        const objs1 = await OrganizationEmployee.getAll(client1, {})
+        const objs2 = await OrganizationEmployee.getAll(client2, {})
+        expect(objs1).toHaveLength(1)
+        expect(objs2).toHaveLength(1)
+        expect(objs1[0].id).not.toEqual(objs2[0].id)
+    })
+
+    test('user: allow to count ony for employee', async () => {
+        const client1 = await makeClientWithRegisteredOrganization()
+        const client2 = await makeClientWithRegisteredOrganization()
+        const count1 = await OrganizationEmployee.count(client1, {})
+        const count2 = await OrganizationEmployee.count(client2, {})
+        expect(count1).toEqual(1)
+        expect(count2).toEqual(1)
+    })
+
+    test('admin: allow to getAll', async () => {
+        const client1 = await makeClientWithRegisteredOrganization()
+        await addAdminAccess(client1.user)
+        const objs1 = await OrganizationEmployee.getAll(client1, {})
+        expect(objs1.length).toBeGreaterThan(1)
+    })
+
+    test('admin: allow to count all', async () => {
+        const client1 = await makeClientWithRegisteredOrganization()
+        await addAdminAccess(client1.user)
+        const count1 = await OrganizationEmployee.count(client1, {})
+        expect(count1).toBeGreaterThan(1)
+    })
+
+    // TODO(pahaz): can create/update/(change organization field)/delete ? (user/anonimous)
+
+    test('anonymous/user/admin: create', async () => {
+        const anonymous = await makeClient()
+        const user = await makeClientWithRegisteredOrganization()
+        const admin = await makeLoggedInAdminClient()
+
+        {
+            const { errors } = await OrganizationEmployee.create(anonymous, {}, { raw: true })
+            expect(errors[0]).toMatchObject({
+                'data': { 'target': 'createOrganizationEmployee', 'type': 'mutation' },
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
+            })
+        }
+        {
+            const { errors } = await OrganizationEmployee.create(user, {}, { raw: true })
+            expect(errors[0]).toMatchObject({
+                'data': { 'target': 'createOrganizationEmployee', 'type': 'mutation' },
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
+            })
+        }
+        {
+            const obj = await createOrganizationEmployee(admin, {
+                organization: { connect: { id: user.organization.id } },
+            })
+            expect(obj).toMatchObject(expect.objectContaining({}))
+        }
+    })
+
+    test('anonymous/user/admin: update', async () => {
+        const anonymous = await makeClient()
+        const user = await makeClientWithRegisteredOrganization()
+        const admin = await makeLoggedInAdminClient()
+        const name = faker.name.firstName()
+
+        {
+            const { errors } = await OrganizationEmployee.update(anonymous, user.organization.id, { name }, { raw: true })
+            expect(errors[0]).toMatchObject({
+                'data': { 'target': 'updateOrganizationEmployee', 'type': 'mutation' },
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
+            })
+        }
+        // TODO(pahaz): it doesn't work! some bug inside keystonejs: https://github.com/keystonejs/keystone/issues/4829
+        // {
+        //     const { errors } = await OrganizationEmployee.update(user, user.organization.id, { name }, { raw: true })
+        //     expect(errors[0]).toMatchObject({
+        //         'data': { 'target': 'updateOrganizationEmployee', 'type': 'mutation' },
+        //         'message': 'You do not have access to this resource',
+        //         'name': 'AccessDeniedError',
+        //         'path': ['obj'],
+        //     })
+        // }
+        {
+            const employees = await OrganizationEmployee.getAll(admin, { organization: { id: user.organization.id } })
+            expect(employees).toHaveLength(1)
+            const obj = await OrganizationEmployee.update(admin, employees[0].id, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'test2' },
+                name,
+            })
+            expect(obj).toMatchObject(expect.objectContaining({ name }))
+        }
     })
 })
 
@@ -113,82 +267,39 @@ describe('REGISTER_NEW_ORGANIZATION_MUTATION', () => {
         const client = await makeLoggedInClient(userAttrs)
 
         const name = faker.company.companyName()
-        const [obj] = await registerNewOrganization(client, { name })
+        const [org] = await registerNewOrganization(client, { name })
 
-        expect(obj.id).toMatch(/^[0-9a-zA-Z-_]+$/)
-        expect(obj).toEqual(expect.objectContaining({
+        expect(org.id).toMatch(/^[0-9a-zA-Z-_]+$/)
+        expect(org).toEqual(expect.objectContaining({
             name,
         }))
 
-        // TODO(pahaz): validate EmployeeObject and Role!
+        // Validate Employee and Role!
+        const employees = await OrganizationEmployee.getAll(admin, { organization: { id: org.id } })
+        expect(employees).toEqual([
+            expect.objectContaining({
+                user: expect.objectContaining({
+                    id: user.id,
+                }),
+                organization: expect.objectContaining({
+                    id: org.id,
+                    name,
+                }),
+                name: user.name,
+                email: userAttrs.email,
+                phone: userAttrs.phone,
+                isAccepted: true,
+                isRejected: false,
+                role: expect.objectContaining({
+                    canManageOrganization: true,
+                    canManageEmployees: true,
+                    canManageRoles: true,
+                }),
+            }),
+        ])
     })
 })
 
-// test('anonymous: get all OrganizationToUserLinks', async () => {
-//     const client = await makeClient()
-//     const { data, errors } = await client.query(ALL_ORGANIZATION_TO_USER_LINKS_QUERY)
-//     expect(errors[0]).toMatchObject({
-//         'data': { 'target': 'allOrganizationToUserLinks', 'type': 'query' },
-//         'message': 'You do not have access to this resource',
-//         'name': 'AccessDeniedError',
-//         'path': ['objs'],
-//     })
-//     expect(data).toEqual({ 'objs': null })
-// })
-//
-// test('anonymous: get count of OrganizationToUserLinks', async () => {
-//     const client = await makeClient()
-//     const { data, errors } = await client.query(COUNT_OF_ORGANIZATION_TO_USER_LINKS_QUERY)
-//     expect(errors[0]).toMatchObject({
-//         'data': { 'target': '_allOrganizationToUserLinksMeta', 'type': 'query' },
-//         'message': 'You do not have access to this resource',
-//         'name': 'AccessDeniedError',
-//         'path': ['meta', 'count'],
-//     })
-//     expect(data).toEqual({ meta: { count: null } })
-// })
-//
-// test('user: get all OrganizationToUserLinks', async () => {
-//     await createSchemaObject(OrganizationToUserLink)
-//     const user = await createUser()
-//     const client = await makeLoggedInClient(user)
-//     const { data, errors } = await client.query(ALL_ORGANIZATION_TO_USER_LINKS_QUERY)
-//     expect(errors).toEqual(undefined)
-//     expect(data.objs).toHaveLength(0)
-// })
-//
-// test('user: get count of OrganizationToUserLinks', async () => {
-//     await createSchemaObject(OrganizationToUserLink)
-//     const user = await createUser()
-//     const client = await makeLoggedInClient(user)
-//     const { data } = await client.query(COUNT_OF_ORGANIZATION_TO_USER_LINKS_QUERY)
-//     expect(data.meta.count).toEqual(0)
-// })
-//
-// test('user: hide OrganizationToUserLink for everyone who not in userLinks', async () => {
-//     await createSchemaObject(OrganizationToUserLink)
-//     const { id, _raw_query_data } = await createSchemaObject(OrganizationToUserLink)
-//     const organization = _raw_query_data.organization.create
-//     const user = _raw_query_data.user.create
-//     expect(user.email).toMatch(/^.+$/g)
-//     expect(user.password).toMatch(/^.+$/g)
-//     expect(organization.name).toMatch(/^.+$/g)
-//
-//     // check by member
-//     const client_member = await makeLoggedInClient(user)
-//     const { data: data1, errors: errors1 } = await client_member.query(ALL_ORGANIZATION_TO_USER_LINKS_QUERY)
-//     expect(errors1).toEqual(undefined)
-//     expect(data1.objs).toEqual([expect.objectContaining({
-//         id,
-//         user: expect.objectContaining({ id: client_member.user.id }),
-//         organization: expect.objectContaining({ name: organization.name }),
-//     })])
-//
-//     const { data: data2, errors: errors2 } = await client_member.query(COUNT_OF_ORGANIZATION_TO_USER_LINKS_QUERY)
-//     expect(errors2).toEqual(undefined)
-//     expect(data2.meta.count).toEqual(1)
-// })
-//
 // test('user: access to change OrganizationToUserLink only for owners', async () => {
 //     const user1 = await createUser()
 //     const user2 = await createUser()

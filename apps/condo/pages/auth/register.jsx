@@ -16,6 +16,7 @@ import { getClientSideSenderInfo } from '../../utils/userid.utils'
 import { getQueryParams } from '../../utils/url.utils'
 import { useAuth } from '@core/next/auth'
 import { QuestionCircleOutlined } from '@ant-design/icons'
+import { runMutation } from '../../utils/mutations.utils'
 
 const REGISTER_NEW_USER_MUTATION = gql`
     mutation registerNewUser($data: RegisterNewUserInput!) {
@@ -371,16 +372,15 @@ function PhoneAuthForm ({ onPhoneAuthenticated }) {
                 <Input placeholder={ExamplePhoneMsg}/>
             </Form.Item>
 
-            {(verificationId) ?
-                <Form.Item
+            {(verificationId)
+                ? <Form.Item
                     name="code"
                     label={EnterVerificationCodeMsg}
                     rules={[{ required: true, message: FieldIsRequiredMsg }]}
                 >
                     <Input ref={verificationCodeTextInput}/>
                 </Form.Item>
-                :
-                null
+                : null
             }
 
             <Form.Item style={{ textAlign: 'center' }}>

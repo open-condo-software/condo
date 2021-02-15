@@ -1,10 +1,10 @@
 const gql = require('graphql-tag')
 const { genTestGQLUtils } = require('@core/keystone/gen.gql.utils')
 
-const ORGANIZATION_FIELDS = '{ id name description avatar { publicUrl } }'
+const ORGANIZATION_FIELDS = '{ id country name description avatar { publicUrl } }'
 const Organization = genTestGQLUtils('Organization', ORGANIZATION_FIELDS)
 
-const ORGANIZATION_ROLE_FIELDS = '{ id name canManageUsers }'
+const ORGANIZATION_ROLE_FIELDS = '{ id name canManageOrganization canManageEmployees canManageRoles }'
 const OrganizationEmployeeRole = genTestGQLUtils('OrganizationEmployeeRole', ORGANIZATION_ROLE_FIELDS)
 
 const ORGANIZATION_EMPLOYEE_FIELDS = `{ id organization ${ORGANIZATION_FIELDS} user { id name } name email phone role ${ORGANIZATION_ROLE_FIELDS} isRejected isAccepted }`

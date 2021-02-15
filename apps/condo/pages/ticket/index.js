@@ -111,7 +111,7 @@ function _useTicketColumns () {
             editable: false,
             importFromFile: true,
             render: (text, item, index) => {
-                return <Link href={`/condo/ticket/${item.id}`}><a>{text}</a></Link>
+                return <Link href={`/ticket/${item.id}`}><a>{text}</a></Link>
             },
         },
         {

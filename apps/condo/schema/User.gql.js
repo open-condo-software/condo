@@ -1,8 +1,9 @@
 const gql = require('graphql-tag')
 const { genTestGQLUtils } = require('@core/keystone/gen.gql.utils')
 
-const USER_FIELDS = '{ id dv sender name email phone avatar { publicUrl } meta importId v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt }'
+const USER_FIELDS = '{ id dv sender name avatar { publicUrl } meta importId v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt }'
 const User = genTestGQLUtils('User', USER_FIELDS)
+const UserAdmin = genTestGQLUtils('User', '{ id email phone }')
 
 const SIGNIN_MUTATION = gql`
     mutation sigin($identity: String, $secret: String) {
@@ -26,6 +27,7 @@ const REGISTER_NEW_USER_MUTATION = gql`
 
 module.exports = {
     User,
+    UserAdmin,
     SIGNIN_MUTATION,
     GET_MY_USERINFO,
     REGISTER_NEW_USER_MUTATION,

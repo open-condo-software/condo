@@ -7,16 +7,16 @@ const { File, Text, Relationship, Select, Uuid, Checkbox } = require('@keystonej
 
 const conf = require('@core/config')
 const access = require('@core/keystone/access')
-const { getByCondition } = require('@core/keystone/schema')
-const { getById } = require('@core/keystone/schema')
-const { GQLCustomSchema } = require('@core/keystone/schema')
-const { ORGANIZATION_OWNED_FIELD } = require('./_common')
-const { SENDER_FIELD } = require('./_common')
-const { DV_FIELD } = require('./_common')
-const { COUNTRIES } = require('../constants/countries')
+const { getByCondition, getById, GQLCustomSchema, GQLListSchema } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+
+const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('./_common')
+const OrganizationGQL = require('./Organization.gql')
+const { rules } = require('../access')
+const countries = require('../constants/countries')
+const { DV_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
+const { hasRequestAndDbFields, hasOneOfFields } = require('../utils/validation.utils')
 
 const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
     src: `${conf.MEDIA_ROOT}/orgavatars`,
@@ -33,7 +33,7 @@ const Organization = new GQLListSchema('Organization', {
             schemaDoc: 'Country level specific',
             isRequired: true,
             type: Select,
-            options: COUNTRIES,
+            options: countries.COUNTRIES,
         },
         name: {
             schemaDoc: 'Customer-friendly name',
@@ -67,10 +67,10 @@ const Organization = new GQLListSchema('Organization', {
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
-        read: access.userIsAuthenticated,
-        create: access.userIsAdmin,
-        update: access.userIsAdmin,
-        delete: access.userIsAdmin,
+        read: rules.canReadOrganizations,
+        create: rules.canManageOrganizations,
+        update: rules.canManageOrganizations,
+        delete: false,
         auth: true,
     },
 })
@@ -91,6 +91,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             knexOptions: { isNotNullable: false }, // Relationship only!
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             access: {
+                read: true,
                 update: access.userIsAdmin,
                 create: access.userIsAdmin,
             },
@@ -163,13 +164,25 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             },
         },
     },
-    plugins: [versioned(), tracked()],
+    plugins: [versioned(), tracked(), historical()],
     access: {
-        read: access.userIsAuthenticated,
-        create: access.userIsAdmin,
-        update: accessAllowOnlyForRoleOwner,
-        delete: accessAllowOnlyForRoleOwner,
+        read: rules.canReadEmployees,
+        create: rules.canManageEmployees,
+        update: rules.canManageEmployees,
+        delete: rules.canManageEmployees,
         auth: true,
+    },
+    hooks: {
+        validateInput: ({ resolvedData, existingItem, addValidationError }) => {
+            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization'], resolvedData, existingItem, addValidationError)) return
+            if (!hasOneOfFields(['email', 'name', 'phone'], resolvedData, existingItem, addValidationError)) return
+            const { dv } = resolvedData
+            if (dv === 1) {
+                // NOTE: version 1 specific translations. Don't optimize this logic
+            } else {
+                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+        },
     },
 })
 
@@ -186,17 +199,100 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
             isRequired: true,
         },
 
-        canManageUsers: { type: Checkbox, defaultValue: false },
+        canManageOrganization: { type: Checkbox, defaultValue: false },
+        canManageEmployees: { type: Checkbox, defaultValue: false },
+        canManageRoles: { type: Checkbox, defaultValue: false },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), historical()],
     access: {
-        read: access.userIsAuthenticated,
-        create: access.userIsAdmin,
-        update: access.userIsAdmin,
-        delete: access.userIsAdmin,
+        read: rules.canReadRoles,
+        create: rules.canManageRoles,
+        update: rules.canManageRoles,
+        delete: rules.canManageRoles,
         auth: true,
     },
 })
+
+async function execGqlWithoutAccess (context, { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj' }) {
+    if (!context) throw new Error('wrong context argument')
+    if (!query) throw new Error('wrong query argument')
+    if (!variables) throw new Error('wrong variables argument')
+    const { errors, data } = await context.executeGraphQL({
+        context: context.createContext({ skipAccessControl: true }),
+        query,
+        variables,
+    })
+
+    if (errors) {
+        console.error(errors)
+        const error = new Error(errorMessage)
+        error.errors = errors
+        throw error
+    }
+
+    if (!data || typeof data !== 'object') {
+        throw new Error('wrong query result')
+    }
+
+    return data[dataPath]
+}
+
+async function createOrganization (context, data) {
+    return await execGqlWithoutAccess(context, {
+        query: OrganizationGQL.Organization.CREATE_OBJ_MUTATION,
+        variables: { data },
+        errorMessage: '[error] Create organization internal error',
+        dataPath: 'obj',
+    })
+}
+
+async function createAdminRole (context, organization, data) {
+    if (!organization.id) throw new Error('wrong organization.id argument')
+    if (!organization.country) throw new Error('wrong organization.country argument')
+    const adminRoleName = countries[organization.country].adminRoleName
+    return await execGqlWithoutAccess(context, {
+        query: OrganizationGQL.OrganizationEmployeeRole.CREATE_OBJ_MUTATION,
+        variables: {
+            data: {
+                organization: { connect: { id: organization.id } },
+                canManageOrganization: true,
+                canManageEmployees: true,
+                canManageRoles: true,
+                name: adminRoleName,
+                ...data,
+            },
+        },
+        errorMessage: '[error] Create admin role internal error',
+        dataPath: 'obj',
+    })
+}
+
+async function createConfirmedEmployee (context, organization, user, role, data) {
+    if (!organization.id) throw new Error('wrong organization.id argument')
+    if (!organization.country) throw new Error('wrong organization.country argument')
+    if (!user.id) throw new Error('wrong user.id argument')
+    if (!user.name) throw new Error('wrong user.name argument')
+    if (!role.id) throw new Error('wrong role.id argument')
+    console.log(user)
+    return await execGqlWithoutAccess(context, {
+        query: OrganizationGQL.OrganizationEmployee.CREATE_OBJ_MUTATION,
+        variables: {
+            data: {
+                organization: { connect: { id: organization.id } },
+                user: { connect: { id: user.id } },
+                role: { connect: { id: role.id } },
+                isAccepted: true,
+                isRejected: false,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                ...data,
+            },
+        },
+        errorMessage: '[error] Create employee internal error',
+        dataPath: 'obj',
+    })
+}
 
 const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizationService', {
     types: [
@@ -207,49 +303,18 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
     ],
     mutations: [
         {
-            access: access.userIsAuthenticated,
+            access: rules.canRegisterNewOrganization,
             schema: 'registerNewOrganization(data: RegisterNewOrganizationInput!): Organization',
             resolver: async (parent, args, context, info, extra = {}) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data } = args
-                const extraLinkData = extra.extraLinkData || {}
-                const extraOrganizationData = extra.extraOrganizationData || {}
+                const extraData = { dv: data.dv, sender: data.sender }
 
-                const { errors: createErrors, data: createData } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
-                        mutation create($data: OrganizationEmployeeCreateInput!) {
-                          obj: createOrganizationEmployee(data: $data) {
-                            id
-                            organization {
-                              id
-                            }
-                          }
-                        }
-                    `,
-                    variables: {
-                        'data': {
-                            dv: data.dv,
-                            sender: data.sender,
-                            organization: { create: { ...data, ...extraOrganizationData } },
-                            user: { connect: { id: context.authedItem.id } },
-                            isAccepted: true,
-                            isRejected: false,
-                            name: context.authedItem.name,
-                            email: context.authedItem.email,
-                            phone: context.authedItem.phone,
-                            ...extraLinkData,
-                        },
-                    },
-                })
+                const organization = await createOrganization(context, data)
+                const role = await createAdminRole(context, organization, extraData)
+                await createConfirmedEmployee(context, organization, context.authedItem, role, extraData)
 
-                if (createErrors || !createData.obj || !createData.obj.id) {
-                    const msg = '[error] Unable to create organization'
-                    console.error(msg, createErrors)
-                    throw new Error(msg)
-                }
-
-                return await getById('Organization', createData.obj.organization.id)
+                return await getById('Organization', organization.id)
             },
         },
     ],
@@ -264,7 +329,7 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
     ],
     mutations: [
         {
-            access: allowAccessForRoleOwnerForInviteNewUserToOrganizationService,
+            access: rules.canInviteEmployee,
             schema: 'inviteNewUserToOrganization(data: InviteNewUserToOrganizationInput!): OrganizationEmployee',
             resolver: async (parent, args, context, info, extra = {}) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
@@ -416,13 +481,9 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
     ],
     mutations: [
         {
-            access: allowAccessForNotAssignedInvitesForAcceptOrRejectOrganizationInviteService,
+            access: rules.canAcceptOrRejectEmployeeInvite,
             schema: 'acceptOrRejectOrganizationInviteByCode(code: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee',
             resolver: async (parent, args, context, info, extra = {}) => {
-                await AcceptOrRejectOrganizationInviteService.emit('beforeAcceptOrRejectOrganizationInviteInput', {
-                    parent, args, context, info, extra,
-                })
-
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { code, data } = args
                 const extraLinkData = extra.extraLinkData || {}
@@ -459,20 +520,13 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                     throw new Error(msg)
                 }
 
-                const result = await getById('OrganizationEmployee', acceptOrRejectData.obj.id)
-                await AcceptOrRejectOrganizationInviteService.emit('afterAcceptOrRejectOrganizationInviteInput', {
-                    parent, args, context, info, extra, result,
-                })
-                return result
+                return await getById('OrganizationEmployee', acceptOrRejectData.obj.id)
             },
         },
         {
-            access: allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService,
+            access: rules.canAcceptOrRejectEmployeeInvite,
             schema: 'acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee',
             resolver: async (parent, args, context, info, extra = {}) => {
-                await AcceptOrRejectOrganizationInviteService.emit('beforeAcceptOrRejectOrganizationInviteInput', {
-                    parent, args, context, info, extra,
-                })
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { id, data } = args
                 const extraLinkData = extra.extraLinkData || {}
@@ -501,71 +555,11 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                     throw new Error(msg)
                 }
 
-                const result = await getById('OrganizationEmployee', acceptOrRejectData.obj.id)
-                await AcceptOrRejectOrganizationInviteService.emit('afterAcceptOrRejectOrganizationInviteInput', {
-                    parent, args, context, info, extra, result,
-                })
-                return result
+                return await getById('OrganizationEmployee', acceptOrRejectData.obj.id)
             },
         },
     ],
 })
-
-async function accessAllowOnlyForRoleOwner ({ operation, authentication: { item: user }, itemId, originalInput }) {
-    if (!user || !user.id) return false
-    if (user.isAdmin) return true
-    let orgId
-    if (operation === 'create' && originalInput) {
-        if (!connectByIdOnly(originalInput.organization) || !connectByIdOnly(originalInput.user)) return false
-        orgId = originalInput.organization.connect.id
-    } else if ((operation === 'update' || operation === 'delete') && itemId) {
-        const existingItem = await getById('OrganizationEmployee', itemId)
-        orgId = existingItem.organization
-    } else {
-        return false
-    }
-    const res = await find('OrganizationEmployee', {
-        organization: { id: orgId },
-        user: { id: user.id },
-        role: 'owner',
-    })
-    return res.length === 1
-}
-
-async function allowAccessForRoleOwnerForInviteNewUserToOrganizationService ({ authentication: { item: user }, args, context }) {
-    if (!user || !user.id) return false
-    if (user.isAdmin) return true
-    if (!args || !args.data || !args.data.organization || !args.data.organization.id) return false
-    const orgId = args.data.organization.id
-    const res = await find('OrganizationEmployee', {
-        organization: { id: orgId },
-        user: { id: user.id },
-        role: 'owner',
-    })
-    return res.length === 1
-}
-
-async function allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService ({ authentication: { item: user }, args, context }) {
-    if (!user || !user.id) return false
-    if (user.isAdmin) return true
-    if (!args || !args.id) return false
-    const { id } = args
-    const link = await getById('OrganizationEmployee', id)
-    const linkUser = await getById('User', link.user)
-    if (!link || !linkUser) return false
-    // TODO(pahaz): check is user email/phone is verified
-    return String(link.user) === String(user.id)
-}
-
-async function allowAccessForNotAssignedInvitesForAcceptOrRejectOrganizationInviteService ({ authentication: { item: user }, args, context }) {
-    if (!user || !user.id) return false
-    if (user.isAdmin) return true
-    if (!args || !args.code) return false
-    const { code } = args
-    const res = await find('OrganizationEmployee', { code, user_is_null: true })
-    // TODO(pahaz): check is user email/phone is verified
-    return res.length === 1
-}
 
 module.exports = {
     Organization,

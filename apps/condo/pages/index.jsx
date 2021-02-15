@@ -1,7 +1,8 @@
-import { useIntl } from '@core/next/intl'
 import Head from 'next/head'
 import { Typography } from 'antd'
 import ReactMarkdown from 'react-markdown'
+
+import { useIntl } from '@core/next/intl'
 
 import { PageContent, PageHeader, PageWrapper } from '../containers/BaseLayout'
 import { OrganizationRequired } from '../containers/OrganizationRequired'

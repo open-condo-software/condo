@@ -41,6 +41,7 @@ const SignInForm = ({ firebaseUser, children, ExtraErrorToFormFieldMsgMapping = 
     const LoggedInMsg = intl.formatMessage({ id: 'pages.auth.LoggedIn' })
     const EmailIsNoFoundMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNoFound' })
     const WrongPasswordMsg = intl.formatMessage({ id: 'pages.auth.WrongPassword' })
+    const UserIsNotFoundMsg = intl.formatMessage({ id: 'pages.auth.UserIsNotFound' })
     const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
     const ForgotPasswordMsg = intl.formatMessage({ id: 'pages.auth.ForgotPassword' })
     const ErrorToFormFieldMsgMapping = {
@@ -51,6 +52,10 @@ const SignInForm = ({ firebaseUser, children, ExtraErrorToFormFieldMsgMapping = 
         '[passwordAuth:secret:mismatch]': {
             name: 'password',
             errors: [WrongPasswordMsg],
+        },
+        '[notfound.error]': {
+            name: 'user',
+            errors: [UserIsNotFoundMsg],
         },
         ...ExtraErrorToFormFieldMsgMapping,
     }
@@ -69,6 +74,9 @@ const SignInForm = ({ firebaseUser, children, ExtraErrorToFormFieldMsgMapping = 
             },
             onFinally: () => {
                 setIsLoading(false)
+            },
+            onError: (e) => {
+                console.log(e.friendlyDescription)
             },
             intl,
             form,
