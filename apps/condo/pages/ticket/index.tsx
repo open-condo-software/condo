@@ -1,3 +1,4 @@
+// @ts-nocheck
 import gql from 'graphql-tag'
 import { useIntl } from '@core/next/intl'
 import Head from 'next/head'

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useContext, useEffect } from 'react'
 import { Button, Form, Input, Space } from 'antd'
 import { useIntl } from '@core/next/intl'

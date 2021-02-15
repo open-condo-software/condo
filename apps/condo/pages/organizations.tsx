@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Avatar, Button, Form, Input, notification, Radio, Tag } from 'antd'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import Head from 'next/head'

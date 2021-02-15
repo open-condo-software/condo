@@ -1,3 +1,4 @@
+// @ts-nocheck
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { Button, Form, Input, Typography } from 'antd'

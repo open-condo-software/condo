@@ -1,3 +1,4 @@
+// @ts-nocheck
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { useState } from 'react'

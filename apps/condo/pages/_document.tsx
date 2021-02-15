@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Document, { Html, Head, Main, NextScript } from 'next/document'
 import { extractCritical } from 'emotion-server'
 

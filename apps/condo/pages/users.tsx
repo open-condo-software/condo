@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Head from 'next/head'
 import { Space } from 'antd'
 import gql from 'graphql-tag'

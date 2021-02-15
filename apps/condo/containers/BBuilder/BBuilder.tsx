@@ -1,3 +1,4 @@
+// @ts-nocheck
 import styled from '@emotion/styled'
 import { useImmer } from 'use-immer'
 import { Button, Input, Modal, Form, InputNumber, Select } from 'antd'
