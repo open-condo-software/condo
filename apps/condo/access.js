@@ -43,12 +43,15 @@ const rules = {
             organization: { employees_some: { user: { id: user.id } } },
         }
     },
-    canManageEmployees: ({ authentication: { item: user } }) => {
+    canManageEmployees: (args) => {
+        const { authentication: { item: user }, operation } = args
         if (!user) return false
-        if (user.isAdmin) return {}
+        if (user.isAdmin) return true
+        if (operation === 'create') return false
+        // TODO(pahaz): test it! some bug inside keystonejs: https://github.com/keystonejs/keystone/issues/4829
         return {
             // user is inside employee list
-            organization: { employees_some: { user: { id: user.id, canManageEmployees: true } } },
+            organization: { employees_some: { user: { id: user.id }, role: { canManageEmployees: true } } },
         }
     },
     canReadRoles: ({ authentication: { item: user } }) => {
@@ -61,7 +64,7 @@ const rules = {
         if (user.isAdmin) return {}
         return {
             // user is inside employee list
-            organization: { employees_some: { user: { id: user.id, canManageRoles: true } } },
+            organization: { employees_some: { user: { id: user.id }, role: { canManageRoles: true } } },
         }
     },
     canRegisterNewOrganization: isSignedIn,

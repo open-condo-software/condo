@@ -15,6 +15,8 @@ const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('./_common'
 const OrganizationGQL = require('./Organization.gql')
 const { rules } = require('../access')
 const countries = require('../constants/countries')
+const { DV_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
+const { hasRequestAndDbFields, hasOneOfFields } = require('../utils/validation.utils')
 
 const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
     src: `${conf.MEDIA_ROOT}/orgavatars`,
@@ -170,6 +172,18 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         delete: rules.canManageEmployees,
         auth: true,
     },
+    hooks: {
+        validateInput: ({ resolvedData, existingItem, addValidationError }) => {
+            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization'], resolvedData, existingItem, addValidationError)) return
+            if (!hasOneOfFields(['email', 'name', 'phone'], resolvedData, existingItem, addValidationError)) return
+            const { dv } = resolvedData
+            if (dv === 1) {
+                // NOTE: version 1 specific translations. Don't optimize this logic
+            } else {
+                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+        },
+    },
 })
 
 const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
@@ -259,6 +273,7 @@ async function createConfirmedEmployee (context, organization, user, role, data)
     if (!user.id) throw new Error('wrong user.id argument')
     if (!user.name) throw new Error('wrong user.name argument')
     if (!role.id) throw new Error('wrong role.id argument')
+    console.log(user)
     return await execGqlWithoutAccess(context, {
         query: OrganizationGQL.OrganizationEmployee.CREATE_OBJ_MUTATION,
         variables: {

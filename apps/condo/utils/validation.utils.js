@@ -21,6 +21,24 @@ function hasRequestAndDbFields (requestRequired, databaseRequired, resolvedData,
     return hasAllFields
 }
 
+function hasOneOfFields (requestRequired, resolvedData, existingItem, addFieldValidationError) {
+    if (typeof resolvedData === 'undefined') throw new Error('unexpected undefined resolvedData arg')
+    if (requestRequired.length < 1) throw new Error('unexpected requestRequired list length')
+    if (typeof existingItem === 'undefined') existingItem = {}
+    let hasOneField = false
+    for (let field of requestRequired) {
+        let value = existingItem[field]
+        let newValue = resolvedData[field]
+        let isValueNullOrUndefined = value === null || typeof value === 'undefined'
+        let isNewValueNullOrUndefined = newValue === null || typeof newValue === 'undefined'
+        if (!isValueNullOrUndefined || !isNewValueNullOrUndefined) hasOneField = true
+    }
+
+    if (!hasOneField) addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${requestRequired[0]}] Value is required`)
+    return hasOneField
+}
+
 module.exports = {
     hasRequestAndDbFields,
+    hasOneOfFields,
 }
