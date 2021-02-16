@@ -324,7 +324,7 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
     types: [
         {
             access: true,
-            type: 'input InviteNewUserToOrganizationInput { organization: OrganizationWhereUniqueInput!, email: String!, name: String }',
+            type: 'input InviteNewUserToOrganizationInput { organization: OrganizationWhereUniqueInput!, email: String!, phone: String, name: String }',
         },
     ],
     mutations: [

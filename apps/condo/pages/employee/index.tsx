@@ -1,52 +1,27 @@
 // @ts-nocheck
 import Head from 'next/head'
 import { Space } from 'antd'
-import gql from 'graphql-tag'
 import React, { useEffect, useMemo } from 'react'
 import { useOrganization } from '@core/next/organization'
-import { useMutation, useQuery } from '@core/next/apollo'
+import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 
-import { PageContent, PageHeader, PageWrapper } from '../containers/BaseLayout'
-import { OrganizationRequired } from '../containers/OrganizationRequired'
-import { runMutation } from '../utils/mutations.utils'
-import { emailValidator, nameValidator, phoneValidator } from '../utils/excel.utils'
+import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
+import { OrganizationRequired } from '../../containers/OrganizationRequired'
+import { runMutation } from '../../utils/mutations.utils'
+import { emailValidator, nameValidator, phoneValidator } from '../../utils/excel.utils'
+import { INVITE_NEW_USER_TO_ORGANIZATION_MUTATION } from '../../schema/Organization.gql'
+import { OrganizationEmployee } from '../../utils/clientSchema/Organization'
+
 import {
     NewOrExportTableBlock,
     RenderActionsColumn,
     toGQLSortBy,
-    toGQLWhere, useTable,
+    toGQLWhere,
+    useTable,
     ViewOrEditTableBlock,
-} from '../containers/FormTableBlocks'
+} from '../../containers/FormTableBlocks'
 
-const MODEL = 'OrganizationToUserLink'
-const MODELs = 'OrganizationToUserLinks'
-const MODEL_FIELDS = '{ id organization { id name description avatar { publicUrl } } user { id name } name email phone role isRejected isAccepted }'
-
-const DELETE_ORGANIZATION_LINK_BY_ID_MUTATION = gql`
-    mutation delete${MODEL}ById($id:ID!) {
-    obj: delete${MODEL}(id: $id) ${MODEL_FIELDS}
-    }
-`
-
-const INVITE_NEW_USER_TO_ORGANIZATION_MUTATION = gql`
-    mutation inviteNewUserToOrganization($data: InviteNewUserToOrganizationInput!) {
-        obj: inviteNewUserToOrganization(data: $data) ${MODEL_FIELDS}
-    }
-`
-
-const GET_ALL_ORGANIZATION_LINKS_WITH_COUNT_QUERY = gql`
-    query getAll${MODELs}WithMeta($where: ${MODEL}WhereInput, $first: Int, $skip: Int, $sortBy: [Sort${MODELs}By!]) {
-    meta: _all${MODELs}Meta(where: $where, sortBy: id_DESC) { count }
-    objs: all${MODELs}(where: $where, first: $first, skip: $skip, sortBy: $sortBy) ${MODEL_FIELDS}
-    }
-`
-
-const UPDATE_ORGANIZATION_LINK_BY_ID_MUTATION = gql`
-    mutation update${MODEL}ById($id:ID!, $data: ${MODEL}UpdateInput!) {
-    obj: update${MODEL}(id: $id, data: $data) ${MODEL_FIELDS}
-    }
-`
 
 function _useUserColumns () {
     const intl = useIntl()
@@ -173,7 +148,7 @@ function _useUserColumns () {
     ]
 }
 
-function UserCRUDTableBlock () {
+function EmployeeCRUDTableBlock () {
     const { organization } = useOrganization()
 
     const newDataTable = useTable()
@@ -190,41 +165,24 @@ function UserCRUDTableBlock () {
         },
     }
 
-    const [create] = useMutation(INVITE_NEW_USER_TO_ORGANIZATION_MUTATION)
-    const [update] = useMutation(UPDATE_ORGANIZATION_LINK_BY_ID_MUTATION)
-    const [del] = useMutation(DELETE_ORGANIZATION_LINK_BY_ID_MUTATION)
-    const { data, refetch, error } = useQuery(GET_ALL_ORGANIZATION_LINKS_WITH_COUNT_QUERY, {
-        variables: {
-            first: table.state.pagination.pageSize,
-            skip: (table.state.pagination.current - 1) * table.state.pagination.pageSize,
-            sortBy: toGQLSortBy(table.state.sorter),
-            where: { ...toGQLWhere(table.state.filters), organization: { id: organization.id } },
-        },
+    const [invite] = useMutation(INVITE_NEW_USER_TO_ORGANIZATION_MUTATION)
+    const update = OrganizationEmployee.useUpdate()
+    const del = OrganizationEmployee.useDelete()
+    const { loading, refetch, objs, count, error } = OrganizationEmployee.useObjects({
+        first: table.state.pagination.pageSize,
+        skip: (table.state.pagination.current - 1) * table.state.pagination.pageSize,
+        sortBy: toGQLSortBy(table.state.sorter),
+        where: { ...toGQLWhere(table.state.filters), organization: { id: organization.id } },
     })
 
     function handleCreateOrUpdate ({ values, item, form }) {
+        console.log('handleCreateOrUpdate', values, item, form)
         if (values.email) values.email = values.email.toLowerCase()
-        const mutation = (item && item.isUnsavedNew) ? create : update
-        const variables = (item && item.isUnsavedNew) ?
-            {
-                data: {
-                    ...values,
-                    organization: { id: organization.id },
-                },
-            } :
-            {
-                id: item.id,
-                data: {
-                    ...values,
-                },
-            }
+        const action = (item && item.isUnsavedNew) ? invite : update
+        if (item.isUnsavedNew) values.organization = { id: organization.id }
         return runMutation(
             {
-                mutation,
-                variables,
-                onCompleted: () => {
-                    if (refetch) refetch()
-                },
+                action: () => action(values, (item.isUnsavedNew) ? null : item),
                 onError: (e) => {
                     console.log(e.friendlyDescription, form)
                     const msg = e.friendlyDescription || ServerErrorMsg
@@ -240,6 +198,7 @@ function UserCRUDTableBlock () {
     }
 
     function handleDelete ({ values, item, form }) {
+        console.log('handleDelete', values, item, form)
         return runMutation(
             {
                 mutation: del,
@@ -254,33 +213,11 @@ function UserCRUDTableBlock () {
         )
     }
 
-    // function fakeJob () {
-    //     return new Promise(res => {
-    //         setTimeout(() => res(1), 1200)
-    //     })
-    // }
-    //
-    // async function handleSaveAll ({ values }) {
-    //     await fakeJob()
-    //     values.forEach((item) => {
-    //
-    //     })
-    //     // for (let index in values) {
-    //     //     const ref = saveButtonRefs[index]
-    //     //     console.log(ref)
-    //     //     if (ref && ref.current) {
-    //     //         ref.current.focus()
-    //     //         ref.current.click()
-    //     //     }
-    //     //     await fakeJob()
-    //     // }
-    // }
-
     useEffect(() => {
-        if (data) {
-            table.setData(data.objs)
+        if (objs) {
+            table.setData(objs)
             table.updateFilterPaginationSort({
-                total: (data && data.meta) ? data.meta.count : undefined,
+                total: (count) ? count : undefined,
             })
             const actions = {
                 CreateOrUpdate: handleCreateOrUpdate,
@@ -290,7 +227,7 @@ function UserCRUDTableBlock () {
             newDataTable.updateActions(actions)
             table.updateActions(actions)
         }
-    }, [data])
+    }, [objs])
 
     const createColumns = useMemo(() => {return columns}, [])
     const editColumns = useMemo(() => {return columns}, [])
@@ -319,7 +256,7 @@ const ResidentsPage = () => {
             <PageHeader title={PageTitleMsg}/>
             <PageContent>
                 <OrganizationRequired>
-                    <UserCRUDTableBlock/>
+                    <EmployeeCRUDTableBlock/>
                 </OrganizationRequired>
             </PageContent>
         </PageWrapper>
