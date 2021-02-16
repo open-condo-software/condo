@@ -324,7 +324,7 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
     types: [
         {
             access: true,
-            type: 'input InviteNewUserToOrganizationInput { organization: OrganizationWhereUniqueInput!, email: String!, phone: String, name: String }',
+            type: 'input InviteNewUserToOrganizationInput { dv: Int!, sender: JSON!, organization: OrganizationWhereUniqueInput!, email: String!, phone: String, name: String }',
         },
     ],
     mutations: [
@@ -334,9 +334,8 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
             resolver: async (parent, args, context, info, extra = {}) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data } = args
-                const extraLinkData = extra.extraLinkData || {}
                 const { organization, email, name, ...restData } = data
-                let user = extraLinkData.user
+                let user
 
                 // Note: check is already exists (email + organization)
                 {
@@ -442,11 +441,10 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                     variables: {
                         'data': {
                             user: (user) ? { connect: { id: user.id } } : undefined,
-                            organization: { connect: { id: data.organization.id } },
+                            organization: { connect: { id: organization.id } },
                             email,
                             name,
                             ...restData,
-                            ...extraLinkData,
                         },
                     },
                 })
@@ -457,19 +455,13 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                     throw new Error(msg)
                 }
 
-                const result = await getById('OrganizationEmployee', createData.obj.id)
-                await InviteNewUserToOrganizationService.emit('afterInviteNewUserToOrganization', {
-                    parent, args, context, info, extra, result,
-                })
-                return result
+                // TODO(pahaz): send email !?!?!
+                console.log('Fake send security email!')
+
+                return await getById('OrganizationEmployee', createData.obj.id)
             },
         },
     ],
-})
-
-InviteNewUserToOrganizationService.on('afterInviteNewUserToOrganization', ({ parent, args, context, info, extra, result }) => {
-    // NOTE: send invite link by email!
-    console.log('Fake send security email!', JSON.stringify(result))
 })
 
 const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRejectOrganizationInviteService', {

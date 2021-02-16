@@ -8,6 +8,7 @@ const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 const faker = require('faker')
+const { INVITE_NEW_USER_TO_ORGANIZATION_MUTATION } = require('./Organization.gql')
 const { addAdminAccess } = require('./User.test')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('./User.test')
 
@@ -72,6 +73,30 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
     }
 
     const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+        data: { ...attrs },
+    })
+    if (raw) return { data, errors }
+    expect(errors).toEqual(undefined)
+    return [data.obj, attrs]
+}
+
+async function inviteNewUser (client, organization, user, extraAttrs = {}, { raw = false } = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization) throw new Error('no organization')
+    if (!user) throw new Error('no user')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        email: user.email,
+        phone: user.phone,
+        name: user.name,
+        organization: { id: organization.id },
+        ...extraAttrs,
+    }
+
+    const { data, errors } = await client.mutate(INVITE_NEW_USER_TO_ORGANIZATION_MUTATION, {
         data: { ...attrs },
     })
     if (raw) return { data, errors }
@@ -441,47 +466,21 @@ describe('REGISTER_NEW_ORGANIZATION_MUTATION', () => {
 //         'path': ['obj'],
 //     })
 // })
-//
-// const INVITE_NEW_USER_MUTATION = gql`
-//     mutation inviteNewUser($data: InviteNewUserToOrganizationInput!) {
-//         obj: inviteNewUserToOrganization(data: $data) {
-//             id
-//             role
-//             user {
-//                 id
-//             }
-//         }
-//     }
-// `
-//
-// async function inviteNewUser (client, organizationId, email) {
-//     const { data, errors } = await client.mutate(INVITE_NEW_USER_MUTATION, {
-//         data: {
-//             organization: { id: organizationId },
-//             email: email,
-//             name: 'user2',
-//         },
-//     })
-//     expect(errors).toEqual(undefined)
-//     expect(data.obj.id).toMatch(/^[0-9a-zA-Z-_]+$/)
-//     expect(data.obj.role).toEqual('member')
-//     return { data }
-// }
-//
-// test('owner: invite new user', async () => {
-//     const user = await createUser()
-//     const user2 = await createUser()
-//     const client = await makeLoggedInClient(user)
-//     const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
-//         data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
-//     })
-//     expect(errors).toEqual(undefined)
-//
-//     // invite
-//     const { data: d2 } = await inviteNewUser(client, data.obj.id, user2.email)
-//     expect(d2.obj.user.id).toEqual(user2.id)
-// })
-//
+
+describe('INVITE', () => {
+    test('owner: invite new user', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [user, userAttrs] = await createUser(admin)
+        const client = await makeClientWithRegisteredOrganization()
+        const [employee] = await inviteNewUser(client, client.organization, userAttrs)
+        expect(employee.user.id).toEqual(user.id)
+        expect(employee.email).toEqual(userAttrs.email)
+        expect(employee.phone).toEqual(userAttrs.phone)
+        expect(employee.name).toEqual(userAttrs.name)
+    })
+})
+
+
 // test('owner: try to invite already invited user', async () => {
 //     const user = await createUser()
 //     const user2 = await createUser()

@@ -72,14 +72,16 @@ const rules = {
         // allowAccessForRoleOwnerForInviteNewUserToOrganizationService, find
         if (!user || !user.id) return false
         if (user.isAdmin) return true
-        if (!args || !args.data || !args.data.organization || !args.data.organization.id) return false
-        const orgId = args.data.organization.id
-        const res = await find('OrganizationEmployee', {
-            organization: { id: orgId },
-            user: { id: user.id },
-            role: 'owner',
-        })
-        return res.length === 1
+        // if (!args || !args.data || !args.data.organization || !args.data.organization.id) return false
+        // const orgId = args.data.organization.id
+        // const res = await find('OrganizationEmployee', {
+        //     organization: { id: orgId },
+        //     user: { id: user.id },
+        //     role: 'owner',
+        // })
+        // return res.length === 1
+        // TODO(pahaz): check the access!
+        return true
     },
     canAcceptOrRejectEmployeeInvite: async ({ authentication: { item: user }, args, context }) => {
         // allowAccessForNotAssignedInvitesForAcceptOrRejectOrganizationInviteService, find
