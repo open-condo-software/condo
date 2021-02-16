@@ -15,6 +15,7 @@ const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('./_common'
 const OrganizationGQL = require('./Organization.gql')
 const { rules } = require('../access')
 const countries = require('../constants/countries')
+const { ALREADY_EXISTS_ERROR } = require('../constants/errors')
 const { DV_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
 const { hasRequestAndDbFields, hasOneOfFields } = require('../utils/validation.utils')
 
@@ -320,17 +321,17 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
     ],
 })
 
-const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToOrganizationService', {
+const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrganizationEmployeeService', {
     types: [
         {
             access: true,
-            type: 'input InviteNewUserToOrganizationInput { dv: Int!, sender: JSON!, organization: OrganizationWhereUniqueInput!, email: String!, phone: String, name: String }',
+            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: JSON!, organization: OrganizationWhereUniqueInput!, email: String!, phone: String, name: String }',
         },
     ],
     mutations: [
         {
             access: rules.canInviteEmployee,
-            schema: 'inviteNewUserToOrganization(data: InviteNewUserToOrganizationInput!): OrganizationEmployee',
+            schema: 'inviteNewOrganizationEmployee(data: InviteNewOrganizationEmployeeInput!): OrganizationEmployee',
             resolver: async (parent, args, context, info, extra = {}) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data } = args
@@ -361,7 +362,7 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                     }
 
                     if (data.objs.length > 0) {
-                        const msg = '[error.already.exists] User is already invited in the organization'
+                        const msg = `${ALREADY_EXISTS_ERROR}] User is already invited in the organization`
                         console.error(msg, errors)
                         throw new Error(msg)
                     }
@@ -420,7 +421,7 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                     }
 
                     if (data.objs.length > 0) {
-                        const msg = '[error.already.exists] User is already invited in the organization'
+                        const msg = `${ALREADY_EXISTS_ERROR}] User is already invited in the organization`
                         console.error(msg, errors)
                         throw new Error(msg)
                     }
@@ -558,6 +559,6 @@ module.exports = {
     OrganizationEmployee,
     OrganizationEmployeeRole,
     RegisterNewOrganizationService,
-    InviteNewUserToOrganizationService,
+    InviteNewOrganizationEmployeeService,
     AcceptOrRejectOrganizationInviteService,
 }

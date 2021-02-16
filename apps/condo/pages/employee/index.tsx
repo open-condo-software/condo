@@ -3,15 +3,13 @@ import Head from 'next/head'
 import { Space } from 'antd'
 import React, { useEffect, useMemo } from 'react'
 import { useOrganization } from '@core/next/organization'
-import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
 import { runMutation } from '../../utils/mutations.utils'
 import { emailValidator, nameValidator, phoneValidator } from '../../utils/excel.utils'
-import { INVITE_NEW_USER_TO_ORGANIZATION_MUTATION } from '../../schema/Organization.gql'
-import { OrganizationEmployee } from '../../utils/clientSchema/Organization'
+import { OrganizationEmployee, useInviteNewOrganizationEmployee } from '../../utils/clientSchema/Organization'
 
 import {
     NewOrExportTableBlock,
@@ -165,21 +163,21 @@ function EmployeeCRUDTableBlock () {
         },
     }
 
-    const [invite] = useMutation(INVITE_NEW_USER_TO_ORGANIZATION_MUTATION)
-    const update = OrganizationEmployee.useUpdate()
-    const del = OrganizationEmployee.useDelete()
+    // TODO(pahaz): add loading state
     const { loading, refetch, objs, count, error } = OrganizationEmployee.useObjects({
         first: table.state.pagination.pageSize,
         skip: (table.state.pagination.current - 1) * table.state.pagination.pageSize,
         sortBy: toGQLSortBy(table.state.sorter),
         where: { ...toGQLWhere(table.state.filters), organization: { id: organization.id } },
     })
+    const invite = useInviteNewOrganizationEmployee({ organization: { id: organization.id } }, refetch)
+    const update = OrganizationEmployee.useUpdate({}, refetch)
+    const del = OrganizationEmployee.useDelete({}, refetch)
 
     function handleCreateOrUpdate ({ values, item, form }) {
         console.log('handleCreateOrUpdate', values, item, form)
         if (values.email) values.email = values.email.toLowerCase()
         const action = (item && item.isUnsavedNew) ? invite : update
-        if (item.isUnsavedNew) values.organization = { id: organization.id }
         return runMutation(
             {
                 action: () => action(values, (item.isUnsavedNew) ? null : item),
@@ -201,14 +199,17 @@ function EmployeeCRUDTableBlock () {
         console.log('handleDelete', values, item, form)
         return runMutation(
             {
-                mutation: del,
-                variables: {
-                    id: values.id,
-                },
-                onFinally: () => {
-                    if (refetch) refetch()
+                action: () => del(item),
+                onError: (e) => {
+                    console.log(e.friendlyDescription, form)
+                    const msg = e.friendlyDescription || ServerErrorMsg
+                    if (msg) {
+                        form.setFields([{ name: 'email', errors: [msg] }])
+                    }
+                    throw e
                 },
                 intl,
+                ErrorToFormFieldMsgMapping,
             },
         )
     }

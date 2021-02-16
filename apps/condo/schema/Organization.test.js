@@ -8,7 +8,8 @@ const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 const faker = require('faker')
-const { INVITE_NEW_USER_TO_ORGANIZATION_MUTATION } = require('./Organization.gql')
+const { ALREADY_EXISTS_ERROR } = require('../constants/errors')
+const { INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } = require('./Organization.gql')
 const { addAdminAccess } = require('./User.test')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('./User.test')
 
@@ -96,7 +97,7 @@ async function inviteNewUser (client, organization, user, extraAttrs = {}, { raw
         ...extraAttrs,
     }
 
-    const { data, errors } = await client.mutate(INVITE_NEW_USER_TO_ORGANIZATION_MUTATION, {
+    const { data, errors } = await client.mutate(INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION, {
         data: { ...attrs },
     })
     if (raw) return { data, errors }
@@ -478,31 +479,19 @@ describe('INVITE', () => {
         expect(employee.phone).toEqual(userAttrs.phone)
         expect(employee.name).toEqual(userAttrs.name)
     })
+
+    test('owner: try to invite already invited user', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [user, userAttrs] = await createUser(admin)
+        const client = await makeClientWithRegisteredOrganization()
+        const [employee] = await inviteNewUser(client, client.organization, userAttrs)
+
+        const { errors } = await inviteNewUser(client, client.organization, userAttrs, {}, { raw:true })
+        expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+    })
 })
 
 
-// test('owner: try to invite already invited user', async () => {
-//     const user = await createUser()
-//     const user2 = await createUser()
-//     const client = await makeLoggedInClient(user)
-//     const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
-//         data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
-//     })
-//     expect(errors).toEqual(undefined)
-//
-//     // invite
-//     await inviteNewUser(client, data.obj.id, user2.email)
-//     {
-//         const { errors } = await client.mutate(INVITE_NEW_USER_MUTATION, {
-//             data: {
-//                 organization: { id: data.obj.id },
-//                 email: user2.email,
-//                 name: 'user2',
-//             },
-//         })
-//         expect(JSON.stringify(errors)).toContain('[error.already.exists]')
-//     }
-// })
 //
 // test('owner: try to invite already invited email', async () => {
 //     const user = await createUser()
