@@ -81,11 +81,38 @@ function genReactHooks (TestUtils, { convertGQLItemToUIState, convertUIStateToGQ
         return useMemo(() => _action, [rowAction])
     }
 
+    function useDelete (attrs = {}, onComplete) {
+        if (typeof attrs !== 'object' || !attrs) throw new Error('useDelete(): invalid attrs argument')
+        let [rowAction] = useMutation(TestUtils.DELETE_OBJ_MUTATION)
+
+        async function _action (obj) {
+            if (!obj || !obj.id) throw new Error('No obj.id argument')
+            const { data, error } = await rowAction({
+                variables: {
+                    id: obj.id,
+                },
+            })
+            if (data && data.obj) {
+                const result = convertGQLItemToUIState(data.obj)
+                if (onComplete) onComplete(result)
+                return result
+            }
+            if (error) {
+                console.warn(error)
+                throw error
+            }
+            throw new Error('unknown action result')
+        }
+
+        return useMemo(() => _action, [rowAction])
+    }
+
     return {
         useObject,
         useObjects,
         useCreate,
         useUpdate,
+        useDelete,
     }
 }
 
