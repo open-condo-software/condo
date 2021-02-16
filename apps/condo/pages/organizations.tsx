@@ -24,7 +24,7 @@ import {
     REGISTER_NEW_ORGANIZATION_MUTATION,
     UPDATE_ORGANIZATION_BY_ID_MUTATION,
 } from '../schema/Organization.gql'
-import { convertGQLItemToUIState, convertUIStateToGQLItem } from '../schema/Organization.uistate'
+import { convertGQLItemToUIState, convertUIStateToGQLItem } from '../utils/clientSchema/Organization'
 
 const DEFAULT_ORGANIZATION_AVATAR_URL = 'https://www.pngitem.com/pimgs/m/226-2261747_company-name-icon-png-transparent-png.png'
 

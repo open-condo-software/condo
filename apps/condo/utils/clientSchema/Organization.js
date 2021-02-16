@@ -3,8 +3,8 @@ import { useMemo } from 'react'
 import { useMutation } from '@core/next/apollo'
 import { genReactHooks } from '@core/keystone/gen.gql.react.utils'
 
-import { OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION } from './Organization.gql'
-import { getClientSideSenderInfo } from '../utils/userid.utils'
+import { OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION } from '../../schema/Organization.gql'
+import { getClientSideSenderInfo } from '../userid.utils'
 
 function convertGQLItemToUIState (item) {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
@@ -41,6 +41,6 @@ function useRegisterNewOrganization (attrs = {}, onComplete) {
 
 module.exports = {
     convertGQLItemToUIState, convertUIStateToGQLItem,
-    ...genReactHooks(OrganizationEmployee, { convertGQLItemToUIState, convertUIStateToGQLItem }),
+    OrganizationEmployee: genReactHooks(OrganizationEmployee, { convertGQLItemToUIState, convertUIStateToGQLItem }),
     useRegisterNewOrganization,
 }
