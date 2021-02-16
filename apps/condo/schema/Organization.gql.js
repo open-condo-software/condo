@@ -41,6 +41,12 @@ const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION = gql`
     }
 `
 
+const INVITE_NEW_USER_TO_ORGANIZATION_MUTATION = gql`
+    mutation inviteNewUserToOrganization($data: InviteNewUserToOrganizationInput!) {
+        obj: inviteNewUserToOrganization(data: $data) ${ORGANIZATION_EMPLOYEE_FIELDS}
+    }
+`
+
 module.exports = {
     Organization,
     OrganizationEmployeeRole,
@@ -50,4 +56,5 @@ module.exports = {
     GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY,
     REGISTER_NEW_ORGANIZATION_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
+    INVITE_NEW_USER_TO_ORGANIZATION_MUTATION,
 }
