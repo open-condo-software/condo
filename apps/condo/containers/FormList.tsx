@@ -1,12 +1,14 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { Button, Dropdown, Form, Input, List, Menu, Modal, Popconfirm, Skeleton, Typography } from 'antd'
 import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import React, { useState } from 'react'
+import React, { FunctionComponent, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
 
 import { runMutation } from '../utils/mutations.utils'
+import { t } from '../utils/react'
 
 const identity = (x) => !!x
 const NON_FIELD_ERROR_NAME = '_NON_FIELD_ERROR_'
@@ -182,7 +184,7 @@ function useCreateAndEditModalForm () {
     return { visible, editableItem, openCreateModal, openEditModal, cancelModal }
 }
 
-function CreateModalFormWithButton ({ CreateButtonLabelMsg, OnCreatedMsg, ...props }) { // eslint-disable-line no-unused-vars
+function CreateModalFormWithButton ({ CreateButtonLabelMsg, OnCreatedMsg, ...props }) {
     // TODO(pahaz): use it somewhere as example! (and remove eslint-disable-line)
     const { visible, openCreateModal, cancelModal } = useCreateAndEditModalForm()
 
@@ -319,6 +321,94 @@ function BaseModalForm ({ action, mutation, mutationExtraVariables, mutationExtr
     </Modal>)
 }
 
+interface IFormWithAction {
+    action: () => void
+    initialValues?: Record<string, unknown>
+    onChange?: (changedValues: Record<string, unknown>, allValues: Record<string, unknown>) => void
+}
+
+const FormWithAction:FunctionComponent<IFormWithAction> = ({ initialValues, onChange, action, children }) => {
+    const [form] = Form.useForm()
+    const [isLoading, setIsLoading] = useState(false)
+
+    function handleSubmit (values) {
+        if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
+        let data
+        try {
+            data = (formValuesToMutationDataPreprocessor) ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext) : values
+        } catch (err) {
+            if (err instanceof ValidationError) {
+                let errors = []
+                if (ErrorToFormFieldMsgMapping) {
+                    const errorString = `${err}`
+                    Object.keys(ErrorToFormFieldMsgMapping).forEach((msg) => {
+                        if (errorString.includes(msg)) {
+                            errors.push(ErrorToFormFieldMsgMapping[msg])
+                        }
+                    })
+                }
+                if (errors.length === 0) {
+                    errors = [{ name: err.field || NON_FIELD_ERROR_NAME, errors: [String(err.message)] }]
+                }
+                form.setFields(errors)
+                return
+            } else {
+                form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [ClientSideErrorMsg] }])
+                throw err  // unknown error, rethrow it (**)
+            }
+        }
+        form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [] }])
+        setIsLoading(true)
+
+        const actionOrMutationProps = (!action) ?
+            { mutation: create, variables: { data: { ...data, ...mutationExtraData }, ...mutationExtraVariables } } :
+            { action: () => action({ ...data }) }
+
+        return runMutation({
+            ...actionOrMutationProps,
+            onCompleted: () => {
+                if (onMutationCompleted) onMutationCompleted()
+                form.resetFields()
+            },
+            onFinally: () => {
+                setIsLoading(false)
+                cancelModal()
+            },
+            intl,
+            form,
+            ErrorToFormFieldMsgMapping,
+            OnErrorMsg,
+            OnCompletedMsg,
+        })
+    }
+
+    function handleSave () {
+        form.submit()
+    }
+
+    function handleChange (changedValues, allValues) {
+        if (onChange) onChange(changedValues, allValues)
+    }
+
+    return (
+        <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            initialValues={initialValues}
+            onValuesChange={handleChange}
+        >
+            <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input/></Form.Item>
+            {children}
+            <Form.Item>
+                <Button key="submit" onClick={handleSave} type="primary" loading={isLoading}>
+                    {t('Save')}
+                </Button>,
+            </Form.Item>
+        </Form>
+    )
+}
+
 export {
     ValidationError,
     useCreateAndEditModalForm,
@@ -326,6 +416,7 @@ export {
     CreateFormListItemButton,
     ExtraDropdownActionsMenu,
     ExpandableDescription,
+    FormWithAction,
 }
 
 export default FormList

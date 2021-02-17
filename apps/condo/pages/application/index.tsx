@@ -1,12 +1,15 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import { PlusOutlined } from '@ant-design/icons'
 import gql from 'graphql-tag'
 import { useIntl } from '@core/next/intl'
 import Head from 'next/head'
 import Link from 'next/link'
 import React, { useEffect, useMemo } from 'react'
-import { Form, Input, Space } from 'antd'
+import { Button, Input, Space } from 'antd'
 
 import { useOrganization } from '@core/next/organization'
+import { CREATE_APPLICATION } from '../../constants/routes'
 
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
@@ -16,15 +19,11 @@ import {
     useTable,
     ViewOrEditTableBlock,
 } from '../../containers/FormTableBlocks'
-import {
-    BaseModalForm,
-    CreateFormListItemButton,
-    useCreateAndEditModalForm,
-} from '../../containers/FormList'
 import { SearchInput } from '../../containers/FormBlocks'
 import { runMutation } from '../../utils/mutations.utils'
 
 import { useCreate, useObjects, useUpdate } from '../../schema/Application.uistate'
+import { t } from '../../utils/react'
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 
@@ -90,7 +89,7 @@ async function searchApplicationClassifier (client, value) {
     return []
 }
 
-function _useApplicationColumns () {
+export function useApplicationColumns () {
     const intl = useIntl()
     const NumberMsg = intl.formatMessage({ id: 'pages.condo.application.field.Number' })
     const SourceMsg = intl.formatMessage({ id: 'pages.condo.application.field.Source' })
@@ -186,59 +185,10 @@ function _useApplicationColumns () {
     ]
 }
 
-function CreateAndEditApplicationModalForm ({ columns, action, visible, editableItem, cancelModal }) {
-    const intl = useIntl()
-    const CreateApplicationModalTitleMsg = intl.formatMessage({ id: 'pages.condo.application.index.CreateApplicationModalTitle' })
-    const EditApplicationModalTitleMsg = intl.formatMessage({ id: 'pages.condo.application.index.EditApplicationModalTitle' })
-    const ValueIsTooShortMsg = intl.formatMessage({ id: 'ValueIsTooShort' })
-    const ErrorToFormFieldMsgMapping = {
-        '[name.is.too.short]': {
-            name: 'name',
-            errors: [ValueIsTooShortMsg],
-        },
-    }
-
-    return <BaseModalForm
-        /* NOTE: we need to recreate form if editableItem changed because the form initialValues are cached */
-        key={editableItem}
-        action={action}
-        visible={visible}
-        cancelModal={cancelModal}
-        ModalTitleMsg={(editableItem) ? EditApplicationModalTitleMsg : CreateApplicationModalTitleMsg}
-        ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
-    >
-        {columns.filter(x => x.modal).filter(x => (editableItem) ? x.editable : x.create).map(x => {
-            return <Form.Item key={x.dataIndex} name={x.dataIndex} label={x.title} rules={x.rules}
-                normalize={x.normalize}>
-                {(x.editableInput) ? x.editableInput() : <Input/>}
-            </Form.Item>
-        })}
-    </BaseModalForm>
-}
-
-function CreateApplicationModalBlock ({ columns, modal, create }) {
-    const { visible, editableItem, cancelModal, openCreateModal } = modal
-
-    const intl = useIntl()
-    const CreateEVotingButtonLabelMsg = intl.formatMessage({ id: 'pages.condo.application.index.CreateApplicationButtonLabel' })
-
-    return <>
-        <CreateFormListItemButton onClick={openCreateModal} label={CreateEVotingButtonLabelMsg}/>
-        <CreateAndEditApplicationModalForm
-            columns={columns}
-            action={create}
-            visible={visible}
-            editableItem={editableItem}
-            cancelModal={cancelModal}
-        />
-    </>
-}
-
 function ApplicationCRUDTableBlock () {
     const { organization } = useOrganization()
-    const modal = useCreateAndEditModalForm()
     const table = useTable()
-    const columns = _useApplicationColumns()
+    const columns = useApplicationColumns()
 
     const intl = useIntl()
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
@@ -292,27 +242,37 @@ function ApplicationCRUDTableBlock () {
 
     return (
         <Space direction="vertical">
-            <CreateApplicationModalBlock columns={editColumns} modal={modal} create={create}/>
             <ViewOrEditTableBlock columns={editColumns} table={table}/>
         </Space>
     )
 }
 
+const CreateApplicationButton = () => (
+    <Link href={CREATE_APPLICATION}>
+        <Button type='primary'>
+            <PlusOutlined/>{t('pages.condo.application.index.CreateApplicationButtonLabel')}
+        </Button>
+    </Link>
+)
+
 export default () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.application.index.PageTitle' })
 
-    return <>
-        <Head>
-            <title>{PageTitleMsg}</title>
-        </Head>
-        <PageWrapper>
-            <PageHeader title={PageTitleMsg}/>
-            <PageContent>
-                <OrganizationRequired>
-                    <ApplicationCRUDTableBlock/>
-                </OrganizationRequired>
-            </PageContent>
-        </PageWrapper>
-    </>
+    return (
+        <>
+            <Head>
+                <title>{PageTitleMsg}</title>
+            </Head>
+            <PageWrapper>
+                <PageHeader title={PageTitleMsg} extra={<CreateApplicationButton/>}>
+                </PageHeader>
+                <PageContent>
+                    <OrganizationRequired>
+                        <ApplicationCRUDTableBlock/>
+                    </OrganizationRequired>
+                </PageContent>
+            </PageWrapper>
+        </>
+    )
 }
