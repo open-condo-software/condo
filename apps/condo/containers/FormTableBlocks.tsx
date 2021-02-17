@@ -107,7 +107,7 @@ function _useTableRowForm () {
     }
 
     function action (name, args) {
-        table.action(name, args)
+        return table.action(name, args)
     }
 
     function remove (where) {

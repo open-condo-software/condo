@@ -14,6 +14,8 @@ const EMPTY_PASSWORD_ERROR = '[passwordAuth:secret:notSet'
 const WRONG_EMAIL_ERROR = '[passwordAuth:identity:notFound'
 const EMAIL_ALREADY_REGISTERED_ERROR = '[register:email:multipleFound'
 
+const ALREADY_EXISTS_ERROR = '[constrain:alreadyExists:'
+
 module.exports = {
     JSON_UNKNOWN_VERSION_ERROR,
     JSON_WRONG_VERSION_FORMAT_ERROR,
@@ -27,4 +29,5 @@ module.exports = {
     EMPTY_PASSWORD_ERROR,
     WRONG_EMAIL_ERROR,
     EMAIL_ALREADY_REGISTERED_ERROR,
+    ALREADY_EXISTS_ERROR,
 }
