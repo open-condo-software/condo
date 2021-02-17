@@ -24,14 +24,14 @@ import {
 import { SearchInput } from '../../containers/FormBlocks'
 import { runMutation } from '../../utils/mutations.utils'
 
-import { useCreate, useObjects, useUpdate } from '../../schema/Ticket.uistate'
+import { useCreate, useObjects, useUpdate } from '../../schema/Application.uistate'
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 
 // TODO(pahaz): add organization filter
 const GET_ALL_SOURCES_QUERY = gql`
     query selectSource ($value: String) {
-        objs: allTicketSources(where: {name_contains: $value, organization_is_null: true}) {
+        objs: allApplicationSources(where: {name_contains: $value, organization_is_null: true}) {
             id
             name
         }
@@ -41,7 +41,7 @@ const GET_ALL_SOURCES_QUERY = gql`
 // TODO(pahaz): add organization filter
 const GET_ALL_CLASSIFIERS_QUERY = gql`
     query selectSource ($value: String) {
-        objs: allTicketClassifiers(where: {name_contains: $value, organization_is_null: true, parent_is_null: true}) {
+        objs: allApplicationClassifiers(where: {name_contains: $value, organization_is_null: true, parent_is_null: true}) {
             id
             name
         }
@@ -76,31 +76,28 @@ async function searchProperty (client, value) {
     return []
 }
 
-async function searchTicketSources (client, value) {
+async function searchApplicationSources (client, value) {
     const { data, error } = await _search(client, GET_ALL_SOURCES_QUERY, { value })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
     return []
 }
 
-async function searchTicketClassifier (client, value) {
+async function searchApplicationClassifier (client, value) {
     const { data, error } = await _search(client, GET_ALL_CLASSIFIERS_QUERY, { value })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
     return []
 }
 
-function _useTicketColumns () {
+function _useApplicationColumns () {
     const intl = useIntl()
-    const NumberMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Number' })
-    const SourceMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
-    const PropertyMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Property' })
-    const ClassifierMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Classifier' })
-    const DetailsMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Details' })
-    const StatusMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Status' })
-    const CreateTicketModalTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketModalTitle' })
-    const EditTicketModalTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.EditTicketModalTitle' })
-    const ValueIsTooShortMsg = intl.formatMessage({ id: 'ValueIsTooShort' })
+    const NumberMsg = intl.formatMessage({ id: 'pages.condo.application.field.Number' })
+    const SourceMsg = intl.formatMessage({ id: 'pages.condo.application.field.Source' })
+    const PropertyMsg = intl.formatMessage({ id: 'pages.condo.application.field.Property' })
+    const ClassifierMsg = intl.formatMessage({ id: 'pages.condo.application.field.Classifier' })
+    const DetailsMsg = intl.formatMessage({ id: 'pages.condo.application.field.Details' })
+    const StatusMsg = intl.formatMessage({ id: 'pages.condo.application.field.Status' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
 
     return [
@@ -112,7 +109,7 @@ function _useTicketColumns () {
             editable: false,
             importFromFile: true,
             render: (text, item, index) => {
-                return <Link href={`/ticket/${item.id}`}><a>{text}</a></Link>
+                return <Link href={`/application/${item.id}`}><a>{text}</a></Link>
             },
         },
         {
@@ -121,7 +118,7 @@ function _useTicketColumns () {
             modal: true,
             create: true,
             editable: true,
-            editableInput: () => <SearchInput search={searchTicketSources}/>,
+            editableInput: () => <SearchInput search={searchApplicationSources}/>,
             rules: [{ required: true, message: FieldIsRequiredMsg }],
             normalize: normalizeRelation,
             importFromFile: true,
@@ -149,7 +146,7 @@ function _useTicketColumns () {
             modal: true,
             create: true,
             editable: true,
-            editableInput: () => <SearchInput search={searchTicketClassifier}/>,
+            editableInput: () => <SearchInput search={searchApplicationClassifier}/>,
             rules: [{ required: true, message: FieldIsRequiredMsg }],
             normalize: normalizeRelation,
             importFromFile: true,
@@ -189,10 +186,10 @@ function _useTicketColumns () {
     ]
 }
 
-function CreateAndEditTicketModalForm ({ columns, action, visible, editableItem, cancelModal }) {
+function CreateAndEditApplicationModalForm ({ columns, action, visible, editableItem, cancelModal }) {
     const intl = useIntl()
-    const CreateTicketModalTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketModalTitle' })
-    const EditTicketModalTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.EditTicketModalTitle' })
+    const CreateApplicationModalTitleMsg = intl.formatMessage({ id: 'pages.condo.application.index.CreateApplicationModalTitle' })
+    const EditApplicationModalTitleMsg = intl.formatMessage({ id: 'pages.condo.application.index.EditApplicationModalTitle' })
     const ValueIsTooShortMsg = intl.formatMessage({ id: 'ValueIsTooShort' })
     const ErrorToFormFieldMsgMapping = {
         '[name.is.too.short]': {
@@ -207,7 +204,7 @@ function CreateAndEditTicketModalForm ({ columns, action, visible, editableItem,
         action={action}
         visible={visible}
         cancelModal={cancelModal}
-        ModalTitleMsg={(editableItem) ? EditTicketModalTitleMsg : CreateTicketModalTitleMsg}
+        ModalTitleMsg={(editableItem) ? EditApplicationModalTitleMsg : CreateApplicationModalTitleMsg}
         ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
     >
         {columns.filter(x => x.modal).filter(x => (editableItem) ? x.editable : x.create).map(x => {
@@ -219,15 +216,15 @@ function CreateAndEditTicketModalForm ({ columns, action, visible, editableItem,
     </BaseModalForm>
 }
 
-function CreateTicketModalBlock ({ columns, modal, create }) {
+function CreateApplicationModalBlock ({ columns, modal, create }) {
     const { visible, editableItem, cancelModal, openCreateModal } = modal
 
     const intl = useIntl()
-    const CreateEVotingButtonLabelMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketButtonLabel' })
+    const CreateEVotingButtonLabelMsg = intl.formatMessage({ id: 'pages.condo.application.index.CreateApplicationButtonLabel' })
 
     return <>
         <CreateFormListItemButton onClick={openCreateModal} label={CreateEVotingButtonLabelMsg}/>
-        <CreateAndEditTicketModalForm
+        <CreateAndEditApplicationModalForm
             columns={columns}
             action={create}
             visible={visible}
@@ -237,19 +234,17 @@ function CreateTicketModalBlock ({ columns, modal, create }) {
     </>
 }
 
-function TicketCRUDTableBlock () {
+function ApplicationCRUDTableBlock () {
     const { organization } = useOrganization()
-    // { organization: { id_in: [organization.id] } }
     const modal = useCreateAndEditModalForm()
     const table = useTable()
-    const columns = _useTicketColumns()
+    const columns = _useApplicationColumns()
 
     const intl = useIntl()
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const AreYouSureMsg = intl.formatMessage({ id: 'AreYouSure' })
     const ErrorToFormFieldMsgMapping = {}
 
-    const { objs, count, refetch, error, loading } = useObjects({
+    const { objs, count, refetch } = useObjects({
         sortBy: toGQLSortBy(table.state.sorter) || 'createdAt_DESC',
     })
     const create = useCreate({ organization: organization.id, status: OPEN_STATUS }, () => refetch())
@@ -293,17 +288,19 @@ function TicketCRUDTableBlock () {
         return handleCreateOrUpdate({ values: { deletedAt }, item, form })
     }
 
-    const editColumns = useMemo(() => {return columns}, [])
+    const editColumns = useMemo(() => columns, [])
 
-    return <Space direction="vertical">
-        <CreateTicketModalBlock columns={editColumns} modal={modal} create={create}/>
-        <ViewOrEditTableBlock columns={editColumns} table={table}/>
-    </Space>
+    return (
+        <Space direction="vertical">
+            <CreateApplicationModalBlock columns={editColumns} modal={modal} create={create}/>
+            <ViewOrEditTableBlock columns={editColumns} table={table}/>
+        </Space>
+    )
 }
 
-const TicketsPage = () => {
+export default () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.application.index.PageTitle' })
 
     return <>
         <Head>
@@ -313,11 +310,9 @@ const TicketsPage = () => {
             <PageHeader title={PageTitleMsg}/>
             <PageContent>
                 <OrganizationRequired>
-                    <TicketCRUDTableBlock/>
+                    <ApplicationCRUDTableBlock/>
                 </OrganizationRequired>
             </PageContent>
         </PageWrapper>
     </>
 }
-
-export default TicketsPage
