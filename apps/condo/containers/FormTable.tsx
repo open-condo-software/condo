@@ -73,8 +73,8 @@ function EditableCell ({
 
     // console.log('EditableCell', rowIndex, record, column, children, props)
 
-    let Wrapper = CellWrapper || DefaultCellWrapper
-    let Inner = CellInner || DefaultCellInner
+    const Wrapper = CellWrapper || DefaultCellWrapper
+    const Inner = CellInner || DefaultCellInner
 
     if (!record || !column) {
         return <td {...props}>{children}</td> // placeholder time!
@@ -111,8 +111,8 @@ function EditableRow ({
 
     // console.log('EditableRow', rowIndex, record, children, props)
 
-    let Wrapper = RowWrapper || DefaultRowWrapper
-    let Inner = RowInner || DefaultRowInner
+    const Wrapper = RowWrapper || DefaultRowWrapper
+    const Inner = RowInner || DefaultRowInner
 
     if (!record) {
         return <tr {...props}>{children}</tr> // placeholder time!

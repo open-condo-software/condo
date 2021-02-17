@@ -240,7 +240,7 @@ function renderCell (obj, record, rowIndex) {
 }
 
 function makeAntdCols (refstr, extra) {
-    let o = [], C = XLSX.utils.decode_range(refstr).e.c + 1
+    const o = [], C = XLSX.utils.decode_range(refstr).e.c + 1
     for (let i = 0; i < C; ++i) o[i] = {
         title: XLSX.utils.encode_col(i),
         key: i,

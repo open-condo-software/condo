@@ -170,7 +170,7 @@ function OrganizationCRUDListBlock () {
                             : null,
                         (isAccepted) ?
                             [<Button size="small" type={'primary'}
-                                     onClick={() => handleSelect(item)}>{SelectMsg}</Button>]
+                                onClick={() => handleSelect(item)}>{SelectMsg}</Button>]
                             : null,
                         (isAccepted) ?
                             [<ExtraDropdownActionsMenu actions={[

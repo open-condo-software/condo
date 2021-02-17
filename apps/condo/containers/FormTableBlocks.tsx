@@ -55,7 +55,7 @@ function _tableStateReducer (draft, action) {
                 }
             })
             indexes.reverse()
-            for (let index of indexes) {
+            for (const index of indexes) {
                 draft.data.splice(index, 1)
             }
             return undefined
