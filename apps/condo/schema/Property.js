@@ -93,6 +93,7 @@ const Property = new GQLListSchema('Property', {
     },
 })
 
+// eslint-disable-next-line no-unused-vars
 const PropertyUnit = new GQLListSchema('PropertyUnit', {
     schemaDoc: 'Property unit. The property is divided into separate `unit` parts, each of which can be owned by an independent owner',
     fields: {
