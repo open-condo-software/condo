@@ -6,10 +6,10 @@ module.exports = {
         '!**/node_modules/**',
         // '!**/.next/**',
     ],
-    setupFilesAfterEnv: [`${__dirname}/jest.setup.js`],
+    // setupFilesAfterEnv: [`${__dirname}/jest.setup.js`],
     testPathIgnorePatterns: ['/node_modules/', '/.next/'],
     transform: {
-        '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
+        '\\.(js|jsx|ts|tsx)$': 'babel-jest',
     },
     // moduleNameMapper: {
     //     '^(@core)/(.*?)/(.*?)$': `${__dirname}/../../packages/$1.$2/$3`
@@ -17,4 +17,8 @@ module.exports = {
     transformIgnorePatterns: [
         'node_modules', '.next',
     ],
+    moduleNameMapper: {
+        '\\.(css|less|sass|scss)$': 'identity-obj-proxy',
+        '\\.(gif|ttf|eot|svg|png)$': 'identity-obj-proxy',
+    },
 }
