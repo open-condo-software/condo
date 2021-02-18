@@ -42,11 +42,11 @@ jobs:
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
           yarn workspace @app/condo dev &
           # Wait until server is up!
-          while ! [[ $(curl -s 'http://localhost:3000/admin/api' --data-raw '{"operationName":null,"variables":{},"query":"{appVersion}"}' -H 'content-type: application/json') == *"appVersion"* ]]; do
-            sleep 0.5
+          while ! [[ $(curl -s 'http://localhost:3000/admin/api' --data-raw '{"operationName":null,"variables":{},"query":"{appVersion}"}' -H 'content-type: application/json' | tr -d ' \n') == *"appVersion"* ]]; do
+            sleep 2
           done
           sleep 1
-          yarn workspace @app/condo test
+          yarn workspace @app/condo test --silent
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
