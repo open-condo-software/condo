@@ -34,7 +34,7 @@ const SENDER_FIELD = {
                 const { fingerprint } = value
                 if (!fingerprint || typeof fingerprint !== 'string') return addFieldValidationError(`${JSON_WRONG_VERSION_FORMAT_ERROR}${fieldPath}] Wrong \`fingerprint\` format inside JSON Object`)
                 if (fingerprint.length < 5 || fingerprint.length > 50) return addFieldValidationError(`${JSON_WRONG_VERSION_FORMAT_ERROR}${fieldPath}] The \`fingerprint\` length is short or large (50 > length > 5)`)
-                if (!/^[a-zA-Z0-9!#$%()*+-;=,:\[\]/.?@^_`{|}~]{5,50}$/.test(fingerprint)) return addFieldValidationError(`${JSON_WRONG_VERSION_FORMAT_ERROR}${fieldPath}] The \`fingerprint\` charset allow only: a-zA-Z0-9!#$%()*+-;=,:[]/.?@^_\`{|}~`)
+                if (!/^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,50}$/.test(fingerprint)) return addFieldValidationError(`${JSON_WRONG_VERSION_FORMAT_ERROR}${fieldPath}] The \`fingerprint\` charset allow only: a-zA-Z0-9!#$%()*+-;=,:[]/.?@^_\`{|}~`)
             } else {
                 return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
             }

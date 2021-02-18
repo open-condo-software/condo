@@ -482,9 +482,9 @@ describe('INVITE', () => {
 
     test('owner: try to invite already invited user', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [user, userAttrs] = await createUser(admin)
+        const [, userAttrs] = await createUser(admin)
         const client = await makeClientWithRegisteredOrganization()
-        const [employee] = await inviteNewUser(client, client.organization, userAttrs)
+        await inviteNewUser(client, client.organization, userAttrs)
 
         const { errors } = await inviteNewUser(client, client.organization, userAttrs, {}, { raw:true })
         expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
