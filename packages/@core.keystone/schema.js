@@ -151,10 +151,7 @@ async function getByCondition (schemaName, condition) {
 }
 
 async function getById (schemaName, id) {
-    const res = await find(schemaName, { id })
-    if (res.length > 1) throw new Error('getById() returns multiple objects')
-    else if (res.length === 1) return res[0]
-    else return null
+    return await getByCondition(schemaName, { id })
 }
 
 async function getSchemaCtx (schemaObjOrName) {
