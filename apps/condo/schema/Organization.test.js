@@ -285,16 +285,15 @@ describe('OrganizationEmployee', () => {
                 'path': ['obj'],
             })
         }
-        // TODO(pahaz): it doesn't work! some bug inside keystonejs: https://github.com/keystonejs/keystone/issues/4829
-        // {
-        //     const { errors } = await OrganizationEmployee.update(user, user.organization.id, { name }, { raw: true })
-        //     expect(errors[0]).toMatchObject({
-        //         'data': { 'target': 'updateOrganizationEmployee', 'type': 'mutation' },
-        //         'message': 'You do not have access to this resource',
-        //         'name': 'AccessDeniedError',
-        //         'path': ['obj'],
-        //     })
-        // }
+        {
+            const { errors } = await OrganizationEmployee.update(user, user.organization.id, { name }, { raw: true })
+            expect(errors[0]).toMatchObject({
+                'data': { 'target': 'updateOrganizationEmployee', 'type': 'mutation' },
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
+            })
+        }
         {
             const employees = await OrganizationEmployee.getAll(admin, { organization: { id: user.organization.id } })
             expect(employees).toHaveLength(1)
