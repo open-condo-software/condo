@@ -1,4 +1,5 @@
 // Core logic is based on https://github.com/keystonejs/keystone/blob/master/examples-next/roles/access.ts
+const { getById, find } = require('@core/keystone/schema')
 const { userIsAuthenticated } = require('@core/keystone/access')
 
 const isSignedIn = userIsAuthenticated
@@ -84,26 +85,24 @@ const rules = {
         return true
     },
     canAcceptOrRejectEmployeeInvite: async ({ authentication: { item: user }, args, context }) => {
-        // allowAccessForNotAssignedInvitesForAcceptOrRejectOrganizationInviteService, find
         if (!user || !user.id) return false
         if (user.isAdmin) return true
-        if (!args || !args.code) return false
-        const { code } = args
-        const res = await find('OrganizationEmployee', { code, user_is_null: true })
-        // TODO(pahaz): check is user email/phone is verified
-        return res.length === 1
-
-        // allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService
-        // if (!user || !user.id) return false
-        // if (user.isAdmin) return true
-        // if (!args || !args.id) return false
-        // const { id } = args
-        // const link = await getById('OrganizationEmployee', id)
-        // const linkUser = await getById('User', link.user)
-        // if (!link || !linkUser) return false
-        // // TODO(pahaz): check is user email/phone is verified
-        // return String(link.user) === String(user.id)
-
+        if (!args) return false
+        const { id, data, inviteCode } = args
+        if (inviteCode) {
+            const res = await find('OrganizationEmployee', { inviteCode, user_is_null: true })
+            // TODO(pahaz): check is user email/phone is verified
+            return res.length === 1
+        }
+        if (id && data) {
+            const employee = await getById('OrganizationEmployee', id)
+            if (!employee) return false
+            const user = await getById('User', employee.user)
+            if (!user) return false
+            // TODO(pahaz): check is user email/phone is verified
+            return String(employee.user) === String(user.id)
+        }
+        return false
     },
 
     // canUpdatePeople: ({ session }: ListAccessArgs) => {
