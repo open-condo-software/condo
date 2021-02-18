@@ -81,7 +81,7 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
     return [data.obj, attrs]
 }
 
-async function inviteNewUser (client, organization, user, extraAttrs = {}, { raw = false } = {}) {
+async function inviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}, { raw = false } = {}) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
     if (!user) throw new Error('no user')
@@ -473,7 +473,7 @@ describe('INVITE', () => {
         const admin = await makeLoggedInAdminClient()
         const [user, userAttrs] = await createUser(admin)
         const client = await makeClientWithRegisteredOrganization()
-        const [employee] = await inviteNewUser(client, client.organization, userAttrs)
+        const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
         expect(employee.user.id).toEqual(user.id)
         expect(employee.email).toEqual(userAttrs.email)
         expect(employee.phone).toEqual(userAttrs.phone)
@@ -484,9 +484,9 @@ describe('INVITE', () => {
         const admin = await makeLoggedInAdminClient()
         const [, userAttrs] = await createUser(admin)
         const client = await makeClientWithRegisteredOrganization()
-        await inviteNewUser(client, client.organization, userAttrs)
+        await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
 
-        const { errors } = await inviteNewUser(client, client.organization, userAttrs, {}, { raw:true })
+        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, {}, { raw:true })
         expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
     })
 })
@@ -502,7 +502,7 @@ describe('INVITE', () => {
 //     expect(errors).toEqual(undefined)
 //
 //     // invite
-//     await inviteNewUser(client, data.obj.id, 'xm2' + user.email)
+//     await inviteNewOrganizationEmployee(client, data.obj.id, 'xm2' + user.email)
 //     {
 //         const { errors } = await client.mutate(INVITE_NEW_USER_MUTATION, {
 //             data: {
@@ -524,7 +524,7 @@ describe('INVITE', () => {
 //     })
 //     expect(errors).toEqual(undefined)
 //
-//     const { data: d2 } = await inviteNewUser(client, data.obj.id, user2.email)
+//     const { data: d2 } = await inviteNewOrganizationEmployee(client, data.obj.id, user2.email)
 //
 //     // update
 //     const { data: d3, errors: err3 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
@@ -554,7 +554,7 @@ describe('INVITE', () => {
 //     })
 //     expect(errors).toEqual(undefined)
 //
-//     const { data: d2 } = await inviteNewUser(client, data.obj.id, user2.email)
+//     const { data: d2 } = await inviteNewOrganizationEmployee(client, data.obj.id, user2.email)
 //
 //     // update organization
 //     const { errors: err3 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
@@ -612,7 +612,7 @@ describe('INVITE', () => {
 //     expect(errors).toEqual(undefined)
 //
 //     // create
-//     const { data: d2 } = await inviteNewUser(client, data.obj.id, user2.email)
+//     const { data: d2 } = await inviteNewOrganizationEmployee(client, data.obj.id, user2.email)
 //
 //     // accept
 //     const member_client = await makeLoggedInClient(user2)
@@ -662,7 +662,7 @@ describe('INVITE', () => {
 //     expect(errors).toEqual(undefined)
 //
 //     // create
-//     const { data: d2 } = await inviteNewUser(client, data.obj.id, 'x2' + user.email)
+//     const { data: d2 } = await inviteNewOrganizationEmployee(client, data.obj.id, 'x2' + user.email)
 //     expect(d2.obj.user).toBeNull()
 //
 //     const code = await getInviteCode(d2.obj.id)
@@ -701,4 +701,6 @@ describe('INVITE', () => {
 module.exports = {
     createOrganization,
     registerNewOrganization,
+    inviteNewOrganizationEmployee,
+    makeClientWithRegisteredOrganization,
 }
