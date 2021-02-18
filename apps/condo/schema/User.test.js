@@ -24,7 +24,7 @@ async function createUser (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
-    const email = faker.internet.email().toLowerCase()
+    const email = ('test.' + getRandomString() + '@example.com').toLowerCase()
     const phone = faker.phone.phoneNumber().replace(/[^0-9]/g, '')
     const password = getRandomString()
     const meta = {
@@ -46,7 +46,7 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
-    const email = faker.internet.email().toLowerCase()
+    const email = ('test.' + getRandomString() + '@example.com').toLowerCase()
     // const phone = faker.phone.phoneNumber().replace(/[^0-9]/g, '')
     const password = getRandomString()
     const meta = {
