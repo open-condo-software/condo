@@ -24,21 +24,19 @@ jobs:
         run: |
           cp .env.example .env
           sudo apt install -y pv
-          ssh root@dok.8iq.dev 'id'
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ssh root@dev.doma.ai 'id'
       - name: Docker build
         run: |
           bash ./bin/warm-docker-cache
           docker-compose build
       - name: Upload builded image
         run: |
-          ssh root@dok.8iq.dev "docker rmi apps:condo || echo no image"
-          docker save apps:condo | bzip2 | pv | ssh root@dok.8iq.dev 'bunzip2 | docker load'
+          ssh root@dev.doma.ai "docker rmi apps:condo || echo no image"
+          docker save apps:condo | bzip2 | pv | ssh root@dev.doma.ai 'bunzip2 | docker load'
       - name: Restart condo app
         run: |
           export APP_VERSION=$GITHUB_SHA
           export APP=condo
-          ssh root@dok.8iq.dev "docker tag apps:${APP} dokku/${APP}:${APP_VERSION}"
-          ssh root@dok.8iq.dev "dokku tags:deploy ${APP} ${APP_VERSION}"
-          ssh root@dok.8iq.dev "docker exec -i -u root ${APP}.web.1 yarn workspace @app/${APP} migrate"
+          ssh root@dev.doma.ai "docker tag apps:${APP} dokku/${APP}:${APP_VERSION}"
+          ssh root@dev.doma.ai "dokku tags:deploy ${APP} ${APP_VERSION}"
+          ssh root@dev.doma.ai "docker exec -i -u root ${APP}.web.1 yarn workspace @app/${APP} migrate"
