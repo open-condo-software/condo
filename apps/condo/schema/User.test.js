@@ -24,8 +24,8 @@ async function createUser (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
-    const email = faker.internet.email().toLowerCase()
-    const phone = faker.phone.phoneNumber().replace(/[^0-9]/g, '')
+    const email = ('test.' + getRandomString() + '@example.com').toLowerCase()
+    const phone = '00' + String(Math.random()).slice(2).slice(-9)
     const password = getRandomString()
     const meta = {
         dv: 1, city: faker.address.city(), county: faker.address.county(),
@@ -46,7 +46,7 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
-    const email = faker.internet.email().toLowerCase()
+    const email = ('test.' + getRandomString() + '@example.com').toLowerCase()
     // const phone = faker.phone.phoneNumber().replace(/[^0-9]/g, '')
     const password = getRandomString()
     const meta = {
@@ -137,7 +137,7 @@ describe('User', () => {
         const admin = await makeLoggedInAdminClient()
         const [user, userAttrs] = await createUser(admin)
         const client = await makeLoggedInClient(userAttrs)
-        const { data } = await UserAdmin.getAll(client, {}, { raw: true })
+        const { data } = await UserAdmin.getAll(client, {}, { raw: true, sortBy: ['updatedAt_DESC'] })
         expect(data.objs).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({ id: user.id, email: userAttrs.email }),

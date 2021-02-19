@@ -21,7 +21,7 @@ const ACCESS_TO_ALL = {
 
 const READ_ONLY_ACCESS = {
     read: true,
-    create: false,
+    create: access.userIsAdmin,
     update: false,
     delete: false,
     auth: false,

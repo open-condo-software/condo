@@ -35,15 +35,21 @@ const REGISTER_NEW_ORGANIZATION_MUTATION = gql`
     }
 `
 
-const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION = gql`
-    mutation acceptOrRejectOrganizationToUserLink($id: ID!, $data: AcceptOrRejectOrganizationInviteInput!){
-        obj: acceptOrRejectOrganizationInviteById(id: $id, data: $data) { id }
-    }
-`
-
 const INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION = gql`
     mutation inviteNewOrganizationEmployee($data: InviteNewOrganizationEmployeeInput!) {
         obj: inviteNewOrganizationEmployee(data: $data) ${ORGANIZATION_EMPLOYEE_FIELDS}
+    }
+`
+
+const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION = gql`
+    mutation acceptOrRejectOrganizationInviteById($id: ID!, $data: AcceptOrRejectOrganizationInviteInput!){
+        obj: acceptOrRejectOrganizationInviteById(id: $id, data: $data) ${ORGANIZATION_EMPLOYEE_FIELDS}
+    }
+`
+
+const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION = gql`
+    mutation acceptOrRejectOrganizationInviteByCode($inviteCode: String!, $data: AcceptOrRejectOrganizationInviteInput!){
+        obj: acceptOrRejectOrganizationInviteByCode(inviteCode: $inviteCode, data: $data) ${ORGANIZATION_EMPLOYEE_FIELDS}
     }
 `
 
@@ -55,6 +61,7 @@ module.exports = {
     UPDATE_ORGANIZATION_BY_ID_MUTATION,
     GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY,
     REGISTER_NEW_ORGANIZATION_MUTATION,
-    ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
     INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION,
+    ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
+    ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION,
 }

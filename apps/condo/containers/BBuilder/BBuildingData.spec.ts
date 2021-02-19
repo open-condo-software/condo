@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { createNewBBuildingSectionData, BBuildingData, addNewBBuildingUnitToSectionData } from './BBuilder'
+import { createNewBBuildingSectionData, BBuildingData, addNewBBuildingUnitToSectionData } from './BBuildingData'
 
 const ONE_SECTION_TWO_FLOORS = {
     name: 'Justice 1th',

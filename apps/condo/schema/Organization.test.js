@@ -8,6 +8,7 @@ const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 const faker = require('faker')
+const { ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION } = require('./Organization.gql')
 const { ALREADY_EXISTS_ERROR } = require('../constants/errors')
 const { INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } = require('./Organization.gql')
 const { addAdminAccess } = require('./User.test')
@@ -81,10 +82,11 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
     return [data.obj, attrs]
 }
 
-async function inviteNewUser (client, organization, user, extraAttrs = {}, { raw = false } = {}) {
+async function inviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}, { raw = false } = {}) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
     if (!user) throw new Error('no user')
+    if (!user.email) throw new Error('no user.email')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
@@ -98,6 +100,27 @@ async function inviteNewUser (client, organization, user, extraAttrs = {}, { raw
     }
 
     const { data, errors } = await client.mutate(INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION, {
+        data: { ...attrs },
+    })
+    if (raw) return { data, errors }
+    expect(errors).toEqual(undefined)
+    return [data.obj, attrs]
+}
+
+async function acceptOrRejectOrganizationInviteById (client, invite, extraAttrs = {}, { raw = false } = {}) {
+    if (!client) throw new Error('no client')
+    if (!invite || !invite.id) throw new Error('no invite.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1, sender,
+        isAccepted: true,
+        isRejected: false,
+        ...extraAttrs,
+    }
+
+    const { data, errors } = await client.mutate(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION, {
+        id: invite.id,
         data: { ...attrs },
     })
     if (raw) return { data, errors }
@@ -262,16 +285,15 @@ describe('OrganizationEmployee', () => {
                 'path': ['obj'],
             })
         }
-        // TODO(pahaz): it doesn't work! some bug inside keystonejs: https://github.com/keystonejs/keystone/issues/4829
-        // {
-        //     const { errors } = await OrganizationEmployee.update(user, user.organization.id, { name }, { raw: true })
-        //     expect(errors[0]).toMatchObject({
-        //         'data': { 'target': 'updateOrganizationEmployee', 'type': 'mutation' },
-        //         'message': 'You do not have access to this resource',
-        //         'name': 'AccessDeniedError',
-        //         'path': ['obj'],
-        //     })
-        // }
+        {
+            const { errors } = await OrganizationEmployee.update(user, user.organization.id, { name }, { raw: true })
+            expect(errors[0]).toMatchObject({
+                'data': { 'target': 'updateOrganizationEmployee', 'type': 'mutation' },
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
+            })
+        }
         {
             const employees = await OrganizationEmployee.getAll(admin, { organization: { id: user.organization.id } })
             expect(employees).toHaveLength(1)
@@ -473,7 +495,7 @@ describe('INVITE', () => {
         const admin = await makeLoggedInAdminClient()
         const [user, userAttrs] = await createUser(admin)
         const client = await makeClientWithRegisteredOrganization()
-        const [employee] = await inviteNewUser(client, client.organization, userAttrs)
+        const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
         expect(employee.user.id).toEqual(user.id)
         expect(employee.email).toEqual(userAttrs.email)
         expect(employee.phone).toEqual(userAttrs.phone)
@@ -484,37 +506,13 @@ describe('INVITE', () => {
         const admin = await makeLoggedInAdminClient()
         const [, userAttrs] = await createUser(admin)
         const client = await makeClientWithRegisteredOrganization()
-        await inviteNewUser(client, client.organization, userAttrs)
+        await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
 
-        const { errors } = await inviteNewUser(client, client.organization, userAttrs, {}, { raw:true })
+        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, {}, { raw: true })
         expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
     })
 })
 
-
-//
-// test('owner: try to invite already invited email', async () => {
-//     const user = await createUser()
-//     const client = await makeLoggedInClient(user)
-//     const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
-//         data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
-//     })
-//     expect(errors).toEqual(undefined)
-//
-//     // invite
-//     await inviteNewUser(client, data.obj.id, 'xm2' + user.email)
-//     {
-//         const { errors } = await client.mutate(INVITE_NEW_USER_MUTATION, {
-//             data: {
-//                 organization: { id: data.obj.id },
-//                 email: 'xm2' + user.email,
-//                 name: 'user2',
-//             },
-//         })
-//         expect(JSON.stringify(errors)).toContain('[error.already.exists]')
-//     }
-// })
-//
 // test('owner: has access to invite/update/delete OrganizationToUserLinks', async () => {
 //     const user = await createUser()
 //     const user2 = await createUser()
@@ -524,7 +522,7 @@ describe('INVITE', () => {
 //     })
 //     expect(errors).toEqual(undefined)
 //
-//     const { data: d2 } = await inviteNewUser(client, data.obj.id, user2.email)
+//     const { data: d2 } = await inviteNewOrganizationEmployee(client, data.obj.id, user2.email)
 //
 //     // update
 //     const { data: d3, errors: err3 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
@@ -554,7 +552,7 @@ describe('INVITE', () => {
 //     })
 //     expect(errors).toEqual(undefined)
 //
-//     const { data: d2 } = await inviteNewUser(client, data.obj.id, user2.email)
+//     const { data: d2 } = await inviteNewOrganizationEmployee(client, data.obj.id, user2.email)
 //
 //     // update organization
 //     const { errors: err3 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
@@ -584,65 +582,28 @@ describe('INVITE', () => {
 //     })
 // })
 //
-// const ACCEPT_OR_REJECT_BY_ID_MUTATION = gql`
-//     mutation acceptOrReject($id: ID!, $data: AcceptOrRejectOrganizationInviteInput!){
-//         obj: acceptOrRejectOrganizationInviteById(id: $id, data: $data) {
-//             id isAccepted isRejected
-//         }
-//     }
-// `
-//
-// const ACCEPT_OR_REJECT_BY_CODE_MUTATION = gql`
-//     mutation acceptOrReject($code: String!, $data: AcceptOrRejectOrganizationInviteInput!){
-//         obj: acceptOrRejectOrganizationInviteByCode(code: $code, data: $data) {
-//             id isAccepted isRejected
-//         }
-//     }
-// `
-//
+
 // // TODO(pahaz): check antonymous ACCEPT_OR_REJECT_BY_ID_MUTATION
-//
-// test('user: accept/reject OrganizationToUserLinks by ID', async () => {
-//     const user = await createUser()
-//     const user2 = await createUser()
-//     const client = await makeLoggedInClient(user)
-//     const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
-//         data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
-//     })
-//     expect(errors).toEqual(undefined)
-//
-//     // create
-//     const { data: d2 } = await inviteNewUser(client, data.obj.id, user2.email)
-//
-//     // accept
-//     const member_client = await makeLoggedInClient(user2)
-//     const { data: d3, errors: err3 } = await member_client.mutate(ACCEPT_OR_REJECT_BY_ID_MUTATION, {
-//         id: d2.obj.id,
-//         data: {
-//             isAccepted: true,
-//         },
-//     })
-//     expect(err3).toEqual(undefined)
-//     expect(d3.obj).toEqual({
-//         id: d2.obj.id,
-//         isAccepted: true,
-//         isRejected: false,
-//     })
-//
-//     // reject
-//     const { data: d4, errors: err4 } = await member_client.mutate(ACCEPT_OR_REJECT_BY_ID_MUTATION, {
-//         id: d2.obj.id,
-//         data: {
-//             isRejected: true,
-//         },
-//     })
-//     expect(err4).toEqual(undefined)
-//     expect(d4.obj).toEqual({
-//         id: d2.obj.id,
-//         isAccepted: false,
-//         isRejected: true,
-//     })
-// })
+
+describe('ACCEPT_OR_REJECT', () => {
+    test('user: accept/reject', async () => {
+        const client1 = await makeClientWithRegisteredOrganization()
+        const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.user)
+        const [accepted] = await acceptOrRejectOrganizationInviteById(client2, invite)
+        expect(accepted).toEqual(expect.objectContaining({
+            isAccepted: true,
+            isRejected: false,
+        }))
+
+        const [rejected] = await acceptOrRejectOrganizationInviteById(client2, invite, { isRejected: true })
+        expect(rejected).toEqual(expect.objectContaining({
+            isRejected: true,
+        }))
+    })
+
+})
 //
 // async function getInviteCode (id) {
 //     const admin = await makeLoggedInAdminClient()
@@ -662,7 +623,7 @@ describe('INVITE', () => {
 //     expect(errors).toEqual(undefined)
 //
 //     // create
-//     const { data: d2 } = await inviteNewUser(client, data.obj.id, 'x2' + user.email)
+//     const { data: d2 } = await inviteNewOrganizationEmployee(client, data.obj.id, 'x2' + user.email)
 //     expect(d2.obj.user).toBeNull()
 //
 //     const code = await getInviteCode(d2.obj.id)
@@ -701,4 +662,6 @@ describe('INVITE', () => {
 module.exports = {
     createOrganization,
     registerNewOrganization,
+    inviteNewOrganizationEmployee,
+    makeClientWithRegisteredOrganization,
 }

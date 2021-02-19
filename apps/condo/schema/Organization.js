@@ -7,12 +7,13 @@ const { File, Text, Relationship, Select, Uuid, Checkbox } = require('@keystonej
 
 const conf = require('@core/config')
 const access = require('@core/keystone/access')
+const { findUser } = require('../utils/serverSchema/User')
+const { findOrganizationEmployee, createConfirmedEmployee, createAdminRole, createOrganization, createOrganizationEmployee, updateOrganizationEmployee } = require('../utils/serverSchema/Organization')
 const { getByCondition, getById, GQLCustomSchema, GQLListSchema } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
 const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('./_common')
-const OrganizationGQL = require('./Organization.gql')
 const { rules } = require('../access')
 const countries = require('../constants/countries')
 const { ALREADY_EXISTS_ERROR } = require('../constants/errors')
@@ -214,87 +215,6 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
     },
 })
 
-async function execGqlWithoutAccess (context, { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj' }) {
-    if (!context) throw new Error('wrong context argument')
-    if (!query) throw new Error('wrong query argument')
-    if (!variables) throw new Error('wrong variables argument')
-    const { errors, data } = await context.executeGraphQL({
-        context: context.createContext({ skipAccessControl: true }),
-        query,
-        variables,
-    })
-
-    if (errors) {
-        console.error(errors)
-        const error = new Error(errorMessage)
-        error.errors = errors
-        throw error
-    }
-
-    if (!data || typeof data !== 'object') {
-        throw new Error('wrong query result')
-    }
-
-    return data[dataPath]
-}
-
-async function createOrganization (context, data) {
-    return await execGqlWithoutAccess(context, {
-        query: OrganizationGQL.Organization.CREATE_OBJ_MUTATION,
-        variables: { data },
-        errorMessage: '[error] Create organization internal error',
-        dataPath: 'obj',
-    })
-}
-
-async function createAdminRole (context, organization, data) {
-    if (!organization.id) throw new Error('wrong organization.id argument')
-    if (!organization.country) throw new Error('wrong organization.country argument')
-    const adminRoleName = countries[organization.country].adminRoleName
-    return await execGqlWithoutAccess(context, {
-        query: OrganizationGQL.OrganizationEmployeeRole.CREATE_OBJ_MUTATION,
-        variables: {
-            data: {
-                organization: { connect: { id: organization.id } },
-                canManageOrganization: true,
-                canManageEmployees: true,
-                canManageRoles: true,
-                name: adminRoleName,
-                ...data,
-            },
-        },
-        errorMessage: '[error] Create admin role internal error',
-        dataPath: 'obj',
-    })
-}
-
-async function createConfirmedEmployee (context, organization, user, role, data) {
-    if (!organization.id) throw new Error('wrong organization.id argument')
-    if (!organization.country) throw new Error('wrong organization.country argument')
-    if (!user.id) throw new Error('wrong user.id argument')
-    if (!user.name) throw new Error('wrong user.name argument')
-    if (!role.id) throw new Error('wrong role.id argument')
-    console.log(user)
-    return await execGqlWithoutAccess(context, {
-        query: OrganizationGQL.OrganizationEmployee.CREATE_OBJ_MUTATION,
-        variables: {
-            data: {
-                organization: { connect: { id: organization.id } },
-                user: { connect: { id: user.id } },
-                role: { connect: { id: role.id } },
-                isAccepted: true,
-                isRejected: false,
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                ...data,
-            },
-        },
-        errorMessage: '[error] Create employee internal error',
-        dataPath: 'obj',
-    })
-}
-
 const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizationService', {
     types: [
         {
@@ -340,126 +260,52 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
 
                 // Note: check is already exists (email + organization)
                 {
-                    const { errors, data } = await context.executeGraphQL({
-                        context: context.createContext({ skipAccessControl: true }),
-                        query: `
-                            query findOrganizationEmployeeEmailConstraint($organizationId: ID!, $email: String!) {
-                              objs: allOrganizationEmployees(where: {email: $email, organization: {id: $organizationId}}) {
-                                id
-                              }
-                            }
-                        `,
-                        variables: {
-                            'organizationId': organization.id,
-                            'email': email,
-                        },
+                    const objs = await findOrganizationEmployee(context, {
+                        email,
+                        organization: { id: organization.id },
                     })
 
-                    if (errors) {
-                        const msg = '[error] Unable to check email link service'
-                        console.error(msg, errors)
-                        throw new Error(msg)
-                    }
-
-                    if (data.objs.length > 0) {
+                    if (objs.length > 0) {
                         const msg = `${ALREADY_EXISTS_ERROR}] User is already invited in the organization`
-                        console.error(msg, errors)
+                        console.error(msg)
                         throw new Error(msg)
                     }
                 }
 
                 if (!user) {
-                    const { errors, data } = await context.executeGraphQL({
-                        context: context.createContext({ skipAccessControl: true }),
-                        query: `
-                            query findUserByEmail($email: String!) {
-                              objs: allUsers(where: {email: $email}) {
-                                id
-                                email
-                                name
-                              }
-                            }
-                        `,
-                        variables: {
-                            'email': email,
-                        },
-                    })
+                    const objs = await findUser(context, { email })
 
-                    if (errors) {
-                        const msg = '[error] Unable to access find user service'
-                        console.error(msg, errors)
-                        throw new Error(msg)
-                    }
-
-                    if (data && data.objs && data.objs.length === 1) {
-                        user = data.objs[0]
+                    if (objs && objs.length === 1) {
+                        user = objs[0]
                     }
                 }
 
                 // Note: check is already exists (user + organization)
                 if (user) {
-                    const { errors, data } = await context.executeGraphQL({
-                        context: context.createContext({ skipAccessControl: true }),
-                        query: `
-                            query findOrganizationEmployeeConstraint($organizationId: ID!, $userId: ID!) {
-                              objs: allOrganizationEmployees(where: {user: {id: $userId}, organization: {id: $organizationId}}) {
-                                id
-                                role
-                              }
-                            }
-                        `,
-                        variables: {
-                            'organizationId': organization.id,
-                            'userId': user.id,
-                        },
+                    const objs = await findOrganizationEmployee(context, {
+                        user: { id: user.id },
+                        organization: { id: organization.id },
                     })
 
-                    if (errors) {
-                        const msg = '[error] Unable to check organization link service'
-                        console.error(msg, errors)
-                        throw new Error(msg)
-                    }
-
-                    if (data.objs.length > 0) {
+                    if (objs.length > 0) {
                         const msg = `${ALREADY_EXISTS_ERROR}] User is already invited in the organization`
-                        console.error(msg, errors)
+                        console.error(msg)
                         throw new Error(msg)
                     }
                 }
 
-                const { errors: createErrors, data: createData } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
-                        mutation create($data: OrganizationEmployeeCreateInput!) {
-                          obj: createOrganizationEmployee(data: $data) {
-                            id
-                            organization {
-                              id
-                            }
-                          }
-                        }
-                    `,
-                    variables: {
-                        'data': {
-                            user: (user) ? { connect: { id: user.id } } : undefined,
-                            organization: { connect: { id: organization.id } },
-                            email,
-                            name,
-                            ...restData,
-                        },
-                    },
+                const obj = await createOrganizationEmployee(context, {
+                    user: (user) ? { connect: { id: user.id } } : undefined,
+                    organization: { connect: { id: organization.id } },
+                    email,
+                    name,
+                    ...restData,
                 })
-
-                if (createErrors || !createData.obj || !createData.obj.id) {
-                    const msg = '[error] Unable to create organization link'
-                    console.error(msg, createErrors)
-                    throw new Error(msg)
-                }
 
                 // TODO(pahaz): send email !?!?!
                 console.log('Fake send security email!')
 
-                return await getById('OrganizationEmployee', createData.obj.id)
+                return await getById('OrganizationEmployee', obj.id)
             },
         },
     ],
@@ -469,86 +315,44 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
     types: [
         {
             access: true,
-            type: 'input AcceptOrRejectOrganizationInviteInput { isRejected: Boolean, isAccepted: Boolean }',
+            type: 'input AcceptOrRejectOrganizationInviteInput { dv: Int!, sender: JSON!, isRejected: Boolean, isAccepted: Boolean }',
         },
     ],
     mutations: [
-        {
-            access: rules.canAcceptOrRejectEmployeeInvite,
-            schema: 'acceptOrRejectOrganizationInviteByCode(code: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee',
-            resolver: async (parent, args, context, info, extra = {}) => {
-                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
-                const { code, data } = args
-                const extraLinkData = extra.extraLinkData || {}
-                let { isRejected, isAccepted, ...restData } = data
-                isRejected = isRejected || false
-                isAccepted = isAccepted || false
-
-                const link = await getByCondition('OrganizationEmployee', { code, user_is_null: true })
-
-                const { errors: acceptOrRejectErrors, data: acceptOrRejectData } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
-                        mutation acceptOrReject($id: ID!, $data: OrganizationEmployeeUpdateInput!) {
-                          obj: updateOrganizationEmployee(id: $id, data: $data) {
-                            id
-                          }
-                        }
-                    `,
-                    variables: {
-                        id: link.id,
-                        data: {
-                            user: { connect: { id: context.authedItem.id } },
-                            isRejected,
-                            isAccepted,
-                            ...restData,
-                            ...extraLinkData,
-                        },
-                    },
-                })
-
-                if (acceptOrRejectErrors || !acceptOrRejectData.obj || !acceptOrRejectData.obj.id) {
-                    const msg = '[error] Unable to update link state'
-                    console.error(msg, acceptOrRejectErrors)
-                    throw new Error(msg)
-                }
-
-                return await getById('OrganizationEmployee', acceptOrRejectData.obj.id)
-            },
-        },
         {
             access: rules.canAcceptOrRejectEmployeeInvite,
             schema: 'acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee',
             resolver: async (parent, args, context, info, extra = {}) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { id, data } = args
-                const extraLinkData = extra.extraLinkData || {}
                 let { isRejected, isAccepted, ...restData } = data
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
 
-                const { errors: acceptOrRejectErrors, data: acceptOrRejectData } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
-                        mutation acceptOrReject($id: ID!, $data: OrganizationEmployeeUpdateInput!) {
-                          obj: updateOrganizationEmployee(id: $id, data: $data) {
-                            id
-                          }
-                        }
-                    `,
-                    variables: {
-                        id,
-                        data: { isRejected, isAccepted, ...restData, ...extraLinkData },
-                    },
+                const obj = await updateOrganizationEmployee(context, id, { isRejected, isAccepted, ...restData })
+                return await getById('OrganizationEmployee', obj.id)
+            },
+        },
+        {
+            access: rules.canAcceptOrRejectEmployeeInvite,
+            schema: 'acceptOrRejectOrganizationInviteByCode(inviteCode: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee',
+            resolver: async (parent, args, context, info, extra = {}) => {
+                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
+                const { inviteCode, data } = args
+                let { isRejected, isAccepted, ...restData } = data
+                isRejected = isRejected || false
+                isAccepted = isAccepted || false
+
+                const link = await getByCondition('OrganizationEmployee', { inviteCode, user_is_null: true })
+
+                const obj = await updateOrganizationEmployee(context, link.id, {
+                    user: { connect: { id: context.authedItem.id } },
+                    isRejected,
+                    isAccepted,
+                    ...restData,
                 })
 
-                if (acceptOrRejectErrors || !acceptOrRejectData.obj || !acceptOrRejectData.obj.id) {
-                    const msg = '[error] Unable to update link state'
-                    console.error(msg, acceptOrRejectErrors)
-                    throw new Error(msg)
-                }
-
-                return await getById('OrganizationEmployee', acceptOrRejectData.obj.id)
+                return await getById('OrganizationEmployee', obj.id)
             },
         },
     ],

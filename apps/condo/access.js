@@ -1,4 +1,5 @@
 // Core logic is based on https://github.com/keystonejs/keystone/blob/master/examples-next/roles/access.ts
+const { getByCondition, getById } = require('@core/keystone/schema')
 const { userIsAuthenticated } = require('@core/keystone/access')
 
 const isSignedIn = userIsAuthenticated
@@ -43,16 +44,24 @@ const rules = {
             organization: { employees_some: { user: { id: user.id } } },
         }
     },
-    canManageEmployees: (args) => {
+    canManageEmployees: async (args) => {
         const { authentication: { item: user }, operation } = args
         if (!user) return false
         if (user.isAdmin) return true
         if (operation === 'create') return false
-        // TODO(pahaz): test it! some bug inside keystonejs: https://github.com/keystonejs/keystone/issues/4829
-        return {
-            // user is inside employee list
-            organization: { employees_some: { user: { id: user.id }, role: { canManageEmployees: true } } },
-        }
+        if (operation !== 'update' && operation !== 'delete') return false
+        const { id } = args
+        if (!id) return false
+        const obj = await getById('OrganizationEmployee', id)
+        const employee = await getByCondition('OrganizationEmployee', {
+            organization: { id: obj.organization },
+            user: { id: user.id },
+        })
+        const employeeRole = await getByCondition('OrganizationEmployeeRole', {
+            id: employee.role,
+            organization: { id: obj.organization },
+        })
+        return employeeRole && employeeRole.canManageEmployees
     },
     canReadRoles: ({ authentication: { item: user } }) => {
         if (!user) return false
@@ -69,41 +78,39 @@ const rules = {
     },
     canRegisterNewOrganization: isSignedIn,
     canInviteEmployee: async ({ authentication: { item: user }, args, context }) => {
-        // allowAccessForRoleOwnerForInviteNewUserToOrganizationService, find
         if (!user || !user.id) return false
         if (user.isAdmin) return true
-        // if (!args || !args.data || !args.data.organization || !args.data.organization.id) return false
-        // const orgId = args.data.organization.id
-        // const res = await find('OrganizationEmployee', {
-        //     organization: { id: orgId },
-        //     user: { id: user.id },
-        //     role: 'owner',
-        // })
-        // return res.length === 1
-        // TODO(pahaz): check the access!
-        return true
+        if (!args || !args.data || !args.data.organization || !args.data.organization.id) return false
+        const orgId = args.data.organization.id
+        const employee = await getByCondition('OrganizationEmployee', {
+            organization: { id: orgId },
+            user: { id: user.id },
+        })
+        const employeeRole = await getByCondition('OrganizationEmployeeRole', {
+            id: employee.role,
+            organization: { id: orgId },
+        })
+        return employeeRole && employeeRole.canManageEmployees
     },
     canAcceptOrRejectEmployeeInvite: async ({ authentication: { item: user }, args, context }) => {
-        // allowAccessForNotAssignedInvitesForAcceptOrRejectOrganizationInviteService, find
         if (!user || !user.id) return false
         if (user.isAdmin) return true
-        if (!args || !args.code) return false
-        const { code } = args
-        const res = await find('OrganizationEmployee', { code, user_is_null: true })
-        // TODO(pahaz): check is user email/phone is verified
-        return res.length === 1
-
-        // allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService
-        // if (!user || !user.id) return false
-        // if (user.isAdmin) return true
-        // if (!args || !args.id) return false
-        // const { id } = args
-        // const link = await getById('OrganizationEmployee', id)
-        // const linkUser = await getById('User', link.user)
-        // if (!link || !linkUser) return false
-        // // TODO(pahaz): check is user email/phone is verified
-        // return String(link.user) === String(user.id)
-
+        if (!args) return false
+        const { id, data, inviteCode } = args
+        if (inviteCode) {
+            const res = await getByCondition('OrganizationEmployee', { inviteCode, user_is_null: true })
+            // TODO(pahaz): check is user email/phone is verified
+            return res.length === 1
+        }
+        if (id && data) {
+            const employee = await getById('OrganizationEmployee', id)
+            if (!employee) return false
+            const user = await getById('User', employee.user)
+            if (!user) return false
+            // TODO(pahaz): check is user email/phone is verified
+            return String(employee.user) === String(user.id)
+        }
+        return false
     },
 
     // canUpdatePeople: ({ session }: ListAccessArgs) => {

@@ -1,6 +1,8 @@
 const pluralize = require('pluralize')
 const gql = require('graphql-tag')
 
+const DEFAULT_PAGE_SIZE = 100
+
 function _genGQLName (key) {
     const MODEL = pluralize.singular(key)
     const MODELs = pluralize.plural(key)
@@ -10,7 +12,7 @@ function _genGQLName (key) {
 function genGetAllGQL (key, fields) {
     const [MODEL, MODELs] = _genGQLName(key)
     return gql`
-        query getAll${MODELs}($where: ${MODEL}WhereInput, $first: Int, $skip: Int, $sortBy: [Sort${MODELs}By!]) {
+        query getAll${MODELs}($where: ${MODEL}WhereInput, $first: Int = ${DEFAULT_PAGE_SIZE}, $skip: Int, $sortBy: [Sort${MODELs}By!]) {
             objs: all${MODELs}(where: $where, first: $first, skip: $skip, sortBy: $sortBy) ${fields}
         }
     `
@@ -28,7 +30,7 @@ function genGetCountGQL (key) {
 function genGetAllWithCountGQL (key, fields) {
     const [MODEL, MODELs] = _genGQLName(key)
     return gql`
-        query getAll${MODELs}($where: ${MODEL}WhereInput, $first: Int, $skip: Int, $sortBy: [Sort${MODELs}By!]) {
+        query getAll${MODELs}($where: ${MODEL}WhereInput, $first: Int = ${DEFAULT_PAGE_SIZE}, $skip: Int, $sortBy: [Sort${MODELs}By!]) {
             objs: all${MODELs}(where: $where, first: $first, skip: $skip, sortBy: $sortBy) ${fields}
             meta: _all${MODELs}Meta(where: $where) { count }
         }
@@ -73,8 +75,8 @@ function genTestGQLUtils (key, fields) {
     const UPDATE_OBJ_MUTATION = genUpdateGQL(MODEL, fields)
     const DELETE_OBJ_MUTATION = genDeleteGQL(MODEL, fields)
 
-    async function getAll (client, where, { raw = false } = {}) {
-        const { data, errors } = await client.query(GET_ALL_OBJS_QUERY, { where: where })
+    async function getAll (client, where, { raw = false, sortBy } = {}) {
+        const { data, errors } = await client.query(GET_ALL_OBJS_QUERY, { where: where, sortBy })
         if (raw) return { data, errors }
         expect(errors).toEqual(undefined)
         return data.objs
