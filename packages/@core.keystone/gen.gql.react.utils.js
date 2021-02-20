@@ -2,33 +2,50 @@ import { useMemo } from 'react'
 import { useMutation, useQuery } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 
+const getObjects = (objectsContainer, converter) => (objectsContainer && objectsContainer.objs) ? objectsContainer.objs.map(converter) : []
+
 function genReactHooks (TestUtils, { convertGQLItemToUIState, convertUIStateToGQLItem, options } = { options: {} }) {
-    function useObject (variables) {
-        const { loading, refetch, objs, count, error } = useObjects(variables)
+    function useObject (variables, memoize = true) {
+        const { loading, refetch, objs, count, error } = useObjects(variables, memoize)
         if (count && count > 1) throw new Error('Wrong query condition! return more then one result')
         const obj = (objs.length) ? objs[0] : null
         return { loading, refetch, obj, error }
     }
 
-    function useObjects (variables = {}) {
+    function useObjects (variables = {}, memoize = true) {
+        const intl = useIntl()
+        const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+        const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
+
         let { loading, data, refetch, error } = useQuery(TestUtils.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
             ...options,
         })
 
-        const intl = useIntl()
-        const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
-        const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
+        /*
+        * There is bug here with nested objects memoization.
+        *
+        * We should use this tricky solution for manually control default memoization flow.
+        * React and eslint recommend to avoid using reactHooks in conditional statements,
+        * as result, we should do some tricks with initial objects value calculation.
+        */
+        let objects = useMemo(() => {
+            return getObjects(data, convertGQLItemToUIState)
+        }, [data])
 
-        const objs = useMemo(() => (data && data.objs) ? data.objs.map(convertGQLItemToUIState) : [], [data])
+        if (!memoize) {
+            objects = getObjects(data, convertGQLItemToUIState)
+        }
+
         const count = (data && data.meta) ? data.meta.count : null
+
         if (error && String(error).includes('not have access')) {
             error = AccessErrorMsg
         } else if (error) {
             error = ServerErrorPleaseTryAgainLaterMsg
         }
 
-        return { loading, refetch, objs, count, error }
+        return { loading, refetch, objs: objects, count, error }
     }
 
     function useCreate (attrs = {}, onComplete) {
