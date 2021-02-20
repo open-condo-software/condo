@@ -1,6 +1,6 @@
 import { genReactHooks } from '@core/keystone/gen.gql.react.utils'
 
-import { Application } from './Application.gql'
+import { Ticket } from './Ticket.gql'
 import { getClientSideSenderInfo } from '../utils/userid.utils'
 
 function convertGQLItemToUIState (item) {
@@ -34,6 +34,6 @@ function convertGQLItemToFormState (item) {
 }
 
 module.exports = {
-    ...genReactHooks(Application, { convertGQLItemToUIState, convertUIStateToGQLItem }),
+    ...genReactHooks(Ticket, { convertGQLItemToUIState, convertUIStateToGQLItem }),
     convertGQLItemToFormState,
 }

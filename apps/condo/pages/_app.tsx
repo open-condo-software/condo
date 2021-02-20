@@ -40,9 +40,9 @@ function menuDataRender () {
                 locale: 'menu.Property',
             },
             {
-                path: '/application',
+                path: '/ticket',
                 icon: <ExceptionOutlined/>,
-                locale: 'menu.Applications',
+                locale: 'menu.Tickets',
             },
             {
                 path: '/employee',

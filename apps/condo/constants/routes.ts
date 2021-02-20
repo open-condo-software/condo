@@ -1,1 +1,1 @@
-export const CREATE_APPLICATION = '/application/create/'
+export const CREATE_TICKET = '/ticket/create/'

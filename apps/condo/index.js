@@ -40,7 +40,7 @@ registerSchemas(keystone, [
     require('./schema/Organization'),
     require('./schema/Property'),
     require('./schema/Billing'),
-    require('./schema/Application'),
+    require('./schema/Ticket'),
 ])
 
 function verifySchema (keystone) {

@@ -10,14 +10,14 @@ import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '../../../containers/BaseLayout'
 
 import LoadingOrErrorPage from '../../../containers/LoadingOrErrorPage'
-import { useObject, useUpdate } from '../../../schema/Application.uistate'
+import { useObject, useUpdate } from '../../../schema/Ticket.uistate'
 
-function ApplicationDescriptionBlock ({ obj }) {
+function TicketDescriptionBlock ({ obj }) {
     const intl = useIntl()
-    const NumberMsg = intl.formatMessage({ id: 'pages.condo.application.field.Number' })
-    const SourceMsg = intl.formatMessage({ id: 'pages.condo.application.field.Source' })
-    const PropertyMsg = intl.formatMessage({ id: 'pages.condo.application.field.Property' })
-    const ClassifierMsg = intl.formatMessage({ id: 'pages.condo.application.field.Classifier' })
+    const NumberMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Number' })
+    const SourceMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
+    const PropertyMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Property' })
+    const ClassifierMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Classifier' })
 
     // TODO(pahaz): move small to ANT CONFIG!
     return <Descriptions size="small" column={1}>
@@ -28,16 +28,16 @@ function ApplicationDescriptionBlock ({ obj }) {
     </Descriptions>
 }
 
-function ApplicationViewBlock ({ obj, update }) {
+function TicketViewBlock ({ obj, update }) {
     return null
 }
 
-function ChangeApplicationStatusBlock ({ obj, update }) {
+function ChangeTicketStatusBlock ({ obj, update }) {
     const [form] = Form.useForm()
 
     return <Form
         form={form}
-        name="ChangeApplicationStatusForm"
+        name="ChangeTicketStatusForm"
         onFinish={console.log}
         initialValues={{
             status: obj.status.id,
@@ -53,9 +53,9 @@ function ChangeApplicationStatusBlock ({ obj, update }) {
     </Form>
 }
 
-const ApplicationIdPage = () => {
+const TicketIdPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.application.id.PageTitle' })
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     const router = useRouter()
@@ -73,16 +73,16 @@ const ApplicationIdPage = () => {
         </Head>
         <PageWrapper>
             <PageHeader title={obj.details || PageTitleMsg}>
-                <ApplicationDescriptionBlock obj={obj}/>
+                <TicketDescriptionBlock obj={obj}/>
             </PageHeader>
             <PageContent>
-                <ApplicationViewBlock obj={obj} update={update}/>
+                <TicketViewBlock obj={obj} update={update}/>
             </PageContent>
             <PageContent>
-                <ChangeApplicationStatusBlock obj={obj} update={update}/>
+                <ChangeTicketStatusBlock obj={obj} update={update}/>
             </PageContent>
         </PageWrapper>
     </>
 }
 
-export default ApplicationIdPage
+export default TicketIdPage

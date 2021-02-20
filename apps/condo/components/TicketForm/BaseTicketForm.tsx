@@ -7,11 +7,11 @@ import { FormWithAction } from '../../containers/FormList'
 import { SearchInput } from '../../containers/FormBlocks'
 import countries from '../../constants/countries'
 import {
-    searchApplicationClassifier,
-    searchApplicationSources,
+    searchTicketClassifier,
+    searchTicketSources,
     searchEmployee,
     searchProperty,
-} from '../../pages/application'
+} from '../../pages/ticket'
 
 const LAYOUT = {
     labelCol: { span: 8 },
@@ -22,7 +22,7 @@ type IFormFieldsRuleMap = {
     [key: string]: Rule[]
 }
 
-function useApplicationValidations (): IFormFieldsRuleMap {
+function useTicketValidations (): IFormFieldsRuleMap {
     const intl = useIntl()
     const { organization } = useOrganization()
 
@@ -30,7 +30,7 @@ function useApplicationValidations (): IFormFieldsRuleMap {
         property: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'SelectIsRequired' })
+                message: intl.formatMessage({ id: 'SelectIsRequired' }),
             },
         ],
         flatNumber: [],
@@ -79,23 +79,23 @@ interface IOrganization {
     id: string
 }
 
-interface IApplicationFormProps {
+interface ITicketFormProps {
     initialValues: Record<string, string|number|null|undefined>
     action?: (...args) => void,
     organization: IOrganization
 }
 
-export const BaseApplicationForm:React.FunctionComponent<IApplicationFormProps> = (props) => {
+export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) => {
     const intl = useIntl()
-    const UserInfoMessage = intl.formatMessage({ id: 'pages.condo.application.title.UserInfo' })
+    const UserInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.UserInfo' })
     const AddressMessage = intl.formatMessage({ id: 'Address' })
     const FlatNumberMessage = intl.formatMessage({ id: 'FlatNumber' })
     const FullNameMessage = intl.formatMessage({ id: 'FullName' })
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'EMail' })
-    const ApplicationInfoMessage = intl.formatMessage({ id: 'pages.condo.application.title.ApplicationInfo' })
-    const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.application.field.Description' })
-    const TypeMessage = intl.formatMessage({ id: 'pages.condo.application.field.Type' })
+    const TicketInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
+    const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
+    const TypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Type' })
     const ExecutiveMessage = intl.formatMessage({ id: 'Executive' })
     const ExecutiveExtraMessage = intl.formatMessage({ id: 'Executive.description' })
     const ResponsibleMessage = intl.formatMessage({ id: 'Responsible' })
@@ -103,7 +103,7 @@ export const BaseApplicationForm:React.FunctionComponent<IApplicationFormProps> 
     const SaveMessage = intl.formatMessage({ id: 'Save' })
 
     const { action, initialValues, organization } = props
-    const validations = useApplicationValidations()
+    const validations = useTicketValidations()
 
     return (
         <>
@@ -124,7 +124,7 @@ export const BaseApplicationForm:React.FunctionComponent<IApplicationFormProps> 
                             </Col>
                             <Col span={8}>
                                 <Form.Item name={'source'} rules={validations.source}>
-                                    <SearchInput placeholder={'Источник'} search={searchApplicationSources}/>
+                                    <SearchInput placeholder={'Источник'} search={searchTicketSources}/>
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -147,7 +147,7 @@ export const BaseApplicationForm:React.FunctionComponent<IApplicationFormProps> 
                             </Col>
                         </Row>
 
-                        <Typography.Title level={4}>{ApplicationInfoMessage}</Typography.Title>
+                        <Typography.Title level={4}>{TicketInfoMessage}</Typography.Title>
 
                         <Row gutter={[12, 12]}>
                             <Col span={24}>
@@ -160,7 +160,7 @@ export const BaseApplicationForm:React.FunctionComponent<IApplicationFormProps> 
                         <Row gutter={[12, 12]}>
                             <Col span={8}>
                                 <Form.Item name={'classifier'} rules={validations.classifier}>
-                                    <SearchInput placeholder={TypeMessage} search={searchApplicationClassifier}/>
+                                    <SearchInput placeholder={TypeMessage} search={searchTicketClassifier}/>
                                 </Form.Item>
                             </Col>
                             <Col span={8}>

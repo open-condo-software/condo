@@ -4,11 +4,11 @@ import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '../../../containers/BaseLayout'
 import { OrganizationRequired } from '../../../containers/OrganizationRequired'
-import { ApplicationForm } from '../../../components/ApplicationForm'
+import { TicketForm } from '../../../components/TicketForm'
 
-const ApplicationUpdatePage = () => {
+const TicketUpdatePage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.application.index.CreateApplicationModalTitle' })
+    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.CreateTicketModalTitle' })
 
     const router = useRouter()
     const { query: { id } } = router
@@ -22,7 +22,7 @@ const ApplicationUpdatePage = () => {
                 <PageHeader title={PageTitleMsg}/>
                 <PageContent>
                     <OrganizationRequired>
-                        <ApplicationForm id={id as string}/>
+                        <TicketForm id={id as string}/>
                     </OrganizationRequired>
                 </PageContent>
             </PageWrapper>
@@ -30,4 +30,4 @@ const ApplicationUpdatePage = () => {
     )
 }
 
-export default ApplicationUpdatePage
+export default TicketUpdatePage

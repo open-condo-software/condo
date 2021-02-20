@@ -4,14 +4,14 @@ import { Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { useObject, useUpdate, convertGQLItemToFormState } from '../../schema/Application.uistate'
-import { BaseApplicationForm } from './BaseApplicationForm'
+import { useObject, useUpdate, convertGQLItemToFormState } from '../../schema/Ticket.uistate'
+import { BaseTicketForm } from './BaseTicketForm'
 
-interface IUpdateApplicationForm {
+interface IUpdateTicketForm {
     id: string
 }
 
-export const UpdateApplicationForm:React.FunctionComponent<IUpdateApplicationForm> = ({ id }) => {
+export const UpdateTicketForm:React.FunctionComponent<IUpdateTicketForm> = ({ id }) => {
     const intl = useIntl()
     const LoadingMsg = intl.formatMessage({ id: 'Loading' })
 
@@ -31,7 +31,7 @@ export const UpdateApplicationForm:React.FunctionComponent<IUpdateApplicationFor
     }
 
     return (
-        <BaseApplicationForm
+        <BaseTicketForm
             action={updateAction}
             initialValues={convertGQLItemToFormState(obj)}
             organization={organization}

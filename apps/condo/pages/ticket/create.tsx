@@ -1,13 +1,13 @@
 import Head from 'next/head'
-import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
-import { OrganizationRequired } from '../../containers/OrganizationRequired'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
-import { ApplicationForm } from '../../components/ApplicationForm'
+import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
+import { OrganizationRequired } from '../../containers/OrganizationRequired'
+import { TicketForm } from '../../components/TicketForm'
 
-export default () => {
+const CreateTicketPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.application.index.CreateApplicationModalTitle' })
+    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.CreateTicketModalTitle' })
 
     return (
         <>
@@ -18,10 +18,12 @@ export default () => {
                 <PageHeader title={PageTitleMsg}/>
                 <PageContent>
                     <OrganizationRequired>
-                        <ApplicationForm/>
+                        <TicketForm/>
                     </OrganizationRequired>
                 </PageContent>
             </PageWrapper>
         </>
     )
 }
+
+export default CreateTicketPage

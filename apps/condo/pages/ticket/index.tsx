@@ -9,7 +9,7 @@ import React, { useEffect, useMemo } from 'react'
 import { Button, Input, Space, Table } from 'antd'
 
 import { useOrganization } from '@core/next/organization'
-import { CREATE_APPLICATION } from '../../constants/routes'
+import { CREATE_TICKET } from '../../constants/routes'
 
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
@@ -22,14 +22,14 @@ import {
 import { SearchInput } from '../../containers/FormBlocks'
 import { runMutation } from '../../utils/mutations.utils'
 
-import { useCreate, useObjects, useUpdate } from '../../schema/Application.uistate'
+import { useCreate, useObjects, useUpdate } from '../../schema/Ticket.uistate'
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 
 // TODO(pahaz): add organization filter
 const GET_ALL_SOURCES_QUERY = gql`
     query selectSource ($value: String) {
-        objs: allApplicationSources(where: {name_contains: $value, organization_is_null: true}) {
+        objs: allTicketSources(where: {name_contains: $value, organization_is_null: true}) {
             id
             name
         }
@@ -39,7 +39,7 @@ const GET_ALL_SOURCES_QUERY = gql`
 // TODO(pahaz): add organization filter
 const GET_ALL_CLASSIFIERS_QUERY = gql`
     query selectSource ($value: String) {
-        objs: allApplicationClassifiers(where: {name_contains: $value, organization_is_null: true, parent_is_null: true}) {
+        objs: allTicketClassifiers(where: {name_contains: $value, organization_is_null: true, parent_is_null: true}) {
             id
             name
         }
@@ -85,14 +85,14 @@ export async function searchProperty (client, value) {
     return []
 }
 
-export async function searchApplicationSources (client, value) {
+export async function searchTicketSources (client, value) {
     const { data, error } = await _search(client, GET_ALL_SOURCES_QUERY, { value })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
     return []
 }
 
-export async function searchApplicationClassifier (client, value) {
+export async function searchTicketClassifier (client, value) {
     const { data, error } = await _search(client, GET_ALL_CLASSIFIERS_QUERY, { value })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
@@ -108,14 +108,14 @@ export function searchEmployee (organization) {
     }
 }
 
-export function useApplicationColumns () {
+export function useTicketColumns () {
     const intl = useIntl()
-    const NumberMsg = intl.formatMessage({ id: 'pages.condo.application.field.Number' })
-    const SourceMsg = intl.formatMessage({ id: 'pages.condo.application.field.Source' })
-    const PropertyMsg = intl.formatMessage({ id: 'pages.condo.application.field.Property' })
-    const ClassifierMsg = intl.formatMessage({ id: 'pages.condo.application.field.Classifier' })
-    const DetailsMsg = intl.formatMessage({ id: 'pages.condo.application.field.Details' })
-    const StatusMsg = intl.formatMessage({ id: 'pages.condo.application.field.Status' })
+    const NumberMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Number' })
+    const SourceMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
+    const PropertyMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Property' })
+    const ClassifierMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Classifier' })
+    const DetailsMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Details' })
+    const StatusMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Status' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
 
     return [
@@ -127,7 +127,7 @@ export function useApplicationColumns () {
             editable: false,
             importFromFile: true,
             render: (text, item, index) => {
-                return <Link href={`/application/${item.id}`}><a>{text}</a></Link>
+                return <Link href={`/ticket/${item.id}`}><a>{text}</a></Link>
             },
         },
         {
@@ -136,7 +136,7 @@ export function useApplicationColumns () {
             modal: true,
             create: true,
             editable: true,
-            editableInput: () => <SearchInput search={searchApplicationSources}/>,
+            editableInput: () => <SearchInput search={searchTicketSources}/>,
             rules: [{ required: true, message: FieldIsRequiredMsg }],
             normalize: normalizeRelation,
             importFromFile: true,
@@ -164,7 +164,7 @@ export function useApplicationColumns () {
             modal: true,
             create: true,
             editable: true,
-            editableInput: () => <SearchInput search={searchApplicationClassifier}/>,
+            editableInput: () => <SearchInput search={searchTicketClassifier}/>,
             rules: [{ required: true, message: FieldIsRequiredMsg }],
             normalize: normalizeRelation,
             importFromFile: true,
@@ -204,10 +204,10 @@ export function useApplicationColumns () {
     ]
 }
 
-function ApplicationCRUDTableBlock () {
+function TicketCRUDTableBlock () {
     const { organization } = useOrganization()
     const table = useTable()
-    const columns = useApplicationColumns()
+    const columns = useTicketColumns()
 
     const intl = useIntl()
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
@@ -266,9 +266,9 @@ function ApplicationCRUDTableBlock () {
     )
 }
 
-const CreateApplicationButton = ({ message }) => {
+const CreateTicketButton = ({ message }) => {
     return (
-        <Link href={CREATE_APPLICATION}>
+        <Link href={CREATE_TICKET}>
             <Button type='primary'>
                 <PlusOutlined/>{message}
             </Button>
@@ -294,10 +294,10 @@ const TABLE_COLUMNS = [
         render: id => (
             <>
                 <div>
-                    <Link href={`application/${id}`}>Посмотреть</Link>
+                    <Link href={`/ticket/${id}`}>Посмотреть</Link>
                 </div>
                 <div>
-                    <Link href={`application/${id}/update`}>Редактировать</Link>
+                    <Link href={`/ticket/${id}/update`}>Редактировать</Link>
                 </div>
             </>
         ),
@@ -306,8 +306,8 @@ const TABLE_COLUMNS = [
 
 export default () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.application.index.PageTitle' })
-    const CreateApplicationButtonLabel = intl.formatMessage({ id: 'pages.condo.application.index.CreateApplicationButtonLabel' })
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
+    const CreateTicketButtonLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketButtonLabel' })
 
     // Rewrite later
     const { objs, refetch } = useObjects({
@@ -324,7 +324,7 @@ export default () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={PageTitleMsg} extra={<CreateApplicationButton message={CreateApplicationButtonLabel}/>}>
+                <PageHeader title={PageTitleMsg} extra={<CreateTicketButton message={CreateTicketButtonLabel}/>}>
                 </PageHeader>
                 <PageContent>
                     <OrganizationRequired>
