@@ -98,9 +98,9 @@ const rules = {
         if (!args) return false
         const { id, data, inviteCode } = args
         if (inviteCode) {
-            const res = await getByCondition('OrganizationEmployee', { inviteCode, user_is_null: true })
-            // TODO(pahaz): check is user email/phone is verified
-            return res.length === 1
+            const employee = await getByCondition('OrganizationEmployee', { inviteCode, user_is_null: true })
+            // TODO(pahaz): check is employee user email/phone is verified?
+            return Boolean(employee)
         }
         if (id && data) {
             const employee = await getById('OrganizationEmployee', id)
