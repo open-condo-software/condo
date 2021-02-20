@@ -8,7 +8,6 @@ import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
 
 import { runMutation } from '../utils/mutations.utils'
-import { t } from '../utils/react'
 
 const identity = (x) => !!x
 const NON_FIELD_ERROR_NAME = '_NON_FIELD_ERROR_'
@@ -22,43 +21,43 @@ class ValidationError extends Error {
 }
 
 const SListItemForm = styled(Form)`
-    width: 100%;
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: center;
-    align-items: stretch;
-    align-content: stretch;
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: stretch;
+  align-content: stretch;
 `
 
 const SListItem = styled(List.Item)`
-    padding: 0 !important;
+  padding: 0 !important;
 `
 
 const SListItemMeta = styled(List.Item.Meta)`
-    flex: 1 0 55%;
-    margin: 16px 24px;
+  flex: 1 0 55%;
+  margin: 16px 24px;
 `
 
 const SListItemExtra = styled.div`
-    flex: none;
-    margin: 16px 24px;
-    
-    & ul:first-child {
-        margin-top: 0;
-    }
+  flex: none;
+  margin: 16px 24px;
+
+  & ul:first-child {
+    margin-top: 0;
+  }
 `
 
 const SSkeleton = styled(Skeleton)`
-    margin: 16px 24px;
+  margin: 16px 24px;
 `
 
 const SListActionsUl = styled.ul`
-    margin: 10px 10px 0;
-    text-align: center;
-    
-    > li {
-        margin: 0;
-    }
+  margin: 10px 10px 0;
+  text-align: center;
+
+  > li {
+    margin: 0;
+  }
 `
 
 function FormList ({ dataSource, renderItem, ...extra }) {
@@ -184,32 +183,6 @@ function useCreateAndEditModalForm () {
     return { visible, editableItem, openCreateModal, openEditModal, cancelModal }
 }
 
-function CreateModalFormWithButton ({ CreateButtonLabelMsg, OnCreatedMsg, ...props }) {
-    // TODO(pahaz): use it somewhere as example! (and remove eslint-disable-line)
-    const { visible, openCreateModal, cancelModal } = useCreateAndEditModalForm()
-
-    const intl = useIntl()
-    const CreateMsg = intl.formatMessage({ id: 'Create' })
-    const CreatedMsg = intl.formatMessage({ id: 'Created' })
-    const SaveMsg = intl.formatMessage({ id: 'Save' })
-
-    return <>
-        <CreateFormListItemButton onClick={openCreateModal} label={CreateButtonLabelMsg || CreateMsg}/>
-        <BaseModalForm {...{
-            ...props,
-            visible,
-            cancelModal,
-            ModalTitleMsg: props.ModalTitleMsg || CreateMsg,
-            ModalSaveButtonLabelMsg: props.ModalSaveButtonLabelMsg || SaveMsg,
-            OnCompletedMsg: OnCreatedMsg || CreatedMsg,
-        }} />
-    </>
-}
-
-function CRUDListBlock () { // eslint-disable-line no-unused-vars
-    // TODO(pahaz): inside organizations logic here (and remove eslint-disable-line)
-}
-
 function BaseModalForm ({ action, mutation, mutationExtraVariables, mutationExtraData, mutationOptions, formValuesToMutationDataPreprocessor, formValuesToMutationDataPreprocessorContext, formInitialValues, children, onMutationCompleted, onFormValuesChange, modalExtraFooter = [], visible, cancelModal, ModalTitleMsg, ModalCancelButtonLabelMsg, ModalSaveButtonLabelMsg, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
     // TODO(pahaz): refactor all (mutation, mutationExtraVariables, mutationOptions, mutationExtraData) and remove it
     if (mutationOptions) throw new Error('mutationOptions is not supported!')
@@ -322,16 +295,47 @@ function BaseModalForm ({ action, mutation, mutationExtraVariables, mutationExtr
 }
 
 interface IFormWithAction {
-    action: () => void
+    action?: () => void
     initialValues?: Record<string, unknown>
     onChange?: (changedValues: Record<string, unknown>, allValues: Record<string, unknown>) => void
+    handleSubmit?: (values) => any
 }
 
-const FormWithAction:FunctionComponent<IFormWithAction> = ({ initialValues, onChange, action, children }) => {
+const FormWithAction:FunctionComponent<IFormWithAction> = (props) => {
+    const intl = useIntl()
+    const ClientSideErrorMsg = intl.formatMessage({ id: 'ClientSideError' })
+
+    const {
+        action,
+        mutation,
+        mutationExtraVariables,
+        mutationExtraData,
+        formValuesToMutationDataPreprocessor,
+        formValuesToMutationDataPreprocessorContext,
+        children,
+        onMutationCompleted,
+        ErrorToFormFieldMsgMapping,
+        OnErrorMsg,
+        OnCompletedMsg,
+        initialValues,
+        handleSubmit,
+        onChange,
+        layout = 'vertical',
+    } = props
+
     const [form] = Form.useForm()
     const [isLoading, setIsLoading] = useState(false)
 
-    function handleSubmit (values) {
+    let create = null
+
+    if (!action) {
+        [create] = useMutation(mutation) // eslint-disable-line react-hooks/rules-of-hooks
+    }
+
+    function _handleSubmit (values) {
+        if (handleSubmit) {
+            return handleSubmit(values)
+        }
         if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
         let data
         try {
@@ -360,9 +364,9 @@ const FormWithAction:FunctionComponent<IFormWithAction> = ({ initialValues, onCh
         form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [] }])
         setIsLoading(true)
 
-        const actionOrMutationProps = (!action) ?
-            { mutation: create, variables: { data: { ...data, ...mutationExtraData }, ...mutationExtraVariables } } :
-            { action: () => action({ ...data }) }
+        const actionOrMutationProps = !action
+            ? { mutation: create, variables: { data: { ...data, ...mutationExtraData }, ...mutationExtraVariables } }
+            : { action: () => action({ ...data }) }
 
         return runMutation({
             ...actionOrMutationProps,
@@ -372,7 +376,6 @@ const FormWithAction:FunctionComponent<IFormWithAction> = ({ initialValues, onCh
             },
             onFinally: () => {
                 setIsLoading(false)
-                cancelModal()
             },
             intl,
             form,
@@ -393,18 +396,13 @@ const FormWithAction:FunctionComponent<IFormWithAction> = ({ initialValues, onCh
     return (
         <Form
             form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
+            layout={layout}
+            onFinish={_handleSubmit}
             initialValues={initialValues}
             onValuesChange={handleChange}
         >
             <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input/></Form.Item>
-            {children}
-            <Form.Item>
-                <Button key="submit" onClick={handleSave} type="primary" loading={isLoading}>
-                    {t('Save')}
-                </Button>,
-            </Form.Item>
+            {children({ handleSave, isLoading, handleSubmit: _handleSubmit })}
         </Form>
     )
 }
