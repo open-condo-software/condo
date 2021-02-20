@@ -6,6 +6,8 @@ name: RUN CONDO TESTS
 on:
   push:
     branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build:
