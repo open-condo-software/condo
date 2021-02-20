@@ -1,13 +1,17 @@
-import Head from 'next/head'
-import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
-import { OrganizationRequired } from '../../containers/OrganizationRequired'
+import { useRouter } from 'next/router'
 import React from 'react'
+import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
-import { ApplicationForm } from '../../components/ApplicationForm'
+import { PageContent, PageHeader, PageWrapper } from '../../../containers/BaseLayout'
+import { OrganizationRequired } from '../../../containers/OrganizationRequired'
+import { ApplicationForm } from '../../../components/ApplicationForm'
 
-export default () => {
+const ApplicationUpdatePage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.application.index.CreateApplicationModalTitle' })
+
+    const router = useRouter()
+    const { query: { id } } = router
 
     return (
         <>
@@ -18,10 +22,12 @@ export default () => {
                 <PageHeader title={PageTitleMsg}/>
                 <PageContent>
                     <OrganizationRequired>
-                        <ApplicationForm/>
+                        <ApplicationForm id={id as string}/>
                     </OrganizationRequired>
                 </PageContent>
             </PageWrapper>
         </>
     )
 }
+
+export default ApplicationUpdatePage

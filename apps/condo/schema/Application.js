@@ -187,17 +187,21 @@ const Application = new GQLListSchema('Application', {
         // who accept
 
         // watchers
-        assignees: {
+        assignee: {
             type: Relationship,
             ref: 'User',
-            many: true,
             schemaDoc: 'Assignee/responsible staff/person who must ensure that the issue is fulfilled',
         },
-        executors: {
+        executor: {
+            type: Relationship,
+            ref: 'User',
+            schemaDoc: 'Executor staff/person who perform the issue. May be assigned by assignee',
+        },
+        watchers: {
             type: Relationship,
             ref: 'User',
             many: true,
-            schemaDoc: 'Executor staff/person who perform the issue. May be assigned by assignee',
+            schemaDoc: 'Staff/person who want to watch ticket changes',
         },
 
         // classifierMeta
@@ -262,6 +266,7 @@ const Application = new GQLListSchema('Application', {
         entranceName: { type: Text },
         floorName: { type: Text },
         unitName: { type: Text },
+        flatNumber: { type: Text },
 
         source: {
             schemaDoc: 'Application source channel/system. Examples: call, email, visit, ...',

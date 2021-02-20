@@ -7,10 +7,10 @@ import { useRouter } from 'next/router'
 
 import { useIntl } from '@core/next/intl'
 
-import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
+import { PageContent, PageHeader, PageWrapper } from '../../../containers/BaseLayout'
 
-import LoadingOrErrorPage from '../../containers/LoadingOrErrorPage'
-import { useObject, useUpdate } from '../../schema/Application.uistate'
+import LoadingOrErrorPage from '../../../containers/LoadingOrErrorPage'
+import { useObject, useUpdate } from '../../../schema/Application.uistate'
 
 function ApplicationDescriptionBlock ({ obj }) {
     const intl = useIntl()
