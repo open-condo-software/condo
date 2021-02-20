@@ -1,33 +1,33 @@
 enum BDataTypes {
-    section = "section",
-    floor = "floor",
-    unit = "unit"
+    Section = "section",
+    Floor = "floor",
+    Unit = "unit",
 }
 
-interface BDataUnit {
-    type: BDataTypes.unit
-    id: string | number
+type BDataUnit = {
+    type: BDataTypes.Unit,
+    id: string | number,
 }
 
-interface BDataFloor {
-    type: BDataTypes.floor
-    id: string | number
-    index?: number
-    name?: string
-    units: BDataUnit[]
+type BDataFloor = {
+    type: BDataTypes.Floor,
+    id: string | number,
+    index?: number,
+    name?: string,
+    units: BDataUnit[],
 }
 
-interface BDataSection {
-    type: BDataTypes.section
-    id: string | number
-    name?: string
-    floors: BDataFloor[]
+type BDataSection = {
+    type: BDataTypes.Section,
+    id: string | number,
+    name?: string,
+    floors: BDataFloor[],
 }
 
 export class BBuildingData {
     private data: BDataSection[];
     private uniqKey: number;
-    private _matrix: any;
+    private _matrix: { floors: any[]; sections: any[] };
 
     constructor ({ sections }: { sections: BDataSection[] }) {
         this._checkData(sections)
@@ -36,11 +36,11 @@ export class BBuildingData {
         this._matrix = this._getVisualMatrix()
     }
 
-    _checkData (data: BDataSection[]) {
+    private _checkData (data: BDataSection[]) {
         const sectionsIds = new Set()
         const unitsIds = new Set()
         data.forEach((section) => {
-            if (section.type !== 'section') throw new Error('type !== section')
+            if (section.type !== BDataTypes.Section) throw new Error('type !== section')
             if (!section.id) throw new Error('no section.id')
             if (!section.floors) throw new Error('no section.floors')
             if (sectionsIds.has(section.id)) throw new Error('duplicate section.id')
@@ -48,7 +48,7 @@ export class BBuildingData {
             let floorIndex = Infinity
             const floorsIds = new Set()
             section.floors.forEach((floor) => {
-                if (floor.type !== 'floor') throw new Error('type !== floor')
+                if (floor.type !== BDataTypes.Floor) throw new Error('type !== floor')
                 if (!floor.id) throw new Error('no floor.id')
                 if (!floor.units) throw new Error('no floor.units')
                 if (floorsIds.has(floor.id)) throw new Error('duplicate floor.id')
@@ -67,7 +67,7 @@ export class BBuildingData {
         })
     }
 
-    _getMaxMinFloorIndex () {
+    private _getMaxMinFloorIndex () {
         let maxFlor = -Infinity
         let minFlor = Infinity
         this.data.forEach((section) => {
@@ -79,7 +79,7 @@ export class BBuildingData {
         return [maxFlor, minFlor]
     }
 
-    _getSectionsSizes () {
+    private _getSectionsSizes () {
         return this.data.map(section => {
             let size = 0
             section.floors.forEach((floor) => {
@@ -89,7 +89,7 @@ export class BBuildingData {
         })
     }
 
-    _getFloorIndex (index) {
+    private _getFloorIndex (index) {
         let name = `${index}`
         let floorId, floorIdIndex, floorSectionIdIndex
         const sections = []
@@ -115,14 +115,14 @@ export class BBuildingData {
         return { id: floorId, key: this.uniqKey++, pos: [floorSectionIdIndex, floorIdIndex], name, sections }
     }
 
-    _updateUnitNames (maxFlor, minFlor, sectionSizes, floorsMap) {
+    private _updateUnitNames (maxFlor, minFlor, sectionSizes, floorsMap) {
         let maxName = 0
         for (let s = 0; s < sectionSizes.length; s++) {
             for (let f = 1; f <= maxFlor; f++) {
                 const units = floorsMap[f].sections[s].units
                 for (let i = 0; i < units.length; i++) {
                     const unit = units[i]
-                    if (unit.type !== 'unit') continue
+                    if (unit.type !== BDataTypes.Unit) continue
                     const name = unit.name
                     const nameInt = parseInt(name)
                     if (!name) {
@@ -136,7 +136,7 @@ export class BBuildingData {
         }
     }
 
-    _getVisualMatrix () {
+    private _getVisualMatrix () {
         const [maxFloor, minFloor] = this._getMaxMinFloorIndex()
         const sectionSizes = this._getSectionsSizes()
 
@@ -167,7 +167,7 @@ export class BBuildingData {
         return { floors, sections }
     }
 
-    getVisualMatrix () {
+    public getVisualMatrix () {
         return this._matrix
     }
 }
@@ -177,7 +177,7 @@ export function addNewBBuildingUnitToSectionData (section: BDataSection, floorIn
     if (floorIndex === 0) throw new Error('floorIndex !== 0')
     if (!section) throw new Error('no section')
     if (typeof section !== 'object') throw new Error('wrong section type')
-    if (section.type !== 'section') throw new Error('section.type !== "section"')
+    if (section.type !== BDataTypes.Section) throw new Error('section.type !== "section"')
     if (!section.id) throw new Error('no section.id')
     if (!section.floors) throw new Error('no section.floors')
     if (!Array.isArray(section.floors)) throw new Error('wrong section.floors type')
@@ -192,7 +192,7 @@ export function addNewBBuildingUnitToSectionData (section: BDataSection, floorIn
     for (let i = 0; i < section.floors.length; i++) {
         const floor = section.floors[i]
         if (typeof floor !== 'object') throw new Error('wrong floor type')
-        if (floor.type !== 'floor') throw new Error('floor.type !== "floor"')
+        if (floor.type !== BDataTypes.Floor) throw new Error('floor.type !== "floor"')
         if (!floor.id) throw new Error('no floor.id')
         if (!floor.index) throw new Error('no floor.index')
         if (!floor.units) throw new Error('no floor.units')
@@ -217,7 +217,7 @@ export function addNewBBuildingUnitToSectionData (section: BDataSection, floorIn
     } else if (insertAt !== null) {
         section.floors.splice(insertAt, 0, {
             id: `${unitId}-floor`,
-            type: 'floor',
+            type: BDataTypes.Floor,
             index: floorIndex,
             name: `${floorIndex}`,
             units: [newUnit],
@@ -227,7 +227,7 @@ export function addNewBBuildingUnitToSectionData (section: BDataSection, floorIn
     }
 }
 
-export function createNewBBuildingSectionData ({ sectionName, maxFloor, minFloor, unitsPerFloor }) {
+export function createNewBBuildingSectionData ({ sectionName, maxFloor, minFloor, unitsPerFloor }): BDataSection {
     if (typeof sectionName !== 'string') throw new Error('sectionName is not a string')
     if (!sectionName) throw new Error('no sectionName')
     if (!maxFloor) throw new Error('no maxFloor')
@@ -241,19 +241,19 @@ export function createNewBBuildingSectionData ({ sectionName, maxFloor, minFloor
     return {
         id: sectionId,
         name: sectionName,
-        type: 'section',
+        type: BDataTypes.Section,
         floors: [...Array(maxFloor - minFloor + ((minFloor < 0) ? 0 : 1)).keys()].map(() => {
             if (floorIndex === 0) floorIndex = -1
             unitIndex = 1
-            const floor = {
+            const floor: BDataFloor = {
                 id: `${sectionId}-${floorIndex}`,
                 name: `${floorIndex}`,
-                type: 'floor',
+                type: BDataTypes.Floor,
                 index: floorIndex,
                 units: [...Array(unitsPerFloor).keys()].map(() => {
                     return {
                         id: `${sectionId}-${floorIndex}-${unitIndex++}`,
-                        type: 'unit',
+                        type: BDataTypes.Unit,
                     }
                 }),
             }
