@@ -6,7 +6,7 @@ import { useIntl } from '@core/next/intl'
 import Head from 'next/head'
 import Link from 'next/link'
 import React, { useEffect, useMemo } from 'react'
-import { Button, Input, Space } from 'antd'
+import { Button, Input, Space, Table } from 'antd'
 
 import { useOrganization } from '@core/next/organization'
 import { CREATE_APPLICATION } from '../../constants/routes'
@@ -23,7 +23,6 @@ import { SearchInput } from '../../containers/FormBlocks'
 import { runMutation } from '../../utils/mutations.utils'
 
 import { useCreate, useObjects, useUpdate } from '../../schema/Application.uistate'
-import { t } from '../../utils/react'
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 
@@ -57,7 +56,18 @@ const GET_ALL_PROPERTIES_QUERY = gql`
     }
 `
 
-async function _search (client, query, variables) {
+const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
+    query selectOrgarnizationEmployee ($value: String, , $organization: ID) {
+        objs: allOrganizationEmployees(where: {name_contains: $value, organization: {id: $organization}}) {
+            name
+            user {
+                id
+            }
+        }
+    }
+`
+
+export async function _search (client, query, variables) {
     return await client.query({
         query: query,
         variables: variables,
@@ -68,25 +78,34 @@ function normalizeRelation (value) {
     return (value && typeof value === 'object') ? value.id : value
 }
 
-async function searchProperty (client, value) {
+export async function searchProperty (client, value) {
     const { data, error } = await _search(client, GET_ALL_PROPERTIES_QUERY, { value })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
     return []
 }
 
-async function searchApplicationSources (client, value) {
+export async function searchApplicationSources (client, value) {
     const { data, error } = await _search(client, GET_ALL_SOURCES_QUERY, { value })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
     return []
 }
 
-async function searchApplicationClassifier (client, value) {
+export async function searchApplicationClassifier (client, value) {
     const { data, error } = await _search(client, GET_ALL_CLASSIFIERS_QUERY, { value })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
     return []
+}
+
+export function searchEmployee (organization) {
+    return async function (client, value) {
+        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organization })
+        if (error) console.warn(error)
+        if (data) return data.objs.map(x => ({ text: x.name, value: x.user.id }))
+        return []
+    }
 }
 
 export function useApplicationColumns () {
@@ -247,17 +266,57 @@ function ApplicationCRUDTableBlock () {
     )
 }
 
-const CreateApplicationButton = () => (
-    <Link href={CREATE_APPLICATION}>
-        <Button type='primary'>
-            <PlusOutlined/>{t('pages.condo.application.index.CreateApplicationButtonLabel')}
-        </Button>
-    </Link>
-)
+const CreateApplicationButton = ({ message }) => {
+    return (
+        <Link href={CREATE_APPLICATION}>
+            <Button type='primary'>
+                <PlusOutlined/>{message}
+            </Button>
+        </Link>
+    )
+}
+
+const TABLE_COLUMNS = [
+    {
+        title: 'Имя',
+        dataIndex: 'clientName',
+        key: 'clientName',
+    },
+    {
+        title: 'Детали',
+        dataIndex: 'details',
+        key: 'details',
+    },
+    {
+        title: '',
+        dataIndex: 'id',
+        key: 'watch',
+        render: id => (
+            <>
+                <div>
+                    <Link href={`application/${id}`}>Посмотреть</Link>
+                </div>
+                <div>
+                    <Link href={`application/${id}/update`}>Редактировать</Link>
+                </div>
+            </>
+        ),
+    },
+]
 
 export default () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.application.index.PageTitle' })
+    const CreateApplicationButtonLabel = intl.formatMessage({ id: 'pages.condo.application.index.CreateApplicationButtonLabel' })
+
+    // Rewrite later
+    const { objs, refetch } = useObjects({
+        sortBy: 'createdAt_DESC',
+    })
+
+    useEffect(() => {
+        refetch()
+    }, [])
 
     return (
         <>
@@ -265,11 +324,11 @@ export default () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={PageTitleMsg} extra={<CreateApplicationButton/>}>
+                <PageHeader title={PageTitleMsg} extra={<CreateApplicationButton message={CreateApplicationButtonLabel}/>}>
                 </PageHeader>
                 <PageContent>
                     <OrganizationRequired>
-                        <ApplicationCRUDTableBlock/>
+                        <Table dataSource={objs} columns={TABLE_COLUMNS}/>
                     </OrganizationRequired>
                 </PageContent>
             </PageWrapper>
