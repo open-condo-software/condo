@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { Avatar, Button, Form, Input, notification, Radio, Tag } from 'antd'
 import { QuestionCircleOutlined } from '@ant-design/icons'
