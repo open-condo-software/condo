@@ -16,7 +16,7 @@ import { runMutation } from '../../utils/mutations.utils'
 
 import { AuthState, PhoneAuthForm } from './register'
 
-let SIGNIN_BY_FIREBASE_ID_TOKEN_MUTATION = gql`
+const SIGNIN_BY_FIREBASE_ID_TOKEN_MUTATION = gql`
     mutation authenticateUserWithFirebaseIdToken ($token: String!) {
         obj: authenticateUserWithFirebaseIdToken(data: { firebaseIdToken: $token }) {
             item {

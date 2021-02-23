@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { Descriptions, Form } from 'antd'
 import React from 'react'
@@ -6,10 +7,10 @@ import { useRouter } from 'next/router'
 
 import { useIntl } from '@core/next/intl'
 
-import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
+import { PageContent, PageHeader, PageWrapper } from '../../../containers/BaseLayout'
 
-import LoadingOrErrorPage from '../../containers/LoadingOrErrorPage'
-import { useObject, useUpdate } from '../../schema/Ticket.uistate'
+import LoadingOrErrorPage from '../../../containers/LoadingOrErrorPage'
+import { useObject, useUpdate } from '../../../schema/Ticket.uistate'
 
 function TicketDescriptionBlock ({ obj }) {
     const intl = useIntl()

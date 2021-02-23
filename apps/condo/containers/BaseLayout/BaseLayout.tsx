@@ -1,8 +1,9 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { createContext, useContext, useState } from 'react'
-import { ConfigProvider, Drawer, Layout, Menu, PageHeader as AntPageHeader } from 'antd'
+import { createContext, CSSProperties, FunctionComponent, useContext, useState } from 'react'
+import { ConfigProvider, Drawer, Layout, Menu, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import { DashboardOutlined } from '@ant-design/icons'
 import Router from 'next/router'
 import enUS from 'antd/lib/locale/en_US'
@@ -153,7 +154,7 @@ function renderMenuData (menuData, menuItemRender, localeRender, onClickMenuItem
         return (
             (item.children && !item.hideChildrenInMenu) ?
                 <SubMenu key={item.path} icon={item.icon} title={menuItemRender(item, text)}
-                         onTitleClick={() => onClickMenuItem(item)}>
+                    onTitleClick={() => onClickMenuItem(item)}>
                     {renderMenuData(item.children, menuItemRender, localeRender, onClickMenuItem)}
                 </SubMenu>
                 :
@@ -184,14 +185,14 @@ function SideMenu ({ logoLocation, onLogoClick, menuData, menuItemRender, locale
             onClose={toggleSideMenuCollapsed}
         >
             <Sider css={sideMenuSiderCss} as="aside" width={sideMenuWidth}
-                   collapsible collapsed={false} onCollapse={toggleSideMenuCollapsed}
+                collapsible collapsed={false} onCollapse={toggleSideMenuCollapsed}
             >
                 {logo}{menu}
             </Sider>
         </Drawer>
     ) : (
         <Sider className="side-menu" css={sideMenuSiderCss} as="aside" width={sideMenuWidth}
-               collapsible collapsed={isSideMenuCollapsed} onCollapse={toggleSideMenuCollapsed}
+            collapsible collapsed={isSideMenuCollapsed} onCollapse={toggleSideMenuCollapsed}
         >
             {(logoLocation === 'sideMenu') ? logo : null}{menu}
         </Sider>
@@ -247,9 +248,9 @@ function BaseLayout ({ children, logoLocation = 'sideMenu', className, style, ..
                 <Layout css={subLayoutCss}>
                     <Header className="top-menu" css={topMenuCss}>
                         {logoLocation === 'topMenu' ? <img css={topMenuLogoCss} src="/logo.svg"
-                                                           onClick={onLogoClick}/> : null}
+                            onClick={onLogoClick}/> : null}
                         <TopMenuItems isMobile={isMobile} isSideMenuCollapsed={isSideMenuCollapsed}
-                                      toggleSideMenuCollapsed={toggleSideMenuCollapsed}/>
+                            toggleSideMenuCollapsed={toggleSideMenuCollapsed}/>
                     </Header>
                     {children}
                 </Layout>
@@ -258,22 +259,40 @@ function BaseLayout ({ children, logoLocation = 'sideMenu', className, style, ..
     </ConfigProvider>)
 }
 
-function PageWrapper ({ children, className, style }) {
+interface IPageWrapperProps {
+    className?: string
+    style?: CSSProperties
+}
+
+const PageWrapper:FunctionComponent<IPageWrapperProps> =  ({ children, className, style }) => {
     return <Content className={`page-wrapper ${className || ''}`} css={pageWrapperCss} as="main" style={style}>
         {children}
     </Content>
 }
 
-function PageHeader ({ children, className, style, title, subTitle }) {
+interface IPageHeaderProps extends PageHeaderProps {
+    title?: string
+    subTitle?: string
+    className?: string
+    style?: CSSProperties
+}
+
+const PageHeader:FunctionComponent<IPageHeaderProps> = ({ children, className, style, title, subTitle, ...pageHeaderProps }) => {
     return <AntPageHeader
         className={`page-header ${className || ''}`} css={pageHeaderCss} style={style}
         title={title} subTitle={subTitle}
+        {...pageHeaderProps}
     >
         {children}
     </AntPageHeader>
 }
 
-function PageContent ({ children, className, style }) {
+interface IPageContentProps {
+    className?: string
+    style?: CSSProperties
+}
+
+const PageContent:FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
     return <div className={`page-content ${className || ''}`} css={pageContentCss} style={style}>
         {children}
     </div>

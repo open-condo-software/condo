@@ -8,6 +8,7 @@ const GUTTER = 4
 
 const calcWidth = n => n * STAR_WIDTH + (n - 1) * GUTTER
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 const Stars = ({ count = 5, value, onChange = () => {} }) => {
     return (
         <div

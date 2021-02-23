@@ -40,7 +40,7 @@ function MessageList ({ messages, user }) {
     return (
         <div className="chat-messages" ref={$messagesContainer}>
             <QueueAnim delay={300} className="chat-messages-list" component="ul" type={['right', 'left']} leaveReverse
-                       onEnd={handleEndAnimation}>
+                onEnd={handleEndAnimation}>
                 {items}
             </QueueAnim>
             <div key='last' ref={$endOfMessages}/>
@@ -62,8 +62,8 @@ function MessageInput ({ onSendMessage }) {
         <div className="chat-input-bar">
             <div className={`chat-input-wrapper ${(message) ? 'chat-input-not-empty' : ''}`}>
                 <Input className="chat-input" onPressEnter={handleEnter}
-                       onChange={(e) => {setMessage(e.target.value)}} value={message}
-                       placeholder="Type something ..."/>
+                    onChange={(e) => {setMessage(e.target.value)}} value={message}
+                    placeholder="Type something ..."/>
                 <button className="chat-send" onClick={handleEnter}>
                     <SendOutlined/>
                 </button>

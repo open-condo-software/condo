@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import React from 'react'
 import Head from 'next/head'
@@ -42,7 +43,7 @@ function menuDataRender () {
             {
                 path: '/ticket',
                 icon: <ExceptionOutlined/>,
-                locale: 'menu.Ticket',
+                locale: 'menu.Tickets',
             },
             {
                 path: '/employee',

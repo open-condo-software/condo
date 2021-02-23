@@ -1,12 +1,20 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import gql from 'graphql-tag'
+import { PlusOutlined } from '@ant-design/icons'
+import {
+    GET_ALL_SOURCES_QUERY,
+    GET_ALL_CLASSIFIERS_QUERY,
+    GET_ALL_PROPERTIES_QUERY,
+    GET_ALL_ORGANIZATION_EMPLOYEE_QUERY,
+} from '../../schema/Ticket.gql'
 import { useIntl } from '@core/next/intl'
 import Head from 'next/head'
 import Link from 'next/link'
 import React, { useEffect, useMemo } from 'react'
-import { Form, Input, Space } from 'antd'
+import { Button, Input, Space, Table } from 'antd'
 
 import { useOrganization } from '@core/next/organization'
+import { CREATE_TICKET } from '../../constants/routes'
 
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
@@ -16,47 +24,12 @@ import {
     useTable,
     ViewOrEditTableBlock,
 } from '../../containers/FormTableBlocks'
-import {
-    BaseModalForm,
-    CreateFormListItemButton,
-    useCreateAndEditModalForm,
-} from '../../containers/FormList'
 import { SearchInput } from '../../containers/FormBlocks'
 import { runMutation } from '../../utils/mutations.utils'
 
 import { useCreate, useObjects, useUpdate } from '../../schema/Ticket.uistate'
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
-
-// TODO(pahaz): add organization filter
-const GET_ALL_SOURCES_QUERY = gql`
-    query selectSource ($value: String) {
-        objs: allTicketSources(where: {name_contains: $value, organization_is_null: true}) {
-            id
-            name
-        }
-    }
-`
-
-// TODO(pahaz): add organization filter
-const GET_ALL_CLASSIFIERS_QUERY = gql`
-    query selectSource ($value: String) {
-        objs: allTicketClassifiers(where: {name_contains: $value, organization_is_null: true, parent_is_null: true}) {
-            id
-            name
-        }
-    }
-`
-
-// TODO(pahaz): add organization filter
-const GET_ALL_PROPERTIES_QUERY = gql`
-    query selectProperty ($value: String) {
-        objs: allProperties(where: {name_contains: $value}) {
-            id
-            name
-        }
-    }
-`
 
 async function _search (client, query, variables) {
     return await client.query({
@@ -69,28 +42,37 @@ function normalizeRelation (value) {
     return (value && typeof value === 'object') ? value.id : value
 }
 
-async function searchProperty (client, value) {
+export async function searchProperty (client, value) {
     const { data, error } = await _search(client, GET_ALL_PROPERTIES_QUERY, { value })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
     return []
 }
 
-async function searchTicketSources (client, value) {
+export async function searchTicketSources (client, value) {
     const { data, error } = await _search(client, GET_ALL_SOURCES_QUERY, { value })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
     return []
 }
 
-async function searchTicketClassifier (client, value) {
+export async function searchTicketClassifier (client, value) {
     const { data, error } = await _search(client, GET_ALL_CLASSIFIERS_QUERY, { value })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
     return []
 }
 
-function _useTicketColumns () {
+export function searchEmployee (organization) {
+    return async function (client, value) {
+        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organization })
+        if (error) console.warn(error)
+        if (data) return data.objs.map(x => ({ text: x.name, value: x.user.id }))
+        return []
+    }
+}
+
+export function useTicketColumns () {
     const intl = useIntl()
     const NumberMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Number' })
     const SourceMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
@@ -98,9 +80,6 @@ function _useTicketColumns () {
     const ClassifierMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Classifier' })
     const DetailsMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Details' })
     const StatusMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Status' })
-    const CreateTicketModalTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketModalTitle' })
-    const EditTicketModalTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.EditTicketModalTitle' })
-    const ValueIsTooShortMsg = intl.formatMessage({ id: 'ValueIsTooShort' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
 
     return [
@@ -189,67 +168,17 @@ function _useTicketColumns () {
     ]
 }
 
-function CreateAndEditTicketModalForm ({ columns, action, visible, editableItem, cancelModal }) {
-    const intl = useIntl()
-    const CreateTicketModalTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketModalTitle' })
-    const EditTicketModalTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.EditTicketModalTitle' })
-    const ValueIsTooShortMsg = intl.formatMessage({ id: 'ValueIsTooShort' })
-    const ErrorToFormFieldMsgMapping = {
-        '[name.is.too.short]': {
-            name: 'name',
-            errors: [ValueIsTooShortMsg],
-        },
-    }
-
-    return <BaseModalForm
-        /* NOTE: we need to recreate form if editableItem changed because the form initialValues are cached */
-        key={editableItem}
-        action={action}
-        visible={visible}
-        cancelModal={cancelModal}
-        ModalTitleMsg={(editableItem) ? EditTicketModalTitleMsg : CreateTicketModalTitleMsg}
-        ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
-    >
-        {columns.filter(x => x.modal).filter(x => (editableItem) ? x.editable : x.create).map(x => {
-            return <Form.Item key={x.dataIndex} name={x.dataIndex} label={x.title} rules={x.rules}
-                normalize={x.normalize}>
-                {(x.editableInput) ? x.editableInput() : <Input/>}
-            </Form.Item>
-        })}
-    </BaseModalForm>
-}
-
-function CreateTicketModalBlock ({ columns, modal, create }) {
-    const { visible, editableItem, cancelModal, openCreateModal } = modal
-
-    const intl = useIntl()
-    const CreateEVotingButtonLabelMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketButtonLabel' })
-
-    return <>
-        <CreateFormListItemButton onClick={openCreateModal} label={CreateEVotingButtonLabelMsg}/>
-        <CreateAndEditTicketModalForm
-            columns={columns}
-            action={create}
-            visible={visible}
-            editableItem={editableItem}
-            cancelModal={cancelModal}
-        />
-    </>
-}
-
+/* eslint-disable-next-line no-unused-vars */
 function TicketCRUDTableBlock () {
     const { organization } = useOrganization()
-    // { organization: { id_in: [organization.id] } }
-    const modal = useCreateAndEditModalForm()
     const table = useTable()
-    const columns = _useTicketColumns()
+    const columns = useTicketColumns()
 
     const intl = useIntl()
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const AreYouSureMsg = intl.formatMessage({ id: 'AreYouSure' })
     const ErrorToFormFieldMsgMapping = {}
 
-    const { objs, count, refetch, error, loading } = useObjects({
+    const { objs, count, refetch } = useObjects({
         sortBy: toGQLSortBy(table.state.sorter) || 'createdAt_DESC',
     })
     const create = useCreate({ organization: organization.id, status: OPEN_STATUS }, () => refetch())
@@ -293,31 +222,81 @@ function TicketCRUDTableBlock () {
         return handleCreateOrUpdate({ values: { deletedAt }, item, form })
     }
 
-    const editColumns = useMemo(() => {return columns}, [])
+    const editColumns = useMemo(() => columns, [])
 
-    return <Space direction="vertical">
-        <CreateTicketModalBlock columns={editColumns} modal={modal} create={create}/>
-        <ViewOrEditTableBlock columns={editColumns} table={table}/>
-    </Space>
+    return (
+        <Space direction="vertical">
+            <ViewOrEditTableBlock columns={editColumns} table={table}/>
+        </Space>
+    )
 }
 
-const TicketsPage = () => {
+const CreateTicketButton = ({ message }) => {
+    return (
+        <Link href={CREATE_TICKET}>
+            <Button type='primary'>
+                <PlusOutlined/>{message}
+            </Button>
+        </Link>
+    )
+}
+
+const TABLE_COLUMNS = [
+    {
+        title: 'Имя',
+        dataIndex: 'clientName',
+        key: 'clientName',
+    },
+    {
+        title: 'Детали',
+        dataIndex: 'details',
+        key: 'details',
+    },
+    {
+        title: '',
+        dataIndex: 'id',
+        key: 'watch',
+        render: id => (
+            <>
+                <div>
+                    <Link href={`/ticket/${id}`}>Посмотреть</Link>
+                </div>
+                <div>
+                    <Link href={`/ticket/${id}/update`}>Редактировать</Link>
+                </div>
+            </>
+        ),
+    },
+]
+
+export default () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
+    const CreateTicketButtonLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketButtonLabel' })
 
-    return <>
-        <Head>
-            <title>{PageTitleMsg}</title>
-        </Head>
-        <PageWrapper>
-            <PageHeader title={PageTitleMsg}/>
-            <PageContent>
-                <OrganizationRequired>
-                    <TicketCRUDTableBlock/>
-                </OrganizationRequired>
-            </PageContent>
-        </PageWrapper>
-    </>
+    // Rewrite later
+    const { objs, refetch } = useObjects({
+        sortBy: 'createdAt_DESC',
+    })
+
+    useEffect(() => {
+        refetch()
+    }, [])
+
+    return (
+        <>
+            <Head>
+                <title>{PageTitleMsg}</title>
+            </Head>
+            <PageWrapper>
+                <PageHeader title={PageTitleMsg} extra={<CreateTicketButton message={CreateTicketButtonLabel}/>}>
+                </PageHeader>
+                <PageContent>
+                    <OrganizationRequired>
+                        <Table dataSource={objs} columns={TABLE_COLUMNS}/>
+                    </OrganizationRequired>
+                </PageContent>
+            </PageWrapper>
+        </>
+    )
 }
-
-export default TicketsPage
