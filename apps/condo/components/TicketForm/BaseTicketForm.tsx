@@ -33,14 +33,14 @@ function useTicketValidations (): IFormFieldsRuleMap {
                 message: intl.formatMessage({ id: 'SelectIsRequired' }),
             },
         ],
-        flatNumber: [],
+        unitName: [],
         source: [
             {
                 required: true,
                 message: intl.formatMessage({ id: 'SelectIsRequired' }),
             },
         ],
-        clientName: [{}],
+        clientName: [],
         clientPhone: [
             {
                 pattern: countries[organization.country].phonePattern,
@@ -65,7 +65,7 @@ function useTicketValidations (): IFormFieldsRuleMap {
                 message: intl.formatMessage({ id: 'SelectIsRequired' }),
             },
         ],
-        executor: [{}],
+        executor: [],
         assignee: [
             {
                 required: true,
@@ -88,19 +88,20 @@ interface ITicketFormProps {
 export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) => {
     const intl = useIntl()
     const UserInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.UserInfo' })
-    const AddressMessage = intl.formatMessage({ id: 'Address' })
-    const FlatNumberMessage = intl.formatMessage({ id: 'FlatNumber' })
-    const FullNameMessage = intl.formatMessage({ id: 'FullName' })
+    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
+    const FlatNumberMessage = intl.formatMessage({ id: 'field.FlatNumber' })
+    const FullNameMessage = intl.formatMessage({ id: 'field.FullName' })
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
-    const EmailMessage = intl.formatMessage({ id: 'EMail' })
+    const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const TicketInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
     const TypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Type' })
-    const ExecutiveMessage = intl.formatMessage({ id: 'Executive' })
-    const ExecutiveExtraMessage = intl.formatMessage({ id: 'Executive.description' })
-    const ResponsibleMessage = intl.formatMessage({ id: 'Responsible' })
-    const ResponsibleExtraMessage = intl.formatMessage({ id: 'Responsible.description' })
+    const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
+    const ExecutorExtraMessage = intl.formatMessage({ id: 'field.Executor.description' })
+    const ResponsibleMessage = intl.formatMessage({ id: 'field.Responsible' })
+    const ResponsibleExtraMessage = intl.formatMessage({ id: 'field.Responsible.description' })
     const SaveMessage = intl.formatMessage({ id: 'Save' })
+    const SourceMessage = intl.formatMessage({ id: 'field.Source' })
 
     const { action, initialValues, organization } = props
     const validations = useTicketValidations()
@@ -118,13 +119,13 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
                                 </Form.Item>
                             </Col>
                             <Col span={4}>
-                                <Form.Item name={'flatNumber'}>
+                                <Form.Item name={'unitName'}>
                                     <Input type={'number'} min={0} placeholder={FlatNumberMessage}/>
                                 </Form.Item>
                             </Col>
                             <Col span={8}>
                                 <Form.Item name={'source'} rules={validations.source}>
-                                    <SearchInput placeholder={'Источник'} search={searchTicketSources}/>
+                                    <SearchInput placeholder={SourceMessage} search={searchTicketSources}/>
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -164,8 +165,8 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
                                 </Form.Item>
                             </Col>
                             <Col span={8}>
-                                <Form.Item name={'executor'} rules={validations.executor} extra={ExecutiveExtraMessage}>
-                                    <SearchInput placeholder={ExecutiveMessage} search={searchEmployee(organization.id)}/>
+                                <Form.Item name={'executor'} rules={validations.executor} extra={ExecutorExtraMessage}>
+                                    <SearchInput placeholder={ExecutorMessage} search={searchEmployee(organization.id)}/>
                                 </Form.Item>
                             </Col>
                             <Col span={8}>
@@ -179,7 +180,7 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
                             <Form.Item>
                                 <Button key="submit" onClick={handleSave} type="primary" loading={isLoading}>
                                     {SaveMessage}
-                                </Button>,
+                                </Button>
                             </Form.Item>
                         </Row>
                     </>

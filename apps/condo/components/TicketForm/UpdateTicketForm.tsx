@@ -13,7 +13,7 @@ interface IUpdateTicketForm {
 
 export const UpdateTicketForm:React.FunctionComponent<IUpdateTicketForm> = ({ id }) => {
     const intl = useIntl()
-    const LoadingMsg = intl.formatMessage({ id: 'Loading' })
+    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
     const { organization } = useOrganization()
     const { obj, refetch, loading, error } = useObject({ where: { id } }, false)
@@ -24,7 +24,7 @@ export const UpdateTicketForm:React.FunctionComponent<IUpdateTicketForm> = ({ id
     if (error || loading) {
         return (
             <>
-                {(loading) ? <Typography.Title>{LoadingMsg}</Typography.Title> : null}
+                {(loading) ? <Typography.Title>{LoadingMessage}</Typography.Title> : null}
                 {(error) ? <Typography.Title>{error}</Typography.Title> : null}
             </>
         )

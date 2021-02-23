@@ -1,7 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { PlusOutlined } from '@ant-design/icons'
-import gql from 'graphql-tag'
+import {
+    GET_ALL_SOURCES_QUERY,
+    GET_ALL_CLASSIFIERS_QUERY,
+    GET_ALL_PROPERTIES_QUERY,
+    GET_ALL_ORGANIZATION_EMPLOYEE_QUERY,
+} from '../../schema/Ticket.gql'
 import { useIntl } from '@core/next/intl'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -26,48 +31,7 @@ import { useCreate, useObjects, useUpdate } from '../../schema/Ticket.uistate'
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 
-// TODO(pahaz): add organization filter
-const GET_ALL_SOURCES_QUERY = gql`
-    query selectSource ($value: String) {
-        objs: allTicketSources(where: {name_contains: $value, organization_is_null: true}) {
-            id
-            name
-        }
-    }
-`
-
-// TODO(pahaz): add organization filter
-const GET_ALL_CLASSIFIERS_QUERY = gql`
-    query selectSource ($value: String) {
-        objs: allTicketClassifiers(where: {name_contains: $value, organization_is_null: true, parent_is_null: true}) {
-            id
-            name
-        }
-    }
-`
-
-// TODO(pahaz): add organization filter
-const GET_ALL_PROPERTIES_QUERY = gql`
-    query selectProperty ($value: String) {
-        objs: allProperties(where: {name_contains: $value}) {
-            id
-            name
-        }
-    }
-`
-
-const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
-    query selectOrgarnizationEmployee ($value: String, , $organization: ID) {
-        objs: allOrganizationEmployees(where: {name_contains: $value, organization: {id: $organization}}) {
-            name
-            user {
-                id
-            }
-        }
-    }
-`
-
-export async function _search (client, query, variables) {
+async function _search (client, query, variables) {
     return await client.query({
         query: query,
         variables: variables,

@@ -28,6 +28,7 @@ function genReactHooks (TestUtils, { convertGQLItemToUIState, convertUIStateToGQ
         * We should use this tricky solution for manually control default memoization flow.
         * React and eslint recommend to avoid using reactHooks in conditional statements,
         * as result, we should do some tricks with initial objects value calculation.
+        * TODO: debug and remove useMemo later
         */
         let objects = useMemo(() => {
             return getObjects(data, convertGQLItemToUIState)

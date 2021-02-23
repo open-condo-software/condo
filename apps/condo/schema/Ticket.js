@@ -266,7 +266,6 @@ const Ticket = new GQLListSchema('Ticket', {
         entranceName: { type: Text },
         floorName: { type: Text },
         unitName: { type: Text },
-        flatNumber: { type: Text },
 
         source: {
             schemaDoc: 'Ticket source channel/system. Examples: call, email, visit, ...',
