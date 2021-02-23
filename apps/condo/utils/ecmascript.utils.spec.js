@@ -1,3 +1,5 @@
+/* eslint  @typescript-eslint/no-empty-function: 0 */
+
 import { isAsyncFunction, isFunction } from './ecmascript.utils'
 
 describe('Function objects', () => {

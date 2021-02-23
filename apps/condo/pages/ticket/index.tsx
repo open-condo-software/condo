@@ -168,6 +168,7 @@ export function useTicketColumns () {
     ]
 }
 
+/* eslint-disable-next-line no-unused-vars */
 function TicketCRUDTableBlock () {
     const { organization } = useOrganization()
     const table = useTable()
