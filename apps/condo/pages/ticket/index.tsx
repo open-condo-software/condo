@@ -242,8 +242,7 @@ export default () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={PageTitleMsg} extra={<CreateTicketButton message={CreateTicketButtonLabel}/>}>
-                </PageHeader>
+                <PageHeader title={PageTitleMsg} extra={<CreateTicketButton message={CreateTicketButtonLabel}/>}/>
                 <PageContent>
                     <OrganizationRequired>
                         <Table dataSource={objs} columns={TABLE_COLUMNS}/>

@@ -19,6 +19,7 @@
   "pages.condo.property.type.building": "Многоквартирный дом",
   "pages.condo.property.type.village": "Коттеджный поселок",
   "pages.condo.ticket.index.PageTitle": "Задачи",
+  "pages.condo.ticket.id.PageTitle": "Задача",
   "pages.condo.ticket.index.CreateTicketModalTitle": "Добавить задачу",
   "pages.condo.ticket.index.EditTicketModalTitle": "Редактировать задачу",
   "pages.condo.ticket.index.CreateTicketButtonLabel": "Добавить задачу",
@@ -65,6 +66,7 @@
   "Email": "Email",
   "Phone": "Телефон",
   "Password": "Пароль",
+  "From": "от",
   "Captcha": "Капча",
   "ConfirmPassword": "Пароль (проверка)",
   "ServerError": "Ошибка сервера",
@@ -164,5 +166,6 @@
   "containers.FormTableExcelImport.ImportFromFileButtonLabel": "Загрузить список из файла",
   "containers.FormTableExcelImport.SelectColumn": "Выбери колонку",
   "containers.FormTableExcelImport.NextStepButtonLabel": "Продолжить импорт",
+  "errors.NotDefined": "Не указано",
   "logout": "Выйти"
 }
