@@ -16,6 +16,8 @@ const EMAIL_ALREADY_REGISTERED_ERROR = '[register:email:multipleFound'
 
 const ALREADY_EXISTS_ERROR = '[constrain:alreadyExists:'
 
+const WRONG_TEXT_FORMAT = '[text:wrongFormat:'
+
 module.exports = {
     JSON_UNKNOWN_VERSION_ERROR,
     JSON_WRONG_VERSION_FORMAT_ERROR,
@@ -30,4 +32,5 @@ module.exports = {
     WRONG_EMAIL_ERROR,
     EMAIL_ALREADY_REGISTERED_ERROR,
     ALREADY_EXISTS_ERROR,
+    WRONG_TEXT_FORMAT,
 }
