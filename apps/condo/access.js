@@ -1,6 +1,6 @@
 // Core logic is based on https://github.com/keystonejs/keystone/blob/master/examples-next/roles/access.ts
 const { getByCondition, getById } = require('@core/keystone/schema')
-const { userIsAuthenticated } = require('@core/keystone/access')
+const { userIsAuthenticated, userIsAdmin } = require('@core/keystone/access')
 
 const isSignedIn = userIsAuthenticated
 
@@ -16,6 +16,30 @@ const permissions = {
     canManageRoles: () => true,
 }
 
+async function checkOrganizationPermission (userId, organizationId, permission) {
+    if (!userId || !organizationId) return false
+    const employee = await getByCondition('OrganizationEmployee', {
+        organization: { id: organizationId },
+        user: { id: userId },
+    })
+    if (!employee || !employee.role) return false
+    const employeeRole = await getByCondition('OrganizationEmployeeRole', {
+        id: employee.role,
+        organization: { id: organizationId },
+    })
+    if (!employeeRole) return false
+    return employeeRole[permission] || false
+}
+
+async function checkIntegrationPermission (userId, integrationId) {
+    if (!userId || !integrationId) return false
+    const integration = await getByCondition('BillingIntegrationAccount', {
+        integration: { id: integrationId },
+        user: { id: userId },
+    })
+    return Boolean(integration && integration.id)
+}
+
 /*
   Rules are logical functions that can be used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items
@@ -24,7 +48,7 @@ const rules = {
 
     /*
 
-      Organizations
+      Organization
 
     */
     canReadOrganizations: isSignedIn,
@@ -81,16 +105,8 @@ const rules = {
         if (!user || !user.id) return false
         if (user.isAdmin) return true
         if (!args || !args.data || !args.data.organization || !args.data.organization.id) return false
-        const orgId = args.data.organization.id
-        const employee = await getByCondition('OrganizationEmployee', {
-            organization: { id: orgId },
-            user: { id: user.id },
-        })
-        const employeeRole = await getByCondition('OrganizationEmployeeRole', {
-            id: employee.role,
-            organization: { id: orgId },
-        })
-        return employeeRole && employeeRole.canManageEmployees
+        const organizationId = args.data.organization.id
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageEmployees')
     },
     canAcceptOrRejectEmployeeInvite: async ({ authentication: { item: user }, args, context }) => {
         if (!user || !user.id) return false
@@ -113,6 +129,104 @@ const rules = {
         return false
     },
 
+    /*
+
+      Billing
+
+    */
+    canReadBillingIntegrations: isSignedIn,
+    canManageBillingIntegrations: userIsAdmin,
+    canReadBillingIntegrationAccounts: userIsAdmin,
+    canManageBillingIntegrationAccounts: userIsAdmin,
+    canReadBillingIntegrationOrganizationContexts: ({ authentication: { item: user } }) => {
+        if (!user) return false
+        if (user.isAdmin) return true
+        return {
+            // TODO(pahaz): wait https://github.com/keystonejs/keystone/issues/4829 (no access check!)
+            // OR: [
+            //     { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true } } } },
+            //     { integration: { accounts_some: { user: { id: user.id } } } },
+            // ],
+        }
+    },
+    canManageBillingIntegrationOrganizationContexts: async ({ authentication: { item: user }, originalInput, operation, itemId }) => {
+        if (!user) return false
+        if (user.isAdmin) return true
+        if (operation === 'create') {
+            // NOTE: can create only by the organization integration manager
+            if (!originalInput || !originalInput.organization || !originalInput.organization.connect || !originalInput.organization.connect.id) return false
+            const organizationId = originalInput.organization.connect.id
+            return await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
+        } else if (operation === 'update') {
+            // NOTE: can update by the organization integration manager OR the integration account
+            if (!itemId) return false
+            const context = await getById('BillingIntegrationOrganizationContext', itemId)
+            if (!context) return false
+            const organizationId = context.organization
+            const integrationId = context.integration
+            const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
+            if (canManageIntegrations) return true
+            return await checkIntegrationPermission(user.id, integrationId)
+        }
+        return false
+    },
+    canReadBillingIntegrationLogs: ({ authentication: { item: user } }) => {
+        if (!user) return false
+        if (user.isAdmin) return true
+        return {
+            // TODO(pahaz): wait https://github.com/keystonejs/keystone/issues/4829 (no access check!)
+            // context: {
+            //     OR: [
+            //         {
+            //             organization: {
+            //                 employees_some: {
+            //                     user: { id: user.id },
+            //                     role: { canManageIntegrations: true },
+            //                 },
+            //             },
+            //         },
+            //         { integration: { accounts_some: { user: { id: user.id } } } },
+            //     ],
+            // },
+        }
+    },
+    canManageBillingIntegrationLogs: ({ authentication: { item: user } }) => {
+        if (!user) return false
+        if (user.isAdmin) return true
+        return {
+            context: {
+                OR: [
+                    {
+                        organization: {
+                            employees_some: {
+                                user: { id: user.id },
+                                role: { canManageIntegrations: true },
+                            },
+                        },
+                    },
+                    { integration: { accounts_some: { user: { id: user.id } } } },
+                ],
+            },
+        }
+    },
+    canReadBillingProperties: ({ authentication: { item: user } }) => {
+        if (!user) return false
+        if (user.isAdmin) return true
+        return {
+            context: {
+                integration: { accounts_some: { user: { id: user.id } } },
+            },
+        }
+    },
+    canManageBillingProperties: ({ authentication: { item: user } }) => {
+        if (!user) return false
+        if (user.isAdmin) return true
+        return {
+            context: {
+                integration: { accounts_some: { user: { id: user.id } } },
+            },
+        }
+    },
     // canUpdatePeople: ({ session }: ListAccessArgs) => {
     //     if (!session) {
     //         // No session? No people.
