@@ -1,6 +1,5 @@
 const { Text, Relationship, Integer, DateTimeUtc, CalendarDay } = require('@keystonejs/fields')
 
-const access = require('@core/keystone/access')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
@@ -11,21 +10,6 @@ const { hasRequestAndDbFields } = require('../utils/validation.utils')
 const { rules } = require('../access')
 const { hasValidJsonStructure } = require('../utils/validation.utils')
 
-const ACCESS_TO_ALL = {
-    read: true,
-    create: access.userIsAuthenticated,
-    update: access.userIsAuthenticated,
-    delete: access.userIsAuthenticated,
-    auth: true,
-}
-
-const READ_ONLY_ACCESS = {
-    read: true,
-    create: access.userIsAdmin,
-    update: access.userIsAdmin,
-    delete: access.userIsAdmin,
-    auth: true,
-}
 
 const INTEGRATION_CONTEXT_FIELD = {
     schemaDoc: 'Integration context',
@@ -108,9 +92,9 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         // settings data structure config (settings field for BillingIntegrationOrganizationContext)
         // state data structure config (state field for BillingIntegrationOrganizationContext)
         // log messages translation and adaptation (message field for BillingIntegrationLog)
-        accounts: {
+        accessRights: {
             type: Relationship,
-            ref: 'BillingIntegrationAccount.integration',
+            ref: 'BillingIntegrationAccessRight.integration',
             many: true,
         },
     },
@@ -124,7 +108,7 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
     },
 })
 
-const BillingIntegrationAccount = new GQLListSchema('BillingIntegrationAccount', {
+const BillingIntegrationAccessRight = new GQLListSchema('BillingIntegrationAccessRight', {
     schemaDoc: 'Link between billing integrations and users',
     fields: {
         dv: DV_FIELD,
@@ -133,7 +117,7 @@ const BillingIntegrationAccount = new GQLListSchema('BillingIntegrationAccount',
         integration: {
             schemaDoc: 'Integration',
             type: Relationship,
-            ref: 'BillingIntegration.accounts',
+            ref: 'BillingIntegration.accessRights',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
@@ -149,10 +133,10 @@ const BillingIntegrationAccount = new GQLListSchema('BillingIntegrationAccount',
     },
     plugins: [tracked(), historical()],
     access: {
-        read: rules.canReadBillingIntegrationAccounts,
-        create: rules.canManageBillingIntegrationAccounts,
-        update: rules.canManageBillingIntegrationAccounts,
-        delete: rules.canManageBillingIntegrationAccounts,
+        read: rules.canReadBillingIntegrationAccessRights,
+        create: rules.canManageBillingIntegrationAccessRights,
+        update: rules.canManageBillingIntegrationAccessRights,
+        delete: rules.canManageBillingIntegrationAccessRights,
         auth: true,
     },
 })
@@ -238,7 +222,7 @@ const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
             schemaDoc: 'The message metadata. Context variables for generating messages. ' +
                 'Examples of data keys: ``',
             type: Json,
-            isRequired: true,
+            isRequired: false,
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted()],
@@ -350,7 +334,13 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: ACCESS_TO_ALL,
+    access: {
+        read: rules.canReadBillingAccounts,
+        create: rules.canManageBillingAccounts,
+        update: rules.canManageBillingAccounts,
+        delete: false,
+        auth: true,
+    },
     hooks: {
         validateInput: ({ resolvedData, existingItem, addValidationError }) => {
             if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'source', 'status', 'classifier', 'details'], resolvedData, existingItem, addValidationError)) return
@@ -377,7 +367,13 @@ const BillingMeterResource = new GQLListSchema('BillingMeterResource', {
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: READ_ONLY_ACCESS,
+    access: {
+        read: rules.canReadBillingMeterResources,
+        create: rules.canManageBillingMeterResources,
+        update: rules.canManageBillingMeterResources,
+        delete: false,
+        auth: true,
+    },
 })
 
 const BillingAccountMeter = new GQLListSchema('BillingAccountMeter', {
@@ -413,7 +409,13 @@ const BillingAccountMeter = new GQLListSchema('BillingAccountMeter', {
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: READ_ONLY_ACCESS,
+    access: {
+        read: rules.canReadBillingAccountMeters,
+        create: rules.canManageBillingAccountMeters,
+        update: rules.canManageBillingAccountMeters,
+        delete: false,
+        auth: true,
+    },
 })
 
 const BillingAccountMeterReading = new GQLListSchema('BillingAccountMeterReading', {
@@ -455,7 +457,13 @@ const BillingAccountMeterReading = new GQLListSchema('BillingAccountMeterReading
         raw: RAW_DATA_FIELD,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: READ_ONLY_ACCESS,
+    access: {
+        read: rules.canReadAccountMeterReadings,
+        create: rules.canManageAccountMeterReadings,
+        update: rules.canManageAccountMeterReadings,
+        delete: false,
+        auth: true,
+    },
 })
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
@@ -495,12 +503,18 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: READ_ONLY_ACCESS,
+    access: {
+        read: rules.canReadBillingReceipts,
+        create: rules.canManageBillingReceipts,
+        update: rules.canManageBillingReceipts,
+        delete: false,
+        auth: true,
+    },
 })
 
 module.exports = {
     BillingIntegration,
-    BillingIntegrationAccount,
+    BillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext,
     BillingIntegrationLog,
     BillingProperty,
