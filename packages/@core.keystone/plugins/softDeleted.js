@@ -63,30 +63,32 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     const originalResolveInput = hooks.resolveInput
     hooks.resolveInput = composeHook(originalResolveInput, newResolveInput)
 
-    const newAccess = (args) => {
+    const newAccess = async (args) => {
         const { operation } = args
         if (operation === 'read') {
-            const current = getOpAccess('read', keystone, access, args)
+            const current = await getOpAccess('read', keystone, access, args)
             return applySoftDeletedFilters(current, deletedAtField)
         } else if (operation === 'delete') {
             return false
         } else {
-            return getOpAccess(operation, keystone, access, args)
+            return await getOpAccess(operation, keystone, access, args)
         }
     }
 
     return { fields, hooks, access: newAccess, ...rest }
 }
 
-function getOpAccess (op, keystone, access, args) {
+async function getOpAccess (op, keystone, access, args) {
     const type = getType(access)
     if (type === 'Boolean') {
         return access || false
     } else if (type === 'Function') {
         return access(args) || false
+    } else if (type === 'AsyncFunction') {
+        return await access(args) || false
     } else if (type === 'Object') {
         const opAccess = access[op]
-        if (opAccess) return getOpAccess(op, keystone, opAccess, args)
+        if (opAccess) return await getOpAccess(op, keystone, opAccess, args)
         return keystone.defaultAccess.list || false
     } else if (type === 'Undefined') {
         return keystone.defaultAccess.list || false
