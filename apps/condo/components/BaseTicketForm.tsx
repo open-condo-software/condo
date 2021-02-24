@@ -3,15 +3,15 @@ import { Button, Form, Typography, Input, Row, Col } from 'antd'
 import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
-import { FormWithAction } from '../../containers/FormList'
-import { SearchInput } from '../../containers/FormBlocks'
-import countries from '../../constants/countries'
+import { FormWithAction } from '../containers/FormList'
+import { SearchInput } from '../containers/FormBlocks'
+import countries from '../constants/countries'
 import {
-    searchTicketClassifier,
-    searchTicketSources,
     searchEmployee,
     searchProperty,
-} from '../../pages/ticket'
+    searchTicketClassifier,
+    searchTicketSources
+} from '../utils/clientSchema/search'
 
 const LAYOUT = {
     labelCol: { span: 8 },

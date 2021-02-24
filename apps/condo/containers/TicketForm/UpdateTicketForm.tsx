@@ -4,8 +4,8 @@ import { Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { useObject, useUpdate, convertGQLItemToFormState } from '../../schema/Ticket.uistate'
-import { BaseTicketForm } from './BaseTicketForm'
+import { useObject, useUpdate, convertGQLItemToFormState } from '../../utils/clientSchema/Ticket'
+import { BaseTicketForm } from '../../components/BaseTicketForm'
 
 interface IUpdateTicketForm {
     id: string

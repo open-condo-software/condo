@@ -10,14 +10,14 @@ import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '../../../containers/BaseLayout'
 
 import LoadingOrErrorPage from '../../../containers/LoadingOrErrorPage'
-import { useObject, useUpdate } from '../../../schema/Ticket.uistate'
+import { useObject, useUpdate } from '../../../utils/clientSchema/Ticket'
 
 function TicketDescriptionBlock ({ obj }) {
     const intl = useIntl()
     const NumberMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Number' })
     const SourceMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
     const PropertyMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Property' })
-    const ClassifierMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Classifier' })
+    const ClassifierMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Type' })
 
     // TODO(pahaz): move small to ANT CONFIG!
     return <Descriptions size="small" column={1}>
@@ -38,7 +38,6 @@ function ChangeTicketStatusBlock ({ obj, update }) {
     return <Form
         form={form}
         name="ChangeTicketStatusForm"
-        onFinish={console.log}
         initialValues={{
             status: obj.status.id,
         }}
@@ -48,7 +47,6 @@ function ChangeTicketStatusBlock ({ obj, update }) {
             label="status"
         >
             {/*<SearchInput search={}/>*/}
-
         </Form.Item>
     </Form>
 }
@@ -77,8 +75,6 @@ const TicketIdPage = () => {
             </PageHeader>
             <PageContent>
                 <TicketViewBlock obj={obj} update={update}/>
-            </PageContent>
-            <PageContent>
                 <ChangeTicketStatusBlock obj={obj} update={update}/>
             </PageContent>
         </PageWrapper>

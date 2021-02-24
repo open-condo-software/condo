@@ -1,12 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { PlusOutlined } from '@ant-design/icons'
-import {
-    GET_ALL_SOURCES_QUERY,
-    GET_ALL_CLASSIFIERS_QUERY,
-    GET_ALL_PROPERTIES_QUERY,
-    GET_ALL_ORGANIZATION_EMPLOYEE_QUERY,
-} from '../../schema/Ticket.gql'
 import { useIntl } from '@core/next/intl'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -18,58 +12,17 @@ import { CREATE_TICKET } from '../../constants/routes'
 
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
-import {
-    RenderActionsColumn,
-    toGQLSortBy,
-    useTable,
-    ViewOrEditTableBlock,
-} from '../../containers/FormTableBlocks'
+import { RenderActionsColumn, toGQLSortBy, useTable, ViewOrEditTableBlock, } from '../../containers/FormTableBlocks'
 import { SearchInput } from '../../containers/FormBlocks'
 import { runMutation } from '../../utils/mutations.utils'
 
-import { useCreate, useObjects, useUpdate } from '../../schema/Ticket.uistate'
+import { useCreate, useObjects, useUpdate } from '../../utils/clientSchema/Ticket'
+import { searchProperty, searchTicketClassifier, searchTicketSources } from '../../utils/clientSchema/search'
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 
-async function _search (client, query, variables) {
-    return await client.query({
-        query: query,
-        variables: variables,
-    })
-}
-
 function normalizeRelation (value) {
     return (value && typeof value === 'object') ? value.id : value
-}
-
-export async function searchProperty (client, value) {
-    const { data, error } = await _search(client, GET_ALL_PROPERTIES_QUERY, { value })
-    if (error) console.warn(error)
-    if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
-    return []
-}
-
-export async function searchTicketSources (client, value) {
-    const { data, error } = await _search(client, GET_ALL_SOURCES_QUERY, { value })
-    if (error) console.warn(error)
-    if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
-    return []
-}
-
-export async function searchTicketClassifier (client, value) {
-    const { data, error } = await _search(client, GET_ALL_CLASSIFIERS_QUERY, { value })
-    if (error) console.warn(error)
-    if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
-    return []
-}
-
-export function searchEmployee (organization) {
-    return async function (client, value) {
-        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organization })
-        if (error) console.warn(error)
-        if (data) return data.objs.map(x => ({ text: x.name, value: x.user.id }))
-        return []
-    }
 }
 
 export function useTicketColumns () {
@@ -77,7 +30,7 @@ export function useTicketColumns () {
     const NumberMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Number' })
     const SourceMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
     const PropertyMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Property' })
-    const ClassifierMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Classifier' })
+    const TypeMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Type' })
     const DetailsMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Details' })
     const StatusMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Status' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
@@ -123,7 +76,7 @@ export function useTicketColumns () {
             },
         },
         {
-            title: ClassifierMsg,
+            title: TypeMsg,
             dataIndex: 'classifier',
             modal: true,
             create: true,
