@@ -1,3 +1,8 @@
+const validate = require('validate.js')
+
+const { JSON_WRONG_VERSION_FORMAT_ERROR } = require('../constants/errors')
+const { JSON_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
+const { JSON_EXPECT_OBJECT_ERROR } = require('../constants/errors')
 const { REQUIRED_NO_VALUE_ERROR } = require('../constants/errors')
 
 function hasRequestAndDbFields (requestRequired, databaseRequired, resolvedData, existingItem, addFieldValidationError) {
@@ -38,7 +43,32 @@ function hasOneOfFields (requestRequired, resolvedData, existingItem, addFieldVa
     return hasOneField
 }
 
+function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints) {
+    const { resolvedData, fieldPath, addFieldValidationError } = args
+    if (isRequired && !resolvedData.hasOwnProperty(fieldPath)) {
+        addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${fieldPath}] Value is required`)
+        return false
+    }
+    const value = resolvedData[fieldPath]
+    if (typeof value !== 'object' || value === null) return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] Expect JSON Object`)
+    const { dv, ...data } = value
+    if (dv === dataVersion) {
+        const errors = validate(data, fieldsConstraints)
+        if (errors) {
+            for (const name of Object.keys(errors)) {
+                for (const err of errors[name]) {
+                    addFieldValidationError(`${JSON_WRONG_VERSION_FORMAT_ERROR}${fieldPath}] Field '${name}': ${err}`)
+                }
+            }
+        }
+        return !errors
+    } else {
+        return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+    }
+}
+
 module.exports = {
     hasRequestAndDbFields,
     hasOneOfFields,
+    hasValidJsonStructure,
 }

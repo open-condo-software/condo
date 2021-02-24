@@ -45,6 +45,7 @@
     "firebase": "^7.19.0",
     "firebase-admin": "^9.5.0",
     "get-contrast": "^2.0.0",
+    "graphql-tag": "^2.11.0",
     "immer": "^8.0.1",
     "less": "^3.12.2",
     "lodash": "^4.17.20",
@@ -61,8 +62,8 @@
     "react-test-renderer": "^16.13.1",
     "use-immer": "^0.4.1",
     "uuid": "^8.3.0",
+    "validate.js": "^0.13.1",
     "validator": "^13.1.1",
-    "graphql-tag": "^2.11.0",
     "xlsx": "^0.16.9"
   },
   "devDependencies": {
