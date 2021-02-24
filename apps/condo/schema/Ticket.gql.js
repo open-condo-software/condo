@@ -45,26 +45,10 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
     }
 `
 
-const TICKET_STATUS_FIELDS = '{dv type name id}'
-const TicketStatus = genTestGQLUtils('TicketStatus', TICKET_STATUS_FIELDS)
-
-// Guess
-const GET_ALL_TICKET_STATUSES_QUERY = gql`
-     query selectTicketStatuses {
-        objs: allTicketStatuses {
-            id
-            name
-            type
-        }
-    }
-`
-
 module.exports = {
     Ticket,
     GET_ALL_SOURCES_QUERY,
     GET_ALL_CLASSIFIERS_QUERY,
     GET_ALL_PROPERTIES_QUERY,
-    GET_ALL_TICKET_STATUSES_QUERY,
     GET_ALL_ORGANIZATION_EMPLOYEE_QUERY,
-    TicketStatus,
 }

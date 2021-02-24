@@ -1,6 +1,6 @@
 import { Button, Select, Row, Col, Typography, Statistic, Divider } from 'antd'
 import get from 'lodash/get'
-import React, { useMemo } from 'react'
+import React, { useMemo, useCallback } from 'react'
 import { format } from 'date-fns'
 
 // TODO: move to packages later
@@ -14,7 +14,8 @@ import { PageContent, PageHeader, PageWrapper } from '../../../containers/BaseLa
 import LoadingOrErrorPage from '../../../containers/LoadingOrErrorPage'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import TicketStatuses, { convertGQLItemToFormSelectState } from '../../../utils/clientSchema/Ticket/Status'
+// TODO: Add types to utils clientScheema ddanew
+import TicketStatus, { convertGQLItemToFormSelectState } from '../../../utils/clientSchema/Ticket/Status'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import Ticket from '../../../utils/clientSchema/Ticket'
@@ -22,9 +23,11 @@ import { runMutation } from '../../../utils/mutations.utils'
 import Link from 'next/link'
 
 function TicketStatus ({ ticket, updateTicketStatus }) {
-    const { objs: statuses, loading } = TicketStatuses.useObjects()
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const { objs: statuses, loading } = TicketStatus.useObjects()
     const options = useMemo(() => statuses.map(convertGQLItemToFormSelectState), [statuses])
-    const handleChange = React.useCallback((value) => updateTicketStatus({ status: value }), [ticket])
+    const handleChange = useCallback((value) => updateTicketStatus({ status: value }), [ticket])
 
     return (
         <Select
@@ -100,12 +103,13 @@ const TicketIdPage = () => {
     const update = Ticket.useUpdate({}, () => refetch())
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const updateTicketStatus = React.useCallback((variables) => runMutation({
+    // TODO: add types to runMutation ~ ddanew
+    const updateTicketStatus = useCallback((variables) => runMutation({
         action:() => update(variables, ticket),
         intl,
     }), [ticket])
 
-    const TicketTitleMessage = getTicketTitleMessage(intl, ticket)
+    const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
 
     if (error || loading) {
         return (
