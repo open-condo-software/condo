@@ -4,7 +4,6 @@ const gql = require('graphql-tag')
 const TICKET_FIELDS = '{ id dv sender organization { id name } property { id name address } status { id name type organization { id } } statusReason statusReopenedCounter number client { id name } clientName clientEmail unitName clientPhone operator { id name } assignee { id name } executor { id name } classifier { id name organization { id } parent { id name } } details related { id details } meta source { id name type } sourceMeta v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt }'
 const Ticket = genTestGQLUtils('Ticket', TICKET_FIELDS)
 
-
 // TODO(pahaz): add organization filter
 const GET_ALL_SOURCES_QUERY = gql`
     query selectSource ($value: String) {
@@ -46,10 +45,26 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
     }
 `
 
+const TICKET_STATUS_FIELDS = '{dv type name id}'
+const TicketStatus = genTestGQLUtils('TicketStatus', TICKET_STATUS_FIELDS)
+
+// Guess
+const GET_ALL_TICKET_STATUSES_QUERY = gql`
+     query selectTicketStatuses {
+        objs: allTicketStatuses {
+            id
+            name
+            type
+        }
+    }
+`
+
 module.exports = {
     Ticket,
     GET_ALL_SOURCES_QUERY,
     GET_ALL_CLASSIFIERS_QUERY,
     GET_ALL_PROPERTIES_QUERY,
+    GET_ALL_TICKET_STATUSES_QUERY,
     GET_ALL_ORGANIZATION_EMPLOYEE_QUERY,
+    TicketStatus,
 }

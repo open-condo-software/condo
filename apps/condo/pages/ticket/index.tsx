@@ -13,7 +13,7 @@ import { CREATE_TICKET } from '../../constants/routes'
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
 import { RenderActionsColumn, toGQLSortBy, useTable, ViewOrEditTableBlock, } from '../../containers/FormTableBlocks'
-import { SearchInput } from '../../containers/FormBlocks'
+import { SearchInput } from '../../components/SearchInput'
 import { runMutation } from '../../utils/mutations.utils'
 
 import { useCreate, useObjects, useUpdate } from '../../utils/clientSchema/Ticket'

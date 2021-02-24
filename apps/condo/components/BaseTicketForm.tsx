@@ -4,13 +4,13 @@ import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import { FormWithAction } from '../containers/FormList'
-import { SearchInput } from '../containers/FormBlocks'
+import { SearchInput } from './SearchInput'
 import countries from '../constants/countries'
 import {
     searchEmployee,
     searchProperty,
     searchTicketClassifier,
-    searchTicketSources
+    searchTicketSources,
 } from '../utils/clientSchema/search'
 
 const LAYOUT = {
