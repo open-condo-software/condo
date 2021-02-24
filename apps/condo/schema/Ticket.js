@@ -186,16 +186,17 @@ const Ticket = new GQLListSchema('Ticket', {
         // who close
         // who accept
 
-        // watchers
         assignee: {
+            schemaDoc: 'Assignee/responsible employee/user who must ensure that the issue is fulfilled',
             type: Relationship,
             ref: 'User',
-            schemaDoc: 'Assignee/responsible staff/person who must ensure that the issue is fulfilled',
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         executor: {
+            schemaDoc: 'Executor employee/user who perform the issue',
             type: Relationship,
             ref: 'User',
-            schemaDoc: 'Executor staff/person who perform the issue. May be assigned by assignee',
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         watchers: {
             type: Relationship,
