@@ -31,9 +31,9 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
     return employeeRole[permission] || false
 }
 
-async function checkIntegrationPermission (userId, integrationId) {
+async function checkBillingIntegrationAccessRight (userId, integrationId) {
     if (!userId || !integrationId) return false
-    const integration = await getByCondition('BillingIntegrationAccount', {
+    const integration = await getByCondition('BillingIntegrationAccessRight', {
         integration: { id: integrationId },
         user: { id: userId },
     })
@@ -136,8 +136,8 @@ const rules = {
     */
     canReadBillingIntegrations: isSignedIn,
     canManageBillingIntegrations: userIsAdmin,
-    canReadBillingIntegrationAccounts: userIsAdmin,
-    canManageBillingIntegrationAccounts: userIsAdmin,
+    canReadBillingIntegrationAccessRights: userIsAdmin,
+    canManageBillingIntegrationAccessRights: userIsAdmin,
     canReadBillingIntegrationOrganizationContexts: ({ authentication: { item: user } }) => {
         if (!user) return false
         if (user.isAdmin) return true
@@ -145,7 +145,7 @@ const rules = {
             // TODO(pahaz): wait https://github.com/keystonejs/keystone/issues/4829 (no access check!)
             // OR: [
             //     { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true } } } },
-            //     { integration: { accounts_some: { user: { id: user.id } } } },
+            //     { integration: { accessRights_some: { user: { id: user.id } } } },
             // ],
         }
     },
@@ -166,7 +166,7 @@ const rules = {
             const integrationId = context.integration
             const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
             if (canManageIntegrations) return true
-            return await checkIntegrationPermission(user.id, integrationId)
+            return await checkBillingIntegrationAccessRight(user.id, integrationId)
         }
         return false
     },
@@ -185,60 +185,45 @@ const rules = {
             //                 },
             //             },
             //         },
-            //         { integration: { accounts_some: { user: { id: user.id } } } },
+            //         { integration: { accessRights_some: { user: { id: user.id } } } },
             //     ],
             // },
         }
     },
-    canManageBillingIntegrationLogs: ({ authentication: { item: user } }) => {
+    canManageBillingIntegrationLogs: async ({ authentication: { item: user }, originalInput, operation, itemId }) => {
         if (!user) return false
         if (user.isAdmin) return true
-        return {
-            context: {
-                OR: [
-                    {
-                        organization: {
-                            employees_some: {
-                                user: { id: user.id },
-                                role: { canManageIntegrations: true },
-                            },
-                        },
-                    },
-                    { integration: { accounts_some: { user: { id: user.id } } } },
-                ],
-            },
+        let contextId
+        if (operation === 'create') {
+            // NOTE: can create only by the integration account
+            if (!originalInput || !originalInput.context || !originalInput.context.connect || !originalInput.context.connect.id) return false
+            contextId = originalInput.context.connect.id
+        } else if (operation === 'update' || operation === 'delete') {
+            // NOTE: can update only by the integration account
+            if (!itemId) return false
+            const log = await getById('BillingIntegrationLog', itemId)
+            contextId = log.context
+        } else {
+            return false
         }
+        const context = await getById('BillingIntegrationOrganizationContext', contextId)
+        if (!context) return false
+        const integrationId = context.integration
+        return await checkBillingIntegrationAccessRight(user.id, integrationId)
     },
-    canReadBillingProperties: ({ authentication: { item: user } }) => {
-        if (!user) return false
-        if (user.isAdmin) return true
-        return {
-            context: {
-                integration: { accounts_some: { user: { id: user.id } } },
-            },
-        }
-    },
-    canManageBillingProperties: ({ authentication: { item: user } }) => {
-        if (!user) return false
-        if (user.isAdmin) return true
-        return {
-            context: {
-                integration: { accounts_some: { user: { id: user.id } } },
-            },
-        }
-    },
-    // canUpdatePeople: ({ session }: ListAccessArgs) => {
-    //     if (!session) {
-    //         // No session? No people.
-    //         return false;
-    //     } else if (session.data.role?.canEditOtherPeople) {
-    //         // Can update everyone
-    //         return true;
-    //     } else {
-    //         // Can update yourself
-    //         return { id: session.itemId };
-    //     }
-    // },
+    // TODO(pahaz): we needed a right logic here! wait https://github.com/keystonejs/keystone/issues/4829
+    canReadBillingProperties: isSignedIn,
+    canManageBillingProperties: isSignedIn,
+    canReadBillingAccounts: isSignedIn,
+    canManageBillingAccounts: isSignedIn,
+    canReadBillingMeterResources: isSignedIn,
+    canManageBillingMeterResources: isSignedIn,
+    canReadBillingAccountMeters: isSignedIn,
+    canManageBillingAccountMeters: isSignedIn,
+    canReadAccountMeterReadings: isSignedIn,
+    canManageAccountMeterReadings: isSignedIn,
+    canReadBillingReceipts: isSignedIn,
+    canManageBillingReceipts: isSignedIn,
 }
 
 module.exports = {
