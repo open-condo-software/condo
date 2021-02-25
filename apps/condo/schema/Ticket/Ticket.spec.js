@@ -7,7 +7,7 @@ const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 const faker = require('faker')
-const { makeClientWithProperty } = require('./Property.test')
+const { makeClientWithProperty } = require('../Property.test')
 const { NUMBER_RE, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { Ticket } = require('./Ticket.gql')

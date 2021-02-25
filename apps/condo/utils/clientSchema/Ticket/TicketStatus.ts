@@ -1,5 +1,5 @@
 import { genReactHooks } from '@core/keystone/gen.gql.react.utils'
-import { TicketStatus } from '../../../schema/TicketStatus.gql'
+import { TicketStatus } from '../../../schema/Ticket/TicketStatus.gql'
 
 function convertGQLItemToUIState (item) {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
