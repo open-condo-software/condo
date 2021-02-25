@@ -11,7 +11,7 @@ import {
     searchProperty,
     searchTicketClassifier,
     searchTicketSources,
-} from '../utils/clientSchema/search'
+} from '../utils/clientSchema/Ticket/search'
 
 const LAYOUT = {
     labelCol: { span: 8 },

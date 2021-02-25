@@ -17,7 +17,7 @@ import { SearchInput } from '../../components/SearchInput'
 import { runMutation } from '../../utils/mutations.utils'
 
 import { Ticket } from '../../utils/clientSchema/Ticket'
-import { searchProperty, searchTicketClassifier, searchTicketSources } from '../../utils/clientSchema/search'
+import { searchProperty, searchTicketClassifier, searchTicketSources } from '../../utils/clientSchema/Ticket/search'
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 
