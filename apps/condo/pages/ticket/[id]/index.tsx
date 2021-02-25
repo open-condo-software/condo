@@ -3,7 +3,7 @@ import get from 'lodash/get'
 import React, { useMemo, useCallback } from 'react'
 import { format } from 'date-fns'
 
-// TODO: move to packages later
+// TODO:(Dimitreee) move to packages later
 import RU from 'date-fns/locale/ru'
 import EN from 'date-fns/locale/en-US'
 
@@ -12,21 +12,15 @@ import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '../../../containers/BaseLayout'
 import LoadingOrErrorPage from '../../../containers/LoadingOrErrorPage'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-// TODO: Add types to utils clientScheema ddanew
-import TicketStatus, { convertGQLItemToFormSelectState } from '../../../utils/clientSchema/Ticket/Status'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import Ticket from '../../../utils/clientSchema/Ticket'
+import { Ticket, TicketStatus } from '../../../utils/clientSchema/Ticket'
 import { runMutation } from '../../../utils/mutations.utils'
 import Link from 'next/link'
 
-function TicketStatus ({ ticket, updateTicketStatus }) {
+function TicketStatusSelect ({ ticket, updateTicketStatus }) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const { objs: statuses, loading } = TicketStatus.useObjects()
-    const options = useMemo(() => statuses.map(convertGQLItemToFormSelectState), [statuses])
+    const options = useMemo(() => statuses.map(TicketStatus.convertGQLItemToFormSelectState), [statuses])
     const handleChange = useCallback((value) => updateTicketStatus({ status: value }), [ticket])
 
     return (
@@ -55,7 +49,7 @@ const getTicketTitleMessage = (intl, ticket) => {
         { locale: locales[intl.locale] }
     )
 
-    // TODO: rewrite to template string
+    // TODO(Dimitreee): rewrite to template string
     return `${intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' })} № ${ticket.number} ${intl.formatMessage({ id: 'From' })} ${formattedCreatedDate}`
 }
 
@@ -103,7 +97,7 @@ const TicketIdPage = () => {
     const update = Ticket.useUpdate({}, () => refetch())
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    // TODO: add types to runMutation ~ ddanew
+    // TODO(Dimitreee): add types to runMutation
     const updateTicketStatus = useCallback((variables) => runMutation({
         action:() => update(variables, ticket),
         intl,
@@ -125,7 +119,7 @@ const TicketIdPage = () => {
             <PageWrapper>
                 <PageHeader
                     title={TicketTitleMessage}
-                    extra={<TicketStatus ticket={ticket} updateTicketStatus={updateTicketStatus}/>}
+                    extra={<TicketStatusSelect ticket={ticket} updateTicketStatus={updateTicketStatus}/>}
                 />
                 <PageContent>
                     <Row gutter={[12, 12]}>

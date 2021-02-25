@@ -16,7 +16,7 @@ import { RenderActionsColumn, toGQLSortBy, useTable, ViewOrEditTableBlock, } fro
 import { SearchInput } from '../../components/SearchInput'
 import { runMutation } from '../../utils/mutations.utils'
 
-import { useCreate, useObjects, useUpdate } from '../../utils/clientSchema/Ticket'
+import { Ticket } from '../../utils/clientSchema/Ticket'
 import { searchProperty, searchTicketClassifier, searchTicketSources } from '../../utils/clientSchema/search'
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -134,8 +134,8 @@ function TicketCRUDTableBlock () {
     const { objs, count, refetch } = useObjects({
         sortBy: toGQLSortBy(table.state.sorter) || 'createdAt_DESC',
     })
-    const create = useCreate({ organization: organization.id, status: OPEN_STATUS }, () => refetch())
-    const update = useUpdate({}, () => refetch())
+    const create = Ticket.useCreate({ organization: organization.id, status: OPEN_STATUS }, () => refetch())
+    const update = Ticket.useUpdate({}, () => refetch())
 
     useEffect(() => {
         if (objs) {
@@ -228,7 +228,7 @@ export default () => {
     const CreateTicketButtonLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketButtonLabel' })
 
     // Rewrite later
-    const { objs, refetch } = useObjects({
+    const { objs, refetch } = Ticket.useObjects({
         sortBy: 'createdAt_DESC',
     })
 
