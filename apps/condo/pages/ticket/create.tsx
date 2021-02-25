@@ -3,7 +3,7 @@ import React from 'react'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
-import { TicketForm } from '../../components/TicketForm'
+import { TicketForm } from '../../containers/TicketForm'
 
 const CreateTicketPage = () => {
     const intl = useIntl()

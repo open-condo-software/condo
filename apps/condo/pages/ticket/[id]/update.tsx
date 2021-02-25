@@ -4,11 +4,11 @@ import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '../../../containers/BaseLayout'
 import { OrganizationRequired } from '../../../containers/OrganizationRequired'
-import { TicketForm } from '../../../components/TicketForm'
+import { TicketForm } from '../../../containers/TicketForm'
 
 const TicketUpdatePage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.CreateTicketModalTitle' })
+    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.EditTicketModalTitle' })
 
     const router = useRouter()
     const { query: { id } } = router
