@@ -1,11 +1,7 @@
 const { Relationship, Integer } = require('@keystonejs/fields')
-
 const { Json } = require('@core/keystone/fields')
 
-const { JSON_EXPECT_OBJECT_ERROR } = require('../constants/errors')
-const { JSON_WRONG_VERSION_FORMAT_ERROR } = require('../constants/errors')
-const { REQUIRED_NO_VALUE_ERROR } = require('../constants/errors')
-const { JSON_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
+const { hasValidJsonStructure } = require('../utils/validation.utils')
 
 const DV_FIELD = {
     factory: () => 1,
@@ -13,6 +9,14 @@ const DV_FIELD = {
     schemaDoc: 'Data structure Version',
     isRequired: true,
     kmigratorOptions: { null: false },
+}
+
+const SENDER_FIELD_CONSTRAINS = {
+    fingerprint: {
+        presence: true,
+        format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,32}$/,
+        length: { maximum: 32, minimum: 5 },
+    },
 }
 
 const SENDER_FIELD = {
@@ -25,19 +29,8 @@ const SENDER_FIELD = {
     isRequired: true,
     kmigratorOptions: { null: false },
     hooks: {
-        validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
-            if (!resolvedData.hasOwnProperty(fieldPath)) return addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${fieldPath}] Value is required`)
-            const value = resolvedData[fieldPath]
-            if (typeof value !== 'object' || value === null) return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] Expect JSON Object`)
-            const { dv } = value
-            if (dv === 1) {
-                const { fingerprint } = value
-                if (!fingerprint || typeof fingerprint !== 'string') return addFieldValidationError(`${JSON_WRONG_VERSION_FORMAT_ERROR}${fieldPath}] Wrong \`fingerprint\` format inside JSON Object`)
-                if (fingerprint.length < 5 || fingerprint.length > 50) return addFieldValidationError(`${JSON_WRONG_VERSION_FORMAT_ERROR}${fieldPath}] The \`fingerprint\` length is short or large (50 > length > 5)`)
-                if (!/^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,50}$/.test(fingerprint)) return addFieldValidationError(`${JSON_WRONG_VERSION_FORMAT_ERROR}${fieldPath}] The \`fingerprint\` charset allow only: a-zA-Z0-9!#$%()*+-;=,:[]/.?@^_\`{|}~`)
-            } else {
-                return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
-            }
+        validateInput: (args) => {
+            if (!hasValidJsonStructure(args, true, 1, SENDER_FIELD_CONSTRAINS)) return
         },
     },
 }
@@ -53,7 +46,7 @@ const ORGANIZATION_OWNED_FIELD = {
     access: {
         read: true,
         create: true,
-        update: true,
+        update: false,
     },
 }
 

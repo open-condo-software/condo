@@ -8,6 +8,7 @@
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build": "keystone build",
     "start": "keystone start",
+    "kmigrator": "./../../bin/kmigrator.py",
     "makemigrations": "./../../bin/kmigrator.py makemigrations",
     "migrate": "./../../bin/kmigrator.py migrate"
   },
@@ -63,6 +64,7 @@
     "react-test-renderer": "^16.13.1",
     "use-immer": "^0.4.1",
     "uuid": "^8.3.0",
+    "validate.js": "^0.13.1",
     "validator": "^13.1.1",
     "xlsx": "^0.16.9"
   },

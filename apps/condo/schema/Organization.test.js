@@ -8,15 +8,12 @@ const conf = require('@core/config')
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 const faker = require('faker')
-const { ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION } = require('./Organization.gql')
-const { ALREADY_EXISTS_ERROR } = require('../constants/errors')
-const { INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } = require('./Organization.gql')
-const { addAdminAccess } = require('./User.test')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('./User.test')
 
-const { createUser } = require('./User.test')
-const { Organization, OrganizationEmployee } = require('./Organization.gql')
-const { REGISTER_NEW_ORGANIZATION_MUTATION } = require('./Organization.gql')
+const { getRandomString } = require('@core/keystone/test.utils')
+
+const { ALREADY_EXISTS_ERROR } = require('../constants/errors')
+const { createUser, addAdminAccess, makeClientWithNewRegisteredAndLoggedInUser } = require('./User.test')
+const { Organization, OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION, ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } = require('./Organization.gql')
 
 async function createOrganization (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -270,39 +267,63 @@ describe('OrganizationEmployee', () => {
         }
     })
 
-    test('anonymous/user/admin: update', async () => {
-        const anonymous = await makeClient()
-        const user = await makeClientWithRegisteredOrganization()
-        const admin = await makeLoggedInAdminClient()
-        const name = faker.name.firstName()
+    test('anonymous/user/hacker/admin: update', async () => {
+        const anonymousClient = await makeClient()
+        const userClient = await makeClientWithRegisteredOrganization()
+        const hackerClient = await makeClientWithRegisteredOrganization()
+        const adminClient = await makeLoggedInAdminClient()
+        const employees = await OrganizationEmployee.getAll(adminClient, {
+            organization: { id: userClient.organization.id },
+            user: { id: userClient.user.id },
+        })
+        expect(employees).toHaveLength(1)
+        const employee = employees[0]
 
         {
-            const { errors } = await OrganizationEmployee.update(anonymous, user.organization.id, { name }, { raw: true })
-            expect(errors[0]).toMatchObject({
-                'data': { 'target': 'updateOrganizationEmployee', 'type': 'mutation' },
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-        }
-        {
-            const { errors } = await OrganizationEmployee.update(user, user.organization.id, { name }, { raw: true })
-            expect(errors[0]).toMatchObject({
-                'data': { 'target': 'updateOrganizationEmployee', 'type': 'mutation' },
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-        }
-        {
-            const employees = await OrganizationEmployee.getAll(admin, { organization: { id: user.organization.id } })
-            expect(employees).toHaveLength(1)
-            const obj = await OrganizationEmployee.update(admin, employees[0].id, {
+            const attrs = {
                 dv: 1,
-                sender: { dv: 1, fingerprint: 'test2' },
-                name,
+                sender: { dv: 1, fingerprint: getRandomString() },
+                name: faker.name.firstName(),
+            }
+            const { errors } = await OrganizationEmployee.update(anonymousClient, employee.id, attrs, { raw: true })
+            expect(errors[0]).toMatchObject({
+                'data': { 'target': 'updateOrganizationEmployee', 'type': 'mutation' },
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
             })
-            expect(obj).toMatchObject(expect.objectContaining({ name }))
+        }
+        {
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: getRandomString() },
+                name: faker.name.firstName(),
+            }
+            const { errors } = await OrganizationEmployee.update(hackerClient, employee.id, attrs, { raw: true })
+            expect(errors[0]).toMatchObject({
+                'data': { 'target': 'updateOrganizationEmployee', 'type': 'mutation' },
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
+            })
+        }
+        {
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: getRandomString() },
+                name: faker.name.firstName(),
+            }
+            const obj = await OrganizationEmployee.update(userClient, employee.id, attrs)
+            expect(obj).toMatchObject(expect.objectContaining(attrs))
+        }
+        {
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: getRandomString() },
+                name: faker.name.firstName(),
+            }
+            const obj = await OrganizationEmployee.update(adminClient, employee.id, attrs)
+            expect(obj).toMatchObject(expect.objectContaining(attrs))
         }
     })
 })

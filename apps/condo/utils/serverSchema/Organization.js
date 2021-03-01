@@ -42,6 +42,7 @@ async function createAdminRole (context, organization, data) {
                 canManageOrganization: true,
                 canManageEmployees: true,
                 canManageRoles: true,
+                canManageIntegrations: true,
                 name: adminRoleName,
                 ...data,
             },

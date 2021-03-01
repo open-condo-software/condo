@@ -1,31 +1,15 @@
 const { Text, Relationship, Integer, DateTimeUtc, CalendarDay } = require('@keystonejs/fields')
 
-const access = require('@core/keystone/access')
-const { ORGANIZATION_OWNED_FIELD } = require('./_common')
-const { JSON_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD } = require('./_common')
-const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
-const { hasRequestAndDbFields } = require('../utils/validation.utils')
+const { SENDER_FIELD, DV_FIELD, ORGANIZATION_OWNED_FIELD } = require('./_common')
+const { WRONG_TEXT_FORMAT, JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
+const { UPPER_CASE_ALPHANUMERIC_REGEXP } = require('../constants/regexps')
+const { rules } = require('../access')
+const { hasRequestAndDbFields, hasValidJsonStructure } = require('../utils/validation.utils')
 
-const ACCESS_TO_ALL = {
-    read: true,
-    create: access.userIsAuthenticated,
-    update: access.userIsAuthenticated,
-    delete: access.userIsAuthenticated,
-    auth: true,
-}
-
-const READ_ONLY_ACCESS = {
-    read: true,
-    create: access.userIsAdmin,
-    update: false,
-    delete: false,
-    auth: false,
-}
 
 const INTEGRATION_CONTEXT_FIELD = {
     schemaDoc: 'Integration context',
@@ -108,9 +92,53 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         // settings data structure config (settings field for BillingIntegrationOrganizationContext)
         // state data structure config (state field for BillingIntegrationOrganizationContext)
         // log messages translation and adaptation (message field for BillingIntegrationLog)
+        accessRights: {
+            type: Relationship,
+            ref: 'BillingIntegrationAccessRight.integration',
+            many: true,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: READ_ONLY_ACCESS,
+    access: {
+        read: rules.canReadBillingIntegrations,
+        create: rules.canManageBillingIntegrations,
+        update: rules.canManageBillingIntegrations,
+        delete: false,
+        auth: true,
+    },
+})
+
+const BillingIntegrationAccessRight = new GQLListSchema('BillingIntegrationAccessRight', {
+    schemaDoc: 'Link between billing integrations and users',
+    fields: {
+        dv: DV_FIELD,
+        // creating by developer hands and no needed to use anti-fraud detection `sender` field
+
+        integration: {
+            schemaDoc: 'Integration',
+            type: Relationship,
+            ref: 'BillingIntegration.accessRights',
+            isRequired: true,
+            knexOptions: { isNotNullable: true }, // Relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+        },
+        user: {
+            schemaDoc: 'User',
+            type: Relationship,
+            ref: 'User',
+            isRequired: true,
+            knexOptions: { isNotNullable: true }, // Relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+        },
+    },
+    plugins: [tracked(), historical()],
+    access: {
+        read: rules.canReadBillingIntegrationAccessRights,
+        create: rules.canManageBillingIntegrationAccessRights,
+        update: rules.canManageBillingIntegrationAccessRights,
+        delete: rules.canManageBillingIntegrationAccessRights,
+        auth: true,
+    },
 })
 
 const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrationOrganizationContext', {
@@ -134,16 +162,32 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             schemaDoc: 'Settings that are required to get data from the `billing data source`. It can also contain fine-tuning optional integration settings. The data structure depends on the integration and defined there',
             type: Json,
             isRequired: true,
+            hooks: {
+                validateInput: (args) => {
+                    if (!hasValidJsonStructure(args, true, 1, {})) return
+                },
+            },
         },
 
         state: {
             schemaDoc: 'The current state of the integration process. Some integration need to store past state or data related to cache files/folders for past state. The data structure depends on the integration and defined there',
             type: Json,
             isRequired: true,
+            hooks: {
+                validateInput: (args) => {
+                    if (!hasValidJsonStructure(args, true, 1, {})) return
+                },
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: READ_ONLY_ACCESS,
+    access: {
+        read: rules.canReadBillingIntegrationOrganizationContexts,
+        create: rules.canManageBillingIntegrationOrganizationContexts,
+        update: rules.canManageBillingIntegrationOrganizationContexts,
+        delete: false,
+        auth: true,
+    },
 })
 
 const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
@@ -160,6 +204,12 @@ const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
             schemaDoc: 'Message type. Our clients can use different languages. Sometimes we need to change the text message for the client. The settings for the message texts are in the integration. Ex: WRONG_AUTH_CREDENTIALS',
             type: Text,
             isRequired: true,
+            hooks: {
+                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                    const value = resolvedData[fieldPath]
+                    if (!UPPER_CASE_ALPHANUMERIC_REGEXP.test(value)) addFieldValidationError(`${WRONG_TEXT_FORMAT}${fieldPath}] allow only [A-Z0-9_] charset`)
+                },
+            },
         },
 
         message: {
@@ -172,11 +222,17 @@ const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
             schemaDoc: 'The message metadata. Context variables for generating messages. ' +
                 'Examples of data keys: ``',
             type: Json,
-            isRequired: true,
+            isRequired: false,
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted()],
-    access: READ_ONLY_ACCESS,
+    access: {
+        read: rules.canReadBillingIntegrationLogs,
+        create: rules.canManageBillingIntegrationLogs,
+        update: rules.canManageBillingIntegrationLogs,
+        delete: false,
+        auth: true,
+    },
 })
 
 const BillingProperty = new GQLListSchema('BillingProperty', {
@@ -213,7 +269,13 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: READ_ONLY_ACCESS,
+    access: {
+        read: rules.canReadBillingProperties,
+        create: rules.canManageBillingProperties,
+        update: rules.canManageBillingProperties,
+        delete: false,
+        auth: true,
+    },
 })
 
 const BillingAccount = new GQLListSchema('BillingAccount', {
@@ -272,7 +334,13 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: ACCESS_TO_ALL,
+    access: {
+        read: rules.canReadBillingAccounts,
+        create: rules.canManageBillingAccounts,
+        update: rules.canManageBillingAccounts,
+        delete: false,
+        auth: true,
+    },
     hooks: {
         validateInput: ({ resolvedData, existingItem, addValidationError }) => {
             if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'source', 'status', 'classifier', 'details'], resolvedData, existingItem, addValidationError)) return
@@ -299,7 +367,13 @@ const BillingMeterResource = new GQLListSchema('BillingMeterResource', {
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: READ_ONLY_ACCESS,
+    access: {
+        read: rules.canReadBillingMeterResources,
+        create: rules.canManageBillingMeterResources,
+        update: rules.canManageBillingMeterResources,
+        delete: false,
+        auth: true,
+    },
 })
 
 const BillingAccountMeter = new GQLListSchema('BillingAccountMeter', {
@@ -335,7 +409,13 @@ const BillingAccountMeter = new GQLListSchema('BillingAccountMeter', {
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: READ_ONLY_ACCESS,
+    access: {
+        read: rules.canReadBillingAccountMeters,
+        create: rules.canManageBillingAccountMeters,
+        update: rules.canManageBillingAccountMeters,
+        delete: false,
+        auth: true,
+    },
 })
 
 const BillingAccountMeterReading = new GQLListSchema('BillingAccountMeterReading', {
@@ -377,7 +457,13 @@ const BillingAccountMeterReading = new GQLListSchema('BillingAccountMeterReading
         raw: RAW_DATA_FIELD,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: READ_ONLY_ACCESS,
+    access: {
+        read: rules.canReadAccountMeterReadings,
+        create: rules.canManageAccountMeterReadings,
+        update: rules.canManageAccountMeterReadings,
+        delete: false,
+        auth: true,
+    },
 })
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
@@ -396,9 +482,14 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         raw: RAW_DATA_FIELD,
 
+        toPay: {
+            schemaDoc: 'Total sum to pay. The sum of all services',
+            type: Text,
+            isRequired: true,
+        },
         services: {
             schemaDoc: 'Structured items in the receipt obtained from the `billing data source`. Amount of payment is required for use in the `receipt template`. ' +
-                'Structure example: {"Maintenance and repair": {"name": "maintenance-and-repair", "sum": "1129.17", "currency": "RUB", "formula": "sum = tariff * volume + recalculation + privilege + penalty", "tariff": "19.95", "volume": "56.6", "isByMeter": true, "recalculation": "0.0", "privilege": "0.0", "penalty": "0"}, ...}',
+                'Structure example: {"Maintenance and repair": {"name": "maintenance-and-repair", "payment": "1129.17", "currency": "RUB", "formula": "payment = tariff * volume + recalculation + privilege + penalty", "tariff": "19.95", "volume": "56.6", "isByMeter": true, "recalculation": "0.0", "privilege": "0.0", "penalty": "0"}, ...}',
             type: Json,
             isRequired: true,
             // TODO(pahaz): validation
@@ -412,11 +503,18 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: READ_ONLY_ACCESS,
+    access: {
+        read: rules.canReadBillingReceipts,
+        create: rules.canManageBillingReceipts,
+        update: rules.canManageBillingReceipts,
+        delete: false,
+        auth: true,
+    },
 })
 
 module.exports = {
     BillingIntegration,
+    BillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext,
     BillingIntegrationLog,
     BillingProperty,

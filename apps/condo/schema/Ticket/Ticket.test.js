@@ -4,7 +4,7 @@
 
 const { setFakeClientMode } = require('@core/keystone/test.utils')
 const conf = require('@core/config')
-if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
+if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../../index'))
 
 const faker = require('faker')
 const { makeClientWithProperty } = require('../Property.test')
@@ -59,6 +59,7 @@ test('user: createTicket()', async () => {
     expect(ticket.operator).toEqual(null)
     expect(ticket.assignee).toEqual(null)
     expect(ticket.executor).toEqual(null)
+    expect(ticket.watchers).toEqual([])
     expect(ticket.v).toEqual(1)
     expect(ticket.newId).toEqual(null)
     expect(ticket.deletedAt).toEqual(null)
