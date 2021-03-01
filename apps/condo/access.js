@@ -39,7 +39,7 @@ async function checkBillingIntegrationAccessRight (userId, integrationId) {
         integration: { id: integrationId },
         user: { id: userId },
     })
-    return Boolean(integration && integration.id)
+    return !!get(integration, 'id')
 }
 
 /*
@@ -77,18 +77,18 @@ const rules = {
         if (operation === 'update' || operation === 'delete') {
             if (!itemId) return false
             const employeeToEdit = await getById('OrganizationEmployee', itemId)
-            if (!employeeToEdit) return false
+            if (!employeeToEdit || !employeeToEdit.organization) return false
             const employeeForUser = await getByCondition('OrganizationEmployee', {
                 organization: { id: employeeToEdit.organization },
                 user: { id: user.id },
             })
-            if (!employeeForUser) return false
+            if (!employeeForUser || !employeeForUser.role) return false
             const employeeRole = await getByCondition('OrganizationEmployeeRole', {
                 id: employeeForUser.role,
                 organization: { id: employeeToEdit.organization },
             })
             if (!employeeRole) return false
-            return employeeRole && employeeRole.canManageEmployees
+            return employeeRole.canManageEmployees
         }
         return false
     },
@@ -109,8 +109,8 @@ const rules = {
     canInviteEmployee: async ({ authentication: { item: user }, args }) => {
         if (!user || !user.id) return false
         if (user.isAdmin) return true
-        if (!args || !args.data || !args.data.organization || !args.data.organization.id) return false
-        const organizationId = args.data.organization.id
+        const organizationId = get(args, ['data', 'organization', 'id'])
+        if (!organizationId) return false
         return await checkOrganizationPermission(user.id, organizationId, 'canManageEmployees')
     },
     canAcceptOrRejectEmployeeInvite: async ({ authentication: { item: user }, args }) => {

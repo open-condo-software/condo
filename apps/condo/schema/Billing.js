@@ -6,9 +6,9 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { SENDER_FIELD, DV_FIELD, ORGANIZATION_OWNED_FIELD } = require('./_common')
 const { WRONG_TEXT_FORMAT, JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
-const { hasRequestAndDbFields } = require('../utils/validation.utils')
+const { UPPER_CASE_ALPHANUMERIC_REGEXP } = require('../constants/regexps')
 const { rules } = require('../access')
-const { hasValidJsonStructure } = require('../utils/validation.utils')
+const { hasRequestAndDbFields, hasValidJsonStructure } = require('../utils/validation.utils')
 
 
 const INTEGRATION_CONTEXT_FIELD = {
@@ -207,7 +207,7 @@ const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
                     const value = resolvedData[fieldPath]
-                    if (!/^[A-Z_]+$/.test(value)) addFieldValidationError(`${WRONG_TEXT_FORMAT}${fieldPath}] allow only [A-Z_] letters`)
+                    if (!UPPER_CASE_ALPHANUMERIC_REGEXP.test(value)) addFieldValidationError(`${WRONG_TEXT_FORMAT}${fieldPath}] allow only [A-Z0-9_] charset`)
                 },
             },
         },
