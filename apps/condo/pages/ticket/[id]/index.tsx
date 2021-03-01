@@ -1,88 +1,186 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-import { Descriptions, Form } from 'antd'
-import React from 'react'
+import { Button, Select, Row, Col, Typography, Statistic, Divider } from 'antd'
+import get from 'lodash/get'
+import React, { useMemo, useCallback } from 'react'
+import { format } from 'date-fns'
+
+// TODO:(Dimitreee) move to packages later
+import RU from 'date-fns/locale/ru'
+import EN from 'date-fns/locale/en-US'
+
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-
 import { useIntl } from '@core/next/intl'
-
 import { PageContent, PageHeader, PageWrapper } from '../../../containers/BaseLayout'
-
 import LoadingOrErrorPage from '../../../containers/LoadingOrErrorPage'
-import { useObject, useUpdate } from '../../../schema/Ticket.uistate'
+import { Ticket, TicketStatus } from '../../../utils/clientSchema/Ticket'
+import { runMutation } from '../../../utils/mutations.utils'
+import Link from 'next/link'
 
-function TicketDescriptionBlock ({ obj }) {
+function TicketStatusSelect ({ ticket, updateTicketStatus }) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const { objs: statuses, loading } = TicketStatus.useObjects()
+    const options = useMemo(() => statuses.map(TicketStatus.convertGQLItemToFormSelectState), [statuses])
+    const handleChange = useCallback((value) => updateTicketStatus({ status: value }), [ticket])
+
+    return (
+        <Select
+            options={options}
+            loading={loading}
+            onChange={handleChange}
+            defaultValue={ticket.status.id}
+        />
+    )
+}
+
+const getTicketTitleMessage = (intl, ticket) => {
+    if (!ticket) {
+        return
+    }
+
+    const locales = {
+        ru: RU,
+        en: EN,
+    }
+
+    const formattedCreatedDate = format(
+        new Date(ticket.createdAt),
+        'dd MMMM (HH:mm)',
+        { locale: locales[intl.locale] }
+    )
+
+    // TODO(Dimitreee): rewrite to template string
+    return `${intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' })} № ${ticket.number} ${intl.formatMessage({ id: 'From' })} ${formattedCreatedDate}`
+}
+
+interface ITicketDescriptionFieldProps {
+    title?: string
+    value?: string
+    extra?: string
+}
+
+const TicketDescriptionField:React.FunctionComponent<ITicketDescriptionFieldProps> = ({ title, value, extra }) => {
     const intl = useIntl()
-    const NumberMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Number' })
-    const SourceMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
-    const PropertyMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Property' })
-    const ClassifierMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Classifier' })
+    const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
 
-    // TODO(pahaz): move small to ANT CONFIG!
-    return <Descriptions size="small" column={1}>
-        <Descriptions.Item label={NumberMsg}>{obj.number}</Descriptions.Item>
-        <Descriptions.Item label={SourceMsg}>{obj.source.name}</Descriptions.Item>
-        <Descriptions.Item label={PropertyMsg}>{obj.property.name}</Descriptions.Item>
-        <Descriptions.Item label={ClassifierMsg}>{obj.classifier.name}</Descriptions.Item>
-    </Descriptions>
+    return (
+        <>
+            <Statistic title={title} value={value || NotDefinedMessage} valueStyle={{ fontSize: '20px' }}/>
+            {extra && <Typography.Text type={'secondary'}>{extra}</Typography.Text>}
+        </>
+
+    )
 }
 
-function TicketViewBlock ({ obj, update }) {
-    return null
-}
-
-function ChangeTicketStatusBlock ({ obj, update }) {
-    const [form] = Form.useForm()
-
-    return <Form
-        form={form}
-        name="ChangeTicketStatusForm"
-        onFinish={console.log}
-        initialValues={{
-            status: obj.status.id,
-        }}
-    >
-        <Form.Item
-            name="status"
-            label="status"
-        >
-            {/*<SearchInput search={}/>*/}
-
-        </Form.Item>
-    </Form>
-}
+const CustomizedDivider = () => <Divider style={{ border: 'none' }}/>
 
 const TicketIdPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const UpdateMessage = intl.formatMessage({ id: 'Edit' })
+    const TicketInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
+    const UserInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.UserInfo' })
+    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
+    const FlatNumberMessage = intl.formatMessage({ id: 'field.FlatNumber' })
+    const FullNameMessage = intl.formatMessage({ id: 'field.FullName' })
+    const PhoneMessage = intl.formatMessage({ id: 'Phone' })
+    const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
+    const TypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Type' })
+    const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
+    const ExecutorExtraMessage = intl.formatMessage({ id: 'field.Executor.description' })
+    const ResponsibleMessage = intl.formatMessage({ id: 'field.Responsible' })
+    const ResponsibleExtraMessage = intl.formatMessage({ id: 'field.Responsible.description' })
 
     const router = useRouter()
     const { query: { id } } = router
-    const { refetch, loading, obj, error } = useObject({ where: { id } })
-    const update = useUpdate({}, () => refetch())
+    const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
+    const update = Ticket.useUpdate({}, () => refetch())
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    // TODO(Dimitreee): add types to runMutation
+    const updateTicketStatus = useCallback((variables) => runMutation({
+        action:() => update(variables, ticket),
+        intl,
+    }), [ticket])
+
+    const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
 
     if (error || loading) {
-        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={ServerErrorMsg}/>
+        return (
+            <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={ServerErrorMessage}/>
+        )
     }
 
-    return <>
-        <Head>
-            <title>{PageTitleMsg}</title>
-        </Head>
-        <PageWrapper>
-            <PageHeader title={obj.details || PageTitleMsg}>
-                <TicketDescriptionBlock obj={obj}/>
-            </PageHeader>
-            <PageContent>
-                <TicketViewBlock obj={obj} update={update}/>
-            </PageContent>
-            <PageContent>
-                <ChangeTicketStatusBlock obj={obj} update={update}/>
-            </PageContent>
-        </PageWrapper>
-    </>
+    return (
+        <>
+            <Head>
+                <title>{TicketTitleMessage}</title>
+            </Head>
+            <PageWrapper>
+                <PageHeader
+                    title={TicketTitleMessage}
+                    extra={<TicketStatusSelect ticket={ticket} updateTicketStatus={updateTicketStatus}/>}
+                />
+                <PageContent>
+                    <Row gutter={[12, 12]}>
+                        <Col span={8}>
+                            <TicketDescriptionField title={TypeMessage} value={get(ticket, ['classifier', 'name'])}/>
+                        </Col>
+                        <Col span={8}>
+                            <TicketDescriptionField
+                                title={ExecutorMessage}
+                                value={get(ticket, ['executor', 'name'])}
+                                extra={ExecutorExtraMessage}
+                            />
+                        </Col>
+                        <Col span={8}>
+                            <TicketDescriptionField
+                                title={ResponsibleMessage}
+                                value={get(ticket, ['executor', 'name'])}
+                                extra={ResponsibleExtraMessage}
+                            />
+                        </Col>
+                    </Row>
+                    <CustomizedDivider/>
+                    <Typography.Title level={3}>{UserInfoMessage}</Typography.Title>
+                    <CustomizedDivider/>
+                    <Row gutter={[12,12]}>
+                        <Col span={12}>
+                            <TicketDescriptionField title={AddressMessage} value={get(ticket, ['property', 'address'])}/>
+                        </Col>
+                        <Col span={6}>
+                            <TicketDescriptionField title={FlatNumberMessage} value={ticket.unitName}/>
+                        </Col>
+                    </Row>
+                    <Row gutter={[12,12]}>
+                        <Col span={12}>
+                            <TicketDescriptionField title={FullNameMessage} value={ticket.clientName}/>
+                        </Col>
+                        <Col span={6}>
+                            <TicketDescriptionField title={PhoneMessage} value={ticket.clientPhone}/>
+                        </Col>
+                        <Col span={6}>
+                            <TicketDescriptionField title={EmailMessage} value={ticket.clientEmail}/>
+                        </Col>
+                    </Row>
+                    <CustomizedDivider/>
+                    <Typography.Title level={3}>{TicketInfoMessage}</Typography.Title>
+                    <CustomizedDivider/>
+                    <Row gutter={[12, 12]}>
+                        <Col span={24}>
+                            <TicketDescriptionField value={ticket.details}/>
+                        </Col>
+                    </Row>
+                    <CustomizedDivider/>
+                    <Link href={`/ticket/${ticket.id}/update`}>
+                        <Button type='primary'>
+                            {UpdateMessage}
+                        </Button>
+                    </Link>
+                </PageContent>
+            </PageWrapper>
+        </>
+    )
 }
 
 export default TicketIdPage

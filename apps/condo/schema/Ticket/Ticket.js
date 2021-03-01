@@ -1,16 +1,16 @@
 const { Text, Relationship, Integer, Select, Virtual } = require('@keystonejs/fields')
-const { JSON_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
+const { JSON_UNKNOWN_VERSION_ERROR } = require('../../constants/errors')
 
 const access = require('@core/keystone/access')
-const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('./_common')
-const { ORGANIZATION_OWNED_FIELD } = require('./_common')
+const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('../_common')
+const { ORGANIZATION_OWNED_FIELD } = require('../_common')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD } = require('./_common')
-const { hasRequestAndDbFields } = require('../utils/validation.utils')
-const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
+const { SENDER_FIELD, DV_FIELD } = require('../_common')
+const { hasRequestAndDbFields } = require('../../utils/validation.utils')
+const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR } = require('../../constants/errors')
 
 const ACCESS_TO_ALL = {
     read: true,
@@ -51,31 +51,6 @@ const TicketClassifier = new GQLListSchema('TicketClassifier', {
         },
         name: {
             schemaDoc: 'This level name',
-            type: Text,
-            isRequired: true,
-        },
-    },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: READ_ONLY_ACCESS,
-})
-
-const TicketStatus = new GQLListSchema('TicketStatus', {
-    schemaDoc: 'Ticket status. We have a organization specific statuses',
-    fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
-        organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
-
-        type: {
-            type: Select,
-            isRequired: true,
-            options: 'new_or_reopened, processing, canceled, completed, deferred',
-            schemaDoc: 'Ticket status. You should also increase `statusReopenedCounter` if you want to reopen ticket',
-            // DEFERRED Отложена + Дата возвращения заявки в работу + deferment_by
-            // MORE EXAMPLES: 'inModeration', 'assigned', 'accepted', 'reopened', 'onRoad', 'inWork', 'completed', 'checking', 'closed'
-        },
-        name: {
             type: Text,
             isRequired: true,
         },
@@ -316,6 +291,5 @@ const Ticket = new GQLListSchema('Ticket', {
 module.exports = {
     TicketClassifier,
     TicketSource,
-    TicketStatus,
     Ticket,
 }

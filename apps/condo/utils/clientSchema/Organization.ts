@@ -18,7 +18,7 @@ function convertUIStateToGQLItem (state, obj = null) {
 
 function useRegisterNewOrganization (attrs = {}, onComplete) {
     if (typeof attrs !== 'object' || !attrs) throw new Error('useCreate(): invalid attrs argument')
-    let [rowAction] = useMutation(REGISTER_NEW_ORGANIZATION_MUTATION)
+    const [rowAction] = useMutation(REGISTER_NEW_ORGANIZATION_MUTATION)
 
     async function _action (state) {
         const { data, error } = await rowAction({
@@ -41,7 +41,7 @@ function useRegisterNewOrganization (attrs = {}, onComplete) {
 
 function useInviteNewOrganizationEmployee (attrs = {}, onComplete) {
     if (typeof attrs !== 'object' || !attrs) throw new Error('useCreate(): invalid attrs argument')
-    let [rowAction] = useMutation(INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION)
+    const [rowAction] = useMutation(INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION)
 
     async function _action (state) {
         const { data, error } = await rowAction({

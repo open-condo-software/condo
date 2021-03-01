@@ -17,7 +17,7 @@ import FormList, {
     useCreateAndEditModalForm,
 } from '../../containers/FormList'
 import { useTable } from '../../containers/FormTableBlocks'
-import { SearchInput } from '../../containers/FormBlocks'
+import { SearchInput } from '../../components/SearchInput'
 
 import { useCreate, useObjects } from '../../schema/Property.uistate'
 

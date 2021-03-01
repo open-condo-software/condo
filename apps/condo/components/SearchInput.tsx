@@ -1,8 +1,15 @@
 import { useApolloClient } from '@core/next/apollo'
-import { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Select } from 'antd'
+import { ApolloClient } from '@apollo/client'
 
-function SearchInput ({ search, ...props }) {
+// TODO: add apollo cache shape typings
+interface ISearchInputProps {
+    search: (client: ApolloClient<Record<string, unknown>>, queryArguments: string) => Promise<Array<Record<string, unknown>>>,
+    placeholder: string,
+}
+
+export const SearchInput:React.FunctionComponent<ISearchInputProps> = ({ search, ...props }) => {
     const client = useApolloClient()
     const [selected, setSelected] = useState('')
     const [isLoading, setLoading] = useState(false)
@@ -50,8 +57,4 @@ function SearchInput ({ search, ...props }) {
             {options}
         </Select>
     )
-}
-
-export {
-    SearchInput,
 }

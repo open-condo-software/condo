@@ -1,7 +1,7 @@
 import { genReactHooks } from '@core/keystone/gen.gql.react.utils'
 
-import { Ticket } from './Ticket.gql'
-import { getClientSideSenderInfo } from '../utils/userid.utils'
+import { Ticket } from '../../../schema/Ticket/Ticket.gql'
+import { getClientSideSenderInfo } from '../../userid.utils'
 
 function convertGQLItemToUIState (item) {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
@@ -33,7 +33,19 @@ function convertGQLItemToFormState (item) {
     return item
 }
 
-module.exports = {
-    ...genReactHooks(Ticket, { convertGQLItemToUIState, convertUIStateToGQLItem }),
+const {
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useDelete,
+} = genReactHooks(Ticket, { convertGQLItemToUIState, convertUIStateToGQLItem })
+
+export {
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useDelete,
     convertGQLItemToFormState,
 }
