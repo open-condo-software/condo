@@ -13,7 +13,7 @@ import { CREATE_TICKET } from '../../constants/routes'
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
 import { RenderActionsColumn, toGQLSortBy, useTable, ViewOrEditTableBlock, } from '../../containers/FormTableBlocks'
-import { SearchInput } from '../../components/SearchInput'
+import { GraphQlSearchInput } from '../../components/GraphQlSearchInput'
 import { runMutation } from '../../utils/mutations.utils'
 
 import { Ticket } from '../../utils/clientSchema/Ticket'
@@ -53,7 +53,7 @@ export function useTicketColumns () {
             modal: true,
             create: true,
             editable: true,
-            editableInput: () => <SearchInput search={searchTicketSources}/>,
+            editableInput: () => <GraphQlSearchInput search={searchTicketSources}/>,
             rules: [{ required: true, message: FieldIsRequiredMsg }],
             normalize: normalizeRelation,
             importFromFile: true,
@@ -67,7 +67,7 @@ export function useTicketColumns () {
             modal: true,
             create: true,
             editable: true,
-            editableInput: () => <SearchInput search={searchProperty}/>,
+            editableInput: () => <GraphQlSearchInput search={searchProperty}/>,
             rules: [{ required: true, message: FieldIsRequiredMsg }],
             normalize: normalizeRelation,
             importFromFile: true,
@@ -81,7 +81,7 @@ export function useTicketColumns () {
             modal: true,
             create: true,
             editable: true,
-            editableInput: () => <SearchInput search={searchTicketClassifier}/>,
+            editableInput: () => <GraphQlSearchInput search={searchTicketClassifier}/>,
             rules: [{ required: true, message: FieldIsRequiredMsg }],
             normalize: normalizeRelation,
             importFromFile: true,

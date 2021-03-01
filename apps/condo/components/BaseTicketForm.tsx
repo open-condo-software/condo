@@ -4,7 +4,7 @@ import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import { FormWithAction } from '../containers/FormList'
-import { SearchInput } from './SearchInput'
+import { GraphQlSearchInput } from './GraphQlSearchInput'
 import countries from '../constants/countries'
 import {
     searchEmployee,
@@ -115,7 +115,7 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
                         <Row gutter={[12, 12]}>
                             <Col span={12}>
                                 <Form.Item name={'property'} rules={validations.property}>
-                                    <SearchInput placeholder={AddressMessage} search={searchProperty}/>
+                                    <GraphQlSearchInput placeholder={AddressMessage} search={searchProperty}/>
                                 </Form.Item>
                             </Col>
                             <Col span={4}>
@@ -125,7 +125,7 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
                             </Col>
                             <Col span={8}>
                                 <Form.Item name={'source'} rules={validations.source}>
-                                    <SearchInput placeholder={SourceMessage} search={searchTicketSources}/>
+                                    <GraphQlSearchInput placeholder={SourceMessage} search={searchTicketSources}/>
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -161,17 +161,17 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
                         <Row gutter={[12, 12]}>
                             <Col span={8}>
                                 <Form.Item name={'classifier'} rules={validations.classifier}>
-                                    <SearchInput placeholder={TypeMessage} search={searchTicketClassifier}/>
+                                    <GraphQlSearchInput placeholder={TypeMessage} search={searchTicketClassifier}/>
                                 </Form.Item>
                             </Col>
                             <Col span={8}>
                                 <Form.Item name={'executor'} rules={validations.executor} extra={ExecutorExtraMessage}>
-                                    <SearchInput placeholder={ExecutorMessage} search={searchEmployee(organization.id)}/>
+                                    <GraphQlSearchInput placeholder={ExecutorMessage} search={searchEmployee(organization.id)}/>
                                 </Form.Item>
                             </Col>
                             <Col span={8}>
                                 <Form.Item name={'assignee'} rules={validations.assignee} extra={ResponsibleExtraMessage}>
-                                    <SearchInput placeholder={ResponsibleMessage} search={searchEmployee(organization.id)}/>
+                                    <GraphQlSearchInput placeholder={ResponsibleMessage} search={searchEmployee(organization.id)}/>
                                 </Form.Item>
                             </Col>
                         </Row>
