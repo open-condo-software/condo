@@ -1,6 +1,6 @@
 const { genTestGQLUtils } = require('@core/keystone/gen.gql.utils')
 
-const BILLING_INTEGRATION_FIELDS = '{ id dv sender v name deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt }'
+const BILLING_INTEGRATION_FIELDS = '{ id dv v name deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt }'
 const BillingIntegration = genTestGQLUtils('BillingIntegration', BILLING_INTEGRATION_FIELDS)
 
 const BillingIntegrationAccessRight = genTestGQLUtils('BillingIntegrationAccessRight', `{ id dv sender v integration ${BILLING_INTEGRATION_FIELDS} user { id } createdBy { id name } updatedBy { id name } createdAt updatedAt }`)
