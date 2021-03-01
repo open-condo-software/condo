@@ -4,237 +4,199 @@ import { PlusOutlined } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import Head from 'next/head'
 import Link from 'next/link'
-import React, { useEffect, useMemo } from 'react'
-import { Button, Input, Space, Table } from 'antd'
-
-import { useOrganization } from '@core/next/organization'
+import React, { useCallback, useMemo } from 'react'
+import { Button, Table, Typography, Space } from 'antd'
+import get from 'lodash/get'
+import qs from 'qs'
 import { CREATE_TICKET } from '../../constants/routes'
 
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
-import { RenderActionsColumn, toGQLSortBy, useTable, ViewOrEditTableBlock, } from '../../containers/FormTableBlocks'
-import { GraphQlSearchInput } from '../../components/GraphQlSearchInput'
-import { runMutation } from '../../utils/mutations.utils'
 
 import { Ticket } from '../../utils/clientSchema/Ticket'
-import { searchProperty, searchTicketClassifier, searchTicketSources } from '../../utils/clientSchema/Ticket/search'
+import { useRouter } from 'next/router'
+import { format } from 'date-fns'
 
-const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
+// TODO:(Dimitreee) move to packages
+import RU from 'date-fns/locale/ru'
+import EN from 'date-fns/locale/en-US'
 
-function normalizeRelation (value) {
-    return (value && typeof value === 'object') ? value.id : value
+const PAGINATION_PAGE_SIZE = 10
+
+const setOrder = (sortedInfo, key) => {
+    return sortedInfo && sortedInfo.columnKey === key && sortedInfo.order
 }
 
-export function useTicketColumns () {
-    const intl = useIntl()
-    const NumberMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Number' })
-    const SourceMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
-    const PropertyMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Property' })
-    const TypeMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Type' })
-    const DetailsMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Details' })
-    const StatusMsg = intl.formatMessage({ id: 'pages.condo.ticket.field.Status' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
+const getTableColumns = (sortedInfo, intl) => {
+    const locales = {
+        ru: RU,
+        en: EN,
+    }
 
     return [
         {
-            title: NumberMsg,
+            title: intl.formatMessage({ id: 'ticketsTable.NumberAndDate' }),
             dataIndex: 'number',
-            modal: false,
-            create: false,
-            editable: false,
-            importFromFile: true,
-            render: (text, item, index) => {
-                return <Link href={`/ticket/${item.id}`}><a>{text}</a></Link>
-            },
-        },
-        {
-            title: SourceMsg,
-            dataIndex: 'source',
-            modal: true,
-            create: true,
-            editable: true,
-            editableInput: () => <GraphQlSearchInput search={searchTicketSources}/>,
-            rules: [{ required: true, message: FieldIsRequiredMsg }],
-            normalize: normalizeRelation,
-            importFromFile: true,
-            render: (text, item, index) => {
-                return item.source && item.source.name
-            },
-        },
-        {
-            title: PropertyMsg,
-            dataIndex: 'property',
-            modal: true,
-            create: true,
-            editable: true,
-            editableInput: () => <GraphQlSearchInput search={searchProperty}/>,
-            rules: [{ required: true, message: FieldIsRequiredMsg }],
-            normalize: normalizeRelation,
-            importFromFile: true,
-            render: (text, item, index) => {
-                return item.property && item.property.name
-            },
-        },
-        {
-            title: TypeMsg,
-            dataIndex: 'classifier',
-            modal: true,
-            create: true,
-            editable: true,
-            editableInput: () => <GraphQlSearchInput search={searchTicketClassifier}/>,
-            rules: [{ required: true, message: FieldIsRequiredMsg }],
-            normalize: normalizeRelation,
-            importFromFile: true,
-            render: (text, item, index) => {
-                return item.classifier && item.classifier.name
-            },
-        },
-        {
-            title: StatusMsg,
-            dataIndex: 'status',
-            modal: false,
-            create: false,
-            editable: false,
-            normalize: normalizeRelation,
-            importFromFile: true,
+            key: 'number',
             sorter: true,
-            render: (text, item, index) => {
-                return item.status && item.status.name
+            sortOrder: setOrder(sortedInfo, 'number'),
+            render: (number, ticket) => {
+                const formattedDate = format(
+                    new Date(ticket.createdAt),
+                    'dd MMMM (HH:mm)',
+                    { locale: locales[intl.locale] }
+                )
+
+                return (
+                    <Space direction={'vertical'} size={'small'}>
+                        <Typography.Text>№ {number}</Typography.Text>
+                        <Typography.Text type={'secondary'}>{formattedDate}</Typography.Text>
+                    </Space>
+                )
+            },
+            width: '20%',
+        },
+        {
+            title: intl.formatMessage({ id: 'Status' }),
+            dataIndex: 'status',
+            key: 'status',
+            sorter: true,
+            sortOrder: setOrder(sortedInfo, 'status'),
+            render: (status) => {
+                return (<Typography.Text strong>{status.name}</Typography.Text>)
             },
         },
         {
-            title: DetailsMsg,
+            title: intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' }),
             dataIndex: 'details',
-            modal: true,
-            create: true,
-            editable: true,
-            editableInput: () => <Input.TextArea/>,
-            rules: [{ required: true, message: FieldIsRequiredMsg }],
-            importFromFile: true,
+            key: 'details',
         },
         {
-            title: '',
-            dataIndex: 'actions',
-            create: true,
-            render: RenderActionsColumn,
+            title: intl.formatMessage({ id: 'field.Address' }),
+            dataIndex: 'property',
+            key: 'property',
+            sorter: true,
+            sortOrder: setOrder(sortedInfo, 'property'),
+            render: (property) => {
+                const fullAddress = `${get(property, 'address')} ${get(property, 'name')}`
+
+                return (<Typography.Text ellipsis>{fullAddress}</Typography.Text>)
+            },
+        },
+        {
+            title: intl.formatMessage({ id: 'ticketsTable.ResidentName' }),
+            dataIndex: 'clientName',
+            key: 'clientName',
+            sorter: true,
+            sortOrder: setOrder(sortedInfo, 'clientName'),
         },
     ]
 }
 
-/* eslint-disable-next-line no-unused-vars */
-function TicketCRUDTableBlock () {
-    const { organization } = useOrganization()
-    const table = useTable()
-    const columns = useTicketColumns()
+const sorterToQuery = (sorter) => {
+    const { columnKey, order } = sorter
 
-    const intl = useIntl()
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const ErrorToFormFieldMsgMapping = {}
-
-    const { objs, count, refetch } = useObjects({
-        sortBy: toGQLSortBy(table.state.sorter) || 'createdAt_DESC',
-    })
-    const create = Ticket.useCreate({ organization: organization.id, status: OPEN_STATUS }, () => refetch())
-    const update = Ticket.useUpdate({}, () => refetch())
-
-    useEffect(() => {
-        if (objs) {
-            table.setData(objs)
-            table.updateFilterPaginationSort({ total: count })
-            const actions = {
-                CreateOrUpdate: handleCreateOrUpdate,
-                Delete: handleDelete,
-            }
-            table.updateActions(actions)
-        }
-    }, [objs])
-
-    function handleCreateOrUpdate ({ values, item, form }) {
-        if (values.email) values.email = values.email.toLowerCase()
-        const action = (item && item.isUnsavedNew) ? create : update
-        return runMutation(
-            {
-                action: () => action(values, (item.isUnsavedNew) ? null : item),
-                onError: (e) => {
-                    console.log(e.friendlyDescription, form)
-                    const msg = e.friendlyDescription || ServerErrorMsg
-                    if (msg) {
-                        form.setFields([{ name: 'email', errors: [msg] }])
-                    }
-                    throw e
-                },
-                intl,
-                form,
-                ErrorToFormFieldMsgMapping,
-            },
-        )
+    const sortKeys = {
+        'ascend': 'ASC',
+        'descend': 'DESC',
     }
 
-    function handleDelete ({ item, form }) {
-        const deletedAt = (new Date(Date.now())).toISOString()
-        return handleCreateOrUpdate({ values: { deletedAt }, item, form })
+    const sortKey = sortKeys[order]
+
+    if (!sortKey) {
+        return
     }
 
-    const editColumns = useMemo(() => columns, [])
-
-    return (
-        <Space direction="vertical">
-            <ViewOrEditTableBlock columns={editColumns} table={table}/>
-        </Space>
-    )
+    return `${columnKey}_${sortKeys[order]}`
 }
 
-const CreateTicketButton = ({ message }) => {
-    return (
-        <Link href={CREATE_TICKET}>
-            <Button type='primary'>
-                <PlusOutlined/>{message}
-            </Button>
-        </Link>
-    )
+const queryToSorter = (query) => {
+    if (!query) {
+        return
+    }
+
+    const sortKeys = {
+        'ASC': 'ascend',
+        'DESC': 'descend',
+    }
+
+    const columns = [
+        'number',
+        'status',
+        'details',
+        'property',
+        'clientName',
+    ]
+
+    const [columnKey, key] = query.split('_')
+
+    const order = sortKeys[key]
+
+    if (!order || !columns.includes(columnKey)) {
+        return
+    }
+
+    return { columnKey,  order: sortKeys[key] }
 }
 
-const TABLE_COLUMNS = [
-    {
-        title: 'Имя',
-        dataIndex: 'clientName',
-        key: 'clientName',
-    },
-    {
-        title: 'Детали',
-        dataIndex: 'details',
-        key: 'details',
-    },
-    {
-        title: '',
-        dataIndex: 'id',
-        key: 'watch',
-        render: id => (
-            <>
-                <div>
-                    <Link href={`/ticket/${id}`}>Посмотреть</Link>
-                </div>
-                <div>
-                    <Link href={`/ticket/${id}/update`}>Редактировать</Link>
-                </div>
-            </>
-        ),
-    },
-]
+const tableStateFromQuery = (router) => {
+    const pagination = {
+        current: ((router.query.offset / PAGINATION_PAGE_SIZE) || 0) + 1,
+        pageSize: PAGINATION_PAGE_SIZE,
+    }
 
-export default () => {
+    const sorter = queryToSorter(router.query.sort)
+
+    return {
+        pagination,
+        sorter,
+    }
+}
+
+const TicketsPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const CreateTicketButtonLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketButtonLabel' })
 
-    // Rewrite later
-    const { objs, refetch } = Ticket.useObjects({
-        sortBy: 'createdAt_DESC',
+    const router = useRouter()
+
+    const { objs: tickets, fetchMore, loading, count } = Ticket.useObjects({
+        sortBy: router.query.sort,
+        offset: Number(router.query.offset),
+        limit: PAGINATION_PAGE_SIZE,
     })
 
-    useEffect(() => {
-        refetch()
+    const { pagination, sorter } = tableStateFromQuery(router)
+
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: () => {
+                router.push(`/ticket/${record.id}/`)
+            },
+        }
     }, [])
+
+    const handleTableChange = useCallback((...tableChangeArguments) => {
+        const [nextPagination,, nextSorter] = tableChangeArguments
+
+        const sort = sorterToQuery(nextSorter)
+        const { current, pageSize } = nextPagination
+        const offset = current * pageSize - pageSize
+        const variables = {
+            sortBy: sort,
+            offset,
+            first: PAGINATION_PAGE_SIZE,
+            limit: PAGINATION_PAGE_SIZE,
+        }
+
+        if (!loading) {
+            fetchMore({ variables }).then(() => {
+                router.push(router.route + '?' + qs.stringify({ ...router.query, sort, offset }))
+            })
+        }
+    }, [])
+
+    const tableColumns = useMemo(() => getTableColumns(sorter, intl), [sorter])
 
     return (
         <>
@@ -242,13 +204,32 @@ export default () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={PageTitleMsg} extra={<CreateTicketButton message={CreateTicketButtonLabel}/>}/>
+                <PageHeader
+                    title={PageTitleMsg}
+                    extra={
+                        <Link href={CREATE_TICKET}>
+                            <Button type='primary'>
+                                <PlusOutlined/>{CreateTicketButtonLabel}
+                            </Button>
+                        </Link>
+                    }
+                />
                 <PageContent>
                     <OrganizationRequired>
-                        <Table dataSource={objs} columns={TABLE_COLUMNS}/>
+                        <Table
+                            loading={loading}
+                            dataSource={tickets}
+                            columns={tableColumns}
+                            onRow={handleRowAction}
+                            onChange={handleTableChange}
+                            rowKey={record => record.id}
+                            pagination={{ ...pagination, total: count }}
+                        />
                     </OrganizationRequired>
                 </PageContent>
             </PageWrapper>
         </>
     )
 }
+
+export default TicketsPage
