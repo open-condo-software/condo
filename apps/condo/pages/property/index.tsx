@@ -17,10 +17,7 @@ import FormList, {
 } from '../../containers/FormList'
 import { useTable } from '../../containers/FormTableBlocks'
 import { AddressSearchInput } from '../../components/AddressSearchInput'
-
 import { useCreate, useObjects } from '../../schema/Property.uistate'
-
-
 
 function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancelModal }) {
     const intl = useIntl()

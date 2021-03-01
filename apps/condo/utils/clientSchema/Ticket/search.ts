@@ -23,9 +23,9 @@ const GET_ALL_CLASSIFIERS_QUERY = gql`
 // TODO(pahaz): add organization filter
 const GET_ALL_PROPERTIES_QUERY = gql`
     query selectProperty ($value: String) {
-        objs: allProperties(where: {name_contains: $value}) {
+        objs: allProperties(where: {address_contains: $value}) {
             id
-            name
+            address
         }
     }
 `
@@ -51,7 +51,7 @@ async function _search (client, query, variables) {
 export async function searchProperty (client, value) {
     const { data, error } = await _search(client, GET_ALL_PROPERTIES_QUERY, { value })
     if (error) console.warn(error)
-    if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
+    if (data) return data.objs.map(x => ({ text: x.address, value: x.id }))
     return []
 }
 
