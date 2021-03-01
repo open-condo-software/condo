@@ -1,4 +1,6 @@
 // Core logic is based on https://github.com/keystonejs/keystone/blob/master/examples-next/roles/access.ts
+const { get } = require('lodash')
+
 const { getByCondition, getById } = require('@core/keystone/schema')
 const { userIsAuthenticated, userIsAdmin } = require('@core/keystone/access')
 
@@ -69,23 +71,26 @@ const rules = {
         }
     },
     canManageEmployees: async (args) => {
-        const { authentication: { item: user }, operation } = args
+        const { authentication: { item: user }, operation, itemId } = args
         if (!user) return false
         if (user.isAdmin) return true
-        if (operation === 'create') return false
-        if (operation !== 'update' && operation !== 'delete') return false
-        const { id } = args
-        if (!id) return false
-        const obj = await getById('OrganizationEmployee', id)
-        const employee = await getByCondition('OrganizationEmployee', {
-            organization: { id: obj.organization },
-            user: { id: user.id },
-        })
-        const employeeRole = await getByCondition('OrganizationEmployeeRole', {
-            id: employee.role,
-            organization: { id: obj.organization },
-        })
-        return employeeRole && employeeRole.canManageEmployees
+        if (operation === 'update' || operation === 'delete') {
+            if (!itemId) return false
+            const employeeToEdit = await getById('OrganizationEmployee', itemId)
+            if (!employeeToEdit) return false
+            const employeeForUser = await getByCondition('OrganizationEmployee', {
+                organization: { id: employeeToEdit.organization },
+                user: { id: user.id },
+            })
+            if (!employeeForUser) return false
+            const employeeRole = await getByCondition('OrganizationEmployeeRole', {
+                id: employeeForUser.role,
+                organization: { id: employeeToEdit.organization },
+            })
+            if (!employeeRole) return false
+            return employeeRole && employeeRole.canManageEmployees
+        }
+        return false
     },
     canReadRoles: ({ authentication: { item: user } }) => {
         if (!user) return false
@@ -101,14 +106,14 @@ const rules = {
         }
     },
     canRegisterNewOrganization: isSignedIn,
-    canInviteEmployee: async ({ authentication: { item: user }, args, context }) => {
+    canInviteEmployee: async ({ authentication: { item: user }, args }) => {
         if (!user || !user.id) return false
         if (user.isAdmin) return true
         if (!args || !args.data || !args.data.organization || !args.data.organization.id) return false
         const organizationId = args.data.organization.id
         return await checkOrganizationPermission(user.id, organizationId, 'canManageEmployees')
     },
-    canAcceptOrRejectEmployeeInvite: async ({ authentication: { item: user }, args, context }) => {
+    canAcceptOrRejectEmployeeInvite: async ({ authentication: { item: user }, args }) => {
         if (!user || !user.id) return false
         if (user.isAdmin) return true
         if (!args) return false
@@ -116,7 +121,7 @@ const rules = {
         if (inviteCode) {
             const employee = await getByCondition('OrganizationEmployee', { inviteCode, user_is_null: true })
             // TODO(pahaz): check is employee user email/phone is verified?
-            return Boolean(employee)
+            return !!get(employee, 'id')
         }
         if (id && data) {
             const employee = await getById('OrganizationEmployee', id)
@@ -154,16 +159,15 @@ const rules = {
         if (user.isAdmin) return true
         if (operation === 'create') {
             // NOTE: can create only by the organization integration manager
-            if (!originalInput || !originalInput.organization || !originalInput.organization.connect || !originalInput.organization.connect.id) return false
-            const organizationId = originalInput.organization.connect.id
+            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+            if (!organizationId) return false
             return await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
         } else if (operation === 'update') {
             // NOTE: can update by the organization integration manager OR the integration account
             if (!itemId) return false
             const context = await getById('BillingIntegrationOrganizationContext', itemId)
             if (!context) return false
-            const organizationId = context.organization
-            const integrationId = context.integration
+            const { organization: organizationId, integration: integrationId } = context
             const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
             if (canManageIntegrations) return true
             return await checkBillingIntegrationAccessRight(user.id, integrationId)
@@ -196,19 +200,20 @@ const rules = {
         let contextId
         if (operation === 'create') {
             // NOTE: can create only by the integration account
-            if (!originalInput || !originalInput.context || !originalInput.context.connect || !originalInput.context.connect.id) return false
-            contextId = originalInput.context.connect.id
+            contextId = get(originalInput, ['context', 'connect', 'id'])
         } else if (operation === 'update' || operation === 'delete') {
             // NOTE: can update only by the integration account
             if (!itemId) return false
             const log = await getById('BillingIntegrationLog', itemId)
+            if (!log) return false
             contextId = log.context
         } else {
             return false
         }
+        if (!contextId) return false
         const context = await getById('BillingIntegrationOrganizationContext', contextId)
         if (!context) return false
-        const integrationId = context.integration
+        const { integration: integrationId } = context
         return await checkBillingIntegrationAccessRight(user.id, integrationId)
     },
     // TODO(pahaz): we needed a right logic here! wait https://github.com/keystonejs/keystone/issues/4829
