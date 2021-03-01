@@ -1,4 +1,3 @@
-import { useApolloClient } from '@core/next/apollo'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Select, Spin } from 'antd'
 import debounce from 'lodash/debounce'
@@ -8,9 +7,7 @@ import identity from 'lodash/identity'
 
 const DEBOUNCE_TIMEOUT = 800
 
-async function searchAddress (...searchArguments) {
-    const [, query] = searchArguments
-
+async function searchAddress (query) {
     // https://dadata.ru/api/suggest/address/
     // TODO(Dimitreee): move to local/prod/dev config
     const token = '257f4bd2c057e727f4e48438d121ffa7a665fce7'
@@ -39,7 +36,6 @@ async function searchAddress (...searchArguments) {
 }
 
 export const AddressSearchInput:React.FunctionComponent = (props) => {
-    const client = useApolloClient()
     const [selected, setSelected] = useState('')
     const [fetching, setFetching] = useState(false)
     const [data, setData] = useState([])
@@ -49,7 +45,7 @@ export const AddressSearchInput:React.FunctionComponent = (props) => {
 
     const searchSuggestions = useCallback(async (value) => {
         setFetching(true)
-        const data = await searchAddress(client, (selected) ? selected + ' ' + value : value)
+        const data = await searchAddress((selected) ? selected + ' ' + value : value)
 
         setFetching(false)
         setData(data)
@@ -58,7 +54,6 @@ export const AddressSearchInput:React.FunctionComponent = (props) => {
     const debouncedSearch = useMemo(() => {
         return debounce(searchSuggestions, DEBOUNCE_TIMEOUT)
     }, [])
-
 
     const handleSelect = useCallback((value, option) => {
         setSelected(option.children)
