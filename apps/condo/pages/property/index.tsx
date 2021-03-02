@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import Head from 'next/head'
 import Link from 'next/link'
 import React, { useEffect } from 'react'
