@@ -1,0 +1,92 @@
+/**
+ * @jest-environment node
+ */
+
+const { setFakeClientMode } = require('@core/keystone/test.utils')
+const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+const conf = require('@core/config')
+const { createUser } = require('../User.test')
+const { createOrganization } = require('../../utils/testSchema/Organization')
+const { Organization } = require('../../gql/Organization')
+
+if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../../index'))
+
+describe('Organization', () => {
+    test('anonymous: no access to getAll', async () => {
+        const client = await makeClient()
+        const { data, errors } = await Organization.getAll(client, {}, { raw: true })
+        expect(errors[0]).toMatchObject({
+            'data': { 'target': 'allOrganizations', 'type': 'query' },
+            'message': 'You do not have access to this resource',
+            'name': 'AccessDeniedError',
+            'path': ['objs'],
+        })
+        expect(data).toEqual({ 'objs': null })
+    })
+
+    test('anonymous: no access to count', async () => {
+        const client = await makeClient()
+        const { data, errors } = await Organization.count(client, {}, { raw: true })
+        expect(errors[0]).toMatchObject({
+            'data': { 'target': '_allOrganizationsMeta', 'type': 'query' },
+            'message': 'You do not have access to this resource',
+            'name': 'AccessDeniedError',
+            'path': ['meta', 'count'],
+        })
+        expect(data).toEqual({ meta: { count: null } })
+    })
+
+    test('user: allow to getAll', async () => {
+        const admin = await makeLoggedInAdminClient()
+        await createOrganization(admin)
+        const [, userAttrs] = await createUser(admin)
+        const client = await makeLoggedInClient(userAttrs)
+        const objs = await Organization.getAll(client, {})
+        expect(objs.length).toBeGreaterThan(0)
+    })
+
+    test('user: allow to count', async () => {
+        const admin = await makeLoggedInAdminClient()
+        await createOrganization(admin)
+        const [, userAttrs] = await createUser(admin)
+        const client = await makeLoggedInClient(userAttrs)
+        const count = await Organization.count(client, {})
+        expect(count).toBeGreaterThan(0)
+    })
+
+    // test('no access to change another organization', async () => {
+//     const { id: organizationId } = await createSchemaObject(Organization)
+//     const { id: linkId } = await createSchemaObject(OrganizationToUserLink, {
+//         organization: { connect: { id: organizationId } },
+//         role: 'owner',
+//     })
+//
+//     const user = await createUser()
+//     const client = await makeLoggedInClient(user)
+//     const { errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+//         data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
+//     })
+//     expect(errors).toEqual(undefined)
+//
+//     const { errors: err1 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
+//         id: linkId,
+//         data: { user: { connect: { id: user.id } } },
+//     })
+//     expect(err1[0]).toMatchObject({
+//         'data': { 'target': 'updateOrganizationToUserLink', 'type': 'mutation' },
+//         'message': 'You do not have access to this resource',
+//         'name': 'AccessDeniedError',
+//         'path': ['obj'],
+//     })
+//     const { errors: err2 } = await client.mutate(UPDATE_ORGANIZATION_TO_USER_LINK_MUTATION, {
+//         id: linkId,
+//         data: { role: 'member' },
+//     })
+//     expect(err2[0]).toMatchObject({
+//         'data': { 'target': 'updateOrganizationToUserLink', 'type': 'mutation' },
+//         'message': 'You do not have access to this resource',
+//         'name': 'AccessDeniedError',
+//         'path': ['obj'],
+//     })
+// })
+})

@@ -18,7 +18,7 @@ import GoogleAnalytics from '../containers/GoogleAnalytics'
 import BaseLayout from '../containers/BaseLayout'
 import GlobalErrorBoundary from '../containers/GlobalErrorBoundery'
 
-import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '../schema/Organization.gql'
+import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '../gql/Organization'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {

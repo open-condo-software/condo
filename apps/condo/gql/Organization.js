@@ -14,7 +14,7 @@ const OrganizationEmployee = genTestGQLUtils('OrganizationEmployee', ORGANIZATIO
 
 const GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY = gql`
     query getOrganizationEmployeeById($id: ID!) {
-        obj: OrganizationEmployee (where: {id: $id}) ${ORGANIZATION_EMPLOYEE_FIELDS}
+        obj: OrganizationEmployee(where: {id: $id}) ${ORGANIZATION_EMPLOYEE_FIELDS}
     }
 `
 
@@ -27,7 +27,7 @@ const UPDATE_ORGANIZATION_BY_ID_MUTATION = gql`
 const GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY = gql`
     query getAllOrganizationEmployeesWithMeta($where: OrganizationEmployeeWhereInput) {
         meta: _allOrganizationEmployeesMeta { count }
-        objs: allOrganizationEmployees (where: $where) ${ORGANIZATION_EMPLOYEE_FIELDS}
+        objs: allOrganizationEmployees(where: $where) ${ORGANIZATION_EMPLOYEE_FIELDS}
     }
 `
 

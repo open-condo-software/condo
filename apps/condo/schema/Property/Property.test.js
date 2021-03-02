@@ -10,7 +10,7 @@ if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../../index'
 const faker = require('faker')
 const { UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { makeClientWithRegisteredOrganization } = require('../Organization.test')
+const { makeClientWithRegisteredOrganization } = require('../../utils/testSchema/Organization')
 const { buildingMapJson } = require('../../constants/property.example')
 const { Property } = require('../../gql/Property')
 
