@@ -4,7 +4,6 @@ import React, { useEffect } from 'react'
 import { Avatar, Button, Form, Input, Select } from 'antd'
 
 import { useIntl } from '@core/next/intl'
-import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
@@ -99,20 +98,14 @@ function CreatePropertyModalBlock ({ modal, create }) {
 
 function ViewOrEditPropertyListBlock ({ loading, objs }) {
     const intl = useIntl()
-    const DoneMsg = intl.formatMessage({ id: 'Done' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const AcceptMsg = intl.formatMessage({ id: 'Accept' })
     const SelectMsg = intl.formatMessage({ id: 'Select' })
-    const EditMsg = intl.formatMessage({ id: 'Edit' })
-    const DeleteMsg = intl.formatMessage({ id: 'Delete' })
-    const AreYouSureMsg = intl.formatMessage({ id: 'AreYouSure' })
 
     return (
         <FormList
             loading={loading}
             dataSource={objs}
             renderItem={(item) => {
-                const { name, address, avatar, href } = (item)
+                const { name, address, avatar, href } = item
                 return {
                     extraBlockMeta: { style: { width: '150px' } },
                     avatar: <Avatar src={avatar} shape="square" size="large"/>,
@@ -128,12 +121,11 @@ function ViewOrEditPropertyListBlock ({ loading, objs }) {
 }
 
 function PropertyCRUDListBlock () {
-    const { user } = useAuth()
     const { organization } = useOrganization()
     const modal = useCreateAndEditModalForm()
     const table = useTable()
 
-    const { objs, count, refetch, error, loading } = useObjects()
+    const { objs, count, refetch, loading } = useObjects()
     const create = useCreate({ organization: organization.id }, () => refetch())
 
     useEffect(() => {

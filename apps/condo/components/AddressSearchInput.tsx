@@ -4,7 +4,6 @@ import debounce from 'lodash/debounce'
 import pickBy from 'lodash/pickBy'
 import identity from 'lodash/identity'
 
-
 const DEBOUNCE_TIMEOUT = 800
 
 async function searchAddress (query) {
@@ -53,7 +52,7 @@ export const AddressSearchInput:React.FunctionComponent = (props) => {
 
     const debouncedSearch = useMemo(() => {
         return debounce(searchSuggestions, DEBOUNCE_TIMEOUT)
-    }, [])
+    }, [searchSuggestions])
 
     const handleSelect = useCallback((value, option) => {
         setSelected(option.children)
