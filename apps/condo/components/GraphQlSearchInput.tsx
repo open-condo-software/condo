@@ -9,7 +9,7 @@ interface ISearchInputProps {
     placeholder: string,
 }
 
-export const SearchInput:React.FunctionComponent<ISearchInputProps> = ({ search, ...props }) => {
+export const GraphQlSearchInput:React.FunctionComponent<ISearchInputProps> = ({ search, ...props }) => {
     const client = useApolloClient()
     const [selected, setSelected] = useState('')
     const [isLoading, setLoading] = useState(false)
