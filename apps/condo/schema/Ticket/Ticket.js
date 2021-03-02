@@ -1,8 +1,7 @@
-const { Text, Relationship, Integer, Select, Virtual } = require('@keystonejs/fields')
+const { Text, Relationship, Integer } = require('@keystonejs/fields')
 const { JSON_UNKNOWN_VERSION_ERROR } = require('../../constants/errors')
 
 const access = require('@core/keystone/access')
-const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('../_common')
 const { ORGANIZATION_OWNED_FIELD } = require('../_common')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
@@ -19,67 +18,6 @@ const ACCESS_TO_ALL = {
     delete: access.userIsAuthenticated,
     auth: true,
 }
-
-const READ_ONLY_ACCESS = {
-    read: true,
-    create: false,
-    update: false,
-    delete: false,
-    auth: false,
-}
-
-// TODO(pahaz): add dv to TicketXXXX
-
-const TicketClassifier = new GQLListSchema('TicketClassifier', {
-    schemaDoc: 'Ticket typification/classification. We have a organization specific classification. We check the ticket attrs differently depending on the classifier',
-    fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
-        organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
-
-        parent: {
-            schemaDoc: 'Multi level classification support',
-            type: Relationship,
-            ref: 'TicketClassifier',
-            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
-        },
-        fullName: {
-            schemaDoc: 'Multi level name',
-            type: Virtual,
-            resolver: item => `${item.parent} -- ${item.name}`,
-        },
-        name: {
-            schemaDoc: 'This level name',
-            type: Text,
-            isRequired: true,
-        },
-    },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: READ_ONLY_ACCESS,
-})
-
-const TicketSource = new GQLListSchema('TicketSource', {
-    schemaDoc: 'Ticket source. Income call, mobile app, external system, ...',
-    fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
-        organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
-
-        type: {
-            type: Select,
-            isRequired: true,
-            options: 'mobile_app, web_app, organization_site, call, visit, email, social_network, messenger, remote_system, other',
-        },
-        name: {
-            type: Text,
-            isRequired: true,
-        },
-    },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: READ_ONLY_ACCESS,
-})
 
 const Ticket = new GQLListSchema('Ticket', {
     fields: {
@@ -289,7 +227,5 @@ const Ticket = new GQLListSchema('Ticket', {
 })
 
 module.exports = {
-    TicketClassifier,
-    TicketSource,
     Ticket,
 }

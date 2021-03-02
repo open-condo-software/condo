@@ -40,9 +40,7 @@ registerSchemas(keystone, [
     require('./schema/Organization'),
     require('./schema/Property'),
     require('./schema/Billing'),
-    // TODO(Dimitreee):create Ticket domain folder index file, export modules only from Ticket module
-    require('./schema/Ticket/Ticket'),
-    require('./schema/Ticket/TicketStatus'),
+    require('./schema/Ticket'),
 ])
 
 function verifySchema (keystone) {
