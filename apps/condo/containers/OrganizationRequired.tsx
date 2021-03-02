@@ -1,5 +1,6 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/core'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+import { css } from '@emotion/core'
 import { Spin, Typography } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
 import { useEffect } from 'react'

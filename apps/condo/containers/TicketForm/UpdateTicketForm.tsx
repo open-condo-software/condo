@@ -14,7 +14,8 @@ interface IUpdateTicketForm {
 export const UpdateTicketForm:React.FunctionComponent<IUpdateTicketForm> = ({ id }) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'loading' })
-
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const { organization } = useOrganization()
     const { obj, refetch, loading, error } = Ticket.useObject({ where: { id } }, false)
 
