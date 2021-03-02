@@ -167,6 +167,8 @@
   "containers.FormTableExcelImport.SelectColumn": "Выбери колонку",
   "containers.FormTableExcelImport.NextStepButtonLabel": "Продолжить импорт",
   "errors.NotDefined": "Не указано",
+  "ticketsTable.NumberAndDate": "№ и Дата",
+  "ticketsTable.ResidentName": "Фио Жителя",
   "logout": "Выйти",
   "loading": "Loading"
 }

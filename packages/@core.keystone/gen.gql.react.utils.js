@@ -17,7 +17,7 @@ function genReactHooks (TestUtils, { convertGQLItemToUIState, convertUIStateToGQ
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
 
-        let { loading, data, refetch, error } = useQuery(TestUtils.GET_ALL_OBJS_WITH_COUNT_QUERY, {
+        let { loading, data, refetch, error, fetchMore } = useQuery(TestUtils.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
             ...options,
         })
@@ -46,7 +46,7 @@ function genReactHooks (TestUtils, { convertGQLItemToUIState, convertUIStateToGQ
             error = ServerErrorPleaseTryAgainLaterMsg
         }
 
-        return { loading, refetch, objs: objects, count, error }
+        return { loading, refetch, fetchMore, objs: objects, count, error }
     }
 
     function useCreate (attrs = {}, onComplete) {

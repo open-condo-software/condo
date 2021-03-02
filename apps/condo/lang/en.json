@@ -167,6 +167,8 @@
   "containers.FormTableExcelImport.SelectColumn": "Select column",
   "containers.FormTableExcelImport.NextStepButtonLabel": "Next",
   "errors.NotDefined": "Value is not defined",
+  "ticketsTable.NumberAndDate": "№ and Date",
+  "ticketsTable.ResidentName": "Resident Name",
   "logout": "Logout",
   "loading": "Loading"
 }
