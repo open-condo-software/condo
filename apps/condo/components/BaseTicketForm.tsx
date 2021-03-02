@@ -26,6 +26,8 @@ type IFormFieldsRuleMap = {
 
 function useTicketValidations (): IFormFieldsRuleMap {
     const intl = useIntl()
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const { organization } = useOrganization()
 
     return {
