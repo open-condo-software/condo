@@ -10,7 +10,7 @@ const faker = require('faker')
 const { makeClientWithProperty } = require('../Property.test')
 const { NUMBER_RE, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { Ticket } = require('./Ticket.gql')
+const { Ticket } = require('../../gql/Ticket')
 
 const OPEN_STATUS_ID = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 const UNKNOWN_CLASSIFIER_ID = '4f4b43d5-0951-425c-9428-945dc6193361'
