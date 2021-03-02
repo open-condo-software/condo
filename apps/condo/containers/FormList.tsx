@@ -3,7 +3,7 @@
 import { Button, Dropdown, Form, Input, List, Menu, Modal, Popconfirm, Skeleton, Typography } from 'antd'
 import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import React, { FunctionComponent, useState } from 'react'
+import React, { FunctionComponent, useCallback, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
 
@@ -294,11 +294,12 @@ function BaseModalForm ({ action, mutation, mutationExtraVariables, mutationExtr
     </Modal>)
 }
 
+// TODO(Dimitreee): add children type/interface
 interface IFormWithAction {
     action?: () => void
     initialValues?: Record<string, unknown>
     onChange?: (changedValues: Record<string, unknown>, allValues: Record<string, unknown>) => void
-    handleSubmit?: (values) => any
+    handleSubmit?: (values) => void
 }
 
 const FormWithAction:FunctionComponent<IFormWithAction> = (props) => {
@@ -332,7 +333,7 @@ const FormWithAction:FunctionComponent<IFormWithAction> = (props) => {
         [create] = useMutation(mutation) // eslint-disable-line react-hooks/rules-of-hooks
     }
 
-    function _handleSubmit (values) {
+    const _handleSubmit = useCallback((values) => {
         if (handleSubmit) {
             return handleSubmit(values)
         }
@@ -383,7 +384,7 @@ const FormWithAction:FunctionComponent<IFormWithAction> = (props) => {
             OnErrorMsg,
             OnCompletedMsg,
         })
-    }
+    }, [])
 
     function handleSave () {
         form.submit()
@@ -402,7 +403,7 @@ const FormWithAction:FunctionComponent<IFormWithAction> = (props) => {
             onValuesChange={handleChange}
         >
             <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input/></Form.Item>
-            {children({ handleSave, isLoading, handleSubmit: _handleSubmit })}
+            {children({ handleSave, isLoading, handleSubmit: _handleSubmit, form })}
         </Form>
     )
 }

@@ -9,7 +9,7 @@ import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
 
-import { useObject, useUpdate } from '../../schema/Property.uistate'
+import { useObject, useUpdate } from '../../utils/clientSchema/Property'
 import LoadingOrErrorPage from '../../containers/LoadingOrErrorPage'
 import { buildingMapJson } from '../../constants/property.example'
 import BBuilder from '../../containers/BBuilder'

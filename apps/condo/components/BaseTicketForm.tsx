@@ -13,6 +13,8 @@ import {
     searchTicketSources,
 } from '../utils/clientSchema/Ticket/search'
 
+import { UnitNameInput } from './UnitNameInput'
+
 const LAYOUT = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -109,18 +111,29 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
     return (
         <>
             <FormWithAction action={action} initialValues={initialValues} {...LAYOUT}>
-                {({ handleSave, isLoading }) => (
+                {({ handleSave, isLoading, form }) => (
                     <>
                         <Typography.Title level={4}>{UserInfoMessage}</Typography.Title>
                         <Row gutter={[12, 12]}>
                             <Col span={12}>
                                 <Form.Item name={'property'} rules={validations.property}>
-                                    <GraphQlSearchInput placeholder={AddressMessage} search={searchProperty}/>
+                                    <GraphQlSearchInput
+                                        placeholder={AddressMessage}
+                                        search={searchProperty}
+                                        onSelect={() => form.setFieldsValue({ 'unitName': null })}
+                                    />
                                 </Form.Item>
                             </Col>
                             <Col span={4}>
-                                <Form.Item name={'unitName'}>
-                                    <Input type={'number'} min={0} placeholder={FlatNumberMessage}/>
+                                <Form.Item dependencies={['property']}>
+                                    {({ getFieldValue }) => (
+                                        <Form.Item name={'unitName'} >
+                                            <UnitNameInput
+                                                placeholder={FlatNumberMessage}
+                                                propertyId={getFieldValue('property')}
+                                            />
+                                        </Form.Item>
+                                    )}
                                 </Form.Item>
                             </Col>
                             <Col span={8}>

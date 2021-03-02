@@ -167,5 +167,6 @@
   "containers.FormTableExcelImport.SelectColumn": "Выбери колонку",
   "containers.FormTableExcelImport.NextStepButtonLabel": "Продолжить импорт",
   "errors.NotDefined": "Не указано",
-  "logout": "Выйти"
+  "logout": "Выйти",
+  "loading": "Loading"
 }

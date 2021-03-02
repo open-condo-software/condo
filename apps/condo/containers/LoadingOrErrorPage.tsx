@@ -1,13 +1,18 @@
-// @ts-nocheck
 import Head from 'next/head'
 import { PageContent, PageHeader, PageWrapper } from './BaseLayout'
 import React from 'react'
 import { Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
 
-function LoadingOrErrorPage ({ title, loading, error }) {
+interface ILoadingOrErrorPageProps {
+    title: string
+    loading: boolean
+    error: string
+}
+
+const LoadingOrErrorPage:React.FunctionComponent<ILoadingOrErrorPageProps> = ({ title, loading, error }) => {
     const intl = useIntl()
-    const LoadingMsg = intl.formatMessage({ id: 'Loading' })
+    const LoadingMsg = intl.formatMessage({ id: 'loading' })
 
     return <>
         <Head>

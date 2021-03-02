@@ -18,7 +18,7 @@ import FormList, {
 } from '../../containers/FormList'
 import { useTable } from '../../containers/FormTableBlocks'
 import { AddressSearchInput } from '../../components/AddressSearchInput'
-import { useCreate, useObjects } from '../../schema/Property.uistate'
+import * as Property from '../../utils/clientSchema/Property'
 
 function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancelModal }) {
     const intl = useIntl()
@@ -127,8 +127,8 @@ function PropertyCRUDListBlock () {
     const modal = useCreateAndEditModalForm()
     const table = useTable()
 
-    const { objs, count, refetch, loading } = useObjects()
-    const create = useCreate({ organization: organization.id }, () => refetch())
+    const { objs, count, refetch, loading } = Property.useObjects()
+    const create = Property.useCreate({ organization: organization.id }, () => refetch())
 
     useEffect(() => {
         if (objs) {
