@@ -167,5 +167,6 @@
   "containers.FormTableExcelImport.SelectColumn": "Select column",
   "containers.FormTableExcelImport.NextStepButtonLabel": "Next",
   "errors.NotDefined": "Value is not defined",
-  "logout": "Logout"
+  "logout": "Logout",
+  "loading": "Loading"
 }
