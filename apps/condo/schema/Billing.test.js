@@ -8,7 +8,7 @@ if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 const faker = require('faker')
 const { getRandomString } = require('@core/keystone/test.utils')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('./User.test')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('../utils/testSchema/User')
 const { BillingIntegration, BillingIntegrationAccessRight, BillingIntegrationOrganizationContext, BillingIntegrationLog } = require('./Billing.gql')
 const { makeClientWithProperty } = require('./Property/Property.test')
 

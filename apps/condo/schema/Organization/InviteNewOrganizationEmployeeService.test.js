@@ -7,7 +7,7 @@ const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const conf = require('@core/config')
 const { inviteNewOrganizationEmployee, makeClientWithRegisteredOrganization } = require('../../utils/testSchema/Organization')
 const { ALREADY_EXISTS_ERROR } = require('../../constants/errors')
-const { createUser } = require('../User.test')
+const { createUser } = require('../../utils/testSchema/User')
 
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../../index'))
 

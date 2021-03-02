@@ -5,7 +5,7 @@
 const { setFakeClientMode } = require('@core/keystone/test.utils')
 const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const conf = require('@core/config')
-const { createUser } = require('../User.test')
+const { createUser } = require('../../utils/testSchema/User')
 const { createOrganization } = require('../../utils/testSchema/Organization')
 const { Organization } = require('../../gql/Organization')
 

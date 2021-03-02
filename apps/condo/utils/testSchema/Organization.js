@@ -1,5 +1,5 @@
 const faker = require('faker')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('../../schema/User.test')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('./User')
 const { Organization, OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION, ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } = require('../../gql/Organization')
 
 async function createOrganization (client, extraAttrs = {}) {

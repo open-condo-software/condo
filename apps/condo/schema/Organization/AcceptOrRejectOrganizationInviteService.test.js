@@ -9,7 +9,7 @@ const {
 } = require('../../utils/testSchema/Organization')
 const { setFakeClientMode } = require('@core/keystone/test.utils')
 const conf = require('@core/config')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('../User.test')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('../../utils/testSchema/User')
 
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../../index'))
 

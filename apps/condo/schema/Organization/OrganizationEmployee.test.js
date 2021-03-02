@@ -9,7 +9,7 @@ const faker = require('faker')
 const { createOrganizationEmployee } = require('../../utils/testSchema/Organization')
 const { makeClientWithRegisteredOrganization } = require('../../utils/testSchema/Organization')
 const { getRandomString } = require('@core/keystone/test.utils')
-const { addAdminAccess } = require('../User.test')
+const { addAdminAccess } = require('../../utils/testSchema/User')
 const { OrganizationEmployee } = require('../../gql/Organization')
 
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../../index'))
