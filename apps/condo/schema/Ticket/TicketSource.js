@@ -33,8 +33,10 @@ const TicketSource = new GQLListSchema('TicketSource', {
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    // TODO(Dimitree):use access check from access.js
+    // TODO(Dimitreee):use access check from access.js
     access: READ_ONLY_ACCESS,
 })
 
-module.exports = { TicketSource }
+module.exports = {
+    TicketSource,
+}

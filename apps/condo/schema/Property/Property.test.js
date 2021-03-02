@@ -5,14 +5,14 @@
 
 const { setFakeClientMode } = require('@core/keystone/test.utils')
 const conf = require('@core/config')
-if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
+if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../../index'))
 
 const faker = require('faker')
 const { UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { makeClientWithRegisteredOrganization } = require('./Organization.test')
-const { buildingMapJson } = require('../constants/property.example')
-const { Property } = require('./Property.gql')
+const { makeClientWithRegisteredOrganization } = require('../Organization.test')
+const { buildingMapJson } = require('../../constants/property.example')
+const { Property } = require('../../gql/Property')
 
 async function createProperty (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')

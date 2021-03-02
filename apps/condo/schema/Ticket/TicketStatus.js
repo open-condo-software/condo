@@ -35,6 +35,7 @@ const TicketStatus = new GQLListSchema('TicketStatus', {
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    // TODO(Dimitreee):use access check from access.js
     access: READ_ONLY_ACCESS,
 })
 

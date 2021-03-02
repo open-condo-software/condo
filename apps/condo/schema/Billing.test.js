@@ -10,7 +10,7 @@ const faker = require('faker')
 const { getRandomString } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('./User.test')
 const { BillingIntegration, BillingIntegrationAccessRight, BillingIntegrationOrganizationContext, BillingIntegrationLog } = require('./Billing.gql')
-const { makeClientWithProperty } = require('./Property.test')
+const { makeClientWithProperty } = require('./Property/Property.test')
 
 async function createBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
