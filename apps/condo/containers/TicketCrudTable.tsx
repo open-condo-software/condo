@@ -1,6 +1,8 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { useIntl } from '../../../packages/@core.next/intl'
 import Link from 'next/link'
-import { SearchInput } from '../components/SearchInput'
+import { GraphQlSearchInput } from '../components/GraphQlSearchInput'
 import { searchProperty, searchTicketClassifier, searchTicketSources } from '../utils/clientSchema/Ticket/search'
 import { Input, Space } from 'antd'
 import { RenderActionsColumn, toGQLSortBy, useTable, ViewOrEditTableBlock } from './FormTableBlocks'
@@ -43,7 +45,7 @@ function useTicketColumns () {
             modal: true,
             create: true,
             editable: true,
-            editableInput: () => <SearchInput search={searchTicketSources}/>,
+            editableInput: () => <GraphQlSearchInput search={searchTicketSources}/>,
             rules: [{ required: true, message: FieldIsRequiredMsg }],
             normalize: normalizeRelation,
             importFromFile: true,
@@ -57,7 +59,7 @@ function useTicketColumns () {
             modal: true,
             create: true,
             editable: true,
-            editableInput: () => <SearchInput search={searchProperty}/>,
+            editableInput: () => <GraphQlSearchInput search={searchProperty}/>,
             rules: [{ required: true, message: FieldIsRequiredMsg }],
             normalize: normalizeRelation,
             importFromFile: true,
@@ -71,7 +73,7 @@ function useTicketColumns () {
             modal: true,
             create: true,
             editable: true,
-            editableInput: () => <SearchInput search={searchTicketClassifier}/>,
+            editableInput: () => <GraphQlSearchInput search={searchTicketClassifier}/>,
             rules: [{ required: true, message: FieldIsRequiredMsg }],
             normalize: normalizeRelation,
             importFromFile: true,

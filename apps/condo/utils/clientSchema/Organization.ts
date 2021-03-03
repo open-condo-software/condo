@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { useMemo } from 'react'
 
 import { useMutation } from '@core/next/apollo'

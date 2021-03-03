@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { Avatar, Dropdown, Menu, Spin, Tag } from 'antd'
 import { LogoutOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 import Router from 'next/router'
