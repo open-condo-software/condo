@@ -16,10 +16,10 @@ const buildingMapJson = {
                     index: 7,
                     name: '7',
                     units: [
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
                     ],
                 },
                 {
@@ -28,10 +28,10 @@ const buildingMapJson = {
                     index: 6,
                     name: '6',
                     units: [
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
                     ],
                 },
                 {
@@ -40,10 +40,10 @@ const buildingMapJson = {
                     index: 5,
                     name: '5',
                     units: [
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
                     ],
                 },
                 {
@@ -52,10 +52,10 @@ const buildingMapJson = {
                     index: 4,
                     name: '4',
                     units: [
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
                     ],
                 },
                 {
@@ -64,10 +64,10 @@ const buildingMapJson = {
                     index: 3,
                     name: '3',
                     units: [
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
                     ],
                 },
                 {
@@ -76,10 +76,10 @@ const buildingMapJson = {
                     index: 2,
                     name: '2',
                     units: [
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
                     ],
                 },
                 {
@@ -88,10 +88,10 @@ const buildingMapJson = {
                     index: 1,
                     name: '1',
                     units: [
-                        { id: unitId++, type: 'unit', name: '1' },
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
-                        { id: unitId++, type: 'unit' },
+                        { id: String(unitId++), type: 'unit', name: '1' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
+                        { id: String(unitId++), type: 'unit' },
                     ],
                 },
                 // {
