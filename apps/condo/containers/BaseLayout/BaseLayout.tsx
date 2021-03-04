@@ -216,7 +216,7 @@ function SideMenu ({ logoLocation, onLogoClick, menuData, menuItemRender, locale
                 <Sider className="side-menu" css={sideMenuDesktopCss} as="aside" width={sideMenuWidth} onCollapse={toggleSideMenuCollapsed}>
                     {(logoLocation === 'sideMenu') ? logo : null}{menu}
                 </Sider>
-                <div css={substrateDesktopCss}/>
+                <div css={substrateDesktopCss} className="side-menu-substrate"/>
             </>
         )
 }
