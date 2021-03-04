@@ -56,111 +56,131 @@ const DEFAULT_MENU = [
     },
 ]
 
+const SIDE_MENU_WIDTH = 200
+
 const layoutCss = css`
-    height: 100%;
-    display: flex;
-    align-items: stretch;
+  height: 100%;
+  display: flex;
+  align-items: stretch;
 `
 
 const subLayoutCss = css`
-    width: 100%;
-    display: flex;
-    align-items: stretch;
+  width: 100%;
+  display: flex;
+  align-items: stretch;
 `
 
 const sideMenuSiderCss = css`
-    z-index: 10;
-    box-shadow: 2px 0 6px rgba(0,21,41,.35);
-    min-height: 100%;
+  z-index: 10;
+  box-shadow: 2px 0 6px rgba(0,21,41,.35);
+  min-height: 100%;
+`
+
+const sideMenuDesktopCss = css`
+  width: ${SIDE_MENU_WIDTH}px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  box-shadow: 2px 0 6px rgba(0,21,41,.35);
+  min-height: 100%;
+`
+
+const substrateDesktopCss = css`
+  width: ${SIDE_MENU_WIDTH}px;
+  min-height: 100%;
 `
 
 const sideMenuLogoCss = css`
-    height: 64px;
-    margin: 0 24px;
-    cursor: pointer;
-    
-    transition: all 0.2s;
-    filter: brightness(10);
-    
-    .ant-layout-sider-collapsed & {
-        height: 48px;
-        margin: 8px 16px;
-    }
+  height: 64px;
+  margin: 0 24px;
+  cursor: pointer;
+
+  transition: all 0.2s;
+  filter: brightness(10);
+
+  .ant-layout-sider-collapsed & {
+    height: 48px;
+    margin: 8px 16px;
+  }
 `
 
 const topMenuCss = css`
-    z-index: 9;
-    background: #fff;
-    padding: 0;
-    box-shadow: 2px 0 6px rgba(0,21,41,.35);
-    min-width: 100%;
-    clear: both;
+  z-index: 9;
+  background: #fff;
+  padding: 0;
+  box-shadow: 2px 0 6px rgba(0,21,41,.35);
+  min-width: 100%;
+  clear: both;
 `
 
 const topMenuLogoCss = css`
-    float: left;
-    height: 64px;
-    margin: 0 24px;
-    cursor: pointer;
+  float: left;
+  height: 64px;
+  margin: 0 24px;
+  cursor: pointer;
 
-    @media (max-width: 768px) {
-        margin: 0 12px;
-        border-radius: 0;
-    }
-    @media (max-width: 480px) {
-        margin: 0 12px;
-        border-radius: 0;
-    }
+  @media (max-width: 768px) {
+    margin: 0 12px;
+    border-radius: 0;
+  }
+  @media (max-width: 480px) {
+    margin: 0 12px;
+    border-radius: 0;
+  }
 `
 
 const pageWrapperCss = css`
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 `
 
 const pageHeaderCss = css`
-    margin: 0 24px 24px;
-    padding: 24px;
-    background: #fff;
+  margin: 0 24px 24px;
+  padding: 24px;
+  background: #fff;
 
-    @media (max-width: 768px) {
-        margin: 0 0 12px;
-    }
-    @media (max-width: 480px) {
-        margin: 0 0 12px;
-    }
+  @media (max-width: 768px) {
+    margin: 0 0 12px;
+  }
+  @media (max-width: 480px) {
+    margin: 0 0 12px;
+  }
 `
 
 const pageContentCss = css`
-    margin: 24px;
-    padding: 24px;
-    background: #fff;
-    border-radius: 2px;
-    
-    @media (max-width: 768px) {
-        margin: 12px 0;
-        border-radius: 0;
-    }
-    @media (max-width: 480px) {
-        margin: 12px 0;
-        border-radius: 0;
-    }
+  margin: 24px;
+  padding: 24px;
+  background: #fff;
+  border-radius: 2px;
+
+  @media (max-width: 768px) {
+    margin: 12px 0;
+    border-radius: 0;
+  }
+  @media (max-width: 480px) {
+    margin: 12px 0;
+    border-radius: 0;
+  }
 `
 
 function renderMenuData (menuData, menuItemRender, localeRender, onClickMenuItem) {
     return menuData.map((item) => {
         if (item.hideInMenu) return null
         const text = item.locale ? localeRender(item.locale) : item.name
+
         return (
-            (item.children && !item.hideChildrenInMenu) ?
-                <SubMenu key={item.path} icon={item.icon} title={menuItemRender(item, text)}
-                    onTitleClick={() => onClickMenuItem(item)}>
-                    {renderMenuData(item.children, menuItemRender, localeRender, onClickMenuItem)}
-                </SubMenu>
-                :
-                <Menu.Item key={item.path} icon={item.icon} onClick={() => onClickMenuItem(item)}>
-                    {menuItemRender(item, text)}
-                </Menu.Item>
+            (item.children && !item.hideChildrenInMenu)
+                ? (
+                    <SubMenu key={item.path} icon={item.icon} title={menuItemRender(item, text)} onTitleClick={() => onClickMenuItem(item)}>
+                        {renderMenuData(item.children, menuItemRender, localeRender, onClickMenuItem)}
+                    </SubMenu>
+                )
+                : (
+                    <Menu.Item key={item.path} icon={item.icon} onClick={() => onClickMenuItem(item)}>
+                        {menuItemRender(item, text)}
+                    </Menu.Item>
+                )
         )
     })
 }
@@ -170,33 +190,35 @@ function SideMenu ({ logoLocation, onLogoClick, menuData, menuItemRender, locale
     const menu = <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
         {renderMenuData(menuData, menuItemRender, localeRender, onClickMenuItem)}
     </Menu>
-    return isMobile ? (
-        <Drawer
-            closable={false}
-            visible={!isSideMenuCollapsed}
-            placement="left"
-            style={{
-                padding: 0,
-                height: '100vh',
-            }}
-            width={sideMenuWidth}
-            bodyStyle={{ height: '100vh', padding: 0 }}
-            className="side-menu"
-            onClose={toggleSideMenuCollapsed}
-        >
-            <Sider css={sideMenuSiderCss} as="aside" width={sideMenuWidth}
-                collapsible collapsed={false} onCollapse={toggleSideMenuCollapsed}
+
+    return isMobile
+        ? (
+            <Drawer
+                closable={false}
+                visible={!isSideMenuCollapsed}
+                placement="left"
+                style={{
+                    padding: 0,
+                    height: '100vh',
+                }}
+                width={sideMenuWidth}
+                bodyStyle={{ height: '100vh', padding: 0 }}
+                className="side-menu"
+                onClose={toggleSideMenuCollapsed}
             >
-                {logo}{menu}
-            </Sider>
-        </Drawer>
-    ) : (
-        <Sider className="side-menu" css={sideMenuSiderCss} as="aside" width={sideMenuWidth}
-            collapsible collapsed={isSideMenuCollapsed} onCollapse={toggleSideMenuCollapsed}
-        >
-            {(logoLocation === 'sideMenu') ? logo : null}{menu}
-        </Sider>
-    )
+                <Sider css={sideMenuSiderCss} as="aside" width={sideMenuWidth} collapsible collapsed={false} onCollapse={toggleSideMenuCollapsed}>
+                    {logo}{menu}
+                </Sider>
+            </Drawer>
+        )
+        : (
+            <>
+                <Sider className="side-menu" css={sideMenuDesktopCss} as="aside" width={sideMenuWidth} onCollapse={toggleSideMenuCollapsed}>
+                    {(logoLocation === 'sideMenu') ? logo : null}{menu}
+                </Sider>
+                <div css={substrateDesktopCss}/>
+            </>
+        )
 }
 
 function BaseLayout ({ children, logoLocation = 'sideMenu', className, style, ...props }) {
@@ -205,7 +227,6 @@ function BaseLayout ({ children, logoLocation = 'sideMenu', className, style, ..
     const intl = useIntl()
     const colSize = useAntdMediaQuery()
     const isMobile = (colSize === 'xs') && !props.disableMobile
-    console.log(isMobile, colSize)
 
     const localeRender = (locale) => intl.formatMessage({ id: locale })
     const menuDataRender = props.menuDataRender || (() => DEFAULT_MENU)
@@ -214,9 +235,6 @@ function BaseLayout ({ children, logoLocation = 'sideMenu', className, style, ..
     const onClickMenuItem = props.onClickMenuItem || ((item) => (item.children) ? null : Router.push(item.path))
     const menuData = menuDataRender()
     const isMenuEmpty = !menuData || menuData.length === 0
-
-    const sideMenuWidth = 200
-
     const [isSideMenuCollapsed, setIsSideMenuCollapsed] = useState((isMobile) ? false : true)
 
     function toggleSideMenuCollapsed () {
@@ -240,17 +258,23 @@ function BaseLayout ({ children, logoLocation = 'sideMenu', className, style, ..
                     menuItemRender,
                     localeRender,
                     onClickMenuItem,
-                    sideMenuWidth,
+                    sideMenuWidth: SIDE_MENU_WIDTH,
                     isMobile,
                     isSideMenuCollapsed,
                     toggleSideMenuCollapsed,
                 }} />
                 <Layout css={subLayoutCss}>
                     <Header className="top-menu" css={topMenuCss}>
-                        {logoLocation === 'topMenu' ? <img css={topMenuLogoCss} src="/logo.svg"
-                            onClick={onLogoClick}/> : null}
-                        <TopMenuItems isMobile={isMobile} isSideMenuCollapsed={isSideMenuCollapsed}
-                            toggleSideMenuCollapsed={toggleSideMenuCollapsed}/>
+                        {
+                            logoLocation === 'topMenu'
+                                ? <img css={topMenuLogoCss} src="/logo.svg" onClick={onLogoClick}/>
+                                : null
+                        }
+                        <TopMenuItems
+                            isMobile={isMobile}
+                            isSideMenuCollapsed={isSideMenuCollapsed}
+                            toggleSideMenuCollapsed={toggleSideMenuCollapsed}
+                        />
                     </Header>
                     {children}
                 </Layout>
