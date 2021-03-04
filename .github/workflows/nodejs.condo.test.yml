@@ -46,7 +46,7 @@ jobs:
             sleep 3
           done
           sleep 1
-          yarn workspace @app/condo test --silent
+          yarn workspace @app/condo test --silent --coverage
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
