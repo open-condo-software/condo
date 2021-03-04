@@ -56,6 +56,7 @@ export default function GlobalStyle () {
 
 const page = css`
 .top-menu-only-layout .side-menu {display: none}
+.top-menu-only-layout .side-menu-substrate {display: none}
 .top-menu-only-layout .page-header {display: none}
 .top-menu-only-layout .top-menu-side-menu-toggle {display: none}
 .top-menu-only-layout .page-wrapper {

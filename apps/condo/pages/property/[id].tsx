@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { Descriptions } from 'antd'
 import React from 'react'
@@ -35,7 +36,6 @@ function PropertyDescriptionBlock ({ obj }) {
 }
 
 function PropertyViewBlock ({ obj, update }) {
-    // const state = obj.map
     function handleSaveState (state) {
         return update({ map: state }, obj)
     }

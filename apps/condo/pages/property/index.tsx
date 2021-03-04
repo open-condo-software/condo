@@ -19,6 +19,7 @@ import FormList, {
 import { useTable } from '../../containers/FormTableBlocks'
 import { AddressSearchInput } from '../../components/AddressSearchInput'
 import * as Property from '../../utils/clientSchema/Property'
+import { buildingMapJson } from '../../constants/property.example'
 
 function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancelModal }) {
     const intl = useIntl()
@@ -128,7 +129,7 @@ function PropertyCRUDListBlock () {
     const table = useTable()
 
     const { objs, count, refetch, loading } = Property.useObjects()
-    const create = Property.useCreate({ organization: organization.id }, () => refetch())
+    const create = Property.useCreate({ organization: organization.id, map: buildingMapJson }, () => refetch())
 
     useEffect(() => {
         if (objs) {

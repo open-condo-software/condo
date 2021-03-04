@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import Head from 'next/head'
 import Link from 'next/link'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { Button, Table, Typography, Space } from 'antd'
 import get from 'lodash/get'
 import qs from 'qs'
@@ -160,7 +160,7 @@ const TicketsPage = () => {
 
     const router = useRouter()
 
-    const { objs: tickets, fetchMore, loading, count } = Ticket.useObjects({
+    const { objs: tickets, fetchMore, refetch, loading, count } = Ticket.useObjects({
         sortBy: router.query.sort,
         offset: Number(router.query.offset),
         limit: PAGINATION_PAGE_SIZE,
@@ -197,6 +197,11 @@ const TicketsPage = () => {
     }, [])
 
     const tableColumns = useMemo(() => getTableColumns(sorter, intl), [sorter])
+
+    // TODO(Dimitreee): fix ticket list refetch problems during page's navigation
+    useEffect(() => {
+        refetch()
+    }, [])
 
     return (
         <>
