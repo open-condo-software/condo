@@ -1,166 +1,212 @@
-let unitId = 1
 
 const buildingMapJson = {
-    dv: 1,
-    type: 'building',
-    sections: [
+    'dv':1,
+    'type':'building',
+    'sections':[
         {
-            id: 1,
-            type: 'section',
-            index: 1,
-            name: 'Подъезд №1',
-            floors: [
+            'id':'1',
+            'type':'section',
+            'index':1,
+            'name':'Подъезд №1',
+            'floors':[
                 {
-                    id: 7,
-                    type: 'floor',
-                    index: 7,
-                    name: '7',
-                    units: [
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
+                    'id':'7',
+                    'type':'floor',
+                    'index':7,
+                    'name':'7',
+                    'units':[
+                        {
+                            'id':'25',
+                            'label':'25',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'26',
+                            'label':'26',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'27',
+                            'label':'27',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'28',
+                            'label':'28',
+                            'type':'unit',
+                        },
                     ],
                 },
                 {
-                    id: 6,
-                    type: 'floor',
-                    index: 6,
-                    name: '6',
-                    units: [
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
+                    'id':'6',
+                    'type':'floor',
+                    'index':6,
+                    'name':'6',
+                    'units':[
+                        {
+                            'id':'21',
+                            'label':'21',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'22',
+                            'label':'22',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'23',
+                            'label':'23',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'24',
+                            'label':'24',
+                            'type':'unit',
+                        },
                     ],
                 },
                 {
-                    id: 5,
-                    type: 'floor',
-                    index: 5,
-                    name: '5',
-                    units: [
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
+                    'id':'5',
+                    'type':'floor',
+                    'index':5,
+                    'name':'5',
+                    'units':[
+                        {
+                            'id':'17',
+                            'label':'17',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'18',
+                            'label':'18',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'19',
+                            'label':'19',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'20',
+                            'label':'20',
+                            'type':'unit',
+                        },
                     ],
                 },
                 {
-                    id: 4,
-                    type: 'floor',
-                    index: 4,
-                    name: '4',
-                    units: [
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
+                    'id':'4',
+                    'type':'floor',
+                    'index':4,
+                    'name':'4',
+                    'units':[
+                        {
+                            'id':'13',
+                            'label':'13',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'14',
+                            'label':'14',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'15',
+                            'label':'15',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'16',
+                            'label':'16',
+                            'type':'unit',
+                        },
                     ],
                 },
                 {
-                    id: 3,
-                    type: 'floor',
-                    index: 3,
-                    name: '3',
-                    units: [
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
+                    'id':'3',
+                    'type':'floor',
+                    'index':3,
+                    'name':'3',
+                    'units':[
+                        {
+                            'id':'9',
+                            'label':'9',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'10',
+                            'label':'10',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'11',
+                            'label':'11',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'12',
+                            'label':'12',
+                            'type':'unit',
+                        },
                     ],
                 },
                 {
-                    id: 2,
-                    type: 'floor',
-                    index: 2,
-                    name: '2',
-                    units: [
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
+                    'id':'2',
+                    'type':'floor',
+                    'index':2,
+                    'name':'2',
+                    'units':[
+                        {
+                            'id':'5',
+                            'label':'5',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'6',
+                            'label':'6',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'7',
+                            'label':'7',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'8',
+                            'label':'8',
+                            'type':'unit',
+                        },
                     ],
                 },
                 {
-                    id: 1,
-                    type: 'floor',
-                    index: 1,
-                    name: '1',
-                    units: [
-                        { id: String(unitId++), type: 'unit', name: '1' },
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
-                        { id: String(unitId++), type: 'unit' },
+                    'id':'1',
+                    'type':'floor',
+                    'index':1,
+                    'name':'1',
+                    'units':[
+                        {
+                            'id':'1',
+                            'label':'1',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'2',
+                            'label':'2',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'3',
+                            'label':'3',
+                            'type':'unit',
+                        },
+                        {
+                            'id':'4',
+                            'label':'4',
+                            'type':'unit',
+                        },
                     ],
                 },
-                // {
-                //     id: -1,
-                //     type: 'floor',
-                //     index: -1,
-                //     name: '-1',
-                //     units: [{ id: unitId++, type: 'unit', name: 'S1' },
-                //         { id: unitId++, type: 'unit', name: 'S2' },
-                //         { id: unitId++, type: 'unit', name: 'S3' },
-                //         { id: unitId++, type: 'unit', name: 'S4' }],
-                // },
-                // {
-                //     id: -2,
-                //     type: 'floor',
-                //     index: -2,
-                //     name: '-2',
-                //     units: [{ id: unitId++, type: 'unit' }, { id: unitId++, type: 'unit' }, {
-                //         id: unitId++,
-                //         type: 'unit',
-                //     }, { id: unitId++, type: 'unit' }],
-                // },
-                // {
-                //     id: -3,
-                //     type: 'floor',
-                //     index: -3,
-                //     name: '-3',
-                //     units: [
-                //         { id: unitId++, type: 'unit' },
-                //         { id: unitId++, type: 'unit' },
-                //         { id: unitId++, type: 'unit' }, { id: unitId++, type: 'unit' }],
-                // },
-                // {
-                //     id: -4,
-                //     type: 'floor',
-                //     index: -4,
-                //     name: '-4',
-                //     units: [
-                //         { id: unitId++, type: 'unit' }, { id: unitId++, type: 'unit' },
-                //         { id: unitId++, type: 'unit' }, { id: unitId++, type: 'unit' }],
-                // },
             ],
         },
-        // {
-        //     id: 2,
-        //     type: 'section',
-        //     name: 'P1/2',
-        //     floors: [
-        //         {
-        //             id: 1,
-        //             type: 'floor',
-        //             index: 1,
-        //             name: '1',
-        //             units: [{ id: unitId++, type: 'unit', name: '22x' }, { id: unitId++, type: 'unit' }],
-        //         },
-        //
-        //         {
-        //             id: 2,
-        //             type: 'floor',
-        //             index: -1,
-        //             name: '-1',
-        //             units: [{ id: unitId++, type: 'unit', name: '11x' }, {
-        //                 id: unitId++,
-        //                 type: 'unit',
-        //                 name: '12x',
-        //             }],
-        //         },
-        //     ],
-        // },
     ],
 }
 

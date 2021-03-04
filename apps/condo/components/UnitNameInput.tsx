@@ -17,17 +17,17 @@ const BaseUnitNameInput:React.FunctionComponent<IUnitNameInputProps> = (props) =
     const options = useMemo(() => {
         const sections = get(property, ['map', 'sections'], [])
 
-        const unflattenFlats = sections.map((section) => {
+        const unflattenUnits = sections.map((section) => {
             const floors = get(section, ['floors'], [])
 
-            return floors.map((floor) => floor.units)
+            return floors.map((floor) => floor.units).reverse()
         })
 
-        const flattenFlats:Array<{ id:string }> = flattenDeep(unflattenFlats)
+        const flattenUnits:Array<{ id:string, label }> = flattenDeep(unflattenUnits)
 
-        return flattenFlats.map(
-            (flat, index) => (
-                <Select.Option key={flat.id} value={flat.id} title={String(index)}>{index + 1}</Select.Option>
+        return flattenUnits.map(
+            (unit) => (
+                <Select.Option key={unit.id} value={unit.id} title={String(unit.label)}>{unit.label}</Select.Option>
             )
         )
 

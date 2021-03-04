@@ -1,175 +1,170 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import styled from '@emotion/styled'
 import { useImmer } from 'use-immer'
 import { Button, Input, Modal, Form, InputNumber, Select } from 'antd'
 import { useState, useRef, useEffect } from 'react'
 import { useIntl } from '@core/next/intl'
-import { addNewBBuildingUnitToSectionData, BBuildingData, createNewBBuildingSectionData } from './BBuildingData'
+import { addNewBBuildingUnitToSectionData, BBuildingData, createNewBBuildingSectionData, updateUnitsLabels } from './BBuildingData'
 
 // TODO(pahaz): translation!
 
 const BPanel = styled.div`
-    background: #fbfbfb;
-    padding: 20px 30px 20px;
-    margin: 0;
+  background: #fbfbfb;
+  padding: 20px 30px 20px;
+  margin: 0;
 `
 
 const BContainer = styled.div`
-    padding: 50px 0 50px 30px;
-    position: relative;
+  padding: 50px 0 50px 30px;
+  position: relative;
 `
 
 const BAxisY = styled.div`
-    left: 20px;
-    top: 100px;
-    bottom: 0;
-    font-size: 11px;
-    text-transform: uppercase;
-    color: #a6a6a6;
-    position: absolute;
+  left: 20px;
+  top: 100px;
+  bottom: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #a6a6a6;
+  position: absolute;
+  text-align: center;
+  letter-spacing: 2px;
+
+  & .bb-text {
+    transform: rotate(-90deg);
+    display: block;
     text-align: center;
-    letter-spacing: 2px;
-    
-    & .bb-text {
-        transform: rotate(-90deg);
-        display: block;
-        text-align: center;
-        position: absolute;
-        vertical-align: middle;
-        top: 26px;
-        left: -134px;
-        white-space: nowrap;
-        width: 200px;
-    }
+    position: absolute;
+    vertical-align: middle;
+    top: 26px;
+    left: -134px;
+    white-space: nowrap;
+    width: 200px;
+  }
 `
 
 const BAxisX = styled.div`
-    left: 70px;
-    top: 20px;
-    right: 0;
-    padding-bottom: 30px;
+  left: 70px;
+  top: 20px;
+  right: 0;
+  padding-bottom: 30px;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #a6a6a6;
+  position: absolute;
+  text-align: center;
+  letter-spacing: 2px;
+
+  & .bb-text {
     font-size: 11px;
     text-transform: uppercase;
     color: #a6a6a6;
     position: absolute;
     text-align: center;
     letter-spacing: 2px;
-    
-    & .bb-text {
-        font-size: 11px;
-        text-transform: uppercase;
-        color: #a6a6a6;
-        position: absolute;
-        text-align: center;
-        letter-spacing: 2px;    
-    }
+  }
 `
 
 const BPlane = styled(BBasePlane)`
-    overflow-x: scroll;
-    position: relative;
-    padding: 0;
-    margin: 0;
-    left: 0;
-    outline: none;
-    
-    ::-webkit-scrollbar {
-        -webkit-appearance: none;
-        width: 7px;
-    }
-    ::-webkit-scrollbar-thumb {
-        border-radius: 4px;
-        background-color: rgba(0, 0, 0, .5);
-        -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
-    }
+  overflow-x: scroll;
+  position: relative;
+  padding: 0;
+  margin: 0;
+  left: 0;
+  outline: none;
+
+  ::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+  }
+  ::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, .5);
+    -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+  }
 `
 
 const BFloor = styled.div`
-    white-space: nowrap;
-    font-size: 0;
-    position: relative;
-    padding: 0;
-    margin: 0;
-    min-height: 32px;
-    height: 32px;
-    vertical-align: middle;
-    display: table;
-    
-    &:hover {
-        background: #fbfbfb45;
-        box-shadow: 0 -1px 0 #eaeaea, 0 1px 0 #eaeaea;
-    }
+  white-space: nowrap;
+  font-size: 0;
+  position: relative;
+  padding: 0;
+  margin: 0;
+  min-height: 32px;
+  height: 32px;
+  vertical-align: middle;
+  display: table;
+
+  &:hover {
+    background: #fbfbfb45;
+    box-shadow: 0 -1px 0 #eaeaea, 0 1px 0 #eaeaea;
+  }
 `
 
 const BSection = styled.div`
-    display: inline-block;
-    vertical-align: inherit;
-    margin: 1px 16px 1px 0;
-    
-    .section-names & {
-        margin: 1px 15px 1px 1px;
-    }
-    
-    .section-names &:hover {
-        outline: 2px solid #ff343a;
-        outline-offset: 2px;
-        outline-offset: -1px;
-    }
-    
-    .floor-names & {
-        margin: 1px
-    }
-    
-    // .floor-names &:hover {
-    //     outline: 2px solid #ff343a;
-    //     outline-offset: 2px;
-    //     outline-offset: -1px;
-    // }
+  display: inline-block;
+  vertical-align: inherit;
+  margin: 1px 16px 1px 0;
+
+  .section-names & {
+    margin: 1px 15px 1px 1px;
+  }
+
+  .section-names &:hover {
+    outline: 2px solid #ff343a;
+    outline-offset: 2px;
+    outline-offset: -1px;
+  }
+
+  .floor-names & {
+    margin: 1px
+  }
 `
 
 const BCellWrapper = styled.div`
-    display: inline-block;
-    vertical-align: inherit;
-    font-size: 15px;
-    margin: 2px;
-    height: 26px;
-    width: 26px;
-    
-    .auto {
-        color: #ffffff80;
-    }
-    
-    .small {
-        font-size: 10px;
-    }
+  display: inline-block;
+  vertical-align: inherit;
+  font-size: 15px;
+  margin: 2px;
+  height: 26px;
+  width: 26px;
+
+  .auto {
+    color: #ffffff80;
+  }
+
+  .small {
+    font-size: 10px;
+  }
 `
 
 const BUnit = styled.div`
-    background-color: #63cba5;
-    color: #fff;
-    font-size: 13px;
-    line-height: 24px;
-    text-align: center;
-    width: 24px;
-    height: 24px;
-    margin: 1px;
-    transform: scale(1, 1);
-    user-select: none;
-    position: relative;
-        
-    :hover {
-        outline: 2px solid #ff343a;
-        outline-offset: 2px;
-    }
+  background-color: #63cba5;
+  color: #fff;
+  font-size: 13px;
+  line-height: 24px;
+  text-align: center;
+  width: 24px;
+  height: 24px;
+  margin: 1px;
+  transform: scale(1, 1);
+  user-select: none;
+  position: relative;
+
+  :hover {
+    outline: 2px solid #ff343a;
+    outline-offset: 2px;
+  }
 `
 
 const BAxisYLabels = styled.div`
-    width: 28px;
-    position: absolute;
-    top: 50px;
-    left: 0;
-    vertical-align: top;
-    text-align: center;
+  width: 28px;
+  position: absolute;
+  top: 50px;
+  left: 0;
+  vertical-align: top;
+  text-align: center;
 `
 
 function BBasePlane ({ className, matrix, onUnitClick, onSectionClick }) {
@@ -190,12 +185,14 @@ function BBasePlane ({ className, matrix, onUnitClick, onSectionClick }) {
                     return <BSection key={key++}>
                         {section.units.map(unit => {
                             return <BCellWrapper key={key++}>
-                                {unit.type === 'unit' ?
-                                    <BUnit
-                                        className={`${unit.isNameAutoGenerated ? ' auto' : ''}${(unit.name && unit.name.length > 3) ? ' small' : ''}`}
-                                        onClick={() => onUnitClick({ section, floor, unit })}
-                                        key={unit.id}>{unit.name}</BUnit>
-                                    : null}
+                                {
+                                    unit.type === 'unit'
+                                        ? <BUnit
+                                            className={`${unit.isNameAutoGenerated ? ' auto' : ''}${(unit.name && unit.name.length > 3) ? ' small' : ''}`}
+                                            onClick={() => onUnitClick({ section, floor, unit })}
+                                            key={unit.id}>{unit.name}</BUnit>
+                                        : null
+                                }
                             </BCellWrapper>
                         })}
                     </BSection>
@@ -492,7 +489,10 @@ export function BBuilder ({ onChangeState, onSaveState, state }) {
     }
 
     function handleSave () {
-        if (onSaveState) onSaveState(data)
+        if (onSaveState) {
+            const dataWithUpdatedLabels = updateUnitsLabels(data)
+            onSaveState(dataWithUpdatedLabels)
+        }
     }
 
     return <>
