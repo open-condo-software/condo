@@ -1,6 +1,6 @@
 import { genReactHooks } from '@core/keystone/gen.gql.react.utils'
 
-import { Ticket } from '../../../schema/Ticket/Ticket.gql'
+import { Ticket } from '../../../gql/Ticket'
 import { getClientSideSenderInfo } from '../../userid.utils'
 
 function convertGQLItemToUIState (item) {

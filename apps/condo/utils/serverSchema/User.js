@@ -1,5 +1,5 @@
 const { execGqlWithoutAccess } = require('./utils')
-const { User } = require('../../schema/User.gql')
+const { User } = require('../../gql/User')
 
 async function findUser (context, query) {
     if (!context) throw new Error('no context')

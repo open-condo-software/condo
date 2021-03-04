@@ -1,13 +1,13 @@
-const { Text, Relationship, Select } = require('@keystonejs/fields')
+const { Text, Select } = require('@keystonejs/fields')
 
 const access = require('@core/keystone/access')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD, UID_FIELD } = require('./_common')
-const { hasRequestAndDbFields } = require('../utils/validation.utils')
-const { DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('../constants/errors')
+const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../_common')
+const { hasRequestAndDbFields } = require('../../utils/validation.utils')
+const { DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('../../constants/errors')
 
 const ACCESS_TO_ALL = {
     read: true,
@@ -90,37 +90,6 @@ const Property = new GQLListSchema('Property', {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }
         },
-    },
-})
-
-// eslint-disable-next-line no-unused-vars
-const PropertyUnit = new GQLListSchema('PropertyUnit', {
-    schemaDoc: 'Property unit. The property is divided into separate `unit` parts, each of which can be owned by an independent owner',
-    fields: {
-        uid: UID_FIELD,
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-        property: {
-            type: Relationship,
-            ref: 'Property',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Relationship only!
-            kmigratorOptions: { null: false },
-        },
-        map: {
-            type: Json,
-            isRequired: true,
-            schemaDoc: 'Unit map/schema',
-            kmigratorOptions: { null: false },
-        },
-    },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: {
-        read: true,
-        create: access.userIsAuthenticated,
-        update: access.userIsAuthenticated,
-        delete: false,
-        auth: true,
     },
 })
 

@@ -5,34 +5,34 @@ const DEFAULT_PAGE_SIZE = 100
 
 function _genGQLName (key) {
     const MODEL = pluralize.singular(key)
-    const MODELs = pluralize.plural(key)
-    return [MODEL, MODELs]
+    const MODELS = pluralize.plural(key)
+    return [MODEL, MODELS]
 }
 
 function genGetAllGQL (key, fields) {
-    const [MODEL, MODELs] = _genGQLName(key)
+    const [MODEL, MODELS] = _genGQLName(key)
     return gql`
-        query getAll${MODELs}($where: ${MODEL}WhereInput, $first: Int = ${DEFAULT_PAGE_SIZE}, $skip: Int, $sortBy: [Sort${MODELs}By!]) {
-            objs: all${MODELs}(where: $where, first: $first, skip: $skip, sortBy: $sortBy) ${fields}
+        query getAll${MODELS}($where: ${MODEL}WhereInput, $first: Int = ${DEFAULT_PAGE_SIZE}, $skip: Int, $sortBy: [Sort${MODELS}By!]) {
+            objs: all${MODELS}(where: $where, first: $first, skip: $skip, sortBy: $sortBy) ${fields}
         }
     `
 }
 
 function genGetCountGQL (key) {
-    const [MODEL, MODELs] = _genGQLName(key)
+    const [MODEL, MODELS] = _genGQLName(key)
     return gql`
-        query get${MODELs}Meta($where: ${MODEL}WhereInput) {
-        meta: _all${MODELs}Meta(where: $where) { count }
+        query get${MODELS}Meta($where: ${MODEL}WhereInput) {
+        meta: _all${MODELS}Meta(where: $where) { count }
         }
     `
 }
 
 function genGetAllWithCountGQL (key, fields) {
-    const [MODEL, MODELs] = _genGQLName(key)
+    const [MODEL, MODELS] = _genGQLName(key)
     return gql`
-        query getAll${MODELs}($where: ${MODEL}WhereInput, $first: Int = ${DEFAULT_PAGE_SIZE}, $skip: Int, $sortBy: [Sort${MODELs}By!]) {
-            objs: all${MODELs}(where: $where, first: $first, skip: $skip, sortBy: $sortBy) ${fields}
-            meta: _all${MODELs}Meta(where: $where) { count }
+        query getAll${MODELS}($where: ${MODEL}WhereInput, $first: Int = ${DEFAULT_PAGE_SIZE}, $skip: Int, $sortBy: [Sort${MODELS}By!]) {
+            objs: all${MODELS}(where: $where, first: $first, skip: $skip, sortBy: $sortBy) ${fields}
+            meta: _all${MODELS}Meta(where: $where) { count }
         }
     `
 }
@@ -65,7 +65,7 @@ function genDeleteGQL (key, fields) {
 }
 
 function genTestGQLUtils (key, fields) {
-    const [MODEL, MODELs] = _genGQLName(key)
+    const [MODEL, MODELS] = _genGQLName(key)
     if (!fields.startsWith('{') || !fields.endsWith('}'))
         throw new Error('wrong list fields format. Try "{ name1 name2 }"')
     const GET_ALL_OBJS_QUERY = genGetAllGQL(MODEL, fields)
@@ -115,7 +115,7 @@ function genTestGQLUtils (key, fields) {
     }
 
     return {
-        MODEL, MODELs,
+        MODEL, MODELS,
         MODEL_FIELDS: fields,
         GET_ALL_OBJS_QUERY,
         GET_COUNT_OBJS_QUERY,

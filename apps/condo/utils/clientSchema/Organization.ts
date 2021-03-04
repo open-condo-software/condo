@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { useMutation } from '@core/next/apollo'
 import { genReactHooks } from '@core/keystone/gen.gql.react.utils'
 
-import { OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } from '../../schema/Organization.gql'
+import { OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } from '../../gql/Organization'
 import { getClientSideSenderInfo } from '../userid.utils'
 
 function convertGQLItemToUIState (item) {

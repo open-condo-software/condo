@@ -1,6 +1,6 @@
 import { genReactHooks } from '@core/keystone/gen.gql.react.utils'
 
-import { Property } from '../../schema/Property.gql'
+import { Property } from '../../gql/Property'
 import { getClientSideSenderInfo } from '../userid.utils'
 
 function convertGQLItemToUIState (item) {
@@ -18,6 +18,7 @@ function convertUIStateToGQLItem (state) {
     return item
 }
 
+// TODO.... fix import
 const {
     useObject,
     useObjects,

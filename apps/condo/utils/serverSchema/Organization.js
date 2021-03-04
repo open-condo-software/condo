@@ -1,5 +1,5 @@
 const countries = require('../../constants/countries')
-const { Organization, OrganizationEmployee, OrganizationEmployeeRole } = require('../../schema/Organization.gql')
+const { Organization, OrganizationEmployee, OrganizationEmployeeRole } = require('../../gql/Organization')
 const { execGqlWithoutAccess } = require('./utils')
 
 async function createOrganization (context, data) {
