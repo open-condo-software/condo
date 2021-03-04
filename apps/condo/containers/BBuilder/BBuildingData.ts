@@ -9,6 +9,8 @@ enum BDataTypes {
 type BDataUnit = {
     type: BDataTypes.Unit,
     id: string | number,
+    name?: string
+    label?: string
 }
 
 type BDataFloor = {
@@ -280,15 +282,7 @@ export function createNewBBuildingSectionData ({ sectionName, maxFloor, minFloor
 }
 
 type Data = {
-    sections: [{
-        floors: [{
-            units: [{
-                name: string,
-                label?: string,
-                id: string
-            }]
-        }]
-    }]
+    sections: Array<BDataSection>
 }
 
 export function updateUnitsLabels (data:Data) {
