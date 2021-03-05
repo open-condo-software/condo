@@ -8,7 +8,6 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 import { Button, Table, Typography, Space } from 'antd'
 import get from 'lodash/get'
 import qs from 'qs'
-import { CREATE_TICKET } from '../../constants/routes'
 
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
@@ -212,7 +211,7 @@ const TicketsPage = () => {
                 <PageHeader
                     title={PageTitleMsg}
                     extra={
-                        <Link href={CREATE_TICKET}>
+                        <Link href={'/ticket/create/'}>
                             <Button type='primary'>
                                 <PlusOutlined/>{CreateTicketButtonLabel}
                             </Button>
