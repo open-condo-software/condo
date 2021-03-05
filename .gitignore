@@ -10,6 +10,7 @@ out
 .expo
 .expo-shared
 web-build
+coverage
 __generated__
 __media
 _example.js
