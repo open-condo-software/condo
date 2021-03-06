@@ -1,13 +1,12 @@
 const axios = require('axios').default
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const gql = require('graphql-tag')
-const { Cookie, CookieJar } = require('tough-cookie')
+const { CookieJar } = require('tough-cookie')
 const { print } = require('graphql/language/printer')
 const crypto = require('crypto')
 const express = require('express')
 const { GQL_LIST_SCHEMA_TYPE } = require('@core/keystone/schema')
 const util = require('util')
-const faker = require('faker')
 const conf = require('@core/config')
 
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
@@ -17,11 +16,12 @@ const NUMBER_RE = /^[1-9][0-9]*$/i
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 const API_PATH = '/admin/api'
-const URL = `http://127.0.0.1:3000${API_PATH}`
-const DEFAULT_TEST_USER_IDENTITY = 'user@example.com'
-const DEFAULT_TEST_USER_SECRET = '1a92b3a07c78'
-const DEFAULT_TEST_ADMIN_IDENTITY = 'admin@example.com'
-const DEFAULT_TEST_ADMIN_SECRET = '3a74b3f07978'
+const DEFAULT_TEST_USER_IDENTITY = conf.DEFAULT_TEST_USER_IDENTITY || 'user@example.com'
+const DEFAULT_TEST_USER_SECRET = conf.DEFAULT_TEST_USER_SECRET || '1a92b3a07c78'
+const DEFAULT_TEST_ADMIN_IDENTITY = conf.DEFAULT_TEST_ADMIN_IDENTITY || 'admin@example.com'
+const DEFAULT_TEST_ADMIN_SECRET = conf.DEFAULT_TEST_ADMIN_SECRET || '3a74b3f07978'
+const TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS = conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
+const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `http://127.0.0.1:3000${API_PATH}`
 
 const SIGNIN_MUTATION = gql`
     mutation sigin($identity: String, $secret: String) {
@@ -29,14 +29,6 @@ const SIGNIN_MUTATION = gql`
             user: item {
                 id
             }
-        }
-    }
-`
-
-const GET_MY_USERINFO = gql`
-    query getUser {
-        user: authenticatedUser {
-            id
         }
     }
 `
@@ -50,6 +42,7 @@ const CREATE_USER_MUTATION = gql`
 `
 
 let __expressApp = null
+let __keystone = null
 let __isAwaiting = false
 
 function setFakeClientMode (path) {
@@ -59,26 +52,30 @@ function setFakeClientMode (path) {
     let mode = null
     if (module.hasOwnProperty('URL_PREFIX') && module.hasOwnProperty('prepareBackApp')) {
         mode = 'multi-server'
-        beforeAll(async (done) => {
+        beforeAll(async () => {
             __expressApp = await module.prepareBackApp()
-            done()
-        }, 20000)
+        }, 10000)
     } else if (module.hasOwnProperty('keystone') && module.hasOwnProperty('apps')) {
         mode = 'keystone'
-        beforeAll(async (done) => {
+        beforeAll(async () => {
             const res = await prepareKeystoneExpressApp(path)
             __expressApp = res.app
-            done()
-        }, 20000)
+            __keystone = res.keystone
+        }, 10000)
+        afterAll(async () => {
+            if (__keystone) await __keystone.disconnect()
+            __keystone = null
+            __expressApp = null
+        }, 10000)
     }
     if (!mode) throw new Error('setFakeServerOption(path) unknown module type')
-    jest.setTimeout(60000)
+    jest.setTimeout(30000)
     __isAwaiting = true
 }
 
 const prepareKeystoneExpressApp = async (entryPoint) => {
     const { distDir, keystone, apps, configureExpress } = require(entryPoint)
-    const dev = process.env.NODE_ENV !== 'production'
+    const dev = process.env.NODE_ENV === 'development'
     const { middlewares } = await keystone.prepare({ apps, distDir, dev })
     await keystone.connect()
     const app = express()
@@ -89,7 +86,7 @@ const prepareKeystoneExpressApp = async (entryPoint) => {
 
 const prepareNextExpressApp = async (dir) => {
     const next = require('next')
-    const dev = process.env.NODE_ENV !== 'production'
+    const dev = process.env.NODE_ENV === 'development'
     const nextApp = next({ dir, dev })
     await nextApp.prepare()
     const app = nextApp.getRequestHandler()
@@ -129,7 +126,7 @@ const makeFakeClient = async (app) => {
                         console.error(err)
                         return reject(err)
                     }
-                    if (res.body && res.body.errors) {
+                    if (res.body && res.body.errors && TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS) {
                         console.warn(util.inspect(res.body.errors, { showHidden: false, depth: null }))
                     }
                     return resolve(res.body)
@@ -151,7 +148,7 @@ const makeFakeClient = async (app) => {
                         console.error(err)
                         return reject(err)
                     }
-                    if (res.body && res.body.errors) {
+                    if (res.body && res.body.errors && TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS) {
                         console.warn(util.inspect(res.body.errors, { showHidden: false, depth: null }))
                     }
                     return resolve(res.body)
@@ -180,7 +177,7 @@ const makeRealClient = async () => {
     return {
         mutate: async (query, variables = {}) => {
             if (query.kind !== 'Document') throw new Error('query is not a gql object')
-            const response = await client.post(URL, {
+            const response = await client.post(TESTS_REAL_CLIENT_REMOTE_API_URL, {
                 query: print(query),
                 variables: JSON.stringify(variables),
             })
@@ -188,7 +185,7 @@ const makeRealClient = async () => {
         },
         query: async (query, variables = {}) => {
             if (query.kind !== 'Document') throw new Error('query is not a gql object')
-            const response = await client.get(URL, {
+            const response = await client.get(TESTS_REAL_CLIENT_REMOTE_API_URL, {
                 params: {
                     query: print(query),
                     variables: JSON.stringify(variables),
@@ -308,10 +305,6 @@ const getSchemaObject = async (schemaList, fields, where) => {
     return result.data.obj
 }
 
-const areWeRunningTests = () => {
-    return process.env.JEST_WORKER_ID !== undefined
-}
-
 class EmptyApp {
     prepareMiddleware ({ keystone, dev, distDir }) {
         return express()
@@ -329,7 +322,6 @@ const isMongo = () => {
 module.exports = {
     isPostgres, isMongo,
     EmptyApp,
-    areWeRunningTests,
     prepareKeystoneExpressApp,
     prepareNextExpressApp,
     setFakeClientMode,
