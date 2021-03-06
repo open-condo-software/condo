@@ -1,17 +1,9 @@
-/**
- * @jest-environment node
- */
-
 const {
     acceptOrRejectOrganizationInviteById,
     inviteNewOrganizationEmployee,
     makeClientWithRegisteredOrganization,
 } = require('../../utils/testSchema/Organization')
-const { setFakeClientMode } = require('@core/keystone/test.utils')
-const conf = require('@core/config')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('../../utils/testSchema/User')
-
-if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../../index'))
 
 // TODO(pahaz): check antonymous ACCEPT_OR_REJECT_BY_ID_MUTATION
 describe('AcceptOrRejectOrganizationInviteService', () => {

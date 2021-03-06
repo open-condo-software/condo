@@ -1,16 +1,8 @@
-/**
- * @jest-environment node
- */
-
-const { setFakeClientMode } = require('@core/keystone/test.utils')
 const { makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const conf = require('@core/config')
 const faker = require('faker')
 const { registerNewOrganization } = require('../../utils/testSchema/Organization')
 const { createUser } = require('../../utils/testSchema/User')
 const { OrganizationEmployee } = require('../../gql/Organization')
-
-if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../../index'))
 
 describe('RegisterNewOrganizationService', () => {
     test('registerNewOrganization() by user', async () => {

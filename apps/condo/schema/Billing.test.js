@@ -1,9 +1,4 @@
-/**
- * @jest-environment node
- */
-
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const conf = require('@core/config')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { BillingIntegrationLog, BillingIntegrationOrganizationContext } = require('../gql/Billing')
 const {
     createBillingIntegrationLog,
@@ -14,8 +9,6 @@ const {
 const { getRandomString } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('../utils/testSchema/User')
 const { makeClientWithProperty } = require('./Property/Property.test')
-
-if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
 
 describe('BillingIntegration', () => {
     test('admin: createBillingIntegration', async () => {

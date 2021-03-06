@@ -1,9 +1,3 @@
-/**
- * @jest-environment node
- */
-
-const { setFakeClientMode } = require('@core/keystone/test.utils')
-const conf = require('@core/config')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const faker = require('faker')
 const { createOrganizationEmployee } = require('../../utils/testSchema/Organization')
@@ -11,8 +5,6 @@ const { makeClientWithRegisteredOrganization } = require('../../utils/testSchema
 const { getRandomString } = require('@core/keystone/test.utils')
 const { addAdminAccess } = require('../../utils/testSchema/User')
 const { OrganizationEmployee } = require('../../gql/Organization')
-
-if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../../index'))
 
 describe('OrganizationEmployee', () => {
     test('anonymous: no access to getAll', async () => {

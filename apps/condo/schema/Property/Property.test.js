@@ -1,12 +1,3 @@
-/**
- * @jest-environment node
- * @test-style 3
- */
-
-const { setFakeClientMode } = require('@core/keystone/test.utils')
-const conf = require('@core/config')
-if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../../index'))
-
 const faker = require('faker')
 const { UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
