@@ -1,11 +1,3 @@
-/**
- * @jest-environment node
- */
-
-const conf = require('@core/config')
-const { setFakeClientMode } = require('@core/keystone/test.utils')
-if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('../index'))
-
 const faker = require('faker')
 const { createUser, registerNewUser } = require('../utils/testSchema/User')
 const { UserAdmin } = require('../gql/User')
