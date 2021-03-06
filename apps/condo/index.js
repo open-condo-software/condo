@@ -8,7 +8,6 @@ const { createItems } = require('@keystonejs/server-side-graphql-client')
 
 const conf = require('@core/config')
 const access = require('@core/keystone/access')
-const { areWeRunningTests } = require('@core/keystone/test.utils')
 const { EmptyApp } = require('@core/keystone/test.utils')
 const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
@@ -88,6 +87,6 @@ module.exports = {
             isAccessAllowed: access.userIsAdmin,
             authStrategy,
         }),
-        !areWeRunningTests() ? new NextApp({ dir: '.' }) : new EmptyApp(),
+        conf.NODE_ENV === 'test' ? new EmptyApp() : new NextApp({ dir: '.' }),
     ],
 }
