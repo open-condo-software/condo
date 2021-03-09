@@ -1,63 +1,14 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import React from 'react'
+import get from 'lodash/get'
 import { Avatar, Dropdown, Menu, Spin, Tag } from 'antd'
 import { LogoutOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 import Router from 'next/router'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
-import styled from '@emotion/styled'
-
-const TopMenuLeftWrapper = styled.div`
-    float: left;
-    height: 100%;
-    overflow: hidden;
-`
-
-const TopMenuRightWrapper = styled.div`
-    float: right;
-    height: 100%;
-    margin-left: auto;
-    overflow: hidden;
-`
-
-const TopMenuItem = styled.div`
-    display: inline-block;
-    height: 100%;
-    padding: 0 24px;
-    cursor: pointer;
-    transition: all 0.3s;
-    > i {
-        vertical-align: middle;
-    }
-    &:hover {
-        background: rgba(0, 0, 0, 0.025);
-    }
-    .avatar {
-        margin-right: 8px;
-    }
-    
-    @media (max-width: 768px) {
-        padding: 0 12px;
-    }
-    @media (max-width: 480px) {
-        .name {
-            display: none;
-        }
-        .avatar {
-            margin-right: 0;
-        }
-        .tag {
-            display: none;
-        }
-        .ellipsable180 {
-              max-width: 180px;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-        }
-    }
-`
+import { TopMenuItem, TopMenuLeftWrapper, TopMenuRightWrapper } from './styles'
 
 function goToSignin () {
     Router.push('/auth/signin')
@@ -67,20 +18,26 @@ function goToOrganization () {
     Router.push('/organizations')
 }
 
-function TopMenuItems ({ isMobile, isSideMenuCollapsed, toggleSideMenuCollapsed }) {
+interface ITopMenuItemsProps {
+    isMobile: boolean
+    toggleSideMenuCollapsed: boolean
+}
+
+const TopMenuItems:React.FunctionComponent<ITopMenuItemsProps> =  (props) => {
     const auth = useAuth()
-    const org = useOrganization()
-    const withDropdownMenu = true
-    const avatarUrl = (auth.user && auth.user.avatar && auth.user.avatar.publicUrl) ? auth.user.avatar.publicUrl : 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png'
-
+    const { isLoading, organization, link } = useOrganization()
     const intl = useIntl()
-    const SignOutMsg = intl.formatMessage({ id: 'SignOut' })
-    const SignInMsg = intl.formatMessage({ id: 'SignIn' })
-    const AvatarMsg = intl.formatMessage({ id: 'Avatar' })
-    const OwnerMsg = intl.formatMessage({ id: 'Owner' })
-    const GuestUsernameMsg = intl.formatMessage({ id: 'baselayout.menuheader.GuestUsername' })
 
-    if (org && org.isLoading || auth.isLoading) {
+    const SignOutMessage = intl.formatMessage({ id: 'SignOut' })
+    const SignInMessage = intl.formatMessage({ id: 'SignIn' })
+    const AvatarMessage = intl.formatMessage({ id: 'Avatar' })
+    const OwnerMessage = intl.formatMessage({ id: 'Owner' })
+    const GuestUsernameMessage = intl.formatMessage({ id: 'baselayout.menuheader.GuestUsername' })
+    const avatarUrl = get(auth, ['user', 'avatar', 'publicUrl'], 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png')
+
+    const { isMobile, toggleSideMenuCollapsed } = props
+
+    if (isLoading || auth.isLoading) {
         return (
             <div>
                 <Spin size="small" style={{ marginLeft: 16, marginRight: 16 }}/>
@@ -88,58 +45,62 @@ function TopMenuItems ({ isMobile, isSideMenuCollapsed, toggleSideMenuCollapsed 
         )
     }
 
-    const menu = (
+    const DropdownOverlay = (
         <Menu>
             <Menu.Item key="signout" onClick={auth.signout}>
-                <LogoutOutlined/> {SignOutMsg}
+                <LogoutOutlined/> {SignOutMessage}
             </Menu.Item>
         </Menu>
     )
 
-    const avatar = (
-        <TopMenuItem>
-            <Avatar
-                size="small"
-                src={avatarUrl}
-                alt={AvatarMsg}
-                className="avatar"
-            />
-            <span className="name">{auth.user ? auth.user.name : GuestUsernameMsg}</span>
-        </TopMenuItem>
+    return (
+        <>
+            {
+                isMobile
+                    ? <TopMenuLeftWrapper className={'top-menu-side-menu-toggle'}>
+                        <TopMenuItem onClick={toggleSideMenuCollapsed}><MenuUnfoldOutlined/></TopMenuItem>
+                    </TopMenuLeftWrapper>
+                    : null
+            }
+            {
+                organization
+                    ? <TopMenuLeftWrapper>
+                        <TopMenuItem onClick={goToOrganization}>
+                            <div className="ellipsable">
+                                {organization.name}{' '}
+                                {
+                                    (get(link, 'role') === 'owner')
+                                        ? <Tag color="error" className="tag">{OwnerMessage}</Tag>
+                                        : null
+                                }
+                            </div>
+                        </TopMenuItem>
+                    </TopMenuLeftWrapper>
+                    : null
+            }
+            <TopMenuRightWrapper>
+                {
+                    auth.isAuthenticated
+                        ? (
+                            <Dropdown overlay={DropdownOverlay}>
+                                <TopMenuItem>
+                                    <Avatar
+                                        size="small"
+                                        src={avatarUrl}
+                                        alt={AvatarMessage}
+                                        className="avatar"
+                                    />
+                                    <span className="name">{auth.user ? auth.user.name : GuestUsernameMessage}</span>
+                                </TopMenuItem>
+                            </Dropdown>
+                        )
+                        : <TopMenuItem onClick={goToSignin}>
+                            <span className="link">{SignInMessage}</span>
+                        </TopMenuItem>
+                }
+            </TopMenuRightWrapper>
+        </>
     )
-
-    const sigin = (
-        <TopMenuItem onClick={goToSignin}>
-            <span className="link">{SignInMsg}</span>
-        </TopMenuItem>
-    )
-
-    const signedInItems = withDropdownMenu ? (<Dropdown overlay={menu}>{avatar}</Dropdown>) : (avatar)
-    const signedOutItems = (sigin)
-
-    const organizationName = (org && org.organization) ? <TopMenuLeftWrapper>
-        <TopMenuItem onClick={goToOrganization}>
-            <div className="ellipsable180">
-                {org.organization.name}{' '}
-                {(org.link && org.link.role === 'owner') ?
-                    <Tag color="error" className="tag">{OwnerMsg}</Tag>
-                    :
-                    null}
-            </div>
-        </TopMenuItem>
-    </TopMenuLeftWrapper> : null
-
-    const menuCollapser = isMobile ? <TopMenuLeftWrapper className={'top-menu-side-menu-toggle'}>
-        <TopMenuItem onClick={toggleSideMenuCollapsed}><MenuUnfoldOutlined/></TopMenuItem>
-    </TopMenuLeftWrapper> : null
-
-    return (<>
-        {menuCollapser}
-        {organizationName}
-        <TopMenuRightWrapper>
-            {auth.isAuthenticated ? signedInItems : signedOutItems}
-        </TopMenuRightWrapper>
-    </>)
 }
 
 export default TopMenuItems

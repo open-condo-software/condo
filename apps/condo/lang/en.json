@@ -46,6 +46,8 @@
   "pages.condo.employee.PageTitle": "Employee",
   "pages.condo.buildings.PageTitle": "Flats",
   "menu.Home": "Dashboard",
+  "menu.Analytics": "Analytics",
+  "menu.ControlRoom": "Control Room",
   "menu.Users": "Users",
   "menu.Property": "Buildings/objects",
   "menu.Tickets": "Tickets",

@@ -4,7 +4,7 @@ import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
-import { DashboardOutlined, ExceptionOutlined, HomeOutlined, UserOutlined } from '@ant-design/icons'
+import { ThunderboltFilled, HomeFilled, HeartFilled, PieChartFilled } from '@ant-design/icons'
 
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
@@ -27,36 +27,30 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 }
 
 function menuDataRender () {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const org = useOrganization()
+
     if (org && org.link) {
         return [
             {
                 path: '/',
-                icon: <DashboardOutlined/>,
-                locale: 'menu.Home',
-            },
-            {
-                path: '/property',
-                icon: <HomeOutlined/>,
-                locale: 'menu.Property',
+                icon: PieChartFilled,
+                locale: 'menu.Analytics',
             },
             {
                 path: '/ticket',
-                icon: <ExceptionOutlined/>,
-                locale: 'menu.Tickets',
+                icon: ThunderboltFilled,
+                locale: 'menu.ControlRoom',
+            },
+            {
+                path: '/property',
+                icon: HomeFilled,
+                locale: 'menu.Property',
             },
             {
                 path: '/employee',
-                icon: <UserOutlined/>,
+                icon: HeartFilled,
                 locale: 'menu.Users',
-            },
-        ]
-    } else {
-        return [
-            {
-                path: '/',
-                icon: <DashboardOutlined/>,
-                locale: 'menu.Home',
             },
         ]
     }
