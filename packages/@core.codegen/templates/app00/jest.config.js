@@ -1,20 +1,19 @@
 module.exports = {
-    testURL: 'http://localhost:3000/',
-    collectCoverageFrom: [
-        '**/*.{js,jsx,ts,tsx}',
-        '!**/*.d.ts',
-        '!**/node_modules/**',
-        // '!**/.next/**',
-    ],
-    setupFilesAfterEnv: [`${__dirname}/jest.setup.js`],
-    testPathIgnorePatterns: ['/node_modules/', '/.next/'],
-    transform: {
-        '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
-    },
-    // moduleNameMapper: {
-    //     '^(@core)/(.*?)/(.*?)$': `${__dirname}/../../packages/$1.$2/$3`
-    // },
-    transformIgnorePatterns: [
-        'node_modules', '.next',
+    projects: [
+        {
+            displayName: 'schema',
+            testEnvironment: 'node',
+            testMatch: [`${__dirname}/schema/**/*.test.js`],
+            setupFilesAfterEnv: [`${__dirname}/jest.setup.js`],
+        },
+        {
+            displayName: 'main',
+            testEnvironment: 'jsdom',
+            testURL: 'http://localhost:3000/',
+            testPathIgnorePatterns: ['/node_modules/', '/.next/', '/dist/', '/.kmigrator/', '/schema/'],
+            transform: {
+                '\\.[jt]sx?$': 'babel-jest',
+            },
+        },
     ],
 }

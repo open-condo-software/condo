@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+const { createschema } = require('@core/codegen')
+createschema(process.argv)
