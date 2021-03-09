@@ -1,0 +1,11 @@
+/* AUTOGENERATE MARKER <IMPORT> */
+const { {{ name }}: {{ name }}GQL } = require('../../gql/{{ domain }}')
+/**/
+
+/* AUTOGENERATE MARKER <CONST> */
+const {{ name }} = generateServerUtils({{ name }}GQL)
+/**/
+
+/* AUTOGENERATE MARKER <EXPORTS> */
+    {{ name }},
+/**/

@@ -3,8 +3,7 @@ import Head from 'next/head'
 import { Typography } from 'antd'
 import ReactMarkdown from 'react-markdown'
 
-import { PageContent, PageHeader, PageWrapper } from '@app/ex02front/containers/BaseLayout'
-import { OrganizationRequired } from '@app/ex02front/containers/OrganizationRequired'
+import { PageContent, PageHeader, PageWrapper } from '@app/condo/containers/BaseLayout'
 
 const IndexPage = () => {
     const intl = useIntl()
@@ -18,11 +17,9 @@ const IndexPage = () => {
         <PageWrapper>
             <PageHeader title={PageTitleMsg}/>
             <PageContent>
-                <OrganizationRequired>
-                    <Typography.Paragraph>
-                        <ReactMarkdown source={WeAreStillDevelopingThisPageMsg}/>
-                    </Typography.Paragraph>
-                </OrganizationRequired>
+                <Typography.Paragraph>
+                    <ReactMarkdown source={WeAreStillDevelopingThisPageMsg}/>
+                </Typography.Paragraph>
             </PageContent>
         </PageWrapper>
     </>

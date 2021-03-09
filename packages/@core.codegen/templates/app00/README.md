@@ -1,4 +1,4 @@
-# {{ name }}
+# {{ name }} quick start
 
 ```
 cat > .env << ENDOFFILE
@@ -48,3 +48,15 @@ docker-compose run app yarn workspace @app/{{ name }} makemigrations
 # migrate current DB to new schema
 docker-compose run app yarn workspace @app/{{ name }} migrate
 ```
+
+# project structure
+
+ - `/access` -- contains keystone.js access check logic. Used on the server side
+ - `/components` -- contains react components. Used on the client side
+ - `/constants` -- contains various constants. Used on the client and server side
+ - `/gql` -- contains all GraphQL queries. Used on the server and client side
+ - `/lang` -- translations. Used on the client and server side
+ - `/pages` -- next.js pages. Used on the client side
+ - `/public` -- next.js static files like design images, icons
+ - `/schema` -- keystone.js based domain models. The GQL API is formed based on these models. Used on the server side
+ - `/utils` -- some utilities functions for the client and server side

@@ -1,0 +1,3 @@
+/* AUTOGENERATE MARKER <IMPORT-EXPORT> */
+export * as {{ name }} from './{{ name }}'
+/**/
