@@ -1,9 +1,15 @@
 import Head from 'next/head'
 import React from 'react'
+import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
 import { TicketForm } from '../../containers/TicketForm'
+import { ArrowLeftOutlined } from '@ant-design/icons'
+import { Typography, Space } from 'antd'
+import { Button } from '../../components/Button'
+import { colors } from '../../constants/style'
+import { useRouter } from 'next/router'
 
 const CreateTicketPage = () => {
     const intl = useIntl()
@@ -25,5 +31,48 @@ const CreateTicketPage = () => {
         </>
     )
 }
+
+const IconContainer = styled.div`
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: ${colors.lightGrey[5]};
+  border-radius: 4px;
+`
+
+const StyledButton = styled(Button)`
+  padding-top: 0;
+  padding-bottom: 0;
+  height: 24px;
+  
+  &:hover {
+    .icon {
+      border: 1px solid ${colors.lightGrey[6]};
+      background-color: ${colors.lightGrey[6]};
+    }
+  }
+`
+
+const HeaderAction = () => {
+    const intl = useIntl()
+    const router = useRouter()
+
+    return (
+        <StyledButton type='link' onClick={() => router.push('/ticket/')}>
+            <Space size={16}>
+                <IconContainer className='icon'>
+                    <ArrowLeftOutlined style={{ color: colors.white }}/>
+                </IconContainer>
+                <Typography.Text className='text'>
+                    {intl.formatMessage({ id: 'menu.ControlRoom' })}
+                </Typography.Text>
+            </Space>
+        </StyledButton>
+    )
+}
+
+CreateTicketPage.headerAction = <HeaderAction/>
 
 export default CreateTicketPage

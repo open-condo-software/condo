@@ -226,4 +226,18 @@ const TicketsPage = () => {
     )
 }
 
+const HeaderAction = () => {
+    const intl = useIntl()
+
+    return (
+        <Space>
+            <Typography.Text>
+                {intl.formatMessage({ id: 'menu.ControlRoom' })}
+            </Typography.Text>
+        </Space>
+    )
+}
+
+TicketsPage.headerAction = <HeaderAction/>
+
 export default TicketsPage

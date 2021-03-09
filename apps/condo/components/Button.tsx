@@ -15,6 +15,7 @@ const buttonCss = (color) => css`
     box-shadow: none;
     background-color: ${color[5]};
     color: ${colors.defaultWhite[5]};
+    border-color: ${color[5]};
   }
 
   &:active {
@@ -32,6 +33,7 @@ const buttonCss = (color) => css`
 
 interface CustomButtonProps extends Omit<ButtonProps, 'type'>{
     type: 'sberDefault' | 'sberPrimary' | ButtonProps['type'],
+    noShadow?: boolean,
 }
 
 export const Button:React.FunctionComponent<CustomButtonProps> = ({ type, ...restProps }) => {

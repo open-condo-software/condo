@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core'
+import { jsx } from '@emotion/core'
 import { createContext, CSSProperties, FunctionComponent, useContext, useState } from 'react'
 import { ConfigProvider, Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import { DashboardOutlined } from '@ant-design/icons'
@@ -11,9 +11,10 @@ import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
 
 import 'antd/dist/antd.less'
-import TopMenuItems from './components/TopMenuItems'
+import { TopMenuItems } from './components/TopMenuItems'
 import { useIntl } from '@core/next/intl'
 import { useAntdMediaQuery } from '../../utils/mediaQuery.utils'
+import { layoutCss , pageContentCss, pageHeaderCss, pageWrapperCss, subLayoutCss, topMenuCss } from './components/styles'
 
 const LayoutContext = createContext({})
 const useLayoutContext = () => useContext(LayoutContext)
@@ -58,61 +59,6 @@ const DEFAULT_MENU = [
     },
 ]
 
-const layoutCss = css`
-  height: 100%;
-  display: flex;
-  align-items: stretch;
-`
-
-const subLayoutCss = css`
-  width: 100%;
-  display: flex;
-  align-items: stretch;
-`
-
-const topMenuCss = css`
-  z-index: 9;
-  background: #fff;
-  padding: 0;
-  box-shadow: 2px 0 6px rgba(0,21,41,.35);
-  min-width: 100%;
-  clear: both;
-`
-
-const pageWrapperCss = css`
-  margin: 0;
-  padding: 0;
-`
-
-const pageHeaderCss = css`
-  margin: 0 24px 24px;
-  padding: 24px;
-  background: #fff;
-
-  @media (max-width: 768px) {
-    margin: 0 0 12px;
-  }
-  @media (max-width: 480px) {
-    margin: 0 0 12px;
-  }
-`
-
-const pageContentCss = css`
-  margin: 24px;
-  padding: 24px;
-  background: #fff;
-  border-radius: 2px;
-
-  @media (max-width: 768px) {
-    margin: 12px 0;
-    border-radius: 0;
-  }
-  @media (max-width: 480px) {
-    margin: 12px 0;
-    border-radius: 0;
-  }
-`
-
 function BaseLayout (props) {
     const {
         children,
@@ -120,6 +66,7 @@ function BaseLayout (props) {
         disableMobile,
         onLogoClick = () => Router.push('/'),
         menuDataRender = () => DEFAULT_MENU,
+        headerAction,
     } = props
 
     let { className } = props
@@ -137,23 +84,21 @@ function BaseLayout (props) {
 
     const toggleSideMenuCollapsed = () => setIsSideMenuCollapsed(!isSideMenuCollapsed)
 
-    const sideMenuProps = {
-        onLogoClick,
-        menuData,
-        isMobile,
-        isSideMenuCollapsed,
-        toggleSideMenuCollapsed,
-    }
-
-    // TODO(pahaz): should we move locale logic from here to other place? (Like AntLocale ?)
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE}>
             <LayoutContext.Provider value={{ isMobile }}>
                 <Layout className={`layout ${className || ''}`} style={style} css={layoutCss} as="section">
-                    <SideMenu {...sideMenuProps}/>
+                    <SideMenu {...{
+                        onLogoClick,
+                        menuData,
+                        isMobile,
+                        isSideMenuCollapsed,
+                        toggleSideMenuCollapsed,
+                    }}/>
                     <Layout css={subLayoutCss}>
-                        <Header className="top-menu" css={topMenuCss}>
+                        <Header css={topMenuCss}>
                             <TopMenuItems
+                                headerAction={headerAction}
                                 isMobile={isMobile}
                                 isSideMenuCollapsed={isSideMenuCollapsed}
                                 toggleSideMenuCollapsed={toggleSideMenuCollapsed}

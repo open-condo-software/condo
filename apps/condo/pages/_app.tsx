@@ -58,6 +58,9 @@ function menuDataRender () {
 
 const MyApp = ({ Component, pageProps }) => {
     const LayoutComponent = Component.container || BaseLayout
+    // TODO(Dimitreee): remove this mess later
+    const HeaderAction = Component.headerAction
+
     return (
         <GlobalErrorBoundary>
             <CacheProvider value={cache}>
@@ -69,7 +72,7 @@ const MyApp = ({ Component, pageProps }) => {
                     />
                 </Head>
                 <GlobalStyle/>
-                <LayoutComponent menuDataRender={menuDataRender}>
+                <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
                     <Component {...pageProps} />
                 </LayoutComponent>
                 <GoogleAnalytics/>
