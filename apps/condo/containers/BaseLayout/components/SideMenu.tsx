@@ -15,6 +15,8 @@ import {
     substrateDesktopCss,
 } from './styles'
 import { Logo } from '../../../components/Logo'
+import { Button } from '../../../components/Button'
+import { PlusCircleFilled } from '@ant-design/icons'
 
 const MenuItems = (props) => {
     const router = useRouter()
@@ -80,6 +82,19 @@ interface ISideMenuProps {
     toggleSideMenuCollapsed: (...args) => void
 }
 
+const TicketCreateButton = () => {
+    const intl = useIntl()
+
+    return (
+        <Link href={'/ticket/create'}>
+            <Button type='sberDefault' size='large' style={{ 'marginTop': '60px' }}>
+                <PlusCircleFilled/>
+                {intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketButtonLabel' })}
+            </Button>
+        </Link>
+    )
+}
+
 export const SideMenu:React.FunctionComponent<ISideMenuProps> = (props) => {
     const { onLogoClick, menuData, isMobile, isSideMenuCollapsed, toggleSideMenuCollapsed } = props
 
@@ -105,6 +120,7 @@ export const SideMenu:React.FunctionComponent<ISideMenuProps> = (props) => {
             >
                 <Logo onClick={onLogoClick}/>
                 <MenuItems menuData={menuData}/>
+                <TicketCreateButton/>
             </Layout.Sider>
         </Drawer>
     )
@@ -120,6 +136,7 @@ export const SideMenu:React.FunctionComponent<ISideMenuProps> = (props) => {
             >
                 <Logo onClick={onLogoClick}/>
                 <MenuItems menuData={menuData}/>
+                <TicketCreateButton/>
             </Layout.Sider>
             {menuData && <div css={substrateDesktopCss} className='side-menu-substrate'/>}
         </>

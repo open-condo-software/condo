@@ -10,7 +10,7 @@ import Router from 'next/router'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
 
-import './antd-custom.less'
+import 'antd/dist/antd.less'
 import TopMenuItems from './components/TopMenuItems'
 import { useIntl } from '@core/next/intl'
 import { useAntdMediaQuery } from '../../utils/mediaQuery.utils'

@@ -155,7 +155,6 @@ const tableStateFromQuery = (router) => {
 const TicketsPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
-    const CreateTicketButtonLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketButtonLabel' })
 
     const router = useRouter()
 
@@ -208,16 +207,7 @@ const TicketsPage = () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <PageHeader
-                    title={PageTitleMsg}
-                    extra={
-                        <Link href={'/ticket/create/'}>
-                            <Button type='primary'>
-                                <PlusOutlined/>{CreateTicketButtonLabel}
-                            </Button>
-                        </Link>
-                    }
-                />
+                <PageHeader title={PageTitleMsg}/>
                 <PageContent>
                     <OrganizationRequired>
                         <Table
