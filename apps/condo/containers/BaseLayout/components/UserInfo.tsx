@@ -23,6 +23,16 @@ function goToOrganization () {
     Router.push('/organizations')
 }
 
+function formatUserName (name) {
+    const splittedName = name.split(' ')
+
+    if (splittedName.length > 2) {
+        return splittedName[0] + '...'
+    } else {
+        return name
+    }
+}
+
 export const UserInfo = () => {
     const intl = useIntl()
     const SignInMessage = intl.formatMessage({ id: 'SignIn' })
@@ -75,8 +85,8 @@ export const UserInfo = () => {
                                         className='avatar'
                                     />
                                     <Button type='link' style={{ paddingRight: 0 }}>
-                                        <Typography.Text ellipsis style={{ color: colors.sberPrimary[6], maxWidth: '34px', fontSize: '12px' }}>
-                                            {auth.user ? auth.user.name : GuestUsernameMessage}
+                                        <Typography.Text ellipsis style={{ color: colors.sberPrimary[6], fontSize: '12px' }}>
+                                            {auth.user ? formatUserName(auth.user.name) : GuestUsernameMessage}
                                         </Typography.Text>
                                     </Button>
                                 </Space>

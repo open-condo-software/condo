@@ -120,7 +120,6 @@ export const UserInfoWrapper = styled.div`
 
 export const UserInfoContainer = styled.div`
   height: 24px;
-  width: 82px;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -137,6 +136,7 @@ export const StyledMenu = styled(Menu)`
   padding: 20px;
   width: 210px;
   box-sizing: border-box;
+  border-radius: 8px;
   transform: translate(-5%, 10px);
 `
 
@@ -150,7 +150,6 @@ export const StyledMenuItem = styled(Menu.Item)`
   align-items: center;
 
   &:first-of-type {
-    border-bottom: none;
     padding: 0 0 14px;
   }
   

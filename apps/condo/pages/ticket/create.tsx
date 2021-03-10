@@ -39,7 +39,7 @@ const IconContainer = styled.div`
   justify-content: center;
   align-items: center;
   background-color: ${colors.lightGrey[5]};
-  border-radius: 4px;
+  border-radius: 8px;
 `
 
 const StyledButton = styled(Button)`
