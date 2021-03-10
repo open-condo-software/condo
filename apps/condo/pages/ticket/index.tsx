@@ -231,7 +231,7 @@ const HeaderAction = () => {
 
     return (
         <Space>
-            <Typography.Text>
+            <Typography.Text style={{ fontSize: '12px' }}>
                 {intl.formatMessage({ id: 'menu.ControlRoom' })}
             </Typography.Text>
         </Space>

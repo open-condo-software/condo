@@ -1,4 +1,3 @@
-import { grey } from '@ant-design/colors'
 import { colors } from '../../../constants/style'
 import { css } from '@emotion/core'
 import styled from '@emotion/styled'
@@ -174,12 +173,13 @@ export const subLayoutCss = css`
   width: 100%;
   display: flex;
   align-items: stretch;
+  background-color: ${colors.white};
 `
 export const topMenuCss = css`
   z-index: 9;
   background: ${colors.white};
   width: 100%;
-  padding: 40px 60px;
+  padding: 40px 48px;
   height: auto;
   display: flex;
   flex-direction: row;
@@ -187,13 +187,22 @@ export const topMenuCss = css`
   line-height: 100%;
 `
 export const pageWrapperCss = css`
+  padding: 0 48px;
   margin: 0;
-  padding: 0;
+
+  @media (max-width: 768px) {
+    padding: 0 12px;
+    border-radius: 0;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0 12px;
+    border-radius: 0;
+  }
 `
 export const pageHeaderCss = css`
-  margin: 0 24px 24px;
-  padding: 24px;
-  background: #fff;
+  padding: 0 0 24px;
+  background: ${colors.white};
 
   @media (max-width: 768px) {
     margin: 0 0 12px;
@@ -203,17 +212,6 @@ export const pageHeaderCss = css`
   }
 `
 export const pageContentCss = css`
-  margin: 24px;
-  padding: 24px;
-  background: #fff;
-  border-radius: 2px;
-
-  @media (max-width: 768px) {
-    margin: 12px 0;
-    border-radius: 0;
-  }
-  @media (max-width: 480px) {
-    margin: 12px 0;
-    border-radius: 0;
-  }
+  max-width: 1200px;
+  background: ${colors.white};
 `

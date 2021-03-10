@@ -43,8 +43,7 @@ const IconContainer = styled.div`
 `
 
 const StyledButton = styled(Button)`
-  padding-top: 0;
-  padding-bottom: 0;
+  padding: 0;
   height: 24px;
   
   &:hover {
@@ -65,8 +64,8 @@ const HeaderAction = () => {
                 <IconContainer className='icon'>
                     <ArrowLeftOutlined style={{ color: colors.white }}/>
                 </IconContainer>
-                <Typography.Text className='text'>
-                    {intl.formatMessage({ id: 'menu.ControlRoom' })}
+                <Typography.Text className='text' style={{ fontSize: '12px' }}>
+                    {intl.formatMessage({ id: 'menu.AllTickets' })}
                 </Typography.Text>
             </Space>
         </StyledButton>

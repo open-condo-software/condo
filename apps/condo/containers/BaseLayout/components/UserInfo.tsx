@@ -24,17 +24,16 @@ function goToOrganization () {
 }
 
 export const UserInfo = () => {
-    const auth = useAuth()
     const intl = useIntl()
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const { organization, link } = useOrganization()
-
     const SignInMessage = intl.formatMessage({ id: 'SignIn' })
     const AvatarMessage = intl.formatMessage({ id: 'Avatar' })
     const GuestUsernameMessage = intl.formatMessage({ id: 'baselayout.menuheader.GuestUsername' })
     const SignOutMessage = intl.formatMessage({ id: 'SignOut' })
     const OwnerMessage = intl.formatMessage({ id: 'Owner' })
+    const auth = useAuth()
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const { organization, link } = useOrganization()
     const avatarUrl = get(auth, ['user', 'avatar', 'publicUrl'])
 
     const DropdownOverlay = (
@@ -71,13 +70,12 @@ export const UserInfo = () => {
                                         size='small'
                                         style={{ backgroundColor: gold[4], borderRadius: '8px' }}
                                         src={avatarUrl}
-                                        icon={<GitlabFilled style={{ color: colors.white }}/>}
+                                        icon={!avatarUrl && <GitlabFilled style={{ color: colors.white }}/>}
                                         alt={AvatarMessage}
                                         className='avatar'
                                     />
-                                    <Button type='link'>
+                                    <Button type='link' style={{ paddingRight: 0 }}>
                                         <Typography.Text ellipsis style={{ color: colors.sberPrimary[6], maxWidth: '34px', fontSize: '12px' }}>
-                                            Константин Константипноаольс
                                             {auth.user ? auth.user.name : GuestUsernameMessage}
                                         </Typography.Text>
                                     </Button>

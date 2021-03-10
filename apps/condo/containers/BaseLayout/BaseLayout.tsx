@@ -9,6 +9,7 @@ import { SideMenu } from './components/SideMenu'
 import Router from 'next/router'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
+import classnames from 'classnames'
 
 import 'antd/dist/antd.less'
 import { TopMenuItems } from './components/TopMenuItems'
@@ -61,15 +62,14 @@ const DEFAULT_MENU = [
 
 function BaseLayout (props) {
     const {
-        children,
         style,
+        children,
+        className,
         disableMobile,
+        headerAction,
         onLogoClick = () => Router.push('/'),
         menuDataRender = () => DEFAULT_MENU,
-        headerAction,
     } = props
-
-    let { className } = props
 
     const intl = useIntl()
     const colSize = useAntdMediaQuery()
@@ -78,16 +78,18 @@ function BaseLayout (props) {
     const menuData = menuDataRender()
     const [isSideMenuCollapsed, setIsSideMenuCollapsed] = useState(!isMobile)
 
-    if (!menuData || menuData.length === 0) {
-        className = className + ' hided-side-menu'
-    }
+    const menuDataClassNames = classnames(
+        'layout',
+        { 'hided-side-menu': !menuData || menuData.length === 0 },
+        className
+    )
 
     const toggleSideMenuCollapsed = () => setIsSideMenuCollapsed(!isSideMenuCollapsed)
 
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE}>
             <LayoutContext.Provider value={{ isMobile }}>
-                <Layout className={`layout ${className || ''}`} style={style} css={layoutCss} as="section">
+                <Layout className={menuDataClassNames} style={style} css={layoutCss} as="section">
                     <SideMenu {...{
                         onLogoClick,
                         menuData,
@@ -119,7 +121,7 @@ interface IPageWrapperProps {
 
 const PageWrapper:FunctionComponent<IPageWrapperProps> =  ({ children, className, style }) => {
     return (
-        <Content className={`page-wrapper ${className || ''}`} css={pageWrapperCss} as="main" style={style}>
+        <Content className={classnames('page-wrapper', className)} css={pageWrapperCss} as="main" style={style}>
             {children}
         </Content>
     )
@@ -135,7 +137,7 @@ interface IPageHeaderProps extends PageHeaderProps {
 const PageHeader:FunctionComponent<IPageHeaderProps> = ({ children, className, style, title, subTitle, ...pageHeaderProps }) => {
     return (
         <AntPageHeader
-            className={`page-header ${className || ''}`} css={pageHeaderCss} style={style}
+            className={classnames('page-header', className)} css={pageHeaderCss} style={style}
             title={title} subTitle={subTitle}
             {...pageHeaderProps}
         >
@@ -151,7 +153,7 @@ interface IPageContentProps {
 
 const PageContent:FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
     return (
-        <div className={`page-content ${className || ''}`} css={pageContentCss} style={style}>
+        <div className={classnames('page-content', className)} css={pageContentCss} style={style}>
             {children}
         </div>
     )

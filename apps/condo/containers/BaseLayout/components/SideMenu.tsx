@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
-import { Drawer, Layout, Typography } from 'antd'
+import { Drawer, Layout, Typography, Space } from 'antd'
 import React, { useCallback } from 'react'
 import { useRouter } from 'next/router'
 import classnames from 'classnames'
@@ -87,7 +87,7 @@ const TicketCreateButton = () => {
 
     return (
         <Link href={'/ticket/create'}>
-            <Button type='sberDefault' size='large' style={{ 'marginTop': '60px' }}>
+            <Button type='sberDefault' size='large'>
                 <PlusCircleFilled/>
                 {intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketButtonLabel' })}
             </Button>
@@ -119,8 +119,10 @@ export const SideMenu:React.FunctionComponent<ISideMenuProps> = (props) => {
                 onCollapse={toggleSideMenuCollapsed}
             >
                 <Logo onClick={onLogoClick}/>
-                <MenuItems menuData={menuData}/>
-                <TicketCreateButton/>
+                <Space size={60} direction={'vertical'}>
+                    <MenuItems menuData={menuData}/>
+                    <TicketCreateButton/>
+                </Space>
             </Layout.Sider>
         </Drawer>
     )
@@ -135,8 +137,10 @@ export const SideMenu:React.FunctionComponent<ISideMenuProps> = (props) => {
                 className='side-menu'
             >
                 <Logo onClick={onLogoClick}/>
-                <MenuItems menuData={menuData}/>
-                <TicketCreateButton/>
+                <Space size={60} direction={'vertical'}>
+                    <MenuItems menuData={menuData}/>
+                    <TicketCreateButton/>
+                </Space>
             </Layout.Sider>
             {menuData && <div css={substrateDesktopCss} className='side-menu-substrate'/>}
         </>

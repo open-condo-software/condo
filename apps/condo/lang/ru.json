@@ -51,6 +51,7 @@
   "menu.Users": "Пользователи",
   "menu.Property": "Объекты",
   "menu.Tickets": "Заявки",
+  "menu.AllTickets": "Все заявки",
   "menu.Employee": "Сотрудники",
   "menu.Residents": "Жители",
   "Welcome": "Привет, {name}!",

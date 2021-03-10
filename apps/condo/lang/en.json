@@ -51,6 +51,7 @@
   "menu.Users": "Users",
   "menu.Property": "Buildings/objects",
   "menu.Tickets": "Tickets",
+  "menu.AllTickets": "All tickets",
   "menu.Employee": "Employee",
   "menu.Residents": "Residents",
   "Welcome": "Hello, {name}!",
