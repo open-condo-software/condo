@@ -1,0 +1,9 @@
+import styled from '@emotion/styled'
+import { colors } from '../constants/style'
+
+export const FocusContainer = styled.div`
+  margin: 0 -24px;
+  border: 1px solid ${colors.lightGrey[5]};
+  border-radius: 8px;
+  padding: 24px;
+`
