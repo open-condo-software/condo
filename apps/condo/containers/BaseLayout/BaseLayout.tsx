@@ -87,7 +87,7 @@ function BaseLayout (props) {
     const toggleSideMenuCollapsed = () => setIsSideMenuCollapsed(!isSideMenuCollapsed)
 
     return (
-        <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE}>
+        <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
             <LayoutContext.Provider value={{ isMobile }}>
                 <Layout className={menuDataClassNames} style={style} css={layoutCss} as="section">
                     <SideMenu {...{
