@@ -1,4 +1,4 @@
-const { Text, Relationship, Integer } = require('@keystonejs/fields')
+const { Text, Relationship, Integer, DateTimeUtc } = require('@keystonejs/fields')
 const { JSON_UNKNOWN_VERSION_ERROR } = require('../../constants/errors')
 
 const access = require('@core/keystone/access')
@@ -9,7 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { SENDER_FIELD, DV_FIELD } = require('../_common')
 const { hasRequestAndDbFields } = require('../../utils/validation.utils')
-const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR } = require('../../constants/errors')
+const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR } = require('../../constants/errors')
 
 const ACCESS_TO_ALL = {
     read: true,
@@ -210,6 +210,12 @@ const Ticket = new GQLListSchema('Ticket', {
         //     type: Text,
         //     schemaDoc: 'In the case of remote system sync you can store the remote status text',
         // },
+
+        // TODO(Dimitreee): move to server side autogen
+        statusUpdatedAt: {
+            type: DateTimeUtc,
+            schemaDoc: 'Status updated at time',
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: ACCESS_TO_ALL,
@@ -221,6 +227,18 @@ const Ticket = new GQLListSchema('Ticket', {
                 // NOTE: version 1 specific translations. Don't optimize this logic
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+
+            if (resolvedData.statusUpdatedAt) {
+                if (existingItem.statusUpdatedAt) {
+                    if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.statusUpdatedAt)) {
+                        return addValidationError(`${STATUS_UPDATED_AT_ERROR}statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
+                    }
+                } else {
+                    if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.createdAt)) {
+                        return addValidationError(`${STATUS_UPDATED_AT_ERROR}statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
+                    }
+                }
             }
         },
     },

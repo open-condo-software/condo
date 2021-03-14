@@ -1,10 +1,10 @@
 const faker = require('faker')
 const { makeClientWithProperty } = require('../Property/Property.test')
 const { NUMBER_RE, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
+const { OPEN: OPEN_STATUS_ID } = require('../../constants/statusIds')
 
 const { Ticket } = require('../../gql/Ticket')
 
-const OPEN_STATUS_ID = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 const UNKNOWN_CLASSIFIER_ID = '4f4b43d5-0951-425c-9428-945dc6193361'
 const OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
 
@@ -44,6 +44,7 @@ test('user: createTicket()', async () => {
     expect(ticket.status).toEqual(expect.objectContaining({ id: OPEN_STATUS_ID }))
     expect(ticket.statusReopenedCounter).toEqual(0)
     expect(ticket.statusReason).toEqual(null)
+    expect(ticket.statusUpdatedAt).toBeNull()
     expect(ticket.details).toEqual(attrs.details)
     expect(ticket.meta).toEqual(null)
     expect(ticket.organization).toEqual(expect.objectContaining({ id: client.organization.id }))
