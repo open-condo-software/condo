@@ -10,8 +10,7 @@ import { useOrganization } from '../../../packages/@core.next/organization'
 import { Ticket } from '../utils/clientSchema/Ticket'
 import React, { useEffect, useMemo } from 'react'
 import { runMutation } from '../utils/mutations.utils'
-
-const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
+import { OPEN as OPEN_STATUS } from '../constants/statusIds'
 
 function normalizeRelation (value) {
     return (value && typeof value === 'object') ? value.id : value
