@@ -13,6 +13,7 @@ import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
 import { colors } from '../../../constants/style'
+import { green } from '@ant-design/colors'
 import { Button } from '../../../components/Button'
 
 function goToSignin () {
@@ -26,7 +27,7 @@ function goToOrganization () {
 function formatUserName (name) {
     const splittedName = name.split(' ')
 
-    if (splittedName.length > 2) {
+    if (splittedName.length > 1) {
         return splittedName[0] + '...'
     } else {
         return name
@@ -85,7 +86,7 @@ export const UserInfo = () => {
                                         className='avatar'
                                     />
                                     <Button type='link' style={{ paddingRight: 0 }}>
-                                        <Typography.Text ellipsis style={{ color: colors.sberPrimary[6], fontSize: '12px' }}>
+                                        <Typography.Text ellipsis style={{ color: green[6], fontSize: '12px' }}>
                                             {auth.user ? formatUserName(auth.user.name) : GuestUsernameMessage}
                                         </Typography.Text>
                                     </Button>
