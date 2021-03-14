@@ -47,6 +47,11 @@ export default function GlobalStyle () {
         .ant-card .ant-card-head {
             margin-bottom: 0;
         }
+        
+        /*TODO(Dimitreee): remove select style ovveride after select customization*/
+        .ant-select-single.ant-select-open .ant-select-selection-item {
+            color: #434343;
+        }
 
         ${page}
       `}
