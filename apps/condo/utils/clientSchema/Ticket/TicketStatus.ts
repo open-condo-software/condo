@@ -34,5 +34,5 @@ export {
     useCreate,
     useUpdate,
     useDelete,
-    convertGQLItemToFormSelectState
+    convertGQLItemToFormSelectState,
 }

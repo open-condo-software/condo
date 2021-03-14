@@ -1,11 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { PlusOutlined } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import Head from 'next/head'
-import Link from 'next/link'
 import React, { useCallback, useEffect, useMemo } from 'react'
-import { Button, Table, Typography, Space } from 'antd'
+import { Table, Typography, Space } from 'antd'
 import get from 'lodash/get'
 import qs from 'qs'
 
@@ -69,6 +67,9 @@ const getTableColumns = (sortedInfo, intl) => {
             title: intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' }),
             dataIndex: 'details',
             key: 'details',
+            render: (details) => {
+                return (<Typography.Text ellipsis style={{ maxWidth: '200px' }}>{details}</Typography.Text>)
+            },
         },
         {
             title: intl.formatMessage({ id: 'field.Address' }),
