@@ -38,10 +38,6 @@ const StyledSelect = styled(Select)`
   width: 100%;
   font-weight: 700;
   border-radius: 4px;
-
-  .ant-select-single.ant-select-open .ant-select-selection-item {
-    color: ${colors.black};
-  }
 `
 
 export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {

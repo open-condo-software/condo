@@ -75,8 +75,8 @@ const TicketUserInfoField:React.FC<ITicketUserInfoFieldProps> = (props) => {
         let nextUserPhone = formatPhone(get(props, ['user', 'phone'], ''))
 
         if (hidden) {
-            nextUserName = nextUserName.replace(NUMBER_LATIN_CYRILLIC, '*')
-            nextUserPhone = nextUserPhone.replace(NUMBER_LATIN_CYRILLIC, '*')
+            nextUserName = nextUserName ? nextUserName.replace(NUMBER_LATIN_CYRILLIC, '*') : ''
+            nextUserPhone = nextUserPhone ? nextUserPhone.replace(NUMBER_LATIN_CYRILLIC, '*'): ''
         }
 
         setUserInfo({
@@ -86,6 +86,7 @@ const TicketUserInfoField:React.FC<ITicketUserInfoFieldProps> = (props) => {
     }, [hidden])
 
     const toggleUserInfoVisibility = () => setHidden(!hidden)
+    const showPersonalInfoButtonControl = (userInfo.name || userInfo.phone) && props.hidePersonalData
 
     return (
         <Space direction={'vertical'} size={8}>
@@ -112,7 +113,7 @@ const TicketUserInfoField:React.FC<ITicketUserInfoFieldProps> = (props) => {
                     )
                     : `${PhoneShortMessage} ${PhoneNotDefinedMessage}`
                 }
-                {props.hidePersonalData && (
+                {showPersonalInfoButtonControl && (
                     <span>
                         (
                         <Button type={'inlineLink'} onClick={toggleUserInfoVisibility}>
