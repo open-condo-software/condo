@@ -1,7 +1,11 @@
 import React from 'react'
 import { Button, Form, Typography, Input, Row, Col } from 'antd'
 import { Rule } from 'rc-field-form/lib/interface'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { useIntl } from '@core/next/intl'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { useOrganization } from '@core/next/organization'
 import { FormWithAction } from '../containers/FormList'
 import { GraphQlSearchInput } from './GraphQlSearchInput'

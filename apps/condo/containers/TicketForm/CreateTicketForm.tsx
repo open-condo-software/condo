@@ -1,4 +1,6 @@
 import React from 'react'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

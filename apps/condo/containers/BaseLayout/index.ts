@@ -5,5 +5,7 @@ export default BaseLayout
 export {
     TopMenuOnlyLayout,
     useLayoutContext,
-    PageWrapper, PageHeader, PageContent,
+    PageWrapper,
+    PageHeader,
+    PageContent,
 }
