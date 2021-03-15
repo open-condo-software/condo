@@ -6,7 +6,7 @@ import { useMutation } from '@core/next/apollo'
 import { genReactHooks } from '@core/keystone/gen.gql.react.utils'
 
 import { OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } from '../../gql/Organization'
-import { getClientSideSenderInfo } from '../userid.utils'
+import { getClientSideSenderInfo } from '@domains/common/utils/userid.utils'
 
 function convertGQLItemToUIState (item) {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
