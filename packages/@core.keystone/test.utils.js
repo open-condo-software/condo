@@ -74,7 +74,7 @@ function setFakeClientMode (path) {
 }
 
 const prepareKeystoneExpressApp = async (entryPoint) => {
-    const { distDir, keystone, apps, configureExpress } = require(entryPoint)
+    const { distDir, keystone, apps, configureExpress } = (typeof entryPoint === 'string') ? require(entryPoint) : entryPoint
     const dev = process.env.NODE_ENV === 'development'
     const { middlewares } = await keystone.prepare({ apps, distDir, dev })
     await keystone.connect()
