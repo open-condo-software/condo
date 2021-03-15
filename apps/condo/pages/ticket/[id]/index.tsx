@@ -1,7 +1,6 @@
-import { Col, Row, Typography, Space } from 'antd'
+import { Col, Row, Space, Typography } from 'antd'
 import get from 'lodash/get'
-import React, { useEffect, useMemo, useRef } from 'react'
-import { format, formatDuration, intervalToDuration } from 'date-fns'
+import React, { useEffect, useMemo } from 'react'
 import { ArrowLeftOutlined, EditFilled, FilePdfFilled } from '@ant-design/icons'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -18,63 +17,12 @@ import { colors } from '../../../constants/style'
 import { FocusContainer } from '../../../components/FocusContainer'
 
 // TODO:(Dimitreee) move to packages later
-import RU from 'date-fns/locale/ru'
-import EN from 'date-fns/locale/en-US'
-import { PdfGenerator } from '../../../components/PdfGenerator'
-
-const LOCALES = {
-    ru: RU,
-    en: EN,
-}
-
-const getTicketCreateMessage = (intl, ticket) => {
-    if (!ticket) {
-        return
-    }
-
-    const formattedCreatedDate = format(
-        new Date(ticket.createdAt),
-        'dd MMMM HH:mm',
-        { locale: LOCALES[intl.locale] }
-    )
-
-    return `${intl.formatMessage({ id: 'CreatedDate' })} ${formattedCreatedDate}`
-}
-
-const getTicketTitleMessage = (intl, ticket) => {
-    if (!ticket) {
-        return
-    }
-
-    return `${intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' })} № ${ticket.number}`
-}
-
-const getTicketFormattedLastStatusUpdate = (intl, ticket) => {
-    if (!ticket) {
-        return
-    }
-
-    const { createdAt, statusUpdatedAt } = ticket
-    const ticketLastUpdateDate = statusUpdatedAt || createdAt
-
-    const formattedDate = ticketLastUpdateDate
-        ? formatDuration(
-            intervalToDuration({
-                start: new Date(ticketLastUpdateDate),
-                end: new Date(),
-            }),
-            { locale: LOCALES[intl.locale], format: ['months', 'days', 'hours', 'minutes'] }
-        )
-        : ''
-
-    if (ticketLastUpdateDate && !formattedDate) {
-        return intl.formatMessage({ id: 'LessThanMinute' })
-    }
-
-    return formattedDate
-}
-
-const formatPhone = (phone) => phone.replace(/(\d)(\d{3})(\d{3})(\d{2})(\d{2})/,'$1 ($2) $3-$4-$5')
+import {
+    formatPhone,
+    getTicketCreateMessage,
+    getTicketFormattedLastStatusUpdate,
+    getTicketTitleMessage,
+} from '../../../utils/ticket'
 
 interface ITicketDescriptionFieldProps {
     title?: string
@@ -149,9 +97,8 @@ const TicketIdPage = () => {
 
     const router = useRouter()
     const { query: { id } } = router
-    const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
-    const ticketElementRef = useRef(null)
 
+    const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
     const formattedStatusUpdate = useMemo(() => getTicketFormattedLastStatusUpdate(intl, ticket), [ticket])
@@ -175,7 +122,7 @@ const TicketIdPage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[12, 40]} ref={ticketElementRef}>
+                    <Row gutter={[12, 40]}>
                         <Col span={24}>
                             <Row>
                                 <Col span={12}>
@@ -275,20 +222,17 @@ const TicketIdPage = () => {
                                         {UpdateMessage}
                                     </Button>
                                 </Link>
-                                <PdfGenerator elementRef={ticketElementRef} fileName={'Заявка.pdf'}>
-                                    {({ generatePdf, loading }) => (
-                                        <Button
-                                            type={'sberPrimary'}
-                                            icon={<FilePdfFilled />}
-                                            onClick={generatePdf}
-                                            loading={loading}
-                                            disabled={loading}
-                                            secondary
-                                        >
-                                            {PrintMessage}
-                                        </Button>
-                                    )}
-                                </PdfGenerator>
+                                <Button
+                                    type={'sberPrimary'}
+                                    icon={<FilePdfFilled />}
+                                    href={`/ticket/${ticket.id}/pdf`}
+                                    target={'_blank'}
+                                    loading={loading}
+                                    disabled={loading}
+                                    secondary
+                                >
+                                    {PrintMessage}
+                                </Button>
                             </Space>
                         </Col>
                     </Row>
