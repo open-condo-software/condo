@@ -1,23 +1,15 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import React, { useCallback, useMemo } from 'react'
-import { format } from 'date-fns'
 import { Select } from 'antd'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
-import { yellow, orange, grey, green, red } from '@ant-design/colors'
-import RU from 'date-fns/locale/ru'
-import EN from 'date-fns/locale/en-US'
-import get from 'lodash/get'
-import { Ticket, TicketStatus } from '../utils/clientSchema/Ticket'
+import { green , grey, orange, red, yellow } from '@ant-design/colors'
+import { Ticket , TicketStatus } from '../utils/clientSchema/Ticket'
 import { runMutation } from '../utils/mutations.utils'
-import { OPEN, IN_PROGRESS, CANCEL, COMPLETE, DEFFER } from '../constants/statusIds'
+import { CANCEL, COMPLETE, DEFFER, IN_PROGRESS, OPEN } from '../constants/statusIds'
 import { colors } from '../constants/style'
-
-const LOCALES = {
-    ru: RU,
-    en: EN,
-}
+import { getTicketLabel } from '../utils/ticket'
 
 const statusSelectColors = {
     [OPEN]: {
@@ -52,21 +44,6 @@ const StyledSelect = styled(Select)`
   }
 `
 
-const getTicketLabel = (intl, ticket) => {
-    if (!ticket) {
-        return
-    }
-
-    const { createdAt, statusUpdatedAt } = ticket
-    const ticketLastUpdateDate = createdAt || statusUpdatedAt
-    const formattedDate = format(
-        new Date(ticketLastUpdateDate), 'M MMM',
-        { locale: LOCALES[intl.locale] }
-    )
-
-    return `${get(ticket, ['status', 'name'])} ${intl.formatMessage({ id: 'from' })} ${formattedDate}`
-}
-
 export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {
     const intl = useIntl()
     const { objs: statuses, loading } = TicketStatus.useObjects()
@@ -89,7 +66,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {
     }, [ticket])
 
     const { color, backgroundColor } = statusSelectColors[ticket.status.id]
-    const selectValue = { value: ticket.status.id, label: getTicketLabel(intl, ticket) }
+    const selectValue = { value: ticket.status.id, label: getTicketLabel(ticket, intl) }
 
     return (
         <StyledSelect
