@@ -13,7 +13,7 @@ import { useIntl } from '@core/next/intl'
 import { TopMenuOnlyLayout } from '../../containers/BaseLayout'
 
 import firebase, { isFirebaseConfigValid } from '../../utils/firebase.front.utils'
-import { getClientSideSenderInfo } from '../../utils/userid.utils'
+import { getClientSideSenderInfo } from '@domains/common/utils/userid.utils'
 import { getQueryParams } from '../../utils/url.utils'
 import { useAuth } from '@core/next/auth'
 import { QuestionCircleOutlined } from '@ant-design/icons'

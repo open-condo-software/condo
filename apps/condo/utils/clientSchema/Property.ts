@@ -1,7 +1,7 @@
 import { genReactHooks } from '@core/keystone/gen.gql.react.utils'
 
 import { Property } from '../../gql/Property'
-import { getClientSideSenderInfo } from '../userid.utils'
+import { getClientSideSenderInfo } from '@domains/common/utils/userid.utils'
 
 function convertGQLItemToUIState (item) {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
