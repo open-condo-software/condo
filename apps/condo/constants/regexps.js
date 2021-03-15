@@ -1,5 +1,7 @@
 const UPPER_CASE_ALPHANUMERIC_REGEXP = /^[A-Z0-9_]+$/
+const NUMBER_LATIN_CYRILLIC = /\w|[А-я]/g
 
 module.exports = {
     UPPER_CASE_ALPHANUMERIC_REGEXP,
+    NUMBER_LATIN_CYRILLIC,
 }

@@ -186,5 +186,8 @@
   "from": "с",
   "logout": "Выйти",
   "loading": "Loading",
-  "problem": "Проблема"
+  "problem": "Проблема",
+  "show": "Показать",
+  "hide": "Скрыть",
+  "you": "вы"
 }

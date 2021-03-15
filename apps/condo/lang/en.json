@@ -186,5 +186,8 @@
   "from": "from",
   "logout": "Logout",
   "loading": "Loading",
-  "problem": "Problem"
+  "problem": "Problem",
+  "show": "Show",
+  "hide": "Hide",
+  "you": "you"
 }

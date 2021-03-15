@@ -66,7 +66,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {
     }, [ticket])
 
     const { color, backgroundColor } = statusSelectColors[ticket.status.id]
-    const selectValue = { value: ticket.status.id, label: getTicketLabel(ticket, intl) }
+    const selectValue = { value: ticket.status.id, label: getTicketLabel(intl, ticket) }
 
     return (
         <StyledSelect

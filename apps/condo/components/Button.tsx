@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import React from 'react'
 import { css, jsx } from '@emotion/core'
+import { green } from '@ant-design/colors'
 import { Button as DefaultButton, ButtonProps } from 'antd'
 import { colors } from '../constants/style'
 
@@ -55,16 +56,44 @@ const buttonSecondaryCss = (color) => css`
   }
 `
 
+const buttonLinkCss = css`
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+  color: ${green[5]};
+  border: none;
+  height: auto;
+
+  &:hover, &:focus {
+    color: ${green[4]};
+  }
+
+  &:active {
+    color: ${green[3]};
+  }
+
+  &:disabled, &:hover:disabled {
+    color: ${colors.lightGrey[5]};
+  }
+`
+
 interface CustomButtonProps extends Omit<ButtonProps, 'type'>{
-    type: 'sberDefault' | 'sberPrimary' | ButtonProps['type'],
+    type: 'sberDefault' | 'sberPrimary' | 'inlineLink' | ButtonProps['type'],
     secondary?: boolean
 }
 
 export const Button:React.FunctionComponent<CustomButtonProps> = ({ type, secondary, ...restProps }) => {
-    if (type !== 'sberDefault' && type !== 'sberPrimary') {
+    if (type !== 'sberDefault' && type !== 'sberPrimary' && type !== 'inlineLink') {
         return <DefaultButton {...{ ...restProps, type }}/>
     } else {
-        const buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
+        let buttonStyles
+
+        if (type === 'inlineLink') {
+            buttonStyles = buttonLinkCss
+        } else {
+            buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
+        }
 
         return <DefaultButton css={buttonStyles} {...restProps}/>
     }

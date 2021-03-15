@@ -10,7 +10,7 @@ import {
     getTicketCreateMessage,
     getTicketLabel,
     getTicketPdfName,
-    getTicketTitleMessage
+    getTicketTitleMessage,
 } from '../../../utils/ticket'
 import { createPdf } from '../../../utils/pdf'
 import { useRouter } from 'next/router'
@@ -96,7 +96,7 @@ function TicketPdfPage () {
     useEffect(() => {
         if (ticket) {
             refetch()
-            createPdf({ element: containerRef.current, fileName: getTicketPdfName(ticket, intl) }).catch((e) => {
+            createPdf({ element: containerRef.current, fileName: getTicketPdfName(intl, ticket) }).catch((e) => {
                 notification.error({
                     message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
                     description: e.message,
@@ -124,7 +124,7 @@ function TicketPdfPage () {
                         <Col span={20}>
                             <Typography.Title level={1} style={{ margin: '0 0 16px', whiteSpace: 'pre-line' }} >
                                 {`${TicketTitleMessage}
-                                ${String(getTicketLabel(ticket, intl)).toLowerCase()}`}
+                                ${String(getTicketLabel(intl, ticket)).toLowerCase()}`}
                             </Typography.Title>
                             <Typography.Text>
                                 <Typography.Text>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>

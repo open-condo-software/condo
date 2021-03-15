@@ -1,6 +1,6 @@
 import { Col, Row, Space, Typography } from 'antd'
 import get from 'lodash/get'
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { ArrowLeftOutlined, EditFilled, FilePdfFilled } from '@ant-design/icons'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -16,13 +16,21 @@ import { TicketStatusSelect } from '../../../components/TicketStatusSelect'
 import { colors } from '../../../constants/style'
 import { FocusContainer } from '../../../components/FocusContainer'
 
-// TODO:(Dimitreee) move to packages later
 import {
     formatPhone,
     getTicketCreateMessage,
     getTicketFormattedLastStatusUpdate,
     getTicketTitleMessage,
 } from '../../../utils/ticket'
+import { NUMBER_LATIN_CYRILLIC } from '../../../constants/regexps'
+import { UserNameField } from '../../../components/UserNameField'
+
+// TODO(Dimitreee):move to global defs
+interface IUser {
+    name: string
+    id?: string
+    phone?: string
+}
 
 interface ITicketDescriptionFieldProps {
     title?: string
@@ -44,36 +52,75 @@ const TicketDescriptionField:React.FunctionComponent<ITicketDescriptionFieldProp
 
 interface ITicketUserInfoFieldProps {
     title?: string
-    user?: {
-        name: string
-        phone?: string
-    }
+    user?: IUser
+    hidePersonalData?:boolean
 }
 
-const TicketUserInfoField:React.FunctionComponent<ITicketUserInfoFieldProps> = ({ title, user = {} }) => {
+const TicketUserInfoField:React.FC<ITicketUserInfoFieldProps> = (props) => {
     const intl = useIntl()
     const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
     const PhoneNotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefinedShort' })
     const PhoneShortMessage = intl.formatMessage({ id: 'errors.PhoneShort' })
+    const ShowMessage = intl.formatMessage({ id: 'show' })
+    const HideMessage = intl.formatMessage({ id: 'hide' })
 
-    const { name, phone } = user
+    const [userInfo, setUserInfo] = useState({
+        name: get(props, ['user', 'name']),
+        phone: formatPhone(get(props, ['user', 'phone'])),
+    })
+    const [hidden, setHidden] = useState(props.hidePersonalData)
+
+    useEffect(() => {
+        let nextUserName = get(props, ['user', 'name'], '')
+        let nextUserPhone = formatPhone(get(props, ['user', 'phone'], ''))
+
+        if (hidden) {
+            nextUserName = nextUserName.replace(NUMBER_LATIN_CYRILLIC, '*')
+            nextUserPhone = nextUserPhone.replace(NUMBER_LATIN_CYRILLIC, '*')
+        }
+
+        setUserInfo({
+            name: nextUserName,
+            phone: nextUserPhone,
+        })
+    }, [hidden])
+
+    const toggleUserInfoVisibility = () => setHidden(!hidden)
 
     return (
         <Space direction={'vertical'} size={8}>
-            <Typography.Text type={'secondary'}>{title}</Typography.Text>
+            <Typography.Text type={'secondary'}>{props.title}</Typography.Text>
             <Space size={4} direction={'vertical'} style={{ fontSize: '16px' }}>
-                {name
-                    ? <Typography.Text type={'success'}>{name}</Typography.Text>
+                {userInfo.name
+                    ? (
+                        <UserNameField user={{ name: userInfo.name, id: props.user.id }}>
+                            {({ name, postfix }) => (
+                                <Typography.Text>
+                                    <Typography.Text type='success' ellipsis>{name}</Typography.Text>
+                                    {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
+                                </Typography.Text>
+                            )}
+                        </UserNameField>
+                    )
                     : NotDefinedMessage
                 }
-                {phone
+                {userInfo.phone
                     ? (
                         <Typography.Text>
-                            { PhoneShortMessage} <Typography.Text type={'success'}>{formatPhone(phone)}</Typography.Text>
+                            {PhoneShortMessage} <Typography.Text type={'success'}>{userInfo.phone}</Typography.Text>
                         </Typography.Text>
                     )
                     : `${PhoneShortMessage} ${PhoneNotDefinedMessage}`
                 }
+                {props.hidePersonalData && (
+                    <span>
+                        (
+                        <Button type={'inlineLink'} onClick={toggleUserInfoVisibility}>
+                            {String(hidden ? ShowMessage : HideMessage).toLowerCase()}
+                        </Button>
+                        )
+                    </span>
+                )}
             </Space>
         </Space>
     )
@@ -84,8 +131,8 @@ const TicketIdPage = () => {
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const PrintMessage = intl.formatMessage({ id: 'Print' })
-    const TicketInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
-    const UserInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.UserInfo' })
+    const TicketInfoMessage = intl.formatMessage({ id: 'problem' })
+    const ClientInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const FullNameMessage = intl.formatMessage({ id: 'field.FullName' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
@@ -130,7 +177,14 @@ const TicketIdPage = () => {
                                         <Typography.Title level={1} style={{ margin: 0 }}>{TicketTitleMessage}</Typography.Title>
                                         <Typography.Text>
                                             <Typography.Text type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
-                                            <Typography.Text type='success' ellipsis>{get(ticket, ['createdBy', 'name'])}</Typography.Text>
+                                            <UserNameField user={get(ticket, ['createdBy'])}>
+                                                {({ name, postfix }) => (
+                                                    <Typography.Text>
+                                                        <Typography.Text type='success' ellipsis>{name}</Typography.Text>
+                                                        {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
+                                                    </Typography.Text>
+                                                )}
+                                            </UserNameField>
                                         </Typography.Text>
                                     </Space>
                                 </Col>
@@ -176,7 +230,7 @@ const TicketIdPage = () => {
                             <Col span={24}>
                                 <Row gutter={[0, 24]}>
                                     <Col span={24}>
-                                        <Typography.Title level={5}>{UserInfoMessage}</Typography.Title>
+                                        <Typography.Title level={5}>{ClientInfoMessage}</Typography.Title>
                                     </Col>
                                     <Col span={24}>
                                         <Row gutter={[12,12]}>
@@ -189,6 +243,7 @@ const TicketIdPage = () => {
                                             </Col>
                                             <Col span={6}>
                                                 <TicketUserInfoField
+                                                    hidePersonalData
                                                     title={FullNameMessage}
                                                     user={{
                                                         name: ticket.clientName,
