@@ -13,6 +13,7 @@
     "migrate": "./../../bin/kmigrator.py migrate"
   },
   "dependencies": {
+    "@domains": "link:./domains",
     "@emotion/core": "^10.1.1",
     "@emotion/styled": "^10.0.27",
     "@keystonejs/adapter-knex": "^12.0.2",
