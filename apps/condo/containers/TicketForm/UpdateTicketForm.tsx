@@ -13,7 +13,7 @@ interface IUpdateTicketForm {
 
 export const UpdateTicketForm:React.FunctionComponent<IUpdateTicketForm> = ({ id }) => {
     const intl = useIntl()
-    const LoadingMessage = intl.formatMessage({ id: 'loading' })
+    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const { organization } = useOrganization()

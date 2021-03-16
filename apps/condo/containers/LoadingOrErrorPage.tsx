@@ -12,7 +12,7 @@ interface ILoadingOrErrorPageProps {
 
 const LoadingOrErrorPage:React.FunctionComponent<ILoadingOrErrorPageProps> = ({ title, loading, error }) => {
     const intl = useIntl()
-    const LoadingMsg = intl.formatMessage({ id: 'loading' })
+    const LoadingMsg = intl.formatMessage({ id: 'Loading' })
 
     return <>
         <Head>

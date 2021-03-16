@@ -12,6 +12,7 @@ import { UserInfo } from './UserInfo'
 interface ITopMenuItemsProps {
     isMobile: boolean
     toggleSideMenuCollapsed: boolean
+    headerAction?:React.ElementType
 }
 
 export const TopMenuItems:React.FunctionComponent<ITopMenuItemsProps> = (props) => {

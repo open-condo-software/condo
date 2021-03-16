@@ -188,6 +188,7 @@ export const topMenuCss = css`
 export const pageWrapperCss = css`
   padding: 0 48px;
   margin: 0;
+  height: 100%;
 
   @media (max-width: 768px) {
     padding: 0 12px;
@@ -212,5 +213,6 @@ export const pageHeaderCss = css`
 `
 export const pageContentCss = css`
   max-width: 1200px;
+  padding-bottom: 56px;
   background: ${colors.white};
 `

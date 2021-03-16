@@ -15,13 +15,11 @@ const colors = {
     black,
 }
 
-
 const antGlobalVariables = {
     '@border-radius-base': '4px',
     '@white': white,
     '@black': black,
 }
-
 
 module.exports = {
     colors,

@@ -8,6 +8,7 @@ const JSON_WRONG_VERSION_FORMAT_ERROR = '[json:wrongDataVersionFormat:'
 const UNIQUE_ALREADY_EXISTS_ERROR = '[unique:alreadyExists:'
 const REQUIRED_NO_VALUE_ERROR = '[required:noValue:'
 const DV_UNKNOWN_VERSION_ERROR = '[dv:unknownDataVersion:'
+const STATUS_UPDATED_AT_ERROR = '[dv:incorrectStatusUpdatedAt:'
 
 const WRONG_PASSWORD_ERROR = '[passwordAuth:secret:mismatch'
 const EMPTY_PASSWORD_ERROR = '[passwordAuth:secret:notSet'
@@ -32,5 +33,6 @@ module.exports = {
     WRONG_EMAIL_ERROR,
     EMAIL_ALREADY_REGISTERED_ERROR,
     ALREADY_EXISTS_ERROR,
+    STATUS_UPDATED_AT_ERROR,
     WRONG_TEXT_FORMAT,
 }
