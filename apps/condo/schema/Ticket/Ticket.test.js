@@ -1,7 +1,7 @@
 const faker = require('faker')
 const { makeClientWithProperty } = require('../Property/Property.test')
 const { NUMBER_RE, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
-const { OPEN: OPEN_STATUS_ID } = require('../../constants/statusIds')
+const OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
 
 const { Ticket } = require('../../gql/Ticket')
 

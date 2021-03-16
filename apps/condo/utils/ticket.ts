@@ -79,5 +79,5 @@ export const getTicketLabel = (intl, ticket) => {
         { locale: LOCALES[intl.locale] }
     )
 
-    return `${get(ticket, ['status', 'name'])} ${intl.formatMessage({ id: 'from' })} ${formattedDate}`
+    return `${get(ticket, ['status', 'name'])} ${intl.formatMessage({ id: 'From' })} ${formattedDate}`
 }

@@ -225,20 +225,19 @@ const Ticket = new GQLListSchema('Ticket', {
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic
-            } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
-            }
-
-            if (resolvedData.statusUpdatedAt) {
-                if (existingItem.statusUpdatedAt) {
-                    if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.statusUpdatedAt)) {
-                        return addValidationError(`${STATUS_UPDATED_AT_ERROR}statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
-                    }
-                } else {
-                    if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.createdAt)) {
-                        return addValidationError(`${STATUS_UPDATED_AT_ERROR}statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
+                if (resolvedData.statusUpdatedAt) {
+                    if (existingItem.statusUpdatedAt) {
+                        if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.statusUpdatedAt)) {
+                            return addValidationError(`${STATUS_UPDATED_AT_ERROR}statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
+                        }
+                    } else {
+                        if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.createdAt)) {
+                            return addValidationError(`${STATUS_UPDATED_AT_ERROR}statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
+                        }
                     }
                 }
+            } else {
+                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }
         },
     },

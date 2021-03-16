@@ -7,28 +7,28 @@ import { useIntl } from '@core/next/intl'
 import { green , grey, orange, red, yellow } from '@ant-design/colors'
 import { Ticket , TicketStatus } from '../utils/clientSchema/Ticket'
 import { runMutation } from '../utils/mutations.utils'
-import { CANCEL, COMPLETE, DEFFER, IN_PROGRESS, OPEN } from '../constants/statusIds'
+import { PROCESSING, CANCELED, COMPLETED, DEFERRED, NEW_OR_REOPEND } from '../constants/statusTypes'
 import { colors } from '../constants/style'
 import { getTicketLabel } from '../utils/ticket'
 
 const statusSelectColors = {
-    [OPEN]: {
+    [NEW_OR_REOPEND]: {
         color: yellow[9],
         backgroundColor: yellow[2],
     },
-    [IN_PROGRESS]: {
+    [PROCESSING]: {
         color: orange[8],
         backgroundColor: orange[4],
     },
-    [CANCEL]: {
+    [CANCELED]: {
         color: grey[9],
         backgroundColor: colors.lightGrey[5],
     },
-    [COMPLETE]: {
+    [COMPLETED]: {
         color: green[8],
         backgroundColor: green[3],
     },
-    [DEFFER]: {
+    [DEFERRED]: {
         color: red[6],
         backgroundColor: red[2],
     },
@@ -51,8 +51,8 @@ export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {
     }), [ticket])
 
     const options = useMemo(() => statuses.map((status) => {
-        const { value, label } = TicketStatus.convertGQLItemToFormSelectState(status)
-        const { color } = statusSelectColors[value]
+        const { value, label, type } = TicketStatus.convertGQLItemToFormSelectState(status)
+        const { color } = statusSelectColors[type]
 
         return (<Select.Option key={value} value={value} title={label} style={{ color }}>{label}</Select.Option>)
     }), [statuses, ticket])
@@ -61,7 +61,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {
         updateTicketStatus({ status: value, statusUpdatedAt: new Date() })
     }, [ticket])
 
-    const { color, backgroundColor } = statusSelectColors[ticket.status.id]
+    const { color, backgroundColor } = statusSelectColors[ticket.status.type]
     const selectValue = { value: ticket.status.id, label: getTicketLabel(intl, ticket) }
 
     return (

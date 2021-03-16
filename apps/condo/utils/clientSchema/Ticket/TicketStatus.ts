@@ -15,9 +15,9 @@ function convertGQLItemToFormSelectState (item) {
         return {}
     }
 
-    const { name, id } = item
+    const { name, id, type } = item
 
-    return { value: id, label: name }
+    return { value: id, label: name, type }
 }
 
 const {

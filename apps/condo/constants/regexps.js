@@ -1,7 +1,7 @@
 const UPPER_CASE_ALPHANUMERIC_REGEXP = /^[A-Z0-9_]+$/
-const NUMBER_LATIN_CYRILLIC = /\w|[А-я]/g
+const LETTERS_AND_NUMBERS = /[\p{L}\p{N}]/gu
 
 module.exports = {
     UPPER_CASE_ALPHANUMERIC_REGEXP,
-    NUMBER_LATIN_CYRILLIC,
+    LETTERS_AND_NUMBERS,
 }

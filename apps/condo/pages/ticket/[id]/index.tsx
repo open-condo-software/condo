@@ -22,7 +22,7 @@ import {
     getTicketFormattedLastStatusUpdate,
     getTicketTitleMessage,
 } from '../../../utils/ticket'
-import { NUMBER_LATIN_CYRILLIC } from '../../../constants/regexps'
+import { LETTERS_AND_NUMBERS } from '../../../constants/regexps'
 import { UserNameField } from '../../../components/UserNameField'
 
 // TODO(Dimitreee):move to global defs
@@ -61,8 +61,8 @@ const TicketUserInfoField:React.FC<ITicketUserInfoFieldProps> = (props) => {
     const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
     const PhoneNotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefinedShort' })
     const PhoneShortMessage = intl.formatMessage({ id: 'errors.PhoneShort' })
-    const ShowMessage = intl.formatMessage({ id: 'show' })
-    const HideMessage = intl.formatMessage({ id: 'hide' })
+    const ShowMessage = intl.formatMessage({ id: 'Show' })
+    const HideMessage = intl.formatMessage({ id: 'Hide' })
 
     const [userInfo, setUserInfo] = useState({
         name: get(props, ['user', 'name']),
@@ -75,8 +75,8 @@ const TicketUserInfoField:React.FC<ITicketUserInfoFieldProps> = (props) => {
         let nextUserPhone = formatPhone(get(props, ['user', 'phone'], ''))
 
         if (hidden) {
-            nextUserName = nextUserName ? nextUserName.replace(NUMBER_LATIN_CYRILLIC, '*') : ''
-            nextUserPhone = nextUserPhone ? nextUserPhone.replace(NUMBER_LATIN_CYRILLIC, '*'): ''
+            nextUserName = nextUserName ? nextUserName.replace(LETTERS_AND_NUMBERS, '*') : ''
+            nextUserPhone = nextUserPhone ? nextUserPhone.replace(LETTERS_AND_NUMBERS, '*'): ''
         }
 
         setUserInfo({
@@ -132,7 +132,7 @@ const TicketIdPage = () => {
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const PrintMessage = intl.formatMessage({ id: 'Print' })
-    const TicketInfoMessage = intl.formatMessage({ id: 'problem' })
+    const TicketInfoMessage = intl.formatMessage({ id: 'Problem' })
     const ClientInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const FullNameMessage = intl.formatMessage({ id: 'field.FullName' })

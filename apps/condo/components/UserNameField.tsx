@@ -19,7 +19,7 @@ export const UserNameField: React.FC<IUserNameFieldProps> = ({ user, children })
     const auth = useAuth()
     const int = useIntl()
     const id = get(auth, ['user', 'id'])
-    const postfix = user.id === id ? ` (${int.formatMessage({ id: 'you' })})` : ''
+    const postfix = user.id === id ? ` (${int.formatMessage({ id: 'You' })})` : ''
 
     return children({ name: user.name, postfix })
 }

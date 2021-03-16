@@ -183,11 +183,11 @@
   "errors.PdfGenerationError": "К сожалению произошла ошибка, попробуйте обновить страницу",
   "ticketsTable.NumberAndDate": "№ и Дата",
   "ticketsTable.ResidentName": "Фио Жителя",
-  "from": "с",
-  "logout": "Выйти",
-  "loading": "Loading",
-  "problem": "Проблема",
-  "show": "Показать",
-  "hide": "Скрыть",
-  "you": "вы"
+  "From": "с",
+  "Logout": "Выйти",
+  "Loading": "Loading",
+  "Problem": "Проблема",
+  "Show": "Показать",
+  "Hide": "Скрыть",
+  "You": "вы"
 }
