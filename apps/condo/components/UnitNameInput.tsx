@@ -5,8 +5,8 @@ import flattenDeep from 'lodash/flattenDeep'
 import { useObject } from '../utils/clientSchema/Property'
 
 interface IUnitNameInputProps {
-    placeholder: string
     propertyId: string
+    placeholder?: string
 }
 
 const BaseUnitNameInput:React.FunctionComponent<IUnitNameInputProps> = (props) => {

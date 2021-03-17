@@ -6,7 +6,7 @@
     "test": "jest",
     "dev": "keystone dev",
     "debug": "node inspect node_modules/.bin/keystone dev",
-    "build": "keystone build",
+    "build": "node --max_old_space_size=4096 node_modules/.bin/keystone build",
     "start": "keystone start",
     "kmigrator": "./../../bin/kmigrator.py",
     "makemigrations": "./../../bin/kmigrator.py makemigrations",

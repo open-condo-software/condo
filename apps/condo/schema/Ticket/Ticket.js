@@ -1,4 +1,4 @@
-const { Text, Relationship, Integer, DateTimeUtc } = require('@keystonejs/fields')
+const { Text, Relationship, Integer, DateTimeUtc, Checkbox } = require('@keystonejs/fields')
 const { JSON_UNKNOWN_VERSION_ERROR } = require('../../constants/errors')
 
 const access = require('@core/keystone/access')
@@ -193,28 +193,20 @@ const Ticket = new GQLListSchema('Ticket', {
             type: Json,
             schemaDoc: 'In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ...',
         },
-
-        // sourceCreatedAt: {
-        //     type: DateTimeUtc,
-        //     schemaDoc: 'In the case of remote system sync you can store the remote system created at time',
-        // },
-        // sourceUpdatedAt: {
-        //     type: DateTimeUtc,
-        //     schemaDoc: 'In the case of remote system sync you can store the remote system updated at time',
-        // },
-        // sourceSyncAt: {
-        //     type: DateTimeUtc,
-        //     schemaDoc: 'In the case of remote system sync you can store the sync at time',
-        // },
-        // sourceStatus: {
-        //     type: Text,
-        //     schemaDoc: 'In the case of remote system sync you can store the remote status text',
-        // },
-
         // TODO(Dimitreee): move to server side autogen
         statusUpdatedAt: {
             type: DateTimeUtc,
             schemaDoc: 'Status updated at time',
+        },
+        paid: {
+            type: Checkbox,
+            schemaDoc: 'Indicates the ticket is paid',
+            defaultValue: false,
+        },
+        emergency: {
+            type: Checkbox,
+            schemaDoc: 'Indicates the ticket is emergency',
+            defaultValue: false,
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],

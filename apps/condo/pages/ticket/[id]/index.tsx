@@ -170,7 +170,7 @@ const TicketIdPage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[12, 40]}>
+                    <Row gutter={[0, 40]}>
                         <Col span={24}>
                             <Row>
                                 <Col span={12}>

@@ -89,7 +89,7 @@ const TicketCreateButton = () => {
         <Link href={'/ticket/create'}>
             <Button type='sberDefault'>
                 <PlusCircleFilled/>
-                {intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketButtonLabel' })}
+                {intl.formatMessage({ id: 'CreateTicket' })}
             </Button>
         </Link>
     )

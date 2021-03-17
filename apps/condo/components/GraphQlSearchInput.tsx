@@ -7,9 +7,10 @@ import { ApolloClient } from '@apollo/client'
 
 // TODO: add apollo cache shape typings
 interface ISearchInputProps {
-    search: (client: ApolloClient<Record<string, unknown>>, queryArguments: string) => Promise<Array<Record<string, unknown>>>,
+    search: (client: ApolloClient<Record<string, unknown>>, queryArguments: string) => Promise<Array<Record<string, unknown>>>
     onSelect?: (...args: Array<unknown>) => void
-    placeholder: string,
+    placeholder?: string
+    label?: string
 }
 
 export const GraphQlSearchInput:React.FunctionComponent<ISearchInputProps> = (props) => {

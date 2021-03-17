@@ -51,6 +51,8 @@ test('user: createTicket()', async () => {
     expect(ticket.client).toEqual(null)
     expect(ticket.operator).toEqual(null)
     expect(ticket.assignee).toEqual(null)
+    expect(ticket.paid).toEqual(false)
+    expect(ticket.emergency).toEqual(false)
     expect(ticket.executor).toEqual(null)
     expect(ticket.watchers).toEqual([])
     expect(ticket.v).toEqual(1)
