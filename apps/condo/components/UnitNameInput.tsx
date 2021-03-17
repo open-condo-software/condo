@@ -1,4 +1,4 @@
-import { Select, Input } from 'antd'
+import { Select, Input, SelectProps } from 'antd'
 import React, { useMemo } from 'react'
 import get from 'lodash/get'
 import flattenDeep from 'lodash/flattenDeep'
@@ -7,6 +7,7 @@ import { useObject } from '../utils/clientSchema/Property'
 interface IUnitNameInputProps {
     propertyId: string
     placeholder?: string
+    allowClear?: false
 }
 
 const BaseUnitNameInput:React.FunctionComponent<IUnitNameInputProps> = (props) => {

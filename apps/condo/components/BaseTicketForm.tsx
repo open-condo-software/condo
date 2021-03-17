@@ -1,13 +1,11 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { useIntl } from '@core/next/intl'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { useOrganization } from '@core/next/organization'
 import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
 import { Rule } from 'rc-field-form/lib/interface'
 import React from 'react'
-import countries from '../constants/countries'
+import styled from '@emotion/styled'
+import { useAuth } from '@core/next/auth'
 import { FormWithAction } from '../containers/FormList'
 import { searchEmployee, searchProperty, searchTicketClassifier } from '../utils/clientSchema/Ticket/search'
 import { Button } from './Button'
@@ -15,6 +13,8 @@ import { FocusContainer } from './FocusContainer'
 import { GraphQlSearchInput } from './GraphQlSearchInput'
 import { LabelWithInfo } from './LabelWithInfo'
 import { UnitNameInput } from './UnitNameInput'
+import { colors } from '../constants/style'
+import MaskedInput from 'antd-mask-input'
 
 const LAYOUT = {
     labelCol: { span: 8 },
@@ -27,15 +27,12 @@ type IFormFieldsRuleMap = {
 
 function useTicketValidations (): IFormFieldsRuleMap {
     const intl = useIntl()
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const { organization } = useOrganization()
 
     return {
         property: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'SelectIsRequired' }),
+                message: intl.formatMessage({ id: 'field.Property.requiredError' }),
             },
         ],
         unitName: [],
@@ -45,11 +42,30 @@ function useTicketValidations (): IFormFieldsRuleMap {
                 message: intl.formatMessage({ id: 'SelectIsRequired' }),
             },
         ],
-        clientName: [],
+        clientName: [
+            {
+                required: true,
+                min: 2,
+                type: 'string',
+                message: intl.formatMessage({ id: 'field.ClientName.minLengthError' }),
+            },
+        ],
         clientPhone: [
             {
-                pattern: countries[organization.country].phonePattern,
-                message: intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' }),
+                required: true,
+                message: intl.formatMessage({ id: 'field.Phone.requiredError' }),
+            },
+            {
+                validator: (_, value) => {
+                    const phone = value.replace(/\D/g, '')
+                    console.log(phone)
+
+                    if (phone.length != 11) {
+                        return Promise.reject(new Error(intl.formatMessage({ id: 'field.Phone.lengthError' })))
+                    }
+
+                    return Promise.resolve()
+                },
             },
         ],
         clientEmail: [
@@ -61,20 +77,21 @@ function useTicketValidations (): IFormFieldsRuleMap {
         details: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'SelectIsRequired' }),
+                min: 20,
+                message: intl.formatMessage({ id: 'field.Description.lengthError' }),
             },
         ],
         classifier: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'SelectIsRequired' }),
+                message: intl.formatMessage({ id: 'field.Classifier.requiredError' }),
             },
         ],
         executor: [],
         assignee: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'SelectIsRequired' }),
+                message: intl.formatMessage({ id: 'field.Assignee.requiredError' }),
             },
         ],
     }
@@ -90,8 +107,44 @@ interface ITicketFormProps {
     organization: IOrganization
 }
 
+/*
+* 1) Лейблы, плэйсхолдеры +
+* 2) Плашки, скрыть показать инпуты, дисейблить +
+* 3) Ошибки валидации, текста сообщений, показать и валдировать в нужные моменты +
+* 4) Маски, формат данных +
+* 5) Проверить все!
+* */
+
+const FrontLayerContainer = styled.div`
+  margin: 0 -24px;
+  padding: 0 24px 24px;
+  position: relative;
+  user-select: none;
+  ${(props) => props.showLayer && `
+    &:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background-color: ${colors.white};
+        opacity: 0.5;
+        z-index: 1;
+    }
+  `}
+`
+
+const ErrorsContainer = styled.div`
+  padding: 9px 16px;
+  border-radius: 8px;
+  background-color: ${colors.beautifulBlue[5]};
+`
+
 export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) => {
     const intl = useIntl()
+    // TODO(Dimitreee):remove after typo inject
+    const auth = useAuth() as { user: {id:string} }
 
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
@@ -108,6 +161,10 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
     const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
     const PaidLabel = intl.formatMessage({ id: 'Paid' })
 
+    const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
+    const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
+    const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
+
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
 
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
@@ -118,7 +175,7 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
 
     return (
         <>
-            <FormWithAction action={action} initialValues={initialValues} {...LAYOUT}>
+            <FormWithAction action={action} initialValues={initialValues} {...LAYOUT} validateTrigger={['onBlur', 'onSubmit']}>
                 {({ handleSave, isLoading, form }) => (
                     <Row gutter={[0, 40]}>
                         <Col span={24}>
@@ -127,102 +184,189 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
                                     <Col span={24}>
                                         <Typography.Title level={5} style={{ margin: '0' }}>{UserInfoTitle}</Typography.Title>
                                     </Col>
-                                    <Col span={18}>
-                                        <Form.Item name={'property'} label={AddressLabel} rules={validations.property} style={{ margin: 0 }}>
-                                            <GraphQlSearchInput
-                                                search={searchProperty}
-                                                onSelect={() => form.setFieldsValue({ 'unitName': null })}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={4}>
-                                        <Form.Item dependencies={['property']} noStyle>
-                                            {({ getFieldValue }) => (
-                                                <Form.Item name={'unitName'} label={FlatNumberLabel}>
-                                                    <UnitNameInput propertyId={getFieldValue('property')}/>
-                                                </Form.Item>
-                                            )}
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={11}>
-                                        <Form.Item name={'clientName'} rules={validations.clientName} label={FullNameLabel}>
-                                            <Input/>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={11}>
-                                        <Form.Item name={'clientPhone'} rules={validations.clientPhone} label={PhoneLabel}>
-                                            <Input/>
-                                        </Form.Item>
-                                    </Col>
+                                    <Form.Item dependencies={['property']} noStyle>
+                                        {({ getFieldValue }) => {
+                                            const propertyFieldValue = getFieldValue('property')
+
+                                            return (
+                                                <>
+                                                    <Col span={propertyFieldValue ? 18 : 24}>
+                                                        <Form.Item name={'property'} label={AddressLabel} rules={validations.property}>
+                                                            <GraphQlSearchInput
+                                                                search={searchProperty}
+                                                                onSelect={() => form.setFieldsValue({ 'unitName': null })}
+                                                                placeholder={AddressPlaceholder}
+                                                                showArrow={false}
+                                                                allowClear={false}
+                                                                autoFocus
+                                                            />
+                                                        </Form.Item>
+                                                    </Col>
+                                                    {propertyFieldValue && (
+                                                        <Col span={4}>
+                                                            <Form.Item name={'unitName'} label={FlatNumberLabel}>
+                                                                <UnitNameInput
+                                                                    propertyId={propertyFieldValue}
+                                                                    allowClear={false}
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
+                                                    )}
+                                                </>
+                                            )
+                                        }}
+                                    </Form.Item>
+                                    <Form.Item dependencies={['unitName']} noStyle>
+                                        {({ getFieldValue }) => getFieldValue('unitName') && (
+                                            <>
+                                                <Col span={11}>
+                                                    <Form.Item name={'clientName'} rules={validations.clientName} label={FullNameLabel}>
+                                                        <Input/>
+                                                    </Form.Item>
+                                                </Col>
+                                                <Col span={11}>
+                                                    <Form.Item name={'clientPhone'} rules={validations.clientPhone} label={PhoneLabel} validateFirst>
+                                                        <MaskedInput mask={'+1 (111) 111-11-11'} placeholderChar={'0'}/>
+                                                    </Form.Item>
+                                                </Col>
+                                            </>
+                                        )}
+                                    </Form.Item>
+
                                 </Row>
                             </FocusContainer>
                         </Col>
-                        <Col span={24}>
-                            <Row gutter={[0, 24]}>
-                                <Col span={24}>
-                                    <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
-                                        <Input.TextArea rows={3}/>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </Col>
-                        <Col span={24}>
-                            <Row align={'top'} >
-                                <Col span={11}>
-                                    <Form.Item name={'classifier'} rules={validations.classifier} label={ClassifierLabel} >
-                                        <GraphQlSearchInput search={searchTicketClassifier}/>
-                                    </Form.Item>
-                                </Col>
-                                <Col push={2} span={11}>
-                                    <Row>
-                                        <Col span={12}>
-                                            <Form.Item name={'emergency'} label={' '} valuePropName='checked'>
-                                                <Checkbox>{EmergencyLabel}</Checkbox>
-                                            </Form.Item>
+                        <Form.Item noStyle dependencies={['property', 'unitName']}>
+                            {
+                                ({ getFieldsValue }) => {
+                                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
+                                    const disableUserInteraction = !property || !unitName
+
+                                    return (
+                                        <Col span={24}>
+                                            <FrontLayerContainer showLayer={disableUserInteraction}>
+                                                <Row gutter={[0, 40]}>
+                                                    <Col span={24}>
+                                                        <Row gutter={[0, 24]}>
+                                                            <Col span={24}>
+                                                                <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
+                                                            </Col>
+                                                            <Col span={24}>
+                                                                <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
+                                                                    <Input.TextArea rows={3} placeholder={DescriptionPlaceholder} disabled={disableUserInteraction}/>
+                                                                </Form.Item>
+                                                            </Col>
+                                                        </Row>
+                                                    </Col>
+                                                    <Col span={24}>
+                                                        <Row align={'top'} >
+                                                            <Col span={11}>
+                                                                <Form.Item name={'classifier'} rules={validations.classifier} label={ClassifierLabel} >
+                                                                    <GraphQlSearchInput
+                                                                        search={searchTicketClassifier}
+                                                                        allowClear={false}
+                                                                        disabled={disableUserInteraction}
+                                                                    />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col push={2} span={11}>
+                                                                <Row>
+                                                                    <Col span={12}>
+                                                                        <Form.Item name={'emergency'} label={' '} valuePropName='checked'>
+                                                                            <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
+                                                                        </Form.Item>
+                                                                    </Col>
+                                                                    <Col span={12}>
+                                                                        <Form.Item name={'paid'} label={' '} valuePropName='checked'>
+                                                                            <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
+                                                                        </Form.Item>
+                                                                    </Col>
+                                                                </Row>
+                                                            </Col>
+                                                        </Row>
+                                                    </Col>
+                                                    <Col span={24}>
+                                                        <Row justify={'space-between'} gutter={[0, 24]}>
+                                                            <Col span={24}>
+                                                                <Typography.Title level={5} style={{ margin: '0' }}>{TicketPurposeTitle}</Typography.Title>
+                                                            </Col>
+                                                            <Col span={11}>
+                                                                <Form.Item
+                                                                    name={'executor'}
+                                                                    rules={validations.executor}
+                                                                    label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel}/>}
+                                                                    initialValue={auth.user.id}
+                                                                >
+                                                                    <GraphQlSearchInput
+                                                                        search={searchEmployee(organization.id)}
+                                                                        allowClear={false}
+                                                                        showArrow={false}
+                                                                        disabled={disableUserInteraction}
+                                                                    />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col span={11}>
+                                                                <Form.Item
+                                                                    name={'assignee'}
+                                                                    rules={validations.assignee}
+                                                                    label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
+                                                                    initialValue={auth.user.id}
+                                                                >
+                                                                    <GraphQlSearchInput
+                                                                        search={searchEmployee(organization.id)}
+                                                                        allowClear={false}
+                                                                        showArrow={false}
+                                                                        disabled={disableUserInteraction}
+                                                                    />
+                                                                </Form.Item>
+                                                            </Col>
+                                                        </Row>
+                                                    </Col>
+                                                </Row>
+                                            </FrontLayerContainer>
                                         </Col>
-                                        <Col span={12}>
-                                            <Form.Item name={'paid'} label={' '} valuePropName='checked'>
-                                                <Checkbox>{PaidLabel}</Checkbox>
-                                            </Form.Item>
-                                        </Col>
-                                    </Row>
-                                </Col>
-                            </Row>
-                        </Col>
-                        <Col span={24}>
-                            <Row justify={'space-between'} gutter={[0, 24]}>
-                                <Col span={24}>
-                                    <Typography.Title level={5} style={{ margin: '0' }}>{TicketPurposeTitle}</Typography.Title>
-                                </Col>
-                                <Col span={11}>
-                                    <Form.Item
-                                        name={'executor'}
-                                        rules={validations.executor}
-                                        label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel}/>}
-                                    >
-                                        <GraphQlSearchInput search={searchEmployee(organization.id)}/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={11}>
-                                    <Form.Item
-                                        name={'assignee'}
-                                        rules={validations.assignee}
-                                        label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
-                                    >
-                                        <GraphQlSearchInput search={searchEmployee(organization.id)}/>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </Col>
+                                    )
+                                }
+                            }
+                        </Form.Item>
                         <Col span={24}>
                             <Row style={{ paddingTop: '20px' }}>
-                                <Form.Item>
-                                    <Button key='submit' onClick={handleSave} type='sberPrimary' loading={isLoading}>
-                                        {CreateTicketMessage}
-                                    </Button>
+                                <Form.Item noStyle dependencies={['property', 'unitName']}>
+                                    {
+                                        ({ getFieldsValue }) => {
+                                            // console.log(form.validateFields(['property', 'unitName']))
+                                            const { property, unitName } = getFieldsValue(['property', 'unitName'])
+                                            const disableUserInteraction = !property || !unitName
+
+                                            return (
+                                                <>
+                                                    <Col>
+                                                        <Button
+                                                            key='submit'
+                                                            onClick={handleSave}
+                                                            type='sberPrimary'
+                                                            loading={isLoading} disabled={disableUserInteraction}
+                                                        >
+                                                            {CreateTicketMessage}
+                                                        </Button>
+                                                    </Col>
+                                                    <Col span={11} push={1}>
+                                                        {disableUserInteraction && (
+                                                            <ErrorsContainer>
+                                                                {ErrorsContainerTitle}&nbsp;
+                                                                {
+                                                                    [!property && AddressLabel, !unitName && FlatNumberLabel]
+                                                                        .filter(Boolean)
+                                                                        .join(', ')
+                                                                        .toLowerCase()
+                                                                }
+                                                            </ErrorsContainer>
+                                                        )}
+                                                    </Col>
+                                                </>
+                                            )
+                                        }
+                                    }
                                 </Form.Item>
                             </Row>
                         </Col>

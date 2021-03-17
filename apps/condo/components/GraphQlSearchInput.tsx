@@ -2,15 +2,20 @@
 // @ts-nocheck
 import { useApolloClient } from '@core/next/apollo'
 import React, { useEffect, useMemo, useState } from 'react'
-import { Select } from 'antd'
+import { Select, SelectProps } from 'antd'
 import { ApolloClient } from '@apollo/client'
 
 // TODO: add apollo cache shape typings
-interface ISearchInputProps {
+interface ISearchInputProps extends SelectProps {
     search: (client: ApolloClient<Record<string, unknown>>, queryArguments: string) => Promise<Array<Record<string, unknown>>>
     onSelect?: (...args: Array<unknown>) => void
     placeholder?: string
     label?: string
+    showArrow?: boolean
+    allowClear?: boolean
+    disabled?: boolean
+    autoFocus?: boolean
+    initialValue?: string
 }
 
 export const GraphQlSearchInput:React.FunctionComponent<ISearchInputProps> = (props) => {

@@ -300,6 +300,7 @@ interface IFormWithAction {
     initialValues?: Record<string, unknown>
     onChange?: (changedValues: Record<string, unknown>, allValues: Record<string, unknown>) => void
     handleSubmit?: (values) => void
+    validateTrigger?: string |string[]
 }
 
 const FormWithAction:FunctionComponent<IFormWithAction> = (props) => {
@@ -322,6 +323,7 @@ const FormWithAction:FunctionComponent<IFormWithAction> = (props) => {
         handleSubmit,
         onChange,
         layout = 'vertical',
+        validateTrigger,
     } = props
 
     const [form] = Form.useForm()
@@ -400,7 +402,9 @@ const FormWithAction:FunctionComponent<IFormWithAction> = (props) => {
             layout={layout}
             onFinish={_handleSubmit}
             initialValues={initialValues}
+            validateTrigger={validateTrigger}
             onValuesChange={handleChange}
+            scrollToFirstError
         >
             <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input/></Form.Item>
             {children({ handleSave, isLoading, handleSubmit: _handleSubmit, form })}
