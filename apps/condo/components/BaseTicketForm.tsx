@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// @ts-nocheck
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
 import { useRouter } from 'next/router'
