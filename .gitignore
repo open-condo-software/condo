@@ -14,6 +14,8 @@ coverage
 __generated__
 __media
 _example.js
+codegen.yaml
+schema.graphql
 
 # yarn + npm
 yarn-error.log
