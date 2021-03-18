@@ -15,7 +15,7 @@ interface ITopMenuItemsProps {
     headerAction?:React.ElementType
 }
 
-export const TopMenuItems:React.FunctionComponent<ITopMenuItemsProps> = (props) => {
+export const TopMenuItems:React.FC<ITopMenuItemsProps> = (props) => {
     const auth = useAuth()
     const { isLoading } = useOrganization()
     const { isMobile, toggleSideMenuCollapsed } = props

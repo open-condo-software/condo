@@ -60,7 +60,6 @@ function useTicketValidations (): IFormFieldsRuleMap {
             {
                 validator: (_, value) => {
                     const phone = value.replace(/\D/g, '')
-                    console.log(phone)
 
                     if (phone.length != 11) {
                         return Promise.reject(new Error(intl.formatMessage({ id: 'field.Phone.lengthError' })))
@@ -109,14 +108,6 @@ interface ITicketFormProps {
     organization: IOrganization
 }
 
-/*
-* 1) Лейблы, плэйсхолдеры +
-* 2) Плашки, скрыть показать инпуты, дисейблить +
-* 3) Ошибки валидации, текста сообщений, показать и валдировать в нужные моменты +
-* 4) Маски, формат данных +
-* 5) Проверить все!
-* */
-
 const FrontLayerContainer = styled.div`
   margin: 0 -24px;
   padding: 0 24px 24px;
@@ -146,7 +137,7 @@ const ErrorsContainer = styled.div`
 `
 
 // TODO(Dimitreee): decompose this huge component to field groups
-export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) => {
+export const BaseTicketForm:React.FC<ITicketFormProps> = (props) => {
     const intl = useIntl()
     // TODO(Dimitreee):remove after typo inject
     const auth = useAuth() as { user: {id:string} }
@@ -288,12 +279,12 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
                                                             <Col push={2} span={11}>
                                                                 <Row>
                                                                     <Col span={12}>
-                                                                        <Form.Item name={'emergency'} label={' '} valuePropName='checked'>
+                                                                        <Form.Item name={'isEmergency'} label={' '} valuePropName='checked'>
                                                                             <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
                                                                         </Form.Item>
                                                                     </Col>
                                                                     <Col span={12}>
-                                                                        <Form.Item name={'paid'} label={' '} valuePropName='checked'>
+                                                                        <Form.Item name={'isPaid'} label={' '} valuePropName='checked'>
                                                                             <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
                                                                         </Form.Item>
                                                                     </Col>

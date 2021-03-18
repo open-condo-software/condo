@@ -198,12 +198,12 @@ const Ticket = new GQLListSchema('Ticket', {
             type: DateTimeUtc,
             schemaDoc: 'Status updated at time',
         },
-        paid: {
+        isPaid: {
             type: Checkbox,
             schemaDoc: 'Indicates the ticket is paid',
             defaultValue: false,
         },
-        emergency: {
+        isEmergency: {
             type: Checkbox,
             schemaDoc: 'Indicates the ticket is emergency',
             defaultValue: false,

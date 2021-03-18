@@ -19,7 +19,7 @@ interface ISearchInputProps extends SelectProps {
     formatLabel?: (option: { value:string, text:string }) => JSX.Element
 }
 
-export const GraphQlSearchInput:React.FunctionComponent<ISearchInputProps> = (props) => {
+export const GraphQlSearchInput:React.FC<ISearchInputProps> = (props) => {
     const { search, onSelect, ...restProps } = props
     const client = useApolloClient()
     const [selected, setSelected] = useState('')

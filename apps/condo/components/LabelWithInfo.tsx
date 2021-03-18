@@ -10,7 +10,12 @@ const StyledSpace = styled(Space)`
     }
 `
 
-export const LabelWithInfo = ({ title, message }) => (
+interface ILabelWithInfo {
+    title: string
+    message: string
+}
+
+export const LabelWithInfo:React.FC<ILabelWithInfo> = ({ title, message }) => (
     <Tooltip placement='topLeft' title={title}>
         <StyledSpace>
             {message}

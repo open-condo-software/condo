@@ -11,7 +11,7 @@ interface IUpdateTicketForm {
     id: string
 }
 
-export const UpdateTicketForm:React.FunctionComponent<IUpdateTicketForm> = ({ id }) => {
+export const UpdateTicketForm:React.FC<IUpdateTicketForm> = ({ id }) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

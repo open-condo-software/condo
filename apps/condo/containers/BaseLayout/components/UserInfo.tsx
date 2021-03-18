@@ -85,10 +85,8 @@ export const UserInfo = () => {
                                         alt={AvatarMessage}
                                         className='avatar'
                                     />
-                                    <Button type='link' style={{ paddingRight: 0 }}>
-                                        <Typography.Text ellipsis style={{ color: green[6], fontSize: '12px' }}>
-                                            {auth.user ? formatUserName(auth.user.name) : GuestUsernameMessage}
-                                        </Typography.Text>
+                                    <Button type='link' style={{ paddingRight: 0, color: green[6], fontSize: '12px' }}>
+                                        {auth.user ? formatUserName(auth.user.name) : GuestUsernameMessage}
                                     </Button>
                                 </Space>
                             </UserInfoContainer>

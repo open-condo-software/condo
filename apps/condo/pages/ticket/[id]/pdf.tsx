@@ -23,7 +23,7 @@ interface ITicketDescriptionFieldProps {
     value?: React.ReactNode
 }
 
-const TicketDescriptionField:React.FunctionComponent<ITicketDescriptionFieldProps> = ({ title, value }) => {
+const TicketDescriptionField:React.FC<ITicketDescriptionFieldProps> = ({ title, value }) => {
     const intl = useIntl()
     const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
 
@@ -116,7 +116,7 @@ function TicketPdfPage () {
 
     const TicketCreationDate = getTicketCreateMessage(intl, ticket)
     const ticketAddress = get(ticket, ['property', 'address']) + (ticket.unitName && (', ' + ticket.unitName))
-    const emergency = get(ticket, 'emergency')
+    const isEmergency = get(ticket, 'isEmergency')
 
     return (
         <PageContent>
@@ -134,7 +134,7 @@ function TicketPdfPage () {
                             </Typography.Text>
                         </Col>
                         <Col span={6}>
-                            {emergency && (<Typography.Title level={2}>{EmergencyMessage.toLowerCase()}</Typography.Title>)}
+                            {isEmergency && (<Typography.Title level={2}>{EmergencyMessage.toLowerCase()}</Typography.Title>)}
                         </Col>
                     </Row>
                 </Col>

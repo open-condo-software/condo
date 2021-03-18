@@ -95,7 +95,7 @@ const TicketCreateButton = () => {
     )
 }
 
-export const SideMenu:React.FunctionComponent<ISideMenuProps> = (props) => {
+export const SideMenu:React.FC<ISideMenuProps> = (props) => {
     const { onLogoClick, menuData, isMobile, isSideMenuCollapsed, toggleSideMenuCollapsed } = props
 
     const MobileSideNav = (

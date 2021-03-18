@@ -300,7 +300,7 @@ interface IFormWithAction {
     initialValues?: Record<string, unknown>
     onChange?: (changedValues: Record<string, unknown>, allValues: Record<string, unknown>) => void
     handleSubmit?: (values) => void
-    validateTrigger?: string |string[]
+    validateTrigger?: string | string[]
 }
 
 const FormWithAction:FunctionComponent<IFormWithAction> = (props) => {

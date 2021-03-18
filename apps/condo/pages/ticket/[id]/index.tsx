@@ -39,7 +39,7 @@ interface ITicketDescriptionFieldProps {
     type?: 'secondary' | 'success' | 'warning' | 'danger'
 }
 
-const TicketDescriptionField:React.FunctionComponent<ITicketDescriptionFieldProps> = ({ title, value, type }) => {
+const TicketDescriptionField:React.FC<ITicketDescriptionFieldProps> = ({ title, value, type }) => {
     const intl = useIntl()
     const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
 
@@ -169,7 +169,7 @@ const TicketIdPage = () => {
     }
 
     const ticketAddress = get(ticket, ['property', 'address']) + (ticket.unitName && (', ' + ticket.unitName))
-    const emergency = get(ticket, 'emergency')
+    const isEmergency = get(ticket, 'isEmergency')
 
     return (
         <>
@@ -197,7 +197,7 @@ const TicketIdPage = () => {
                                                 </UserNameField>
                                             </Typography.Text>
                                         </Space>
-                                        {emergency && <EmergencyTag color={'red'}>{EmergencyMessage.toLowerCase()}</EmergencyTag>}
+                                        {isEmergency && <EmergencyTag color={'red'}>{EmergencyMessage.toLowerCase()}</EmergencyTag>}
                                     </Row>
                                 </Col>
                                 <Col span={12}>
