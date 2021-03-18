@@ -9,6 +9,7 @@
     "build": "node --max_old_space_size=4096 node_modules/.bin/keystone build",
     "start": "keystone start",
     "kmigrator": "./../../bin/kmigrator.py",
+    "maketypes": "mkdir -p dist/admin && NODE_ENV=test node ./../../bin/create-graphql-schema.js && graphql-codegen -c codegen.yaml",
     "makemigrations": "./../../bin/kmigrator.py makemigrations",
     "migrate": "./../../bin/kmigrator.py migrate"
   },
