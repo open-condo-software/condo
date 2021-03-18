@@ -140,7 +140,7 @@ const ErrorsContainer = styled.div`
 export const BaseTicketForm:React.FC<ITicketFormProps> = (props) => {
     const intl = useIntl()
     // TODO(Dimitreee):remove after typo inject
-    const auth = useAuth() as { user: {id:string} }
+    const auth = useAuth() as { user: { id: string } }
     const router = useRouter()
 
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
