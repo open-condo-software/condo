@@ -1,7 +1,8 @@
+import { Typography, Row, Col } from 'antd'
 import Head from 'next/head'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
-import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
+import { PageContent, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
 import { TicketForm } from '../../containers/TicketForm'
 import { ArrowLeftOutlined } from '@ant-design/icons'
@@ -18,10 +19,16 @@ const CreateTicketPage = () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={PageTitleMsg}/>
                 <PageContent>
                     <OrganizationRequired>
-                        <TicketForm/>
+                        <Row gutter={[12, 40]}>
+                            <Col span={24}>
+                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                            </Col>
+                            <Col span={13}>
+                                <TicketForm/>
+                            </Col>
+                        </Row>
                     </OrganizationRequired>
                 </PageContent>
             </PageWrapper>

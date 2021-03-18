@@ -30,6 +30,12 @@ async function createTicket (client, organization, property, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+// async function updateTicket (client, ticket, values) {
+//     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+//
+//     return await Ticket.update(client, ticket.id, { ...values, dv: 1, sender })
+// }
+
 test('user: createTicket()', async () => {
     const client = await makeClientWithProperty()
     const [ticket, attrs] = await createTicket(client, client.organization, client.property)
@@ -51,6 +57,8 @@ test('user: createTicket()', async () => {
     expect(ticket.client).toEqual(null)
     expect(ticket.operator).toEqual(null)
     expect(ticket.assignee).toEqual(null)
+    expect(ticket.isPaid).toEqual(false)
+    expect(ticket.isEmergency).toEqual(false)
     expect(ticket.executor).toEqual(null)
     expect(ticket.watchers).toEqual([])
     expect(ticket.v).toEqual(1)
@@ -61,3 +69,12 @@ test('user: createTicket()', async () => {
     expect(ticket.createdAt).toMatch(DATETIME_RE)
     expect(ticket.updatedAt).toMatch(DATETIME_RE)
 })
+//
+// test('should correctly update ticket status without ticket number increment', async () => {
+//     const client = await makeClientWithProperty()
+//     const [ticket] = await createTicket(client, client.organization, client.property)
+//     const prevTicketNmber = ticket.number
+//     const obj = await updateTicket(client, ticket, { status: { connect: { id: 'f0fa0093-8d86-4e69-ae1a-70a2914da82f' } } })
+//
+//     expect(obj.number).toEqual(prevTicketNmber)
+// })

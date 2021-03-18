@@ -83,7 +83,7 @@ interface CustomButtonProps extends Omit<ButtonProps, 'type'>{
     secondary?: boolean
 }
 
-export const Button:React.FunctionComponent<CustomButtonProps> = ({ type, secondary, ...restProps }) => {
+export const Button:React.FC<CustomButtonProps> = ({ type, secondary, ...restProps }) => {
     if (type !== 'sberDefault' && type !== 'sberPrimary' && type !== 'inlineLink') {
         return <DefaultButton {...{ ...restProps, type }}/>
     } else {

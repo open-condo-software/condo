@@ -5,11 +5,12 @@ import flattenDeep from 'lodash/flattenDeep'
 import { useObject } from '../utils/clientSchema/Property'
 
 interface IUnitNameInputProps {
-    placeholder: string
     propertyId: string
+    placeholder?: string
+    allowClear?: false
 }
 
-const BaseUnitNameInput:React.FunctionComponent<IUnitNameInputProps> = (props) => {
+const BaseUnitNameInput:React.FC<IUnitNameInputProps> = (props) => {
     const { placeholder, propertyId, ...restInputProps } = props
     const { loading, obj: property } = useObject({ where: { id: propertyId } })
 
