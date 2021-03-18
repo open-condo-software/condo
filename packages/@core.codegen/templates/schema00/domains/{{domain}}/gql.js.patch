@@ -1,5 +1,5 @@
 /* AUTOGENERATE MARKER <CONST> */
-const {{ name | upper }}_FIELDS = `{ {% for field in signature %}{{ field[0] | replace("?", "") }}{% if field[1] === 'Relationship' %} { id }{% endif %}{% if not loop.last %} {% endif %}{% endfor %} ${COMMON_FIELDS} }`
+const {{ name | upper }}_FIELDS = `{ {% for field in signature %}{{ field.name }}{% if field.isRelation %} { id }{% endif %}{% if not loop.last %} {% endif %}{% endfor %} ${COMMON_FIELDS} }`
 const {{ name }} = generateGqlQueries('{{ name }}', {{ name | upper }}_FIELDS)
 
 /**/

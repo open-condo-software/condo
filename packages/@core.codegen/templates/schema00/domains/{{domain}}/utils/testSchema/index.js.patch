@@ -7,7 +7,7 @@ const {{ name }} = generateGQLTestUtils({{ name }}GQL)
 /**/
 
 /* AUTOGENERATE MARKER <FACTORY> */
-async function createTest{{ name }} (client, {% for field in signature %}{% if field[1] === 'Relationship' and not field[0].endsWith('?') %}{{ field[0].replace('?', '') }}, {% endif %}{% endfor %}extraAttrs = {}) {
+async function createTest{{ name }} (client, {% for field in signature | selectattr("isRelation") | selectattr("isRequired") %}{{ field.name }}, {% endfor %}extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -16,10 +16,8 @@ async function createTest{{ name }} (client, {% for field in signature %}{% if f
     const attrs = {
         dv: 1,
         sender,
-{%- for field in signature %}
-{%- if field[1] === 'Relationship' and not field[0].endsWith('?') %}
-        {{ field[0].replace('?', '') }}: { connect: { id: {{ field[0].replace('?', '') }}.id } },
-{%- endif %}
+{%- for field in signature | selectattr("isRelation") | selectattr("isRequired") %}
+        {{ field.name }}: { connect: { id: {{ field.name }}.id } },
 {%- endfor %}
         ...extraAttrs,
     }

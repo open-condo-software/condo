@@ -16,25 +16,23 @@ const {{ name }} = new GQLListSchema('{{ name }}', {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 {% for field in signature %}
-        {{ field[0] | replace("?", "") }}: {
-            // TODO(codegen): write doc for {{ name }}.{{ field[0] | replace("?", "") }} field!
+        {{ field.name }}: {
+            // TODO(codegen): write doc for {{ name }}.{{ field.name }} field!
             schemaDoc: 'TODO DOC!',
-            type: {{ field[1] }},
-{%- if field[1] === 'Relationship' %}
-            rel: '{{ field[2] }}',
-{%- elif field[1] === 'Select' %}
-            options: '{{ field[2] }}',
+            type: {{ field.type }},
+{%- if field.isRelation %}
+            ref: '{{ field.ref }}',
+{%- elif field.type === 'Select' %}
+            options: '{{ field.options }}',
 {%- endif %}
-{%- if field[0].endsWith('?') %}
-{%- else %}
+{%- if field.isRequired %}
             isRequired: true,
 {%- endif %}
-{%- if field[1] === 'Relationship' %}
-{%- if field[0].endsWith('?') %}
-{%- else %}
+{%- if field.isRelation %}
+{%- if field.isRequired %}
             knexOptions: { isNotNullable: true }, // Required relationship only!
 {%- endif %}
-            kmigratorOptions: { null: {{ field[0].endsWith('?') }}, on_delete: 'models.{{ field[3] }}' },
+            kmigratorOptions: { null: {{ not field.isRequired }}, on_delete: 'models.{{ field.on_delete }}' },
 {%- endif %}
         },
 {% endfor %}
