@@ -202,11 +202,13 @@ const Ticket = new GQLListSchema('Ticket', {
             type: Checkbox,
             schemaDoc: 'Indicates the ticket is paid',
             defaultValue: false,
+            isRequired: true,
         },
         isEmergency: {
             type: Checkbox,
             schemaDoc: 'Indicates the ticket is emergency',
             defaultValue: false,
+            isRequired: true,
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
