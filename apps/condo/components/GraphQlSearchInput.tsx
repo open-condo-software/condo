@@ -16,6 +16,7 @@ interface ISearchInputProps extends SelectProps {
     disabled?: boolean
     autoFocus?: boolean
     initialValue?: string
+    formatLabel?: (option: { value:string, text:string }) => JSX.Element
 }
 
 export const GraphQlSearchInput:React.FunctionComponent<ISearchInputProps> = (props) => {
@@ -26,7 +27,19 @@ export const GraphQlSearchInput:React.FunctionComponent<ISearchInputProps> = (pr
     const [data, setData] = useState([])
     const [value, setValue] = useState('')
     const options = useMemo(
-        () => data.map(d => <Select.Option key={d.value} value={d.value} title={d.text}>{d.text}</Select.Option>),
+        () => data.map((option) => {
+            let optionLabel = option.text
+
+            if (props.formatLabel) {
+                optionLabel = props.formatLabel(option)
+            }
+
+            return (
+                <Select.Option key={option.value} value={option.value} title={option.text}>
+                    {optionLabel}
+                </Select.Option>
+            )
+        }),
         [data, value],
     )
 

@@ -2,6 +2,7 @@
 // @ts-ignore
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
+import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
 import React from 'react'
 import styled from '@emotion/styled'
@@ -15,6 +16,7 @@ import { LabelWithInfo } from './LabelWithInfo'
 import { UnitNameInput } from './UnitNameInput'
 import { colors } from '../constants/style'
 import MaskedInput from 'antd-mask-input'
+import { UserNameField } from './UserNameField'
 
 const LAYOUT = {
     labelCol: { span: 8 },
@@ -135,16 +137,20 @@ const FrontLayerContainer = styled.div`
   `}
 `
 
+const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
+
 const ErrorsContainer = styled.div`
   padding: 9px 16px;
   border-radius: 8px;
   background-color: ${colors.beautifulBlue[5]};
 `
 
+// TODO(Dimitreee): decompose this huge component to field groups
 export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) => {
     const intl = useIntl()
     // TODO(Dimitreee):remove after typo inject
     const auth = useAuth() as { user: {id:string} }
+    const router = useRouter()
 
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
@@ -166,12 +172,19 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
 
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
+    const UpdateTicketMessage = intl.formatMessage({ id: 'UpdateTicket' })
 
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
 
     const { action, initialValues, organization } = props
     const validations = useTicketValidations()
+
+    const formatUserFieldLabel = ({ text, value }) => (
+        <UserNameField user={{ name: text, id: value }}>
+            {({ name, postfix }) => <>{name} {postfix}</>}
+        </UserNameField>
+    )
 
     return (
         <>
@@ -216,23 +229,26 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
                                             )
                                         }}
                                     </Form.Item>
-                                    <Form.Item dependencies={['unitName']} noStyle>
-                                        {({ getFieldValue }) => getFieldValue('unitName') && (
-                                            <>
-                                                <Col span={11}>
-                                                    <Form.Item name={'clientName'} rules={validations.clientName} label={FullNameLabel}>
-                                                        <Input/>
-                                                    </Form.Item>
-                                                </Col>
-                                                <Col span={11}>
-                                                    <Form.Item name={'clientPhone'} rules={validations.clientPhone} label={PhoneLabel} validateFirst>
-                                                        <MaskedInput mask={'+1 (111) 111-11-11'} placeholderChar={'0'}/>
-                                                    </Form.Item>
-                                                </Col>
-                                            </>
-                                        )}
-                                    </Form.Item>
+                                    <Form.Item shouldUpdate noStyle>
+                                        {({ getFieldsValue }) => {
+                                            const { unitName } = getFieldsValue(['unitName'])
 
+                                            return unitName && (
+                                                <>
+                                                    <Col span={11}>
+                                                        <Form.Item name={'clientName'} rules={validations.clientName} label={FullNameLabel}>
+                                                            <Input/>
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col span={11}>
+                                                        <Form.Item name={'clientPhone'} rules={validations.clientPhone} label={PhoneLabel} validateFirst>
+                                                            <MaskedInput mask={'+1 (111) 111-11-11'} placeholderChar={'0'}/>
+                                                        </Form.Item>
+                                                    </Col>
+                                                </>
+                                            )
+                                        }}
+                                    </Form.Item>
                                 </Row>
                             </FocusContainer>
                         </Col>
@@ -298,6 +314,7 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
                                                                     initialValue={auth.user.id}
                                                                 >
                                                                     <GraphQlSearchInput
+                                                                        formatLabel={formatUserFieldLabel}
                                                                         search={searchEmployee(organization.id)}
                                                                         allowClear={false}
                                                                         showArrow={false}
@@ -313,6 +330,7 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
                                                                     initialValue={auth.user.id}
                                                                 >
                                                                     <GraphQlSearchInput
+                                                                        formatLabel={formatUserFieldLabel}
                                                                         search={searchEmployee(organization.id)}
                                                                         allowClear={false}
                                                                         showArrow={false}
@@ -334,7 +352,6 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
                                 <Form.Item noStyle dependencies={['property', 'unitName']}>
                                     {
                                         ({ getFieldsValue }) => {
-                                            // console.log(form.validateFields(['property', 'unitName']))
                                             const { property, unitName } = getFieldsValue(['property', 'unitName'])
                                             const disableUserInteraction = !property || !unitName
 
@@ -347,7 +364,7 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
                                                             type='sberPrimary'
                                                             loading={isLoading} disabled={disableUserInteraction}
                                                         >
-                                                            {CreateTicketMessage}
+                                                            {router.query.id ? UpdateTicketMessage : CreateTicketMessage}
                                                         </Button>
                                                     </Col>
                                                     <Col span={11} push={1}>
@@ -370,6 +387,9 @@ export const BaseTicketForm:React.FunctionComponent<ITicketFormProps> = (props) 
                                 </Form.Item>
                             </Row>
                         </Col>
+                        <Form.Item name={'source'} hidden initialValue={DEFAULT_TICKET_SOURCE_CALL_ID}>
+                            <Input/>
+                        </Form.Item>
                     </Row>
                 )}
             </FormWithAction>

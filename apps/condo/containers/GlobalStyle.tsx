@@ -75,6 +75,10 @@ export default function GlobalStyle () {
         .ant-form-item-explain, .ant-form-item-extra {
           margin: 0;
         }
+        
+        .ant-tag {
+          border-radius: 2px;
+        }
 
         ${page}
       `}

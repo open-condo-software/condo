@@ -1,10 +1,11 @@
-import { Col, Row, Space, Typography } from 'antd'
+import { Col, Row, Space, Typography, Tag } from 'antd'
 import get from 'lodash/get'
 import React, { useEffect, useMemo, useState } from 'react'
 import { ArrowLeftOutlined, EditFilled, FilePdfFilled } from '@ant-design/icons'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
+import styled from '@emotion/styled'
 import { Button } from '../../../components/Button'
 import { PageContent, PageWrapper } from '../../../containers/BaseLayout'
 import { yellow } from '@ant-design/colors'
@@ -127,6 +128,11 @@ const TicketUserInfoField:React.FC<ITicketUserInfoFieldProps> = (props) => {
     )
 }
 
+const EmergencyTag = styled(Tag)`
+  font-size: 16px;
+  line-height: 24px;
+`
+
 const TicketIdPage = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
@@ -142,6 +148,7 @@ const TicketIdPage = () => {
     const ClassifierMessage = intl.formatMessage({ id: 'Classifier' })
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
+    const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
 
     const router = useRouter()
     const { query: { id } } = router
@@ -162,6 +169,7 @@ const TicketIdPage = () => {
     }
 
     const ticketAddress = get(ticket, ['property', 'address']) + (ticket.unitName && (', ' + ticket.unitName))
+    const emergency = get(ticket, 'emergency')
 
     return (
         <>
@@ -174,20 +182,23 @@ const TicketIdPage = () => {
                         <Col span={24}>
                             <Row>
                                 <Col span={12}>
-                                    <Space size={8} direction={'vertical'}>
-                                        <Typography.Title level={1} style={{ margin: 0 }}>{TicketTitleMessage}</Typography.Title>
-                                        <Typography.Text>
-                                            <Typography.Text type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
-                                            <UserNameField user={get(ticket, ['createdBy'])}>
-                                                {({ name, postfix }) => (
-                                                    <Typography.Text>
-                                                        <Typography.Text type='success' ellipsis>{name}</Typography.Text>
-                                                        {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
-                                                    </Typography.Text>
-                                                )}
-                                            </UserNameField>
-                                        </Typography.Text>
-                                    </Space>
+                                    <Row align={'top'}>
+                                        <Space size={8} direction={'vertical'}>
+                                            <Typography.Title level={1} style={{ margin: 0 }}>{TicketTitleMessage}</Typography.Title>
+                                            <Typography.Text>
+                                                <Typography.Text type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
+                                                <UserNameField user={get(ticket, ['createdBy'])}>
+                                                    {({ name, postfix }) => (
+                                                        <Typography.Text>
+                                                            <Typography.Text type='success' ellipsis>{name}</Typography.Text>
+                                                            {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
+                                                        </Typography.Text>
+                                                    )}
+                                                </UserNameField>
+                                            </Typography.Text>
+                                        </Space>
+                                        {emergency && <EmergencyTag color={'red'}>{EmergencyMessage.toLowerCase()}</EmergencyTag>}
+                                    </Row>
                                 </Col>
                                 <Col span={12}>
                                     <Row justify={'end'}>

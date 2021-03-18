@@ -86,6 +86,7 @@ function TicketPdfPage () {
     const ClassifierMessage = intl.formatMessage({ id: 'Classifier' })
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const NotesMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.Notes' })
+    const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
 
     const containerRef = useRef(null)
 
@@ -115,13 +116,14 @@ function TicketPdfPage () {
 
     const TicketCreationDate = getTicketCreateMessage(intl, ticket)
     const ticketAddress = get(ticket, ['property', 'address']) + (ticket.unitName && (', ' + ticket.unitName))
+    const emergency = get(ticket, 'emergency')
 
     return (
         <PageContent>
             <Row gutter={[12, 40]} style={{ filter: 'grayscale(1)', maxWidth: '800px', padding: '40px' }} ref={containerRef}>
                 <Col span={24}>
-                    <Row>
-                        <Col span={20}>
+                    <Row align={'top'}>
+                        <Col span={18}>
                             <Typography.Title level={1} style={{ margin: '0 0 16px', whiteSpace: 'pre-line' }} >
                                 {`${TicketTitleMessage}
                                 ${String(getTicketLabel(intl, ticket)).toLowerCase()}`}
@@ -130,6 +132,9 @@ function TicketPdfPage () {
                                 <Typography.Text>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
                                 <Typography.Text ellipsis>{get(ticket, ['createdBy', 'name'])}</Typography.Text>
                             </Typography.Text>
+                        </Col>
+                        <Col span={6}>
+                            {emergency && (<Typography.Title level={2}>{EmergencyMessage.toLowerCase()}</Typography.Title>)}
                         </Col>
                     </Row>
                 </Col>
