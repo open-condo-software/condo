@@ -17,6 +17,7 @@ class AutoIncrementInteger extends Integer.implementation {
 class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
     setupHooks ({ addPreSaveHook, addPostReadHook }) {
         addPreSaveHook(item => {
+            // TODO(Dimtreee|Pahaz): fix autoincrement on status update, or add new field
             if (this.path in item) {
                 return item
             }
