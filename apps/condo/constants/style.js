@@ -1,19 +1,4 @@
 const { generate, grey } = require('@ant-design/colors')
-/*
-* 0: "#a6a6a6"
-1: "#999999"
-2: "#8c8c8c"
-3: "#808080"
-4: "#737373"
-5: "#666666"
-6: "#404040"
-7: "#1a1a1a"
-8: "#000000"
-9: "#000000"
-primary: "#666666"
-*
-* */
-
 const sberBlue = '#5EB1FC'
 const sberGreen = '#4CD174'
 const white = '#fff'
