@@ -75,7 +75,7 @@ const TicketUserInfoField:React.FC<ITicketUserInfoFieldProps> = ({ title, user =
 function TicketPdfPage () {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
-    const TicketInfoMessage = intl.formatMessage({ id: 'problem' })
+    const TicketInfoMessage = intl.formatMessage({ id: 'Problem' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
     const ClientInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
