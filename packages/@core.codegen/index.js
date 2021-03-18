@@ -36,10 +36,26 @@ async function streamToString (stream) {
     })
 }
 
+function toFields (signature) {
+    return signature.map(([typeScriptName, attrType, arg1, arg2]) => {
+        return {
+            typeScriptName,
+            name: typeScriptName.replace('?', ''),
+            type: attrType,
+            isRequired: !typeScriptName.endsWith('?'),
+            isRelation: attrType === 'Relationship',
+            ref: (attrType === 'Relationship') ? arg1 : undefined,
+            on_delete: (attrType === 'Relationship') ? arg2 : undefined,
+            options: (attrType === 'Select') ? arg1 : undefined,
+        }
+    })
+}
+
 function renderToString (filename, template, templateContext) {
     const globalContext = {
         pluralize,
         command: process.argv[1].split('/').slice(-1)[0] + ' ' + process.argv.slice(2).join(' '),
+        now: Date.now(),
     }
     try {
         return nunjucks.renderString(template, { ...globalContext, ...templateContext })
@@ -235,7 +251,7 @@ function createschema (argv) {
             },
             (args) => {
                 const [domain, name] = args.domainschema.split('.')
-                const signature = args.signature
+                const signature = toFields(args.signature)
                 const greeting = chalk.blue.bold(domain) + chalk.green.bold('.') + chalk.red.bold(name)
                 const boxenOptions = {
                     padding: 1,
