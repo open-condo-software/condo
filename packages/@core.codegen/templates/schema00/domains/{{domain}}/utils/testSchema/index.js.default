@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateGQLTestUtils } = require('@domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils } = require('@{{app}}/domains/common/utils/codegeneration/generate.test.utils')
 
 /* AUTOGENERATE MARKER <IMPORT> */
 

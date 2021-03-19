@@ -38,8 +38,8 @@ const keystone = new Keystone({
 })
 
 registerSchemas(keystone, [
-    require('@domains/User/schema'),
-    // require('@domains/Organization/schema'),
+    require('@{{name}}/domains/User/schema'),
+    // require('@{{name}}/domains/Organization/schema'),
 ])
 
 const authStrategy = keystone.createAuthStrategy({

@@ -1,5 +1,5 @@
 /* AUTOGENERATE MARKER <IMPORT> */
-const { {{ name }}: {{ name }}GQL } = require('@domains/{{ domain }}/gql')
+const { {{ name }}: {{ name }}GQL } = require('@{{app}}/domains/{{ domain }}/gql')
 /**/
 
 /* AUTOGENERATE MARKER <CONST> */
