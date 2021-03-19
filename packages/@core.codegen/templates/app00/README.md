@@ -47,6 +47,9 @@ docker-compose run app yarn workspace @app/{{ name }} makemigrations
 
 # migrate current DB to new schema
 docker-compose run app yarn workspace @app/{{ name }} migrate
+
+# if you needed to rollback applyed migration
+docker-compose run app yarn workspace @app/{{ name }} kmigrator down
 ```
 
 # typescript GraphQL types
