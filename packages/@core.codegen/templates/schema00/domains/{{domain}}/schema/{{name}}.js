@@ -6,8 +6,8 @@ const { Text, Relationship, Integer, Select, Checkbox, DateTimeUtc, Decimal, Pas
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@domains/common/schema/fields')
-const access = require('@domains/{{ domain }}/access/{{name}}')
+const { SENDER_FIELD, DV_FIELD } = require('@{{app}}/domains/common/schema/fields')
+const access = require('@{{app}}/domains/{{ domain }}/access/{{name}}')
 
 const {{ name }} = new GQLListSchema('{{ name }}', {
     // TODO(codegen): write doc for the {{ name }} domain model!

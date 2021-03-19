@@ -4,10 +4,10 @@
 
 import { pick, get } from 'lodash'
 
-import { getClientSideSenderInfo } from '@domains/common/utils/userid.utils'
-import { generateReactHooks } from '@domains/common/utils/codegeneration/generate.hooks'
+import { getClientSideSenderInfo } from '@{{app}}/domains/common/utils/userid.utils'
+import { generateReactHooks } from '@{{app}}/domains/common/utils/codegeneration/generate.hooks'
 
-import { {{ name }} as {{ name }}GQL } from '@domains/{{ domain }}/gql'
+import { {{ name }} as {{ name }}GQL } from '@{{app}}/domains/{{ domain }}/gql'
 import { {{ name }}, {{ name }}UpdateInput } from '../../../../schema'
 
 const RELATIONS = [{% for field in signature | selectattr("isRelation") %}'{{ field.name }}'{% if not loop.last %}, {% endif %}{% endfor %}]

@@ -233,7 +233,7 @@ function createschema (argv) {
         .coerce('signature', opt => {
             let signature = opt
             if (signature.length < 3) throw new Error('<signature> is too short!')
-            if (!/^(?:(?<field>[a-z][a-zA-Z0-9]+[?]?):(?<type>Text|Password|Integer|Decimal|File|DateTimeUtc|Json|Checkbox:(true|false|null)|Select:[a-z0-9, ]+|Relationship:[A-Za-z0-9]+:(CASCADE|PROTECT|SET_NULL|DO_NOTHING))[ ;]*?)+$/.test(signature)) throw new Error('<signature> has a invalid format: we expect <field>:<type>. Example: user:Relationship:User:CASCADE; password:Password; email:Text; type:Select:t1,t2')
+            if (!/^(?:(?<field>[a-z][a-zA-Z0-9]+[?]?):(?<type>Text|Password|Integer|Decimal|File|DateTimeUtc|Json|Checkbox|Select:[a-z0-9, ]+|Relationship:[A-Za-z0-9]+:(CASCADE|PROTECT|SET_NULL|DO_NOTHING))[ ;]*?)+$/.test(signature)) throw new Error('<signature> has a invalid format: we expect <field>:<type>. Example: user:Relationship:User:CASCADE; password:Password; email:Text; type:Select:t1,t2')
             return signature.split(/[ ]*;+[ ]*/).map(x => x.split(':'))
         })
         .usage(
@@ -265,7 +265,8 @@ function createschema (argv) {
                 const template = conf.CODEGEN_SCHEMA_TEMPLATE || DEFAULT_SCHEMA_TEMPLATE
                 const targetDirectory = path.resolve(process.cwd())
                 const templateDirectory = path.resolve(path.dirname(__filename), 'templates', template)
-                generate(templateDirectory, targetDirectory, { domain, name, signature })
+                const app = path.basename(targetDirectory)
+                generate(templateDirectory, targetDirectory, { app, domain, name, signature })
             },
         )
 

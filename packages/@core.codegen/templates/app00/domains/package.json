@@ -1,5 +1,5 @@
 {
-  "name": "{{name}}-domains",
+  "name": "@{{name}}/domains",
   "private": true,
-  "version": "{{now}}.0.0"
+  "version": "1.0.0"
 }

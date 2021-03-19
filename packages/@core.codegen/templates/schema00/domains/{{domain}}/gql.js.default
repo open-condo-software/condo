@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateGqlQueries } = require('@domains/common/utils/codegeneration/generate.gql')
+const { generateGqlQueries } = require('@{{app}}/domains/common/utils/codegeneration/generate.gql')
 
 const COMMON_FIELDS = 'id dv v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
