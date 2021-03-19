@@ -1,5 +1,6 @@
 import { Col, Row, Typography, Space, notification } from 'antd'
 import get from 'lodash/get'
+import dynamic from 'next/dynamic'
 import React, { useEffect, useRef } from 'react'
 import { useIntl } from '@core/next/intl'
 import { colors } from '../../../constants/style'
@@ -49,7 +50,8 @@ const TicketUserInfoField:React.FC<ITicketUserInfoFieldProps> = ({ title, user =
     const PhoneNotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefinedShort' })
     const PhoneShortMessage = intl.formatMessage({ id: 'errors.PhoneShort' })
 
-    const { name, phone } = user
+    const name = get(user, 'name')
+    const phone = get(user, 'phone')
 
     return (
         <Space direction={'vertical'} size={8}>
@@ -72,7 +74,7 @@ const TicketUserInfoField:React.FC<ITicketUserInfoFieldProps> = ({ title, user =
     )
 }
 
-function TicketPdfPage () {
+const PdfView = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const TicketInfoMessage = intl.formatMessage({ id: 'Problem' })
@@ -95,6 +97,7 @@ function TicketPdfPage () {
     const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
 
     useEffect(() => {
+        console.log('from use effect')
         if (ticket) {
             refetch()
             createPdf({ element: containerRef.current, fileName: getTicketPdfName(intl, ticket) }).catch((e) => {
@@ -104,7 +107,7 @@ function TicketPdfPage () {
                 })
             })
         }
-    },[])
+    },[ticket])
 
     const TicketTitleMessage = getTicketTitleMessage(intl, ticket)
 
@@ -119,96 +122,106 @@ function TicketPdfPage () {
     const isEmergency = get(ticket, 'isEmergency')
 
     return (
-        <PageContent>
-            <Row gutter={[12, 40]} style={{ filter: 'grayscale(1)', maxWidth: '800px', padding: '40px' }} ref={containerRef}>
-                <Col span={24}>
-                    <Row align={'top'}>
-                        <Col span={18}>
-                            <Typography.Title level={1} style={{ margin: '0 0 16px', whiteSpace: 'pre-line' }} >
-                                {`${TicketTitleMessage}
+        <Row gutter={[12, 40]} style={{ filter: 'grayscale(1)', maxWidth: '800px', padding: '40px' }} ref={containerRef}>
+            <Col span={24}>
+                <Row align={'top'}>
+                    <Col span={18}>
+                        <Typography.Title level={1} style={{ margin: '0 0 16px', whiteSpace: 'pre-line' }} >
+                            {`${TicketTitleMessage}
                                 ${String(getTicketLabel(intl, ticket)).toLowerCase()}`}
-                            </Typography.Title>
-                            <Typography.Text>
-                                <Typography.Text>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
-                                <Typography.Text ellipsis>{get(ticket, ['createdBy', 'name'])}</Typography.Text>
-                            </Typography.Text>
-                        </Col>
-                        <Col span={6}>
-                            {isEmergency && (<Typography.Title level={2}>{EmergencyMessage.toLowerCase()}</Typography.Title>)}
-                        </Col>
-                    </Row>
-                </Col>
-                <Col span={24}>
-                    <Row>
-                        <Col span={6}>
-                            <TicketDescriptionField
-                                title={SourceMessage}
-                                value={get(ticket, ['source', 'name'])}
-                            />
-                        </Col>
-                        <Col span={6}>
-                            <TicketDescriptionField
-                                title={ClassifierMessage}
-                                value={get(ticket, ['classifier', 'name'])}
-                            />
-                        </Col>
-                        <Col span={6}>
-                            <TicketUserInfoField
-                                title={ExecutorMessage}
-                                user={get(ticket, ['executor'])}
-                            />
-                        </Col>
-                        <Col span={6}>
-                            <TicketUserInfoField
-                                title={AssigneeMessage}
-                                user={get(ticket, ['assignee'])}
-                            />
-                        </Col>
-                    </Row>
-                </Col>
-                <FocusContainer color={colors.black}>
-                    <Col span={24}>
-                        <Row gutter={[0, 24]}>
-                            <Col span={24}>
-                                <Typography.Title level={5}>{ClientInfoMessage}</Typography.Title>
-                            </Col>
-                            <Col span={24}>
-                                <Row gutter={[12,12]}>
-                                    <Col span={6}>
-                                        <TicketDescriptionField
-                                            title={AddressMessage}
-                                            value={ticketAddress}
-                                        />
-                                    </Col>
-                                    <Col span={6}>
-                                        <TicketUserInfoField
-                                            title={FullNameMessage}
-                                            user={{
-                                                name: ticket.clientName,
-                                                phone: ticket.clientPhone,
-                                            }}
-                                        />
-                                    </Col>
-                                    <Col span={6}>
-                                        <TicketDescriptionField title={EmailMessage} value={ticket.clientEmail}/>
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col span={24}>
-                                <Typography.Title level={5}>{TicketInfoMessage}</Typography.Title>
-                            </Col>
-                            <Col span={24}>
-                                <Typography.Text style={{ fontSize: '24px' }}>{ticket.details}</Typography.Text>
-                            </Col>
-                        </Row>
+                        </Typography.Title>
+                        <Typography.Text>
+                            <Typography.Text>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
+                            <Typography.Text ellipsis>{get(ticket, ['createdBy', 'name'])}</Typography.Text>
+                        </Typography.Text>
                     </Col>
-                </FocusContainer>
+                    <Col span={6}>
+                        {isEmergency && (<Typography.Title level={2}>{EmergencyMessage.toLowerCase()}</Typography.Title>)}
+                    </Col>
+                </Row>
+            </Col>
+            <Col span={24}>
+                <Row>
+                    <Col span={6}>
+                        <TicketDescriptionField
+                            title={SourceMessage}
+                            value={get(ticket, ['source', 'name'])}
+                        />
+                    </Col>
+                    <Col span={6}>
+                        <TicketDescriptionField
+                            title={ClassifierMessage}
+                            value={get(ticket, ['classifier', 'name'])}
+                        />
+                    </Col>
+                    <Col span={6}>
+                        <TicketUserInfoField
+                            title={ExecutorMessage}
+                            user={get(ticket, ['executor'])}
+                        />
+                    </Col>
+                    <Col span={6}>
+                        <TicketUserInfoField
+                            title={AssigneeMessage}
+                            user={get(ticket, ['assignee'])}
+                        />
+                    </Col>
+                </Row>
+            </Col>
+            <FocusContainer color={colors.black}>
                 <Col span={24}>
-                    <Typography.Title level={5}>
-                        {NotesMessage}
-                    </Typography.Title>
+                    <Row gutter={[0, 24]}>
+                        <Col span={24}>
+                            <Typography.Title level={5}>{ClientInfoMessage}</Typography.Title>
+                        </Col>
+                        <Col span={24}>
+                            <Row gutter={[12,12]}>
+                                <Col span={6}>
+                                    <TicketDescriptionField
+                                        title={AddressMessage}
+                                        value={ticketAddress}
+                                    />
+                                </Col>
+                                <Col span={6}>
+                                    <TicketUserInfoField
+                                        title={FullNameMessage}
+                                        user={{
+                                            name: ticket.clientName,
+                                            phone: ticket.clientPhone,
+                                        }}
+                                    />
+                                </Col>
+                                <Col span={6}>
+                                    <TicketDescriptionField title={EmailMessage} value={ticket.clientEmail}/>
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col span={24}>
+                            <Typography.Title level={5}>{TicketInfoMessage}</Typography.Title>
+                        </Col>
+                        <Col span={24}>
+                            <Typography.Text style={{ fontSize: '24px' }}>{ticket.details}</Typography.Text>
+                        </Col>
+                    </Row>
                 </Col>
-            </Row>
+            </FocusContainer>
+            <Col span={24}>
+                <Typography.Title level={5}>
+                    {NotesMessage}
+                </Typography.Title>
+            </Col>
+        </Row>
+    )
+}
+
+const DynamicPdfView = dynamic(() => Promise.resolve(PdfView), {
+    ssr: false,
+})
+
+function TicketPdfPage () {
+    return (
+        <PageContent>
+            <DynamicPdfView/>
         </PageContent>
     )
 }
