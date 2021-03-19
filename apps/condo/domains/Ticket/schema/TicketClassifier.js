@@ -1,10 +1,10 @@
 const { Text, Relationship, Virtual } = require('@keystonejs/fields')
 
-const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('../_common')
+const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD } = require('../_common')
+const { SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
 
 const READ_ONLY_ACCESS = {
     read: true,
