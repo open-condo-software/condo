@@ -97,7 +97,6 @@ const PdfView = () => {
     const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
 
     useEffect(() => {
-        console.log('from use effect')
         if (ticket) {
             refetch()
             createPdf({ element: containerRef.current, fileName: getTicketPdfName(intl, ticket) }).catch((e) => {
