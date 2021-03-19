@@ -1,3 +1,6 @@
+import html2canvas from 'html2canvas'
+import Jspdf from 'jspdf'
+
 function getPdfHeightFromElement (element:HTMLElement, expectedWidth:number) {
     const { clientWidth, clientHeight } = element
     const originalRatio = clientHeight/clientWidth
@@ -15,25 +18,20 @@ export function createPdf (options:ICreatePdfOptions) {
         fileName,
     } = options
 
-    return Promise.all([
-        import('html2canvas'),
-        import('jspdf'),
-    ]).then(([html2canvas, jspdf]) => {
-        html2canvas.default(element).then(canvas => {
-            const doc = new jspdf.default('p', 'px')
-            const pdfWidth = 400
-            const elementOffset = 20
-            const imageOptions = {
-                imageData: canvas,
-                x: elementOffset,
-                y: elementOffset,
-                width: pdfWidth,
-                height: getPdfHeightFromElement(element, pdfWidth),
-            }
+    return  html2canvas(element).then(canvas => {
+        const doc = new Jspdf('p', 'px')
+        const pdfWidth = 400
+        const elementOffset = 20
+        const imageOptions = {
+            imageData: canvas,
+            x: elementOffset,
+            y: elementOffset,
+            width: pdfWidth,
+            height: getPdfHeightFromElement(element, pdfWidth),
+        }
 
-            doc.addImage(imageOptions)
-            return doc.save(fileName, { returnPromise: true })
-        })
+        doc.addImage(imageOptions)
+        return doc.save(fileName, { returnPromise: true })
     })
 }
 
