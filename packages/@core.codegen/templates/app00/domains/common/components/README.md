@@ -16,4 +16,4 @@ Beside the domain folders, you can also extract some specific folders like:
   not depend on a specific model, which allows you to sort and filter data by columns. 
   Look at https://github.com/ag-grid/ag-grid#ag-grid
 
-You can read more detail about domain logic in the `/domains/README.md` file.
+You can read more detail about domain logic in the [domains/README](../../README.md) file.
