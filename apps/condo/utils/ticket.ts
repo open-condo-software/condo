@@ -81,3 +81,21 @@ export const getTicketLabel = (intl, ticket) => {
 
     return `${get(ticket, ['status', 'name'])} ${intl.formatMessage({ id: 'From' })} ${formattedDate}`
 }
+
+export const sortStatusesByType = (statuses) => {
+    // status priority map [min -> max]
+    const orderedStatusPriority = ['deferred', 'deferred', 'canceled', 'completed', 'processing', 'new_or_reopened' ]
+
+    return statuses.sort((leftStatus, rightStatus) => {
+        const leftStatusWeight = orderedStatusPriority.indexOf(leftStatus.type)
+        const rightStatusWeight = orderedStatusPriority.indexOf(rightStatus.type)
+
+        if (leftStatusWeight < rightStatusWeight) {
+            return 1
+        } else if (leftStatusWeight > rightStatusWeight) {
+            return -1
+        }
+
+        return 0
+    })
+}

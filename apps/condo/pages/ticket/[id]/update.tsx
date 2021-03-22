@@ -14,8 +14,7 @@ const TicketUpdatePage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.EditTicketModalTitle' })
 
-    const router = useRouter()
-    const { query: { id } } = router
+    const { query } = useRouter()
 
     return (
         <>
@@ -30,7 +29,7 @@ const TicketUpdatePage = () => {
                                 <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                             </Col>
                             <Col span={13}>
-                                <TicketForm id={id as string}/>
+                                <TicketForm id={query.id as string}/>
                             </Col>
                         </Row>
                     </OrganizationRequired>
@@ -40,12 +39,19 @@ const TicketUpdatePage = () => {
     )
 }
 
-TicketUpdatePage.headerAction = (
-    <LinkWithIcon
-        icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-        locale={'menu.AllTickets'}
-        path={'/ticket/'}
-    />
-)
+const HeaderAction = () => {
+    const { query } = useRouter()
+    console.log(query)
+
+    return (
+        <LinkWithIcon
+            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
+            locale={'Back'}
+            path={`/ticket/${query.id}`}
+        />
+    )
+}
+
+TicketUpdatePage.headerAction = <HeaderAction/>
 
 export default TicketUpdatePage

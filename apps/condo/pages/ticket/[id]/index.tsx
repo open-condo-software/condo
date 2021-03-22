@@ -8,7 +8,6 @@ import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
 import { Button } from '../../../components/Button'
 import { PageContent, PageWrapper } from '../../../containers/BaseLayout'
-import { yellow } from '@ant-design/colors'
 import LoadingOrErrorPage from '../../../containers/LoadingOrErrorPage'
 import { Ticket } from '../../../utils/clientSchema/Ticket'
 import Link from 'next/link'
@@ -20,7 +19,6 @@ import { FocusContainer } from '../../../components/FocusContainer'
 import {
     formatPhone,
     getTicketCreateMessage,
-    getTicketFormattedLastStatusUpdate,
     getTicketTitleMessage,
 } from '../../../utils/ticket'
 import { LETTERS_AND_NUMBERS } from '../../../constants/regexps'
@@ -156,7 +154,6 @@ const TicketIdPage = () => {
     const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
-    const formattedStatusUpdate = useMemo(() => getTicketFormattedLastStatusUpdate(intl, ticket), [ticket])
 
     useEffect(() => {
         refetch()
@@ -184,7 +181,10 @@ const TicketIdPage = () => {
                                 <Col span={12}>
                                     <Row align={'top'}>
                                         <Space size={8} direction={'vertical'}>
-                                            <Typography.Title level={1} style={{ margin: 0 }}>{TicketTitleMessage}</Typography.Title>
+                                            <Space align={'start'}>
+                                                <Typography.Title level={1} style={{ margin: 0 }}>{TicketTitleMessage}</Typography.Title>
+                                                {isEmergency && <EmergencyTag color={'red'}>{EmergencyMessage.toLowerCase()}</EmergencyTag>}
+                                            </Space>
                                             <Typography.Text>
                                                 <Typography.Text type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
                                                 <UserNameField user={get(ticket, ['createdBy'])}>
@@ -197,15 +197,11 @@ const TicketIdPage = () => {
                                                 </UserNameField>
                                             </Typography.Text>
                                         </Space>
-                                        {isEmergency && <EmergencyTag color={'red'}>{EmergencyMessage.toLowerCase()}</EmergencyTag>}
                                     </Row>
                                 </Col>
                                 <Col span={12}>
                                     <Row justify={'end'}>
-                                        <Space size={8} direction={'vertical'} align={'end'}>
-                                            <TicketStatusSelect ticket={ticket} onUpdate={refetch} loading={loading}/>
-                                            <Typography.Text type="warning" style={{ color: yellow[9] }}>{formattedStatusUpdate}</Typography.Text>
-                                        </Space>
+                                        <TicketStatusSelect ticket={ticket} onUpdate={refetch} loading={loading}/>
                                     </Row>
                                 </Col>
                             </Row>
