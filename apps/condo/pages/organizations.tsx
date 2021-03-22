@@ -92,7 +92,7 @@ function OrganizationCRUDListBlock () {
     const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION)
 
     const intl = useIntl()
-    const DoneMsg = intl.formatMessage({ id: 'Done' })
+    const DoneMsg = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const AcceptMsg = intl.formatMessage({ id: 'Accept' })
     const RejectMsg = intl.formatMessage({ id: 'Reject' })
