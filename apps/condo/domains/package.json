@@ -1,5 +1,5 @@
 {
   "name": "@condo/domains",
-  "version": "1.0.0",
-  "private": true
+  "private": true,
+  "version": "1.0.0"
 }
