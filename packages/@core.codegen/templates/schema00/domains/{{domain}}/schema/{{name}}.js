@@ -9,6 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@{{app}}/domains/common/schema/fields')
 const access = require('@{{app}}/domains/{{ domain }}/access/{{name}}')
 
+
 const {{ name }} = new GQLListSchema('{{ name }}', {
     // TODO(codegen): write doc for the {{ name }} domain model!
     schemaDoc: 'TODO DOC!',

@@ -10,6 +10,7 @@ import { generateReactHooks } from '@{{app}}/domains/common/utils/codegeneration
 import { {{ name }} as {{ name }}GQL } from '@{{app}}/domains/{{ domain }}/gql'
 import { {{ name }}, {{ name }}UpdateInput } from '../../../../schema'
 
+const FIELDS = ['id', 'deletedAt'{% for field in signature %}, '{{ field.name }}'{% endfor %}]
 const RELATIONS = [{% for field in signature | selectattr("isRelation") %}'{{ field.name }}'{% if not loop.last %}, {% endif %}{% endfor %}]
 
 interface I{{ name }}UIState {
@@ -18,7 +19,7 @@ interface I{{ name }}UIState {
 
 function convertToUIState (item: {{ name }}): I{{ name }}UIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
-    return pick(item, ['id', 'deletedAt'{% for field in signature %}, '{{ field.name }}'{% endfor %}])
+    return pick(item, FIELDS)
 }
 
 interface I{{ name }}UIFormState {
