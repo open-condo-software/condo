@@ -1,4 +1,5 @@
-const { generate, grey, green } = require('@ant-design/colors')
+const { CANCELED, COMPLETED, DEFERRED, NEW_OR_REOPEND, PROCESSING } = require('./statusTypes')
+const { generate, grey, green, orange, red, yellow  } = require('@ant-design/colors')
 
 const sberBlue = '#5EB1FC'
 const sberGreen = '#4CD174'
@@ -39,9 +40,35 @@ const antGlobalVariables = {
     '@checkbox-check-bg': ultraLightGrey,
     '@form-item-margin-bottom': '0',
     '@success-color': green[6],
+    '@table-border-color': colors.lightGrey[5],
+    '@table-header-bg': ultraLightGrey,
+}
+
+const STATUS_SELECT_COLORS = {
+    [NEW_OR_REOPEND]: {
+        color: yellow[9],
+        backgroundColor: yellow[2],
+    },
+    [PROCESSING]: {
+        color: orange[8],
+        backgroundColor: orange[4],
+    },
+    [CANCELED]: {
+        color: grey[9],
+        backgroundColor: colors.lightGrey[5],
+    },
+    [COMPLETED]: {
+        color: green[8],
+        backgroundColor: green[3],
+    },
+    [DEFERRED]: {
+        color: red[6],
+        backgroundColor: red[2],
+    },
 }
 
 module.exports = {
+    STATUS_SELECT_COLORS,
     colors,
     antGlobalVariables,
 }

@@ -197,7 +197,7 @@
   "errors.PhoneShort": "тел.",
   "errors.NotDefinedShort": "не указан",
   "errors.PdfGenerationError": "К сожалению произошла ошибка, попробуйте обновить страницу",
-  "ticketsTable.NumberAndDate": "№ и Дата",
+  "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Фио Жителя",
   "TicketPurpose": "Назначение заявки",
   "From": "с",

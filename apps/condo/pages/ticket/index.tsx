@@ -3,12 +3,13 @@
 import { useIntl } from '@core/next/intl'
 import Head from 'next/head'
 import React, { useCallback, useEffect, useMemo } from 'react'
-import { Table, Typography, Space, Empty } from 'antd'
+import { Table, Typography, Space, Empty, Tag } from 'antd'
 import get from 'lodash/get'
 import qs from 'qs'
 import { useRouter } from 'next/router'
 import { format } from 'date-fns'
 import styled from '@emotion/styled'
+import { STATUS_SELECT_COLORS } from '../../constants/style'
 import { Button } from '../../components/Button'
 import { EmptyIcon } from '../../components/EmptyIcon'
 
@@ -28,70 +29,97 @@ const setOrder = (sortedInfo, key) => {
 }
 
 const getTableColumns = (sortedInfo, intl) => {
-    const locales = {
+    const LOCALES = {
         ru: RU,
         en: EN,
     }
 
     return [
         {
-            title: intl.formatMessage({ id: 'ticketsTable.NumberAndDate' }),
+            title: intl.formatMessage({ id: 'ticketsTable.Number' }),
+            sortOrder: setOrder(sortedInfo, 'number'),
             dataIndex: 'number',
             key: 'number',
             sorter: true,
-            sortOrder: setOrder(sortedInfo, 'number'),
-            render: (number, ticket) => {
-                const formattedDate = format(
-                    new Date(ticket.createdAt),
-                    'dd MMMM (HH:mm)',
-                    { locale: locales[intl.locale] }
+            width: '10%',
+        },
+        {
+            title: intl.formatMessage({ id: 'CreatedDate' }),
+            sortOrder: setOrder(sortedInfo, 'createdAt'),
+            render: (createdAt) => (
+                format(
+                    new Date(createdAt),
+                    'dd MMM',
+                    { locale: LOCALES[intl.locale] }
                 )
-
-                return (
-                    <Space direction={'vertical'} size={'small'}>
-                        <Typography.Text>№ {number}</Typography.Text>
-                        <Typography.Text type={'secondary'}>{formattedDate}</Typography.Text>
-                    </Space>
-                )
-            },
-            width: '20%',
+            ),
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            sorter: true,
+            width: '10%',
         },
         {
             title: intl.formatMessage({ id: 'Status' }),
+            sortOrder: setOrder(sortedInfo, 'status'),
+            render: (status) => {
+                const { color, backgroundColor } = STATUS_SELECT_COLORS[status.type]
+
+                return (
+                    <Tag color={backgroundColor} style={{ color }}>
+                        <Typography.Text strong>{status.name}</Typography.Text>
+                    </Tag>
+                )
+            },
             dataIndex: 'status',
             key: 'status',
             sorter: true,
-            sortOrder: setOrder(sortedInfo, 'status'),
-            render: (status) => {
-                return (<Typography.Text strong>{status.name}</Typography.Text>)
-            },
+            width: '10%',
         },
         {
             title: intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' }),
+            ellipsis: true,
             dataIndex: 'details',
             key: 'details',
-            render: (details) => {
-                return (<Typography.Text ellipsis style={{ maxWidth: '200px' }}>{details}</Typography.Text>)
-            },
+            width: '22%',
         },
         {
             title: intl.formatMessage({ id: 'field.Address' }),
+            sortOrder: setOrder(sortedInfo, 'property'),
+            render: (property) => (`${get(property, 'address')} ${get(property, 'name')}`),
+            ellipsis: true,
             dataIndex: 'property',
             key: 'property',
             sorter: true,
-            sortOrder: setOrder(sortedInfo, 'property'),
-            render: (property) => {
-                const fullAddress = `${get(property, 'address')} ${get(property, 'name')}`
-
-                return (<Typography.Text ellipsis>{fullAddress}</Typography.Text>)
-            },
+            width: '12%',
         },
         {
             title: intl.formatMessage({ id: 'ticketsTable.ResidentName' }),
+            sortOrder: setOrder(sortedInfo, 'clientName'),
+            ellipsis: true,
             dataIndex: 'clientName',
             key: 'clientName',
             sorter: true,
-            sortOrder: setOrder(sortedInfo, 'clientName'),
+            width: '12%',
+        },
+        {
+            title: intl.formatMessage({ id: 'field.Executor' }),
+            sortOrder: setOrder(sortedInfo, 'executor'),
+            render: (executor) => (get(executor, ['name'])),
+            ellipsis: true,
+            dataIndex: 'executor',
+            key: 'executor',
+            sorter: true,
+            width: '12%',
+        },
+        {
+            title: intl.formatMessage({ id: 'field.Responsible' }),
+            sortOrder: setOrder(sortedInfo, 'assignee'),
+            render: (assignee) => (get(assignee, ['name'])),
+            ellipsis: true,
+            dataIndex: 'assignee',
+            key: 'assignee',
+            sorter: true,
+            width: '12%',
         },
     ]
 }
@@ -128,6 +156,9 @@ const queryToSorter = (query) => {
         'status',
         'details',
         'property',
+        'assignee',
+        'executor',
+        'createdAt',
         'clientName',
     ]
 
@@ -146,6 +177,7 @@ const tableStateFromQuery = (router) => {
     const pagination = {
         current: ((router.query.offset / PAGINATION_PAGE_SIZE) || 0) + 1,
         pageSize: PAGINATION_PAGE_SIZE,
+        position: ['bottom', 'left'],
     }
 
     const sorter = queryToSorter(router.query.sort)
@@ -264,6 +296,8 @@ const TicketsPage = () => {
                         {
                             tickets.length
                                 ? <Table
+                                    bordered
+                                    tableLayout={'fixed'}
                                     loading={loading}
                                     dataSource={tickets}
                                     columns={tableColumns}

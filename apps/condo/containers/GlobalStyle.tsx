@@ -79,6 +79,39 @@ export default function GlobalStyle () {
         .ant-tag {
           border-radius: 2px;
         }
+        
+        .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > thead > tr > th,
+        .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > thead > tr > th,
+        .ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > thead > tr > th,
+        .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > tbody > tr > td,
+        .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > tbody > tr > td,
+        .ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > tbody > tr > td,
+        .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > tfoot > tr > th,
+        .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > tfoot > tr > th,
+        .ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > tfoot > tr > th,
+        .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > tfoot > tr > td,
+        .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > tfoot > tr > td,
+        .ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > tfoot > tr > td {
+          &:not(:last-of-type) {
+            border-right: none;
+          }
+        }
+
+        .ant-table-pagination.ant-pagination {
+            margin: 40px 0 16px;
+        }
+        
+        .ant-table-column-sorter {
+          visibility: hidden;
+        }
+        
+        .ant-table-cell {
+          &:hover {
+            .ant-table-column-sorter {
+              visibility: visible;
+            }
+          }
+        }
 
         ${page}
       `}

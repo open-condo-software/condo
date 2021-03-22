@@ -197,7 +197,7 @@
   "errors.PhoneShort": "phone",
   "errors.NotDefinedShort": "not defined",
   "errors.PdfGenerationError": "Sorry, an error has occurred, please try refreshing the page",
-  "ticketsTable.NumberAndDate": "№ and Date",
+  "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Resident Name",
   "TicketPurpose": "Application assignment",
   "From": "from",
