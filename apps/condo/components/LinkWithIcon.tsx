@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { Space, Typography } from 'antd'
+import { Typography } from 'antd'
 import { colors } from '../constants/style'
 import React, { useCallback } from 'react'
 import styled from '@emotion/styled'

@@ -191,6 +191,8 @@
   "containers.FormTableExcelImport.ImportFromFileButtonLabel": "Загрузить список из файла",
   "containers.FormTableExcelImport.SelectColumn": "Выбери колонку",
   "containers.FormTableExcelImport.NextStepButtonLabel": "Продолжить импорт",
+  "ticket.EmptyList.header": "Список заявок пока пуст",
+  "ticket.EmptyList.title": "Создайте первую, это просто",
   "errors.NotDefined": "не указано",
   "errors.PhoneShort": "тел.",
   "errors.NotDefinedShort": "не указан",
