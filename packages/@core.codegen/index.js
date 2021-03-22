@@ -238,14 +238,14 @@ function createschema (argv) {
         .coerce('domainschema', opt => {
             let name = opt
             if (name.length < 3) throw new Error('<domain>.<schema> is too short!')
-            if (!/^[A-Z][a-zA-Z0-9]+[.][A-Z][a-zA-Z0-9]+$/.test(name)) throw new Error('<domain>.<schema> has a invalid name format: we expect Domain.SchemaName or Domain.SomeService')
+            if (!/^[a-z][a-z0-9]+[.][A-Z][a-zA-Z0-9]+$/.test(name)) throw new Error('<domain>.<schema> has a invalid name format: we expect `domain.SchemaName` or `domain.SomeService`')
             return name
         })
         .coerce('signature', opt => {
             let signature = opt
             if (signature.length < 3) throw new Error('<signature> is too short!')
-            if (!/^(?:(?<field>[a-z][a-zA-Z0-9]+[?]?):(?<type>Text|Password|Integer|Decimal|File|DateTimeUtc|Json|Checkbox|Select:[a-z0-9, ]+|Relationship:[A-Za-z0-9]+:(CASCADE|PROTECT|SET_NULL|DO_NOTHING))[ ;]*?)+$/.test(signature)) throw new Error('<signature> has a invalid format: we expect <field>:<type>. Example: user:Relationship:User:CASCADE; password:Password; email:Text; type:Select:t1,t2')
-            return signature.split(/[ ]*;+[ ]*/).map(x => x.split(':'))
+            if (!/^(?:(?<field>[a-z][a-zA-Z0-9]+[?]?):[ ]*?(?<type>Text|Password|Integer|Decimal|File|DateTimeUtc|Json|Checkbox|Select:[a-z0-9, ]+|Relationship:[A-Za-z0-9]+:(CASCADE|PROTECT|SET_NULL|DO_NOTHING))[ ;]*?)+$/.test(signature)) throw new Error('<signature> has a invalid format: we expect <field>:<type>. Example: user:Relationship:User:CASCADE; password:Password; email:Text; type:Select:t1,t2')
+            return signature.split(/[ ]*;+[ ]*/).filter(x => x.trim().length).map(x => x.split(':'))
         })
         .options({
             'force': {
