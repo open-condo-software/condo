@@ -7299,6 +7299,9 @@ export type TicketHistoryRecord = {
   unitName?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  statusUpdatedAt?: Maybe<Scalars['String']>;
+  isPaid?: Maybe<Scalars['Boolean']>;
+  isEmergency?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7531,6 +7534,18 @@ export type TicketHistoryRecordWhereInput = {
   sourceMeta_not?: Maybe<Scalars['JSON']>;
   sourceMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sourceMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  statusUpdatedAt?: Maybe<Scalars['String']>;
+  statusUpdatedAt_not?: Maybe<Scalars['String']>;
+  statusUpdatedAt_lt?: Maybe<Scalars['String']>;
+  statusUpdatedAt_lte?: Maybe<Scalars['String']>;
+  statusUpdatedAt_gt?: Maybe<Scalars['String']>;
+  statusUpdatedAt_gte?: Maybe<Scalars['String']>;
+  statusUpdatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  statusUpdatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isPaid?: Maybe<Scalars['Boolean']>;
+  isPaid_not?: Maybe<Scalars['Boolean']>;
+  isEmergency?: Maybe<Scalars['Boolean']>;
+  isEmergency_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -7622,6 +7637,12 @@ export enum SortTicketHistoryRecordsBy {
   FloorNameDesc = 'floorName_DESC',
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
+  StatusUpdatedAtAsc = 'statusUpdatedAt_ASC',
+  StatusUpdatedAtDesc = 'statusUpdatedAt_DESC',
+  IsPaidAsc = 'isPaid_ASC',
+  IsPaidDesc = 'isPaid_DESC',
+  IsEmergencyAsc = 'isEmergency_ASC',
+  IsEmergencyDesc = 'isEmergency_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -7663,6 +7684,9 @@ export type TicketHistoryRecordUpdateInput = {
   unitName?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  statusUpdatedAt?: Maybe<Scalars['String']>;
+  isPaid?: Maybe<Scalars['Boolean']>;
+  isEmergency?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -7705,6 +7729,9 @@ export type TicketHistoryRecordCreateInput = {
   unitName?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  statusUpdatedAt?: Maybe<Scalars['String']>;
+  isPaid?: Maybe<Scalars['Boolean']>;
+  isEmergency?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -7820,6 +7847,12 @@ export type Ticket = {
   source?: Maybe<TicketSource>;
   /**  In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ...  */
   sourceMeta?: Maybe<Scalars['JSON']>;
+  /**  Status updated at time  */
+  statusUpdatedAt?: Maybe<Scalars['String']>;
+  /**  Indicates the ticket is paid  */
+  isPaid?: Maybe<Scalars['Boolean']>;
+  /**  Indicates the ticket is emergency  */
+  isEmergency?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -8061,6 +8094,18 @@ export type TicketWhereInput = {
   sourceMeta_not?: Maybe<Scalars['JSON']>;
   sourceMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sourceMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  statusUpdatedAt?: Maybe<Scalars['String']>;
+  statusUpdatedAt_not?: Maybe<Scalars['String']>;
+  statusUpdatedAt_lt?: Maybe<Scalars['String']>;
+  statusUpdatedAt_lte?: Maybe<Scalars['String']>;
+  statusUpdatedAt_gt?: Maybe<Scalars['String']>;
+  statusUpdatedAt_gte?: Maybe<Scalars['String']>;
+  statusUpdatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  statusUpdatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isPaid?: Maybe<Scalars['Boolean']>;
+  isPaid_not?: Maybe<Scalars['Boolean']>;
+  isEmergency?: Maybe<Scalars['Boolean']>;
+  isEmergency_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -8156,6 +8201,12 @@ export enum SortTicketsBy {
   UnitNameDesc = 'unitName_DESC',
   SourceAsc = 'source_ASC',
   SourceDesc = 'source_DESC',
+  StatusUpdatedAtAsc = 'statusUpdatedAt_ASC',
+  StatusUpdatedAtDesc = 'statusUpdatedAt_DESC',
+  IsPaidAsc = 'isPaid_ASC',
+  IsPaidDesc = 'isPaid_DESC',
+  IsEmergencyAsc = 'isEmergency_ASC',
+  IsEmergencyDesc = 'isEmergency_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -8198,6 +8249,9 @@ export type TicketUpdateInput = {
   unitName?: Maybe<Scalars['String']>;
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  statusUpdatedAt?: Maybe<Scalars['String']>;
+  isPaid?: Maybe<Scalars['Boolean']>;
+  isEmergency?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8238,6 +8292,9 @@ export type TicketCreateInput = {
   unitName?: Maybe<Scalars['String']>;
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  statusUpdatedAt?: Maybe<Scalars['String']>;
+  isPaid?: Maybe<Scalars['Boolean']>;
+  isEmergency?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
