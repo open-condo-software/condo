@@ -3,16 +3,19 @@
 import { useIntl } from '@core/next/intl'
 import Head from 'next/head'
 import React, { useCallback, useEffect, useMemo } from 'react'
-import { Table, Typography, Space } from 'antd'
+import { Table, Typography, Space, Empty } from 'antd'
 import get from 'lodash/get'
 import qs from 'qs'
+import { useRouter } from 'next/router'
+import { format } from 'date-fns'
+import styled from '@emotion/styled'
+import { Button } from '../../components/Button'
+import { EmptyIcon } from '../../components/EmptyIcon'
 
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
 
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { useRouter } from 'next/router'
-import { format } from 'date-fns'
 
 // TODO:(Dimitreee) move to packages
 import RU from 'date-fns/locale/ru'
@@ -153,6 +156,45 @@ const tableStateFromQuery = (router) => {
     }
 }
 
+const EmptyListViewContainer = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+`
+
+const EmptyListView = () => {
+    const intl = useIntl()
+    const router = useRouter()
+
+    return (
+        <EmptyListViewContainer>
+            <Empty
+                image={<EmptyIcon/>}
+                imageStyle={{ height: '120px' }}
+                description={
+                    <Space direction={'vertical'} size={0}>
+                        <Typography.Title level={3}>
+                            {intl.formatMessage({ id: 'ticket.EmptyList.header' })}
+                        </Typography.Title>
+                        <Typography.Text style={{ fontSize: '16px' }}>
+                            {intl.formatMessage({ id: 'ticket.EmptyList.title' })}
+                        </Typography.Text>
+                        <Button
+                            type='sberPrimary'
+                            style={{ marginTop: '16px' }}
+                            onClick={() => router.push('/ticket/create')}
+                        >
+                            {intl.formatMessage({ id: 'CreateTicket' })}
+                        </Button>
+                    </Space>
+                }
+            />
+        </EmptyListViewContainer>
+    )
+}
+
 const TicketsPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
@@ -210,18 +252,28 @@ const TicketsPage = () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={PageTitleMsg}/>
+                <PageHeader
+                    title={
+                        <Typography.Title style={{ margin: 0 }}>
+                            {PageTitleMsg}
+                        </Typography.Title>
+                    }
+                />
                 <PageContent>
                     <OrganizationRequired>
-                        <Table
-                            loading={loading}
-                            dataSource={tickets}
-                            columns={tableColumns}
-                            onRow={handleRowAction}
-                            onChange={handleTableChange}
-                            rowKey={record => record.id}
-                            pagination={{ ...pagination, total: count }}
-                        />
+                        {
+                            tickets.length
+                                ? <Table
+                                    loading={loading}
+                                    dataSource={tickets}
+                                    columns={tableColumns}
+                                    onRow={handleRowAction}
+                                    onChange={handleTableChange}
+                                    rowKey={record => record.id}
+                                    pagination={{ ...pagination, total: count }}
+                                />
+                                : <EmptyListView/>
+                        }
                     </OrganizationRequired>
                 </PageContent>
             </PageWrapper>

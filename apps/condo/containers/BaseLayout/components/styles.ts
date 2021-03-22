@@ -189,6 +189,8 @@ export const pageWrapperCss = css`
   padding: 0 48px;
   margin: 0;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 
   @media (max-width: 768px) {
     padding: 0 12px;
@@ -201,7 +203,7 @@ export const pageWrapperCss = css`
   }
 `
 export const pageHeaderCss = css`
-  padding: 0 0 24px;
+  padding: 0 0 40px;
   background: ${colors.white};
 
   @media (max-width: 768px) {
@@ -212,6 +214,7 @@ export const pageHeaderCss = css`
   }
 `
 export const pageContentCss = css`
+  flex-grow: 1;
   max-width: 1200px;
   padding-bottom: 56px;
   background: ${colors.white};
