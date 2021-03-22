@@ -4,6 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const faker = require('faker')
+
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
