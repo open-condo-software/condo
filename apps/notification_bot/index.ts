@@ -1,57 +1,43 @@
 require('dotenv').config()
 
-import TelegramBot from 'node-telegram-bot-api'
+import { createHmac } from 'crypto'
 import express from 'express'
 import cors from 'cors'
 
+import { BotController } from './botController'
+import { getMessage } from './utils'
+
 const app = express()
+const bot = new BotController()
+bot.init()
 
-const token = process.env.NOTIFICATION_BOT_CONFIG && JSON.parse(process.env.NOTIFICATION_BOT_CONFIG)?.auth_token
-const tgBot = new TelegramBot(token, { polling: true })
+app.use(express.json())
+app.use(cors())
 
-let chatId = null
+function verify_signature (payload_body) {
+    const secretToken = process.env.NOTIFICATION_BOT_CONFIG && JSON.parse(process.env.NOTIFICATION_BOT_CONFIG)?.github_secure_token
+    const expected = createHmac('sha256', payload_body).digest('hex')
+    console.log(expected, secretToken)
+    // TODO: add verification by Token
+}
 
-tgBot.on('message', message => {
-    const { text, chat } = message
-
-    switch (text) {
-        case '/start':
-            chatId = chat.id
-            break
-        case '/stop':
-            chatId = null
-            break
-    }
-})
-
-const getMessage = (link, userName) => (`
-******************************
-Pull request opened.
-Author: ${userName}.
-Link: ${link}.
-******************************
-`)
-
-const notifyPullRequestOpened = (payload) => {
-    if (!chatId || payload?.action !== 'opened') {
+app.post('/pullRequestUpdate/', (req, res) => {
+    if (req.body?.action !== 'opened') {
         return
     }
 
-    const pullRequest = payload?.pull_request
+    const pullRequest = req.body?.pull_request
 
     if (!pullRequest) {
         return
     }
 
-    tgBot.sendMessage(chatId, getMessage(pullRequest._links.html.href, pullRequest.user.login))
-}
+    const signature = req.headers['http_x_hub_signature_256']
+    verify_signature(signature)
 
-app.use(express.json())
-app.use(cors())
-
-app.post('/pullRequestUpdate/', (req, res) => {
-    notifyPullRequestOpened(req.body)
-    res.send()
+    const message = getMessage(pullRequest._links.html.href, pullRequest.user.login, bot.getUsers())
+    bot.sendMessage(message)
+    res.send('OK')
 })
 
 // get from env
