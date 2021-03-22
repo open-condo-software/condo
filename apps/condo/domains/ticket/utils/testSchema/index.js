@@ -9,21 +9,29 @@ const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegenera
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
+const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
+const TICKET_UNKNOWN_CLASSIFIER_ID = '4f4b43d5-0951-425c-9428-945dc6193361'
+const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
+
 const Ticket = generateGQLTestUtils(TicketGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestTicket (client, status, operator, classifier, extraAttrs = {}) {
+async function createTestTicket (client, organization, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!property || !property.id) throw new Error('no property.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestTicket logic for generate fields
+    const details = faker.random.alphaNumeric(10)
 
     const attrs = {
         dv: 1,
         sender,
-        status: { connect: { id: status.id } },
-        operator: { connect: { id: operator.id } },
-        classifier: { connect: { id: classifier.id } },
+        details,
+        organization: { connect: { id: organization.id } },
+        property: { connect: { id: property.id } },
+        status: { connect: { id: TICKET_OPEN_STATUS_ID } },
+        classifier: { connect: { id: TICKET_UNKNOWN_CLASSIFIER_ID } },
+        source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
         ...extraAttrs,
     }
     const obj = await Ticket.create(client, attrs)
