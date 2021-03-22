@@ -158,7 +158,6 @@ async function patching (templateDirectory, targetDirectory, ctx) {
 async function generate (templateDirectory, targetDirectory, ctx) {
     const readmeFile = path.join(targetDirectory, 'README.md')
     const tmpDirectory = await mkdtemp(path.join(os.tmpdir(), 'tmp-'))
-    // console.log('%s Temporary dir: %s', chalk.green.bold('INFO'), tmpDirectory)
 
     try {
         await access(templateDirectory, fs.constants.R_OK)
