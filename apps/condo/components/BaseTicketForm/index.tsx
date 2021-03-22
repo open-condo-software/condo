@@ -1,111 +1,34 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
-import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
-import { useRouter } from 'next/router'
-import { Rule } from 'rc-field-form/lib/interface'
-import React from 'react'
 import styled from '@emotion/styled'
-import { useAuth } from '@core/next/auth'
-import { FormWithAction } from '../containers/FormList'
-import { searchEmployee, searchProperty, searchTicketClassifier } from '../utils/clientSchema/Ticket/search'
-import { Button } from './Button'
-import { FocusContainer } from './FocusContainer'
-import { GraphQlSearchInput } from './GraphQlSearchInput'
-import { LabelWithInfo } from './LabelWithInfo'
-import { UnitNameInput } from './UnitNameInput'
-import { colors } from '../constants/style'
-import MaskedInput from 'antd-mask-input'
-import { UserNameField } from './UserNameField'
+import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
+import React from 'react'
+import { colors } from '../../constants/style'
+import { FormWithAction } from '../../containers/FormList'
+import { searchEmployee, searchProperty, searchTicketClassifier } from '../../utils/clientSchema/Ticket/search'
+import { FocusContainer } from '../FocusContainer'
+import { GraphQlSearchInput } from '../GraphQlSearchInput'
+import { LabelWithInfo } from '../LabelWithInfo'
+import { NumericInput } from '../NumericInput'
+import { UnitNameInput } from '../UnitNameInput'
+import { UserNameField } from '../UserNameField'
+import { useTicketValidations } from './useTicketValidations'
 
 const LAYOUT = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
 }
 
-type IFormFieldsRuleMap = {
-    [key: string]: Rule[]
-}
-
-function useTicketValidations (): IFormFieldsRuleMap {
-    const intl = useIntl()
-
-    return {
-        property: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'field.Property.requiredError' }),
-            },
-        ],
-        unitName: [],
-        source: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'SelectIsRequired' }),
-            },
-        ],
-        clientName: [
-            {
-                required: true,
-                min: 2,
-                type: 'string',
-                message: intl.formatMessage({ id: 'field.ClientName.minLengthError' }),
-            },
-        ],
-        clientPhone: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'field.Phone.requiredError' }),
-            },
-            {
-                validator: (_, value) => {
-                    const phone = value.replace(/\D/g, '')
-
-                    if (phone.length != 11) {
-                        return Promise.reject(new Error(intl.formatMessage({ id: 'field.Phone.lengthError' })))
-                    }
-
-                    return Promise.resolve()
-                },
-            },
-        ],
-        clientEmail: [
-            {
-                type: 'email',
-                message: intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' }),
-            },
-        ],
-        details: [
-            {
-                required: true,
-                min: 20,
-                message: intl.formatMessage({ id: 'field.Description.lengthError' }),
-            },
-        ],
-        classifier: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'field.Classifier.requiredError' }),
-            },
-        ],
-        executor: [],
-        assignee: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'field.Assignee.requiredError' }),
-            },
-        ],
-    }
-}
 
 interface IOrganization {
     id: string
 }
 
 interface ITicketFormProps {
-    initialValues: Record<string, string|number|null|undefined>
-    action?: (...args) => void,
     organization: IOrganization
+    initialValues?: Record<string, string|number|null|undefined>
+    action?: (...args) => void,
 }
 
 const FrontLayerContainer = styled.div`
@@ -128,20 +51,10 @@ const FrontLayerContainer = styled.div`
   `}
 `
 
-const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
-
-const ErrorsContainer = styled.div`
-  padding: 9px 16px;
-  border-radius: 8px;
-  background-color: ${colors.beautifulBlue[5]};
-`
 
 // TODO(Dimitreee): decompose this huge component to field groups
 export const BaseTicketForm:React.FC<ITicketFormProps> = (props) => {
     const intl = useIntl()
-    // TODO(Dimitreee):remove after typo inject
-    const auth = useAuth() as { user: { id: string } }
-    const router = useRouter()
 
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
@@ -160,10 +73,6 @@ export const BaseTicketForm:React.FC<ITicketFormProps> = (props) => {
 
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
-    const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
-
-    const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
-    const UpdateTicketMessage = intl.formatMessage({ id: 'UpdateTicket' })
 
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
@@ -232,8 +141,13 @@ export const BaseTicketForm:React.FC<ITicketFormProps> = (props) => {
                                                         </Form.Item>
                                                     </Col>
                                                     <Col span={11}>
-                                                        <Form.Item name={'clientPhone'} rules={validations.clientPhone} label={PhoneLabel} validateFirst>
-                                                            <MaskedInput mask={'+1 (111) 111-11-11'} placeholderChar={'0'}/>
+                                                        <Form.Item
+                                                            name={'clientPhone'}
+                                                            rules={validations.clientPhone}
+                                                            label={PhoneLabel}
+                                                            validateFirst
+                                                        >
+                                                            <NumericInput/>
                                                         </Form.Item>
                                                     </Col>
                                                 </>
@@ -302,7 +216,6 @@ export const BaseTicketForm:React.FC<ITicketFormProps> = (props) => {
                                                                     name={'executor'}
                                                                     rules={validations.executor}
                                                                     label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel}/>}
-                                                                    initialValue={auth.user.id}
                                                                 >
                                                                     <GraphQlSearchInput
                                                                         formatLabel={formatUserFieldLabel}
@@ -318,7 +231,6 @@ export const BaseTicketForm:React.FC<ITicketFormProps> = (props) => {
                                                                     name={'assignee'}
                                                                     rules={validations.assignee}
                                                                     label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
-                                                                    initialValue={auth.user.id}
                                                                 >
                                                                     <GraphQlSearchInput
                                                                         formatLabel={formatUserFieldLabel}
@@ -338,49 +250,12 @@ export const BaseTicketForm:React.FC<ITicketFormProps> = (props) => {
                                 }
                             }
                         </Form.Item>
-                        <Col span={24}>
-                            <Row style={{ paddingTop: '20px' }}>
-                                <Form.Item noStyle dependencies={['property', 'unitName']}>
-                                    {
-                                        ({ getFieldsValue }) => {
-                                            const { property, unitName } = getFieldsValue(['property', 'unitName'])
-                                            const disableUserInteraction = !property || !unitName
-
-                                            return (
-                                                <>
-                                                    <Col>
-                                                        <Button
-                                                            key='submit'
-                                                            onClick={handleSave}
-                                                            type='sberPrimary'
-                                                            loading={isLoading} disabled={disableUserInteraction}
-                                                        >
-                                                            {router.query.id ? UpdateTicketMessage : CreateTicketMessage}
-                                                        </Button>
-                                                    </Col>
-                                                    <Col span={11} push={1}>
-                                                        {disableUserInteraction && (
-                                                            <ErrorsContainer>
-                                                                {ErrorsContainerTitle}&nbsp;
-                                                                {
-                                                                    [!property && AddressLabel, !unitName && FlatNumberLabel]
-                                                                        .filter(Boolean)
-                                                                        .join(', ')
-                                                                        .toLowerCase()
-                                                                }
-                                                            </ErrorsContainer>
-                                                        )}
-                                                    </Col>
-                                                </>
-                                            )
-                                        }
-                                    }
-                                </Form.Item>
-                            </Row>
-                        </Col>
-                        <Form.Item name={'source'} hidden initialValue={DEFAULT_TICKET_SOURCE_CALL_ID}>
+                        <Form.Item name={'source'} hidden>
                             <Input/>
                         </Form.Item>
+                        <Col span={24}>
+                            {props.children({ handleSave, isLoading, form })}
+                        </Col>
                     </Row>
                 )}
             </FormWithAction>
