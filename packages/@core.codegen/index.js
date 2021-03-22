@@ -190,8 +190,15 @@ function createapp (argv) {
             if (!/^[a-z_][a-z0-9_]+$/.test(name)) throw new Error('<name> should be [a-z0-9_]+ string')
             return name
         })
+        .options({
+            'force': {
+                default: false,
+                describe: 'create if exists',
+                type: 'boolean',
+            },
+        })
         .usage(
-            '$0 <name>',
+            '$0 <name> [--force]',
             'generate new application folder at apps/<name>',
             (yargs) => {
                 yargs.positional('name', {
@@ -199,7 +206,8 @@ function createapp (argv) {
                     type: 'string',
                 })
             },
-            (args) => {
+            async (args) => {
+                const force = args.force
                 const name = args.name
                 const greeting = chalk.white.bold(name)
                 const boxenOptions = {
@@ -210,10 +218,14 @@ function createapp (argv) {
                     backgroundColor: '#555555',
                 }
                 const msgBox = boxen(greeting, boxenOptions)
-                console.log(msgBox)
                 const template = conf.CODEGEN_APPLICATION_TEMPLATE || DEFAULT_APPLICATION_TEMPLATE
                 const targetDirectory = path.resolve(process.cwd(), `./apps/${name}`)
                 const templateDirectory = path.resolve(path.dirname(__filename), 'templates', template)
+
+                const isTargetDirExists = await exists(targetDirectory)
+                if (isTargetDirExists && !force) throw new Error(`App '${name}' is already exists!`)
+
+                console.log(msgBox)
                 generate(templateDirectory, targetDirectory, { name })
             },
         )
@@ -235,8 +247,15 @@ function createschema (argv) {
             if (!/^(?:(?<field>[a-z][a-zA-Z0-9]+[?]?):(?<type>Text|Password|Integer|Decimal|File|DateTimeUtc|Json|Checkbox|Select:[a-z0-9, ]+|Relationship:[A-Za-z0-9]+:(CASCADE|PROTECT|SET_NULL|DO_NOTHING))[ ;]*?)+$/.test(signature)) throw new Error('<signature> has a invalid format: we expect <field>:<type>. Example: user:Relationship:User:CASCADE; password:Password; email:Text; type:Select:t1,t2')
             return signature.split(/[ ]*;+[ ]*/).map(x => x.split(':'))
         })
+        .options({
+            'force': {
+                default: false,
+                describe: 'create if exists',
+                type: 'boolean',
+            },
+        })
         .usage(
-            '$0 <domain>.<schema> <signature>',
+            '$0 <domain>.<schema> <signature> [--force]',
             'generate new domain models and services',
             (yargs) => {
                 yargs.positional('<domain>.<schema>', {
@@ -248,7 +267,8 @@ function createschema (argv) {
                     type: 'string',
                 })
             },
-            (args) => {
+            async (args) => {
+                const force = args.force
                 const [domain, name] = args.domainschema.split('.')
                 const signature = toFields(args.signature)
                 const greeting = chalk.blue.bold(domain) + chalk.green.bold('.') + chalk.red.bold(name)
@@ -260,11 +280,15 @@ function createschema (argv) {
                     backgroundColor: '#555555',
                 }
                 const msgBox = boxen(greeting, boxenOptions)
-                console.log(msgBox)
                 const template = conf.CODEGEN_SCHEMA_TEMPLATE || DEFAULT_SCHEMA_TEMPLATE
                 const targetDirectory = path.resolve(process.cwd())
                 const templateDirectory = path.resolve(path.dirname(__filename), 'templates', template)
                 const app = path.basename(targetDirectory)
+
+                const isTargetDirExists = await exists(path.join(targetDirectory, 'domains', domain, 'schema', `${name}.js`))
+                if (isTargetDirExists && !force) throw new Error(`Schema ${domain}.'${name}'.js is already exists!`)
+
+                console.log(msgBox)
                 generate(templateDirectory, targetDirectory, { app, domain, name, signature })
             },
         )
