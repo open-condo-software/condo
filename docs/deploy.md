@@ -51,8 +51,9 @@ dokku letsencrypt:cron-job --add
 ```shell script
 # BUILD CONTAINER LOCALY AND SEND IT TO DOKKU SERVER
 export DOCKER_COMPOSE_APP_IMAGE_TAG=coddi
+export DOCKER_COMPOSE_APP_IMAGE_VERSION=v1
 docker-compose build
-docker save apps:${DOCKER_COMPOSE_APP_IMAGE_TAG} | bzip2 | pv | ssh root@dok.8iq.dev 'bunzip2 | docker load'
+docker save apps:${DOCKER_COMPOSE_APP_IMAGE_TAG}.${DOCKER_COMPOSE_APP_IMAGE_VERSION} | bzip2 | pv | ssh root@dok.8iq.dev 'bunzip2 | docker load'
 ```
 
 ```shell script
