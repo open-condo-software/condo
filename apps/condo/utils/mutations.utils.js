@@ -14,7 +14,7 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
             if (!Array.isArray(v['errors'])) throw new Error(`ErrorToFormFieldMsgMapping["${k}"]["errors"] is not an array`)
         })
     }
-    const DoneMsg = intl.formatMessage({ id: 'Done' })
+    const DoneMsg = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     action = (action) ? action : () => mutation({ variables })
