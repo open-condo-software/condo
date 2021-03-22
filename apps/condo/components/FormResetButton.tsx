@@ -1,8 +1,11 @@
 import React from 'react'
 import { Form } from 'antd'
+import { useIntl } from '@core/next/intl'
 import { Button, CustomButtonProps } from './Button'
 
 export const FormResetButton:React.FC<CustomButtonProps> = (props) => {
+    const intl = useIntl()
+
     return (
         <Form.Item noStyle shouldUpdate>
             {({ isFieldsTouched, resetFields }) => {
@@ -10,7 +13,7 @@ export const FormResetButton:React.FC<CustomButtonProps> = (props) => {
 
                 return (
                     <Button {...props} onClick={() => resetFields()} disabled={!isTouched}>
-                        Отменить
+                        {intl.formatMessage({ id: 'Cancel' })}
                     </Button>
                 )
             }}
