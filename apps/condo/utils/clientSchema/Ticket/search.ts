@@ -13,7 +13,7 @@ const GET_ALL_SOURCES_QUERY = gql`
 // TODO(pahaz): add organization filter
 const GET_ALL_CLASSIFIERS_QUERY = gql`
     query selectSource ($value: String) {
-        objs: allTicketClassifiers(where: {name_contains: $value, organization_is_null: true, parent_is_null: true}) {
+        objs: allTicketClassifiers(where: {name_contains_i: $value, organization_is_null: true, parent_is_null: true}) {
             id
             name
         }
@@ -23,7 +23,7 @@ const GET_ALL_CLASSIFIERS_QUERY = gql`
 // TODO(pahaz): add organization filter
 const GET_ALL_PROPERTIES_QUERY = gql`
     query selectProperty ($value: String) {
-        objs: allProperties(where: {address_contains: $value}) {
+        objs: allProperties(where: {address_contains_i: $value}) {
             id
             address
         }
@@ -32,7 +32,7 @@ const GET_ALL_PROPERTIES_QUERY = gql`
 
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
     query selectOrgarnizationEmployee ($value: String, $organization: ID) {
-        objs: allOrganizationEmployees(where: {name_contains: $value, organization: {id: $organization}}) {
+        objs: allOrganizationEmployees(where: {name_contains_i: $value, organization: {id: $organization}}) {
             name
             user {
                 id
