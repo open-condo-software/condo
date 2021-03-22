@@ -54,6 +54,7 @@ app.post('/pullRequestUpdate/', (req, res) => {
     res.send()
 })
 
-app.listen(80, () => {
-    console.log('listening on 80')
+// get from env
+app.listen(5000, () => {
+    console.log('listening on 5000')
 })
