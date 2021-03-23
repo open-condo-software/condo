@@ -41,14 +41,16 @@ const TicketUpdatePage = () => {
 
 const HeaderAction = () => {
     const { query } = useRouter()
-    console.log(query)
+    const inl = useIntl()
+    const BackMessage = inl.formatMessage({ id: 'Back' })
 
     return (
         <LinkWithIcon
             icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            locale={'Back'}
             path={`/ticket/${query.id}`}
-        />
+        >
+            {BackMessage}
+        </LinkWithIcon>
     )
 }
 

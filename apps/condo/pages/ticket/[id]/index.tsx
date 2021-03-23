@@ -305,12 +305,20 @@ const TicketIdPage = () => {
     )
 }
 
-TicketIdPage.headerAction = (
-    <LinkWithIcon
-        icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-        locale={'menu.AllTickets'}
-        path={'/ticket/'}
-    />
-)
+const HeaderAction = () => {
+    const intl = useIntl()
+    const AllTicketsMessage = intl.formatMessage({ id: 'menu.AllTickets' })
+
+    return (
+        <LinkWithIcon
+            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
+            path={'/ticket/'}
+        >
+            {AllTicketsMessage}
+        </LinkWithIcon>
+    )
+}
+
+TicketIdPage.headerAction = <HeaderAction/>
 
 export default TicketIdPage

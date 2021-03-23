@@ -5,6 +5,7 @@ import { Button, CustomButtonProps } from './Button'
 
 export const FormResetButton:React.FC<CustomButtonProps> = (props) => {
     const intl = useIntl()
+    const CancelMessage = intl.formatMessage({ id: 'Cancel' })
 
     return (
         <Form.Item noStyle shouldUpdate>
@@ -13,7 +14,7 @@ export const FormResetButton:React.FC<CustomButtonProps> = (props) => {
 
                 return (
                     <Button {...props} onClick={() => resetFields()} disabled={!isTouched}>
-                        {intl.formatMessage({ id: 'Cancel' })}
+                        {CancelMessage}
                     </Button>
                 )
             }}

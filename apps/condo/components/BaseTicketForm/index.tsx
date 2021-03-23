@@ -10,7 +10,7 @@ import { searchEmployee, searchProperty, searchTicketClassifier } from '../../ut
 import { FocusContainer } from '../FocusContainer'
 import { GraphQlSearchInput } from '../GraphQlSearchInput'
 import { LabelWithInfo } from '../LabelWithInfo'
-import { NumericInput } from '../NumericInput'
+import { PhoneInput } from '../PhoneInput'
 import { UnitNameInput } from '../UnitNameInput'
 import { UserNameField } from '../UserNameField'
 import { useTicketValidations } from './useTicketValidations'
@@ -147,7 +147,7 @@ export const BaseTicketForm:React.FC<ITicketFormProps> = (props) => {
                                                             label={PhoneLabel}
                                                             validateFirst
                                                         >
-                                                            <NumericInput/>
+                                                            <PhoneInput/>
                                                         </Form.Item>
                                                     </Col>
                                                 </>

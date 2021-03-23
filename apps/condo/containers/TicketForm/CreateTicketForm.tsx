@@ -24,7 +24,7 @@ export const CreateTicketForm:React.FC = () => {
     const { organization } = useOrganization()
     const router = useRouter()
     // TODO(Dimitreee):remove after typo inject
-    const auth = useAuth() as { user: {id:string} }
+    const auth = useAuth() as { user: { id: string } }
 
     const action = Ticket.useCreate(
         {

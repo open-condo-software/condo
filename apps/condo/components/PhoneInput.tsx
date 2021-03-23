@@ -1,12 +1,12 @@
 import { Input, InputProps } from 'antd'
 import React from 'react'
-import { NUMBERS_AND_PLUS } from '../constants/regexps'
+import { PHONE } from '../constants/regexps'
 
-export const NumericInput:React.FC<InputProps> = (props) => {
+export const PhoneInput:React.FC<InputProps> = (props) => {
     const onChange = React.useCallback((e:React.ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target
 
-        if ((!isNaN(Number(value)) && NUMBERS_AND_PLUS.test(value)) || value === '' || value === '+') {
+        if ((!isNaN(Number(value)) && PHONE.test(value)) || value === '' || value === '+') {
             props.onChange(e)
         }
     }, [])

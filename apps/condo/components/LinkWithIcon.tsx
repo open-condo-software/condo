@@ -1,8 +1,7 @@
-import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { Space, Typography } from 'antd'
 import { colors } from '../constants/style'
-import React, { useMemo } from 'react'
+import React, { useCallback } from 'react'
 import styled from '@emotion/styled'
 import { Button } from './Button'
 
@@ -15,7 +14,6 @@ const IconContainer = styled.div`
   align-items: center;
   background-color: ${colors.lightGrey[5]};
   border-radius: 8px;
-  margin-right: 16px;
 `
 
 const StyledButton = styled(Button)`
@@ -34,25 +32,24 @@ const StyledButton = styled(Button)`
 
 interface ILinkWithIconProps {
     path: string,
-    locale: string
     icon?: React.ReactNode
+    children?: React.ReactNode
 }
 
-export const LinkWithIcon = (props: ILinkWithIconProps) => {
-    const intl = useIntl()
+export const LinkWithIcon:React.FC<ILinkWithIconProps> = (props: ILinkWithIconProps) => {
     const router = useRouter()
-    const handleClick = useMemo(() => {
-        return () => {
-            router.push(props.path)
-        }
+    const handleClick = useCallback(() => {
+        router.push(props.path)
     }, [props.path])
 
     return (
         <StyledButton type='link' onClick={handleClick}>
-            {props.icon && <IconContainer className='icon'>{props.icon}</IconContainer>}
-            <Typography.Text className='text'>
-                {intl.formatMessage({ id: props.locale })}
-            </Typography.Text>
+            <Space size={16}>
+                {props.icon && <IconContainer className='icon'>{props.icon}</IconContainer>}
+                <Typography.Text className='text'>
+                    {props.children}
+                </Typography.Text>
+            </Space>
         </StyledButton>
     )
 }

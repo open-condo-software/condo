@@ -84,7 +84,7 @@ export const getTicketLabel = (intl, ticket) => {
 
 export const sortStatusesByType = (statuses) => {
     // status priority map [min -> max]
-    const orderedStatusPriority = ['deferred', 'deferred', 'canceled', 'completed', 'processing', 'new_or_reopened' ]
+    const orderedStatusPriority = ['deferred', 'canceled', 'completed', 'processing', 'new_or_reopened' ]
 
     return statuses.sort((leftStatus, rightStatus) => {
         const leftStatusWeight = orderedStatusPriority.indexOf(leftStatus.type)
