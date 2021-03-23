@@ -10,7 +10,7 @@ import qs from 'qs'
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
 
-import { Ticket } from '../../utils/clientSchema/Ticket'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { useRouter } from 'next/router'
 import { format } from 'date-fns'
 
