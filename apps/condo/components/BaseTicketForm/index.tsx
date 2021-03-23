@@ -4,6 +4,7 @@ import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
 import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
 import React from 'react'
+import { ITicketUIFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { colors } from '../../constants/style'
 import { FormWithAction } from '../../containers/FormList'
 import { searchEmployee, searchProperty, searchTicketClassifier } from '../../utils/clientSchema/Ticket/search'
@@ -27,7 +28,7 @@ interface IOrganization {
 
 interface ITicketFormProps {
     organization: IOrganization
-    initialValues?: Record<string, string|number|null|undefined>
+    initialValues?: ITicketUIFormState
     action?: (...args) => void,
 }
 

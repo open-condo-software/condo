@@ -10,8 +10,8 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { Ticket, TicketUpdateInput, Organization, QueryAllTicketsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'organization', 'statusReopenedCounter', 'statusReason', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'operator', 'assignee', 'classifier', 'details', 'meta', 'source', 'property', 'executor']
-const RELATIONS = ['status', 'client', 'operator', 'assignee', 'classifier', 'organization', 'source', 'property', 'executor']
+const FIELDS = ['id', 'dv', 'sender', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'unitName', 'watchers', 'operator', 'assignee', 'classifier', 'details', 'related', 'isEmergency', 'isPaid', 'meta', 'source', 'property', 'executor']
+const RELATIONS = ['status', 'client', 'operator', 'assignee', 'classifier', 'organization', 'source', 'property', 'executor', 'related']
 
 interface ITicketUIState extends Ticket {
     id: string
@@ -34,9 +34,11 @@ interface ITicketUIFormState extends Ticket {
 }
 
 function convertToUIFormState (state: ITicketUIState): ITicketUIFormState {
+    if (!state) return {} as ITicketUIFormState
     const result = {}
-    for (const attr in Object.keys(state)) {
-        result[attr] = (RELATIONS.includes(attr)) ? state[attr].id : state[attr]
+    for (const attr of Object.keys(state)) {
+        const attrId = get(state[attr], 'id')
+        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
     }
     return result as ITicketUIFormState
 }
@@ -44,7 +46,7 @@ function convertToUIFormState (state: ITicketUIState): ITicketUIFormState {
 function convertToGQLInput (state: ITicketUIFormState): TicketUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
-    for (const attr in Object.keys(state)) {
+    for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
         result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
     }
@@ -66,4 +68,6 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    ITicketUIFormState,
+    ITicketUIState,
 }
