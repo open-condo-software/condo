@@ -7,7 +7,7 @@ import { searchProperty, searchTicketClassifier, searchTicketSources } from '../
 import { Input, Space } from 'antd'
 import { RenderActionsColumn, toGQLSortBy, useTable, ViewOrEditTableBlock } from './FormTableBlocks'
 import { useOrganization } from '../../../packages/@core.next/organization'
-import { Ticket } from '../utils/clientSchema/Ticket'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import React, { useEffect, useMemo } from 'react'
 import { runMutation } from '../utils/mutations.utils'
 const OPEN_STATUS ='6ef3abc4-022f-481b-90fb-8430345ebfc2'

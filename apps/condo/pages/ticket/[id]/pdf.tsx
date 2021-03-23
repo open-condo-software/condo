@@ -15,7 +15,7 @@ import {
 } from '../../../utils/ticket'
 import { createPdf } from '../../../utils/pdf'
 import { useRouter } from 'next/router'
-import { Ticket } from '../../../utils/clientSchema/Ticket'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import LoadingOrErrorPage from '../../../containers/LoadingOrErrorPage'
 import { PageContent } from '../../../containers/BaseLayout'
 

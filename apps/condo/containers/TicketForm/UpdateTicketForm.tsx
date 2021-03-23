@@ -9,7 +9,7 @@ import { ErrorsContainer } from '../../components/BaseTicketForm/ErrorsContainer
 import { FormResetButton } from '../../components/FormResetButton'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { Ticket } from '../../utils/clientSchema/Ticket'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 
 interface IUpdateTicketForm {
     id: string

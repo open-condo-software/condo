@@ -12,11 +12,11 @@ interface IHookConverters<GQL, GQLInput, UI, UIForm> {
 }
 
 interface IHookResult<UI, UIForm, Q> {
-    useObject: (variables: Q, memoize: boolean) => { obj: UI }
+    useObject: (variables: Q, memoize: boolean) => { obj: UI, loading: boolean, error?: ApolloError }
     useObjects: (variables: Q, memoize: boolean) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError }
-    useCreate: (attrs: UIForm, onComplete: (obj: UI) => void) => { obj: UI }
-    useUpdate: (attrs: UIForm, onComplete: (obj: UI) => void) => { obj: UI }
-    useDelete: (attrs: UIForm, onComplete: (obj: UI) => void) => { obj: UI }
+    useCreate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<{ obj: UI }>
+    useUpdate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<{ obj: UI }>
+    useDelete: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<{ obj: UI }>
 }
 
 export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convertToGQLInput, convertToUIState }: IHookConverters<GQL, GQLInput, UI, UIForm>): IHookResult<UI, UIForm, Q> {
@@ -67,7 +67,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         if (typeof attrs !== 'object' || !attrs) throw new Error('useCreate(): invalid attrs argument')
         let [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION)
 
-        async function _action (state) {
+        async function _action (state: UIForm) {
             const { data, error } = await rowAction({
                 variables: { data: convertToGQLInput({ ...state, ...attrs }) },
             })
