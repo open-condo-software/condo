@@ -112,6 +112,10 @@ export default function GlobalStyle () {
             }
           }
         }
+        
+        .ant-table-thead > tr > th {
+          font-weight: 700;
+        }
 
         ${page}
       `}
