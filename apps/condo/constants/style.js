@@ -1,4 +1,5 @@
-const { generate, grey } = require('@ant-design/colors')
+const { generate, grey, green } = require('@ant-design/colors')
+
 const sberBlue = '#5EB1FC'
 const sberGreen = '#4CD174'
 const white = '#fff'
@@ -17,6 +18,7 @@ const colors = {
     black,
 }
 
+// Possible customizations can be found at https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less
 const antGlobalVariables = {
     '@border-radius-base': '4px',
     '@white': white,
@@ -36,7 +38,7 @@ const antGlobalVariables = {
     '@checkbox-color': sberGreen,
     '@checkbox-check-bg': ultraLightGrey,
     '@form-item-margin-bottom': '0',
-
+    '@success-color': green[6],
 }
 
 module.exports = {

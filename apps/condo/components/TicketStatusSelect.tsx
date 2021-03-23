@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import React, { useCallback, useMemo } from 'react'
-import { Select } from 'antd'
+import { Select, Space, Typography } from 'antd'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
 import { green , grey, orange, red, yellow } from '@ant-design/colors'
@@ -9,7 +9,7 @@ import { Ticket , TicketStatus } from '../utils/clientSchema/Ticket'
 import { runMutation } from '../utils/mutations.utils'
 import { PROCESSING, CANCELED, COMPLETED, DEFERRED, NEW_OR_REOPEND } from '../constants/statusTypes'
 import { colors } from '../constants/style'
-import { getTicketLabel } from '../utils/ticket'
+import { getTicketFormattedLastStatusUpdate, getTicketLabel, sortStatusesByType } from '../utils/ticket'
 
 const statusSelectColors = {
     [NEW_OR_REOPEND]: {
@@ -50,7 +50,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {
         intl,
     }), [ticket])
 
-    const options = useMemo(() => statuses.map((status) => {
+    const options = useMemo(() => sortStatusesByType(statuses).map((status) => {
         const { value, label, type } = TicketStatus.convertGQLItemToFormSelectState(status)
         const { color } = statusSelectColors[type]
 
@@ -63,23 +63,26 @@ export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {
 
     const { color, backgroundColor } = statusSelectColors[ticket.status.type]
     const selectValue = { value: ticket.status.id, label: getTicketLabel(intl, ticket) }
+    const FormattedStatusUpdateMessage = useMemo(() => getTicketFormattedLastStatusUpdate(intl, ticket), [ticket])
 
     return (
-        <StyledSelect
-            style={{
-                color,
-                backgroundColor,
-            }}
-            loading={loading}
-            onChange={handleChange}
-            defaultValue={selectValue}
-            value={selectValue}
-            bordered={false}
-            labelInValue
-            {...props}
-        >
-            {options}
-        </StyledSelect>
+        <Space size={8} direction={'vertical'} align={'end'}>
+            <StyledSelect
+                style={{
+                    color,
+                    backgroundColor,
+                }}
+                loading={loading}
+                onChange={handleChange}
+                defaultValue={selectValue}
+                value={selectValue}
+                bordered={false}
+                labelInValue
+                {...props}
+            >
+                {options}
+            </StyledSelect>
+            <Typography.Text type="warning" style={{ color }}>{FormattedStatusUpdateMessage}</Typography.Text>
+        </Space>
     )
 }
-

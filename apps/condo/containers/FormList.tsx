@@ -301,6 +301,7 @@ interface IFormWithAction {
     onChange?: (changedValues: Record<string, unknown>, allValues: Record<string, unknown>) => void
     handleSubmit?: (values) => void
     validateTrigger?: string | string[]
+    resetOnComplete?: boolean
 }
 
 const FormWithAction:FunctionComponent<IFormWithAction> = (props) => {
@@ -321,6 +322,7 @@ const FormWithAction:FunctionComponent<IFormWithAction> = (props) => {
         OnCompletedMsg,
         initialValues,
         handleSubmit,
+        resetOnComplete,
         onChange,
         layout = 'vertical',
         validateTrigger,
@@ -374,8 +376,12 @@ const FormWithAction:FunctionComponent<IFormWithAction> = (props) => {
         return runMutation({
             ...actionOrMutationProps,
             onCompleted: () => {
-                if (onMutationCompleted) onMutationCompleted()
-                form.resetFields()
+                if (onMutationCompleted) {
+                    onMutationCompleted()
+                }
+                if (resetOnComplete) {
+                    form.resetFields()
+                }
             },
             onFinally: () => {
                 setIsLoading(false)
