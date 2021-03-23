@@ -6,7 +6,7 @@
 
 const { generateGqlQueries } = require('@{{app}}/domains/common/utils/codegeneration/generate.gql')
 
-const COMMON_FIELDS = 'id dv v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
 /* AUTOGENERATE MARKER <CONST> */
 

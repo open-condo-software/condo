@@ -25,8 +25,24 @@ async function createTest{{ name }} (client, {% for field in signature | selecta
     return [obj, attrs]
 }
 
+async function updateTest{{ name }} (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTest{{ name }} logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await {{ name }}.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /**/
 
 /* AUTOGENERATE MARKER <EXPORTS> */
-    {{ name }}, createTest{{ name }},
+    {{ name }}, createTest{{ name }}, updateTest{{name}},
 /**/
