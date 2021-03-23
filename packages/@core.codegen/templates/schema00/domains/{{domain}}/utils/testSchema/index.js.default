@@ -3,6 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const faker = require('faker')
 
 const { generateGQLTestUtils } = require('@{{app}}/domains/common/utils/codegeneration/generate.test.utils')
 
