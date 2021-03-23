@@ -10,8 +10,8 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { Ticket, TicketUpdateInput, Organization, QueryAllTicketsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'organization', 'statusReopenedCounter', 'statusReason', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'operator', 'assignee', 'classifier', 'details', 'meta', 'source']
-const RELATIONS = ['status', 'client', 'operator', 'assignee', 'classifier', 'organization', 'source']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'organization', 'statusReopenedCounter', 'statusReason', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'operator', 'assignee', 'classifier', 'details', 'meta', 'source', 'property', 'executor']
+const RELATIONS = ['status', 'client', 'operator', 'assignee', 'classifier', 'organization', 'source', 'property', 'executor']
 
 interface ITicketUIState extends Ticket {
     id: string
@@ -24,11 +24,10 @@ function convertToUIState (item: Ticket): ITicketUIState {
 }
 
 interface ITicketUIFormState extends Ticket {
-    id: string
-    organization: string
-    status: string
-    source: string
-    classifier: string
+    organization?: string
+    status?: string
+    source?: string
+    classifier?: string
     assignee?: string
     operator?: string
     client?: string
