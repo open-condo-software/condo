@@ -44,7 +44,7 @@ const getTableColumns = (sortedInfo, intl) => {
             width: '10%',
         },
         {
-            title: intl.formatMessage({ id: 'CreatedDate' }),
+            title: intl.formatMessage({ id: 'Date' }),
             sortOrder: setOrder(sortedInfo, 'createdAt'),
             render: (createdAt) => (
                 format(
@@ -76,7 +76,7 @@ const getTableColumns = (sortedInfo, intl) => {
             width: '10%',
         },
         {
-            title: intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' }),
+            title: intl.formatMessage({ id: 'Description' }),
             ellipsis: true,
             dataIndex: 'details',
             key: 'details',
@@ -93,7 +93,7 @@ const getTableColumns = (sortedInfo, intl) => {
             width: '12%',
         },
         {
-            title: intl.formatMessage({ id: 'ticketsTable.ResidentName' }),
+            title: intl.formatMessage({ id: 'Client' }),
             sortOrder: setOrder(sortedInfo, 'clientName'),
             ellipsis: true,
             dataIndex: 'clientName',
