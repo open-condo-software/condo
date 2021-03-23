@@ -4,41 +4,41 @@
 const { makeClientWithProperty } = require('../../../schema/Property/Property.test')
 const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient } = require('@core/keystone/test.utils')
 
-const { createTestTicket, updateTestTicket, Ticket } = require('@condo/domains/ticket/utils/testSchema')
+const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 
 describe('Ticket', () => {
     test('user: create Ticket', async () => {
         const client = await makeClientWithProperty()
-        const [ticket, attrs] = await createTestTicket(client, client.organization, client.property)
-        expect(ticket.id).toMatch(UUID_RE)
-        expect(String(ticket.number)).toMatch(NUMBER_RE)
-        expect(ticket.dv).toEqual(1)
-        expect(ticket.sender).toEqual(attrs.sender)
-        expect(ticket.source).toEqual(expect.objectContaining({ id: attrs.source.connect.id }))
-        expect(ticket.sourceMeta).toEqual(null)
-        expect(ticket.classifier).toEqual(expect.objectContaining({ id: attrs.classifier.connect.id }))
-        expect(ticket.property).toEqual(expect.objectContaining({ id: client.property.id }))
-        expect(ticket.status).toEqual(expect.objectContaining({ id: attrs.status.connect.id }))
-        expect(ticket.statusReopenedCounter).toEqual(0)
-        expect(ticket.statusReason).toEqual(null)
-        expect(ticket.statusUpdatedAt).toBeNull()
-        expect(ticket.details).toEqual(attrs.details)
-        expect(ticket.meta).toEqual(null)
-        expect(ticket.organization).toEqual(expect.objectContaining({ id: client.organization.id }))
-        expect(ticket.client).toEqual(null)
-        expect(ticket.operator).toEqual(null)
-        expect(ticket.assignee).toEqual(null)
-        expect(ticket.isPaid).toEqual(false)
-        expect(ticket.isEmergency).toEqual(false)
-        expect(ticket.executor).toEqual(null)
-        expect(ticket.watchers).toEqual([])
-        expect(ticket.v).toEqual(1)
-        expect(ticket.newId).toEqual(null)
-        expect(ticket.deletedAt).toEqual(null)
-        expect(ticket.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(ticket.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(ticket.createdAt).toMatch(DATETIME_RE)
-        expect(ticket.updatedAt).toMatch(DATETIME_RE)
+        const [obj, attrs] = await createTestTicket(client, client.organization, client.property)
+        expect(obj.id).toMatch(UUID_RE)
+        expect(obj.dv).toEqual(1)
+        expect(obj.sender).toEqual(attrs.sender)
+        expect(obj.v).toEqual(1)
+        expect(obj.newId).toEqual(null)
+        expect(obj.deletedAt).toEqual(null)
+        expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+        expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+        expect(obj.createdAt).toMatch(DATETIME_RE)
+        expect(obj.updatedAt).toMatch(DATETIME_RE)
+        expect(obj.organization).toEqual(expect.objectContaining({ id: client.organization.id }))
+        expect(String(obj.number)).toMatch(NUMBER_RE)
+        expect(obj.source).toEqual(expect.objectContaining({ id: attrs.source.connect.id }))
+        expect(obj.sourceMeta).toEqual(null)
+        expect(obj.classifier).toEqual(expect.objectContaining({ id: attrs.classifier.connect.id }))
+        expect(obj.property).toEqual(expect.objectContaining({ id: client.property.id }))
+        expect(obj.status).toEqual(expect.objectContaining({ id: attrs.status.connect.id }))
+        expect(obj.statusReopenedCounter).toEqual(0)
+        expect(obj.statusReason).toEqual(null)
+        expect(obj.statusUpdatedAt).toBeNull()
+        expect(obj.details).toEqual(attrs.details)
+        expect(obj.isPaid).toEqual(false)
+        expect(obj.isEmergency).toEqual(false)
+        expect(obj.meta).toEqual(null)
+        expect(obj.client).toEqual(null)
+        expect(obj.operator).toEqual(null)
+        expect(obj.assignee).toEqual(null)
+        expect(obj.executor).toEqual(null)
+        expect(obj.watchers).toEqual([])
     })
 
     test('anonymous: create Ticket', async () => {
@@ -58,10 +58,19 @@ describe('Ticket', () => {
 
     test.skip('user: read Ticket', async () => {
         const client = await makeClientWithProperty()
-        const [obj] = await createTestTicket(client, client.organization, client.property)
+        const [obj, attrs] = await createTestTicket(client, client.organization, client.property)
         const objs = await Ticket.getAll(client)
         expect(objs).toHaveLength(1)
-        expect(objs).toEqual([expect.objectContaining({ id: obj.id })])
+        expect(objs[0].id).toMatch(obj.id)
+        expect(objs[0].dv).toEqual(1)
+        expect(objs[0].sender).toEqual(attrs.sender)
+        expect(objs[0].v).toEqual(1)
+        expect(objs[0].newId).toEqual(null)
+        expect(objs[0].deletedAt).toEqual(null)
+        expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+        expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+        expect(objs[0].createdAt).toMatch(obj.createdAt)
+        expect(objs[0].updatedAt).toMatch(obj.updatedAt)
     })
 
     test('anonymous: read Ticket', async () => {
@@ -83,14 +92,25 @@ describe('Ticket', () => {
         const client = await makeClientWithProperty()
         const payload = { details: 'new data' }
         const [objCreated] = await createTestTicket(client, client.organization, client.property)
-        const [objUpdated] = await updateTestTicket(client, objCreated.id, payload)
-        expect(objUpdated).toEqual(expect.objectContaining({
-            id: objCreated.id,
-            details: payload.details,
-            // TODO(pahaz): should correctly update ticket without ticket number increment!
-            number: objCreated.number,
-            v: 2,
-        }))
+
+        const [objUpdated, attrs] = await updateTestTicket(client, objCreated.id, payload)
+
+        expect(objUpdated.id).toEqual(objCreated.id)
+        expect(objUpdated.dv).toEqual(1)
+        expect(objUpdated.sender).toEqual(attrs.sender)
+        expect(objUpdated.v).toEqual(2)
+        expect(objUpdated.newId).toEqual(null)
+        expect(objUpdated.deletedAt).toEqual(null)
+        expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+        expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+        expect(objUpdated.createdAt).toMatch(DATETIME_RE)
+        expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
+        expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+        expect(objUpdated.details).toEqual(payload.details)
+        expect(objUpdated.organization).toEqual(expect.objectContaining({ id: client.organization.id }))
+        expect(objUpdated.number).toEqual(objCreated.number) // TODO(pahaz): fix me!
+        expect(objUpdated.source).toEqual(expect.objectContaining({ id: objCreated.organization.id }))
+        // TODO(pahaz): check others fields ...
     })
 
     test('anonymous: update Ticket', async () => {
@@ -141,13 +161,3 @@ describe('Ticket', () => {
         }
     })
 })
-
-//
-// test('should correctly update ticket status without ticket number increment', async () => {
-//     const client = await makeClientWithProperty()
-//     const [ticket] = await createTicket(client, client.organization, client.property)
-//     const prevTicketNmber = ticket.number
-//     const obj = await updateTicket(client, ticket, { status: { connect: { id: 'f0fa0093-8d86-4e69-ae1a-70a2914da82f' } } })
-//
-//     expect(obj.number).toEqual(prevTicketNmber)
-// })
