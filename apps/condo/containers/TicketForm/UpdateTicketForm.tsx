@@ -43,7 +43,7 @@ export const UpdateTicketForm:React.FC<IUpdateTicketForm> = ({ id }) => {
     return (
         <BaseTicketForm
             action={updateAction}
-            initialValues={Ticket.convertGQLItemToFormState(obj)}
+            initialValues={Ticket.convertToUIFormState(obj)}
             organization={organization}
         >
             {({ handleSave, isLoading }) => {
