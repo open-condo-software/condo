@@ -1,23 +1,38 @@
 import { useMemo } from 'react'
+import { ApolloError } from '@apollo/client'
+
 import { useMutation, useQuery } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 
 const getObjects = (objectsContainer, converter) => (objectsContainer && objectsContainer.objs) ? objectsContainer.objs.map(converter) : []
 
-export function generateReactHooks (gql, { convertToGQLInput, convertToUIState }) {
-    function useObject (variables, memoize = true) {
+interface IHookConverters<GQL, GQLInput, UI, UIForm> {
+    convertToGQLInput: (state: UIForm) => GQLInput
+    convertToUIState: (x: GQL) => UI
+}
+
+interface IHookResult<UI, UIForm, Q> {
+    useObject: (variables: Q, memoize: boolean) => { obj: UI }
+    useObjects: (variables: Q, memoize: boolean) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError }
+    useCreate: (attrs: UIForm, onComplete: (obj: UI) => void) => { obj: UI }
+    useUpdate: (attrs: UIForm, onComplete: (obj: UI) => void) => { obj: UI }
+    useDelete: (attrs: UIForm, onComplete: (obj: UI) => void) => { obj: UI }
+}
+
+export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convertToGQLInput, convertToUIState }: IHookConverters<GQL, GQLInput, UI, UIForm>): IHookResult<UI, UIForm, Q> {
+    function useObject (variables: Q, memoize = true) {
         const { loading, refetch, objs, count, error } = useObjects(variables, memoize)
         if (count && count > 1) throw new Error('Wrong query condition! return more then one result')
         const obj = (objs.length) ? objs[0] : null
         return { loading, refetch, obj, error }
     }
 
-    function useObjects (variables = {}, memoize = true) {
+    function useObjects (variables: Q, memoize = true) {
         const intl = useIntl()
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
 
-        let { loading, data, refetch, error, fetchMore } = useQuery(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
+        let { loading, data, refetch, error, fetchMore } = useQuery<GQL, Q>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
         })
 
@@ -48,7 +63,7 @@ export function generateReactHooks (gql, { convertToGQLInput, convertToUIState }
         return { loading, refetch, fetchMore, objs: objects, count, error }
     }
 
-    function useCreate (attrs = {}, onComplete) {
+    function useCreate (attrs: UIForm = {}, onComplete) {
         if (typeof attrs !== 'object' || !attrs) throw new Error('useCreate(): invalid attrs argument')
         let [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION)
 
