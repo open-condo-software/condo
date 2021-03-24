@@ -23,7 +23,7 @@ function convertToUIState (item: Ticket): ITicketUIState {
     return pick(item, FIELDS) as ITicketUIState
 }
 
-interface ITicketUIFormState extends Ticket {
+interface ITicketFormState extends Ticket {
     organization?: string
     status?: string
     source?: string
@@ -33,17 +33,17 @@ interface ITicketUIFormState extends Ticket {
     client?: string
 }
 
-function convertToUIFormState (state: ITicketUIState): ITicketUIFormState {
-    if (!state) return {} as ITicketUIFormState
+function convertToUIFormState (state: ITicketUIState): ITicketFormState {
+    if (!state) return {} as ITicketFormState
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
         result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
     }
-    return result as ITicketUIFormState
+    return result as ITicketFormState
 }
 
-function convertToGQLInput (state: ITicketUIFormState): TicketUpdateInput {
+function convertToGQLInput (state: ITicketFormState): TicketUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
@@ -59,7 +59,7 @@ const {
     useCreate,
     useUpdate,
     useDelete,
-} = generateReactHooks<Ticket, TicketUpdateInput, ITicketUIFormState, ITicketUIState, QueryAllTicketsArgs> (TicketGQL, { convertToGQLInput, convertToUIState })
+} = generateReactHooks<Ticket, TicketUpdateInput, ITicketFormState, ITicketUIState, QueryAllTicketsArgs> (TicketGQL, { convertToGQLInput, convertToUIState })
 
 export {
     useObject,
@@ -68,6 +68,6 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
-    ITicketUIFormState,
+    ITicketFormState,
     ITicketUIState,
 }
