@@ -1,4 +1,4 @@
-function _checkError (data, errors) {
+function throwIfError (data, errors) {
     if (errors) {
         const err = new Error('GraphQLError')
         err.errors = errors
@@ -12,21 +12,21 @@ function generateGQLTestUtils (gql) {
     async function getAll (client, where, { raw = false, sortBy } = {}) {
         const { data, errors } = await client.query(gql.GET_ALL_OBJS_QUERY, { where: where, sortBy })
         if (raw) return { data, errors }
-        _checkError(data, errors)
+        throwIfError(data, errors)
         return data.objs
     }
 
     async function count (client, where, { raw = false } = {}) {
         const { data, errors } = await client.query(gql.GET_COUNT_OBJS_QUERY, { where: where })
         if (raw) return { data, errors }
-        _checkError(data, errors)
+        throwIfError(data, errors)
         return data.meta.count
     }
 
     async function getAllWithMeta (client, where, { raw = false } = {}) {
         const { data, errors } = await client.query(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, { where: where })
         if (raw) return { data, errors }
-        _checkError(data, errors)
+        throwIfError(data, errors)
         return data.meta.count
     }
 
@@ -35,7 +35,7 @@ function generateGQLTestUtils (gql) {
             data: { ...attrs },
         })
         if (raw) return { data, errors }
-        _checkError(data, errors)
+        throwIfError(data, errors)
         return data.obj
     }
 
@@ -44,14 +44,14 @@ function generateGQLTestUtils (gql) {
             id, data: { ...attrs },
         })
         if (raw) return { data, errors }
-        _checkError(data, errors)
+        throwIfError(data, errors)
         return data.obj
     }
 
     async function delete_ (client, id, { raw = false } = {}) {
         const { data, errors } = await client.mutate(gql.DELETE_OBJ_MUTATION, { id })
         if (raw) return { data, errors }
-        _checkError(data, errors)
+        throwIfError(data, errors)
         return data.obj
     }
 
