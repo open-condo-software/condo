@@ -38,7 +38,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 create: false,
             },
         },
-        // TODO(Dimitreee): server side autogen
+        // TODO(Dimitreee): server side auto generation
         statusUpdatedAt: {
             schemaDoc: 'Status updated at time',
             type: DateTimeUtc,

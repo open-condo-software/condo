@@ -8,7 +8,7 @@ const getObjects = (objectsContainer, converter) => (objectsContainer && objects
 
 interface IHookConverters<GQL, GQLInput, UI, UIForm> {
     convertToGQLInput: (state: UIForm) => GQLInput
-    convertToUIState: (x: GQL) => UI
+    convertToUIState: (item: GQL) => UI
 }
 
 interface IHookResult<UI, UIForm, Q> {
