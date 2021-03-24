@@ -48,7 +48,7 @@ docker-compose run app yarn workspace @app/condo makemigrations
 # migrate current DB to new schema
 docker-compose run app yarn workspace @app/condo migrate
 
-# if you needed to rollback applyed migration
+# if you want to rollback applied migration
 docker-compose run app yarn workspace @app/condo kmigrator down
 ```
 

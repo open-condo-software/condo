@@ -7,5 +7,5 @@ If it's client side logic utils function please put it inside a related
 
 We also have specific domain utilities and helpers 
 for server side domain logic (`serverSchema`),
-client side domain data-fetching logic (`clientSchema`) and 
+client side domain data processing logic  (`clientSchema`) and
 server side tests logic utilities (`testSchema`)

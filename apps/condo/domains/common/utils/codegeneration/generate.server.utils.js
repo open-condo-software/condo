@@ -26,7 +26,6 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
 }
 
 function generateServerUtils (gql) {
-
     async function getAll (context, where, { sortBy, first, skip }) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
