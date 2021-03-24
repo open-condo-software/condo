@@ -8,36 +8,39 @@ import { getClientSideSenderInfo } from '@{{app}}/domains/common/utils/userid.ut
 import { generateReactHooks } from '@{{app}}/domains/common/utils/codegeneration/generate.hooks'
 
 import { {{ name }} as {{ name }}GQL } from '@{{app}}/domains/{{ domain }}/gql'
-import { {{ name }}, {{ name }}UpdateInput } from '../../../../schema'
+import { {{ name }}, {{ name }}UpdateInput, QueryAll{{ pluralize.plural(name) }}Args } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt'{% for field in signature %}, '{{ field.name }}'{% endfor %}]
+const FIELDS = ['id', 'dv', 'sender', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', {% for field in signature %}, '{{ field.name }}'{% endfor %}]
 const RELATIONS = [{% for field in signature | selectattr("isRelation") %}'{{ field.name }}'{% if not loop.last %}, {% endif %}{% endfor %}]
 
 interface I{{ name }}UIState {
+    id: string
     // TODO(codegen): write I{{ name }}UIState or extends it from
 }
 
 function convertToUIState (item: {{ name }}): I{{ name }}UIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
-    return pick(item, FIELDS)
+    return pick(item, FIELDS) as I{{ name }}UIState
 }
 
-interface I{{ name }}UIFormState {
+interface I{{ name }}FormState {
     // TODO(codegen): write I{{ name }}UIFormState or extends it from
 }
 
-function convertToUIFormState (state: I{{ name }}UIState): I{{ name }}UIFormState {
+function convertToUIFormState (state: I{{ name }}UIState): I{{ name }}FormState | undefined {
+    if (!state) return
     const result = {}
-    for (const attr in Object.keys(state)) {
-        result[attr] = (RELATIONS.includes(attr)) ? state[attr].id : state[attr]
+    for (const attr of Object.keys(state)) {
+        const attrId = get(state[attr], 'id')
+        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
     }
-    return result
+    return result as I{{ name }}FormState
 }
 
-function convertToGQLInput (state: I{{ name }}UIFormState): {{ name }}UpdateInput {
+function convertToGQLInput (state: I{{ name }}FormState): {{ name }}UpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
-    for (const attr in Object.keys(state)) {
+    for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
         result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
     }
@@ -50,7 +53,7 @@ const {
     useCreate,
     useUpdate,
     useDelete,
-} = generateReactHooks({{ name }}GQL, { convertToGQLInput, convertToUIState })
+} = generateReactHooks<{{ name }}, {{ name }}UpdateInput, I{{ name }}FormState, I{{ name }}UIState, QueryAll{{ pluralize.plural(name) }}Args> ({{ name }}GQL, { convertToGQLInput, convertToUIState })
 
 export {
     useObject,
@@ -59,4 +62,6 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    I{{ name }}FormState,
+    I{{ name }}UIState,
 }
