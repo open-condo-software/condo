@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { Ticket, TicketUpdateInput, Organization, QueryAllTicketsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'dv', 'sender', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'unitName', 'watchers', 'operator', 'assignee', 'classifier', 'details', 'related', 'isEmergency', 'isPaid', 'meta', 'source', 'property', 'executor']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'unitName', 'watchers', 'operator', 'assignee', 'classifier', 'details', 'related', 'isEmergency', 'isPaid', 'meta', 'source', 'property', 'executor']
 const RELATIONS = ['status', 'client', 'operator', 'assignee', 'classifier', 'organization', 'source', 'property', 'executor', 'related']
 
 interface ITicketUIState extends Ticket {
@@ -33,8 +33,8 @@ interface ITicketFormState extends Ticket {
     client?: string
 }
 
-function convertToUIFormState (state: ITicketUIState): ITicketFormState {
-    if (!state) return {} as ITicketFormState
+function convertToUIFormState (state: ITicketUIState): ITicketFormState | undefined {
+    if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
