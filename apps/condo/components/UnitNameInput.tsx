@@ -10,7 +10,7 @@ interface IUnitNameInputProps {
     allowClear?: false
 }
 
-const BaseUnitNameInput:React.FC<IUnitNameInputProps> = (props) => {
+const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
     const { placeholder, propertyId, ...restInputProps } = props
     const { loading, obj: property } = useObject({ where: { id: propertyId } })
 
@@ -24,7 +24,7 @@ const BaseUnitNameInput:React.FC<IUnitNameInputProps> = (props) => {
             return floors.map((floor) => floor.units).reverse()
         })
 
-        const flattenUnits:Array<{ id:string, label }> = flattenDeep(unflattenUnits)
+        const flattenUnits: Array<{ id: string, label }> = flattenDeep(unflattenUnits)
 
         return flattenUnits.map(
             (unit) => (
@@ -49,7 +49,7 @@ const BaseUnitNameInput:React.FC<IUnitNameInputProps> = (props) => {
     )
 }
 
-export const UnitNameInput = (props:IUnitNameInputProps) => {
+export const UnitNameInput = (props: IUnitNameInputProps) => {
     const { propertyId, ...restInputProps } = props
 
     if (!propertyId) {

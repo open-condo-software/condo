@@ -285,7 +285,7 @@ type Data = {
     sections: Array<BDataSection>
 }
 
-export function updateUnitsLabels (data:Data) {
+export function updateUnitsLabels (data: Data) {
     const unitsData = cloneDeep(data)
     let counter = 1
 

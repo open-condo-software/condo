@@ -42,7 +42,7 @@ async function searchAddress (query) {
     })
 }
 
-export const AddressSearchInput:React.FC = (props) => {
+export const AddressSearchInput: React.FC = (props) => {
     const [selected, setSelected] = useState('')
     const [fetching, setFetching] = useState(false)
     const [data, setData] = useState([])

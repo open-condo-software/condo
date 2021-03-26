@@ -15,7 +15,7 @@ interface ILabelWithInfo {
     message: string
 }
 
-export const LabelWithInfo:React.FC<ILabelWithInfo> = ({ title, message }) => (
+export const LabelWithInfo: React.FC<ILabelWithInfo> = ({ title, message }) => (
     <Tooltip placement='topLeft' title={title}>
         <StyledSpace>
             {message}

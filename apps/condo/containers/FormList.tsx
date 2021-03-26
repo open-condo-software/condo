@@ -305,7 +305,7 @@ interface IFormWithAction {
     resetOnComplete?: boolean
 }
 
-const FormWithAction:FunctionComponent<IFormWithAction> = (props) => {
+const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
     const intl = useIntl()
     const ClientSideErrorMsg = intl.formatMessage({ id: 'ClientSideError' })
 

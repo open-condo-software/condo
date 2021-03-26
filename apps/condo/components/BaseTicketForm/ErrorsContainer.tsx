@@ -16,7 +16,7 @@ interface IErrorsContainerProps {
     unitName: string
 }
 
-export const ErrorsContainer:React.FC<IErrorsContainerProps> = ({ property, unitName }) => {
+export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ property, unitName }) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })

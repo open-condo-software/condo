@@ -1,7 +1,7 @@
 import html2canvas from 'html2canvas'
 import Jspdf from 'jspdf'
 
-function getPdfHeightFromElement (element:HTMLElement, expectedWidth:number) {
+function getPdfHeightFromElement (element: HTMLElement, expectedWidth: number) {
     const { clientWidth, clientHeight } = element
     const originalRatio = clientHeight/clientWidth
     return expectedWidth * originalRatio
@@ -12,7 +12,7 @@ interface ICreatePdfOptions {
     fileName: string
 }
 
-export function createPdf (options:ICreatePdfOptions) {
+export function createPdf (options: ICreatePdfOptions) {
     const {
         element,
         fileName,

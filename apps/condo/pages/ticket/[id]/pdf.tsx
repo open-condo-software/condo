@@ -24,7 +24,7 @@ interface ITicketDescriptionFieldProps {
     value?: React.ReactNode
 }
 
-const TicketDescriptionField:React.FC<ITicketDescriptionFieldProps> = ({ title, value }) => {
+const TicketDescriptionField: React.FC<ITicketDescriptionFieldProps> = ({ title, value }) => {
     const intl = useIntl()
     const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
 
@@ -44,7 +44,7 @@ interface ITicketUserInfoFieldProps {
     }
 }
 
-const TicketUserInfoField:React.FC<ITicketUserInfoFieldProps> = ({ title, user = {} }) => {
+const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = ({ title, user = {} }) => {
     const intl = useIntl()
     const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
     const PhoneNotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefinedShort' })

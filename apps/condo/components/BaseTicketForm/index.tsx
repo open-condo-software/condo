@@ -54,7 +54,7 @@ const FrontLayerContainer = styled.div`
 
 
 // TODO(Dimitreee): decompose this huge component to field groups
-export const BaseTicketForm:React.FC<ITicketFormProps> = (props) => {
+export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const intl = useIntl()
 
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
