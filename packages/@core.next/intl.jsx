@@ -21,7 +21,7 @@ let getMessages = async (locale) => {
         return module.default || module
     } catch (error) {
         console.error('getMessages error:', error)
-        const module = await import(`./lang/en.json`)
+        const module = await import('./lang/en.json')
         return module.default
     }
 }
@@ -97,6 +97,7 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
     messagesImporter = opts.messagesImporter ? opts.messagesImporter : messagesImporter
     getMessages = opts.getMessages ? opts.getMessages : getMessages
     getLocale = opts.getLocale ? opts.getLocale : getLocale
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     const onIntlError = opts.hideErrors ? (() => {}) : undefined
 
     const WithIntl = ({ locale, messages, ...pageProps }) => {
