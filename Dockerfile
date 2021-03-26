@@ -1,11 +1,11 @@
 FROM buildpack-deps:buster AS base
 # https://hub.docker.com/_/node
-# https://github.com/nodejs/docker-node/blob/18ed56ea9ba03c16f48372927f5eb2553033e8de/14/buster/Dockerfile
+# https://github.com/nodejs/docker-node/blob/6e7d6511aba22da645ec21bd157a369a78794e6c/14/buster/Dockerfile
 # https://hub.docker.com/_/python
-# https://github.com/docker-library/python/blob/f59139d685b3b39d4452a686521e03fa093efa25/3.8/buster/Dockerfile
-COPY --from=python:buster /usr/local/ /usr/local/
-COPY --from=node:buster /usr/local/ /usr/local/
-COPY --from=node:buster /opt/ /opt/
+# https://github.com/docker-library/python/blob/3897bb4660fe97fc202f50431dd3e6cdc0dedd4a/3.8/buster/Dockerfile
+COPY --from=python:3.8-buster /usr/local/ /usr/local/
+COPY --from=node:14-buster /usr/local/ /usr/local/
+COPY --from=node:14-buster /opt/ /opt/
 # http://bugs.python.org/issue19846
 # > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
 ENV LANG C.UTF-8
