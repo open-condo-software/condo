@@ -43,6 +43,8 @@ const StyledSelect = styled(Select)`
 
 export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {
     const intl = useIntl()
+    const FormattedStatusUpdateMessage = useMemo(() => getTicketFormattedLastStatusUpdate(intl, ticket), [ticket])
+
     const { objs: statuses, loading } = TicketStatus.useObjects()
     const update = Ticket.useUpdate({}, () => onUpdate())
 
@@ -64,7 +66,6 @@ export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {
 
     const { color, backgroundColor } = statusSelectColors[ticket.status.type]
     const selectValue = { value: ticket.status.id, label: getTicketLabel(intl, ticket) }
-    const FormattedStatusUpdateMessage = useMemo(() => getTicketFormattedLastStatusUpdate(intl, ticket), [ticket])
 
     return (
         <Space size={8} direction={'vertical'} align={'end'}>
