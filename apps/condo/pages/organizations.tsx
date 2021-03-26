@@ -83,6 +83,18 @@ function CreateAndEditOrganizationModalForm ({ visible, editableItem, cancelModa
 }
 
 function OrganizationCRUDListBlock () {
+    const intl = useIntl()
+    const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
+    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const AcceptMessage = intl.formatMessage({ id: 'Accept' })
+    const RejectMessage = intl.formatMessage({ id: 'Reject' })
+    const EditMessage = intl.formatMessage({ id: 'Edit' })
+    const LeaveMessage = intl.formatMessage({ id: 'Leave' })
+    const SelectMessage = intl.formatMessage({ id: 'Select' })
+    const OwnerMessage = intl.formatMessage({ id: 'Owner' })
+    const AreYouSureMessage = intl.formatMessage({ id: 'AreYouSure' })
+    const CreateOrganizationButtonLabel = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
+
     const { user } = useAuth()
     const { selectLink } = useOrganization()
 
@@ -90,18 +102,6 @@ function OrganizationCRUDListBlock () {
         variables: { where: user ? { user: { id: user.id } } : {} },
     })
     const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION)
-
-    const intl = useIntl()
-    const DoneMsg = intl.formatMessage({ id: 'OperationCompleted' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const AcceptMsg = intl.formatMessage({ id: 'Accept' })
-    const RejectMsg = intl.formatMessage({ id: 'Reject' })
-    const EditMsg = intl.formatMessage({ id: 'Edit' })
-    const LeaveMsg = intl.formatMessage({ id: 'Leave' })
-    const SelectMsg = intl.formatMessage({ id: 'Select' })
-    const OwnerMsg = intl.formatMessage({ id: 'Owner' })
-    const AreYouSureMsg = intl.formatMessage({ id: 'AreYouSure' })
-    const CreateOrganizationButtonLabelMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
 
     function handleAcceptOrReject (item, action) {
         console.log(item, action)
@@ -116,12 +116,12 @@ function OrganizationCRUDListBlock () {
         acceptOrReject({ variables: { id: item.id, data } })
             .then(
                 () => {
-                    notification.success({ message: DoneMsg })
+                    notification.success({ message: DoneMessage })
                 },
                 (e) => {
                     console.error(e)
                     notification.error({
-                        message: ServerErrorMsg,
+                        message: ServerErrorMessage,
                         description: e.message,
                     })
                 })
@@ -139,7 +139,7 @@ function OrganizationCRUDListBlock () {
     const { visible, editableItem, cancelModal, openCreateModal, openEditModal } = useCreateAndEditModalForm()
 
     return (<>
-        <CreateFormListItemButton onClick={openCreateModal} label={CreateOrganizationButtonLabelMsg}/>
+        <CreateFormListItemButton onClick={openCreateModal} label={CreateOrganizationButtonLabel}/>
         <CreateAndEditOrganizationModalForm
             visible={visible}
             editableItem={editableItem}
@@ -159,34 +159,34 @@ function OrganizationCRUDListBlock () {
                     title: <>
                         {organization.name}
                         {'  '}
-                        {role === 'owner' ? <Tag color="error">{OwnerMsg}</Tag> : null}
+                        {role === 'owner' ? <Tag color="error">{OwnerMessage}</Tag> : null}
                     </>,
                     description: <ExpandableDescription>{organization.description}</ExpandableDescription>,
                     actions: [
                         (!isAccepted && !isRejected) ?
                             [<Radio.Group size="small" onChange={(e) => handleAcceptOrReject(item, e.target.value)}>
-                                <Radio.Button value="accept">{AcceptMsg}</Radio.Button>
-                                <Radio.Button value="reject">{RejectMsg}</Radio.Button>
+                                <Radio.Button value="accept">{AcceptMessage}</Radio.Button>
+                                <Radio.Button value="reject">{RejectMessage}</Radio.Button>
                             </Radio.Group>]
                             : null,
                         (isAccepted) ?
                             [<Button size="small" type={'primary'}
-                                onClick={() => handleSelect(item)}>{SelectMsg}</Button>]
+                                onClick={() => handleSelect(item)}>{SelectMessage}</Button>]
                             : null,
                         (isAccepted) ?
                             [<ExtraDropdownActionsMenu actions={[
                                 (role === 'owner') ?
                                     {
-                                        label: EditMsg,
+                                        label: EditMessage,
                                         action: () => openEditModal(item.organization),
                                     } :
                                     null,
                                 {
                                     confirm: {
-                                        title: AreYouSureMsg,
+                                        title: AreYouSureMessage,
                                         icon: <QuestionCircleOutlined style={{ color: 'red' }}/>,
                                     },
-                                    label: LeaveMsg,
+                                    label: LeaveMessage,
                                     action: () => handleAcceptOrReject(item, 'leave'),
                                 },
                             ]}/>]
