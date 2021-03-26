@@ -13,7 +13,7 @@ import { ErrorsContainer } from '../../components/BaseTicketForm/ErrorsContainer
 // @ts-ignore
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 
-const OPEN_STATUS ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
+const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
 
 export const CreateTicketForm: React.FC = () => {

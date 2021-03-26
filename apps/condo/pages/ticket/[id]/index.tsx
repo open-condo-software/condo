@@ -75,7 +75,7 @@ const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
 
         if (hidden) {
             nextUserName = nextUserName ? nextUserName.replace(LETTERS_AND_NUMBERS, '*') : ''
-            nextUserPhone = nextUserPhone ? nextUserPhone.replace(LETTERS_AND_NUMBERS, '*'): ''
+            nextUserPhone = nextUserPhone ? nextUserPhone.replace(LETTERS_AND_NUMBERS, '*') : ''
         }
 
         setUserInfo({
