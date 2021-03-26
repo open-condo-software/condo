@@ -61,8 +61,9 @@
       "schema.d.ts"
     ],
     "rules": {
+      "comma-spacing": "off",
       "@typescript-eslint/comma-spacing": "error",
-      "comma-spacing": "error",
+      "indent": "off",
       "@typescript-eslint/indent": [
         "error",
         4,
@@ -70,34 +71,18 @@
           "SwitchCase": 1
         }
       ],
-      "indent": [
-        "error",
-        4,
-        {
-          "SwitchCase": 1
-        }
-      ],
+      "quotes": "off",
       "@typescript-eslint/quotes": [
         "error",
         "single"
       ],
-      "quotes": [
-        "error",
-        "single"
-      ],
+      "semi": "off",
       "@typescript-eslint/semi": [
         "error",
         "never"
       ],
-      "semi": [
-        "error",
-        "never"
-      ],
+      "space-before-function-paren": "off",
       "@typescript-eslint/space-before-function-paren": [
-        "error",
-        "always"
-      ],
-      "space-before-function-paren": [
         "error",
         "always"
       ],
@@ -115,27 +100,27 @@
           "generics": "always-multiline"
         }
       ],
+      "object-curly-spacing": "off",
       "@typescript-eslint/object-curly-spacing": [
         "error",
         "always"
       ],
-      "object-curly-spacing": [
-        "error",
-        "always"
-      ],
-      "no-prototype-builtins": "off",
+      "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
           "args": "none"
         }
       ],
-      "no-unused-vars": [
-        "warn",
-        {
-          "args": "none"
-        }
-      ],
+      "no-array-constructor": "off",
+      "@typescript-eslint/no-array-constructor": ["error"],
+      "no-loop-func": "off",
+      "@typescript-eslint/no-loop-func": ["warn"],
+      "no-loss-of-precision": "off",
+      "@typescript-eslint/no-loss-of-precision": ["error"],
+      "no-useless-constructor": "off",
+      "@typescript-eslint/no-useless-constructor": ["error"],
+      "no-prototype-builtins": "off",
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
       "react/no-children-prop": "off",
