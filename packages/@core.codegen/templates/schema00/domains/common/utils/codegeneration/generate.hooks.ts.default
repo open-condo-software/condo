@@ -17,6 +17,7 @@ export function generateReactHooks (gql, { convertToGQLInput, convertToUIState }
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
 
+        // eslint-disable-next-line prefer-const
         let { loading, data, refetch, error, fetchMore } = useQuery(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
         })

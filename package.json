@@ -56,6 +56,7 @@
         "version": "detect"
       }
     },
+    "ignorePatterns": ["packages/@core.codegen/templates/**/*", "schema.d.ts"],
     "rules": {
       "indent": [
         "error",
@@ -92,7 +93,7 @@
       ],
       "no-prototype-builtins": "off",
       "no-unused-vars": [
-        "error",
+        "warn",
         {
           "args": "none"
         }
@@ -106,7 +107,8 @@
       "jest/no-identical-title": "error",
       "jest/prefer-to-have-length": "warn",
       "jest/valid-expect": "error",
-      "@typescript-eslint/no-var-requires": "off"
+      "@typescript-eslint/no-var-requires": "off",
+      "@typescript-eslint/ban-ts-comment": "warn"
     }
   }
 }

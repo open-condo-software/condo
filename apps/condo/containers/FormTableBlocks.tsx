@@ -182,7 +182,8 @@ function RenderActionsColumn (text, item, index) {
 
 function toGQLSortBy (sorter) {
     if (sorter) {
-        let { field, order } = sorter
+        const { field } = sorter
+        let { order } = sorter
         if (field && order) {
             order = order.toLowerCase()
             if (order === 'asc' || order === 'ascend') order = 'ASC'

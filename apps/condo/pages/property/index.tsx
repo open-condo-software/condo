@@ -115,7 +115,7 @@ function ViewOrEditPropertyListBlock ({ loading, objs }) {
                     title: <Link href={href}><a>{name}</a></Link>,
                     description: <ExpandableDescription>{address}</ExpandableDescription>,
                     actions: [
-                        [<Link href={href}><Button size="small" type={'primary'}>{SelectMsg}</Button></Link>],
+                        [<Link href={href} key={1}><Button size="small" type={'primary'}>{SelectMsg}</Button></Link>],
                     ],
                 }
             }}

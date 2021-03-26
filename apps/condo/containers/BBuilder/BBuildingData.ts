@@ -1,9 +1,9 @@
 import cloneDeep from 'lodash/cloneDeep'
 
 enum BDataTypes {
-    Section = "section",
-    Floor = "floor",
-    Unit = "unit",
+    Section = 'section',
+    Floor = 'floor',
+    Unit = 'unit',
 }
 
 type BDataUnit = {
