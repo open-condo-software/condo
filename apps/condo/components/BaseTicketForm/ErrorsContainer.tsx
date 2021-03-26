@@ -21,6 +21,7 @@ export const ErrorsContainer:React.FC<IErrorsContainerProps> = ({ property, unit
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
+
     const disableUserInteraction = !property || !unitName
 
     return (
