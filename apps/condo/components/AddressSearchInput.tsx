@@ -1,3 +1,4 @@
+import getConfig from 'next/config'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Select, Spin } from 'antd'
 import debounce from 'lodash/debounce'
@@ -6,23 +7,30 @@ import identity from 'lodash/identity'
 
 const DEBOUNCE_TIMEOUT = 800
 
-async function searchAddress (query) {
-    // https://dadata.ru/api/suggest/address/
-    // TODO(Dimitreee): move to local/prod/dev config
-    const token = '257f4bd2c057e727f4e48438d121ffa7a665fce7'
-    const loadSuggestionsUrl = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address'
+function getAddressSuggestionsConfig () {
+    const {
+        publicRuntimeConfig: { addressSuggestionsConfig },
+    } = getConfig()
+    const { apiUrl, apiToken } = addressSuggestionsConfig
+    if (!apiToken || !apiUrl) console.error('Wrong AddressSuggestionsConfig! no apiUrl/apiToken')
+    return { apiUrl, apiToken }
+}
 
-    const response = await fetch(loadSuggestionsUrl, {
+async function searchAddress (query) {
+    const { apiUrl, apiToken } = getAddressSuggestionsConfig()
+
+    const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
-            Authorization: `Token ${token}`,
+            Authorization: `Token ${apiToken}`,
         },
         body: JSON.stringify({ query }),
     })
 
     const { suggestions } = await response.json()
+    // FORMAT: { suggestions: [ { value: "Address1", meta1: value1, meta2: value2, ... }, ... ] }
 
     return suggestions.map(suggestion => {
         const cleanedSuggestion = pickBy(suggestion, identity)
