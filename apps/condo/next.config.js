@@ -10,6 +10,7 @@ const withTM = require('next-transpile-modules')(['@core/next', '@core/keystone'
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
 const firebaseConfig = conf['FIREBASE_CONFIG'] && JSON.parse(conf['FIREBASE_CONFIG'])
+const addressSuggestionsConfig = conf['ADDRESS_SUGGESTIONS_CONFIG'] && JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG'])
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -17,6 +18,7 @@ module.exports = withTM(withLess(withCSS({
         serverUrl,
         apolloGraphQLUrl,
         firebaseConfig,
+        addressSuggestionsConfig,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
