@@ -12,7 +12,7 @@ interface ILoadingOrErrorPageProps {
 
 const LoadingOrErrorPage:React.FC<ILoadingOrErrorPageProps> = ({ title, loading, error }) => {
     const intl = useIntl()
-    const LoadingMsg = intl.formatMessage({ id: 'Loading' })
+    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
     return <>
         <Head>
@@ -21,7 +21,7 @@ const LoadingOrErrorPage:React.FC<ILoadingOrErrorPageProps> = ({ title, loading,
         <PageWrapper>
             <PageHeader title={title}/>
             <PageContent>
-                {(loading) ? <Typography.Title>{LoadingMsg}</Typography.Title> : null}
+                {(loading) ? <Typography.Title>{LoadingMessage}</Typography.Title> : null}
                 {(error) ? <Typography.Title>{error}</Typography.Title> : null}
             </PageContent>
         </PageWrapper>

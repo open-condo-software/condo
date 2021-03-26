@@ -124,12 +124,12 @@ function _useTableRowForm () {
 }
 
 function RenderActionsColumn (text, item, index) {
-    const { user } = useAuth()
-
     const intl = useIntl()
-    const AreYouSureMsg = intl.formatMessage({ id: 'AreYouSure' })
-    const DeleteMsg = intl.formatMessage({ id: 'Delete' })
-    const EditMsg = intl.formatMessage({ id: 'Edit' })
+    const AreYouSureMessage = intl.formatMessage({ id: 'AreYouSure' })
+    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
+    const EditMessage = intl.formatMessage({ id: 'Edit' })
+
+    const { user } = useAuth()
 
     const { isUnsavedNew } = item
     const { action, remove, form, setEditing, setLoading, editing, loading } = _useTableRowForm()
@@ -163,14 +163,14 @@ function RenderActionsColumn (text, item, index) {
             <ExtraDropdownActionsMenu actions={[
                 (item.user && item.user.id === user.id) ? null : {
                     confirm: {
-                        title: AreYouSureMsg,
+                        title: AreYouSureMessage,
                         icon: <QuestionCircleOutlined style={{ color: 'red' }}/>,
                     },
-                    label: DeleteMsg,
+                    label: DeleteMessage,
                     action: () => action('Delete', { values: { id: item.id }, item, form }),
                 },
                 {
-                    label: EditMsg,
+                    label: EditMessage,
                     action: () => {
                         setEditing(true)
                     },
@@ -211,11 +211,11 @@ function toGQLWhere (filters) {
 }
 
 function TableCellInner ({ children, record, rowIndex, column }) {
+    const intl = useIntl()
+    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
+
     const { editable, dataIndex, rules, normalize, editableInput } = column
     const { form, editing } = _useTableRowForm()
-
-    const intl = useIntl()
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
 
     useEffect(() => {
         form.setFieldsValue({
@@ -235,7 +235,7 @@ function TableCellInner ({ children, record, rowIndex, column }) {
         rules={rules || [
             {
                 required: true,
-                message: FieldIsRequiredMsg,
+                message: FieldIsRequiredMessage,
             },
         ]}
     >
@@ -244,12 +244,11 @@ function TableCellInner ({ children, record, rowIndex, column }) {
 }
 
 function NewOrExportTableBlock ({ columns, table }) {
-    // createNewGQLItem, renderItem
+    const intl = useIntl()
+    const CreateMessage = intl.formatMessage({ id: 'Create' })
+
     const data = table.state.data
     const setData = table.setData
-
-    const intl = useIntl()
-    const CreateMsg = intl.formatMessage({ id: 'Create' })
 
     function handleSetExportData (data) {
         setData(data.map(x => {
@@ -270,7 +269,7 @@ function NewOrExportTableBlock ({ columns, table }) {
     return <>
         <ExcelExporterButton columns={columns.filter((x => x.importFromFile))} setExportedData={handleSetExportData}/>
         <CreateFormListItemButton
-            onClick={handleAdd} label={CreateMsg}
+            onClick={handleAdd} label={CreateMessage}
             style={{ marginBottom: '16px', width: '100%' }}/>
         {(data.length) ?
             <Space direction="vertical">

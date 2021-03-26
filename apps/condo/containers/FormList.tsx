@@ -156,6 +156,7 @@ function ExtraDropdownActionsMenu ({ actions }) {
 function ExpandableDescription ({ children }) {
     const intl = useIntl()
     const ReadMoreMsg = intl.formatMessage({ id: 'ReadMore' })
+
     return <Typography.Paragraph ellipsis={{ rows: 3, expandable: true, symbol: ReadMoreMsg }}>
         {children}
     </Typography.Paragraph>
@@ -198,17 +199,17 @@ function BaseModalForm ({ action, mutation, mutationExtraVariables, mutationExtr
     if (typeof mutationExtraData !== 'object') throw new Error('wrong mutationExtraData prop')
     if (typeof mutationExtraVariables !== 'object') throw new Error('wrong mutationExtraVariables prop')
 
+    const intl = useIntl()
+    const CancelMessage = intl.formatMessage({ id: 'Cancel' })
+    const SaveMessage = intl.formatMessage({ id: 'Save' })
+    const ClientSideErrorMessage = intl.formatMessage({ id: 'ClientSideError' })
+
     const [form] = Form.useForm()
     const [isLoading, setIsLoading] = useState(false)
     let create = null
     if (!action) {
         [create] = useMutation(mutation) // eslint-disable-line react-hooks/rules-of-hooks
     }
-
-    const intl = useIntl()
-    const CancelMsg = intl.formatMessage({ id: 'Cancel' })
-    const SaveMsg = intl.formatMessage({ id: 'Save' })
-    const ClientSideErrorMsg = intl.formatMessage({ id: 'ClientSideError' })
 
     function handleFormSubmit (values) {
         if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
@@ -232,7 +233,7 @@ function BaseModalForm ({ action, mutation, mutationExtraVariables, mutationExtr
                 form.setFields(errors)
                 return
             } else {
-                form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [ClientSideErrorMsg] }])
+                form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [ClientSideErrorMessage] }])
                 throw err  // unknown error, rethrow it (**)
             }
         }
@@ -275,9 +276,9 @@ function BaseModalForm ({ action, mutation, mutationExtraVariables, mutationExtr
         onCancel={cancelModal}
         footer={[
             ...modalExtraFooter,
-            <Button key="cancel" onClick={cancelModal}>{ModalCancelButtonLabelMsg || CancelMsg}</Button>,
+            <Button key="cancel" onClick={cancelModal}>{ModalCancelButtonLabelMsg || CancelMessage}</Button>,
             <Button key="submit" onClick={handleSave} type="primary" loading={isLoading}>
-                {ModalSaveButtonLabelMsg || SaveMsg}
+                {ModalSaveButtonLabelMsg || SaveMessage}
             </Button>,
         ]}
     >
