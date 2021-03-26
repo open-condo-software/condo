@@ -16,10 +16,12 @@ interface IUserNameFieldProps {
 }
 
 export const UserNameField: React.FC<IUserNameFieldProps> = ({ user, children }) => {
+    const intl = useIntl()
+    const YouMessage = intl.formatMessage({ id: 'You' })
+
     const auth = useAuth()
-    const int = useIntl()
     const id = get(auth, ['user', 'id'])
-    const postfix = user.id === id ? ` (${int.formatMessage({ id: 'You' })})` : ''
+    const postfix = user.id === id ? ` (${YouMessage})` : ''
 
     return children({ name: user.name, postfix })
 }
