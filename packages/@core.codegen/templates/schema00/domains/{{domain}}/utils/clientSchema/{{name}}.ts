@@ -10,7 +10,7 @@ import { generateReactHooks } from '@{{app}}/domains/common/utils/codegeneration
 import { {{ name }} as {{ name }}GQL } from '@{{app}}/domains/{{ domain }}/gql'
 import { {{ name }}, {{ name }}UpdateInput, QueryAll{{ pluralize.plural(name) }}Args } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', {% for field in signature %}, '{{ field.name }}'{% endfor %}]
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'{% for field in signature %}, '{{ field.name }}'{% endfor %}]
 const RELATIONS = [{% for field in signature | selectattr("isRelation") %}'{{ field.name }}'{% if not loop.last %}, {% endif %}{% endfor %}]
 
 interface I{{ name }}UIState {
@@ -53,7 +53,7 @@ const {
     useCreate,
     useUpdate,
     useDelete,
-} = generateReactHooks<{{ name }}, {{ name }}UpdateInput, I{{ name }}FormState, I{{ name }}UIState, QueryAll{{ pluralize.plural(name) }}Args> ({{ name }}GQL, { convertToGQLInput, convertToUIState })
+} = generateReactHooks<{{ name }}, {{ name }}UpdateInput, I{{ name }}FormState, I{{ name }}UIState, QueryAll{{ pluralize.plural(name) }}Args>({{ name }}GQL, { convertToGQLInput, convertToUIState })
 
 export {
     useObject,
