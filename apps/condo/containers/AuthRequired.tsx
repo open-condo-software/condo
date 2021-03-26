@@ -12,10 +12,10 @@ import { useIntl } from '@core/next/intl'
 import { isFunction } from '../utils/ecmascript.utils'
 
 function RedirectToLogin () {
-    const { asPath } = useRouter()
-
     const intl = useIntl()
-    const RedirectingMsg = intl.formatMessage({ id: 'Redirecting' })
+    const RedirectingMessage = intl.formatMessage({ id: 'Redirecting' })
+
+    const { asPath } = useRouter()
 
     useEffect(() => {
         const clearHandle = setTimeout(() => {
@@ -25,15 +25,15 @@ function RedirectToLogin () {
             clearTimeout(clearHandle)
         }
     })
-    return <Typography.Text css={css`display: block; text-align: center;`}>{RedirectingMsg}</Typography.Text>
+    return <Typography.Text css={css`display: block; text-align: center;`}>{RedirectingMessage}</Typography.Text>
 }
 
 export function AuthRequired ({ children }) {
+    const intl = useIntl()
+    const SignInRequiredMessage = intl.formatMessage({ id: 'SignInRequired' })
+
     const auth = useAuth()
     const { isAuthenticated, isLoading } = auth
-
-    const intl = useIntl()
-    const SignInRequiredMsg = intl.formatMessage({ id: 'SignInRequired' })
 
     if (isLoading) {
         const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin/>
@@ -42,7 +42,7 @@ export function AuthRequired ({ children }) {
 
     if (!isAuthenticated) {
         return <>
-            <Typography.Title css={css`display: block; text-align: center;`}>{SignInRequiredMsg}</Typography.Title>
+            <Typography.Title css={css`display: block; text-align: center;`}>{SignInRequiredMessage}</Typography.Title>
             <RedirectToLogin/>
         </>
     }

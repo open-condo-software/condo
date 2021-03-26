@@ -263,6 +263,12 @@ const useResetFormOnCloseModal = ({ form, visible }) => {
 }
 
 const ChangeUnitModalForm = ({ unit, visible, onCancel, onFinish }) => {
+    const intl = useIntl()
+    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
+    const CancelMessage = intl.formatMessage({ id: 'Cancel' })
+    const SaveMessage = intl.formatMessage({ id: 'Save' })
+    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
+
     const [form] = Form.useForm()
     useEffect(() => {
         if (visible) form.setFields([{ name: 'name', value: unit.name }])
@@ -271,12 +277,6 @@ const ChangeUnitModalForm = ({ unit, visible, onCancel, onFinish }) => {
         form,
         visible,
     })
-
-    const intl = useIntl()
-    const DeleteMsg = intl.formatMessage({ id: 'Delete' })
-    const CancelMsg = intl.formatMessage({ id: 'Cancel' })
-    const SaveMsg = intl.formatMessage({ id: 'Save' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
 
     const handleOk = () => {
         form.submit()
@@ -292,15 +292,15 @@ const ChangeUnitModalForm = ({ unit, visible, onCancel, onFinish }) => {
 
     return (
         <Modal title={'Изменить помещение'} visible={visible} onCancel={onCancel} footer={[
-            <Button key="delete" type="danger" onClick={handleDelete} style={{ float: 'left' }}>{DeleteMsg}</Button>,
-            <Button key="back" onClick={onCancel}>{CancelMsg}</Button>,
-            <Button key="submit" type="primary" onClick={handleOk}>{SaveMsg}</Button>,
+            <Button key="delete" type="danger" onClick={handleDelete} style={{ float: 'left' }}>{DeleteMessage}</Button>,
+            <Button key="back" onClick={onCancel}>{CancelMessage}</Button>,
+            <Button key="submit" type="primary" onClick={handleOk}>{SaveMessage}</Button>,
         ]}>
             <Form form={form} layout="vertical" name="change-unit-form" onFinish={handleFinish}>
                 <Form.Item
                     name="name"
                     label={'Номер помещения'}
-                    rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                    rules={[{ required: true, message: FieldIsRequiredMessage }]}
                 >
                     <Input/>
                 </Form.Item>
@@ -310,6 +310,12 @@ const ChangeUnitModalForm = ({ unit, visible, onCancel, onFinish }) => {
 }
 
 const ChangeSectionModalForm = ({ section, visible, onCancel, onFinish }) => {
+    const intl = useIntl()
+    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
+    const CancelMessage = intl.formatMessage({ id: 'Cancel' })
+    const SaveMessage = intl.formatMessage({ id: 'Save' })
+    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
+
     const [form] = Form.useForm()
     useEffect(() => {
         if (visible) form.setFields([{ name: 'name', value: section.name }])
@@ -318,12 +324,6 @@ const ChangeSectionModalForm = ({ section, visible, onCancel, onFinish }) => {
         form,
         visible,
     })
-
-    const intl = useIntl()
-    const DeleteMsg = intl.formatMessage({ id: 'Delete' })
-    const CancelMsg = intl.formatMessage({ id: 'Cancel' })
-    const SaveMsg = intl.formatMessage({ id: 'Save' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
 
     const handleOk = () => {
         form.submit()
@@ -339,15 +339,15 @@ const ChangeSectionModalForm = ({ section, visible, onCancel, onFinish }) => {
 
     return (
         <Modal title={'Изменить подъезд'} visible={visible} onCancel={onCancel} footer={[
-            <Button key="delete" type="danger" onClick={handleDelete} style={{ float: 'left' }}>{DeleteMsg}</Button>,
-            <Button key="back" onClick={onCancel}>{CancelMsg}</Button>,
-            <Button key="submit" type="primary" onClick={handleOk}>{SaveMsg}</Button>,
+            <Button key="delete" type="danger" onClick={handleDelete} style={{ float: 'left' }}>{DeleteMessage}</Button>,
+            <Button key="back" onClick={onCancel}>{CancelMessage}</Button>,
+            <Button key="submit" type="primary" onClick={handleOk}>{SaveMessage}</Button>,
         ]}>
             <Form form={form} layout="vertical" name="change-section-form" onFinish={handleFinish}>
                 <Form.Item
                     name="name"
                     label={'Подъезд'}
-                    rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                    rules={[{ required: true, message: FieldIsRequiredMessage }]}
                 >
                     <Input/>
                 </Form.Item>

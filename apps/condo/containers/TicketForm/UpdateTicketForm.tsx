@@ -17,9 +17,10 @@ interface IUpdateTicketForm {
 
 export const UpdateTicketForm:React.FC<IUpdateTicketForm> = ({ id }) => {
     const intl = useIntl()
-    const { push } = useRouter()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+
+    const { push } = useRouter()
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const { organization } = useOrganization()
