@@ -168,7 +168,7 @@ function ExcelExporterButton ({ columns, setExportedData }) {
             onClick={() => setStep(1)} label={ImportFromFileButtonLabel}
             style={{ marginBottom: '16px', width: '100%', display: step === -1 ? 'block' : 'none' }}/>
         {(step > 0) ?
-            <Progress percent={((step - 0) * 33.33)} strokeColor="#52c41a" showInfo={false}/>
+            <Progress percent={(step * 33.33)} strokeColor="#52c41a" showInfo={false}/>
             : null}
         {(StepHelpText[step]) ?
             <Typography.Paragraph>{StepHelpText[step]}</Typography.Paragraph>
@@ -178,7 +178,7 @@ function ExcelExporterButton ({ columns, setExportedData }) {
             style={{ marginBottom: '16px', padding: '10px', display: step === 1 ? 'block' : 'none' }}
             accept={SHEET_JS_ACCEPT_FILES}
             showUploadList={false}
-            customRequest={() => {}}
+            // TODO(pahaz): is the customRequest required?: customRequest={() => {}}
             action={handleFile}
         >
             <p className="ant-upload-drag-icon">

@@ -164,17 +164,18 @@ function OrganizationCRUDListBlock () {
                     description: <ExpandableDescription>{organization.description}</ExpandableDescription>,
                     actions: [
                         (!isAccepted && !isRejected) ?
-                            [<Radio.Group size="small" onChange={(e) => handleAcceptOrReject(item, e.target.value)}>
+                            [<Radio.Group size="small" onChange={(e) => handleAcceptOrReject(item, e.target.value)} key={1}>
                                 <Radio.Button value="accept">{AcceptMessage}</Radio.Button>
                                 <Radio.Button value="reject">{RejectMessage}</Radio.Button>
                             </Radio.Group>]
                             : null,
                         (isAccepted) ?
-                            [<Button size="small" type={'primary'}
-                                onClick={() => handleSelect(item)}>{SelectMessage}</Button>]
+                            [<Button size="small" type={'primary'} onClick={() => handleSelect(item)} key={1}>
+                                {SelectMessage}
+                            </Button>]
                             : null,
                         (isAccepted) ?
-                            [<ExtraDropdownActionsMenu actions={[
+                            [<ExtraDropdownActionsMenu key={1} actions={[
                                 (role === 'owner') ?
                                     {
                                         label: EditMessage,

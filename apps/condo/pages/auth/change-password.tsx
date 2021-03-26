@@ -63,7 +63,7 @@ const ChangePasswordForm = () => {
             title={PasswordWasChangedMsg}
             subTitle={PasswordWasChangedDescriptionMsg}
             extra={[
-                <Button onClick={() => Router.push('/auth/signin')}>{GoToLoginMsg}</Button>,
+                <Button onClick={() => Router.push('/auth/signin')} key={1}>{GoToLoginMsg}</Button>,
             ]}
         />
     }

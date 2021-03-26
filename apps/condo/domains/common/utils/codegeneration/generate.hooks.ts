@@ -32,6 +32,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
 
+        // eslint-disable-next-line prefer-const
         let { loading, data, refetch, error, fetchMore } = useQuery<GQL, Q>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
         })
@@ -65,7 +66,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
 
     function useCreate (attrs: UIForm = {}, onComplete) {
         if (typeof attrs !== 'object' || !attrs) throw new Error('useCreate(): invalid attrs argument')
-        let [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION)
+        const [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION)
 
         async function _action (state: UIForm) {
             const { data, error } = await rowAction({
@@ -88,7 +89,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
 
     function useUpdate (attrs = {}, onComplete) {
         if (typeof attrs !== 'object' || !attrs) throw new Error('useUpdate(): invalid attrs argument')
-        let [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION)
+        const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION)
 
         async function _action (state, obj) {
             if (!obj || !obj.id) throw new Error('No obj.id argument')
@@ -115,7 +116,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
 
     function useDelete (attrs = {}, onComplete) {
         if (typeof attrs !== 'object' || !attrs) throw new Error('useDelete(): invalid attrs argument')
-        let [rowAction] = useMutation(gql.DELETE_OBJ_MUTATION)
+        const [rowAction] = useMutation(gql.DELETE_OBJ_MUTATION)
 
         async function _action (obj) {
             if (!obj || !obj.id) throw new Error('No obj.id argument')
