@@ -59,7 +59,7 @@ const {
     useCreate,
     useUpdate,
     useDelete,
-} = generateReactHooks<Ticket, TicketUpdateInput, ITicketFormState, ITicketUIState, QueryAllTicketsArgs> (TicketGQL, { convertToGQLInput, convertToUIState })
+} = generateReactHooks<Ticket, TicketUpdateInput, ITicketFormState, ITicketUIState, QueryAllTicketsArgs>(TicketGQL, { convertToGQLInput, convertToUIState })
 
 export {
     useObject,

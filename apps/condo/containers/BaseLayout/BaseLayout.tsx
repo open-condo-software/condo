@@ -15,7 +15,7 @@ import 'antd/dist/antd.less'
 import { TopMenuItems } from './components/TopMenuItems'
 import { useIntl } from '@core/next/intl'
 import { useAntdMediaQuery } from '../../utils/mediaQuery.utils'
-import { layoutCss , pageContentCss, pageHeaderCss, pageWrapperCss, subLayoutCss, topMenuCss } from './components/styles'
+import { layoutCss, pageContentCss, pageHeaderCss, pageWrapperCss, subLayoutCss, topMenuCss } from './components/styles'
 
 const LayoutContext = createContext({})
 const useLayoutContext = () => useContext(LayoutContext)

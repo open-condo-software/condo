@@ -109,7 +109,10 @@
       "jest/valid-expect": "error",
       "@typescript-eslint/no-var-requires": "off",
       "@typescript-eslint/ban-ts-comment": "warn",
-      "@typescript-eslint/type-annotation-spacing": "error"
+      "@typescript-eslint/type-annotation-spacing": "error",
+      "@typescript-eslint/comma-spacing": "error",
+      "@typescript-eslint/func-call-spacing": "error",
+      "@typescript-eslint/keyword-spacing": "error"
     }
   }
 }
