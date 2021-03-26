@@ -32,13 +32,13 @@ const WarnText = styled.div`
 `
 
 function MappingForm ({ columns, cols, onChangeMapping, onFinish }) {
+    const intl = useIntl()
+    const ColumnMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.Column' })
+    const SelectColumnMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.SelectColumn' })
+    const NextStepButtonLabel = intl.formatMessage({ id: 'containers.FormTableExcelImport.NextStepButtonLabel' })
+
     const [form] = Form.useForm()
     const [values, setValues] = useState({})
-
-    const intl = useIntl()
-    const ColumnMsg = intl.formatMessage({ id: 'containers.FormTableExcelImport.Column' })
-    const SelectColumnMsg = intl.formatMessage({ id: 'containers.FormTableExcelImport.SelectColumn' })
-    const NextStepButtonLabelMsg = intl.formatMessage({ id: 'containers.FormTableExcelImport.NextStepButtonLabel' })
 
     function handleChanges (changedValues, allValues) {
         const titleToIndex = Object.fromEntries(cols.map((col) => [col.title, col.dataIndex]))
@@ -62,7 +62,7 @@ function MappingForm ({ columns, cols, onChangeMapping, onFinish }) {
         <Select
             allowClear={true}
             showSearch
-            placeholder={SelectColumnMsg}
+            placeholder={SelectColumnMessage}
             optionFilterProp="children"
             filterOption={(input, option) =>
                 option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -94,12 +94,12 @@ function MappingForm ({ columns, cols, onChangeMapping, onFinish }) {
             <Input/>
         </Form.Item>
         {columns.map((column, index) => {
-            return <Form.Item key={index} label={[ColumnMsg, ' "', column.title, '"']} name={column.dataIndex}>
+            return <Form.Item key={index} label={[ColumnMessage, ' "', column.title, '"']} name={column.dataIndex}>
                 {selectColumnComponent}
             </Form.Item>
         })}
         <Form.Item>
-            <Button type="primary" htmlType="submit">{NextStepButtonLabelMsg}</Button>
+            <Button type="primary" htmlType="submit">{NextStepButtonLabel}</Button>
         </Form.Item>
     </Form>
 }
@@ -107,22 +107,22 @@ function MappingForm ({ columns, cols, onChangeMapping, onFinish }) {
 function ExcelExporterButton ({ columns, setExportedData }) {
     if (!columns) throw new Error('no columns prop')
 
+    const intl = useIntl()
+    const ImportFromFileButtonLabel = intl.formatMessage({ id: 'containers.FormTableExcelImport.ImportFromFileButtonLabel' })
+    const ClickOrDragImportFileTextMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileText' })
+    const ClickOrDragImportFileHintMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
+    const Step1TextMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.Step1Text' })
+    const Step2TextMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.Step2Text' })
+    const Step3TextMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.Step3Text' })
+    const StepHelpText = {
+        1: Step1TextMessage,
+        2: Step2TextMessage,
+        3: Step3TextMessage,
+    }
+
     const [step, setStep] = useState(-1)
     const [tableState, setTableState] = useImmer({ data: [], cols: [], mapping: {} })
     const validators = Object.fromEntries(columns.map(column => [column.dataIndex, column.importValidator || defaultValidator]))
-
-    const intl = useIntl()
-    const ImportFromFileButtonLabelMsg = intl.formatMessage({ id: 'containers.FormTableExcelImport.ImportFromFileButtonLabel' })
-    const ClickOrDragImportFileTextMsg = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileText' })
-    const ClickOrDragImportFileHintMsg = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
-    const Step1TextMsg = intl.formatMessage({ id: 'containers.FormTableExcelImport.Step1Text' })
-    const Step2TextMsg = intl.formatMessage({ id: 'containers.FormTableExcelImport.Step2Text' })
-    const Step3TextMsg = intl.formatMessage({ id: 'containers.FormTableExcelImport.Step3Text' })
-    const StepHelpText = {
-        1: Step1TextMsg,
-        2: Step2TextMsg,
-        3: Step3TextMsg,
-    }
 
     function handleFile (file/*:File*/) {
         /* Boilerplate to set up FileReader */
@@ -153,7 +153,6 @@ function ExcelExporterButton ({ columns, setExportedData }) {
 
     function handleChangeMapping (mapping) {
         setTableState(draft => {
-            console.log('reValidateExData', tableState.mapping, mapping, validators)
             reValidateExData(draft.data, draft.mapping, mapping, validators)
             draft.mapping = mapping
         })
@@ -166,7 +165,7 @@ function ExcelExporterButton ({ columns, setExportedData }) {
 
     return <>
         <CreateFormListItemButton
-            onClick={() => setStep(1)} label={ImportFromFileButtonLabelMsg}
+            onClick={() => setStep(1)} label={ImportFromFileButtonLabel}
             style={{ marginBottom: '16px', width: '100%', display: step === -1 ? 'block' : 'none' }}/>
         {(step > 0) ?
             <Progress percent={((step - 0) * 33.33)} strokeColor="#52c41a" showInfo={false}/>
@@ -185,8 +184,8 @@ function ExcelExporterButton ({ columns, setExportedData }) {
             <p className="ant-upload-drag-icon">
                 <InboxOutlined/>
             </p>
-            <p className="ant-upload-text">{ClickOrDragImportFileTextMsg}</p>
-            <p className="ant-upload-hint">{ClickOrDragImportFileHintMsg}</p>
+            <p className="ant-upload-text">{ClickOrDragImportFileTextMessage}</p>
+            <p className="ant-upload-hint">{ClickOrDragImportFileHintMessage}</p>
         </Upload.Dragger>
 
         <div style={{ marginBottom: '16px', display: step === 2 ? 'block' : 'none' }}>

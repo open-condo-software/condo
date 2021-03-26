@@ -31,12 +31,12 @@ function RedirectToOrganizations () {
 }
 
 function OrganizationRequiredAfterAuthRequired ({ children }) {
+    const intl = useIntl()
+    const SelectOrganizationRequiredMessage = intl.formatMessage({ id: 'SelectOrganizationRequired' })
+
     const { isLoading: isLoadingAuth } = useAuth()
     const organization = useOrganization()
     const { isLoading, link } = organization
-
-    const intl = useIntl()
-    const SelectOrganizationRequiredMsg = intl.formatMessage({ id: 'SelectOrganizationRequired' })
 
     if (isLoading || isLoadingAuth) {
         const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin/>
@@ -45,7 +45,7 @@ function OrganizationRequiredAfterAuthRequired ({ children }) {
 
     if (!link) return <>
         <Typography.Title css={css`display: block; text-align: center;`}>
-            {SelectOrganizationRequiredMsg}
+            {SelectOrganizationRequiredMessage}
         </Typography.Title>
         <RedirectToOrganizations/>
     </>
