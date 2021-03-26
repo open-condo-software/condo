@@ -245,7 +245,7 @@ function createschema (argv) {
             let signature = opt
             if (signature.length < 3) throw new Error('<signature> is too short!')
             if (!/^(?:(?<field>[a-z][a-zA-Z0-9]+[?]?):[ ]*?(?<type>Text|Password|Integer|Decimal|File|DateTimeUtc|Json|Checkbox|Select:[a-z0-9, ]+|Relationship:[A-Za-z0-9]+:(CASCADE|PROTECT|SET_NULL|DO_NOTHING))[ ;]*?)+$/.test(signature)) throw new Error('<signature> has a invalid format: we expect <field>:<type>. Example: user:Relationship:User:CASCADE; password:Password; email:Text; type:Select:t1,t2')
-            return signature.split(/[ ]*;+[ ]*/).filter(x => x.trim().length).map(x => x.split(':'))
+            return signature.split(/[ ]*;+[ ]*/).filter(x => x.includes(':')).map(x => x.split(':'))
         })
         .options({
             'force': {
