@@ -8,7 +8,7 @@ import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '../containers/BaseLayout'
 import { OrganizationRequired } from '../containers/OrganizationRequired'
 
-const IndexPage:React.FC = () => {
+const IndexPage: React.FC = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.index.PageTitle' })
     const WeAreStillDevelopingThisPageMsg = intl.formatMessage({ id: 'WeAreStillDevelopingThisPage' })

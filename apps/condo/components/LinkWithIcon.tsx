@@ -36,7 +36,7 @@ interface ILinkWithIconProps {
     children?: React.ReactNode
 }
 
-export const LinkWithIcon:React.FC<ILinkWithIconProps> = (props: ILinkWithIconProps) => {
+export const LinkWithIcon: React.FC<ILinkWithIconProps> = (props: ILinkWithIconProps) => {
     const router = useRouter()
     const handleClick = useCallback(() => {
         router.push(props.path)

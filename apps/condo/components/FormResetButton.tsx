@@ -3,7 +3,7 @@ import { Form } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { Button, CustomButtonProps } from './Button'
 
-export const FormResetButton:React.FC<CustomButtonProps> = (props) => {
+export const FormResetButton: React.FC<CustomButtonProps> = (props) => {
     const intl = useIntl()
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
 

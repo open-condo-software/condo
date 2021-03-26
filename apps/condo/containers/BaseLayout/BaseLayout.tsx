@@ -119,7 +119,7 @@ interface IPageWrapperProps {
     style?: CSSProperties
 }
 
-const PageWrapper:FunctionComponent<IPageWrapperProps> =  ({ children, className, style }) => {
+const PageWrapper: FunctionComponent<IPageWrapperProps> =  ({ children, className, style }) => {
     return (
         <Content className={classnames('page-wrapper', className)} css={pageWrapperCss} as="main" style={style}>
             {children}
@@ -134,7 +134,7 @@ interface IPageHeaderProps extends PageHeaderProps {
     style?: CSSProperties
 }
 
-const PageHeader:FunctionComponent<IPageHeaderProps> = ({ children, className, style, title, subTitle, ...pageHeaderProps }) => {
+const PageHeader: FunctionComponent<IPageHeaderProps> = ({ children, className, style, title, subTitle, ...pageHeaderProps }) => {
     return (
         <AntPageHeader
             className={classnames('page-header', className)} css={pageHeaderCss} style={style}
@@ -151,7 +151,7 @@ interface IPageContentProps {
     style?: CSSProperties
 }
 
-const PageContent:FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
+const PageContent: FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
     return (
         <div className={classnames('page-content', className)} css={pageContentCss} style={style}>
             {children}

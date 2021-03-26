@@ -37,7 +37,7 @@ interface ITicketDescriptionFieldProps {
     type?: 'secondary' | 'success' | 'warning' | 'danger'
 }
 
-const TicketDescriptionField:React.FC<ITicketDescriptionFieldProps> = ({ title, value, type }) => {
+const TicketDescriptionField: React.FC<ITicketDescriptionFieldProps> = ({ title, value, type }) => {
     const intl = useIntl()
     const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
 
@@ -52,10 +52,10 @@ const TicketDescriptionField:React.FC<ITicketDescriptionFieldProps> = ({ title, 
 interface ITicketUserInfoFieldProps {
     title?: string
     user?: IUser
-    hidePersonalData?:boolean
+    hidePersonalData?: boolean
 }
 
-const TicketUserInfoField:React.FC<ITicketUserInfoFieldProps> = (props) => {
+const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
     const intl = useIntl()
     const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
     const PhoneNotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefinedShort' })

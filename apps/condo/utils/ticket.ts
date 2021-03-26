@@ -59,7 +59,7 @@ export const getTicketPdfName = (intl, ticket) => {
     return `${intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' })}_${ticket.number}.pdf`
 }
 
-export const formatPhone = (phone?:string):string => {
+export const formatPhone = (phone?: string): string => {
     if (!phone) {
         return phone
     }

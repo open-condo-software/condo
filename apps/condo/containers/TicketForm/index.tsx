@@ -8,6 +8,6 @@ interface ITicketFormProps {
     id?: string
 }
 
-export const TicketForm:React.FC<ITicketFormProps> = ({ id }) => {
+export const TicketForm: React.FC<ITicketFormProps> = ({ id }) => {
     return ( id ? <UpdateTicketForm id={id}/> : <CreateTicketForm/> )
 }

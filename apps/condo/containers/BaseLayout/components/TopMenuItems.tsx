@@ -12,10 +12,10 @@ import { UserInfo } from './UserInfo'
 interface ITopMenuItemsProps {
     isMobile: boolean
     toggleSideMenuCollapsed: boolean
-    headerAction?:React.ElementType
+    headerAction?: React.ElementType
 }
 
-export const TopMenuItems:React.FC<ITopMenuItemsProps> = (props) => {
+export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const auth = useAuth()
     const { isLoading } = useOrganization()
     const { isMobile, toggleSideMenuCollapsed } = props

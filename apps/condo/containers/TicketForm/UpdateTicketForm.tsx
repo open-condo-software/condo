@@ -15,7 +15,7 @@ interface IUpdateTicketForm {
     id: string
 }
 
-export const UpdateTicketForm:React.FC<IUpdateTicketForm> = ({ id }) => {
+export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
