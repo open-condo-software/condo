@@ -157,7 +157,7 @@ const TicketIdPage = () => {
 
     useEffect(() => {
         refetch()
-    },[])
+    }, [])
 
     if (error || loading || !ticket) {
         return (
@@ -241,7 +241,7 @@ const TicketIdPage = () => {
                                         <Typography.Title level={5}>{ClientInfoMessage}</Typography.Title>
                                     </Col>
                                     <Col span={24}>
-                                        <Row gutter={[12,12]}>
+                                        <Row gutter={[12, 12]}>
                                             <Col span={6}>
                                                 <TicketDescriptionField
                                                     title={AddressMessage}
