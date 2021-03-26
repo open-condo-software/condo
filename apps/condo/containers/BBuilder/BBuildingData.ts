@@ -29,9 +29,9 @@ type BDataSection = {
 }
 
 export class BBuildingData {
-    private data: BDataSection[];
-    private uniqKey: number;
-    private _matrix: { floors: any[]; sections: any[] };
+    private data: BDataSection[]
+    private uniqKey: number
+    private _matrix: { floors: any[]; sections: any[] }
 
     constructor ({ sections }: { sections: BDataSection[] }) {
         this._checkData(sections)

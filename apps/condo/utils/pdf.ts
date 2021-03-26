@@ -3,7 +3,7 @@ import Jspdf from 'jspdf'
 
 function getPdfHeightFromElement (element: HTMLElement, expectedWidth: number) {
     const { clientWidth, clientHeight } = element
-    const originalRatio = clientHeight/clientWidth
+    const originalRatio = clientHeight / clientWidth
     return expectedWidth * originalRatio
 }
 
