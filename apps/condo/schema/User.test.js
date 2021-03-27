@@ -3,17 +3,12 @@ const faker = require('faker')
 const { getRandomString, DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
 const { makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
-const { createTestUser, registerNewUser } = require('@condo/domains/user/utils/testSchema')
-const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
-const { UserAdmin } = require('../gql/User')
+const { User, UserAdmin, createTestUser, registerNewUser } = require('@condo/domains/user/utils/testSchema')
+const { REGISTER_NEW_USER_MUTATION, GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const { EMAIL_ALREADY_REGISTERED_ERROR } = require('../constants/errors')
 const { EMPTY_PASSWORD_ERROR } = require('../constants/errors')
 const { WRONG_EMAIL_ERROR } = require('../constants/errors')
 const { WRONG_PASSWORD_ERROR } = require('../constants/errors')
-const { GET_MY_USERINFO } = require('../gql/User')
-const { SIGNIN_MUTATION } = require('../gql/User')
-
-const { User } = require('../gql/User')
 
 describe('User', () => {
     test('createUser()', async () => {

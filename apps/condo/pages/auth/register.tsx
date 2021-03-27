@@ -5,29 +5,18 @@ import { Button, Checkbox, Form, Input, Tooltip, Typography } from 'antd'
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import Head from 'next/head'
 import Router from 'next/router'
-import gql from 'graphql-tag'
+import { QuestionCircleOutlined } from '@ant-design/icons'
 
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
+import { useAuth } from '@core/next/auth'
 
 import { TopMenuOnlyLayout } from '../../containers/BaseLayout'
-
 import firebase, { isFirebaseConfigValid } from '../../utils/firebase.front.utils'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { getQueryParams } from '../../utils/url.utils'
-import { useAuth } from '@core/next/auth'
-import { QuestionCircleOutlined } from '@ant-design/icons'
 import { runMutation } from '../../utils/mutations.utils'
-
-const REGISTER_NEW_USER_MUTATION = gql`
-    mutation registerNewUser($data: RegisterNewUserInput!) {
-        user: registerNewUser(data: $data) {
-            id
-            name
-            isAdmin
-        }
-    }
-`
 
 const AuthContext = createContext({})
 
