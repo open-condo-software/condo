@@ -88,7 +88,7 @@ const User = new GQLListSchema('User', {
         },
 
         meta: {
-            schemaDoc: 'User metadata',
+            schemaDoc: 'User metadata. Example: `city`, `country`, ...',
             type: Json,
             // TODO(pahaz): we should check the structure!
         },

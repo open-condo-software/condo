@@ -1,9 +1,10 @@
-const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const faker = require('faker')
-const { createOrganizationEmployee } = require('../../utils/testSchema/Organization')
-const { makeClientWithRegisteredOrganization } = require('../../utils/testSchema/Organization')
+
+const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { getRandomString } = require('@core/keystone/test.utils')
-const { addAdminAccess } = require('../../utils/testSchema/User')
+const { addAdminAccess } = require('@condo/domains/user/utils/testSchema')
+
+const { createOrganizationEmployee, makeClientWithRegisteredOrganization } = require('../../utils/testSchema/Organization')
 const { OrganizationEmployee } = require('../../gql/Organization')
 
 describe('OrganizationEmployee', () => {

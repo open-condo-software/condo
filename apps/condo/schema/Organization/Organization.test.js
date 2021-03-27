@@ -1,5 +1,6 @@
 const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { createUser } = require('../../utils/testSchema/User')
+const { createTestUser } = require('@condo/domains/user/utils/testSchema')
+
 const { createOrganization } = require('../../utils/testSchema/Organization')
 const { Organization } = require('../../gql/Organization')
 
@@ -31,7 +32,7 @@ describe('Organization', () => {
     test('user: allow to getAll', async () => {
         const admin = await makeLoggedInAdminClient()
         await createOrganization(admin)
-        const [, userAttrs] = await createUser(admin)
+        const [, userAttrs] = await createTestUser(admin)
         const client = await makeLoggedInClient(userAttrs)
         const objs = await Organization.getAll(client, {})
         expect(objs.length).toBeGreaterThan(0)
@@ -40,7 +41,7 @@ describe('Organization', () => {
     test('user: allow to count', async () => {
         const admin = await makeLoggedInAdminClient()
         await createOrganization(admin)
-        const [, userAttrs] = await createUser(admin)
+        const [, userAttrs] = await createTestUser(admin)
         const client = await makeLoggedInClient(userAttrs)
         const count = await Organization.count(client, {})
         expect(count).toBeGreaterThan(0)

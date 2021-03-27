@@ -1,13 +1,14 @@
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { BillingIntegrationLog, BillingIntegrationOrganizationContext } = require('../gql/Billing')
+const { makeLoggedInAdminClient, getRandomString } = require('@core/keystone/test.utils')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+
 const {
     createBillingIntegrationLog,
     createBillingIntegrationOrganizationContext,
     createBillingIntegrationAccessRight,
     createBillingIntegration,
 } = require('../utils/testSchema/Billing')
-const { getRandomString } = require('@core/keystone/test.utils')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('../utils/testSchema/User')
+const { BillingIntegrationLog, BillingIntegrationOrganizationContext } = require('../gql/Billing')
+
 const { makeClientWithProperty } = require('./Property/Property.test')
 
 describe('BillingIntegration', () => {
