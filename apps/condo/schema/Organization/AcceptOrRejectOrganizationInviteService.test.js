@@ -1,9 +1,10 @@
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+
 const {
     acceptOrRejectOrganizationInviteById,
     inviteNewOrganizationEmployee,
     makeClientWithRegisteredOrganization,
 } = require('../../utils/testSchema/Organization')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('../../utils/testSchema/User')
 
 // TODO(pahaz): check antonymous ACCEPT_OR_REJECT_BY_ID_MUTATION
 describe('AcceptOrRejectOrganizationInviteService', () => {

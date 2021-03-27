@@ -1,13 +1,16 @@
-const { makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const faker = require('faker')
+
+const { makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { createTestUser } = require('@condo/domains/user/utils/testSchema')
+
 const { registerNewOrganization } = require('../../utils/testSchema/Organization')
-const { createUser } = require('../../utils/testSchema/User')
+
 const { OrganizationEmployee } = require('../../gql/Organization')
 
 describe('RegisterNewOrganizationService', () => {
     test('registerNewOrganization() by user', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [user, userAttrs] = await createUser(admin)
+        const [user, userAttrs] = await createTestUser(admin)
         const client = await makeLoggedInClient(userAttrs)
 
         const name = faker.company.companyName()

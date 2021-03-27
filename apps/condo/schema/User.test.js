@@ -1,22 +1,24 @@
 const faker = require('faker')
-const { createUser, registerNewUser } = require('../utils/testSchema/User')
+
+const { getRandomString, DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
+const { makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+
+const { createTestUser, registerNewUser } = require('@condo/domains/user/utils/testSchema')
+const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { UserAdmin } = require('../gql/User')
 const { EMAIL_ALREADY_REGISTERED_ERROR } = require('../constants/errors')
-const { REGISTER_NEW_USER_MUTATION } = require('../gql/User')
 const { EMPTY_PASSWORD_ERROR } = require('../constants/errors')
 const { WRONG_EMAIL_ERROR } = require('../constants/errors')
 const { WRONG_PASSWORD_ERROR } = require('../constants/errors')
 const { GET_MY_USERINFO } = require('../gql/User')
 const { SIGNIN_MUTATION } = require('../gql/User')
-const { getRandomString, DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
-const { makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 const { User } = require('../gql/User')
 
 describe('User', () => {
     test('createUser()', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [user, userAttrs] = await createUser(admin, {})
+        const [user, userAttrs] = await createTestUser(admin, {})
         expect(user.id).toMatch(/^[A-Za-z0-9-]+$/g)
         expect(userAttrs.email).toBeTruthy()
         expect(userAttrs.password).toBeTruthy()
@@ -25,7 +27,7 @@ describe('User', () => {
     test('Convert email to lower case', async () => {
         const admin = await makeLoggedInAdminClient()
         const email = 'XXX' + getRandomString() + '@example.com'
-        const [user, userAttrs] = await createUser(admin, { email })
+        const [user, userAttrs] = await createTestUser(admin, { email })
 
         const objs = await UserAdmin.getAll(admin, { id: user.id })
         expect(objs[0]).toEqual(expect.objectContaining({ email: email.toLowerCase(), id: user.id }))
@@ -66,7 +68,7 @@ describe('User', () => {
 
     test('user: getAll', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [user, userAttrs] = await createUser(admin)
+        const [user, userAttrs] = await createTestUser(admin)
         const client = await makeLoggedInClient(userAttrs)
         const { data } = await UserAdmin.getAll(client, {}, { raw: true, sortBy: ['updatedAt_DESC'] })
         expect(data.objs).toEqual(
@@ -79,7 +81,7 @@ describe('User', () => {
 
     test('user: count', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [, userAttrs] = await createUser(admin)
+        const [, userAttrs] = await createTestUser(admin)
         const client = await makeLoggedInClient(userAttrs)
         const count = await User.count(client)
         expect(count).toBeGreaterThanOrEqual(2)
@@ -133,7 +135,7 @@ describe('SIGNIN', () => {
 
     test('check auth by empty password', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [, userAttrs] = await createUser(admin, { password: '' })
+        const [, userAttrs] = await createTestUser(admin, { password: '' })
         const checkAuthByEmptyPassword = async () => {
             await makeLoggedInClient({ email: userAttrs.email, password: '' })
         }
@@ -152,7 +154,7 @@ describe('RegisterNewUserService', () => {
 
     test('register user with existed email', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [, userAttrs] = await createUser(admin)
+        const [, userAttrs] = await createTestUser(admin)
         const client = await makeClient()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
         const password = faker.internet.password()
