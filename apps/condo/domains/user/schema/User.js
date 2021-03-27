@@ -50,6 +50,7 @@ const User = new GQLListSchema('User', {
             kmigratorOptions: { null: true, unique: true },
             hooks: {
                 resolveInput: ({ resolvedData }) => {
+                    // TODO(pahaz): convert email to lover case is not enough! normalize by `+` and aliases (ya.ru/yandex.ru) and so on ..
                     return resolvedData['email'] && resolvedData['email'].toLowerCase()
                 },
             },
@@ -69,6 +70,7 @@ const User = new GQLListSchema('User', {
             kmigratorOptions: { null: true, unique: true },
             hooks: {
                 resolveInput: ({ resolvedData }) => {
+                    // TODO(pahaz): verify country level! and check country codes!
                     return resolvedData['phone'] && resolvedData['phone'].toLowerCase().replace(/[^+0-9]/g, '')
                 },
             },

@@ -7,7 +7,7 @@ const conf = require('@core/config')
 const access = require('@core/keystone/access')
 const { SENDER_FIELD } = require('./_common')
 const { DV_FIELD } = require('./_common')
-const { ...UserSchemas } = require('@core/keystone/schemas/User')
+const { ForgotPasswordService } = require('@core/keystone/schemas/User')
 const { User: BaseUser } = require('@core/keystone/schemas/User')
 const { ForgotPasswordAction: BaseForgotPasswordAction } = require('@core/keystone/schemas/User')
 const { RegisterNewUserService: BaseRegisterNewUserService } = require('@core/keystone/schemas/User')
@@ -35,78 +35,6 @@ const USER_OWNED_FIELD = {
         delete: false,
     },
 }
-
-const User = BaseUser._override({
-    schemaDoc: 'Individual / person / service account',
-    fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
-        email: {
-            factory: () => faker.internet.exampleEmail().toLowerCase(),
-            type: Text,
-            access: access.userIsAdminOrIsThisItem,
-            kmigratorOptions: { null: true, unique: true },
-            hooks: {
-                resolveInput: async ({ resolvedData }) => {
-                    return resolvedData['email'] && resolvedData['email'].toLowerCase()
-                },
-            },
-        },
-        phone: {
-            factory: () => faker.phone.phoneNumberFormat().replace(/[^+0-9]/g, ''),
-            type: Text,
-            access: access.userIsAdminOrIsThisItem,
-            kmigratorOptions: { null: true, unique: true },
-            hooks: {
-                resolveInput: async ({ resolvedData }) => {
-                    return resolvedData['phone'] && resolvedData['phone'].toLowerCase().replace(/[^+0-9]/g, '')
-                },
-            },
-        },
-
-        isEmailVerified: {
-            type: Checkbox,
-            defaultValue: false,
-            access: {
-                read: true,
-                create: access.userIsAdmin,
-                update: access.userIsAdmin,
-            },
-        },
-        isPhoneVerified: {
-            type: Checkbox,
-            defaultValue: false,
-            access: {
-                read: true,
-                create: access.userIsAdmin,
-                update: access.userIsAdmin,
-            },
-        },
-
-        avatar: { type: File, adapter: AVATAR_FILE_ADAPTER },
-        meta: { type: Json },
-
-        importId: {
-            type: Text,
-            access: {
-                read: true,
-                create: access.userIsAdmin,
-                update: access.userIsAdmin,
-            },
-            // TODO(pahaz): think about mongodb!
-            kmigratorOptions: { null: true, unique: true },  // Just for postgres (bug with mongo)
-        },
-    },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
-    access: {
-        read: access.userIsAuthenticated,
-        create: access.userIsAdmin,
-        update: access.userIsAdminOrIsThisItem,
-        delete: access.userIsAdmin,
-        auth: true,
-    },
-})
 
 const ForgotPasswordAction = BaseForgotPasswordAction._override({
     fields: {
@@ -186,8 +114,7 @@ RegisterNewUserService.on('beforeRegisterNewUser', async ({ parent, args, contex
 })
 
 module.exports = {
-    ...UserSchemas,
-    User,
     ForgotPasswordAction,
+    ForgotPasswordService,
     RegisterNewUserService,
 }
