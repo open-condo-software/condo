@@ -1,11 +1,15 @@
+const { pickBy } = require('lodash')
+
+const isNotUndefined = (x) => typeof x !== 'undefined'
+
 async function execGqlWithoutAccess (context, { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj' }) {
     if (!context) throw new Error('wrong context argument')
     if (!query) throw new Error('wrong query argument')
     if (!variables) throw new Error('wrong variables argument')
     const { errors, data } = await context.executeGraphQL({
         context: context.createContext({ skipAccessControl: true }),
+        variables: pickBy(variables, isNotUndefined),
         query,
-        variables,
     })
 
     if (errors) {
@@ -26,8 +30,7 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
 }
 
 function generateServerUtils (gql) {
-
-    async function getAll (context, where, { sortBy, first, skip }) {
+    async function getAll (context, where, { sortBy, first, skip } = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
         return await execGqlWithoutAccess(context, {
@@ -40,7 +43,7 @@ function generateServerUtils (gql) {
         })
     }
 
-    async function count (context, where, { sortBy, first, skip }) {
+    async function count (context, where, { sortBy, first, skip } = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
         return await execGqlWithoutAccess(context, {
