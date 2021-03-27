@@ -79,10 +79,11 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
 }
 
 async function makeClientWithNewRegisteredAndLoggedInUser () {
-    const client = await makeClient()
-    const [user, userAttrs] = await registerNewUser(client)
+    const [user, userAttrs] = await registerNewUser(await makeClient())
+    const client = await makeLoggedInClient(userAttrs)
     client.user = user
-    return await makeLoggedInClient(userAttrs)
+    client.userAttrs = userAttrs
+    return client
 }
 
 async function addAdminAccess (user) {
@@ -95,6 +96,6 @@ async function addAdminAccess (user) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess,
+    User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient, makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
