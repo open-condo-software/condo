@@ -9,7 +9,7 @@ async function canReadUsers ({ authentication: { item: user } }) {
     return true
 }
 
-async function canManageUsers ({ authentication: { item: user }, operation, existingItem }) {
+async function canManageUsers ({ authentication: { item: user }, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
@@ -17,7 +17,7 @@ async function canManageUsers ({ authentication: { item: user }, operation, exis
         return false
     } else if (operation === 'update') {
         // NOTE: allow to self-user to update
-        if (existingItem.id === user.id) return true
+        if (itemId === user.id) return true
         return true
     }
     return false
@@ -40,8 +40,8 @@ const canAccessToPasswordField = {
 }
 const canAccessToIsAdminField = {
     read: true,
-    create: false,
-    update: false,
+    create: access.userIsAdmin,
+    update: access.userIsAdmin,
 }
 const canAccessToIsEmailVerifiedField = readByAnyUpdateByAdminField
 const canAccessToIsPhoneVerifiedField = readByAnyUpdateByAdminField

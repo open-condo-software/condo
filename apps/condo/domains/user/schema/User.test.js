@@ -4,29 +4,28 @@
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { User, createTestUser, updateTestUser } = require('@condo/domains/user/utils/testSchema')
+const { User, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('User', () => {
     test('user: create User', async () => {
-        const client = makeLoggedInAdminClient()
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
-        const [obj, attrs] = await createTestUser(client)  // TODO(codegen): write 'user: create User' test
-        expect(obj.id).toMatch(UUID_RE)
-        expect(obj.dv).toEqual(1)
-        expect(obj.sender).toEqual(attrs.sender)
-        expect(obj.v).toEqual(1)
-        expect(obj.newId).toEqual(null)
-        expect(obj.deletedAt).toEqual(null)
-        expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(obj.createdAt).toMatch(DATETIME_RE)
-        expect(obj.updatedAt).toMatch(DATETIME_RE)
+        try {
+            await createTestUser(client)
+        } catch (e) {
+            expect(e.errors[0]).toMatchObject({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
+            })
+            expect(e.data).toEqual({ 'obj': null })
+        }
     })
 
     test('anonymous: create User', async () => {
         const client = await makeClient()
         try {
-            await createTestUser(client)  // TODO(codegen): check the 'anonymous: create User' test!
+            await createTestUser(client)
         } catch (e) {
             expect(e.errors[0]).toMatchObject({
                 'message': 'You do not have access to this resource',
@@ -38,22 +37,15 @@ describe('User', () => {
     })
 
     test('user: read User', async () => {
-        const client = makeLoggedInAdminClient()
-        const [obj, attrs] = await createTestUser(client)  // TODO(codegen): check create function!
+        const admin = await makeLoggedInAdminClient()
+        await createTestUser(admin)
+
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const objs = await User.getAll(client)
 
-        // TODO(codegen): check 'user: read User' test!
-        expect(objs).toHaveLength(1)
-        expect(objs[0].id).toMatch(obj.id)
-        expect(objs[0].dv).toEqual(1)
-        expect(objs[0].sender).toEqual(attrs.sender)
-        expect(objs[0].v).toEqual(1)
-        expect(objs[0].newId).toEqual(null)
-        expect(objs[0].deletedAt).toEqual(null)
-        expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(objs[0].createdAt).toMatch(obj.createdAt)
-        expect(objs[0].updatedAt).toMatch(obj.updatedAt)
+        expect(objs.length >= 1).toBeTruthy()
+        expect(objs[0].id).toMatch(UUID_RE)
+        expect(objs[0].createdAt).toMatch(DATETIME_RE)
     })
 
     test('anonymous: read User', async () => {
@@ -72,30 +64,29 @@ describe('User', () => {
     })
 
     test('user: update User', async () => {
-        const client = makeLoggedInAdminClient()
-        const payload = {}  // TODO(codegen): change the 'user: update User' payload
-        const [objCreated] = await createTestUser(client)  // TODO(codegen): check create function!
-        const [objUpdated, attrs] = await updateTestUser(client, objCreated.id, payload)
+        const admin = await makeLoggedInAdminClient()
+        const [objCreated] = await createTestUser(admin)
 
-        // TODO(codegen): white checks for 'user: update User' test
-        expect(objUpdated.id).toEqual(objCreated.id)
-        expect(objUpdated.dv).toEqual(1)
-        expect(objUpdated.sender).toEqual(attrs.sender)
-        expect(objUpdated.v).toEqual(2)
-        expect(objUpdated.newId).toEqual(null)
-        expect(objUpdated.deletedAt).toEqual(null)
-        expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(objUpdated.createdAt).toMatch(DATETIME_RE)
-        expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
-        expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = {}
+        try {
+            await updateTestUser(client, objCreated.id, payload)
+        } catch (e) {
+            expect(e.errors[0]).toMatchObject({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
+            })
+            expect(e.data).toEqual({ 'obj': null })
+        }
     })
 
     test('anonymous: update User', async () => {
-        const client1 = makeLoggedInAdminClient()
+        const admin = await makeLoggedInAdminClient()
+        const [objCreated] = await createTestUser(admin)
+
         const client = await makeClient()
-        const payload = {}  // TODO(codegen): change the 'anonymous: update User' payload
-        const [objCreated] = await createTestUser(client1)  // TODO(codegen): check create function!
+        const payload = {}
         try {
             await updateTestUser(client, objCreated.id, payload)
         } catch (e) {
@@ -109,10 +100,11 @@ describe('User', () => {
     })
 
     test('user: delete User', async () => {
-        const client = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestUser(client)  // TODO(codegen): check create function!
+        const admin = await makeLoggedInAdminClient()
+        const [objCreated] = await createTestUser(admin)
+
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
         try {
-            // TODO(codegen): check 'user: delete User' test!
             await User.delete(client, objCreated.id)
         } catch (e) {
             expect(e.errors[0]).toMatchObject({
@@ -125,11 +117,11 @@ describe('User', () => {
     })
 
     test('anonymous: delete User', async () => {
-        const client1 = await makeClientWithProperty()
+        const admin = await makeLoggedInAdminClient()
+        const [objCreated] = await createTestUser(admin)
+
         const client = await makeClient()
-        const [objCreated] = await createTestUser(client1)  // TODO(codegen): check create function!
         try {
-            // TODO(codegen): check 'anonymous: delete User' test!
             await User.delete(client, objCreated.id)
         } catch (e) {
             expect(e.errors[0]).toMatchObject({
