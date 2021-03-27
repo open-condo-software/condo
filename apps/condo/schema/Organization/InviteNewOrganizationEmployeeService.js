@@ -1,6 +1,7 @@
-const { findUser } = require('../../utils/serverSchema/User')
-const { findOrganizationEmployee, createOrganizationEmployee } = require('../../utils/serverSchema/Organization')
 const { getById, GQLCustomSchema } = require('@core/keystone/schema')
+const { User } = require('@condo/domains/user/utils/serverSchema')
+
+const { findOrganizationEmployee, createOrganizationEmployee } = require('../../utils/serverSchema/Organization')
 
 const { rules } = require('../../access')
 const { ALREADY_EXISTS_ERROR } = require('../../constants/errors')
@@ -37,7 +38,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 }
 
                 if (!user) {
-                    const objs = await findUser(context, { email })
+                    const objs = await User.getAll(context, { email })
 
                     if (objs && objs.length === 1) {
                         user = objs[0]
