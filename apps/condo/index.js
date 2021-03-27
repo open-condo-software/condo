@@ -36,7 +36,6 @@ const keystone = new Keystone({
 registerSchemas(keystone, [
     require('@condo/domains/user/schema'),
     require('./schema/User'),
-    require('./schema/Auth'),
     require('./schema/Organization'),
     require('./schema/Property'),
     require('./schema/Billing'),

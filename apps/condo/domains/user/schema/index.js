@@ -4,9 +4,11 @@
  */
 
 const { User } = require('./User')
+const { AuthenticateUserWithFirebaseIdTokenService } = require('./Auth')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     User,
+    AuthenticateUserWithFirebaseIdTokenService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
