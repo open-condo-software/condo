@@ -36,6 +36,14 @@ const User = new GQLListSchema('User', {
             access: access.canAccessToPasswordField,
         },
 
+        // TODO(pahaz): useless! remove it or write auth checks!
+        isActive: {
+            schemaDoc: 'Can logged in?',
+            type: Checkbox,
+            defaultValue: false,
+            access: access.canAccessToIsAdminField,
+        },
+
         isAdmin: {
             schemaDoc: 'Can access to "/admin/" panel?',
             type: Checkbox,
