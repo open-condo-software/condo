@@ -1,87 +1,15 @@
 const faker = require('faker')
 
-const { getRandomString, DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
+const { DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
 const { makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
-const { User, UserAdmin, createTestUser, registerNewUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestUser, registerNewUser } = require('@condo/domains/user/utils/testSchema')
 const { REGISTER_NEW_USER_MUTATION, GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const { EMAIL_ALREADY_REGISTERED_ERROR } = require('../constants/errors')
 const { EMPTY_PASSWORD_ERROR } = require('../constants/errors')
 const { WRONG_EMAIL_ERROR } = require('../constants/errors')
 const { WRONG_PASSWORD_ERROR } = require('../constants/errors')
 
-describe('User', () => {
-    test('createUser()', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [user, userAttrs] = await createTestUser(admin, {})
-        expect(user.id).toMatch(/^[A-Za-z0-9-]+$/g)
-        expect(userAttrs.email).toBeTruthy()
-        expect(userAttrs.password).toBeTruthy()
-    })
-
-    test('Convert email to lower case', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const email = 'XXX' + getRandomString() + '@example.com'
-        const [user, userAttrs] = await createTestUser(admin, { email })
-
-        const objs = await UserAdmin.getAll(admin, { id: user.id })
-        expect(objs[0]).toEqual(expect.objectContaining({ email: email.toLowerCase(), id: user.id }))
-
-        const client2 = await makeLoggedInClient({ ...userAttrs, email: email.toLowerCase() })
-        expect(client2.user.id).toEqual(user.id)
-
-        // TODO(pahaz): fix in a future (it's no OK if you can't logged in by upper case email)
-        const checkAuthByUpperCaseEmail = async () => {
-            await makeLoggedInClient(userAttrs)
-        }
-        await expect(checkAuthByUpperCaseEmail).rejects.toThrow(/passwordAuth:identity:notFound/)
-    })
-
-    test('anonymous: getAll', async () => {
-        const client = await makeClient()
-        const { data, errors } = await User.getAll(client, {}, { raw: true })
-        expect(data).toEqual({ objs: null })
-        expect(errors[0]).toMatchObject({
-            'data': { 'target': 'allUsers', 'type': 'query' },
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
-            'path': ['objs'],
-        })
-    })
-
-    test('anonymous: count', async () => {
-        const client = await makeClient()
-        const { data, errors } = await User.count(client, {}, { raw: true })
-        expect(data).toEqual({ meta: { count: null } })
-        expect(errors[0]).toMatchObject({
-            'data': { 'target': '_allUsersMeta', 'type': 'query' },
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
-            'path': ['meta', 'count'],
-        })
-    })
-
-    test('user: getAll', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [user, userAttrs] = await createTestUser(admin)
-        const client = await makeLoggedInClient(userAttrs)
-        const { data } = await UserAdmin.getAll(client, {}, { raw: true, sortBy: ['updatedAt_DESC'] })
-        expect(data.objs).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({ id: user.id, email: userAttrs.email }),
-                expect.objectContaining({ email: null }),
-            ]),
-        )
-    })
-
-    test('user: count', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [, userAttrs] = await createTestUser(admin)
-        const client = await makeLoggedInClient(userAttrs)
-        const count = await User.count(client)
-        expect(count).toBeGreaterThanOrEqual(2)
-    })
-})
 
 describe('SIGNIN', () => {
     test('anonymous: SIGNIN_MUTATION', async () => {
