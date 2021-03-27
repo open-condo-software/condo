@@ -8,11 +8,11 @@ const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient
 
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
-const { User: UserGQL, REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
+const { User: UserGQL, UserAdmin: UserAdminGQL, REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
-/* AUTOGENERATE MARKER <CONST> */
+const UserAdmin = generateGQLTestUtils(UserAdminGQL)
 
 async function createTestUser (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -90,9 +90,11 @@ async function addAdminAccess (user) {
     await User.update(admin, user.id, { isAdmin: true })
 }
 
+/* AUTOGENERATE MARKER <CONST> */
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    User, createTestUser, updateTestUser, registerNewUser, makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess,
+    User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
