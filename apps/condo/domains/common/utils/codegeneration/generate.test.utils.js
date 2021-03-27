@@ -12,9 +12,16 @@ function throwIfError (data, errors) {
     }
 }
 
+function checkClient (client) {
+    if (!client) throw new Error('no client argument')
+    if (typeof client !== 'object') throw new Error('The client argument should be an object type')
+    if (client.then) throw new Error('The client argument is a Promise! Probably you should to await it')
+}
+
 function generateGQLTestUtils (gql) {
 
     async function getAll (client, where, { raw = false, sortBy } = {}) {
+        checkClient(client)
         const { data, errors } = await client.query(gql.GET_ALL_OBJS_QUERY, { where: where, sortBy })
         if (raw) return { data, errors }
         throwIfError(data, errors)
@@ -22,6 +29,7 @@ function generateGQLTestUtils (gql) {
     }
 
     async function count (client, where, { raw = false } = {}) {
+        checkClient(client)
         const { data, errors } = await client.query(gql.GET_COUNT_OBJS_QUERY, { where: where })
         if (raw) return { data, errors }
         throwIfError(data, errors)
@@ -29,6 +37,7 @@ function generateGQLTestUtils (gql) {
     }
 
     async function getAllWithMeta (client, where, { raw = false } = {}) {
+        checkClient(client)
         const { data, errors } = await client.query(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, { where: where })
         if (raw) return { data, errors }
         throwIfError(data, errors)
@@ -36,6 +45,7 @@ function generateGQLTestUtils (gql) {
     }
 
     async function create (client, attrs = {}, { raw = false } = {}) {
+        checkClient(client)
         const { data, errors } = await client.mutate(gql.CREATE_OBJ_MUTATION, {
             data: { ...attrs },
         })
@@ -45,6 +55,7 @@ function generateGQLTestUtils (gql) {
     }
 
     async function update (client, id, attrs = {}, { raw = false } = {}) {
+        checkClient(client)
         const { data, errors } = await client.mutate(gql.UPDATE_OBJ_MUTATION, {
             id, data: { ...attrs },
         })
@@ -54,6 +65,7 @@ function generateGQLTestUtils (gql) {
     }
 
     async function delete_ (client, id, { raw = false } = {}) {
+        checkClient(client)
         const { data, errors } = await client.mutate(gql.DELETE_OBJ_MUTATION, { id })
         if (raw) return { data, errors }
         throwIfError(data, errors)

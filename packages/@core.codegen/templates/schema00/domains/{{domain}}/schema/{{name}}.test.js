@@ -8,7 +8,7 @@ const { {{name}}, createTest{{name}}, updateTest{{name}} } = require('@condo/dom
 
 describe('{{name}}', () => {
     test('user: create {{name}}', async () => {
-        const client = makeLoggedInAdminClient()
+        const client = await makeClient()  // TODO(codegen): use truly useful client!
 
         const [obj, attrs] = await createTest{{name}}(client)  // TODO(codegen): write 'user: create {{name}}' test
         expect(obj.id).toMatch(UUID_RE)
@@ -38,8 +38,10 @@ describe('{{name}}', () => {
     })
 
     test('user: read {{name}}', async () => {
-        const client = makeLoggedInAdminClient()
-        const [obj, attrs] = await createTest{{name}}(client)  // TODO(codegen): check create function!
+        const admin = await makeLoggedInAdminClient()
+        const [obj, attrs] = await createTest{{name}}(admin)  // TODO(codegen): check create function!
+
+        const client = await makeClient()  // TODO(codegen): use truly useful client!
         const objs = await {{name}}.getAll(client)
 
         // TODO(codegen): check 'user: read {{name}}' test!
@@ -72,9 +74,11 @@ describe('{{name}}', () => {
     })
 
     test('user: update {{name}}', async () => {
-        const client = makeLoggedInAdminClient()
+        const admin = await makeLoggedInAdminClient()
+        const [objCreated] = await createTest{{name}}(admin)  // TODO(codegen): check create function!
+
+        const client = await makeClient()  // TODO(codegen): use truly useful client!
         const payload = {}  // TODO(codegen): change the 'user: update {{name}}' payload
-        const [objCreated] = await createTest{{name}}(client)  // TODO(codegen): check create function!
         const [objUpdated, attrs] = await updateTest{{name}}(client, objCreated.id, payload)
 
         // TODO(codegen): white checks for 'user: update {{name}}' test
@@ -92,10 +96,11 @@ describe('{{name}}', () => {
     })
 
     test('anonymous: update {{name}}', async () => {
-        const client1 = makeLoggedInAdminClient()
+        const admin = await makeLoggedInAdminClient()
+        const [objCreated] = await createTest{{name}}(admin)  // TODO(codegen): check create function!
+
         const client = await makeClient()
         const payload = {}  // TODO(codegen): change the 'anonymous: update {{name}}' payload
-        const [objCreated] = await createTest{{name}}(client1)  // TODO(codegen): check create function!
         try {
             await updateTest{{name}}(client, objCreated.id, payload)
         } catch (e) {
@@ -109,8 +114,10 @@ describe('{{name}}', () => {
     })
 
     test('user: delete {{name}}', async () => {
-        const client = await makeLoggedInAdminClient()
-        const [objCreated] = await createTest{{name}}(client)  // TODO(codegen): check create function!
+        const admin = await makeLoggedInAdminClient()
+        const [objCreated] = await createTest{{name}}(admin)  // TODO(codegen): check create function!
+
+        const client = await makeClient()  // TODO(codegen): use truly useful client!
         try {
             // TODO(codegen): check 'user: delete {{name}}' test!
             await {{name}}.delete(client, objCreated.id)
@@ -125,9 +132,10 @@ describe('{{name}}', () => {
     })
 
     test('anonymous: delete {{name}}', async () => {
-        const client1 = await makeClientWithProperty()
+        const admin = await makeLoggedInAdminClient()
+        const [objCreated] = await createTest{{name}}(admin)  // TODO(codegen): check create function!
+
         const client = await makeClient()
-        const [objCreated] = await createTest{{name}}(client1)  // TODO(codegen): check create function!
         try {
             // TODO(codegen): check 'anonymous: delete {{name}}' test!
             await {{name}}.delete(client, objCreated.id)
