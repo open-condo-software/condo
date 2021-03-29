@@ -3,6 +3,7 @@ const { get } = require('lodash')
 
 const { getByCondition, getById } = require('@core/keystone/schema')
 const { userIsAuthenticated, userIsAdmin } = require('@core/keystone/access')
+const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
 const isSignedIn = userIsAuthenticated
 
@@ -16,21 +17,6 @@ const permissions = {
     // canCreateTodos: () => !!session?.data.role?.canCreateTodos,
     canManageEmployees: () => true,
     canManageRoles: () => true,
-}
-
-async function checkOrganizationPermission (userId, organizationId, permission) {
-    if (!userId || !organizationId) return false
-    const employee = await getByCondition('OrganizationEmployee', {
-        organization: { id: organizationId },
-        user: { id: userId },
-    })
-    if (!employee || !employee.role) return false
-    const employeeRole = await getByCondition('OrganizationEmployeeRole', {
-        id: employee.role,
-        organization: { id: organizationId },
-    })
-    if (!employeeRole) return false
-    return employeeRole[permission] || false
 }
 
 async function checkBillingIntegrationAccessRight (userId, integrationId) {
