@@ -6,11 +6,13 @@
 const { BillingIntegration } = require('./BillingIntegration')
 const { BillingIntegrationAccessRight } = require('./BillingIntegrationAccessRight')
 const { BillingIntegrationOrganizationContext } = require('./BillingIntegrationOrganizationContext')
+const { BillingIntegrationLog } = require('./BillingIntegrationLog')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     BillingIntegration,
     BillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext,
+    BillingIntegrationLog,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
