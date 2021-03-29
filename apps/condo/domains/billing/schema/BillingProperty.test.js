@@ -7,7 +7,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 const { BillingProperty, createTestBillingProperty, updateTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
 
 describe('BillingProperty', () => {
-    test('user: create BillingProperty', async () => {
+    test.skip('user: create BillingProperty', async () => {
         const client = await makeClient()  // TODO(codegen): use truly useful client!
 
         const [obj, attrs] = await createTestBillingProperty(client)  // TODO(codegen): write 'user: create BillingProperty' test
@@ -23,7 +23,7 @@ describe('BillingProperty', () => {
         expect(obj.updatedAt).toMatch(DATETIME_RE)
     })
 
-    test('anonymous: create BillingProperty', async () => {
+    test.skip('anonymous: create BillingProperty', async () => {
         const client = await makeClient()
         try {
             await createTestBillingProperty(client)  // TODO(codegen): check the 'anonymous: create BillingProperty' test!
@@ -37,7 +37,7 @@ describe('BillingProperty', () => {
         }
     })
 
-    test('user: read BillingProperty', async () => {
+    test.skip('user: read BillingProperty', async () => {
         const admin = await makeLoggedInAdminClient()
         const [obj, attrs] = await createTestBillingProperty(admin)  // TODO(codegen): check create function!
 
@@ -58,7 +58,7 @@ describe('BillingProperty', () => {
         expect(objs[0].updatedAt).toMatch(obj.updatedAt)
     })
 
-    test('anonymous: read BillingProperty', async () => {
+    test.skip('anonymous: read BillingProperty', async () => {
         const client = await makeClient()
 
         try {
@@ -73,7 +73,7 @@ describe('BillingProperty', () => {
         }
     })
 
-    test('user: update BillingProperty', async () => {
+    test.skip('user: update BillingProperty', async () => {
         const admin = await makeLoggedInAdminClient()
         const [objCreated] = await createTestBillingProperty(admin)  // TODO(codegen): check create function!
 
@@ -95,7 +95,7 @@ describe('BillingProperty', () => {
         expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
     })
 
-    test('anonymous: update BillingProperty', async () => {
+    test.skip('anonymous: update BillingProperty', async () => {
         const admin = await makeLoggedInAdminClient()
         const [objCreated] = await createTestBillingProperty(admin)  // TODO(codegen): check create function!
 
@@ -113,7 +113,7 @@ describe('BillingProperty', () => {
         }
     })
 
-    test('user: delete BillingProperty', async () => {
+    test.skip('user: delete BillingProperty', async () => {
         const admin = await makeLoggedInAdminClient()
         const [objCreated] = await createTestBillingProperty(admin)  // TODO(codegen): check create function!
 
@@ -131,7 +131,7 @@ describe('BillingProperty', () => {
         }
     })
 
-    test('anonymous: delete BillingProperty', async () => {
+    test.skip('anonymous: delete BillingProperty', async () => {
         const admin = await makeLoggedInAdminClient()
         const [objCreated] = await createTestBillingProperty(admin)  // TODO(codegen): check create function!
 

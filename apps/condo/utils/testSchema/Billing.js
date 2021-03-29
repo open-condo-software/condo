@@ -6,19 +6,6 @@ const {
     BillingIntegrationLog,
 } = require('../../gql/Billing')
 
-async function createBillingIntegration (client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const name = faker.company.companyName()
-
-    const attrs = {
-        dv: 1,
-        name,
-        ...extraAttrs,
-    }
-    const obj = await BillingIntegration.create(client, attrs)
-    return [obj, attrs]
-}
-
 async function createBillingIntegrationAccessRight (client, user, integration, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user.id) throw new Error('no user.id')
@@ -76,7 +63,6 @@ async function createBillingIntegrationLog (client, context, extraAttrs = {}) {
 }
 
 module.exports = {
-    createBillingIntegration,
     createBillingIntegrationAccessRight,
     createBillingIntegrationOrganizationContext,
     createBillingIntegrationLog,
