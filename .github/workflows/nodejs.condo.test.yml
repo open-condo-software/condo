@@ -42,9 +42,7 @@ jobs:
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
           yarn workspace @app/condo dev &
           # Wait until server is up!
-          while ! [[ $(curl -s 'http://localhost:3000/admin/api' --data-raw '{"operationName":null,"variables":{},"query":"{appVersion}"}' -H 'content-type: application/json' | tr -d ' \n') == *"appVersion"* ]]; do
-            sleep 3
-          done
+          bash ./.github/workflows/waitForLocalhostApiReady.sh
           sleep 1
           yarn workspace @app/condo test --silent --coverage
         env:
