@@ -9,109 +9,49 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingAccountMeterReading')
 
+const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, BILLING_ACCOUNT_METER_FIELD, PERIOD_FIELD, RAW_DATA_FIELD } = require('./fields')
+
 
 const BillingAccountMeterReading = new GQLListSchema('BillingAccountMeterReading', {
-    // TODO(codegen): write doc for the BillingAccountMeterReading domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Meter reading. In a multi-tariff meter case, we store all values in one object',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        context: {
-            // TODO(codegen): write doc for BillingAccountMeterReading.context field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'BillingIntegrationOrganizationContext',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        context: INTEGRATION_CONTEXT_FIELD,
 
-        importId: {
-            // TODO(codegen): write doc for BillingAccountMeterReading.importId field!
-            schemaDoc: 'TODO DOC!',
-            type: Text,
-        },
+        importId: IMPORT_ID_FIELD,
 
-        property: {
-            // TODO(codegen): write doc for BillingAccountMeterReading.property field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'BillingProperty',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        raw: RAW_DATA_FIELD,
 
-        account: {
-            // TODO(codegen): write doc for BillingAccountMeterReading.account field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'BillingAccount',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
-
-        meter: {
-            // TODO(codegen): write doc for BillingAccountMeterReading.meter field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'BillingAccountMeter',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
-
-        period: {
-            // TODO(codegen): write doc for BillingAccountMeterReading.period field!
-            schemaDoc: 'TODO DOC!',
-            type: CalendarDay,
-            isRequired: true,
-        },
+        property: BILLING_PROPERTY_FIELD, // denormalize
+        account: BILLING_ACCOUNT_FIELD, // denormalize
+        meter: BILLING_ACCOUNT_METER_FIELD,
+        period: PERIOD_FIELD,
 
         value1: {
-            // TODO(codegen): write doc for BillingAccountMeterReading.value1 field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Meter reading value of tariff 1',
             type: Integer,
             isRequired: true,
         },
 
         value2: {
-            // TODO(codegen): write doc for BillingAccountMeterReading.value2 field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Meter reading value of tariff 2',
             type: Integer,
             isRequired: true,
         },
 
         value3: {
-            // TODO(codegen): write doc for BillingAccountMeterReading.value3 field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Meter reading value of tariff 3',
             type: Integer,
             isRequired: true,
         },
 
         date: {
-            // TODO(codegen): write doc for BillingAccountMeterReading.date field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Date of reading',
             type: DateTimeUtc,
             isRequired: true,
         },
-
-        raw: {
-            // TODO(codegen): write doc for BillingAccountMeterReading.raw field!
-            schemaDoc: 'TODO DOC!',
-            type: Json,
-            isRequired: true,
-        },
-
-        meta: {
-            // TODO(codegen): write doc for BillingAccountMeterReading.meta field!
-            schemaDoc: 'TODO DOC!',
-            type: Json,
-            isRequired: true,
-        },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

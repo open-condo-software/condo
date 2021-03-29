@@ -9,47 +9,45 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegrationLog')
 
+const { INTEGRATION_CONTEXT_FIELD } = require('./fields')
+
 
 const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
-    // TODO(codegen): write doc for the BillingIntegrationLog domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Important `integration component` log records. Sometimes you need to report some errors/problems related to the integration process. ' +
+        'The target audience of these messages is the client of our API platform. You should avoid repeating the same messages. ' +
+        'The existence of the message means that some problems were occurred during the integration process and the client should the user must take some actions to eliminate them',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        context: {
-            // TODO(codegen): write doc for BillingIntegrationLog.context field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'BillingIntegrationOrganizationContext',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        context: INTEGRATION_CONTEXT_FIELD,
 
         type: {
-            // TODO(codegen): write doc for BillingIntegrationLog.type field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Message type. Our clients can use different languages. Sometimes we need to change the text message for the client. The settings for the message texts are in the integration. Ex: WRONG_AUTH_CREDENTIALS',
             type: Text,
             isRequired: true,
+            hooks: {
+                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                    const value = resolvedData[fieldPath]
+                    if (!UPPER_CASE_ALPHANUMERIC_REGEXP.test(value)) addFieldValidationError(`${WRONG_TEXT_FORMAT}${fieldPath}] allow only [A-Z0-9_] charset`)
+                },
+            },
         },
 
         message: {
-            // TODO(codegen): write doc for BillingIntegrationLog.message field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Client understandable message. May be overridden by integration settings for some message types',
             type: Text,
             isRequired: true,
         },
 
         meta: {
-            // TODO(codegen): write doc for BillingIntegrationLog.meta field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'The message metadata. Context variables for generating messages. Examples of data keys: ``',
             type: Json,
-            isRequired: true,
+            isRequired: false,
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted()],
     access: {
         read: access.canReadBillingIntegrationLogs,
         create: access.canManageBillingIntegrationLogs,

@@ -38,7 +38,7 @@ registerSchemas(keystone, [
     require('./schema/User'),
     require('./schema/Organization'),
     require('./schema/Property'),
-    require('./schema/Billing'),
+    require('@condo/domains/billing/schema'),
     require('@condo/domains/ticket/schema'),
 ])
 

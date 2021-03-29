@@ -10,15 +10,15 @@ async function canReadBillingIntegrations ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageBillingIntegrations ({ authentication: { item: user }, operation, itemId }) {
+async function canManageBillingIntegrations ({ authentication: { item: user }, operation }) {
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
         // TODO(codegen): write canManageBillingIntegrations create logic!
-        return true
+        return false
     } else if (operation === 'update') {
         // TODO(codegen): write canManageBillingIntegrations update logic!
-        return true
+        return false
     }
     return false
 }

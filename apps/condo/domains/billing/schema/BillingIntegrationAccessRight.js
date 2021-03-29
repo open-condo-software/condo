@@ -11,25 +11,22 @@ const access = require('@condo/domains/billing/access/BillingIntegrationAccessRi
 
 
 const BillingIntegrationAccessRight = new GQLListSchema('BillingIntegrationAccessRight', {
-    // TODO(codegen): write doc for the BillingIntegrationAccessRight domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Link between billing integrations and users. The existence of the object means that there is user has access to integration',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
         integration: {
-            // TODO(codegen): write doc for BillingIntegrationAccessRight.integration field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Integration',
             type: Relationship,
-            ref: 'BillingIntegration',
+            ref: 'BillingIntegration.accessRights',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
 
         user: {
-            // TODO(codegen): write doc for BillingIntegrationAccessRight.user field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'User',
             type: Relationship,
             ref: 'User',
             isRequired: true,
@@ -38,7 +35,7 @@ const BillingIntegrationAccessRight = new GQLListSchema('BillingIntegrationAcces
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [tracked(), historical()],
     access: {
         read: access.canReadBillingIntegrationAccessRights,
         create: access.canManageBillingIntegrationAccessRights,

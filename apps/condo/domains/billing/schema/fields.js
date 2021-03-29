@@ -1,3 +1,6 @@
+const { Text, Relationship, CalendarDay } = require('@keystonejs/fields')
+const { Json } = require('@core/keystone/fields')
+
 const INTEGRATION_CONTEXT_FIELD = {
     schemaDoc: 'Integration context',
     type: Relationship,

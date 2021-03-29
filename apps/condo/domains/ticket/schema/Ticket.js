@@ -198,6 +198,7 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Floor of an apartment building (property). You need to take from Property.map',
             type: Text,
         },
+        // TODO(pahaz): make a link to property domain fields
         unitName: {
             schemaDoc: 'Flat number / door number of an apartment building (property). You need to take from Property.map',
             type: Text,
