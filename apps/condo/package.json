@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "jest",
+    "test": "mkdir -p dist/admin && jest",
     "dev": "keystone dev",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build": "node --max_old_space_size=4096 node_modules/.bin/keystone build",
