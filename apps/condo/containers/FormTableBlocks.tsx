@@ -261,12 +261,6 @@ function NewOrExportTableBlock ({ columns, table }) {
         setData([...data, createNewGQLItem()])
     }
 
-    // function handleSaveAll () {
-    //     console.log('TODO ... as child extra actions')
-    // }
-
-    // console.log('RERDER! NewOrExportTableBlock', columns)
-
     return <>
         <ExcelExporterButton columns={columns.filter((x => x.importFromFile))} setExportedData={handleSetExportData}/>
         <CreateFormListItemButton
@@ -274,9 +268,6 @@ function NewOrExportTableBlock ({ columns, table }) {
             style={{ marginBottom: '16px', width: '100%' }}/>
         {(data.length) ?
             <Space direction="vertical">
-                {/*<Button size="small" onClick={handleSaveAll}>*/}
-                {/*    <SaveOutlined/><SortAscendingOutlined/>*/}
-                {/*</Button>*/}
                 <FormTable
                     dataSource={data}
                     columns={columns.filter((x => x.create))}
