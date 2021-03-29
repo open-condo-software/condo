@@ -38,10 +38,28 @@ const BILLING_ACCOUNT_FIELD = {
     kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
 }
 
+const BILLING_ACCOUNT_METER_FIELD = {
+    schemaDoc: 'Billing account meter',
+    type: Relationship,
+    ref: 'BillingAccountMeter',
+    isRequired: true,
+    knexOptions: { isNotNullable: true }, // Relationship only!
+    kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+}
+
+const PERIOD_FIELD = {
+    schemaDoc: 'Period date (01.2020, 02.2020, ...)',
+    type: CalendarDay,
+    isRequired: true,
+    // TODO(pahaz): validate it
+}
+
 module.exports = {
     INTEGRATION_CONTEXT_FIELD,
     IMPORT_ID_FIELD,
     RAW_DATA_FIELD,
     BILLING_PROPERTY_FIELD,
     BILLING_ACCOUNT_FIELD,
+    BILLING_ACCOUNT_METER_FIELD,
+    PERIOD_FIELD,
 }
