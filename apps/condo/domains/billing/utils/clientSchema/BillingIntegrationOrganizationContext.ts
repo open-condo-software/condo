@@ -14,7 +14,7 @@ const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updat
 const RELATIONS = ['integration', 'organization']
 
 export interface IBillingIntegrationOrganizationContextUIState extends BillingIntegrationOrganizationContext {
-    id?: string
+    id: string
     // TODO(codegen): write IBillingIntegrationOrganizationContextUIState or extends it from
 }
 

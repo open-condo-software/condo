@@ -14,7 +14,7 @@ const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updat
 const RELATIONS = ['integration', 'user']
 
 export interface IBillingIntegrationAccessRightUIState extends BillingIntegrationAccessRight {
-    id?: string
+    id: string
     // TODO(codegen): write IBillingIntegrationAccessRightUIState or extends it from
 }
 

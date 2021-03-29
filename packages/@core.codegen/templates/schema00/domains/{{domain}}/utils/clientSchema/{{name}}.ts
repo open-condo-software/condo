@@ -14,7 +14,7 @@ const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updat
 const RELATIONS = [{% for field in signature | selectattr("isRelation") %}'{{ field.name }}'{% if not loop.last %}, {% endif %}{% endfor %}]
 
 export interface I{{ name }}UIState extends {{ name }} {
-    id?: string
+    id: string
     // TODO(codegen): write I{{ name }}UIState or extends it from
 }
 

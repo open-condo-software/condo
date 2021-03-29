@@ -10,11 +10,13 @@ const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegenera
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationOrganizationContext: BillingIntegrationOrganizationContextGQL } = require('@condo/domains/billing/gql')
+const { BillingIntegrationLog: BillingIntegrationLogGQL } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
 const BillingIntegrationAccessRight = generateGQLTestUtils(BillingIntegrationAccessRightGQL)
 const BillingIntegrationOrganizationContext = generateGQLTestUtils(BillingIntegrationOrganizationContextGQL)
+const BillingIntegrationLog = generateGQLTestUtils(BillingIntegrationLogGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
@@ -114,11 +116,44 @@ async function updateTestBillingIntegrationOrganizationContext (client, id, extr
     return [obj, attrs]
 }
 
+async function createTestBillingIntegrationLog (client, context, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestBillingIntegrationLog logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { connect: { id: context.id } },
+        ...extraAttrs,
+    }
+    const obj = await BillingIntegrationLog.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBillingIntegrationLog (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestBillingIntegrationLog logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BillingIntegrationLog.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration,
     BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext,
+    BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
