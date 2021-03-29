@@ -8,18 +8,20 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegrationOrganizationContext')
+const { hasValidJsonStructure } = require('../../../utils/validation.utils')
+
+// TODO(pahaz): move if after Organization refactoring
+const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 
 
 const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrationOrganizationContext', {
-    // TODO(codegen): write doc for the BillingIntegrationOrganizationContext domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Integration state and settings for all organizations. The existence of this object means that there is a configured integration between the `billing data source` and `this API`',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
         integration: {
-            // TODO(codegen): write doc for BillingIntegrationOrganizationContext.integration field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'ID of the integration that is configured to receive data for the organization',
             type: Relationship,
             ref: 'BillingIntegration',
             isRequired: true,
@@ -27,28 +29,28 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
 
-        organization: {
-            // TODO(codegen): write doc for BillingIntegrationOrganizationContext.organization field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'Organization',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        organization: ORGANIZATION_OWNED_FIELD,
 
         settings: {
-            // TODO(codegen): write doc for BillingIntegrationOrganizationContext.settings field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Settings that are required to get data from the `billing data source`. It can also contain fine-tuning optional integration settings. The data structure depends on the integration and defined there',
             type: Json,
             isRequired: true,
+            hooks: {
+                validateInput: (args) => {
+                    if (!hasValidJsonStructure(args, true, 1, {})) return
+                },
+            },
         },
 
         state: {
-            // TODO(codegen): write doc for BillingIntegrationOrganizationContext.state field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'The current state of the integration process. Some integration need to store past state or data related to cache files/folders for past state. The data structure depends on the integration and defined there',
             type: Json,
             isRequired: true,
+            hooks: {
+                validateInput: (args) => {
+                    if (!hasValidJsonStructure(args, true, 1, {})) return
+                },
+            },
         },
 
     },

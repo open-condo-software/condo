@@ -9,63 +9,23 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingReceipt')
 
+const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD } = require('./fields')
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
-    // TODO(codegen): write doc for the BillingReceipt domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Account monthly invoice document',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        context: {
-            // TODO(codegen): write doc for BillingReceipt.context field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'BillingIntegrationOrganizationContext',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        context: INTEGRATION_CONTEXT_FIELD,
 
-        importId: {
-            // TODO(codegen): write doc for BillingReceipt.importId field!
-            schemaDoc: 'TODO DOC!',
-            type: Text,
-        },
+        importId: IMPORT_ID_FIELD,
 
-        property: {
-            // TODO(codegen): write doc for BillingReceipt.property field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'BillingProperty',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        raw: RAW_DATA_FIELD,
 
-        account: {
-            // TODO(codegen): write doc for BillingReceipt.account field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'BillingAccount',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
-
-        period: {
-            // TODO(codegen): write doc for BillingReceipt.period field!
-            schemaDoc: 'TODO DOC!',
-            type: CalendarDay,
-            isRequired: true,
-        },
-
-        raw: {
-            // TODO(codegen): write doc for BillingReceipt.raw field!
-            schemaDoc: 'TODO DOC!',
-            type: Json,
-            isRequired: true,
-        },
+        property: BILLING_PROPERTY_FIELD, // denormalize
+        account: BILLING_ACCOUNT_FIELD,
+        period: PERIOD_FIELD,
 
         toPay: {
             // TODO(codegen): write doc for BillingReceipt.toPay field!

@@ -9,53 +9,26 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingAccountMeter')
 
+const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, RAW_DATA_FIELD } = require('./fields')
+
 
 const BillingAccountMeter = new GQLListSchema('BillingAccountMeter', {
-    // TODO(codegen): write doc for the BillingAccountMeter domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'All `personal meter` (non `whole-building meter`) objects from `billing data source`. In case of the meter can measure several resources we create a separate object for each resource',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        context: {
-            // TODO(codegen): write doc for BillingAccountMeter.context field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'BillingIntegrationOrganizationContext',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        context: INTEGRATION_CONTEXT_FIELD,
 
-        importId: {
-            // TODO(codegen): write doc for BillingAccountMeter.importId field!
-            schemaDoc: 'TODO DOC!',
-            type: Text,
-        },
+        importId: IMPORT_ID_FIELD,
 
-        property: {
-            // TODO(codegen): write doc for BillingAccountMeter.property field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'BillingProperty',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        raw: RAW_DATA_FIELD,
 
-        account: {
-            // TODO(codegen): write doc for BillingAccountMeter.account field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'BillingAccount',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        property: BILLING_PROPERTY_FIELD, // denormalize
+        account: BILLING_ACCOUNT_FIELD,
 
         resource: {
-            // TODO(codegen): write doc for BillingAccountMeter.resource field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Meter resource types',
             type: Relationship,
             ref: 'BillingMeterResource',
             isRequired: true,
@@ -63,16 +36,10 @@ const BillingAccountMeter = new GQLListSchema('BillingAccountMeter', {
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
 
-        raw: {
-            // TODO(codegen): write doc for BillingAccountMeter.raw field!
-            schemaDoc: 'TODO DOC!',
-            type: Json,
-            isRequired: true,
-        },
-
         meta: {
-            // TODO(codegen): write doc for BillingAccountMeter.meta field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
+                'Examples of data keys: `sealing date`, `install date`, `verification date`, `serial number`, `units of measurement`',
+            // TODO(pahaz): research keys!
             type: Json,
             isRequired: true,
         },

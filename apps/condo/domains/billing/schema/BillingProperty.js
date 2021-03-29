@@ -9,58 +9,41 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingProperty')
 
+const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD } = require('./fields')
+
 
 const BillingProperty = new GQLListSchema('BillingProperty', {
-    // TODO(codegen): write doc for the BillingProperty domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'All `property` objects from `billing data source`',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        context: {
-            // TODO(codegen): write doc for BillingProperty.context field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'BillingIntegrationOrganizationContext',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        context: INTEGRATION_CONTEXT_FIELD,
 
-        importId: {
-            // TODO(codegen): write doc for BillingProperty.importId field!
-            schemaDoc: 'TODO DOC!',
-            type: Text,
-        },
+        importId: IMPORT_ID_FIELD,
 
-        bindingId: {
-            // TODO(codegen): write doc for BillingProperty.bindingId field!
-            schemaDoc: 'TODO DOC!',
+        raw: RAW_DATA_FIELD,
+
+        globalId: {
+            schemaDoc: 'A well-known universal identifier that allows you to identify the same objects in different systems. It may differ in different countries. Example: for Russia, the FIAS ID is used',
             type: Text,
             isRequired: true,
+            kmigratorOptions: { unique: true, null: false },
         },
 
         address: {
-            // TODO(codegen): write doc for BillingProperty.address field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'The non-modified address from the `billing data source`. Used in `receipt template`',
             type: Text,
-            isRequired: true,
-        },
-
-        raw: {
-            // TODO(codegen): write doc for BillingProperty.raw field!
-            schemaDoc: 'TODO DOC!',
-            type: Json,
             isRequired: true,
         },
 
         meta: {
-            // TODO(codegen): write doc for BillingProperty.meta field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
+                'Examples of data keys: `total space of building`, `property beginning of exploitation year`, `has cultural heritage status`, `number of underground floors`, `number of above-ground floors`',
+            // TODO(pahaz): research keys!
             type: Json,
             isRequired: true,
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

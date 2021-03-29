@@ -11,19 +11,16 @@ const access = require('@condo/domains/billing/access/BillingMeterResource')
 
 
 const BillingMeterResource = new GQLListSchema('BillingMeterResource', {
-    // TODO(codegen): write doc for the BillingMeterResource domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Meter `resource types`',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
         name: {
-            // TODO(codegen): write doc for BillingMeterResource.name field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'The name of the `resource types`',
             type: Text,
             isRequired: true,
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
