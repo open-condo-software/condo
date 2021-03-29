@@ -20,6 +20,12 @@ const BillingIntegrationOrganizationContext = generateGqlQueries('BillingIntegra
 const BILLING_INTEGRATION_LOG_FIELDS = `{ context { id } type message meta ${COMMON_FIELDS} }`
 const BillingIntegrationLog = generateGqlQueries('BillingIntegrationLog', BILLING_INTEGRATION_LOG_FIELDS)
 
+const BILLING_PROPERTY_FIELDS = `{ context { id } importId bindingId address raw meta ${COMMON_FIELDS} }`
+const BillingProperty = generateGqlQueries('BillingProperty', BILLING_PROPERTY_FIELDS)
+
+const BILLING_ACCOUNT_FIELDS = `{ context { id } importId property { id } bindingId number unit raw meta ${COMMON_FIELDS} }`
+const BillingAccount = generateGqlQueries('BillingAccount', BILLING_ACCOUNT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -27,5 +33,7 @@ module.exports = {
     BillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext,
     BillingIntegrationLog,
+    BillingProperty,
+    BillingAccount,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

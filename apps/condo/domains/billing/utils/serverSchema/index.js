@@ -10,12 +10,16 @@ const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/bi
 const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationOrganizationContext: BillingIntegrationOrganizationContextGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationLog: BillingIntegrationLogGQL } = require('@condo/domains/billing/gql')
+const { BillingProperty: BillingPropertyGQL } = require('@condo/domains/billing/gql')
+const { BillingAccount: BillingAccountGQL } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateServerUtils(BillingIntegrationGQL)
 const BillingIntegrationAccessRight = generateServerUtils(BillingIntegrationAccessRightGQL)
 const BillingIntegrationOrganizationContext = generateServerUtils(BillingIntegrationOrganizationContextGQL)
 const BillingIntegrationLog = generateServerUtils(BillingIntegrationLogGQL)
+const BillingProperty = generateServerUtils(BillingPropertyGQL)
+const BillingAccount = generateServerUtils(BillingAccountGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -23,5 +27,7 @@ module.exports = {
     BillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext,
     BillingIntegrationLog,
+    BillingProperty,
+    BillingAccount,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
