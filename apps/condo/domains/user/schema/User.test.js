@@ -177,7 +177,7 @@ describe('User fields', () => {
         const objs = await UserAdmin.getAll(admin, { id: user.id })
         expect(objs[0]).toEqual(expect.objectContaining({ email: email.toLowerCase(), id: user.id }))
 
-        const client2 = await makeLoggedInClient({ ...userAttrs, email: email.toLowerCase() })
+        const client2 = await makeLoggedInClient({ password: userAttrs.password, email: email.toLowerCase() })
         expect(client2.user.id).toEqual(user.id)
 
         // TODO(pahaz): fix in a future (it's no OK if you can't logged in by upper case email)
