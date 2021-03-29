@@ -3,7 +3,7 @@ const { Text, Relationship, Integer, DateTimeUtc, CalendarDay } = require('@keys
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD } = require('@condo/domains/billing/schema/fields')
+const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('@condo/domains/billing/schema/fields')
 
 const { SENDER_FIELD, DV_FIELD, ORGANIZATION_OWNED_FIELD } = require('./_common')
 const { WRONG_TEXT_FORMAT, JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
@@ -11,24 +11,6 @@ const { UPPER_CASE_ALPHANUMERIC_REGEXP } = require('../constants/regexps')
 const { rules } = require('../access')
 const { hasRequestAndDbFields, hasValidJsonStructure } = require('../utils/validation.utils')
 
-
-const BILLING_PROPERTY_FIELD = {
-    schemaDoc: 'Billing property',
-    type: Relationship,
-    ref: 'BillingProperty',
-    isRequired: true,
-    knexOptions: { isNotNullable: true }, // Relationship only!
-    kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-}
-
-const BILLING_ACCOUNT_FIELD = {
-    schemaDoc: 'Billing account',
-    type: Relationship,
-    ref: 'BillingAccount',
-    isRequired: true,
-    knexOptions: { isNotNullable: true }, // Relationship only!
-    kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-}
 
 const BILLING_ACCOUNT_METER_FIELD = {
     schemaDoc: 'Billing account meter',
