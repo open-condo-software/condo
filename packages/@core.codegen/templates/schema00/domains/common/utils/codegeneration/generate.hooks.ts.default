@@ -39,7 +39,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
 
         // eslint-disable-next-line prefer-const
-        const result = useQuery<{ objs?: GQL[], meta?: { count?: number }}, Q>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
+        const result = useQuery<{ objs?: GQL[], meta?: { count?: number } }, Q>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
         })
 
@@ -78,7 +78,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         }
     }
 
-    function useCreate (attrs: UIForm | object = {}, onComplete) {
+    function useCreate (attrs: UIForm | Record<string, unknown> = {}, onComplete) {
         if (typeof attrs !== 'object' || !attrs) throw new Error('useCreate(): invalid attrs argument')
         const [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION)
 
