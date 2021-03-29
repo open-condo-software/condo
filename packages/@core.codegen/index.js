@@ -258,8 +258,38 @@ function createschema (argv) {
         .coerce('signature', opt => {
             let signature = opt
             if (signature.length < 3) throw new Error('<signature> is too short!')
-            if (!/^(?:(?<field>[a-z][a-zA-Z0-9]+[?]?):[ ]*?(?<type>Text|Password|Integer|Decimal|File|DateTimeUtc|Json|Checkbox|Select:[a-z0-9, ]+|Relationship:[A-Za-z0-9]+:(CASCADE|PROTECT|SET_NULL|DO_NOTHING))[ ;]*?)+$/.test(signature)) throw new Error('<signature> has a invalid format: we expect <field>:<type>. Example: user:Relationship:User:CASCADE; password:Password; email:Text; type:Select:t1,t2')
-            return signature.split(/[ ]*;+[ ]*/).filter(x => x.includes(':')).map(x => x.split(':'))
+            return signature.split(/[ ]*;+[ ]*/).filter(x => x.includes(':')).map(field => {
+                if (!/^(?:(?<field>[a-z][a-zA-Z0-9]+[?]?):[ ]*?(?<type>[A-Za-z0-9:,]+)[ ]*?)/.test(field)) {
+                    throw new Error(`Unknown filed signature "${field}"`)
+                }
+                const result = field.split(':')
+                const type = result[1]
+                switch (type) {
+                    case "Text":
+                    case "Password":
+                    case "Integer":
+                    case "Decimal":
+                    case "File":
+                    case "DateTimeUtc":
+                    case "CalendarDay":
+                    case "Json":
+                    case "Checkbox":
+                        if (result.length !== 2) throw new Error(`Wrong number of argument for filed signature "${field}"`)
+                        break
+                    case "Select":
+                        if (result.length !== 3) throw new Error(`Wrong number of argument for filed signature "${field}"`)
+                        if (!result[2].match(/^([a-z0-9, ]+)$/g)) throw new Error(`Wrong argument 1 for type ${type}. Filed signature "${field}"`)
+                        break
+                    case "Relationship":
+                        if (result.length !== 4) throw new Error(`Wrong number of argument for filed signature "${field}"`)
+                        if (!result[2].match(/^([A-Za-z0-9]+)$/)) throw new Error(`Wrong argument 1 for type ${type}. Filed signature "${field}"`)
+                        if (!result[3].match(/^(CASCADE|PROTECT|SET_NULL|DO_NOTHING)$/)) throw new Error(`Wrong argument 2 for type ${type}. Filed signature "${field}"`)
+                        break
+                    default:
+                        throw new Error(`Unknown type for filed signature "${field}"`)
+                }
+                return result
+            })
         })
         .options({
             'force': {
