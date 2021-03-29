@@ -18,10 +18,15 @@ class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
     setupHooks ({ addPreSaveHook, addPostReadHook }) {
         addPreSaveHook(item => {
             // TODO(Dimtreee|Pahaz): fix autoincrement on status update, or add new field
-            if (this.path in item) {
+            // if (this.path in item) {
+            //    return item
+            //}
+            if (!Reflect.has(item, 'v')) {
+                console.warn ('AutoIncrementIntegerKnexFieldAdapter: no version field in object')
+            } else if (item.v !== 1){
+                // No reason to update autoincrement fields on existing object
                 return item
             }
-
             const tableName = this.listAdapter.tableName
             const fieldName = this.dbPath
             const knex = this.listAdapter.parentAdapter.knex
