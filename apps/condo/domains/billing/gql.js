@@ -14,10 +14,14 @@ const BillingIntegration = generateGqlQueries('BillingIntegration', BILLINGINTEG
 const BILLINGINTEGRATIONACCESSRIGHT_FIELDS = `{ integration { id } user { id } ${COMMON_FIELDS} }`
 const BillingIntegrationAccessRight = generateGqlQueries('BillingIntegrationAccessRight', BILLINGINTEGRATIONACCESSRIGHT_FIELDS)
 
+const BILLINGINTEGRATIONORGANIZATIONCONTEXT_FIELDS = `{ integration { id } organization { id } settings state ${COMMON_FIELDS} }`
+const BillingIntegrationOrganizationContext = generateGqlQueries('BillingIntegrationOrganizationContext', BILLINGINTEGRATIONORGANIZATIONCONTEXT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     BillingIntegration,
     BillingIntegrationAccessRight,
+    BillingIntegrationOrganizationContext,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

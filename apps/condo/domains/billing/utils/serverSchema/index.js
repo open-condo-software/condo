@@ -8,14 +8,17 @@ const { generateServerUtils } = require('@condo/domains/common/utils/codegenerat
 
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
+const { BillingIntegrationOrganizationContext: BillingIntegrationOrganizationContextGQL } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateServerUtils(BillingIntegrationGQL)
 const BillingIntegrationAccessRight = generateServerUtils(BillingIntegrationAccessRightGQL)
+const BillingIntegrationOrganizationContext = generateServerUtils(BillingIntegrationOrganizationContextGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     BillingIntegration,
     BillingIntegrationAccessRight,
+    BillingIntegrationOrganizationContext,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
