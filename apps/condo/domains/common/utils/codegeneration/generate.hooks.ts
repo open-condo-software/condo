@@ -6,14 +6,14 @@ import { useIntl } from '@core/next/intl'
 
 const getObjects = (objectsContainer, converter) => (objectsContainer && objectsContainer.objs) ? objectsContainer.objs.map(converter) : []
 
-interface IHookConverters<GQL, GQLInput, UI, UIForm> {
-    convertToGQLInput: (state: UIForm, item?: UI) => GQLInput
-    convertToUIState: (item: GQL) => UI
-}
-
 interface Refetch<Q> {
     // TODO(pahaz): write right Refetch signature!
     (variables?: Q): Promise<any>
+}
+
+interface IHookConverters<GQL, GQLInput, UI, UIForm> {
+    convertToGQLInput: (state: UIForm, item?: UI) => GQLInput
+    convertToUIState: (item: GQL) => UI
 }
 
 interface IHookResult<UI, UIForm, Q> {

@@ -54,7 +54,7 @@ function toFields (signature) {
 function renderToString (filename, template, templateContext) {
     const globalContext = {
         pluralize,
-        command: process.argv[1].split('/').slice(-1)[0] + ' ' + process.argv.slice(2).join(' '),
+        command: process.argv[1].split('/').slice(-1)[0] + ` "${process.argv.slice(2).join(' ')}"`,
         now: Date.now(),
     }
     try {
