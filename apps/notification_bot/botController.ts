@@ -1,26 +1,26 @@
 import TelegramBot from 'node-telegram-bot-api'
 
 export class BotController {
-    constructor (private token?:string) {
+    constructor (private token?: string) {
     }
 
-    public init ():void {
+    public init (): void {
         const token = this.token || BotController.getToken()
         this.bot = new TelegramBot(token, { polling: true })
         this.addListeners()
     }
 
-    public sendMessage (message:string):void {
+    public sendMessage (message: string): void {
         this.chatIds.forEach((id) => {
             this.bot.sendMessage(id, message)
         })
     }
 
-    public getUsers ():Array<[string,string]> {
+    public getUsers (): Array<[string, string]> {
         return Array.from(this.users)
     }
 
-    private addListeners ():void {
+    private addListeners (): void {
         this.bot.on('message', message => {
             const { text } = message
             const command = text.split(' ')[0]
@@ -52,11 +52,11 @@ export class BotController {
         })
     }
 
-    private static getToken ():string {
+    private static getToken (): string {
         return process.env.NOTIFICATION_BOT_CONFIG && JSON.parse(process.env.NOTIFICATION_BOT_CONFIG)?.auth_token
     }
 
-    private bot:TelegramBot = null
-    private chatIds:Set<number> = new Set<number>()
-    private users:Map<string, string> = new Map<string, string>()
+    private bot: TelegramBot = null
+    private chatIds: Set<number> = new Set<number>()
+    private users: Map<string, string> = new Map<string, string>()
 }
