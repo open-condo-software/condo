@@ -42,18 +42,19 @@ describe('{{name}}', () => {
         const [obj, attrs] = await createTest{{name}}(admin)  // TODO(codegen): check create function!
 
         const client = await makeClient()  // TODO(codegen): use truly useful client!
-        const objs = await {{name}}.getAll(client)
+        const objs = await {{name}}.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
         // TODO(codegen): check 'user: read {{name}}' test!
         expect(objs).toHaveLength(1)
+        // expect(objs.length >= 1).toBeTruthy()
         expect(objs[0].id).toMatch(obj.id)
         expect(objs[0].dv).toEqual(1)
         expect(objs[0].sender).toEqual(attrs.sender)
         expect(objs[0].v).toEqual(1)
         expect(objs[0].newId).toEqual(null)
         expect(objs[0].deletedAt).toEqual(null)
-        expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+        expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+        expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
         expect(objs[0].createdAt).toMatch(obj.createdAt)
         expect(objs[0].updatedAt).toMatch(obj.updatedAt)
     })
