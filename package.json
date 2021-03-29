@@ -57,6 +57,7 @@
       }
     },
     "ignorePatterns": [
+      "dist",
       "packages/@core.codegen/templates/**/*",
       "schema.d.ts"
     ],
@@ -113,13 +114,21 @@
         }
       ],
       "no-array-constructor": "off",
-      "@typescript-eslint/no-array-constructor": ["error"],
+      "@typescript-eslint/no-array-constructor": [
+        "error"
+      ],
       "no-loop-func": "off",
-      "@typescript-eslint/no-loop-func": ["warn"],
+      "@typescript-eslint/no-loop-func": [
+        "warn"
+      ],
       "no-loss-of-precision": "off",
-      "@typescript-eslint/no-loss-of-precision": ["error"],
+      "@typescript-eslint/no-loss-of-precision": [
+        "error"
+      ],
       "no-useless-constructor": "off",
-      "@typescript-eslint/no-useless-constructor": ["error"],
+      "@typescript-eslint/no-useless-constructor": [
+        "error"
+      ],
       "no-prototype-builtins": "off",
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",

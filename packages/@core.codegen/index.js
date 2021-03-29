@@ -265,22 +265,22 @@ function createschema (argv) {
                 const result = field.split(':')
                 const type = result[1]
                 switch (type) {
-                    case "Text":
-                    case "Password":
-                    case "Integer":
-                    case "Decimal":
-                    case "File":
-                    case "DateTimeUtc":
-                    case "CalendarDay":
-                    case "Json":
-                    case "Checkbox":
+                    case 'Text':
+                    case 'Password':
+                    case 'Integer':
+                    case 'Decimal':
+                    case 'File':
+                    case 'DateTimeUtc':
+                    case 'CalendarDay':
+                    case 'Json':
+                    case 'Checkbox':
                         if (result.length !== 2) throw new Error(`Wrong number of argument for filed signature "${field}"`)
                         break
-                    case "Select":
+                    case 'Select':
                         if (result.length !== 3) throw new Error(`Wrong number of argument for filed signature "${field}"`)
                         if (!result[2].match(/^([a-z0-9, ]+)$/g)) throw new Error(`Wrong argument 1 for type ${type}. Filed signature "${field}"`)
                         break
-                    case "Relationship":
+                    case 'Relationship':
                         if (result.length !== 4) throw new Error(`Wrong number of argument for filed signature "${field}"`)
                         if (!result[2].match(/^([A-Za-z0-9]+)$/)) throw new Error(`Wrong argument 1 for type ${type}. Filed signature "${field}"`)
                         if (!result[3].match(/^(CASCADE|PROTECT|SET_NULL|DO_NOTHING)$/)) throw new Error(`Wrong argument 2 for type ${type}. Filed signature "${field}"`)
