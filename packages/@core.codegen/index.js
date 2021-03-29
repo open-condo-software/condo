@@ -51,11 +51,18 @@ function toFields (signature) {
     })
 }
 
+function getEscapedShellCommand () {
+    const command = process.argv[1].split('/').slice(-1)[0]
+    const argsList = process.argv.slice(2).map(x => x.match(/^[a-zA-Z0-9_\-.]+$/g) ? x : `'${x.replace(/[']/g, '\'"\'"\'')}'`)
+    const args = (argsList.length > 0) ? ` ${argsList.join(' ')}` : ''
+    return `${command}${args}`
+}
+
 function renderToString (filename, template, templateContext) {
     const globalContext = {
-        pluralize,
-        command: process.argv[1].split('/').slice(-1)[0] + ` "${process.argv.slice(2).join(' ')}"`,
+        command: getEscapedShellCommand(),
         now: Date.now(),
+        pluralize,
     }
     try {
         return nunjucks.renderString(template, { ...globalContext, ...templateContext })
