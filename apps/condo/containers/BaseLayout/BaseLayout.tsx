@@ -128,7 +128,7 @@ const PageWrapper: FunctionComponent<IPageWrapperProps> =  ({ children, classNam
 }
 
 interface IPageHeaderProps extends PageHeaderProps {
-    title?: string
+    title?: React.ReactChild
     subTitle?: string
     className?: string
     style?: CSSProperties

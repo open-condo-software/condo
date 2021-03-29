@@ -1,17 +1,20 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import { useIntl } from '@core/next/intl'
-import Head from 'next/head'
-import React, { useCallback, useEffect, useMemo } from 'react'
-import { Table, Typography, Space, Empty, Tag } from 'antd'
-import get from 'lodash/get'
-import qs from 'qs'
-import { useRouter } from 'next/router'
-import { format } from 'date-fns'
 import styled from '@emotion/styled'
-import { STATUS_SELECT_COLORS } from '../../constants/style'
+import { Empty, Space, Table, Tag, Typography } from 'antd'
+import { TablePaginationConfig } from 'antd/es/table'
+import { format } from 'date-fns'
+import EN from 'date-fns/locale/en-US'
+
+// TODO:(Dimitreee) move to packages
+import RU from 'date-fns/locale/ru'
+import get from 'lodash/get'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import qs from 'qs'
+import React, { useCallback, useEffect } from 'react'
 import { Button } from '../../components/Button'
 import { EmptyIcon } from '../../components/EmptyIcon'
+import { STATUS_SELECT_COLORS } from '../../constants/style'
 
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
@@ -22,30 +25,29 @@ import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import RU from 'date-fns/locale/ru'
 import EN from 'date-fns/locale/en-US'
 
-const PAGINATION_PAGE_SIZE = 10
-
-const setOrder = (sortedInfo, key) => {
-    return sortedInfo && sortedInfo.columnKey === key && sortedInfo.order
+const LOCALES = {
+    ru: RU,
+    en: EN,
 }
 
-const getTableColumns = (sortedInfo, intl) => {
-    const LOCALES = {
-        ru: RU,
-        en: EN,
-    }
+const useTableColumns = (sort) => {
+    const sorter = createSorterMap(sort)
+    const intl = useIntl()
 
     return [
         {
             title: intl.formatMessage({ id: 'ticketsTable.Number' }),
-            sortOrder: setOrder(sortedInfo, 'number'),
+            sortOrder: get(sorter, 'number'),
             dataIndex: 'number',
             key: 'number',
-            sorter: true,
+            sorter: {
+                multiple: 1,
+            },
             width: '10%',
         },
         {
             title: intl.formatMessage({ id: 'Date' }),
-            sortOrder: setOrder(sortedInfo, 'createdAt'),
+            sortOrder: get(sorter, 'createdAt'),
             render: (createdAt) => (
                 format(
                     new Date(createdAt),
@@ -55,12 +57,14 @@ const getTableColumns = (sortedInfo, intl) => {
             ),
             dataIndex: 'createdAt',
             key: 'createdAt',
-            sorter: true,
+            sorter: {
+                multiple: 1,
+            },
             width: '10%',
         },
         {
             title: intl.formatMessage({ id: 'Status' }),
-            sortOrder: setOrder(sortedInfo, 'status'),
+            sortOrder: get(sorter, 'status'),
             render: (status) => {
                 const { color, backgroundColor } = STATUS_SELECT_COLORS[status.type]
 
@@ -72,7 +76,9 @@ const getTableColumns = (sortedInfo, intl) => {
             },
             dataIndex: 'status',
             key: 'status',
-            sorter: true,
+            sorter: {
+                multiple: 1,
+            },
             width: '10%',
         },
         {
@@ -84,108 +90,52 @@ const getTableColumns = (sortedInfo, intl) => {
         },
         {
             title: intl.formatMessage({ id: 'field.Address' }),
-            sortOrder: setOrder(sortedInfo, 'property'),
+            sortOrder: get(sorter, 'property'),
             render: (property) => (`${get(property, 'address')} ${get(property, 'name')}`),
             ellipsis: true,
             dataIndex: 'property',
             key: 'property',
-            sorter: true,
+            sorter: {
+                multiple: 1,
+            },
             width: '12%',
         },
         {
             title: intl.formatMessage({ id: 'Client' }),
-            sortOrder: setOrder(sortedInfo, 'clientName'),
+            sortOrder: get(sorter, 'clientName'),
             ellipsis: true,
             dataIndex: 'clientName',
             key: 'clientName',
-            sorter: true,
+            sorter: {
+                multiple: 1,
+            },
             width: '12%',
         },
         {
             title: intl.formatMessage({ id: 'field.Executor' }),
-            sortOrder: setOrder(sortedInfo, 'executor'),
+            sortOrder: get(sorter, 'executor'),
             render: (executor) => (get(executor, ['name'])),
             ellipsis: true,
             dataIndex: 'executor',
             key: 'executor',
-            sorter: true,
+            sorter: {
+                multiple: 1,
+            },
             width: '12%',
         },
         {
             title: intl.formatMessage({ id: 'field.Responsible' }),
-            sortOrder: setOrder(sortedInfo, 'assignee'),
+            sortOrder: get(sorter, 'assignee'),
             render: (assignee) => (get(assignee, ['name'])),
             ellipsis: true,
             dataIndex: 'assignee',
             key: 'assignee',
-            sorter: true,
+            sorter: {
+                multiple: 1,
+            },
             width: '12%',
         },
     ]
-}
-
-const sorterToQuery = (sorter) => {
-    const { columnKey, order } = sorter
-
-    const sortKeys = {
-        'ascend': 'ASC',
-        'descend': 'DESC',
-    }
-
-    const sortKey = sortKeys[order]
-
-    if (!sortKey) {
-        return
-    }
-
-    return `${columnKey}_${sortKeys[order]}`
-}
-
-const queryToSorter = (query) => {
-    if (!query) {
-        return
-    }
-
-    const sortKeys = {
-        'ASC': 'ascend',
-        'DESC': 'descend',
-    }
-
-    const columns = [
-        'number',
-        'status',
-        'details',
-        'property',
-        'assignee',
-        'executor',
-        'createdAt',
-        'clientName',
-    ]
-
-    const [columnKey, key] = query.split('_')
-
-    const order = sortKeys[key]
-
-    if (!order || !columns.includes(columnKey)) {
-        return
-    }
-
-    return { columnKey,  order: sortKeys[key] }
-}
-
-const tableStateFromQuery = (router) => {
-    const pagination = {
-        current: ((router.query.offset / PAGINATION_PAGE_SIZE) || 0) + 1,
-        pageSize: PAGINATION_PAGE_SIZE,
-        position: ['bottom', 'left'],
-    }
-
-    const sorter = queryToSorter(router.query.sort)
-
-    return {
-        pagination,
-        sorter,
-    }
 }
 
 const EmptyListViewContainer = styled.div`
@@ -232,17 +182,30 @@ const TicketsPage = () => {
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
 
     const router = useRouter()
+    const sortFromQuery = getSortStringFromQuery(router.query)
+    const paginationFromQuery = getPaginationFromQuery(router.query)
 
-    const { objs: tickets, fetchMore, refetch, loading, count } = Ticket.useObjects({
-        sortBy: router.query.sort,
-        offset: Number(router.query.offset),
+    const {
+        fetchMore,
+        refetch,
+        loading,
+        count: total,
+        objs: tickets,
+    } = Ticket.useObjects({
+        sortBy: sortFromQuery,
+        offset: paginationFromQuery,
         limit: PAGINATION_PAGE_SIZE,
     }, { 
         fetchPolicy: 'network-only',
     })
 
-    const { pagination, sorter } = tableStateFromQuery(router)
-
+    const pagination: TablePaginationConfig = {
+        total,
+        current: paginationFromQuery,
+        pageSize: PAGINATION_PAGE_SIZE,
+        position: ['bottomLeft'],
+    }
+    const tableColumns = useTableColumns(sortFromQuery)
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
@@ -254,26 +217,28 @@ const TicketsPage = () => {
     const handleTableChange = useCallback((...tableChangeArguments) => {
         const [nextPagination,, nextSorter] = tableChangeArguments
 
-        const sort = sorterToQuery(nextSorter)
         const { current, pageSize } = nextPagination
         const offset = current * pageSize - pageSize
-        const variables = {
-            sortBy: sort,
-            offset,
-            first: PAGINATION_PAGE_SIZE,
-            limit: PAGINATION_PAGE_SIZE,
-        }
+        const sort = sorterToQuery(nextSorter)
 
         if (!loading) {
-            fetchMore({ variables }).then(() => {
-                router.push(router.route + '?' + qs.stringify({ ...router.query, sort, offset }))
+            const query = qs.stringify(
+                { ...router.query, sort, offset },
+                { arrayFormat: 'comma', skipNulls: true },
+            )
+
+            fetchMore({
+                sortBy: sort,
+                offset,
+                first: PAGINATION_PAGE_SIZE,
+                limit: PAGINATION_PAGE_SIZE,
+            }).then(() => {
+                router.push(router.route + '?' + query)
             })
         }
     }, [loading])
 
-    const tableColumns = useMemo(() => getTableColumns(sorter, intl), [sorter])
 
-    // TODO(Dimitreee): fix ticket list refetch problems during page's navigation
     useEffect(() => {
         refetch()
     }, [])
@@ -304,7 +269,7 @@ const TicketsPage = () => {
                                     onRow={handleRowAction}
                                     onChange={handleTableChange}
                                     rowKey={record => record.id}
-                                    pagination={{ ...pagination, total: count }}
+                                    pagination={pagination}
                                 />
                                 : <EmptyListView/>
                         }

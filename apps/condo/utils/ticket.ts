@@ -1,7 +1,9 @@
+import { SortOrder } from 'antd/es/table/interface'
 import { format, formatDuration, intervalToDuration } from 'date-fns'
-import RU from 'date-fns/locale/ru'
 import EN from 'date-fns/locale/en-US'
+import RU from 'date-fns/locale/ru'
 import get from 'lodash/get'
+import { ParsedUrlQuery } from 'querystring'
 
 const LOCALES = {
     ru: RU,
@@ -98,4 +100,75 @@ export const sortStatusesByType = (statuses) => {
 
         return 0
     })
+}
+export const sorterToQuery = (sorter): Array<string> => {
+    if (!Array.isArray(sorter)) {
+        sorter = [sorter]
+    }
+
+    return sorter.map((sort) => {
+        const { columnKey, order } = sort
+
+        const sortKeys = {
+            'ascend': 'ASC',
+            'descend': 'DESC',
+        }
+
+        const sortKey = sortKeys[order]
+
+        if (!sortKey) {
+            return
+        }
+
+        return `${columnKey}_${sortKeys[order]}`
+    })
+}
+export const createSorterMap = (sortStringFromQuery: Array<string>): Record<string, SortOrder> => {
+    if (!sortStringFromQuery) {
+        return {}
+    }
+
+    const sortOrders = {
+        'ASC': 'ascend',
+        'DESC': 'descend',
+    }
+
+    const columns = [
+        'number',
+        'status',
+        'details',
+        'property',
+        'assignee',
+        'executor',
+        'createdAt',
+        'clientName',
+    ]
+
+    return sortStringFromQuery.reduce((acc, column) => {
+        const [columnKey, sortOrder] = column.split('_')
+
+        const order = sortOrders[sortOrder]
+
+        if (!order || !columns.includes(columnKey)) {
+            return acc
+        }
+
+        acc[columnKey] = order
+
+        return acc
+    }, {})
+}
+export const getSortStringFromQuery = (query: ParsedUrlQuery): Array<string> => {
+    const sort = get(query, 'sort', [])
+    if (Array.isArray(sort)) {
+
+        return sort
+    }
+    return sort.split(',')
+
+}
+export const PAGINATION_PAGE_SIZE = 10
+
+export const getPaginationFromQuery = (query: ParsedUrlQuery): number => {
+    return Number(get(query, 'offset', 0)) / PAGINATION_PAGE_SIZE + 1
 }
