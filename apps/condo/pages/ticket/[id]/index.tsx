@@ -26,7 +26,7 @@ import { UserNameField } from '../../../components/UserNameField'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
-    name: string
+    name?: string
     id?: string
     phone?: string
 }
@@ -149,7 +149,8 @@ const TicketIdPage = () => {
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
 
     const router = useRouter()
-    const { query: { id } } = router
+    // NOTE: cast `string | string[]` to `string`
+    const { query: { id } } = router as { query: { [key: string]: string } }
 
     const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])

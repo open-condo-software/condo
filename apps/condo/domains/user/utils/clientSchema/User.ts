@@ -13,7 +13,7 @@ import { User, UserUpdateInput, QueryAllUsersArgs } from '../../../../schema'
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'password', 'isAdmin', 'email', 'isEmailVerified', 'phone', 'isPhoneVerified', 'avatar', 'meta', 'importId']
 const RELATIONS = []
 
-interface IUserUIState extends User {
+export interface IUserUIState extends User {
     id: string
     // TODO(codegen): write IUserUIState or extends it from
 }
@@ -23,7 +23,7 @@ function convertToUIState (item: User): IUserUIState {
     return pick(item, FIELDS) as IUserUIState
 }
 
-interface IUserFormState {
+export interface IUserFormState {
     id: string
     // TODO(codegen): write IUserUIFormState or extends it from
 }
@@ -63,6 +63,4 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
-    IUserFormState,
-    IUserUIState,
 }

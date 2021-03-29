@@ -39,7 +39,7 @@ const TicketDescriptionField: React.FC<ITicketDescriptionFieldProps> = ({ title,
 interface ITicketUserInfoFieldProps {
     title?: string
     user?: {
-        name: string
+        name?: string
         phone?: string
     }
 }
@@ -93,7 +93,9 @@ const PdfView = () => {
     const containerRef = useRef(null)
 
     const router = useRouter()
-    const { query: { id } } = router
+    // NOTE: cast `string | string[]` to `string`
+    const { query: { id } } = router as { query: { [key: string]: string } }
+
     const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
 
     useEffect(() => {
