@@ -14,7 +14,14 @@ const IMPORT_ID_FIELD = {
     isRequired: false,
 }
 
+const RAW_DATA_FIELD = {
+    schemaDoc: 'Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`.',
+    type: Json,
+    isRequired: true,
+}
+
 module.exports = {
     INTEGRATION_CONTEXT_FIELD,
     IMPORT_ID_FIELD,
+    RAW_DATA_FIELD,
 }

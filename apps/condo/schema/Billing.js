@@ -3,7 +3,7 @@ const { Text, Relationship, Integer, DateTimeUtc, CalendarDay } = require('@keys
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD } = require('@condo/domains/billing/schema/fields')
+const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD } = require('@condo/domains/billing/schema/fields')
 
 const { SENDER_FIELD, DV_FIELD, ORGANIZATION_OWNED_FIELD } = require('./_common')
 const { WRONG_TEXT_FORMAT, JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
@@ -37,12 +37,6 @@ const BILLING_ACCOUNT_METER_FIELD = {
     isRequired: true,
     knexOptions: { isNotNullable: true }, // Relationship only!
     kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-}
-
-const RAW_DATA_FIELD = {
-    schemaDoc: 'Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`.',
-    type: Json,
-    isRequired: true,
 }
 
 const PERIOD_FIELD = {
