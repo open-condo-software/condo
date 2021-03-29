@@ -13,8 +13,8 @@ import { {{ name }}, {{ name }}UpdateInput, QueryAll{{ pluralize.plural(name) }}
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'{% for field in signature %}, '{{ field.name }}'{% endfor %}]
 const RELATIONS = [{% for field in signature | selectattr("isRelation") %}'{{ field.name }}'{% if not loop.last %}, {% endif %}{% endfor %}]
 
-interface I{{ name }}UIState {
-    id: string
+export interface I{{ name }}UIState extends {{ name }} {
+    id?: string
     // TODO(codegen): write I{{ name }}UIState or extends it from
 }
 
@@ -23,7 +23,8 @@ function convertToUIState (item: {{ name }}): I{{ name }}UIState {
     return pick(item, FIELDS) as I{{ name }}UIState
 }
 
-interface I{{ name }}FormState {
+export interface I{{ name }}FormState {
+    id?: undefined
     // TODO(codegen): write I{{ name }}UIFormState or extends it from
 }
 
@@ -62,6 +63,4 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
-    I{{ name }}FormState,
-    I{{ name }}UIState,
 }

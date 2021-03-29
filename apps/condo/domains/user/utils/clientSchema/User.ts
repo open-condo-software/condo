@@ -24,7 +24,7 @@ function convertToUIState (item: User): IUserUIState {
 }
 
 export interface IUserFormState {
-    id: string
+    id?: undefined
     // TODO(codegen): write IUserUIFormState or extends it from
 }
 

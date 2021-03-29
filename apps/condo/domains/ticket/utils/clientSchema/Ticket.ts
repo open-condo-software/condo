@@ -24,6 +24,7 @@ function convertToUIState (item: Ticket): ITicketUIState {
 }
 
 export interface ITicketFormState {
+    id?: undefined
     organization?: string
     status?: string
     source?: string
