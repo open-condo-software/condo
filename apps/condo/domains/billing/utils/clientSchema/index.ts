@@ -5,4 +5,5 @@
 
 export * as BillingIntegration from './BillingIntegration'
 export * as BillingIntegrationAccessRight from './BillingIntegrationAccessRight'
+export * as BillingIntegrationOrganizationContext from './BillingIntegrationOrganizationContext'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
