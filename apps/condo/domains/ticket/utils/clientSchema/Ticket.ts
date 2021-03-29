@@ -13,7 +13,7 @@ import { Ticket, TicketUpdateInput, Organization, QueryAllTicketsArgs } from '..
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'unitName', 'watchers', 'operator', 'assignee', 'classifier', 'details', 'related', 'isEmergency', 'isPaid', 'meta', 'source', 'property', 'executor']
 const RELATIONS = ['status', 'client', 'operator', 'assignee', 'classifier', 'organization', 'source', 'property', 'executor', 'related']
 
-interface ITicketUIState extends Ticket {
+export interface ITicketUIState extends Ticket {
     id: string
     organization: Organization
 }
@@ -23,7 +23,7 @@ function convertToUIState (item: Ticket): ITicketUIState {
     return pick(item, FIELDS) as ITicketUIState
 }
 
-interface ITicketFormState extends Ticket {
+export interface ITicketFormState {
     organization?: string
     status?: string
     source?: string
@@ -68,6 +68,4 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
-    ITicketFormState,
-    ITicketUIState,
 }
