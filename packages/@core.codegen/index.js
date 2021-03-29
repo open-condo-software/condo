@@ -36,11 +36,17 @@ async function streamToString (stream) {
     })
 }
 
+function convertSnakeCaseToUpperCase (text) {
+    // EXAMPLE: convertSnakeCaseToUpperCase('ModelNameField') --> 'MODEL_NAME_FIELD'
+    return text.split(/([A-Z]+[a-z]+)/).filter(x => x).map(x => x.toUpperCase()).join('_')
+}
+
 function toFields (signature) {
     return signature.map(([typeScriptName, attrType, arg1, arg2]) => {
         return {
             typeScriptName,
             name: typeScriptName.replace('?', ''),
+            upperCaseName: convertSnakeCaseToUpperCase(typeScriptName.replace('?', '')),
             type: attrType,
             isRequired: !typeScriptName.endsWith('?'),
             isRelation: attrType === 'Relationship',
@@ -63,6 +69,7 @@ function renderToString (filename, template, templateContext) {
         command: getEscapedShellCommand(),
         now: Date.now(),
         pluralize,
+        convertSnakeCaseToUpperCase,
     }
     try {
         return nunjucks.renderString(template, { ...globalContext, ...templateContext })

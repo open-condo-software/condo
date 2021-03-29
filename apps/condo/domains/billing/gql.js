@@ -8,14 +8,14 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const BILLINGINTEGRATION_FIELDS = `{ name ${COMMON_FIELDS} }`
-const BillingIntegration = generateGqlQueries('BillingIntegration', BILLINGINTEGRATION_FIELDS)
+const BILLING_INTEGRATION_FIELDS = `{ name ${COMMON_FIELDS} }`
+const BillingIntegration = generateGqlQueries('BillingIntegration', BILLING_INTEGRATION_FIELDS)
 
-const BILLINGINTEGRATIONACCESSRIGHT_FIELDS = `{ integration { id } user { id } ${COMMON_FIELDS} }`
-const BillingIntegrationAccessRight = generateGqlQueries('BillingIntegrationAccessRight', BILLINGINTEGRATIONACCESSRIGHT_FIELDS)
+const BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ integration { id } user { id } ${COMMON_FIELDS} }`
+const BillingIntegrationAccessRight = generateGqlQueries('BillingIntegrationAccessRight', BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
-const BILLINGINTEGRATIONORGANIZATIONCONTEXT_FIELDS = `{ integration { id } organization { id } settings state ${COMMON_FIELDS} }`
-const BillingIntegrationOrganizationContext = generateGqlQueries('BillingIntegrationOrganizationContext', BILLINGINTEGRATIONORGANIZATIONCONTEXT_FIELDS)
+const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id } organization { id } settings state ${COMMON_FIELDS} }`
+const BillingIntegrationOrganizationContext = generateGqlQueries('BillingIntegrationOrganizationContext', BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 

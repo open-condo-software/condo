@@ -1,6 +1,6 @@
 /* AUTOGENERATE MARKER <CONST> */
-const {{ name | upper }}_FIELDS = `{ {% for field in signature %}{{ field.name }}{% if field.isRelation %} { id }{% endif %}{% if not loop.last %} {% endif %}{% endfor %} ${COMMON_FIELDS} }`
-const {{ name }} = generateGqlQueries('{{ name }}', {{ name | upper }}_FIELDS)
+const {{ convertSnakeCaseToUpperCase(name) }}_FIELDS = `{ {% for field in signature %}{{ field.name }}{% if field.isRelation %} { id }{% endif %}{% if not loop.last %} {% endif %}{% endfor %} ${COMMON_FIELDS} }`
+const {{ name }} = generateGqlQueries('{{ name }}', {{ convertSnakeCaseToUpperCase(name) }}_FIELDS)
 
 /**/
 
