@@ -43,7 +43,7 @@ jobs:
           yarn workspace @app/condo dev &
           # Wait until server is up!
           bash ./.github/workflows/waitForLocalhostApiReady.sh
-          sleep 1
+          sleep 3
           yarn workspace @app/condo test --silent --coverage
         env:
           DATABASE_URL: ${{ matrix.database }}
