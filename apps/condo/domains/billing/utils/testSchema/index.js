@@ -11,12 +11,16 @@ const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/bi
 const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationOrganizationContext: BillingIntegrationOrganizationContextGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationLog: BillingIntegrationLogGQL } = require('@condo/domains/billing/gql')
+const { BillingProperty: BillingPropertyGQL } = require('@condo/domains/billing/gql')
+const { BillingAccount: BillingAccountGQL } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
 const BillingIntegrationAccessRight = generateGQLTestUtils(BillingIntegrationAccessRightGQL)
 const BillingIntegrationOrganizationContext = generateGQLTestUtils(BillingIntegrationOrganizationContextGQL)
 const BillingIntegrationLog = generateGQLTestUtils(BillingIntegrationLogGQL)
+const BillingProperty = generateGQLTestUtils(BillingPropertyGQL)
+const BillingAccount = generateGQLTestUtils(BillingAccountGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
@@ -148,6 +152,71 @@ async function updateTestBillingIntegrationLog (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestBillingProperty (client, context, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestBillingProperty logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { connect: { id: context.id } },
+        ...extraAttrs,
+    }
+    const obj = await BillingProperty.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBillingProperty (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestBillingProperty logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BillingProperty.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestBillingAccount (client, context, property, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestBillingAccount logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { connect: { id: context.id } },
+        property: { connect: { id: property.id } },
+        ...extraAttrs,
+    }
+    const obj = await BillingAccount.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBillingAccount (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestBillingAccount logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BillingAccount.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -155,5 +224,7 @@ module.exports = {
     BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext,
     BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog,
+    BillingProperty, createTestBillingProperty, updateTestBillingProperty,
+    BillingAccount, createTestBillingAccount, updateTestBillingAccount,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
