@@ -33,10 +33,12 @@ const BillingReceipt = generateGQLTestUtils(BillingReceiptGQL)
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST INTEGRATION'
 
     const attrs = {
         dv: 1,
+        sender,
         name,
         ...extraAttrs,
     }
@@ -47,9 +49,11 @@ async function createTestBillingIntegration (client, extraAttrs = {}) {
 async function updateTestBillingIntegration (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
+        sender,
         ...extraAttrs,
     }
     const obj = await BillingIntegration.update(client, id, attrs)
@@ -58,9 +62,9 @@ async function updateTestBillingIntegration (client, id, extraAttrs = {}) {
 
 async function createTestBillingIntegrationAccessRight (client, integration, user, extraAttrs = {}) {
     if (!client) throw new Error('no client')
+    if (!integration || !integration.id) throw new Error('no integration')
+    if (!user || !user.id) throw new Error('no user')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestBillingIntegrationAccessRight logic for generate fields
 
     const attrs = {
         dv: 1,
