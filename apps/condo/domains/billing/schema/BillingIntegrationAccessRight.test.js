@@ -124,7 +124,7 @@ describe('BillingIntegrationAccessRight', () => {
             await BillingIntegrationAccessRight.delete(client, objCreated.id)
         } catch (e) {
             expect(e.errors[0]).toMatchObject({
-                "message": "Cannot query field \"deleteBillingIntegrationAccessRight\" on type \"Mutation\". Did you mean \"createBillingIntegrationAccessRight\", \"updateBillingIntegrationAccessRight\", \"createBillingIntegrationAccessRights\", \"updateBillingIntegrationAccessRights\", or \"deleteBillingIntegrationLog\"?",
+                'message': 'Cannot query field "deleteBillingIntegrationAccessRight" on type "Mutation". Did you mean "createBillingIntegrationAccessRight", "updateBillingIntegrationAccessRight", "createBillingIntegrationAccessRights", "updateBillingIntegrationAccessRights", or "deleteBillingIntegrationLog"?',
                 'name': 'ValidationError',
             })
             expect(e.data).toBeUndefined()
@@ -141,7 +141,7 @@ describe('BillingIntegrationAccessRight', () => {
             await BillingIntegrationAccessRight.delete(client, objCreated.id)
         } catch (e) {
             expect(e.errors[0]).toMatchObject({
-                "message": "Cannot query field \"deleteBillingIntegrationAccessRight\" on type \"Mutation\". Did you mean \"createBillingIntegrationAccessRight\", \"updateBillingIntegrationAccessRight\", \"createBillingIntegrationAccessRights\", \"updateBillingIntegrationAccessRights\", or \"deleteBillingIntegrationLog\"?",
+                'message': 'Cannot query field "deleteBillingIntegrationAccessRight" on type "Mutation". Did you mean "createBillingIntegrationAccessRight", "updateBillingIntegrationAccessRight", "createBillingIntegrationAccessRights", "updateBillingIntegrationAccessRights", or "deleteBillingIntegrationLog"?',
                 'name': 'ValidationError',
             })
             expect(e.data).toBeUndefined()
