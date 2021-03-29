@@ -10,7 +10,7 @@ async function canRead{{ pluralize.plural(name) }} ({ authentication: { item: us
     }
 }
 
-async function canManage{{ pluralize.plural(name) }} ({ authentication: { item: user }, operation, itemId }) {
+async function canManage{{ pluralize.plural(name) }} ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
