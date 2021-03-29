@@ -9,6 +9,10 @@ const { BillingIntegrationOrganizationContext } = require('./BillingIntegrationO
 const { BillingIntegrationLog } = require('./BillingIntegrationLog')
 const { BillingProperty } = require('./BillingProperty')
 const { BillingAccount } = require('./BillingAccount')
+const { BillingMeterResource } = require('./BillingMeterResource')
+const { BillingAccountMeter } = require('./BillingAccountMeter')
+const { BillingAccountMeterReading } = require('./BillingAccountMeterReading')
+const { BillingReceipt } = require('./BillingReceipt')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -18,5 +22,9 @@ module.exports = {
     BillingIntegrationLog,
     BillingProperty,
     BillingAccount,
+    BillingMeterResource,
+    BillingAccountMeter,
+    BillingAccountMeterReading,
+    BillingReceipt,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

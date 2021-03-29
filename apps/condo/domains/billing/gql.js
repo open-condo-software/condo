@@ -26,6 +26,18 @@ const BillingProperty = generateGqlQueries('BillingProperty', BILLING_PROPERTY_F
 const BILLING_ACCOUNT_FIELDS = `{ context { id } importId property { id } bindingId number unit raw meta ${COMMON_FIELDS} }`
 const BillingAccount = generateGqlQueries('BillingAccount', BILLING_ACCOUNT_FIELDS)
 
+const BILLING_METER_RESOURCE_FIELDS = `{ name ${COMMON_FIELDS} }`
+const BillingMeterResource = generateGqlQueries('BillingMeterResource', BILLING_METER_RESOURCE_FIELDS)
+
+const BILLING_ACCOUNT_METER_FIELDS = `{ context { id } importId property { id } account { id } resource { id } raw meta ${COMMON_FIELDS} }`
+const BillingAccountMeter = generateGqlQueries('BillingAccountMeter', BILLING_ACCOUNT_METER_FIELDS)
+
+const BILLING_ACCOUNT_METER_READING_FIELDS = `{ context { id } importId property { id } account { id } meter { id } period value1 value2 value3 date raw meta ${COMMON_FIELDS} }`
+const BillingAccountMeterReading = generateGqlQueries('BillingAccountMeterReading', BILLING_ACCOUNT_METER_READING_FIELDS)
+
+const BILLING_RECEIPT_FIELDS = `{ context { id } importId property { id } account { id } period raw toPay services meta ${COMMON_FIELDS} }`
+const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -35,5 +47,9 @@ module.exports = {
     BillingIntegrationLog,
     BillingProperty,
     BillingAccount,
+    BillingMeterResource,
+    BillingAccountMeter,
+    BillingAccountMeterReading,
+    BillingReceipt,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -13,6 +13,10 @@ const { BillingIntegrationOrganizationContext: BillingIntegrationOrganizationCon
 const { BillingIntegrationLog: BillingIntegrationLogGQL } = require('@condo/domains/billing/gql')
 const { BillingProperty: BillingPropertyGQL } = require('@condo/domains/billing/gql')
 const { BillingAccount: BillingAccountGQL } = require('@condo/domains/billing/gql')
+const { BillingMeterResource: BillingMeterResourceGQL } = require('@condo/domains/billing/gql')
+const { BillingAccountMeter: BillingAccountMeterGQL } = require('@condo/domains/billing/gql')
+const { BillingAccountMeterReading: BillingAccountMeterReadingGQL } = require('@condo/domains/billing/gql')
+const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -21,6 +25,10 @@ const BillingIntegrationOrganizationContext = generateGQLTestUtils(BillingIntegr
 const BillingIntegrationLog = generateGQLTestUtils(BillingIntegrationLogGQL)
 const BillingProperty = generateGQLTestUtils(BillingPropertyGQL)
 const BillingAccount = generateGQLTestUtils(BillingAccountGQL)
+const BillingMeterResource = generateGQLTestUtils(BillingMeterResourceGQL)
+const BillingAccountMeter = generateGQLTestUtils(BillingAccountMeterGQL)
+const BillingAccountMeterReading = generateGQLTestUtils(BillingAccountMeterReadingGQL)
+const BillingReceipt = generateGQLTestUtils(BillingReceiptGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
@@ -217,6 +225,141 @@ async function updateTestBillingAccount (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestBillingMeterResource (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestBillingMeterResource logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BillingMeterResource.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBillingMeterResource (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestBillingMeterResource logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BillingMeterResource.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestBillingAccountMeter (client, context, property, account, resource, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestBillingAccountMeter logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { connect: { id: context.id } },
+        property: { connect: { id: property.id } },
+        account: { connect: { id: account.id } },
+        resource: { connect: { id: resource.id } },
+        ...extraAttrs,
+    }
+    const obj = await BillingAccountMeter.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBillingAccountMeter (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestBillingAccountMeter logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BillingAccountMeter.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestBillingAccountMeterReading (client, context, property, account, meter, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestBillingAccountMeterReading logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { connect: { id: context.id } },
+        property: { connect: { id: property.id } },
+        account: { connect: { id: account.id } },
+        meter: { connect: { id: meter.id } },
+        ...extraAttrs,
+    }
+    const obj = await BillingAccountMeterReading.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBillingAccountMeterReading (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestBillingAccountMeterReading logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BillingAccountMeterReading.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestBillingReceipt (client, context, property, account, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestBillingReceipt logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { connect: { id: context.id } },
+        property: { connect: { id: property.id } },
+        account: { connect: { id: account.id } },
+        ...extraAttrs,
+    }
+    const obj = await BillingReceipt.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBillingReceipt (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestBillingReceipt logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BillingReceipt.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -226,5 +369,9 @@ module.exports = {
     BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog,
     BillingProperty, createTestBillingProperty, updateTestBillingProperty,
     BillingAccount, createTestBillingAccount, updateTestBillingAccount,
+    BillingMeterResource, createTestBillingMeterResource, updateTestBillingMeterResource,
+    BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter,
+    BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading,
+    BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

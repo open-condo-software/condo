@@ -9,4 +9,8 @@ export * as BillingIntegrationOrganizationContext from './BillingIntegrationOrga
 export * as BillingIntegrationLog from './BillingIntegrationLog'
 export * as BillingProperty from './BillingProperty'
 export * as BillingAccount from './BillingAccount'
+export * as BillingMeterResource from './BillingMeterResource'
+export * as BillingAccountMeter from './BillingAccountMeter'
+export * as BillingAccountMeterReading from './BillingAccountMeterReading'
+export * as BillingReceipt from './BillingReceipt'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
