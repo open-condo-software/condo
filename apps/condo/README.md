@@ -39,6 +39,17 @@ docker-compose run app yarn workspace @app/condo migrate
 yarn workspace @app/condo dev
 ```
 
+## mac users
+
+```
+brew install nvm
+nvm install v14.16.0
+nvm alias default v14.16.0
+node --version
+npm --version
+npm install -g yarn
+```
+
 # postgres schema migration
 
 ```
