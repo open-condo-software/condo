@@ -14,8 +14,8 @@ import {
     sideMenuMobileCss,
     substrateDesktopCss,
 } from './styles'
-import { Logo } from '../../../components/Logo'
-import { Button } from '../../../components/Button'
+import { Logo } from '@condo/domains/common/components/Logo'
+import { Button } from '@condo/domains/common/components/Button'
 import { PlusCircleFilled } from '@ant-design/icons'
 
 const MenuItems = (props) => {

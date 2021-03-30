@@ -6,8 +6,8 @@ import { useIntl } from '@core/next/intl'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { PageContent, PageWrapper } from '../../../containers/BaseLayout'
 import { OrganizationRequired } from '../../../containers/OrganizationRequired'
-import { TicketForm } from '../../../containers/TicketForm'
-import { LinkWithIcon } from '../../../components/LinkWithIcon'
+import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
+import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { colors } from '../../../constants/style'
 
 const TicketUpdatePage = () => {

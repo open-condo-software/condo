@@ -1,15 +1,15 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { useIntl } from '../../../packages/@core.next/intl'
+import { useIntl } from '@core/next/intl'
 import Link from 'next/link'
-import { GraphQlSearchInput } from '../components/GraphQlSearchInput'
-import { searchProperty, searchTicketClassifier, searchTicketSources } from '../utils/clientSchema/Ticket/search'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { searchProperty, searchTicketClassifier, searchTicketSources } from '../../../utils/clientSchema/Ticket/search'
 import { Input, Space } from 'antd'
-import { RenderActionsColumn, toGQLSortBy, useTable, ViewOrEditTableBlock } from './FormTableBlocks'
-import { useOrganization } from '../../../packages/@core.next/organization'
+import { RenderActionsColumn, toGQLSortBy, useTable, ViewOrEditTableBlock } from '../../../containers/FormTableBlocks'
+import { useOrganization } from '@core/next/organization'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import React, { useEffect, useMemo } from 'react'
-import { runMutation } from '../utils/mutations.utils'
+import { runMutation } from '../../../utils/mutations.utils'
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 
 function normalizeRelation (value) {

@@ -17,7 +17,7 @@ import FormList, {
     useCreateAndEditModalForm,
 } from '../../containers/FormList'
 import { useTable } from '../../containers/FormTableBlocks'
-import { AddressSearchInput } from '../../components/AddressSearchInput'
+import { AddressSearchInput } from '@condo/domains/common/components/AddressSearchInput'
 import * as Property from '../../utils/clientSchema/Property'
 import { buildingMapJson } from '../../constants/property.example'
 

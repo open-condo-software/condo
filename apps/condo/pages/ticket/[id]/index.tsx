@@ -6,15 +6,15 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
-import { Button } from '../../../components/Button'
+import { Button } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper } from '../../../containers/BaseLayout'
 import LoadingOrErrorPage from '../../../containers/LoadingOrErrorPage'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import Link from 'next/link'
-import { LinkWithIcon } from '../../../components/LinkWithIcon'
-import { TicketStatusSelect } from '../../../components/TicketStatusSelect'
+import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
+import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 import { colors } from '../../../constants/style'
-import { FocusContainer } from '../../../components/FocusContainer'
+import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 
 import {
     formatPhone,
@@ -22,7 +22,7 @@ import {
     getTicketTitleMessage,
 } from '../../../utils/ticket'
 import { LETTERS_AND_NUMBERS } from '../../../constants/regexps'
-import { UserNameField } from '../../../components/UserNameField'
+import { UserNameField } from '../../../domains/common/components/UserNameField'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {

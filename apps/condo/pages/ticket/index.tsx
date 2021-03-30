@@ -3,17 +3,13 @@ import styled from '@emotion/styled'
 import { Empty, Space, Table, Tag, Typography } from 'antd'
 import { TablePaginationConfig } from 'antd/es/table'
 import { format } from 'date-fns'
-import EN from 'date-fns/locale/en-US'
-
-// TODO:(Dimitreee) move to packages
-import RU from 'date-fns/locale/ru'
 import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import React, { useCallback, useEffect } from 'react'
-import { Button } from '../../components/Button'
-import { EmptyIcon } from '../../components/EmptyIcon'
+import { Button } from '@condo/domains/common/components/Button'
+import { EmptyIcon } from '@condo/domains/common/components/EmptyIcon'
 import { STATUS_SELECT_COLORS } from '../../constants/style'
 
 import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
@@ -24,6 +20,12 @@ import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 // TODO:(Dimitreee) move to packages
 import RU from 'date-fns/locale/ru'
 import EN from 'date-fns/locale/en-US'
+import {
+    createSorterMap,
+    getPaginationFromQuery,
+    getSortStringFromQuery,
+    PAGINATION_PAGE_SIZE, sorterToQuery,
+} from '../../utils/ticket'
 
 const LOCALES = {
     ru: RU,

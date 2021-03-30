@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic'
 import React, { useEffect, useRef } from 'react'
 import { useIntl } from '@core/next/intl'
 import { colors } from '../../../constants/style'
-import { FocusContainer } from '../../../components/FocusContainer'
+import { FocusContainer } from '../../../domains/common/components/FocusContainer'
 
 import {
     formatPhone,

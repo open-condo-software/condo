@@ -1,6 +1,6 @@
 import { Input, InputProps } from 'antd'
 import React from 'react'
-import { PHONE } from '../constants/regexps'
+import { PHONE } from '../../../constants/regexps'
 
 export const PhoneInput: React.FC<InputProps> = (props) => {
     const onChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {

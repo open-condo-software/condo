@@ -6,9 +6,9 @@ import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
-import { BaseTicketForm } from '../../components/BaseTicketForm'
-import { Button } from '../../components/Button'
-import { ErrorsContainer } from '../../components/BaseTicketForm/ErrorsContainer'
+import { BaseTicketForm } from '../BaseTicketForm'
+import { Button } from '@condo/domains/components/components/Button'
+import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
