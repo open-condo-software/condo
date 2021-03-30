@@ -1,12 +1,12 @@
 import { Typography, Row, Col } from 'antd'
+import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
 import Head from 'next/head'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '../../containers/BaseLayout'
 import { OrganizationRequired } from '../../containers/OrganizationRequired'
-import { TicketForm } from '../../containers/TicketForm'
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { LinkWithIcon } from '../../components/LinkWithIcon'
+import { LinkWithIcon } from '@condo/domains/common/components/components/LinkWithIcon'
 import { colors } from '../../constants/style'
 
 const CreateTicketPage = () => {

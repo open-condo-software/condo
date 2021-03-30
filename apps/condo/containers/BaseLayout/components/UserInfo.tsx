@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { Avatar, Dropdown, Tag, Typography, Space } from 'antd'
+import { Avatar, Dropdown, Tag, Space } from 'antd'
 import { gold } from '@ant-design/colors'
 import { EnvironmentFilled, GitlabFilled, RestFilled } from '@ant-design/icons'
 import { TopMenuItem, UserInfoContainer, UserInfoWrapper, StyledMenu, StyledMenuItem, menuIconStyles } from './styles'
@@ -14,7 +14,7 @@ import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
 import { colors } from '../../../constants/style'
 import { green } from '@ant-design/colors'
-import { Button } from '../../../components/Button'
+import { Button } from '@condo/domains/common/components/Button'
 
 function goToSignin () {
     Router.push('/auth/signin')

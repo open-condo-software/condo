@@ -2,7 +2,7 @@ import { Select, Input } from 'antd'
 import React, { useMemo } from 'react'
 import get from 'lodash/get'
 import flattenDeep from 'lodash/flattenDeep'
-import { useObject } from '../utils/clientSchema/Property'
+import { useObject } from '../../../utils/clientSchema/Property'
 
 interface IUnitNameInputProps {
     propertyId: string

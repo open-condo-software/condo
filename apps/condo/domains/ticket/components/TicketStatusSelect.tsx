@@ -5,10 +5,10 @@ import { Select, Space, Typography } from 'antd'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { TicketStatus } from '../utils/clientSchema/Ticket'
-import { runMutation } from '../utils/mutations.utils'
-import { STATUS_SELECT_COLORS } from '../constants/style'
-import { getTicketFormattedLastStatusUpdate, getTicketLabel, sortStatusesByType } from '../utils/ticket'
+import { TicketStatus } from '../../../utils/clientSchema/Ticket'
+import { runMutation } from '../../../utils/mutations.utils'
+import { STATUS_SELECT_COLORS } from '../../../constants/style'
+import { getTicketFormattedLastStatusUpdate, getTicketLabel, sortStatusesByType } from '../../../utils/ticket'
 
 const StyledSelect = styled(Select)`
   width: 100%;
