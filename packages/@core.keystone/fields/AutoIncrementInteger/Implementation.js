@@ -29,7 +29,7 @@ class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
         const tableName = this.listAdapter.tableName
         const fieldName = this.dbPath
         const knex = this.listAdapter.parentAdapter.knex
-        let [{max}] = await knex(tableName).max(fieldName)
+        let [{ max }] = await knex(tableName).max(fieldName)
         max = max || 0
         return ++max
     }    
