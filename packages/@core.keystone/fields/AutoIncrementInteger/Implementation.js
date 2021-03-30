@@ -1,6 +1,15 @@
 const { Integer } = require('@keystonejs/fields')
 
 class AutoIncrementInteger extends Integer.implementation {
+    
+    async resolveInput ({ resolvedData, existingItem }) {
+        if (!existingItem && !resolvedData[this.path]) {
+            const next = await this.adapter.nextValue()
+            resolvedData[this.path] = next
+        }
+        return resolvedData[this.path]
+    }
+
     async validateInput ({ resolvedData, addFieldValidationError }) {
         const value = resolvedData[this.path]
         if (value) {
@@ -15,6 +24,20 @@ class AutoIncrementInteger extends Integer.implementation {
 }
 
 class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
+    
+    async nextValue () {
+        const tableName = this.listAdapter.tableName
+        const fieldName = this.dbPath
+        const knex = this.listAdapter.parentAdapter.knex
+        let max = 0
+        try {
+            [{max}] = await knex(tableName).max(fieldName)
+        } catch (err) {
+            // no records
+        }
+        return ++max
+    }    
+    /*
     setupHooks ({ addPreSaveHook, addPostReadHook }) {
         addPreSaveHook(item => {
             // TODO(Dimtreee|Pahaz): fix autoincrement on status update, or add new field
@@ -31,10 +54,16 @@ class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
             return item
         })
     }
+    */
 }
 
 // TODO(pahaz): add mongo support for AutoIncrementInteger
 class AutoIncrementIntegerMongooseFieldAdapter extends Integer.adapters.mongoose {
+    async nextValue () {
+        throw new Error('Is not supported yet!')
+    }
+
+    /*
     setupHooks ({ addPreSaveHook, addPostReadHook }) {
         addPreSaveHook(item => {
             throw new Error('Is not supported yet!')
@@ -43,6 +72,7 @@ class AutoIncrementIntegerMongooseFieldAdapter extends Integer.adapters.mongoose
             throw new Error('Is not supported yet!')
         })
     }
+    */
 }
 
 module.exports = {
