@@ -10,15 +10,15 @@ import { useMutation, useQuery } from '@core/next/apollo'
 import { useOrganization } from '@core/next/organization'
 
 import { getQueryParams } from '../utils/url.utils'
-import { AuthRequired } from '../containers/AuthRequired'
+import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import FormList, {
     BaseModalForm,
     CreateFormListItemButton,
     ExpandableDescription,
     ExtraDropdownActionsMenu,
     useCreateAndEditModalForm,
-} from '../containers/FormList'
-import { PageContent, PageHeader, PageWrapper } from '../containers/BaseLayout'
+} from '../domains/common/components/containers/FormList'
+import { PageContent, PageHeader, PageWrapper } from '../domains/common/components/containers/BaseLayout'
 import {
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
     GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY,

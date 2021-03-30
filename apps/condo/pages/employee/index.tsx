@@ -5,8 +5,8 @@ import React, { useEffect, useMemo } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 
-import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
-import { OrganizationRequired } from '../../containers/OrganizationRequired'
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { OrganizationRequired } from '@condo/domains/common/components/containers/OrganizationRequired'
 import { runMutation } from '../../utils/mutations.utils'
 import { emailValidator, nameValidator, phoneValidator } from '../../utils/excel.utils'
 import { OrganizationEmployee, useInviteNewOrganizationEmployee } from '../../utils/clientSchema/Organization'
@@ -18,7 +18,7 @@ import {
     toGQLWhere,
     useTable,
     ViewOrEditTableBlock,
-} from '../../containers/FormTableBlocks'
+} from '@condo/domains/common/components/containers/FormTableBlocks'
 
 
 function _useUserColumns () {

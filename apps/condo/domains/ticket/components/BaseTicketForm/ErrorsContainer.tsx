@@ -2,7 +2,7 @@ import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
 import { Col } from 'antd'
 import React from 'react'
-import { colors } from '../../../../constants/style'
+import { colors } from '../../../common/constants/style'
 
 export const ErrorsWrapper = styled.div`
   display: inline-block;

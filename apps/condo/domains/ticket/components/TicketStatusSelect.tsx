@@ -7,7 +7,7 @@ import { useIntl } from '@core/next/intl'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { TicketStatus } from '../../../utils/clientSchema/Ticket'
 import { runMutation } from '../../../utils/mutations.utils'
-import { STATUS_SELECT_COLORS } from '../../../constants/style'
+import { STATUS_SELECT_COLORS } from '../../common/constants/style'
 import { getTicketFormattedLastStatusUpdate, getTicketLabel, sortStatusesByType } from '../../../utils/ticket'
 
 const StyledSelect = styled(Select)`

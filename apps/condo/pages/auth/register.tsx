@@ -13,7 +13,7 @@ import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
 
-import { TopMenuOnlyLayout } from '../../containers/BaseLayout'
+import { TopMenuOnlyLayout } from '@condo/domains/common/components/containers/BaseLayout'
 import firebase, { isFirebaseConfigValid } from '../../utils/firebase.front.utils'
 import { getQueryParams } from '../../utils/url.utils'
 import { runMutation } from '../../utils/mutations.utils'

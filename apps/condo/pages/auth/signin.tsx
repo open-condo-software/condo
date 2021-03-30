@@ -10,7 +10,7 @@ import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
 
-import { TopMenuOnlyLayout } from '../../containers/BaseLayout'
+import { TopMenuOnlyLayout } from '@condo/domains/common/components/containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
 import { runMutation } from '../../utils/mutations.utils'
 

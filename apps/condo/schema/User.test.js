@@ -5,10 +5,10 @@ const { makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@co
 
 const { createTestUser, registerNewUser } = require('@condo/domains/user/utils/testSchema')
 const { REGISTER_NEW_USER_MUTATION, GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
-const { EMAIL_ALREADY_REGISTERED_ERROR } = require('../constants/errors')
-const { EMPTY_PASSWORD_ERROR } = require('../constants/errors')
-const { WRONG_EMAIL_ERROR } = require('../constants/errors')
-const { WRONG_PASSWORD_ERROR } = require('../constants/errors')
+const { EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/common/constants/errors')
+const { EMPTY_PASSWORD_ERROR } = require('@condo/domains/common/constants/errors')
+const { WRONG_EMAIL_ERROR } = require('@condo/domains/common/constants/errors')
+const { WRONG_PASSWORD_ERROR } = require('@condo/domains/common/constants/errors')
 
 
 describe('SIGNIN', () => {

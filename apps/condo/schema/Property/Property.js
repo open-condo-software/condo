@@ -7,7 +7,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../_common')
 const { hasRequestAndDbFields } = require('../../utils/validation.utils')
-const { DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('../../constants/errors')
+const { DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 
 const ACCESS_TO_ALL = {
     read: true,

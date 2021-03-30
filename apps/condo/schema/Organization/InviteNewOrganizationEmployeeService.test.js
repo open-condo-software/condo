@@ -2,7 +2,7 @@ const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 
 const { inviteNewOrganizationEmployee, makeClientWithRegisteredOrganization } = require('../../utils/testSchema/Organization')
-const { ALREADY_EXISTS_ERROR } = require('../../constants/errors')
+const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 
 
 describe('InviteNewOrganizationEmployeeService', () => {

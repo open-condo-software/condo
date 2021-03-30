@@ -10,10 +10,10 @@ import qs from 'qs'
 import React, { useCallback, useEffect } from 'react'
 import { Button } from '@condo/domains/common/components/Button'
 import { EmptyIcon } from '@condo/domains/common/components/EmptyIcon'
-import { STATUS_SELECT_COLORS } from '../../constants/style'
+import { STATUS_SELECT_COLORS } from '@condo/domains/common/constants/style'
 
-import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
-import { OrganizationRequired } from '../../containers/OrganizationRequired'
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { OrganizationRequired } from '@condo/domains/common/components/containers/OrganizationRequired'
 
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 

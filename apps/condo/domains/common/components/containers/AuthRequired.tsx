@@ -9,7 +9,7 @@ import qs from 'qs'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 
-import { isFunction } from '../utils/ecmascript.utils'
+import { isFunction } from '../../../../utils/ecmascript.utils'
 
 function RedirectToLogin () {
     const intl = useIntl()

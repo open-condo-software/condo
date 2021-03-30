@@ -9,7 +9,7 @@ const { historical, versioned, tracked } = require('@core/keystone/plugins')
 
 const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../_common')
 const { rules } = require('../../access')
-const { DV_UNKNOWN_VERSION_ERROR } = require('../../constants/errors')
+const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasRequestAndDbFields, hasOneOfFields } = require('../../utils/validation.utils')
 
 const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {

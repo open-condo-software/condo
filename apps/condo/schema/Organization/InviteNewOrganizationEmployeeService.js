@@ -4,7 +4,7 @@ const { User } = require('@condo/domains/user/utils/serverSchema')
 const { findOrganizationEmployee, createOrganizationEmployee } = require('../../utils/serverSchema/Organization')
 
 const { rules } = require('../../access')
-const { ALREADY_EXISTS_ERROR } = require('../../constants/errors')
+const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 
 const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrganizationEmployeeService', {
     types: [

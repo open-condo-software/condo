@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { colors } from '../../../constants/style'
+import { colors } from '../constants/style'
 
 export const FocusContainer = styled.div`
   margin: 0 -24px;

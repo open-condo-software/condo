@@ -1,6 +1,6 @@
 import React from 'react'
 import { css, Global } from '@emotion/core'
-import { colors } from '../constants/style'
+import { colors } from '@condo/domains/common/constants/style'
 
 export default function GlobalStyle () {
     return (

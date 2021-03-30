@@ -1,4 +1,4 @@
-import { colors } from '../../../constants/style'
+import { colors } from '@condo/domains/common/constants/style'
 import { css } from '@emotion/core'
 import styled from '@emotion/styled'
 import { Menu } from 'antd'
