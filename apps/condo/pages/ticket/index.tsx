@@ -25,7 +25,7 @@ import {
     getPaginationFromQuery,
     getSortStringFromQuery,
     PAGINATION_PAGE_SIZE, sorterToQuery,
-} from '../../utils/ticket'
+} from '@condo/domains/ticket/utils/helpers'
 
 const LOCALES = {
     ru: RU,

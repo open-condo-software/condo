@@ -7,8 +7,8 @@ import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
 import { Button } from '@condo/domains/common/components/Button'
-import { PageContent, PageWrapper } from '../@condo/domains/common/components/containers/BaseLayout'
-import LoadingOrErrorPage from '../@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import Link from 'next/link'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
@@ -20,7 +20,7 @@ import {
     formatPhone,
     getTicketCreateMessage,
     getTicketTitleMessage,
-} from '../../../utils/ticket'
+} from '@condo/domains/ticket/utils/helpers'
 import { LETTERS_AND_NUMBERS } from '@condo/domains/common/constants/regexps'
 import { UserNameField } from '@condo/domains/common/components/UserNameField'
 

@@ -18,7 +18,7 @@ import FormList, {
 } from '@condo/domains/common/components/containers/FormList'
 import { useTable } from '@condo/domains/common/components/containers/FormTableBlocks'
 import { AddressSearchInput } from '@condo/domains/common/components/AddressSearchInput'
-import * as Property from '../../utils/clientSchema/Property'
+import * as Property from '@condo/domains/property/utils/clientSchema/Property'
 import { buildingMapJson } from '@condo/domains/common/constants/property.example'
 
 function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancelModal }) {

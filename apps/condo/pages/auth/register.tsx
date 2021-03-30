@@ -14,9 +14,9 @@ import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
 
 import { TopMenuOnlyLayout } from '@condo/domains/common/components/containers/BaseLayout'
-import firebase, { isFirebaseConfigValid } from '../../utils/firebase.front.utils'
-import { getQueryParams } from '../../utils/url.utils'
-import { runMutation } from '../../utils/mutations.utils'
+import firebase, { isFirebaseConfigValid } from '@condo/domains/common/utils/firebase.front.utils'
+import { getQueryParams } from '@condo/domains/common/utils/url.utils'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 
 const AuthContext = createContext({})
 

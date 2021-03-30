@@ -10,8 +10,8 @@ import { useMutation } from '@core/next/apollo'
 import gql from 'graphql-tag'
 
 import { TopMenuOnlyLayout } from '@condo/domains/common/components/containers/BaseLayout'
-import { getQueryParams } from '../../utils/url.utils'
-import { runMutation } from '../../utils/mutations.utils'
+import { getQueryParams } from '@condo/domains/common/utils/url.utils'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 
 const CHANGE_PASSWORD_WITH_TOKEN_MUTATION = gql`
     mutation changePasswordWithToken($token: String!, $password: String!) {

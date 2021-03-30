@@ -3,7 +3,7 @@ const { UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { makeClientWithRegisteredOrganization } = require('../../utils/testSchema/Organization')
 const { buildingMapJson } = require('@condo/domains/common/constants/property.example')
-const { Property } = require('../../gql/Property')
+const { Property } = require('../../domains/property/Property')
 
 async function createProperty (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')

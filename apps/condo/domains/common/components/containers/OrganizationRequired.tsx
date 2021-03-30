@@ -11,7 +11,7 @@ import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 
 import { AuthRequired } from './AuthRequired'
-import { isFunction } from '../../../../utils/ecmascript.utils'
+import { isFunction } from '../../utils/ecmascript.utils'
 
 function RedirectToOrganizations () {
     const { asPath } = useRouter()

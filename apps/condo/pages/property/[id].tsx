@@ -10,7 +10,7 @@ import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/common/components/containers/OrganizationRequired'
 
-import { useObject, useUpdate } from '../../utils/clientSchema/Property'
+import { useObject, useUpdate } from '@condo/domains/property/utils/clientSchema/Property'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { buildingMapJson } from '@condo/domains/common/constants/property.example'
 import BBuilder from '@condo/domains/common/components/containers/BBuilder'
