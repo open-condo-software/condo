@@ -7,7 +7,7 @@ import React, { FunctionComponent, useCallback, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
 
-import { runMutation } from '../../../../utils/mutations.utils'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 
 const identity = (x) => !!x
 const NON_FIELD_ERROR_NAME = '_NON_FIELD_ERROR_'

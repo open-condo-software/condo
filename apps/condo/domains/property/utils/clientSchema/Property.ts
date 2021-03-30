@@ -1,6 +1,6 @@
 import { genReactHooks } from '@core/keystone/gen.gql.react.utils'
 
-import { Property } from '../../gql/Property'
+import { Property } from '../../gql'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 function convertGQLItemToUIState (item) {

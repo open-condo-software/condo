@@ -9,7 +9,7 @@ import { useIntl } from '@core/next/intl'
 import { useMutation, useQuery } from '@core/next/apollo'
 import { useOrganization } from '@core/next/organization'
 
-import { getQueryParams } from '../utils/url.utils'
+import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import FormList, {
     BaseModalForm,

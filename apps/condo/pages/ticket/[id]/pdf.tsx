@@ -12,12 +12,12 @@ import {
     getTicketLabel,
     getTicketPdfName,
     getTicketTitleMessage,
-} from '../../../utils/ticket'
-import { createPdf } from '../../../utils/pdf'
+} from '@condo/domains/ticket/utils/helpers'
+import { createPdf } from '../../../domains/common/utils/pdf'
 import { useRouter } from 'next/router'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import LoadingOrErrorPage from '../@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { PageContent } from '../@condo/domains/common/components/containers/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 
 interface ITicketDescriptionFieldProps {
     title?: string

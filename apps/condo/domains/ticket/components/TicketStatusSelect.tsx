@@ -4,11 +4,10 @@ import React, { useCallback, useMemo } from 'react'
 import { Select, Space, Typography } from 'antd'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { TicketStatus } from '../../../utils/clientSchema/Ticket'
-import { runMutation } from '../../../utils/mutations.utils'
+import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { STATUS_SELECT_COLORS } from '../../common/constants/style'
-import { getTicketFormattedLastStatusUpdate, getTicketLabel, sortStatusesByType } from '../../../utils/ticket'
+import { getTicketFormattedLastStatusUpdate, getTicketLabel, sortStatusesByType } from '@condo/domains/ticket/utils/helpers'
 
 const StyledSelect = styled(Select)`
   width: 100%;

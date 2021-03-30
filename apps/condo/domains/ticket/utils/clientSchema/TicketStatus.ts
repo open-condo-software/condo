@@ -1,5 +1,5 @@
 import { genReactHooks } from '@core/keystone/gen.gql.react.utils'
-import { TicketStatus } from '../../../gql/Ticket'
+import { TicketStatus as TicketStatusGQL } from '@condo/domains/ticket/gql'
 
 function convertGQLItemToUIState (item) {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
@@ -26,7 +26,7 @@ const {
     useCreate,
     useUpdate,
     useDelete,
-} = genReactHooks(TicketStatus, { convertGQLItemToUIState, convertUIStateToGQLItem })
+} = genReactHooks(TicketStatusGQL, { convertGQLItemToUIState, convertUIStateToGQLItem })
 
 export {
     useObject,

@@ -1,7 +1,7 @@
 const { Relationship, Integer } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 
-const { hasValidJsonStructure } = require('../utils/validation.utils')
+const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 
 const DV_FIELD = {
     factory: () => 1,

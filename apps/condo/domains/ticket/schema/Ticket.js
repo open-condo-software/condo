@@ -11,7 +11,7 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/ticket/access/Ticket')
 
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
-const { hasRequestAndDbFields } = require('../../../utils/validation.utils')
+const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('../../common/constants/errors')
 
 const Ticket = new GQLListSchema('Ticket', {
