@@ -12,7 +12,7 @@ import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
-import { colors } from '../../../constants/style'
+import { colors } from '@condo/domains/common/constants/style'
 import { green } from '@ant-design/colors'
 import { Button } from '@condo/domains/common/components/Button'
 

@@ -8,18 +8,18 @@ import { Avatar, Button, Form, Input, Select } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 
-import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
-import { OrganizationRequired } from '../../containers/OrganizationRequired'
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { OrganizationRequired } from '@condo/domains/common/components/containers/OrganizationRequired'
 import FormList, {
     BaseModalForm,
     CreateFormListItemButton,
     ExpandableDescription,
     useCreateAndEditModalForm,
-} from '../../containers/FormList'
-import { useTable } from '../../containers/FormTableBlocks'
+} from '@condo/domains/common/components/containers/FormList'
+import { useTable } from '@condo/domains/common/components/containers/FormTableBlocks'
 import { AddressSearchInput } from '@condo/domains/common/components/AddressSearchInput'
 import * as Property from '../../utils/clientSchema/Property'
-import { buildingMapJson } from '../../constants/property.example'
+import { buildingMapJson } from '@condo/domains/common/constants/property.example'
 
 function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancelModal }) {
     const intl = useIntl()

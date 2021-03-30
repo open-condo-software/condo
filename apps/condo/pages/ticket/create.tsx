@@ -3,11 +3,11 @@ import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
 import Head from 'next/head'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
-import { PageContent, PageWrapper } from '../../containers/BaseLayout'
-import { OrganizationRequired } from '../../containers/OrganizationRequired'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { OrganizationRequired } from '@condo/domains/common/components/containers/OrganizationRequired'
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { LinkWithIcon } from '@condo/domains/common/components/components/LinkWithIcon'
-import { colors } from '../../constants/style'
+import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
+import { colors } from '@condo/domains/common/constants/style'
 
 const CreateTicketPage = () => {
     const intl = useIntl()

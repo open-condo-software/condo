@@ -7,13 +7,13 @@ import { useRouter } from 'next/router'
 
 import { useIntl } from '@core/next/intl'
 
-import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
-import { OrganizationRequired } from '../../containers/OrganizationRequired'
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { OrganizationRequired } from '@condo/domains/common/components/containers/OrganizationRequired'
 
 import { useObject, useUpdate } from '../../utils/clientSchema/Property'
-import LoadingOrErrorPage from '../../containers/LoadingOrErrorPage'
-import { buildingMapJson } from '../../constants/property.example'
-import BBuilder from '../../containers/BBuilder'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { buildingMapJson } from '@condo/domains/common/constants/property.example'
+import BBuilder from '@condo/domains/common/components/containers/BBuilder'
 
 function PropertyDescriptionBlock ({ obj }) {
     const intl = useIntl()

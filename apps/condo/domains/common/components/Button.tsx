@@ -3,7 +3,7 @@ import React from 'react'
 import { css, jsx } from '@emotion/core'
 import { green } from '@ant-design/colors'
 import { Button as DefaultButton, ButtonProps } from 'antd'
-import { colors } from '../../../constants/style'
+import { colors } from '../constants/style'
 
 const buttonCss = (color) => css`
   background-color: ${color[5]};

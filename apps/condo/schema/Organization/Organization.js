@@ -11,7 +11,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { SENDER_FIELD, DV_FIELD } = require('../_common')
 const { rules } = require('../../access')
-const countries = require('../../constants/countries')
+const countries = require('@condo/domains/common/constants/countries')
 
 const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
     src: `${conf.MEDIA_ROOT}/orgavatars`,

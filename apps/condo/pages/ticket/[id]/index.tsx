@@ -7,13 +7,13 @@ import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
 import { Button } from '@condo/domains/common/components/Button'
-import { PageContent, PageWrapper } from '../../../containers/BaseLayout'
-import LoadingOrErrorPage from '../../../containers/LoadingOrErrorPage'
+import { PageContent, PageWrapper } from '../@condo/domains/common/components/containers/BaseLayout'
+import LoadingOrErrorPage from '../@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import Link from 'next/link'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
-import { colors } from '../../../constants/style'
+import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 
 import {
@@ -21,8 +21,8 @@ import {
     getTicketCreateMessage,
     getTicketTitleMessage,
 } from '../../../utils/ticket'
-import { LETTERS_AND_NUMBERS } from '../../../constants/regexps'
-import { UserNameField } from '../../../domains/common/components/UserNameField'
+import { LETTERS_AND_NUMBERS } from '@condo/domains/common/constants/regexps'
+import { UserNameField } from '@condo/domains/common/components/UserNameField'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {

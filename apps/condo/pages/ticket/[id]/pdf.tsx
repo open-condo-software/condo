@@ -3,8 +3,8 @@ import get from 'lodash/get'
 import dynamic from 'next/dynamic'
 import React, { useEffect, useRef } from 'react'
 import { useIntl } from '@core/next/intl'
-import { colors } from '../../../constants/style'
-import { FocusContainer } from '../../../domains/common/components/FocusContainer'
+import { colors } from '@condo/domains/common/constants/style'
+import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 
 import {
     formatPhone,
@@ -16,8 +16,8 @@ import {
 import { createPdf } from '../../../utils/pdf'
 import { useRouter } from 'next/router'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import LoadingOrErrorPage from '../../../containers/LoadingOrErrorPage'
-import { PageContent } from '../../../containers/BaseLayout'
+import LoadingOrErrorPage from '../@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { PageContent } from '../@condo/domains/common/components/containers/BaseLayout'
 
 interface ITicketDescriptionFieldProps {
     title?: string

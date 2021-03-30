@@ -1,4 +1,4 @@
-const countries = require('../../constants/countries')
+const countries = require('@condo/domains/common/constants/countries')
 const { Organization, OrganizationEmployee, OrganizationEmployeeRole } = require('../../gql/Organization')
 const { execGqlWithoutAccess } = require('./utils')
 

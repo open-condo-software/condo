@@ -4,11 +4,11 @@ import React from 'react'
 import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { PageContent, PageWrapper } from '../../../containers/BaseLayout'
-import { OrganizationRequired } from '../../../containers/OrganizationRequired'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { OrganizationRequired } from '@condo/domains/common/components/containers/OrganizationRequired'
 import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
-import { colors } from '../../../constants/style'
+import { colors } from '@condo/domains/common/constants/style'
 
 const TicketUpdatePage = () => {
     const intl = useIntl()
