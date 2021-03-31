@@ -4,11 +4,11 @@
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog } = require('@condo/domains/billing/utils/testSchema')
+const { BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog, makeClientWithIntegrationAccess } = require('@condo/domains/billing/utils/testSchema')
 
 describe('BillingIntegrationLog', () => {
     test.skip('user: create BillingIntegrationLog', async () => {
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
+        const client = await makeClientWithIntegrationAccess()
 
         const [obj, attrs] = await createTestBillingIntegrationLog(client)  // TODO(codegen): write 'user: create BillingIntegrationLog' test
         expect(obj.id).toMatch(UUID_RE)

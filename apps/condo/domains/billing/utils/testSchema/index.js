@@ -5,6 +5,7 @@
  */
 const faker = require('faker')
 
+const { makeLoggedInClient, registerNewUser } = require('@condo/domains/user/utils/testSchema')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
@@ -360,9 +361,27 @@ async function updateTestBillingReceipt (client, id, extraAttrs = {}) {
 
 /* AUTOGENERATE MARKER <FACTORY> */
 
+async function makeClientWithIntegrationAccess () {
+    const admin = await makeLoggedInAdminClient()
+    const [integration, integrationAttrs] = await createTestBillingIntegration(admin)
+
+    const [user, userAttrs] = await registerNewUser(await makeClient())
+    const client = await makeLoggedInClient(userAttrs)
+
+    // add access
+    await createTestBillingIntegrationAccessRight(admin, integration, user)
+
+    client.user = user
+    client.userAttrs = userAttrs
+    client.integration = integration
+    client.integrationAttrs = integrationAttrs
+    return client
+}
+
 module.exports = {
     BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration,
     BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight,
+    makeClientWithIntegrationAccess,
     BillingIntegrationOrganizationContext, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext,
     BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog,
     BillingProperty, createTestBillingProperty, updateTestBillingProperty,
