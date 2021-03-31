@@ -9,9 +9,16 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 const { BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 
 describe('BillingIntegration', () => {
+    test('admin: create BillingIntegration', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [integration, attrs] = await createTestBillingIntegration(admin)
+        expect(integration).toEqual(expect.objectContaining({
+            name: attrs.name,
+        }))
+    })
+
     test('user: create BillingIntegration', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
-
         try {
             await createTestBillingIntegration(client)
         } catch (e) {
@@ -56,6 +63,7 @@ describe('BillingIntegration', () => {
         expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
         expect(objs[0].createdAt).toMatch(obj.createdAt)
         expect(objs[0].updatedAt).toMatch(obj.updatedAt)
+        expect(objs[0].name).toMatch(attrs.name)
     })
 
     test('anonymous: read BillingIntegration', async () => {
