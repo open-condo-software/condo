@@ -1,37 +1,27 @@
 const { makeLoggedInAdminClient, getRandomString } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
-
 const {
-    createBillingIntegrationLog,
-    createBillingIntegrationOrganizationContext,
-    createBillingIntegrationAccessRight,
-} = require('../utils/testSchema/Billing')
-const { BillingIntegrationLog, BillingIntegrationOrganizationContext } = require('../gql/Billing')
+    createTestBillingIntegration,
+    createTestBillingIntegrationAccessRight,
+    createTestBillingIntegrationOrganizationContext,
+    createTestBillingIntegrationLog,
+} = require('@condo/domains/billing/utils/testSchema')
+
+const { BillingIntegrationLog, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/gql')
 
 const { makeClientWithProperty } = require('./Property/Property.test')
 
-describe('BillingIntegration', () => {
-    test('admin: createBillingIntegration', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [integration, attrs] = await createTestBillingIntegration(admin)
-        expect(integration).toEqual(expect.objectContaining({
-            name: attrs.name,
-        }))
-    })
-})
-
 describe('BillingIntegrationOrganizationContext', () => {
-    test.skip('user: create/update integration context', async () => {
+    test('user: create/update integration context', async () => {
         const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
         // const hackerClient = await makeClientWithNewRegisteredAndLoggedInUser()
         const adminClient = await makeLoggedInAdminClient()
         const [integration] = await createTestBillingIntegration(adminClient)
-        await createBillingIntegrationAccessRight(adminClient, integrationClient.user, integration)
+        await createTestBillingIntegrationAccessRight(adminClient, integration, integrationClient.user)
 
         // user setup the Integration for his organization
         const userClient = await makeClientWithProperty()
-        const [context] = await createBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
+        const [context] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
         expect(context.id).toBeTruthy()
 
         // integration account can see integration
@@ -63,20 +53,20 @@ describe('BillingIntegrationOrganizationContext', () => {
 })
 
 describe('BillingIntegrationLog', () => {
-    test.skip('user: can see the logs', async () => {
+    test('user: can see the logs', async () => {
         const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
         // const hackerClient = await makeClientWithNewRegisteredAndLoggedInUser()
         const adminClient = await makeLoggedInAdminClient()
         const [integration] = await createTestBillingIntegration(adminClient)
-        await createBillingIntegrationAccessRight(adminClient, integrationClient.user, integration)
+        await createTestBillingIntegrationAccessRight(adminClient, integration, integrationClient.user)
 
         // user setup the Integration for his organization
         const userClient = await makeClientWithProperty()
-        const [context] = await createBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
+        const [context] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
 
         // integration account create log record
         const message = getRandomString()
-        const [logMessage] = await createBillingIntegrationLog(integrationClient, context, { message })
+        const [logMessage] = await createTestBillingIntegrationLog(integrationClient, context, { message })
         expect(logMessage.id).toBeTruthy()
 
         // user can see the log record

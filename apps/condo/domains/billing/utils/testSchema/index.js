@@ -82,8 +82,6 @@ async function updateTestBillingIntegrationAccessRight (client, id, extraAttrs =
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestBillingIntegrationAccessRight logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -93,17 +91,21 @@ async function updateTestBillingIntegrationAccessRight (client, id, extraAttrs =
     return [obj, attrs]
 }
 
-async function createTestBillingIntegrationOrganizationContext (client, integration, organization, extraAttrs = {}) {
+async function createTestBillingIntegrationOrganizationContext (client, organization, integration, extraAttrs = {}) {
     if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!integration || !integration.id) throw new Error('no integration.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestBillingIntegrationOrganizationContext logic for generate fields
+    const settings = { dv: 1, 'billing data source': 'https://api.dom.gosuslugi.ru/' }
+    const state = { dv: 1 }
 
     const attrs = {
         dv: 1,
         sender,
         integration: { connect: { id: integration.id } },
         organization: { connect: { id: organization.id } },
+        settings,
+        state,
         ...extraAttrs,
     }
     const obj = await BillingIntegrationOrganizationContext.create(client, attrs)
@@ -114,8 +116,6 @@ async function updateTestBillingIntegrationOrganizationContext (client, id, extr
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestBillingIntegrationOrganizationContext logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -129,13 +129,15 @@ async function updateTestBillingIntegrationOrganizationContext (client, id, extr
 async function createTestBillingIntegrationLog (client, context, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestBillingIntegrationLog logic for generate fields
+    const type = faker.lorem.words().replace(/[ ]/g, '_').toUpperCase()
+    const message = faker.lorem.sentences()
+    const meta = { username: faker.lorem.word(), server: faker.internet.url(), ip: faker.internet.ipv6() }
 
     const attrs = {
         dv: 1,
         sender,
         context: { connect: { id: context.id } },
+        type, message, meta,
         ...extraAttrs,
     }
     const obj = await BillingIntegrationLog.create(client, attrs)
@@ -146,8 +148,6 @@ async function updateTestBillingIntegrationLog (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestBillingIntegrationLog logic for generate fields
 
     const attrs = {
         dv: 1,
