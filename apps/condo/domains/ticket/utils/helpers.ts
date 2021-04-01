@@ -137,7 +137,7 @@ export const createdAtToQuery = (createdAt?: string): Array<string> => {
 }
 
 export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
-    const statusIds = get(filters, 'statusIds')
+    const statusIds = get(filters, 'status')
     const assignee = get(filters, 'assignee')
     const clientName = get(filters, 'clientName')
     const createdAt = get(filters, 'createdAt')

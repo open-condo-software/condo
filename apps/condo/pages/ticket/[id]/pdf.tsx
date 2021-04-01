@@ -5,7 +5,6 @@ import React, { useEffect, useRef } from 'react'
 import { useIntl } from '@core/next/intl'
 import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-
 import {
     formatPhone,
     getTicketCreateMessage,
@@ -13,7 +12,7 @@ import {
     getTicketPdfName,
     getTicketTitleMessage,
 } from '@condo/domains/ticket/utils/helpers'
-import { createPdf } from '../../../domains/common/utils/pdf'
+import { createPdf } from '@condo/domains/common/utils/pdf'
 import { useRouter } from 'next/router'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'

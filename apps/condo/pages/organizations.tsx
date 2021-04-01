@@ -17,8 +17,8 @@ import FormList, {
     ExpandableDescription,
     ExtraDropdownActionsMenu,
     useCreateAndEditModalForm,
-} from '../domains/common/components/containers/FormList'
-import { PageContent, PageHeader, PageWrapper } from '../domains/common/components/containers/BaseLayout'
+} from '@condo/domains/common/components/containers/FormList'
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import {
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
     GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY,
