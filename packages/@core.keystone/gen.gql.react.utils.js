@@ -17,7 +17,7 @@ function genReactHooks (TestUtils, { convertGQLItemToUIState, convertUIStateToGQ
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
   
-        const { loading, data, refetch, error, fetchMore } = useQuery(TestUtils.GET_ALL_OBJS_WITH_COUNT_QUERY, {
+        let { loading, data, refetch, error, fetchMore } = useQuery(TestUtils.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
             ...options,
             fetchPolicy: 'no-cache', // Without this flag table will shake on sorting
