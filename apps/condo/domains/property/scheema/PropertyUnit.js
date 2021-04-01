@@ -5,7 +5,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD, UID_FIELD } = require('../_common')
+const { SENDER_FIELD, DV_FIELD, UID_FIELD } = require('../../../schema/_common')
 
 const PropertyUnit = new GQLListSchema('PropertyUnit', {
     schemaDoc: 'Property unit. The property is divided into separate `unit` parts, each of which can be owned by an independent owner',
