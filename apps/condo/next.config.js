@@ -1,7 +1,7 @@
 const conf = require('@core/config')
 const withLess = require('@zeit/next-less')
 const withCSS = require('@zeit/next-css')
-const { antGlobalVariables } = require('./domains/common/constants/style')
+const { antGlobalVariables } = require('@condo/domains/common/constants/style')
 // Tell webpack to compile the "@core/next" package, necessary
 // https://www.npmjs.com/package/next-transpile-modules
 // NOTE: FormTable require rc-table module

@@ -19,7 +19,7 @@ const LOCALES = {
     en: EN,
 }
 
-const getSearchIcon = filtered => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
+const getFilterIcon = filtered => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 
 interface IFilterContainerProps {
     clearFilters: () => void
@@ -90,7 +90,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                         </FilterContainer>
                     )
                 },
-                filterIcon: getSearchIcon,
+                filterIcon: getFilterIcon,
             },
             {
                 title: DateMessage,
@@ -129,7 +129,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                         </FilterContainer>
                     )
                 },
-                filterIcon: getSearchIcon,
+                filterIcon: getFilterIcon,
             },
             {
                 title: StatusMessage,
@@ -171,7 +171,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                         </FilterContainer>
                     )
                 },
-                filterIcon: getSearchIcon,
+                filterIcon: getFilterIcon,
             },
             {
                 title: DescriptionMessage,
@@ -194,7 +194,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                         </FilterContainer>
                     )
                 },
-                filterIcon: getSearchIcon,
+                filterIcon: getFilterIcon,
             },
             {
                 title: AddressMessage,
@@ -222,7 +222,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                         </FilterContainer>
                     )
                 },
-                filterIcon: getSearchIcon,
+                filterIcon: getFilterIcon,
             },
             {
                 title: intl.formatMessage({ id: 'Client' }),
@@ -249,7 +249,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                         </FilterContainer>
                     )
                 },
-                filterIcon: getSearchIcon,
+                filterIcon: getFilterIcon,
             },
             {
                 title: intl.formatMessage({ id: 'field.Executor' }),
@@ -277,7 +277,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                         </FilterContainer>
                     )
                 },
-                filterIcon: getSearchIcon,
+                filterIcon: getFilterIcon,
             },
             {
                 title: intl.formatMessage({ id: 'field.Responsible' }),
@@ -305,7 +305,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                         </FilterContainer>
                     )
                 },
-                filterIcon: getSearchIcon,
+                filterIcon: getFilterIcon,
             },
         ]
     }, [sort, filters])

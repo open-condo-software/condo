@@ -12,7 +12,7 @@ const access = require('@condo/domains/ticket/access/Ticket')
 
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
-const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('../../common/constants/errors')
+const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
