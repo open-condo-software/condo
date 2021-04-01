@@ -104,24 +104,31 @@ export const sortStatusesByType = (statuses) => {
     })
 }
 
-export interface IFilters extends Pick<Ticket, 'assignee' | 'clientName' | 'createdAt' | 'details' | 'executor' | 'number' | 'property'> {
+export interface IFilters extends Pick<Ticket, 'clientName' | 'createdAt' | 'details' | 'number'> {
     status?: Array<string>
+    assignee?: string
+    executor?: string
+    property?: string
 }
 
-const statusToQuery = (status_ids: Array<string>): TicketStatusWhereInput => {
-    if (Array.isArray(status_ids) && status_ids.length > 0) {
+export const statusToQuery = (statusIds: Array<string>): TicketStatusWhereInput => {
+    if (Array.isArray(statusIds) && statusIds.length > 0) {
         return {
             AND: [{
-                id_in: status_ids,
+                id_in: statusIds,
             }],
         }
     }
 }
 
-const createdAtToQuery = (createdAt: string): Array<string> => {
+export const createdAtToQuery = (createdAt?: string): Array<string> => {
+    if (!createdAt) {
+        return
+    }
+
     const date = moment(createdAt)
 
-    if (createdAt && date.isValid()) {
+    if (date.isValid()) {
         const min = date.startOf('day').toISOString()
         const max = date.endOf('day').toISOString()
 
@@ -130,16 +137,14 @@ const createdAtToQuery = (createdAt: string): Array<string> => {
 }
 
 export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
-    const {
-        status: statusIds,
-        assignee,
-        clientName,
-        createdAt,
-        details,
-        executor,
-        number,
-        property,
-    } = filters
+    const statusIds = get(filters, 'statusIds')
+    const assignee = get(filters, 'assignee')
+    const clientName = get(filters, 'clientName')
+    const createdAt = get(filters, 'createdAt')
+    const details = get(filters, 'details')
+    const executor = get(filters, 'executor')
+    const number = get(filters, 'number')
+    const property = get(filters, 'property')
 
     const statusFiltersQuery = statusToQuery(statusIds)
     const createdAtQuery = createdAtToQuery(createdAt)
@@ -163,7 +168,16 @@ export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
     }
 }
 
-export const sorterToQuery = (sorter): Array<string> => {
+type SorterColumn = {
+    columnKey: string,
+    order: 'ascend' | 'descend'
+}
+
+export const sorterToQuery = (sorter?: SorterColumn | Array<SorterColumn>): Array<string> => {
+    if (!sorter) {
+        return
+    }
+
     if (!Array.isArray(sorter)) {
         sorter = [sorter]
     }
@@ -183,7 +197,7 @@ export const sorterToQuery = (sorter): Array<string> => {
         }
 
         return `${columnKey}_${sortKeys[order]}`
-    })
+    }).filter(Boolean)
 }
 
 export const createSorterMap = (sortStringFromQuery: Array<string>): Record<string, SortOrder> => {
@@ -224,18 +238,18 @@ export const createSorterMap = (sortStringFromQuery: Array<string>): Record<stri
 
 export const getSortStringFromQuery = (query: ParsedUrlQuery): Array<string> => {
     const sort = get(query, 'sort', [])
-    if (Array.isArray(sort)) {
 
+    if (Array.isArray(sort)) {
         return sort
     }
-    return sort.split(',')
 
+    return sort.split(',')
 }
 
 export const PAGINATION_PAGE_SIZE = 10
 
 export const getPaginationFromQuery = (query: ParsedUrlQuery): number => {
-    return Number(get(query, 'offset', 0)) / PAGINATION_PAGE_SIZE + 1
+    return Math.floor(Number(get(query, 'offset', 0)) / PAGINATION_PAGE_SIZE) + 1
 }
 
 export const getFiltersFromQuery = (query: ParsedUrlQuery): IFilters => {
