@@ -26,14 +26,14 @@ interface IHookResult<UI, UIForm, Q> {
 }
 
 export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convertToGQLInput, convertToUIState }: IHookConverters<GQL, GQLInput, UI, UIForm>): IHookResult<UI, UIForm, Q> {
-    function useObject (variables: Q, memoize = true) {
-        const { loading, refetch, objs, count, error } = useObjects(variables, memoize)
+    function useObject (variables: Q) {
+        const { loading, refetch, objs, count, error } = useObjects(variables)
         if (count && count > 1) throw new Error('Wrong query condition! return more then one result')
         const obj = (objs.length) ? objs[0] : null
         return { loading, refetch, obj, error }
     }
 
-    function useObjects (variables: Q, memoize = true) {
+    function useObjects (variables: Q) {
         const intl = useIntl()
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
@@ -41,6 +41,8 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         // eslint-disable-next-line prefer-const
         const result = useQuery<{ objs?: GQL[], meta?: { count?: number } }, Q>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
+            fetchPolicy: 'no-cache', // Without this flag table will shake on sorting
+            notifyOnNetworkStatusChange: true, // Without this flag refetch do not trigger loading flag
         })
 
         let error: ApolloError | string
@@ -50,21 +52,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
             error = ServerErrorPleaseTryAgainLaterMsg
         }
 
-        /*
-        * There is bug here with nested objs memoization.
-        *
-        * We should use this tricky solution for manually control default memoization flow.
-        * React and eslint recommend to avoid using reactHooks in conditional statements,
-        * as result, we should do some tricks with initial objs value calculation.
-        * TODO: debug and remove useMemo later
-        */
-        let objs: UI[] = useMemo(() => {
-            return getObjects(result.data, convertToUIState)
-        }, [result.data])
-
-        if (!memoize) {
-            objs = getObjects(result.data, convertToUIState)
-        }
+        const objs = getObjects(result.data, convertToUIState)
 
         const count = (result.data && result.data.meta) ? result.data.meta.count : null
 
