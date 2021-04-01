@@ -18,8 +18,8 @@ interface IHookConverters<GQL, GQLInput, UI, UIForm> {
 
 interface IHookResult<UI, UIForm, Q> {
     gql: any
-    useObject: (variables: Q, memoize?: boolean) => { obj: UI, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
-    useObjects: (variables: Q, memoize?: boolean) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
+    useObject: (variables: Q) => { obj: UI, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
+    useObjects: (variables: Q) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
     useCreate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
     useUpdate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
     useDelete: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
