@@ -5,39 +5,26 @@ import { useIntl } from '@core/next/intl'
 const getObjects = (objectsContainer, converter) => (objectsContainer && objectsContainer.objs) ? objectsContainer.objs.map(converter) : []
 
 function genReactHooks (TestUtils, { convertGQLItemToUIState, convertUIStateToGQLItem, options } = { options: {} }) {
-    function useObject (variables, memoize = true) {
-        const { loading, refetch, objs, count, error } = useObjects(variables, memoize)
+    function useObject (variables) {
+        const { loading, refetch, objs, count, error } = useObjects(variables)
         if (count && count > 1) throw new Error('Wrong query condition! return more then one result')
         const obj = (objs.length) ? objs[0] : null
         return { loading, refetch, obj, error }
     }
 
-    function useObjects (variables = {}, memoize = true) {
+    function useObjects (variables = {}) {
         const intl = useIntl()
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
-
-        let { loading, data, refetch, error, fetchMore } = useQuery(TestUtils.GET_ALL_OBJS_WITH_COUNT_QUERY, {
+  
+        const { loading, data, refetch, error, fetchMore } = useQuery(TestUtils.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
             ...options,
+            fetchPolicy: 'no-cache', // Without this flag table will shake on sorting
+            notifyOnNetworkStatusChange: true, // Without this flag refetch do not trigger loading flag
         })
 
-        /*
-        * There is bug here with nested objects memoization.
-        *
-        * We should use this tricky solution for manually control default memoization flow.
-        * React and eslint recommend to avoid using reactHooks in conditional statements,
-        * as result, we should do some tricks with initial objects value calculation.
-        * TODO: debug and remove useMemo later
-        */
-        let objects = useMemo(() => {
-            return getObjects(data, convertGQLItemToUIState)
-        }, [data])
-
-        if (!memoize) {
-            objects = getObjects(data, convertGQLItemToUIState)
-        }
-
+        const objects = getObjects(data, convertGQLItemToUIState)
         const count = (data && data.meta) ? data.meta.count : null
 
         if (error && String(error).includes('not have access')) {

@@ -175,7 +175,7 @@ function EmployeeCRUDTableBlock () {
     const del = OrganizationEmployee.useDelete({}, refetch)
 
     function handleCreateOrUpdate ({ values, item, form }) {
-        console.log('handleCreateOrUpdate', values, item, form)
+        // console.log('handleCreateOrUpdate', values, item, form)
         if (values.email) values.email = values.email.toLowerCase()
         const action = (item && item.isUnsavedNew) ? invite : update
         return runMutation(
@@ -196,7 +196,7 @@ function EmployeeCRUDTableBlock () {
     }
 
     function handleDelete ({ values, item, form }) {
-        console.log('handleDelete', values, item, form)
+        // console.log('handleDelete', values, item, form)
         return runMutation(
             {
                 action: () => del(item),
@@ -228,7 +228,7 @@ function EmployeeCRUDTableBlock () {
             newDataTable.updateActions(actions)
             table.updateActions(actions)
         }
-    }, [objs])
+    }, [loading])
 
     const createColumns = useMemo(() => {return columns}, [])
     const editColumns = useMemo(() => {return columns}, [])

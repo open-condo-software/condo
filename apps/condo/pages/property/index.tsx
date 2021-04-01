@@ -136,7 +136,7 @@ function PropertyCRUDListBlock () {
             table.setData(objs)
             table.updateFilterPaginationSort({ total: count })
         }
-    }, [objs])
+    }, [loading])
 
     return (
         <>
