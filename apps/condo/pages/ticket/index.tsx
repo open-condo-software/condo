@@ -193,7 +193,7 @@ const TicketsPage = () => {
                 router.push(router.route + '?' + qs.stringify({ ...router.query, sort, offset }))
             })
         }
-    }, [])
+    }, [loading])
 
     const tableColumns = useMemo(() => getTableColumns(sorter, intl), [sorter])
 
