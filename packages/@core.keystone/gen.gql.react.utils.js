@@ -12,16 +12,15 @@ function genReactHooks (TestUtils, { convertGQLItemToUIState, convertUIStateToGQ
         return { loading, refetch, obj, error }
     }
 
-    function useObjects (variables = {}) {
+    function useObjects (variables = {}, queryOptions = { fetchPolicy: 'no-cache', notifyOnNetworkStatusChange: true }) {
         const intl = useIntl()
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
-  
+
         let { loading, data, refetch, error, fetchMore } = useQuery(TestUtils.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
             ...options,
-            fetchPolicy: 'no-cache', // Without this flag table will shake on sorting
-            notifyOnNetworkStatusChange: true, // Without this flag refetch do not trigger loading flag
+            ...queryOptions
         })
 
         const objects = getObjects(data, convertGQLItemToUIState)

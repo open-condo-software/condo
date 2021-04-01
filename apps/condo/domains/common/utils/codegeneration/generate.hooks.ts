@@ -19,7 +19,7 @@ interface IHookConverters<GQL, GQLInput, UI, UIForm> {
 interface IHookResult<UI, UIForm, Q> {
     gql: any
     useObject: (variables: Q) => { obj: UI, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
-    useObjects: (variables: Q) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
+    useObjects: (variables: Q, queryOptions?: object) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
     useCreate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
     useUpdate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
     useDelete: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
@@ -33,7 +33,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         return { loading, refetch, obj, error }
     }
 
-    function useObjects (variables: Q) {
+    function useObjects (variables: Q, queryOptions: object = { fetchPolicy: 'no-cache', notifyOnNetworkStatusChange: true }) {
         const intl = useIntl()
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
@@ -41,8 +41,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         // eslint-disable-next-line prefer-const
         const result = useQuery<{ objs?: GQL[], meta?: { count?: number } }, Q>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
-            fetchPolicy: 'no-cache', // Without this flag table will shake on sorting
-            notifyOnNetworkStatusChange: true, // Without this flag refetch do not trigger loading flag
+            ...queryOptions
         })
 
         let error: ApolloError | string
