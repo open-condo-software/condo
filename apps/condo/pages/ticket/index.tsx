@@ -1,191 +1,39 @@
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { OrganizationRequired } from '@condo/domains/common/components/containers/OrganizationRequired'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { DatabaseFilled } from '@ant-design/icons'
+import {
+    filtersToQuery, getFiltersFromQuery,
+    getPaginationFromQuery,
+    getSortStringFromQuery,
+    PAGINATION_PAGE_SIZE,
+    sorterToQuery,
+} from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
-import styled from '@emotion/styled'
-import { Empty, Space, Table, Tag, Typography } from 'antd'
-import { TablePaginationConfig } from 'antd/es/table'
-import { format } from 'date-fns'
-import get from 'lodash/get'
+
+import { Col, Input, Row, Space, Table, Tooltip, Typography } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
+import pickBy from 'lodash/pickBy'
+import debounce from 'lodash/debounce'
 import React, { useCallback, useEffect } from 'react'
+import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { Button } from '@condo/domains/common/components/Button'
-import { EmptyIcon } from '@condo/domains/common/components/EmptyIcon'
-import { STATUS_SELECT_COLORS } from '@condo/domains/common/constants/style'
-
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/common/components/containers/OrganizationRequired'
-
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-
-// TODO:(Dimitreee) move to packages
-import RU from 'date-fns/locale/ru'
-import EN from 'date-fns/locale/en-US'
-import {
-    createSorterMap,
-    getPaginationFromQuery,
-    getSortStringFromQuery,
-    PAGINATION_PAGE_SIZE, sorterToQuery,
-} from '@condo/domains/ticket/utils/helpers'
-
-const LOCALES = {
-    ru: RU,
-    en: EN,
-}
-
-const useTableColumns = (sort) => {
-    const sorter = createSorterMap(sort)
-    const intl = useIntl()
-
-    return [
-        {
-            title: intl.formatMessage({ id: 'ticketsTable.Number' }),
-            sortOrder: get(sorter, 'number'),
-            dataIndex: 'number',
-            key: 'number',
-            sorter: {
-                multiple: 1,
-            },
-            width: '10%',
-        },
-        {
-            title: intl.formatMessage({ id: 'Date' }),
-            sortOrder: get(sorter, 'createdAt'),
-            render: (createdAt) => (
-                format(
-                    new Date(createdAt),
-                    'dd MMM',
-                    { locale: LOCALES[intl.locale] }
-                )
-            ),
-            dataIndex: 'createdAt',
-            key: 'createdAt',
-            sorter: {
-                multiple: 1,
-            },
-            width: '10%',
-        },
-        {
-            title: intl.formatMessage({ id: 'Status' }),
-            sortOrder: get(sorter, 'status'),
-            render: (status) => {
-                const { color, backgroundColor } = STATUS_SELECT_COLORS[status.type]
-
-                return (
-                    <Tag color={backgroundColor} style={{ color }}>
-                        <Typography.Text strong>{status.name}</Typography.Text>
-                    </Tag>
-                )
-            },
-            dataIndex: 'status',
-            key: 'status',
-            sorter: {
-                multiple: 1,
-            },
-            width: '10%',
-        },
-        {
-            title: intl.formatMessage({ id: 'Description' }),
-            ellipsis: true,
-            dataIndex: 'details',
-            key: 'details',
-            width: '22%',
-        },
-        {
-            title: intl.formatMessage({ id: 'field.Address' }),
-            sortOrder: get(sorter, 'property'),
-            render: (property) => (`${get(property, 'address')} ${get(property, 'name')}`),
-            ellipsis: true,
-            dataIndex: 'property',
-            key: 'property',
-            sorter: {
-                multiple: 1,
-            },
-            width: '12%',
-        },
-        {
-            title: intl.formatMessage({ id: 'Client' }),
-            sortOrder: get(sorter, 'clientName'),
-            ellipsis: true,
-            dataIndex: 'clientName',
-            key: 'clientName',
-            sorter: {
-                multiple: 1,
-            },
-            width: '12%',
-        },
-        {
-            title: intl.formatMessage({ id: 'field.Executor' }),
-            sortOrder: get(sorter, 'executor'),
-            render: (executor) => (get(executor, ['name'])),
-            ellipsis: true,
-            dataIndex: 'executor',
-            key: 'executor',
-            sorter: {
-                multiple: 1,
-            },
-            width: '12%',
-        },
-        {
-            title: intl.formatMessage({ id: 'field.Responsible' }),
-            sortOrder: get(sorter, 'assignee'),
-            render: (assignee) => (get(assignee, ['name'])),
-            ellipsis: true,
-            dataIndex: 'assignee',
-            key: 'assignee',
-            sorter: {
-                multiple: 1,
-            },
-            width: '12%',
-        },
-    ]
-}
-
-const EmptyListViewContainer = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
-`
-
-const EmptyListView = () => {
-    const intl = useIntl()
-    const router = useRouter()
-
-    return (
-        <EmptyListViewContainer>
-            <Empty
-                image={<EmptyIcon/>}
-                imageStyle={{ height: '120px' }}
-                description={
-                    <Space direction={'vertical'} size={0}>
-                        <Typography.Title level={3}>
-                            {intl.formatMessage({ id: 'ticket.EmptyList.header' })}
-                        </Typography.Title>
-                        <Typography.Text style={{ fontSize: '16px' }}>
-                            {intl.formatMessage({ id: 'ticket.EmptyList.title' })}
-                        </Typography.Text>
-                        <Button
-                            type='sberPrimary'
-                            style={{ marginTop: '16px' }}
-                            onClick={() => router.push('/ticket/create')}
-                        >
-                            {intl.formatMessage({ id: 'CreateTicket' })}
-                        </Button>
-                    </Space>
-                }
-            />
-        </EmptyListViewContainer>
-    )
-}
+import XLSX from 'xlsx'
 
 const TicketsPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
+    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const NotImplementedYedMessage = intl.formatMessage({ id: 'NotImplementedYed' })
+    const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
 
     const router = useRouter()
     const sortFromQuery = getSortStringFromQuery(router.query)
     const paginationFromQuery = getPaginationFromQuery(router.query)
+    const filtersFromQuery = getFiltersFromQuery(router.query)
 
     const {
         fetchMore,
@@ -194,20 +42,17 @@ const TicketsPage = () => {
         count: total,
         objs: tickets,
     } = Ticket.useObjects({
+        // @ts-ignore
         sortBy: sortFromQuery,
+        where: filtersToQuery(filtersFromQuery),
         offset: paginationFromQuery,
         limit: PAGINATION_PAGE_SIZE,
     }, { 
         fetchPolicy: 'network-only',
     })
 
-    const pagination: TablePaginationConfig = {
-        total,
-        current: paginationFromQuery,
-        pageSize: PAGINATION_PAGE_SIZE,
-        position: ['bottomLeft'],
-    }
-    const tableColumns = useTableColumns(sortFromQuery)
+    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery)
+
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
@@ -216,64 +61,108 @@ const TicketsPage = () => {
         }
     }, [])
 
-    const handleTableChange = useCallback((...tableChangeArguments) => {
-        const [nextPagination,, nextSorter] = tableChangeArguments
+    const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
+        const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
 
         const { current, pageSize } = nextPagination
         const offset = current * pageSize - pageSize
         const sort = sorterToQuery(nextSorter)
+        const filters = filtersToQuery(nextFilters)
 
         if (!loading) {
-            const query = qs.stringify(
-                { ...router.query, sort, offset },
-                { arrayFormat: 'comma', skipNulls: true },
-            )
-
             fetchMore({
+                // @ts-ignore
                 sortBy: sort,
+                where: filters,
                 offset,
                 first: PAGINATION_PAGE_SIZE,
                 limit: PAGINATION_PAGE_SIZE,
             }).then(() => {
-                router.push(router.route + '?' + query)
+                const query = qs.stringify(
+                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy(nextFilters)) },
+                    { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+                )
+
+                router.push(router.route + query)
             })
         }
-    }, [loading])
-
+    }, 400), [loading])
 
     useEffect(() => {
         refetch()
     }, [])
 
+    const generateExcelData = useCallback(() => {
+        return new Promise<void>((resolve, reject) => {
+            try {
+                const cols = [
+                    'number',
+                    'status',
+                    'details',
+                    'property',
+                    'assignee',
+                    'executor',
+                    'createdAt',
+                    'clientName',
+                ]
+
+                const wb = XLSX.utils.book_new()
+                const ws = XLSX.utils.json_to_sheet(
+                    tickets.map((ticket) => Ticket.extractAttributes(ticket, cols)), { header: cols }
+                )
+
+                XLSX.utils.book_append_sheet(wb, ws, 'table')
+                XLSX.writeFile(wb, 'export.xlsx')
+            } catch (e) {
+                reject(e)
+            } finally {
+                resolve()
+            }
+        })
+    }, [])
+
     return (
         <>
             <Head>
-                <title>{PageTitleMsg}</title>
+                <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader
-                    title={
-                        <Typography.Title style={{ margin: 0 }}>
-                            {PageTitleMsg}
-                        </Typography.Title>
-                    }
-                />
+                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
                 <PageContent>
                     <OrganizationRequired>
                         {
-                            tickets.length
-                                ? <Table
-                                    bordered
-                                    tableLayout={'fixed'}
-                                    loading={loading}
-                                    dataSource={tickets}
-                                    columns={tableColumns}
-                                    onRow={handleRowAction}
-                                    onChange={handleTableChange}
-                                    rowKey={record => record.id}
-                                    pagination={pagination}
-                                />
-                                : <EmptyListView/>
+                            !tickets.length && !filtersFromQuery
+                                ? <EmptyListView/>
+                                : <Row gutter={[0, 40]} align={'middle'}>
+                                    <Col span={6}>
+                                        <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData}>{ExportAsExcel}</Button>
+                                    </Col>
+                                    <Col span={6} push={12}>
+                                        <Tooltip title={NotImplementedYedMessage}>
+                                            <div>
+                                                <Input placeholder={SearchPlaceholder} disabled/>
+                                            </div>
+                                        </Tooltip>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Table
+                                            bordered
+                                            tableLayout={'fixed'}
+                                            loading={loading}
+                                            dataSource={tickets}
+                                            columns={tableColumns}
+                                            onRow={handleRowAction}
+                                            onChange={handleTableChange}
+                                            rowKey={record => record.id}
+                                            pagination={{
+                                                total,
+                                                current: paginationFromQuery,
+                                                pageSize: PAGINATION_PAGE_SIZE,
+                                                position: ['bottomLeft'],
+                                            }}
+                                        />
+                                    </Col>
+                                </Row>
                         }
                     </OrganizationRequired>
                 </PageContent>

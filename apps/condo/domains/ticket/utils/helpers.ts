@@ -3,7 +3,9 @@ import { format, formatDuration, intervalToDuration } from 'date-fns'
 import EN from 'date-fns/locale/en-US'
 import RU from 'date-fns/locale/ru'
 import get from 'lodash/get'
+import moment from 'moment'
 import { ParsedUrlQuery } from 'querystring'
+import { Ticket, TicketStatusWhereInput, TicketWhereInput } from '../../../schema'
 
 const LOCALES = {
     ru: RU,
@@ -101,6 +103,66 @@ export const sortStatusesByType = (statuses) => {
         return 0
     })
 }
+
+export interface IFilters extends Pick<Ticket, 'assignee' | 'clientName' | 'createdAt' | 'details' | 'executor' | 'number' | 'property'> {
+    status?: Array<string>
+}
+
+const statusToQuery = (status_ids: Array<string>): TicketStatusWhereInput => {
+    if (Array.isArray(status_ids) && status_ids.length > 0) {
+        return {
+            AND: [{
+                id_in: status_ids,
+            }],
+        }
+    }
+}
+
+const createdAtToQuery = (createdAt: string): Array<string> => {
+    const date = moment(createdAt)
+
+    if (createdAt && date.isValid()) {
+        const min = date.startOf('day').toISOString()
+        const max = date.endOf('day').toISOString()
+
+        return [min, max]
+    }
+}
+
+export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
+    const {
+        status: statusIds,
+        assignee,
+        clientName,
+        createdAt,
+        details,
+        executor,
+        number,
+        property,
+    } = filters
+
+    const statusFiltersQuery = statusToQuery(statusIds)
+    const createdAtQuery = createdAtToQuery(createdAt)
+
+    const filtersCollection = [
+        statusFiltersQuery && { status: statusFiltersQuery },
+        assignee && { assignee_contains: assignee },
+        clientName && { clientName_contains: clientName },
+        createdAtQuery && { createdAt_gte: createdAtQuery[0] },
+        createdAtQuery && { createdAt_lte: createdAtQuery[1] },
+        details && { details_contains: details },
+        executor && { executor_contains: executor },
+        number && Number(number) && { number: Number(number) },
+        property && { property_contains: property },
+    ].filter(Boolean)
+
+    if (filtersCollection.length > 0) {
+        return {
+            AND: filtersCollection,
+        }
+    }
+}
+
 export const sorterToQuery = (sorter): Array<string> => {
     if (!Array.isArray(sorter)) {
         sorter = [sorter]
@@ -123,6 +185,7 @@ export const sorterToQuery = (sorter): Array<string> => {
         return `${columnKey}_${sortKeys[order]}`
     })
 }
+
 export const createSorterMap = (sortStringFromQuery: Array<string>): Record<string, SortOrder> => {
     if (!sortStringFromQuery) {
         return {}
@@ -158,6 +221,7 @@ export const createSorterMap = (sortStringFromQuery: Array<string>): Record<stri
         return acc
     }, {})
 }
+
 export const getSortStringFromQuery = (query: ParsedUrlQuery): Array<string> => {
     const sort = get(query, 'sort', [])
     if (Array.isArray(sort)) {
@@ -167,8 +231,24 @@ export const getSortStringFromQuery = (query: ParsedUrlQuery): Array<string> => 
     return sort.split(',')
 
 }
+
 export const PAGINATION_PAGE_SIZE = 10
 
 export const getPaginationFromQuery = (query: ParsedUrlQuery): number => {
     return Number(get(query, 'offset', 0)) / PAGINATION_PAGE_SIZE + 1
+}
+
+export const getFiltersFromQuery = (query: ParsedUrlQuery): IFilters => {
+    const filters = get(query, 'filters')
+
+    if (!filters) {
+        return {}
+    }
+
+    try {
+        // @ts-ignore
+        return JSON.parse(filters)
+    } catch (e) {
+        return {}
+    }
 }
