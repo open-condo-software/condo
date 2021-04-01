@@ -52,7 +52,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
             error = ServerErrorPleaseTryAgainLaterMsg
         }
 
-        const objs = getObjects(result.data, convertToUIState)
+        const objs: UI[] = getObjects(result.data, convertToUIState)
 
         const count = (result.data && result.data.meta) ? result.data.meta.count : null
 
