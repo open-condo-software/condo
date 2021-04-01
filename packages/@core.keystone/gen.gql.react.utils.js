@@ -20,7 +20,7 @@ function genReactHooks (TestUtils, { convertGQLItemToUIState, convertUIStateToGQ
         let { loading, data, refetch, error, fetchMore } = useQuery(TestUtils.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
             ...options,
-            ...queryOptions
+            ...queryOptions,
         })
 
         const objects = getObjects(data, convertGQLItemToUIState)
