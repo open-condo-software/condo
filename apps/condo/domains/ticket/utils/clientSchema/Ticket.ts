@@ -44,6 +44,22 @@ function convertToUIFormState (state: ITicketUIState): ITicketFormState | undefi
     return result as ITicketFormState
 }
 
+function extractAttributes (state: ITicketUIState, attributes: Array<string>): ITicketFormState | undefined {
+    if (!state) return
+    const result = {}
+
+    attributes.forEach((attribute) => {
+        if (RELATIONS.includes(attribute)) {
+            result[attribute] = get(state, [attribute, 'name'])
+        } else {
+            result[attribute] = get(state, attribute)
+        }
+    })
+
+    return result as ITicketFormState
+}
+
+
 function convertToGQLInput (state: ITicketFormState): TicketUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
@@ -69,4 +85,5 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    extractAttributes,
 }
