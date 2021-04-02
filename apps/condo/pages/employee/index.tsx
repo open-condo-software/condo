@@ -169,7 +169,7 @@ function EmployeeCRUDTableBlock () {
         skip: (table.state.pagination.current - 1) * table.state.pagination.pageSize,
         sortBy: toGQLSortBy(table.state.sorter),
         where: { ...toGQLWhere(table.state.filters), organization: { id: organization.id } },
-    })
+    }, 'no-cache')
     const invite = useInviteNewOrganizationEmployee({ organization: { id: organization.id } }, refetch)
     const update = OrganizationEmployee.useUpdate({}, refetch)
     const del = OrganizationEmployee.useDelete({}, refetch)

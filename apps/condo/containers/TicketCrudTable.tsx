@@ -122,11 +122,16 @@ function TicketCRUDTableBlock () {
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const ErrorToFormFieldMsgMapping = {}
 
-    const { objs, count, refetch } = Ticket.useObjects({
+    const { loading, objs, count, refetch } = Ticket.useObjects({
         sortBy: toGQLSortBy(table.state.sorter) || 'createdAt_DESC',
-    })
+    }, 'no-cache')
     const create = Ticket.useCreate({ organization: organization.id, status: OPEN_STATUS }, () => refetch())
-    const update = Ticket.useUpdate({}, () => refetch())
+    const update = Ticket.useUpdate({}, () => {
+        console.log('UpdateRefetch')
+        const z = setInterval(()=>console.log('loading...', loading), 10)
+        await refetch()
+        clearInterval(z)
+    })
 
     useEffect(() => {
         if (objs) {
@@ -138,7 +143,7 @@ function TicketCRUDTableBlock () {
             }
             table.updateActions(actions)
         }
-    }, [objs])
+    }, [loading])
 
     function handleCreateOrUpdate ({ values, item, form }) {
         if (values.email) values.email = values.email.toLowerCase()

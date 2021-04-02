@@ -128,7 +128,7 @@ function PropertyCRUDListBlock () {
     const modal = useCreateAndEditModalForm()
     const table = useTable()
 
-    const { objs, count, refetch, loading } = Property.useObjects()
+    const { objs, count, refetch, loading } = Property.useObjects({}, 'no-cache')
     const create = Property.useCreate({ organization: organization.id, map: buildingMapJson }, () => refetch())
 
     useEffect(() => {

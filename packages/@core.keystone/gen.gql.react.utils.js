@@ -12,15 +12,16 @@ function genReactHooks (TestUtils, { convertGQLItemToUIState, convertUIStateToGQ
         return { loading, refetch, obj, error }
     }
 
-    function useObjects (variables = {}, queryOptions = { fetchPolicy: 'no-cache', notifyOnNetworkStatusChange: true }) {
+    function useObjects (variables = {}, fetchPolicy = 'cache-first') {
+        console.log('fetchPolicy: ', fetchPolicy)
         const intl = useIntl()
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
 
         let { loading, data, refetch, error, fetchMore } = useQuery(TestUtils.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
-            ...options,
-            ...queryOptions,
+            fetchPolicy,
+            notifyOnNetworkStatusChange: true,
         })
 
         const objects = getObjects(data, convertGQLItemToUIState)
