@@ -13,7 +13,6 @@ function genReactHooks (TestUtils, { convertGQLItemToUIState, convertUIStateToGQ
     }
 
     function useObjects (variables = {}, fetchPolicy = 'cache-first') {
-        console.log('fetchPolicy: ', fetchPolicy)
         const intl = useIntl()
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
