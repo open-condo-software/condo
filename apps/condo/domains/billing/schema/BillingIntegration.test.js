@@ -53,17 +53,17 @@ describe('BillingIntegration', () => {
         const objs = await BillingIntegration.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
         expect(objs.length >= 1).toBeTruthy()
-        expect(objs[0].id).toMatch(obj.id)
-        expect(objs[0].dv).toEqual(1)
-        expect(objs[0].sender).toEqual(attrs.sender)
-        expect(objs[0].v).toEqual(1)
-        expect(objs[0].newId).toEqual(null)
-        expect(objs[0].deletedAt).toEqual(null)
-        expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-        expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-        expect(objs[0].createdAt).toMatch(obj.createdAt)
-        expect(objs[0].updatedAt).toMatch(obj.updatedAt)
-        expect(objs[0].name).toMatch(attrs.name)
+        expect(objs).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                id: obj.id,
+                sender: attrs.sender,
+                createdBy: expect.objectContaining({ id: admin.user.id }),
+                updatedBy: expect.objectContaining({ id: admin.user.id }),
+                createdAt: obj.createdAt,
+                updatedAt: obj.updatedAt,
+                name: attrs.name,
+            }),
+        ]))
     })
 
     test('anonymous: read BillingIntegration', async () => {
