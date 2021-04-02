@@ -11,7 +11,7 @@ const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } upda
 const BILLING_INTEGRATION_FIELDS = `{ name ${COMMON_FIELDS} }`
 const BillingIntegration = generateGqlQueries('BillingIntegration', BILLING_INTEGRATION_FIELDS)
 
-const BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ integration { id name } user { id name } id dv createdBy { id name } updatedBy { id name } createdAt updatedAt }`
+const BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS = '{ integration { id name } user { id name } id dv createdBy { id name } updatedBy { id name } createdAt updatedAt }'
 const BillingIntegrationAccessRight = generateGqlQueries('BillingIntegrationAccessRight', BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
 const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name } organization { id name } settings state ${COMMON_FIELDS} }`
