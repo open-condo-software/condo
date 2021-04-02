@@ -136,29 +136,69 @@ export const createdAtToQuery = (createdAt?: string): Array<string> => {
     }
 }
 
+export const propertyToQuery = (property: string) => {
+    if (!property) {
+        return
+    }
+
+    return {
+        AND: [{
+            name_contains: property,
+        }],
+    }
+}
+
+export const executorToQuery = (executor: string) => {
+    if (!executor) {
+        return
+    }
+
+    return {
+        AND: [{
+            name_contains: executor,
+        }],
+    }
+}
+
+export const assigneeToQuery = (assignee: string) => {
+    if (!assignee) {
+        return
+    }
+
+
+    return {
+        AND: [{
+            name_contains: assignee,
+        }],
+    }
+}
+
 export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
     const statusIds = get(filters, 'status')
-    const assignee = get(filters, 'assignee')
     const clientName = get(filters, 'clientName')
     const createdAt = get(filters, 'createdAt')
     const details = get(filters, 'details')
-    const executor = get(filters, 'executor')
     const number = get(filters, 'number')
     const property = get(filters, 'property')
+    const executor = get(filters, 'executor')
+    const assignee = get(filters, 'assignee')
 
+    const executorQuery = executorToQuery(executor)
+    const assigneeQuery = assigneeToQuery(assignee)
     const statusFiltersQuery = statusToQuery(statusIds)
     const createdAtQuery = createdAtToQuery(createdAt)
+    const propertyQuery = propertyToQuery(property)
 
     const filtersCollection = [
         statusFiltersQuery && { status: statusFiltersQuery },
-        assignee && { assignee_contains: assignee },
         clientName && { clientName_contains: clientName },
         createdAtQuery && { createdAt_gte: createdAtQuery[0] },
         createdAtQuery && { createdAt_lte: createdAtQuery[1] },
         details && { details_contains: details },
-        executor && { executor_contains: executor },
+        executor && { executor: executorQuery },
+        assignee && { assignee: assigneeQuery },
         number && Number(number) && { number: Number(number) },
-        property && { property_contains: property },
+        property && { property: propertyQuery },
     ].filter(Boolean)
 
     if (filtersCollection.length > 0) {
