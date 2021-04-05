@@ -13,7 +13,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { useObject, useUpdate } from '@condo/domains/property/utils/clientSchema/Property'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { buildingMapJson } from '@condo/domains/property/constants/property.example'
-import BBuilder from '@condo/domains/common/components/containers/BBuilder'
+import BBuilder from '@condo/domains/property/components/containers/BBuilder'
 
 function PropertyDescriptionBlock ({ obj }) {
     const intl = useIntl()
