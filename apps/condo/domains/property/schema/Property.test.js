@@ -2,7 +2,7 @@ const faker = require('faker')
 const { UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
-const { buildingMapJson } = require('@condo/domains/common/constants/property.example')
+const { buildingMapJson } = require('@condo/domains/property/constants/property.example')
 const { Property } = require('@condo/domains/property/gql')
 
 async function createProperty (client, organization, extraAttrs = {}) {

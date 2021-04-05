@@ -6,7 +6,7 @@ import {
     filtersToQuery, getFiltersFromQuery,
     getPaginationFromQuery,
     getSortStringFromQuery,
-    PAGINATION_PAGE_SIZE,
+    TICKET_PAGE_SIZE,
     sorterToQuery,
 } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
@@ -46,8 +46,8 @@ const TicketsPage = () => {
         sortBy: sortFromQuery,
         where: filtersToQuery(filtersFromQuery),
         offset: paginationFromQuery,
-        limit: PAGINATION_PAGE_SIZE,
-    }, { 
+        limit: TICKET_PAGE_SIZE,
+    }, {
         fetchPolicy: 'network-only',
     })
 
@@ -75,8 +75,8 @@ const TicketsPage = () => {
                 sortBy: sort,
                 where: filters,
                 offset,
-                first: PAGINATION_PAGE_SIZE,
-                limit: PAGINATION_PAGE_SIZE,
+                first: TICKET_PAGE_SIZE,
+                limit: TICKET_PAGE_SIZE,
             }).then(() => {
                 const query = qs.stringify(
                     { ...router.query, sort, offset, filters: JSON.stringify(pickBy(nextFilters)) },
@@ -157,7 +157,7 @@ const TicketsPage = () => {
                                             pagination={{
                                                 total,
                                                 current: paginationFromQuery,
-                                                pageSize: PAGINATION_PAGE_SIZE,
+                                                pageSize: TICKET_PAGE_SIZE,
                                                 position: ['bottomLeft'],
                                             }}
                                         />

@@ -12,7 +12,7 @@ import { OrganizationRequired } from '@condo/domains/common/components/container
 
 import { useObject, useUpdate } from '@condo/domains/property/utils/clientSchema/Property'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { buildingMapJson } from '@condo/domains/common/constants/property.example'
+import { buildingMapJson } from '@condo/domains/property/constants/property.example'
 import BBuilder from '@condo/domains/common/components/containers/BBuilder'
 
 function PropertyDescriptionBlock ({ obj }) {
