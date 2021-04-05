@@ -2,22 +2,17 @@ import { Tag, Typography, Input, Space, DatePicker, Checkbox } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { FilterValue } from 'antd/es/table/interface'
 import { format } from 'date-fns'
-import EN from 'date-fns/locale/en-US'
-import RU from 'date-fns/locale/ru'
 import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import moment from 'moment'
 import React, { useMemo } from 'react'
 import { FilterFilled } from '@ant-design/icons'
-import { colors, STATUS_SELECT_COLORS } from '@condo/domains/common/constants/style'
+import { STATUS_SELECT_COLORS } from '@condo/domains/ticket/constants/style'
+import { colors } from '@condo/domains/common/constants/style'
+import { LOCALES } from '@condo/domains/common/constants/locale'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { TicketStatus } from '../utils/clientSchema'
-
-const LOCALES = {
-    ru: RU,
-    en: EN,
-}
 
 const getFilterIcon = filtered => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 

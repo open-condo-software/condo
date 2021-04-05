@@ -19,7 +19,7 @@ import FormList, {
 import { useTable } from '@condo/domains/common/components/containers/FormTableBlocks'
 import { AddressSearchInput } from '@condo/domains/common/components/AddressSearchInput'
 import * as Property from '@condo/domains/property/utils/clientSchema/Property'
-import { buildingMapJson } from '@condo/domains/common/constants/property.example'
+import { buildingMapJson } from '@condo/domains/property/constants/property.example'
 
 function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancelModal }) {
     const intl = useIntl()

@@ -1,16 +1,10 @@
 import { SortOrder } from 'antd/es/table/interface'
 import { format, formatDuration, intervalToDuration } from 'date-fns'
-import EN from 'date-fns/locale/en-US'
-import RU from 'date-fns/locale/ru'
 import get from 'lodash/get'
+import { LOCALES } from '@condo/domains/common/constants/locale'
 import moment from 'moment'
 import { ParsedUrlQuery } from 'querystring'
 import { Ticket, TicketStatusWhereInput, TicketWhereInput } from '../../../schema'
-
-const LOCALES = {
-    ru: RU,
-    en: EN,
-}
 
 export const getTicketCreateMessage = (intl, ticket) => {
     if (!ticket) {
@@ -286,10 +280,10 @@ export const getSortStringFromQuery = (query: ParsedUrlQuery): Array<string> => 
     return sort.split(',')
 }
 
-export const PAGINATION_PAGE_SIZE = 10
+export const TICKET_PAGE_SIZE = 10
 
 export const getPaginationFromQuery = (query: ParsedUrlQuery): number => {
-    return Math.floor(Number(get(query, 'offset', 0)) / PAGINATION_PAGE_SIZE) + 1
+    return Math.floor(Number(get(query, 'offset', 0)) / TICKET_PAGE_SIZE) + 1
 }
 
 export const getFiltersFromQuery = (query: ParsedUrlQuery): IFilters => {

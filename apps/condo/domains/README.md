@@ -14,6 +14,7 @@ The same domain structure have:
  - `./<domain>/access` -- each domain have own file (server)
  - `./<domain>/constants` -- each domain have own file (client/server)
  - `./<domain>/components` -- each domain have own folder (client)
+ - `./<domain>/hooks` -- each domain have own folder (client)
  - `./<domain>/gql` -- each domain have own file (client/server)
  - `./<domain>/utils/clientSchema` -- each domain have own folder (client)
  - `./<domain>/utils/serverSchema` -- each domain have own file or if its complex a folder (server)
