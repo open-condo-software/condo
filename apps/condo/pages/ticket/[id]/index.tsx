@@ -17,12 +17,12 @@ import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 
 import {
-    formatPhone,
     getTicketCreateMessage,
     getTicketTitleMessage,
 } from '@condo/domains/ticket/utils/helpers'
 import { LETTERS_AND_NUMBERS } from '@condo/domains/common/constants/regexps'
 import { UserNameField } from '@condo/domains/common/components/UserNameField'
+import { formatPhone } from '@condo/domains/common/utils/helpers'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
