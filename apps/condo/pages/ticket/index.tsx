@@ -32,7 +32,7 @@ const TicketsPage = () => {
 
     const router = useRouter()
     const sortFromQuery = getSortStringFromQuery(router.query)
-    const paginationFromQuery = getPaginationFromQuery(router.query)
+    const offsetFromQuery = getPaginationFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery(router.query)
 
     const {
@@ -45,7 +45,7 @@ const TicketsPage = () => {
         // @ts-ignore
         sortBy: sortFromQuery,
         where: filtersToQuery(filtersFromQuery),
-        offset: paginationFromQuery,
+        offset: offsetFromQuery,
         limit: TICKET_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
@@ -156,7 +156,7 @@ const TicketsPage = () => {
                                             rowKey={record => record.id}
                                             pagination={{
                                                 total,
-                                                current: paginationFromQuery,
+                                                current: offsetFromQuery,
                                                 pageSize: TICKET_PAGE_SIZE,
                                                 position: ['bottomLeft'],
                                             }}
