@@ -6,7 +6,6 @@ import { useIntl } from '@core/next/intl'
 import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import {
-    formatPhone,
     getTicketCreateMessage,
     getTicketLabel,
     getTicketPdfName,
@@ -17,6 +16,7 @@ import { useRouter } from 'next/router'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageContent } from '@condo/domains/common/components/containers/BaseLayout'
+import { formatPhone } from '@condo/domains/common/utils/helpers'
 
 interface ITicketDescriptionFieldProps {
     title?: string
