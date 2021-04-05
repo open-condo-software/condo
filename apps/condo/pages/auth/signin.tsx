@@ -1,7 +1,7 @@
 // @ts-nocheck
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Button, Form, Input, Typography } from 'antd'
+import { Button, Form, Input, Typography, Row, Col } from 'antd'
 import { useState } from 'react'
 import gql from 'graphql-tag'
 import Head from 'next/head'
