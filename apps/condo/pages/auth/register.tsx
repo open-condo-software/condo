@@ -1,7 +1,7 @@
 // @ts-nocheck
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Button, Checkbox, Form, Input, Tooltip, Typography } from 'antd'
+import { Button, Checkbox, Form, Input, Tooltip, Typography, Row, Col, Alert  } from 'antd'
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import Head from 'next/head'
 import Router from 'next/router'
@@ -157,7 +157,11 @@ const RegisterForm = ({ children, register, registerExtraData = {}, ExtraErrorTo
             onFinish={onFinish}
             initialValues={initialValues}
         >
-            {children}
+        <Row gutter={[0, 24]} >    
+            <Col span={24}>
+                {children}
+            </Col>
+            <Col span={24}>
             <Form.Item
                 name="name"
                 label={
@@ -172,7 +176,8 @@ const RegisterForm = ({ children, register, registerExtraData = {}, ExtraErrorTo
             >
                 <Input placeholder={ExampleNameMsg}/>
             </Form.Item>
-
+            </Col>
+            <Col span={24}>
             <Form.Item
                 name="email"
                 label={EmailMsg}
@@ -189,7 +194,8 @@ const RegisterForm = ({ children, register, registerExtraData = {}, ExtraErrorTo
             >
                 <Input placeholder={'name@example.org'}/>
             </Form.Item>
-
+            </Col>
+            <Col span={24}>
             <Form.Item
                 name="password"
                 label={PasswordMsg}
@@ -207,7 +213,8 @@ const RegisterForm = ({ children, register, registerExtraData = {}, ExtraErrorTo
             >
                 <Input.Password/>
             </Form.Item>
-
+            </Col>
+            <Col span={24}>
             <Form.Item
                 name="confirm"
                 label={ConfirmPasswordMsg}
@@ -230,7 +237,8 @@ const RegisterForm = ({ children, register, registerExtraData = {}, ExtraErrorTo
             >
                 <Input.Password/>
             </Form.Item>
-
+            </Col>
+            <Col span={24}>
             <Form.Item
                 name="agreement"
                 valuePropName="checked"
@@ -243,6 +251,8 @@ const RegisterForm = ({ children, register, registerExtraData = {}, ExtraErrorTo
                     {IHaveReadAndAcceptTheAgreementMsg}<a href="">*</a>.
                 </Checkbox>
             </Form.Item>
+            </Col>
+            <Col span={24}>
             <Form.Item style={{ textAlign: 'center' }}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {RegisterMsg}
@@ -251,6 +261,8 @@ const RegisterForm = ({ children, register, registerExtraData = {}, ExtraErrorTo
                     {SignInMsg}
                 </Button>
             </Form.Item>
+            </Col>
+        </Row>
         </Form>
     )
 }
@@ -351,9 +363,19 @@ function PhoneAuthForm ({ onPhoneAuthenticated }) {
             name="auth.phone"
             // onFinish={onFinish}
         >
-            <div>
-                {verifyError}{confirmError}
-            </div>
+        <Row gutter={[0, 24]} >
+            <Col span={24}>
+            {
+            (verifyError || confirmError) 
+            ? <Alert
+                message="Error"
+                description={ verifyError || confirmError }
+                type="error"
+                closable
+            ></Alert> : null
+            }
+            </Col>
+            <Col span={24}>
             <Form.Item
                 name="phone"
                 label={EnterPhoneNumberMsg}
@@ -361,18 +383,20 @@ function PhoneAuthForm ({ onPhoneAuthenticated }) {
             >
                 <Input placeholder={ExamplePhoneMsg}/>
             </Form.Item>
-
+            </Col>
             {(verificationId)
-                ? <Form.Item
+                ? <Col span={24}>
+                    <Form.Item
                     name="code"
                     label={EnterVerificationCodeMsg}
                     rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                >
-                    <Input ref={verificationCodeTextInput}/>
-                </Form.Item>
+                    >
+                        <Input ref={verificationCodeTextInput}/>
+                    </Form.Item>
+                </Col>
                 : null
             }
-
+            <Col span={24}>
             <Form.Item style={{ textAlign: 'center' }}>
                 {(verificationId) ?
                     <>
@@ -394,6 +418,8 @@ function PhoneAuthForm ({ onPhoneAuthenticated }) {
                     </>
                 }
             </Form.Item>
+            </Col>
+          </Row>
         </Form>
     </>
 }

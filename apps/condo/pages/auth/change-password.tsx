@@ -2,7 +2,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { useState } from 'react'
-import { Button, Form, Input, Result, Typography } from 'antd'
+import { Button, Form, Input, Result, Typography, Row, Col } from 'antd'
 import Head from 'next/head'
 import Router from 'next/router'
 import { useIntl } from '@core/next/intl'
@@ -75,11 +75,13 @@ const ChangePasswordForm = () => {
             onFinish={onFinish}
             initialValues={initialValues}
         >
-
+        <Row gutter={[0, 24]} >
+            <Col span={24}>
             <Form.Item name="token" style={{ display: 'none' }}>
                 <Input type="hidden"/>
             </Form.Item>
-
+            </Col>
+            <Col span={24}>
             <Form.Item
                 name="password"
                 label={PasswordMsg}
@@ -97,7 +99,8 @@ const ChangePasswordForm = () => {
             >
                 <Input.Password/>
             </Form.Item>
-
+            </Col>
+            <Col span={24}>
             <Form.Item
                 name="confirm"
                 label={ConfirmPasswordMsg}
@@ -120,13 +123,15 @@ const ChangePasswordForm = () => {
             >
                 <Input.Password/>
             </Form.Item>
-
-
+            </Col>
+            <Col span={24}>
             <Form.Item style={{ textAlign: 'center' }}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {ChangeMsg}
                 </Button>
             </Form.Item>
+            </Col>
+        </Row>
         </Form>
     )
 }

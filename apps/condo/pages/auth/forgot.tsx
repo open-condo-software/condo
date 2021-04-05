@@ -2,7 +2,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { useState } from 'react'
-import { Button, Form, Input, Result, Typography } from 'antd'
+import { Button, Form, Input, Result, Typography, Alert, Row, Col } from 'antd'
 import Head from 'next/head'
 import Router from 'next/router'
 import { useIntl } from '@core/next/intl'
@@ -75,7 +75,15 @@ const ForgotForm = () => {
             onFinish={onFinish}
             initialValues={initialValues}
         >
-            <Typography.Paragraph css={css`text-align: center;`}>{ForgotPasswordDescriptionMsg}</Typography.Paragraph>
+            <Row gutter={[0, 24]} >
+            <Col span={24}>
+            <Alert
+                message=""
+                description={ForgotPasswordDescriptionMsg}
+                type="info"
+            ></Alert> 
+            </Col>
+            <Col span={24}>
             <Form.Item
                 label={EmailMsg}
                 name="email"
@@ -84,7 +92,8 @@ const ForgotForm = () => {
             >
                 <Input/>
             </Form.Item>
-
+            </Col>
+            <Col span={24}>
             <Form.Item style={{ textAlign: 'center' }}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {StartRecoveryMsg}
@@ -93,6 +102,8 @@ const ForgotForm = () => {
                     {RegisterMsg}
                 </Button>
             </Form.Item>
+            </Col>
+            </Row>
         </Form>
     )
 }
