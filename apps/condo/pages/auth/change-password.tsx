@@ -75,63 +75,63 @@ const ChangePasswordForm = () => {
             onFinish={onFinish}
             initialValues={initialValues}
         >
-        <Row gutter={[0, 24]} >
-            <Col span={24}>
-            <Form.Item name="token" style={{ display: 'none' }}>
-                <Input type="hidden"/>
-            </Form.Item>
-            </Col>
-            <Col span={24}>
-            <Form.Item
-                name="password"
-                label={PasswordMsg}
-                rules={[
-                    {
-                        required: true,
-                        message: PleaseInputYourPasswordMsg,
-                    },
-                    {
-                        min: 7,
-                        message: PasswordIsTooShortMsg,
-                    },
-                ]}
-                hasFeedback
-            >
-                <Input.Password/>
-            </Form.Item>
-            </Col>
-            <Col span={24}>
-            <Form.Item
-                name="confirm"
-                label={ConfirmPasswordMsg}
-                dependencies={['password']}
-                hasFeedback
-                rules={[
-                    {
-                        required: true,
-                        message: PleaseConfirmYourPasswordMsg,
-                    },
-                    ({ getFieldValue }) => ({
-                        validator (rule, value) {
-                            if (!value || getFieldValue('password') === value) {
-                                return Promise.resolve()
-                            }
-                            return Promise.reject(TwoPasswordDontMatchMsg)
-                        },
-                    }),
-                ]}
-            >
-                <Input.Password/>
-            </Form.Item>
-            </Col>
-            <Col span={24}>
-            <Form.Item style={{ textAlign: 'center' }}>
-                <Button type="primary" htmlType="submit" loading={isLoading}>
-                    {ChangeMsg}
-                </Button>
-            </Form.Item>
-            </Col>
-        </Row>
+            <Row gutter={[0, 24]} >
+                <Col span={24}>
+                    <Form.Item name="token" style={{ display: 'none' }}>
+                        <Input type="hidden" />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item
+                        name="password"
+                        label={PasswordMsg}
+                        rules={[
+                            {
+                                required: true,
+                                message: PleaseInputYourPasswordMsg,
+                            },
+                            {
+                                min: 7,
+                                message: PasswordIsTooShortMsg,
+                            },
+                        ]}
+                        hasFeedback
+                    >
+                        <Input.Password />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item
+                        name="confirm"
+                        label={ConfirmPasswordMsg}
+                        dependencies={['password']}
+                        hasFeedback
+                        rules={[
+                            {
+                                required: true,
+                                message: PleaseConfirmYourPasswordMsg,
+                            },
+                            ({ getFieldValue }) => ({
+                                validator(rule, value) {
+                                    if (!value || getFieldValue('password') === value) {
+                                        return Promise.resolve()
+                                    }
+                                    return Promise.reject(TwoPasswordDontMatchMsg)
+                                },
+                            }),
+                        ]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item style={{ textAlign: 'center' }}>
+                        <Button type="primary" htmlType="submit" loading={isLoading}>
+                            {ChangeMsg}
+                        </Button>
+                    </Form.Item>
+                </Col>
+            </Row>
         </Form>
     )
 }
@@ -144,7 +144,7 @@ const ChangePasswordPage = () => {
             <title>{ChangePasswordTitleMsg}</title>
         </Head>
         <Typography.Title css={css`text-align: center;`} level={2}>{ChangePasswordTitleMsg}</Typography.Title>
-        <ChangePasswordForm/>
+        <ChangePasswordForm />
     </>)
 }
 
