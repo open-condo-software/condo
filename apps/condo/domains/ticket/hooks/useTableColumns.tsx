@@ -237,8 +237,8 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                                 placeholder={UserNameMessage}
                                 value={selectedKeys}
                                 onChange={e => {
-                                    confirm({ closeDropdown: false })
                                     setSelectedKeys(e.target.value)
+                                    confirm({ closeDropdown: false })
                                 }}
                             />
                         </FilterContainer>

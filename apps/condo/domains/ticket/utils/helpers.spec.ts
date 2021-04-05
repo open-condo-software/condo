@@ -7,7 +7,7 @@ import {
     createSorterMap,
     getSortStringFromQuery,
     getPaginationFromQuery,
-    getFiltersFromQuery,
+    getFiltersFromQuery, propertyToQuery, executorToQuery, assigneeToQuery,
 } from './helpers'
 
 describe('Helpers', () => {
@@ -64,6 +64,48 @@ describe('Helpers', () => {
             })
         })
 
+        describe('propertyToQuery', () => {
+            it('should correctly generate query date from propertyToQuery', () => {
+                expect(propertyToQuery('property')).toEqual({
+                    AND: [{
+                        address_contains_i: 'property',
+                    }],
+                })
+            })
+
+            it('should not correctly generate query date from propertyToQuery', () => {
+                expect(propertyToQuery()).toBeUndefined()
+            })
+        })
+
+        describe('executorToQuery', () => {
+            it('should correctly generate query date from executorToQuery', () => {
+                expect(executorToQuery('executor')).toEqual({
+                    AND: [{
+                        name_contains_i: 'executor',
+                    }],
+                })
+            })
+
+            it('should not correctly generate query date from executorToQuery', () => {
+                expect(executorToQuery()).toBeUndefined()
+            })
+        })
+
+        describe('assigneeToQuery', () => {
+            it('should correctly generate query date from assigneeToQuery', () => {
+                expect(assigneeToQuery('assignee')).toEqual({
+                    AND: [{
+                        name_contains_i: 'assignee',
+                    }],
+                })
+            })
+
+            it('should not correctly generate query date from assigneeToQuery', () => {
+                expect(assigneeToQuery()).toBeUndefined()
+            })
+        })
+
         describe('filtersToQuery', () => {
             describe('it should correctly generate query if', () => {
                 it('all filters is defined', () => {
@@ -94,14 +136,14 @@ describe('Helpers', () => {
                                     }],
                                 },
                             },
-                            { assignee_contains: assignee },
-                            { clientName_contains: clientName },
+                            { clientName_contains_i: clientName },
                             { createdAt_gte: currentDate.startOf('day').toISOString() },
                             { createdAt_lte: currentDate.endOf('day').toISOString() },
-                            { details_contains: details },
-                            { executor_contains: executor },
+                            { details_contains_i: details },
+                            { executor: { AND: [{ name_contains_i: 'executor' }] } },
+                            { assignee: { AND: [{ name_contains_i: 'assignee' }] } },
                             { number: number },
-                            { property_contains: property },
+                            { property: { AND: [{ address_contains_i: 'property' }] } },
                         ],
                     })
                 })
@@ -139,7 +181,7 @@ describe('Helpers', () => {
 
                         expect(filtersToQuery({ assignee })).toStrictEqual({
                             AND: [
-                                { assignee_contains: assignee },
+                                { assignee: { AND: [{ name_contains_i: 'assignee' }] } },
                             ],
                         })
                     })
@@ -149,7 +191,7 @@ describe('Helpers', () => {
 
                         expect(filtersToQuery({ clientName })).toStrictEqual({
                             AND: [
-                                { clientName_contains: clientName },
+                                { clientName_contains_i: clientName },
                             ],
                         })
                     })
@@ -159,17 +201,17 @@ describe('Helpers', () => {
 
                         expect(filtersToQuery({ details })).toStrictEqual({
                             AND: [
-                                { details_contains: details },
+                                { details_contains_i: details },
                             ],
                         })
                     })
 
-                    it('all filters is defined', () => {
+                    it('executor is defined', () => {
                         const executor = 'executor'
 
                         expect(filtersToQuery({ executor })).toStrictEqual({
                             AND: [
-                                { executor_contains: executor },
+                                { executor: { AND: [{ name_contains_i: 'executor' }] } },
                             ],
                         })
                     })
@@ -189,7 +231,7 @@ describe('Helpers', () => {
 
                         expect(filtersToQuery({ property })).toStrictEqual({
                             AND: [
-                                { property_contains: property },
+                                { property: { AND: [{ address_contains_i: 'property' }] } },
                             ],
                         })
                     })
