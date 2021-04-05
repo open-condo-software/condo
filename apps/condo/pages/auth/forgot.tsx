@@ -76,33 +76,33 @@ const ForgotForm = () => {
             initialValues={initialValues}
         >
             <Row gutter={[0, 24]} >
-            <Col span={24}>
-            <Alert
-                message=""
-                description={ForgotPasswordDescriptionMsg}
-                type="info"
-            ></Alert> 
-            </Col>
-            <Col span={24}>
-            <Form.Item
-                label={EmailMsg}
-                name="email"
-                rules={[{ required: true, message: PleaseInputYourEmailMsg }]}
-                placeholder="name@example.com"
-            >
-                <Input/>
-            </Form.Item>
-            </Col>
-            <Col span={24}>
-            <Form.Item style={{ textAlign: 'center' }}>
-                <Button type="primary" htmlType="submit" loading={isLoading}>
-                    {StartRecoveryMsg}
-                </Button>
-                <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/register')}>
-                    {RegisterMsg}
-                </Button>
-            </Form.Item>
-            </Col>
+                <Col span={24}>
+                <Alert
+                    message=""
+                    description={ForgotPasswordDescriptionMsg}
+                    type="info"
+                ></Alert> 
+                </Col>
+                <Col span={24}>
+                <Form.Item
+                    label={EmailMsg}
+                    name="email"
+                    rules={[{ required: true, message: PleaseInputYourEmailMsg }]}
+                    placeholder="name@example.com"
+                >
+                    <Input/>
+                </Form.Item>
+                </Col>
+                <Col span={24}>
+                <Form.Item style={{ textAlign: 'center' }}>
+                    <Button type="primary" htmlType="submit" loading={isLoading}>
+                        {StartRecoveryMsg}
+                    </Button>
+                    <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/register')}>
+                        {RegisterMsg}
+                    </Button>
+                </Form.Item>
+                </Col>
             </Row>
         </Form>
     )
