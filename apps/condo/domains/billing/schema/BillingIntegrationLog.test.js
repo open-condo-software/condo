@@ -7,7 +7,7 @@ const { getRandomString, makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_
 
 const { BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog, makeClientWithIntegrationAccess, createTestBillingIntegrationOrganizationContext, createTestBillingIntegrationAccessRight, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 
-const { makeClientWithProperty } = require('../../../schema/Property/Property.test')
+const { makeClientWithProperty } = require('@condo/domains/property/schema/Property.test')
 
 describe('BillingIntegrationLog', () => {
     test.skip('user: create BillingIntegrationLog', async () => {
