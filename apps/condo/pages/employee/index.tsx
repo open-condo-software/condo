@@ -170,7 +170,7 @@ function EmployeeCRUDTableBlock () {
         sortBy: toGQLSortBy(table.state.sorter),
         where: { ...toGQLWhere(table.state.filters), organization: { id: organization.id } },
     }, {
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'network-only',
     })
     const invite = useInviteNewOrganizationEmployee({ organization: { id: organization.id } }, refetch)
     const update = OrganizationEmployee.useUpdate({}, refetch)
