@@ -163,6 +163,8 @@ const TicketsPage = () => {
         sortBy: router.query.sort,
         offset: Number(router.query.offset),
         limit: PAGINATION_PAGE_SIZE,
+    }, { 
+        fetchPolicy: 'network-only',
     })
 
     const { pagination, sorter } = tableStateFromQuery(router)

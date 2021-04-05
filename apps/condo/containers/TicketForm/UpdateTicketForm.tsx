@@ -24,14 +24,14 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const { organization } = useOrganization()
-    const { obj, loading, refetch, error } = Ticket.useObject({ where: { id } }, false)
+    const { obj, loading, refetch, error } = Ticket.useObject({ where: { id } })
     const action = Ticket.useUpdate({}, (ticket) => push(`/ticket/${ticket.id}`))
     const updateAction = (value) => action(value, obj)
 
     useEffect(() => {
         refetch()
     }, [])
-
+        
     if (error || loading) {
         return (
             <>

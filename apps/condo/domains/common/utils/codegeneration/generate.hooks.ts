@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { ApolloError, FetchPolicy } from '@apollo/client'
+import { ApolloError, QueryHookOptions, OperationVariables } from '@apollo/client'
 
 import { useMutation, useQuery } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
@@ -16,33 +16,32 @@ interface IHookConverters<GQL, GQLInput, UI, UIForm> {
     convertToUIState: (item: GQL) => UI
 }
 
-interface IHookResult<UI, UIForm, Q> {
+interface IHookResult<UI, UIForm, Q, TData = any, TVariables = OperationVariables> {
     gql: any
-    useObject: (variables: Q) => { obj: UI, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
-    useObjects: (variables: Q, fetchPolicy?: FetchPolicy) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
+    useObject: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { obj: UI, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
+    useObjects: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
     useCreate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
     useUpdate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
     useDelete: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
 }
 
 export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convertToGQLInput, convertToUIState }: IHookConverters<GQL, GQLInput, UI, UIForm>): IHookResult<UI, UIForm, Q> {
-    function useObject (variables: Q) {
-        const { loading, refetch, objs, count, error } = useObjects(variables)
+    
+    function useObject (variables: Q, options?: QueryHookOptions<{ objs?: GQL[], meta?: { count?: number } }, Q>) {
+        const { loading, refetch, objs, count, error } = useObjects(variables, options)
         if (count && count > 1) throw new Error('Wrong query condition! return more then one result')
         const obj = (objs.length) ? objs[0] : null
         return { loading, refetch, obj, error }
     }
-
-    function useObjects (variables: Q, fetchPolicy: FetchPolicy = 'cache-first') {
+    function useObjects (variables: Q, options?: QueryHookOptions<{ objs?: GQL[], meta?: { count?: number } }, Q>) {
         const intl = useIntl()
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
-
-        // eslint-disable-next-line prefer-const
+        
         const result = useQuery<{ objs?: GQL[], meta?: { count?: number } }, Q>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
-            fetchPolicy,
             notifyOnNetworkStatusChange: true,
+            ...options,
         })
 
         let error: ApolloError | string
