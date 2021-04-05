@@ -6,7 +6,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { BillingIntegrationOrganizationContext, createTestBillingIntegration, createTestBillingIntegrationAccessRight, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 
-const { makeClientWithProperty } = require('@condo/domains/schema/Property.test')
+const { makeClientWithProperty } = require('@condo/domains/property/schema/Property.test')
 
 describe('BillingIntegrationOrganizationContext', () => {
     test.skip('user: create BillingIntegrationOrganizationContext', async () => {
