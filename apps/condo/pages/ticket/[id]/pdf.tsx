@@ -95,7 +95,7 @@ const PdfView = () => {
     // NOTE: cast `string | string[]` to `string`
     const { query: { id } } = router as { query: { [key: string]: string } }
 
-    const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
+    const { loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
 
     useEffect(() => {
         if (ticket) {
