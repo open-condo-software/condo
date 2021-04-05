@@ -6,7 +6,7 @@ import ReactMarkdown from 'react-markdown'
 import { useIntl } from '@core/next/intl'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/common/components/containers/OrganizationRequired'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 const IndexPage: React.FC = () => {
     const intl = useIntl()

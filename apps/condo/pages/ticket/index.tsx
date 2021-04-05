@@ -1,5 +1,5 @@
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/common/components/containers/OrganizationRequired'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { DatabaseFilled } from '@ant-design/icons'
 import {
