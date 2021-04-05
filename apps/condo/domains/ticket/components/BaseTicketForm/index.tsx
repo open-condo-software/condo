@@ -12,8 +12,8 @@ import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { UnitNameInput } from '@condo/domains/common/components/UnitNameInput'
-import { UserNameField } from '@condo/domains/common/components/UserNameField'
+import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
+import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { useTicketValidations } from './useTicketValidations'
 
 const LAYOUT = {

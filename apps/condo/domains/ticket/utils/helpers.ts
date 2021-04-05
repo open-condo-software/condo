@@ -122,39 +122,38 @@ export const createdAtToQuery = (createdAt?: string): Array<string> => {
     }
 }
 
-export const propertyToQuery = (property: string) => {
-    if (!property) {
+export const propertyToQuery = (address?: string) => {
+    if (!address) {
         return
     }
 
     return {
         AND: [{
-            name_contains: property,
+            address_contains_i: address,
         }],
     }
 }
 
-export const executorToQuery = (executor: string) => {
+export const executorToQuery = (executor?: string) => {
     if (!executor) {
         return
     }
 
     return {
         AND: [{
-            name_contains: executor,
+            name_contains_i: executor,
         }],
     }
 }
 
-export const assigneeToQuery = (assignee: string) => {
+export const assigneeToQuery = (assignee?: string) => {
     if (!assignee) {
         return
     }
 
-
     return {
         AND: [{
-            name_contains: assignee,
+            name_contains_i: assignee,
         }],
     }
 }
@@ -177,10 +176,10 @@ export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
 
     const filtersCollection = [
         statusFiltersQuery && { status: statusFiltersQuery },
-        clientName && { clientName_contains: clientName },
+        clientName && { clientName_contains_i: clientName },
         createdAtQuery && { createdAt_gte: createdAtQuery[0] },
         createdAtQuery && { createdAt_lte: createdAtQuery[1] },
-        details && { details_contains: details },
+        details && { details_contains_i: details },
         executor && { executor: executorQuery },
         assignee && { assignee: assigneeQuery },
         number && Number(number) && { number: Number(number) },
