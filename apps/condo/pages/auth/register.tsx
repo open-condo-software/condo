@@ -20,7 +20,7 @@ import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 
 const AuthContext = createContext({})
 
-function AuthState({ children, initialUser }) {
+function AuthState ({ children, initialUser }) {
     const [user, setUser] = useState(initialUser || null)
 
     useEffect(() => {
@@ -36,7 +36,7 @@ function AuthState({ children, initialUser }) {
         })
     }, [])
 
-    async function sendCode(phoneNumber, recaptchaVerifier) {
+    async function sendCode (phoneNumber, recaptchaVerifier) {
         const phoneProvider = new firebase.auth.PhoneAuthProvider()
         const verificationId = await phoneProvider.verifyPhoneNumber(
             phoneNumber,
@@ -46,7 +46,7 @@ function AuthState({ children, initialUser }) {
         return verificationId
     }
 
-    async function verifyCode(verificationId, verificationCode) {
+    async function verifyCode (verificationId, verificationCode) {
         const credential = firebase.auth.PhoneAuthProvider.credential(
             verificationId,
             verificationCode,
@@ -63,7 +63,7 @@ function AuthState({ children, initialUser }) {
         return true
     }
 
-    async function signout() {
+    async function signout () {
         return await firebase.auth().signOut()
         // setUser(null)
         // await setCurrentUser(null)
@@ -267,7 +267,7 @@ const RegisterForm = ({ children, register, registerExtraData = {}, ExtraErrorTo
     )
 }
 
-function PhoneAuthForm({ onPhoneAuthenticated }) {
+function PhoneAuthForm ({ onPhoneAuthenticated }) {
     // TODO(pahaz): how-to change phone!? If you want to register new user?!?!
     const { user, sendCode, verifyCode } = useContext(AuthContext)
     const recaptchaVerifier = useRef(null)
@@ -315,7 +315,7 @@ function PhoneAuthForm({ onPhoneAuthenticated }) {
         }
     }, [])
 
-    async function handleSendCode() {
+    async function handleSendCode () {
         const { phone } = await form.validateFields(['phone'])
         try {
             setVerifyError('')
@@ -331,7 +331,7 @@ function PhoneAuthForm({ onPhoneAuthenticated }) {
         }
     }
 
-    async function handleVerifyCode() {
+    async function handleVerifyCode () {
         const { code } = await form.validateFields(['code'])
         try {
             setConfirmError('')
@@ -424,7 +424,7 @@ function PhoneAuthForm({ onPhoneAuthenticated }) {
     </>
 }
 
-function RegisterByPhoneForm() {
+function RegisterByPhoneForm () {
     const [register] = useMutation(REGISTER_NEW_USER_MUTATION)
     const registerExtraData = {
         dv: 1,
