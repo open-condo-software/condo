@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { ApolloError } from '@apollo/client'
+import { ApolloError, QueryHookOptions, OperationVariables } from '@apollo/client'
 
 import { useMutation, useQuery } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
@@ -16,31 +16,32 @@ interface IHookConverters<GQL, GQLInput, UI, UIForm> {
     convertToUIState: (item: GQL) => UI
 }
 
-interface IHookResult<UI, UIForm, Q> {
+interface IHookResult<UI, UIForm, Q, TData = any, TVariables = OperationVariables> {
     gql: any
-    useObject: (variables: Q, memoize?: boolean) => { obj: UI, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
-    useObjects: (variables: Q, memoize?: boolean) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
+    useObject: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { obj: UI, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
+    useObjects: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
     useCreate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
     useUpdate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
     useDelete: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
 }
 
 export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convertToGQLInput, convertToUIState }: IHookConverters<GQL, GQLInput, UI, UIForm>): IHookResult<UI, UIForm, Q> {
-    function useObject (variables: Q, memoize = true) {
-        const { loading, refetch, objs, count, error } = useObjects(variables, memoize)
+    
+    function useObject (variables: Q, options?: QueryHookOptions<{ objs?: GQL[], meta?: { count?: number } }, Q>) {
+        const { loading, refetch, objs, count, error } = useObjects(variables, options)
         if (count && count > 1) throw new Error('Wrong query condition! return more then one result')
         const obj = (objs.length) ? objs[0] : null
         return { loading, refetch, obj, error }
     }
-
-    function useObjects (variables: Q, memoize = true) {
+    function useObjects (variables: Q, options?: QueryHookOptions<{ objs?: GQL[], meta?: { count?: number } }, Q>) {
         const intl = useIntl()
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
-
-        // eslint-disable-next-line prefer-const
+        
         const result = useQuery<{ objs?: GQL[], meta?: { count?: number } }, Q>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
+            notifyOnNetworkStatusChange: true,
+            ...options,
         })
 
         let error: ApolloError | string
@@ -50,21 +51,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
             error = ServerErrorPleaseTryAgainLaterMsg
         }
 
-        /*
-        * There is bug here with nested objs memoization.
-        *
-        * We should use this tricky solution for manually control default memoization flow.
-        * React and eslint recommend to avoid using reactHooks in conditional statements,
-        * as result, we should do some tricks with initial objs value calculation.
-        * TODO: debug and remove useMemo later
-        */
-        let objs: UI[] = useMemo(() => {
-            return getObjects(result.data, convertToUIState)
-        }, [result.data])
-
-        if (!memoize) {
-            objs = getObjects(result.data, convertToUIState)
-        }
+        const objs: UI[] = getObjects(result.data, convertToUIState)
 
         const count = (result.data && result.data.meta) ? result.data.meta.count : null
 
