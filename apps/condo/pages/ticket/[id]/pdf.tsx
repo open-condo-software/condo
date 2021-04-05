@@ -99,7 +99,6 @@ const PdfView = () => {
 
     useEffect(() => {
         if (ticket) {
-            refetch()
             createPdf({ element: containerRef.current, fileName: getTicketPdfName(intl, ticket) }).catch((e) => {
                 notification.error({
                     message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
@@ -107,7 +106,7 @@ const PdfView = () => {
                 })
             })
         }
-    }, [ticket])
+    }, [loading])
 
     const TicketTitleMessage = getTicketTitleMessage(intl, ticket)
 
