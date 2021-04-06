@@ -5,7 +5,7 @@ name: DEPLOY CONDO
 
 on:
   push:
-    branches: [ master ]
+    branches: [ hotfix ]
 
 jobs:
   build:
