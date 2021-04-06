@@ -1,5 +1,56 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { Typography, Space } from 'antd'
+import Head from 'next/head'
+import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { useIntl } from '@core/next/intl'
+
+const PropertyPage = (): React.FC => {
+    const intl = useIntl()
+    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.PageTitle' })
+
+    return (
+        <>
+            <Head>
+                <title>{PageTitleMessage}</title>
+            </Head>
+            <PageWrapper>
+                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
+                <PageContent>
+                    <OrganizationRequired>
+                        <EmptyListView 
+                            title='pages.condo.property.index.EmptyList.header'
+                            text='pages.condo.property.index.EmptyList.text'
+                            createRoute='/property/create'
+                            createLabel='pages.condo.property.index.CreatePropertyButtonLabel' />
+                    </OrganizationRequired>
+                </PageContent>
+            </PageWrapper>
+        </>                        
+    )
+}
+
+const HeaderAction = () => {
+    const intl = useIntl()
+
+    return (
+        <Space>
+            <Typography.Text style={{ fontSize: '12px' }}>
+                {intl.formatMessage({ id: 'menu.Property' })}
+            </Typography.Text>
+        </Space>
+    )
+}
+
+PropertyPage.headerAction = <HeaderAction/>
+
+export default PropertyPage
+
+
+/*
 import Head from 'next/head'
 import Link from 'next/link'
 import React, { useEffect } from 'react'
@@ -41,7 +92,7 @@ function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancel
 
     return (
         <BaseModalForm
-            /* NOTE: we need to recreate form if editableItem changed because the form initialValues are cached */
+            /* NOTE: we need to recreate form if editableItem changed because the form initialValues are cached 
             key={editableItem}
             action={action}
             formValuesToMutationDataPreprocessor={(x) => {
@@ -168,5 +219,5 @@ const PropertyIndexPage = () => {
         </>
     )
 }
+*/
 
-export default PropertyIndexPage
