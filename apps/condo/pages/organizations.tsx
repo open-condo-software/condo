@@ -35,8 +35,9 @@ function CreateAndEditOrganizationModalForm ({ visible, editableItem, cancelModa
     const CreateOrganizationModalTitleMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationModalTitle' })
     const EditOrganizationModalTitleMsg = intl.formatMessage({ id: 'pages.organizations.EditOrganizationModalTitle' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const NameMsg = intl.formatMessage({ id: 'Name' })
+    // const NameMsg = intl.formatMessage({ id: 'Name' })
     const DescriptionMsg = intl.formatMessage({ id: 'Description' })
+    const NameMsg = intl.formatMessage({ id: 'pages.organizations.OrganizationName' })
 
     const formInitialValues = { ...(editableItem) ? convertGQLItemToUIState(editableItem) : {} }
     const mutationExtraData = {
@@ -49,7 +50,7 @@ function CreateAndEditOrganizationModalForm ({ visible, editableItem, cancelModa
             errors: [ValueIsTooShortMsg],
         },
     }
-
+    
     return <BaseModalForm
         /* NOTE: we need to recreate form if editableItem changed because the form initialValues are cached */
         key={editableItem}
