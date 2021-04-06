@@ -2,7 +2,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { useState } from 'react'
-import { Button, Form, Input, Result, Typography } from 'antd'
+import { Button, Form, Input, Result, Typography, Row, Col } from 'antd'
 import Head from 'next/head'
 import Router from 'next/router'
 import { useIntl } from '@core/next/intl'
@@ -31,8 +31,8 @@ const ChangePasswordForm = () => {
     const PasswordMsg = intl.formatMessage({ id: 'Password' })
     const ConfirmPasswordMsg = intl.formatMessage({ id: 'ConfirmPassword' })
     const ChangeMsg = intl.formatMessage({ id: 'Change' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const ChangedMsg = intl.formatMessage({ id: 'Changed' })
+    // const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    // const ChangedMsg = intl.formatMessage({ id: 'Changed' })
     const GoToLoginMsg = intl.formatMessage({ id: 'GoToLogin' })
     const PasswordWasChangedMsg = intl.formatMessage({ id: 'pages.auth.PasswordWasChanged' })
     const PasswordWasChangedDescriptionMsg = intl.formatMessage({ id: 'pages.auth.PasswordWasChangedDescription' })
@@ -75,58 +75,63 @@ const ChangePasswordForm = () => {
             onFinish={onFinish}
             initialValues={initialValues}
         >
-
-            <Form.Item name="token" style={{ display: 'none' }}>
-                <Input type="hidden"/>
-            </Form.Item>
-
-            <Form.Item
-                name="password"
-                label={PasswordMsg}
-                rules={[
-                    {
-                        required: true,
-                        message: PleaseInputYourPasswordMsg,
-                    },
-                    {
-                        min: 7,
-                        message: PasswordIsTooShortMsg,
-                    },
-                ]}
-                hasFeedback
-            >
-                <Input.Password/>
-            </Form.Item>
-
-            <Form.Item
-                name="confirm"
-                label={ConfirmPasswordMsg}
-                dependencies={['password']}
-                hasFeedback
-                rules={[
-                    {
-                        required: true,
-                        message: PleaseConfirmYourPasswordMsg,
-                    },
-                    ({ getFieldValue }) => ({
-                        validator (rule, value) {
-                            if (!value || getFieldValue('password') === value) {
-                                return Promise.resolve()
-                            }
-                            return Promise.reject(TwoPasswordDontMatchMsg)
-                        },
-                    }),
-                ]}
-            >
-                <Input.Password/>
-            </Form.Item>
-
-
-            <Form.Item style={{ textAlign: 'center' }}>
-                <Button type="primary" htmlType="submit" loading={isLoading}>
-                    {ChangeMsg}
-                </Button>
-            </Form.Item>
+            <Row gutter={[0, 24]} >
+                <Col span={24}>
+                    <Form.Item name="token" style={{ display: 'none' }}>
+                        <Input type="hidden" />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item
+                        name="password"
+                        label={PasswordMsg}
+                        rules={[
+                            {
+                                required: true,
+                                message: PleaseInputYourPasswordMsg,
+                            },
+                            {
+                                min: 7,
+                                message: PasswordIsTooShortMsg,
+                            },
+                        ]}
+                        hasFeedback
+                    >
+                        <Input.Password />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item
+                        name="confirm"
+                        label={ConfirmPasswordMsg}
+                        dependencies={['password']}
+                        hasFeedback
+                        rules={[
+                            {
+                                required: true,
+                                message: PleaseConfirmYourPasswordMsg,
+                            },
+                            ({ getFieldValue }) => ({
+                                validator (rule, value) {
+                                    if (!value || getFieldValue('password') === value) {
+                                        return Promise.resolve()
+                                    }
+                                    return Promise.reject(TwoPasswordDontMatchMsg)
+                                },
+                            }),
+                        ]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item style={{ textAlign: 'center' }}>
+                        <Button type="primary" htmlType="submit" loading={isLoading}>
+                            {ChangeMsg}
+                        </Button>
+                    </Form.Item>
+                </Col>
+            </Row>
         </Form>
     )
 }
@@ -139,7 +144,7 @@ const ChangePasswordPage = () => {
             <title>{ChangePasswordTitleMsg}</title>
         </Head>
         <Typography.Title css={css`text-align: center;`} level={2}>{ChangePasswordTitleMsg}</Typography.Title>
-        <ChangePasswordForm/>
+        <ChangePasswordForm />
     </>)
 }
 
