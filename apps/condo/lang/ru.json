@@ -206,7 +206,7 @@
   "filters.Reset": "Сбросить фильтр",
   "filters.FindWord": "Найти слово",
   "filters.UserName": "Фамилия Имя Отчество",
-  "filters.FullSearch": "Поиск по любому полю заявки",
+  "filters.FullSearch": "Поиск по любому полю таблицы",
   "TicketPurpose": "Назначение заявки",
   "NotImplementedYed": "Пока что не умеем, но обязательно научимся",
   "ExportAsExcel": "Экспортировать в Excel",

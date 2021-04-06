@@ -13,6 +13,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { useIntl } from '@core/next/intl'
 
+import { Property } from '@condo/domains/property/schema/Property'
 
 const PropertyPage = (): React.FC => {
     const intl = useIntl()
@@ -23,7 +24,11 @@ const PropertyPage = (): React.FC => {
     const filtersFromQuery = false
     const createRoute = '/property/create'
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
-    const properties = []
+
+    const properties = ['1']
+    const noProperties = !properties.length && !filtersFromQuery
+
+    
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
@@ -45,19 +50,22 @@ const PropertyPage = (): React.FC => {
                                 {PageTitleMessage}
                             </Typography.Title>} />
                         </Col>
-                        <Col span={6} push={12} align={'right'}>
-                            <Radio.Group defaultValue="list" buttonStyle="solid" style={{ marginTop: 16 }}>
-                                <Radio.Button value="list">Список</Radio.Button>
-                                <Radio.Button value="map" disabled>
-                                    На карте
-                                </Radio.Button>
-                            </Radio.Group>
-                        </Col>
+                        {
+                            !noProperties
+                                ? <Col span={6} push={12} align={'right'}>
+                                    <Radio.Group defaultValue="list" buttonStyle="solid" style={{ marginTop: 16 }}>
+                                        <Radio.Button value="list">Список</Radio.Button>
+                                        <Radio.Button value="map" disabled>
+                                            На карте
+                                        </Radio.Button>
+                                    </Radio.Group>
+                                </Col> : null
+                        }
                     </Row>
 
                     <OrganizationRequired>
                         {
-                            !properties.length && !filtersFromQuery
+                            noProperties
                                 ? <EmptyListView
                                     title='pages.condo.property.index.EmptyList.header'
                                     text='pages.condo.property.index.EmptyList.text'
@@ -85,7 +93,7 @@ const PropertyPage = (): React.FC => {
                                         </Button>
                                     </Col>
                                     <Col span={24}>
-                                        
+
                                     </Col>
                                 </Row>
                         }

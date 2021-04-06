@@ -1,14 +1,14 @@
 import { genReactHooks } from '@core/keystone/gen.gql.react.utils'
 
-import { Property } from '../../gql'
+import { Property } from '@condo/domains/property/gql'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 function convertGQLItemToUIState (item) {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     const href = `/property/${item.id}`
-    const avatar = 'https://raschetgkh.ru/images/i/sovet-mkd.jpg'
-    return { ...item, avatar, href, dv: undefined }
-}
+    // const avatar = 'https://raschetgkh.ru/images/i/sovet-mkd.jpg' avatar,
+    return { ...item, href, dv: undefined }
+} 
 
 function convertUIStateToGQLItem (state) {
     const sender = getClientSideSenderInfo()
