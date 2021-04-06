@@ -1,16 +1,36 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import React, { useCallback } from 'react'
+
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { Typography, Space } from 'antd'
+import { Typography, Space, Radio, Row, Col, Tooltip, Input, Table } from 'antd'
+import { DatabaseFilled } from '@ant-design/icons'
+
 import Head from 'next/head'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { Button } from '@condo/domains/common/components/Button'
 
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { useIntl } from '@core/next/intl'
 
+
 const PropertyPage = (): React.FC => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.PageTitle' })
+    const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const NotImplementedYedMessage = intl.formatMessage({ id: 'NotImplementedYed' })
+    const filtersFromQuery = false
+    const createRoute = '/property/create'
+    const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
+    const properties = []
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: () => {
+                router.push(`/property/${record.id}/`)
+            },
+        }
+    }, [])
 
     return (
         <>
@@ -18,18 +38,61 @@ const PropertyPage = (): React.FC => {
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
                 <PageContent>
+                    <Row gutter={[0, 0]} align={'top'}>
+                        <Col span={6}>
+                            <PageHeader title={<Typography.Title style={{ margin: 0 }}>
+                                {PageTitleMessage}
+                            </Typography.Title>} />
+                        </Col>
+                        <Col span={6} push={12} align={'right'}>
+                            <Radio.Group defaultValue="list" buttonStyle="solid" style={{ marginTop: 16 }}>
+                                <Radio.Button value="list">Список</Radio.Button>
+                                <Radio.Button value="map" disabled>
+                                    На карте
+                                </Radio.Button>
+                            </Radio.Group>
+                        </Col>
+                    </Row>
+
                     <OrganizationRequired>
-                        <EmptyListView 
-                            title='pages.condo.property.index.EmptyList.header'
-                            text='pages.condo.property.index.EmptyList.text'
-                            createRoute='/property/create'
-                            createLabel='pages.condo.property.index.CreatePropertyButtonLabel' />
+                        {
+                            !properties.length && !filtersFromQuery
+                                ? <EmptyListView
+                                    title='pages.condo.property.index.EmptyList.header'
+                                    text='pages.condo.property.index.EmptyList.text'
+                                    createRoute={createRoute}
+                                    createLabel='pages.condo.property.index.CreatePropertyButtonLabel' />
+                                :
+                                <Row align={'middle'}>
+                                    <Col span={6}>
+                                        <Tooltip title={NotImplementedYedMessage}>
+                                            <div>
+                                                <Input placeholder={SearchPlaceholder} disabled />
+                                            </div>
+                                        </Tooltip>
+                                    </Col>
+                                    <Col span={6} push={1}>
+                                        <Button type={'inlineLink'} icon={<DatabaseFilled />}  >{ExportAsExcel}</Button>
+                                    </Col>
+                                    <Col span={6} push={6} align={'right'}>
+                                        <Button
+                                            type='sberPrimary'
+                                            style={{ marginTop: '16px' }}
+                                            onClick={() => router.push(createRoute)}
+                                        >
+                                            {CreateLabel}
+                                        </Button>
+                                    </Col>
+                                    <Col span={24}>
+                                        
+                                    </Col>
+                                </Row>
+                        }
                     </OrganizationRequired>
                 </PageContent>
             </PageWrapper>
-        </>                        
+        </>
     )
 }
 
@@ -45,7 +108,7 @@ const HeaderAction = () => {
     )
 }
 
-PropertyPage.headerAction = <HeaderAction/>
+PropertyPage.headerAction = <HeaderAction />
 
 export default PropertyPage
 
@@ -92,7 +155,7 @@ function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancel
 
     return (
         <BaseModalForm
-            /* NOTE: we need to recreate form if editableItem changed because the form initialValues are cached 
+            /* NOTE: we need to recreate form if editableItem changed because the form initialValues are cached
             key={editableItem}
             action={action}
             formValuesToMutationDataPreprocessor={(x) => {
@@ -179,7 +242,7 @@ function PropertyCRUDListBlock () {
     const modal = useCreateAndEditModalForm()
     const table = useTable()
 
-    const { objs, count, refetch, loading } = Property.useObjects({}, { 
+    const { objs, count, refetch, loading } = Property.useObjects({}, {
         fetchPolicy: 'network-only',
     })
     const create = Property.useCreate({ organization: organization.id, map: buildingMapJson }, () => refetch())
