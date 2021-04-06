@@ -2,7 +2,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { useState } from 'react'
-import { Button, Form, Input, Result, Typography } from 'antd'
+import { Button, Form, Input, Result, Typography, Alert, Row, Col } from 'antd'
 import Head from 'next/head'
 import Router from 'next/router'
 import { useIntl } from '@core/next/intl'
@@ -75,24 +75,35 @@ const ForgotForm = () => {
             onFinish={onFinish}
             initialValues={initialValues}
         >
-            <Typography.Paragraph css={css`text-align: center;`}>{ForgotPasswordDescriptionMsg}</Typography.Paragraph>
-            <Form.Item
-                label={EmailMsg}
-                name="email"
-                rules={[{ required: true, message: PleaseInputYourEmailMsg }]}
-                placeholder="name@example.com"
-            >
-                <Input/>
-            </Form.Item>
-
-            <Form.Item style={{ textAlign: 'center' }}>
-                <Button type="primary" htmlType="submit" loading={isLoading}>
-                    {StartRecoveryMsg}
-                </Button>
-                <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/register')}>
-                    {RegisterMsg}
-                </Button>
-            </Form.Item>
+            <Row gutter={[0, 24]} >
+                <Col span={24}>
+                    <Alert
+                        message=""
+                        description={ForgotPasswordDescriptionMsg}
+                        type="info"
+                    ></Alert>
+                </Col>
+                <Col span={24}>
+                    <Form.Item
+                        label={EmailMsg}
+                        name="email"
+                        rules={[{ required: true, message: PleaseInputYourEmailMsg }]}
+                        placeholder="name@example.com"
+                    >
+                        <Input />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item style={{ textAlign: 'center' }}>
+                        <Button type="primary" htmlType="submit" loading={isLoading}>
+                            {StartRecoveryMsg}
+                        </Button>
+                        <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/register')}>
+                            {RegisterMsg}
+                        </Button>
+                    </Form.Item>
+                </Col>
+            </Row>
         </Form>
     )
 }
@@ -105,7 +116,7 @@ const ForgotPage = () => {
             <title>{ForgotPasswordTitleMsg}</title>
         </Head>
         <Typography.Title css={css`text-align: center;`} level={2}>{ForgotPasswordTitleMsg}</Typography.Title>
-        <ForgotForm/>
+        <ForgotForm />
     </>)
 }
 

@@ -1,7 +1,7 @@
 // @ts-nocheck
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Button, Form, Input, Typography } from 'antd'
+import { Button, Form, Input, Typography, Row, Col } from 'antd'
 import { useState } from 'react'
 import gql from 'graphql-tag'
 import Head from 'next/head'
@@ -124,29 +124,35 @@ function SignInByPhoneForm () {
 
     return <PhoneAuthForm onPhoneAuthenticated={({ user }) => {
         return <SignInForm ExtraErrorToFormFieldMsgMapping={ExtraErrorToFormFieldMsgMapping} firebaseUser={user}>
-            <Form.Item
-                name="_phone"
-                label={
-                    <span>
-                        {PhoneMsg}{' '}
-                    </span>
-                }
-                rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                key={user.phoneNumber}
-                initialValue={user.phoneNumber}
-            >
-                <Input disabled={true}/>
-            </Form.Item>
-            <Form.Item
-                name="firebaseIdToken"
-                noStyle={true}
-                key={user.token}
-                initialValue={user.token}
-            >
-                <Input disabled={true} hidden={true}/>
-            </Form.Item>
+            <Row gutter={[0, 24]} >
+                <Col span={24}>
+                    <Form.Item
+                        name="_phone"
+                        label={
+                            <span>
+                                {PhoneMsg}{' '}
+                            </span>
+                        }
+                        rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                        key={user.phoneNumber}
+                        initialValue={user.phoneNumber}
+                    >
+                        <Input disabled={true} />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item
+                        name="firebaseIdToken"
+                        noStyle={true}
+                        key={user.token}
+                        initialValue={user.token}
+                    >
+                        <Input disabled={true} hidden={true} />
+                    </Form.Item>
+                </Col>
+            </Row>
         </SignInForm>
-    }}/>
+    }} />
 }
 
 const SignInPage = () => {
@@ -158,7 +164,7 @@ const SignInPage = () => {
         </Head>
         <Typography.Title css={css`text-align: center;`}>{SignInTitleMsg}</Typography.Title>
         <AuthState>
-            <SignInByPhoneForm/>
+            <SignInByPhoneForm />
         </AuthState>
     </>)
 }

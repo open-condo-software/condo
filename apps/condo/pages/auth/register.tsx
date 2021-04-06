@@ -1,7 +1,7 @@
 // @ts-nocheck
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { Button, Checkbox, Form, Input, Tooltip, Typography } from 'antd'
+import { Button, Checkbox, Form, Input, Tooltip, Typography, Row, Col, Alert } from 'antd'
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import Head from 'next/head'
 import Router from 'next/router'
@@ -157,100 +157,112 @@ const RegisterForm = ({ children, register, registerExtraData = {}, ExtraErrorTo
             onFinish={onFinish}
             initialValues={initialValues}
         >
-            {children}
-            <Form.Item
-                name="name"
-                label={
-                    <span>
-                        {NameMsg}{' '}
-                        <Tooltip title={WhatDoYouWantOthersToCallYouMsg}>
-                            <QuestionCircleOutlined/>
-                        </Tooltip>
-                    </span>
-                }
-                rules={[{ required: true, message: PleaseInputYourNameMsg, whitespace: true }]}
-            >
-                <Input placeholder={ExampleNameMsg}/>
-            </Form.Item>
-
-            <Form.Item
-                name="email"
-                label={EmailMsg}
-                rules={[
-                    {
-                        type: 'email',
-                        message: EmailIsNotValidMsg,
-                    },
-                    {
-                        required: true,
-                        message: PleaseInputYourEmailMsg,
-                    },
-                ]}
-            >
-                <Input placeholder={'name@example.org'}/>
-            </Form.Item>
-
-            <Form.Item
-                name="password"
-                label={PasswordMsg}
-                rules={[
-                    {
-                        required: true,
-                        message: PleaseInputYourPasswordMsg,
-                    },
-                    {
-                        min: 7,
-                        message: PasswordIsTooShortMsg,
-                    },
-                ]}
-                hasFeedback
-            >
-                <Input.Password/>
-            </Form.Item>
-
-            <Form.Item
-                name="confirm"
-                label={ConfirmPasswordMsg}
-                dependencies={['password']}
-                hasFeedback
-                rules={[
-                    {
-                        required: true,
-                        message: PleaseConfirmYourPasswordMsg,
-                    },
-                    ({ getFieldValue }) => ({
-                        validator (rule, value) {
-                            if (!value || getFieldValue('password') === value) {
-                                return Promise.resolve()
-                            }
-                            return Promise.reject(TwoPasswordDontMatchMsg)
-                        },
-                    }),
-                ]}
-            >
-                <Input.Password/>
-            </Form.Item>
-
-            <Form.Item
-                name="agreement"
-                valuePropName="checked"
-                rules={[
-                    { validator: (_, value) => value ? Promise.resolve() : Promise.reject(ShouldAcceptAgreementMsg) },
-                ]}
-            >
-                <Checkbox>
-                    {/* TODO(pahaz): agreement link! */}
-                    {IHaveReadAndAcceptTheAgreementMsg}<a href="">*</a>.
-                </Checkbox>
-            </Form.Item>
-            <Form.Item style={{ textAlign: 'center' }}>
-                <Button type="primary" htmlType="submit" loading={isLoading}>
-                    {RegisterMsg}
-                </Button>
-                <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/signin')}>
-                    {SignInMsg}
-                </Button>
-            </Form.Item>
+            <Row gutter={[0, 24]} >
+                <Col span={24}>
+                    {children}
+                </Col>
+                <Col span={24}>
+                    <Form.Item
+                        name="name"
+                        label={
+                            <span>
+                                {NameMsg}{' '}
+                                <Tooltip title={WhatDoYouWantOthersToCallYouMsg}>
+                                    <QuestionCircleOutlined />
+                                </Tooltip>
+                            </span>
+                        }
+                        rules={[{ required: true, message: PleaseInputYourNameMsg, whitespace: true }]}
+                    >
+                        <Input placeholder={ExampleNameMsg} />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item
+                        name="email"
+                        label={EmailMsg}
+                        rules={[
+                            {
+                                type: 'email',
+                                message: EmailIsNotValidMsg,
+                            },
+                            {
+                                required: true,
+                                message: PleaseInputYourEmailMsg,
+                            },
+                        ]}
+                    >
+                        <Input placeholder={'name@example.org'} />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item
+                        name="password"
+                        label={PasswordMsg}
+                        rules={[
+                            {
+                                required: true,
+                                message: PleaseInputYourPasswordMsg,
+                            },
+                            {
+                                min: 7,
+                                message: PasswordIsTooShortMsg,
+                            },
+                        ]}
+                        hasFeedback
+                    >
+                        <Input.Password />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item
+                        name="confirm"
+                        label={ConfirmPasswordMsg}
+                        dependencies={['password']}
+                        hasFeedback
+                        rules={[
+                            {
+                                required: true,
+                                message: PleaseConfirmYourPasswordMsg,
+                            },
+                            ({ getFieldValue }) => ({
+                                validator (rule, value) {
+                                    if (!value || getFieldValue('password') === value) {
+                                        return Promise.resolve()
+                                    }
+                                    return Promise.reject(TwoPasswordDontMatchMsg)
+                                },
+                            }),
+                        ]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item
+                        name="agreement"
+                        valuePropName="checked"
+                        rules={[
+                            { validator: (_, value) => value ? Promise.resolve() : Promise.reject(ShouldAcceptAgreementMsg) },
+                        ]}
+                    >
+                        <Checkbox>
+                            {/* TODO(pahaz): agreement link! */}
+                            {IHaveReadAndAcceptTheAgreementMsg}<a href="">*</a>.
+                        </Checkbox>
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item style={{ textAlign: 'center' }}>
+                        <Button type="primary" htmlType="submit" loading={isLoading}>
+                            {RegisterMsg}
+                        </Button>
+                        <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/signin')}>
+                            {SignInMsg}
+                        </Button>
+                    </Form.Item>
+                </Col>
+            </Row>
         </Form>
     )
 }
@@ -345,55 +357,69 @@ function PhoneAuthForm ({ onPhoneAuthenticated }) {
     }
 
     return <>
-        <div id={'recaptcha-container'}/>
+        <div id={'recaptcha-container'} />
         <Form
             form={form}
             name="auth.phone"
-            // onFinish={onFinish}
+        // onFinish={onFinish}
         >
-            <div>
-                {verifyError}{confirmError}
-            </div>
-            <Form.Item
-                name="phone"
-                label={EnterPhoneNumberMsg}
-                rules={[{ required: true, message: FieldIsRequiredMsg }]}
-            >
-                <Input placeholder={ExamplePhoneMsg}/>
-            </Form.Item>
-
-            {(verificationId)
-                ? <Form.Item
-                    name="code"
-                    label={EnterVerificationCodeMsg}
-                    rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                >
-                    <Input ref={verificationCodeTextInput}/>
-                </Form.Item>
-                : null
-            }
-
-            <Form.Item style={{ textAlign: 'center' }}>
-                {(verificationId) ?
-                    <>
-                        <Button type="primary" onClick={handleVerifyCode}>
-                            {ConfirmVerificationCodeMsg}
-                        </Button>
-                        <Button type="link" css={css`margin-left: 10px;`} onClick={handleSendCode}>
-                            {(verificationId) ? ResendVerificationCodeMsg : SendVerificationCodeMsg}
-                        </Button>
-                    </>
-                    :
-                    <>
-                        <Button type="primary" onClick={handleSendCode}>
-                            {(verificationId) ? ResendVerificationCodeMsg : SendVerificationCodeMsg}
-                        </Button>
-                        <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/signin')}>
-                            {SignInMsg}
-                        </Button>
-                    </>
+            <Row gutter={[0, 24]} >
+                <Col span={24}>
+                    {
+                        (verifyError || confirmError)
+                            ? <Alert
+                                message="Error"
+                                description={verifyError || confirmError}
+                                type="error"
+                                closable
+                            ></Alert> : null
+                    }
+                </Col>
+                <Col span={24}>
+                    <Form.Item
+                        name="phone"
+                        label={EnterPhoneNumberMsg}
+                        rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                    >
+                        <Input placeholder={ExamplePhoneMsg} />
+                    </Form.Item>
+                </Col>
+                {(verificationId)
+                    ? <Col span={24}>
+                        <Form.Item
+                            name="code"
+                            label={EnterVerificationCodeMsg}
+                            rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                        >
+                            <Input ref={verificationCodeTextInput} />
+                        </Form.Item>
+                    </Col>
+                    : null
                 }
-            </Form.Item>
+                <Col span={24}>
+                    <Form.Item style={{ textAlign: 'center' }}>
+                        {(verificationId) ?
+                            <>
+                                <Button type="primary" onClick={handleVerifyCode}>
+                                    {ConfirmVerificationCodeMsg}
+                                </Button>
+                                <Button type="link" css={css`margin-left: 10px;`} onClick={handleSendCode}>
+                                    {(verificationId) ? ResendVerificationCodeMsg : SendVerificationCodeMsg}
+                                </Button>
+                            </>
+                            :
+                            <>
+                                <Button type="primary" onClick={handleSendCode}>
+                                    {(verificationId) ? ResendVerificationCodeMsg : SendVerificationCodeMsg}
+                                </Button>
+                                <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/signin')}>
+                                    {SignInMsg}
+                                </Button>
+                            </>
+                        }
+                    </Form.Item>
+                </Col>
+            </Row>
         </Form>
     </>
 }
@@ -422,29 +448,35 @@ function RegisterByPhoneForm () {
 
     return <PhoneAuthForm onPhoneAuthenticated={({ user }) => {
         return <RegisterForm register={register} registerExtraData={registerExtraData} ExtraErrorToFormFieldMsgMapping={ExtraErrorToFormFieldMsgMapping}>
-            <Form.Item
-                name="_phone"
-                label={
-                    <span>
-                        {PhoneMsg}{' '}
-                    </span>
-                }
-                rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                key={user.phoneNumber}
-                initialValue={user.phoneNumber}
-            >
-                <Input disabled={true}/>
-            </Form.Item>
-            <Form.Item
-                name="firebaseIdToken"
-                noStyle={true}
-                key={user.token}
-                initialValue={user.token}
-            >
-                <Input disabled={true} hidden={true}/>
-            </Form.Item>
+            <Row gutter={[0, 24]} >
+                <Col span={24}>
+                    <Form.Item
+                        name="_phone"
+                        label={
+                            <span>
+                                {PhoneMsg}{' '}
+                            </span>
+                        }
+                        rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                        key={user.phoneNumber}
+                        initialValue={user.phoneNumber}
+                    >
+                        <Input disabled={true} />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item
+                        name="firebaseIdToken"
+                        noStyle={true}
+                        key={user.token}
+                        initialValue={user.token}
+                    >
+                        <Input disabled={true} hidden={true} />
+                    </Form.Item>
+                </Col>
+            </Row>
         </RegisterForm>
-    }}/>
+    }} />
 }
 
 const RegisterPage = () => {
@@ -456,7 +488,7 @@ const RegisterPage = () => {
         </Head>
         <Typography.Title css={css`text-align: center;`}>{RegistrationTitleMsg}</Typography.Title>
         <AuthState>
-            <RegisterByPhoneForm/>
+            <RegisterByPhoneForm />
         </AuthState>
     </>)
 }
