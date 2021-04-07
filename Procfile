@@ -1,2 +1,2 @@
-web: $START_WEB_COMMAND
-worker: $START_WORKER_COMMAND
+web: ./bin/START_WEB_COMMAND.sh
+worker: ./bin/START_WORKER_COMMAND.sh
