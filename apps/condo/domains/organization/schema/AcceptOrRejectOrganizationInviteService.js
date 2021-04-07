@@ -1,6 +1,6 @@
-const { updateOrganizationEmployee } = require('../../utils/serverSchema/Organization')
+const { updateOrganizationEmployee } = require('../../../utils/serverSchema/Organization')
 const { getByCondition, getById, GQLCustomSchema } = require('@core/keystone/schema')
-const { rules } = require('../../access')
+const { rules } = require('../../../access')
 
 const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRejectOrganizationInviteService', {
     types: [
