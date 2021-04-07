@@ -33,7 +33,8 @@ jobs:
           docker-compose build
       - name: Upload builded image
         run: |
-          ssh root@dev.doma.ai "docker rmi apps:condo || echo no image"
+          ssh root@dev.doma.ai "docker rmi apps:condo" || echo "no image"
+          ssh root@dev.doma.ai "docker images -f "reference=dokku/condo" -q | xargs docker rmi" || echo "no useless images"
           docker save apps:condo | bzip2 | pv | ssh root@dev.doma.ai 'bunzip2 | docker load'
       - name: Restart condo app
         run: |
