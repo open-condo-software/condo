@@ -1,6 +1,6 @@
 const faker = require('faker')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { Organization, OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION, ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } = require('@condo/domains/organization/gql/Organization')
+const { Organization, OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION, ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } = require('@condo/domains/organization/gql')
 
 async function createOrganization (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')

@@ -1,8 +1,9 @@
+const {makeClientWithRegisteredOrganization} = require("../../../utils/testSchema/Organization");
+const { Organization } = require('@core/keystone/schemas/Organization')
 const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 
 const { createOrganization } = require('../../../utils/testSchema/Organization')
-const { Organization } = require('../gql/Organization')
 
 describe('Organization', () => {
     test('anonymous: no access to getAll', async () => {
@@ -47,6 +48,12 @@ describe('Organization', () => {
         expect(count).toBeGreaterThan(0)
     })
 
+    test('default status transitions is defined', async () => {
+        const { organization } = await makeClientWithRegisteredOrganization()
+
+        expect(organization.statusTransitions).toBeDefined()
+        expect(organization.defaultEmployeeRoleStatusTransitions).toBeDefined()
+    })
     // test('no access to change another organization', async () => {
 //     const { id: organizationId } = await createSchemaObject(Organization)
 //     const { id: linkId } = await createSchemaObject(OrganizationToUserLink, {

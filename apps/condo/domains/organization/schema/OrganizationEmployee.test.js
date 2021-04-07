@@ -5,7 +5,7 @@ const { getRandomString } = require('@core/keystone/test.utils')
 const { addAdminAccess } = require('@condo/domains/user/utils/testSchema')
 
 const { createOrganizationEmployee, makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
-const { OrganizationEmployee } = require('../gql/Organization')
+const { OrganizationEmployee } = require('../gql')
 
 describe('OrganizationEmployee', () => {
     test('anonymous: no access to getAll', async () => {
@@ -42,7 +42,7 @@ describe('OrganizationEmployee', () => {
         expect(objs1[0].id).not.toEqual(objs2[0].id)
     })
 
-    test('user: allow to count ony for employee', async () => {
+    test('user: allow to count only for employee', async () => {
         const client1 = await makeClientWithRegisteredOrganization()
         const client2 = await makeClientWithRegisteredOrganization()
         const count1 = await OrganizationEmployee.count(client1, {})

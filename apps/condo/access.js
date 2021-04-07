@@ -111,7 +111,7 @@ const rules = {
         }
         return false
     },
-
+    canUpdateTicketStatusTransitions: userIsAdmin,
     /*
 
       Billing
