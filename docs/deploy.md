@@ -44,6 +44,7 @@ NOTE: If you need some extra containers or you want to customize existing contai
 # Prepare dokku
 dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
 dokku plugin:install https://github.com/dokku/dokku-postgres.git postgres
+dokku plugin:install https://github.com/dokku/dokku-redis.git redis
 dokku config:set --global DOKKU_LETSENCRYPT_EMAIL=contact@8iq.dev
 dokku letsencrypt:cron-job --add
 ```
@@ -60,16 +61,20 @@ docker save apps:${DOCKER_COMPOSE_APP_IMAGE_TAG}.${DOCKER_COMPOSE_APP_IMAGE_VERS
 # CREATE DOKKU APPLICATION ON DOKKU SERVER SIDE
 export APP=node5
 export APP_VERSION=v5
-export DOCKER_IMAGE=apps:coddi
-export START_COMMAND='yarn workspace @app/CODDI start'
+export DOCKER_IMAGE=apps:condo
+export START_WEB_COMMAND='yarn workspace @app/condo start'
+export START_WORKER_COMMAND='yarn workspace @app/condo worker'
 
 dokku apps:create ${APP}
 dokku postgres:create ${APP}
 dokku postgres:link ${APP} ${APP}
+dokku redis:create ${APP}
+dokku redis:link ${APP} ${APP}
 
 dokku config:set --no-restart ${APP} NODE_ENV=production
-dokku config:set --no-restart ${APP} SERVER_URL=https://${APP}.dok.8iq.dev
-dokku config:set --no-restart ${APP} DOKKU_DOCKERFILE_START_CMD="${START_COMMAND}"
+dokku config:set --no-restart ${APP} SERVER_URL=https://${APP}.dev.doma.ai
+dokku config:set --no-restart ${APP} START_WEB_COMMAND="${START_WEB_COMMAND}"
+dokku config:set --no-restart ${APP} START_WORKER_COMMAND="${START_WORKER_COMMAND}"
 dokku config:set --no-restart ${APP} COOKIE_SECRET=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 dokku checks:disable ${APP}
 dokku proxy:ports-set ${APP} http:80:5000
