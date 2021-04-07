@@ -5,7 +5,7 @@ name: DEPLOY CONDO
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master feature/condo/SBERDOMA-34/redis ]
 
 jobs:
   build:
