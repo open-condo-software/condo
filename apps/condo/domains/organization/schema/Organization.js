@@ -9,8 +9,8 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD } = require('../_common')
-const { rules } = require('../../access')
+const { SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
+const { rules } = require('../../../access')
 const countries = require('@condo/domains/common/constants/countries')
 
 const AVATAR_FILE_ADAPTER = new LocalFileAdapter({

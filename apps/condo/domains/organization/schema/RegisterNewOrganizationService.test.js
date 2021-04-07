@@ -3,9 +3,9 @@ const faker = require('faker')
 const { makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 
-const { registerNewOrganization } = require('../../utils/testSchema/Organization')
+const { registerNewOrganization } = require('../../../utils/testSchema/Organization')
 
-const { OrganizationEmployee } = require('../../gql/Organization')
+const { OrganizationEmployee } = require('../../../gql/Organization')
 
 describe('RegisterNewOrganizationService', () => {
     test('registerNewOrganization() by user', async () => {

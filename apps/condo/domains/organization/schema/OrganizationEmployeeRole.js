@@ -1,8 +1,8 @@
 const { Text, Checkbox } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked } = require('@core/keystone/plugins')
-const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../_common')
-const { rules } = require('../../access')
+const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
+const { rules } = require('../../../access')
 
 const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
     schemaDoc: 'Employee role name and access permissions',
