@@ -18,7 +18,7 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                 const { data } = args
                 const extraData = { dv: data.dv, sender: data.sender }
 
-                const organization = await createOrganization(context, data);
+                const organization = await createOrganization(context, data)
                 const role = await createAdminRole(context, organization, extraData)
                 await createConfirmedEmployee(context, organization, context.authedItem, role, extraData)
 

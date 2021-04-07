@@ -1,4 +1,4 @@
-const {makeClientWithRegisteredOrganization} = require("../../../utils/testSchema/Organization");
+const { makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
 const { Organization } = require('@core/keystone/schemas/Organization')
 const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')

@@ -2,7 +2,7 @@ const gql = require('graphql-tag')
 const { genTestGQLUtils } = require('@core/keystone/gen.gql.utils')
 
 const ORGANIZATION_FIELDS = '{ id dv sender v country name description avatar { publicUrl } statusTransitions defaultEmployeeRoleStatusTransitions }'
-const Gql = genTestGQLUtils('Organization', ORGANIZATION_FIELDS)
+const Organization = genTestGQLUtils('Organization', ORGANIZATION_FIELDS)
 
 const ORGANIZATION_ROLE_FIELDS = '{ id dv sender v name statusTransitions canManageOrganization canManageEmployees canManageRoles }'
 const OrganizationEmployeeRole = genTestGQLUtils('OrganizationEmployeeRole', ORGANIZATION_ROLE_FIELDS)
@@ -56,7 +56,7 @@ const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION = gql`
 `
 
 module.exports = {
-    Organization: Gql,
+    Organization,
     OrganizationEmployeeRole,
     OrganizationEmployee,
     GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
