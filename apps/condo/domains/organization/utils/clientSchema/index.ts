@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { useMutation } from '@core/next/apollo'
 import { genReactHooks } from '@core/keystone/gen.gql.react.utils'
 
-import { OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } from '@condo/domains/organization/gql'
+import { OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION, Organization } from '@condo/domains/organization/gql'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 function convertGQLItemToUIState (item) {
@@ -67,6 +67,7 @@ function useInviteNewOrganizationEmployee (attrs = {}, onComplete) {
 module.exports = {
     convertGQLItemToUIState, convertUIStateToGQLItem,
     OrganizationEmployee: genReactHooks(OrganizationEmployee, { convertGQLItemToUIState, convertUIStateToGQLItem }),
+    Organization: genReactHooks(Organization, { convertGQLItemToUIState, convertUIStateToGQLItem }),
     useRegisterNewOrganization,
     useInviteNewOrganizationEmployee,
 }

@@ -12,6 +12,8 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
 const { rules } = require('../../../access')
 const countries = require('@condo/domains/common/constants/countries')
+const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 
 const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
     src: `${conf.MEDIA_ROOT}/orgavatars`,
@@ -58,6 +60,38 @@ const Organization = new GQLListSchema('Organization', {
             type: Relationship,
             ref: 'OrganizationEmployee.organization',
             many: true,
+        },
+        statusTransitions: {
+            schemaDoc: 'Graph of possible transitions for statuses. If there is no transition in this graph, ' +
+                'it is impossible to change status if the user in the role has the right to do so.',
+            type: Json,
+            defaultValue: DEFAULT_STATUS_TRANSITIONS,
+            hooks: {
+                validateInput: (args) => {
+                    return hasValidJsonStructure(args, true, 1, {})
+                },
+            },
+            access: {
+                update: rules.canUpdateTicketStatusTransitions,
+                create: rules.canUpdateTicketStatusTransitions,
+                read: true,
+            },
+        },
+        defaultEmployeeRoleStatusTransitions: {
+            schemaDoc: 'Default employee role status transitions map which will be used as fallback for status transition validation' +
+                'if user dont have OrganizationEmployeeRole',
+            type: Json,
+            defaultValue: DEFAULT_STATUS_TRANSITIONS,
+            hooks: {
+                validateInput: (args) => {
+                    return hasValidJsonStructure(args, true, 1, {})
+                },
+                access: {
+                    update: rules.canUpdateTicketStatusTransitions,
+                    create: rules.canUpdateTicketStatusTransitions,
+                    read: true,
+                },
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],

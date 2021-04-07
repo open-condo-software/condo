@@ -9,7 +9,7 @@ import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/comp
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { emailValidator, nameValidator, phoneValidator } from '@condo/domains/common/utils/excel.utils'
-import { OrganizationEmployee, useInviteNewOrganizationEmployee } from '../../utils/clientSchema/Organization'
+import { OrganizationEmployee, useInviteNewOrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 import {
     NewOrExportTableBlock,
