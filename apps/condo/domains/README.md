@@ -19,6 +19,7 @@ The same domain structure have:
  - `./<domain>/utils/clientSchema` -- each domain have own folder (client)
  - `./<domain>/utils/serverSchema` -- each domain have own file or if its complex a folder (server)
  - `./<domain>/utils/testSchema` -- each domain have own file (server schema tests)
+ - `./<domain>/jobs` -- each domain have own async bull jobs (server)
 
 We also have a `common` domain folder for not related to any domain code. 
 You can put inside the `common` folder: base Form/Layout components,
