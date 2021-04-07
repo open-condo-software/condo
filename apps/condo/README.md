@@ -20,7 +20,7 @@ DOCKER_COMPOSE_SERVER_URL=http://localhost:3003
 ENDOFFILE
 
 # up database on default port
-docker-compose up -d postgresdb
+docker-compose up -d postgresdb redis
 
 # install dependencies and link yarn workspaces
 yarn
