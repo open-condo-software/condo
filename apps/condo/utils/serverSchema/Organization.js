@@ -1,5 +1,5 @@
 const countries = require('@condo/domains/common/constants/countries')
-const { Organization, OrganizationEmployee, OrganizationEmployeeRole } = require('../../gql/Organization')
+const { Organization, OrganizationEmployee, OrganizationEmployeeRole } = require('@condo/domains/organization/gql')
 const { execGqlWithoutAccess } = require('./utils')
 
 async function createOrganization (context, data) {

@@ -2,7 +2,7 @@ const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@co
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 
 const { createOrganization } = require('../../../utils/testSchema/Organization')
-const { Organization } = require('../../../gql/Organization')
+const { Organization } = require('../gql/Organization')
 
 describe('Organization', () => {
     test('anonymous: no access to getAll', async () => {
