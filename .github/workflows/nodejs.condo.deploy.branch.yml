@@ -3,7 +3,7 @@ name: DEPLOY BRANCH
 on:
   push:
     tags:
-      - 'deploy/*'
+      - 'deploy/*/*'
 
 jobs:
   build:
