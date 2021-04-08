@@ -25,7 +25,13 @@ jobs:
           ssh root@dev.doma.ai 'id'
       - name: Docker build and upload
         run: |
-          bash ./bin/warm-docker-cache
+          TAG=$(git tag --points-at HEAD)
+          SUBDOMAIN="$(cut -d'_' -f2 <<<$TAG)"
+          VERSION="$(cut -d'_' -f3 <<<$TAG)"
+
+          echo "Deploy $SUBDOMAIN.dev.doma.ai version=$VERSION"
+
+#          bash ./bin/warm-docker-cache
 #          docker-compose build
 #          ssh root@dev.doma.ai "docker rmi apps:condo" || echo "no image"
 #          ssh root@dev.doma.ai "docker images -f "reference=dokku/condo" -q | xargs docker rmi" || echo "no useless images"
