@@ -7,7 +7,6 @@ on:
   push:
     branches:
      - "master"
-     - "feature/condo/SBERDOMA-34/redis"
 
 jobs:
   build:
