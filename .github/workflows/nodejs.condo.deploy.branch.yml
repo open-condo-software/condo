@@ -26,20 +26,19 @@ jobs:
       - name: Docker build and upload
         run: |
           TAG=$(git tag --points-at HEAD)
-          SUBDOMAIN="$(cut -d'_' -f2 <<<$TAG)"
-          VERSION="$(cut -d'_' -f3 <<<$TAG)"
+          SUBDOMAIN="$(cut -d'/' -f2 <<<$TAG | tr A-Z a-z | sed 's/[^a-z0-9]/-/g' | sed 's/^-+\|-+$//g')"
+          VERSION="$(cut -d'/' -f3 <<<$TAG | tr A-Z a-z | sed 's/[^a-z0-9]/-/g' | sed 's/^-+\|-+$//g')"
+          if [[ -z "$SUBDOMAIN" || -z "$VERSION" ]]; then
+            exit 1
+          fi
 
           echo "Deploy $SUBDOMAIN.dev.doma.ai version=$VERSION"
+          set -x
 
-#          bash ./bin/warm-docker-cache
-#          docker-compose build
-#          ssh root@dev.doma.ai "docker rmi apps:condo" || echo "no image"
-#          ssh root@dev.doma.ai "docker images -f "reference=dokku/condo" -q | xargs docker rmi" || echo "no useless images"
-#          docker save apps:condo | bzip2 | pv | ssh root@dev.doma.ai 'bunzip2 | docker load'
-#      - name: Restart condo app
-#        run: |
-#          export APP_VERSION=$GITHUB_SHA
-#          export DOKKU_APP_NAME=condo
-#          ssh root@dev.doma.ai "docker tag apps:condo dokku/${DOKKU_APP_NAME}:${APP_VERSION}"
-#          ssh root@dev.doma.ai "dokku tags:deploy ${DOKKU_APP_NAME} ${APP_VERSION}"
-#          ssh root@dev.doma.ai "docker exec -i -u root ${DOKKU_APP_NAME}.web.1 yarn workspace @app/condo migrate"
+          bash ./bin/warm-docker-cache
+          DOCKER_COMPOSE_APP_IMAGE_TAG="$SUBDOMAIN" docker-compose build
+          ssh root@dev.doma.ai "docker rmi apps:$SUBDOMAIN" || echo "no image"
+          ssh root@dev.doma.ai "docker images -f "reference=dokku/$SUBDOMAIN" -q | xargs docker rmi" || echo "no useless images"
+          docker save apps:$SUBDOMAIN | bzip2 | pv | ssh root@dev.doma.ai 'bunzip2 | docker load'
+
+          bash ./.github/workflows/deploy.sh root@dev.doma.ai $SUBDOMAIN $VERSION
