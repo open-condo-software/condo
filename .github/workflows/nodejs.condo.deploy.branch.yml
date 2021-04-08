@@ -1,9 +1,9 @@
 name: DEPLOY BRANCH
 
 on:
-  pull_request:
+  push:
     tags:
-      - deploy/*
+      - 'deploy/*'
 
 jobs:
   build:
