@@ -28,14 +28,13 @@ function run {
   ssh ${SSH_DESTINATION} $1
 }
 
-GIT_REPO=$( git config --local remote.origin.url | sed -n 's#.*/\([^.]*\)\.git#\1#p' )
-GIT_BRANCH=$( git branch | grep -e "^*" | cut -d' ' -f 2 )
-GIT_COMMIT=$( git rev-parse HEAD )
 SSH_DESTINATION=$1
-SUBDOMAIN=$(escape $GIT_BRANCH)
-APP_DOMAIN=$SUBDOMAIN.dev.doma.ai
-DESTROY_SCRIPT_PATH="~/do.$SUBDOMAIN.destroy.sh"
-DOCKER_IMAGE=apps:condo
+APP=$(escape $2)
+VERSION=$(escape $3)
+
+DOMAIN=${APP}.dev.doma.ai
+DESTROY_SCRIPT_PATH="~/do.${APP}.destroy.sh"
+DOCKER_IMAGE=apps:${APP}
 RUN_AFTER_DEPLOY=false
 
 source .env
@@ -58,7 +57,7 @@ if [[ -z "${SSH_DESTINATION}" ]]; then
     exit 1
 fi
 
-echo "$(date +%Y-%m-%d-%H-%M-%S) - deploy.sh $@ (SUBDOMAIN=${SUBDOMAIN})"
+echo "$(date +%Y-%m-%d-%H-%M-%S) - deploy.sh $@ (APP=${APP}; VERSION=${VERSION})"
 
 action "Check access"
 info "Check SSH dokku "'"'"ssh ${SSH_DESTINATION} 'dokku help'"'"'
@@ -66,42 +65,42 @@ ssh ${SSH_DESTINATION} 'dokku help' > /dev/null
 info "Check SSH docker "'"'"ssh ${SSH_DESTINATION} 'docker ps'"'"'
 ssh ${SSH_DESTINATION} 'docker ps' > /dev/null
 
-if ! ssh ${SSH_DESTINATION} "dokku apps:list | grep -qFx ${SUBDOMAIN}"; then
-  action "Create new DOKKU app ${SUBDOMAIN}"
+if ! ssh ${SSH_DESTINATION} "dokku apps:list | grep -qFx ${APP}"; then
+  action "Create new DOKKU app ${APP}"
   RUN_AFTER_DEPLOY=true
 
-  run "dokku apps:create ${SUBDOMAIN}"
-  rollback "dokku apps:destroy ${SUBDOMAIN} --force"
+  run "dokku apps:create ${APP}"
+  rollback "dokku apps:destroy ${APP} --force"
 
-  run "POSTGRES_IMAGE='postgres' POSTGRES_IMAGE_VERSION='13.2' dokku postgres:create ${SUBDOMAIN}"
-  run "dokku postgres:link ${SUBDOMAIN} ${SUBDOMAIN}"
-  rollback "dokku postgres:destroy ${SUBDOMAIN} --force"
+  run "POSTGRES_IMAGE='postgres' POSTGRES_IMAGE_VERSION='13.2' dokku postgres:create ${APP}"
+  run "dokku postgres:link ${APP} ${APP}"
+  rollback "dokku postgres:destroy ${APP} --force"
 
-  run "REDIS_IMAGE='redis' REDIS_IMAGE_VERSION='6.2' dokku redis:create ${SUBDOMAIN}"
-  run "dokku redis:link ${SUBDOMAIN} ${SUBDOMAIN}"
-  rollback "dokku redis:destroy ${SUBDOMAIN} --force"
+  run "REDIS_IMAGE='redis' REDIS_IMAGE_VERSION='6.2' dokku redis:create ${APP}"
+  run "dokku redis:link ${APP} ${APP}"
+  rollback "dokku redis:destroy ${APP} --force"
 
-  run "dokku config:set --no-restart ${SUBDOMAIN} DOKKU_APP_TYPE=dockerfile"
-  run "dokku config:set --no-restart ${SUBDOMAIN} NODE_ENV=production"
-  run "dokku config:set --no-restart ${SUBDOMAIN} SERVER_URL=https://${APP_DOMAIN}"
-  run "dokku config:set --no-restart ${SUBDOMAIN} START_WEB_COMMAND='${DOCKER_COMPOSE_START_APP_COMMAND}'"
-  run "dokku config:set --no-restart ${SUBDOMAIN} START_WORKER_COMMAND='${DOCKER_COMPOSE_START_WORKER_COMMAND}'"
+  run "dokku config:set --no-restart ${APP} DOKKU_APP_TYPE=dockerfile"
+  run "dokku config:set --no-restart ${APP} NODE_ENV=production"
+  run "dokku config:set --no-restart ${APP} SERVER_URL=https://${DOMAIN}"
+  run "dokku config:set --no-restart ${APP} START_WEB_COMMAND='${DOCKER_COMPOSE_START_APP_COMMAND}'"
+  run "dokku config:set --no-restart ${APP} START_WORKER_COMMAND='${DOCKER_COMPOSE_START_WORKER_COMMAND}'"
 #  SECRET=$(head -c 1024 /dev/urandom | base64 | tr -cd "[:upper:][:digit:]" | head -c 32)
-#  run "dokku config:set --no-restart ${SUBDOMAIN} COOKIE_SECRET=${SECRET}"
+#  run "dokku config:set --no-restart ${APP} COOKIE_SECRET=${SECRET}"
   # FIREBASE_ADMIN_CONFIG FIREBASE_CONFIG ADDRESS_SUGGESTIONS_CONFIG COOKIE_SECRET already defined globally! (don't forget it)
-  run "dokku checks:disable ${SUBDOMAIN}"
-  run "dokku proxy:ports-set ${SUBDOMAIN} http:80:5000"
-  run "dokku nginx:set ${SUBDOMAIN} hsts false"
-  run "dokku nginx:set ${SUBDOMAIN} hsts-include-subdomains false"
-  run "dokku domains:set ${SUBDOMAIN} ${APP_DOMAIN}"
-  run "dokku ps:scale ${SUBDOMAIN} web=1 worker=1"
+  run "dokku checks:disable ${APP}"
+  run "dokku proxy:ports-set ${APP} http:80:5000"
+  run "dokku nginx:set ${APP} hsts false"
+  run "dokku nginx:set ${APP} hsts-include-subdomains false"
+  run "dokku domains:set ${APP} ${DOMAIN}"
+  run "dokku ps:scale ${APP} web=1 worker=1"
 fi
 
-action "Deploy app ${SUBDOMAIN} by ${DOCKER_IMAGE}"
-run "docker tag ${DOCKER_IMAGE} dokku/${SUBDOMAIN}:${GIT_COMMIT}"
-run "dokku tags:deploy ${SUBDOMAIN} ${GIT_COMMIT}"
-run "docker exec -u root ${SUBDOMAIN}.web.1 ${DOCKER_COMPOSE_MIGRATION_COMMAND}"
+action "Deploy app ${APP} by ${DOCKER_IMAGE}"
+run "docker tag ${DOCKER_IMAGE} dokku/${APP}:${VERSION}"
+run "dokku tags:deploy ${APP} ${VERSION}"
+run "docker exec -u root ${APP}.web.1 ${DOCKER_COMPOSE_MIGRATION_COMMAND}"
 
 if [[ "$RUN_AFTER_DEPLOY" == "true" ]]; then
-  run "dokku letsencrypt ${SUBDOMAIN}"
+  run "dokku letsencrypt ${APP}"
 fi
