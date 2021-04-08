@@ -76,6 +76,7 @@ const Organization = new GQLListSchema('Organization', {
                 create: rules.canUpdateTicketStatusTransitions,
                 read: true,
             },
+            isRequired: true,
         },
         defaultEmployeeRoleStatusTransitions: {
             schemaDoc: 'Default employee role status transitions map which will be used as fallback for status transition validation' +
@@ -92,6 +93,7 @@ const Organization = new GQLListSchema('Organization', {
                     read: true,
                 },
             },
+            isRequired: true,
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],

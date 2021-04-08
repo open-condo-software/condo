@@ -8,7 +8,7 @@ describe('status', () => {
                     [{ id: '1' }, { id: '3' }],
                     '1',
                     { '1': [ '3' ] },
-                    { '1': ['3'] },
+                    { '1': [ '3' ] },
                 )).toStrictEqual([{ id: '3' }])
             })
         })
@@ -21,7 +21,7 @@ describe('status', () => {
 
                 it('has an empty Intersection rules for status id', () => {
                     expect(getPossibleStatuses(
-                        [{ id:'1' }],
+                        [{ id: '1' }],
                         '1',
                         { '1': [] }
                     )).toStrictEqual([])
@@ -29,7 +29,7 @@ describe('status', () => {
 
                 it('has no Intersection rules for status id', () => {
                     expect(getPossibleStatuses(
-                        [{ id:'1' }],
+                        [{ id: '1' }],
                         '1',
                         { '2': [] }
                     )).toStrictEqual([])
