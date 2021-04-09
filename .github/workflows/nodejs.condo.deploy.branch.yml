@@ -35,10 +35,16 @@ jobs:
           echo "Deploy $SUBDOMAIN.dev.doma.ai version=$VERSION"
           set -x
 
+          # build
           bash ./bin/warm-docker-cache
           DOCKER_COMPOSE_APP_IMAGE_TAG="$SUBDOMAIN" docker-compose build
+
+          # remove prev images
           ssh root@dev.doma.ai "docker rmi apps:$SUBDOMAIN" || echo "no image"
           ssh root@dev.doma.ai "docker images -f "reference=dokku/$SUBDOMAIN" -q | xargs docker rmi" || echo "no useless images"
+
+          # upload new image
           docker save apps:$SUBDOMAIN | bzip2 | pv | ssh root@dev.doma.ai 'bunzip2 | docker load'
 
-          bash ./.github/workflows/deploy.sh root@dev.doma.ai $SUBDOMAIN $VERSION
+          # deploy by image
+          bash ./.github/workflows/deploy.dev.sh root@dev.doma.ai $SUBDOMAIN $VERSION by apps:$SUBDOMAIN
