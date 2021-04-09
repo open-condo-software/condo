@@ -225,33 +225,52 @@ export const sorterToQuery = (sorter?: SorterColumn | Array<SorterColumn>): Arra
     }).filter(Boolean)
 }
 
+const SORT_ORDERS = {
+    'ASC': 'ascend',
+    'DESC': 'descend',
+}
+
+const TICKET_TABLE_COLUMNS = [
+    'number',
+    'status',
+    'details',
+    'property',
+    'assignee',
+    'executor',
+    'createdAt',
+    'clientName',
+]
+
+export const queryToSorter = (query: Array<string>) => {
+    return query.map((sort) => {
+        const [columnKey, sortKey] = sort.split('_')
+
+        try {
+            if (TICKET_TABLE_COLUMNS.includes(columnKey) && SORT_ORDERS[sortKey]) {
+                return {
+                    columnKey,
+                    order: SORT_ORDERS[sortKey],
+                }
+            }
+        } catch (e) {
+            // TODO(Dimitreee): send error to sentry
+        }
+
+        return
+    }).filter(Boolean)
+}
+
 export const createSorterMap = (sortStringFromQuery: Array<string>): Record<string, SortOrder> => {
     if (!sortStringFromQuery) {
         return {}
     }
 
-    const sortOrders = {
-        'ASC': 'ascend',
-        'DESC': 'descend',
-    }
-
-    const columns = [
-        'number',
-        'status',
-        'details',
-        'property',
-        'assignee',
-        'executor',
-        'createdAt',
-        'clientName',
-    ]
-
     return sortStringFromQuery.reduce((acc, column) => {
         const [columnKey, sortOrder] = column.split('_')
 
-        const order = sortOrders[sortOrder]
+        const order = SORT_ORDERS[sortOrder]
 
-        if (!order || !columns.includes(columnKey)) {
+        if (!order || !TICKET_TABLE_COLUMNS.includes(columnKey)) {
             return acc
         }
 

@@ -116,6 +116,12 @@ export default function GlobalStyle () {
         .ant-table-thead > tr > th {
           font-weight: 700;
         }
+        
+        .ant-table-row {
+          &:hover {
+            cursor: pointer;
+          }
+        } 
 
         ${page}
       `}

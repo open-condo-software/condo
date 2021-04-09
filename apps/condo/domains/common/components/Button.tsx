@@ -69,6 +69,7 @@ const buttonLinkCss = css`
   color: ${green[6]};
   border: none;
   height: auto;
+  box-shadow: none;
 
   &:hover, &:focus {
     color: ${green[5]};

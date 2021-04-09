@@ -2,12 +2,13 @@ import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/comp
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { DatabaseFilled } from '@ant-design/icons'
+import { format } from 'date-fns'
 import {
     filtersToQuery, getFiltersFromQuery,
     getPaginationFromQuery,
     getSortStringFromQuery,
     TICKET_PAGE_SIZE,
-    sorterToQuery,
+    sorterToQuery, queryToSorter,
 } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
 
@@ -17,13 +18,13 @@ import { useRouter } from 'next/router'
 import qs from 'qs'
 import pickBy from 'lodash/pickBy'
 import debounce from 'lodash/debounce'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { Button } from '@condo/domains/common/components/Button'
 import XLSX from 'xlsx'
 
-const TicketsPage = () => {
+const TicketsPage = React.memo(() => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -31,24 +32,26 @@ const TicketsPage = () => {
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
 
     const router = useRouter()
-    const sortFromQuery = getSortStringFromQuery(router.query)
+    const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const offsetFromQuery = getPaginationFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery(router.query)
 
     const {
         fetchMore,
-        refetch,
         loading,
         count: total,
         objs: tickets,
     } = Ticket.useObjects({
         // @ts-ignore
-        sortBy: sortFromQuery,
+        sortBy: sortFromQuery.length > 0  ? sortFromQuery : 'number_DESC', //TODO(Dimitreee):Find cleanest solution
         where: filtersToQuery(filtersFromQuery),
         offset: offsetFromQuery,
         limit: TICKET_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
+        onCompleted: () => {
+            // setDefaultSort(undefined)
+        },
     })
 
     const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery)
@@ -88,10 +91,6 @@ const TicketsPage = () => {
         }
     }, 400), [loading])
 
-    useEffect(() => {
-        refetch()
-    }, [])
-
     const generateExcelData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {
             try {
@@ -112,14 +111,14 @@ const TicketsPage = () => {
                 )
 
                 XLSX.utils.book_append_sheet(wb, ws, 'table')
-                XLSX.writeFile(wb, 'export.xlsx')
+                XLSX.writeFile(wb, `export_${format(new Date(), 'dd.mm.yyyy') }.xlsx`)
             } catch (e) {
                 reject(e)
             } finally {
                 resolve()
             }
         })
-    }, [])
+    }, [loading])
 
     return (
         <>
@@ -173,7 +172,7 @@ const TicketsPage = () => {
             </PageWrapper>
         </>
     )
-}
+})
 
 const HeaderAction = () => {
     const intl = useIntl()
