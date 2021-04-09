@@ -3,12 +3,6 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { Property } = require('./Property')
-const { PropertyUnit } = require('./PropertyUnit')
-/* AUTOGENERATE MARKER <REQUIRE> */
-
-module.exports = {
-    Property,
-    PropertyUnit,
-/* AUTOGENERATE MARKER <EXPORTS> */
-}
+export * as Property from './Property'
+export * as PropertyUnit from './PropertyUnit'
+/* AUTOGENERATE MARKER <IMPORT-EXPORT> */
