@@ -67,9 +67,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 filteredValue: getFilteredValue(filters, 'number'),
                 dataIndex: 'number',
                 key: 'number',
-                sorter: {
-                    multiple: 1,
-                },
+                sorter: true,
                 width: '10%',
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
@@ -93,14 +91,12 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 filteredValue: getFilteredValue(filters, 'createdAt'),
                 dataIndex: 'createdAt',
                 key: 'createdAt',
-                sorter: {
-                    multiple: 1,
-                },
+                sorter: true,
                 width: '10%',
                 render: (createdAt) => (
                     format(
                         new Date(createdAt),
-                        'dd MMM',
+                        'dd MMMM',
                         { locale: LOCALES[intl.locale] }
                     )
                 ),
@@ -141,9 +137,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 },
                 dataIndex: 'status',
                 key: 'status',
-                sorter: {
-                    multiple: 1,
-                },
+                sorter: true,
                 width: '10%',
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState)
@@ -198,9 +192,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 filteredValue: getFilteredValue(filters, 'property'),
                 dataIndex: 'property',
                 key: 'property',
-                sorter: {
-                    multiple: 1,
-                },
+                sorter: true,
                 width: '12%',
                 render: (property) => (`${get(property, 'address')} ${get(property, 'name')}`),
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
@@ -226,9 +218,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 filteredValue: getFilteredValue(filters, 'clientName'),
                 dataIndex: 'clientName',
                 key: 'clientName',
-                sorter: {
-                    multiple: 1,
-                },
+                sorter: true,
                 width: '12%',
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
@@ -253,9 +243,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 filteredValue: getFilteredValue(filters, 'executor'),
                 dataIndex: 'executor',
                 key: 'executor',
-                sorter: {
-                    multiple: 1,
-                },
+                sorter: true,
                 width: '12%',
                 render: (executor) => (get(executor, ['name'])),
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
@@ -281,9 +269,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 filteredValue: getFilteredValue(filters, 'assignee'),
                 dataIndex: 'assignee',
                 key: 'assignee',
-                sorter: {
-                    multiple: 1,
-                },
+                sorter: true,
                 width: '12%',
                 render: (assignee) => (get(assignee, ['name'])),
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {

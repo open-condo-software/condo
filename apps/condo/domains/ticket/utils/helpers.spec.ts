@@ -7,7 +7,7 @@ import {
     createSorterMap,
     getSortStringFromQuery,
     getPaginationFromQuery,
-    getFiltersFromQuery, propertyToQuery, executorToQuery, assigneeToQuery,
+    getFiltersFromQuery, propertyToQuery, executorToQuery, assigneeToQuery, queryToSorter,
 } from './helpers'
 
 describe('Helpers', () => {
@@ -312,6 +312,35 @@ describe('Helpers', () => {
                     })
                 })
             })
+        })
+
+        describe('query to sorter', () => {
+            it('should return correct sorter based sort object if query includes valid column and sort key', () => {
+                expect(queryToSorter(['details_ASC'])).toStrictEqual([{ columnKey: 'details', order: 'ascend' }])
+            })
+
+            describe('should not return correct sorter', () => {
+                it('if column is invalid', () => {
+                    expect(queryToSorter(['reandom_ASC'])).toStrictEqual([])
+                })
+
+                it('if sort key is invalid', () => {
+                    expect(queryToSorter(['details_ASCC'])).toStrictEqual([])
+                })
+
+                it('if there is no sort column', () => {
+                    expect(queryToSorter(['_ASCC'])).toStrictEqual([])
+                })
+
+                it('if there is no sort key', () => {
+                    expect(queryToSorter(['details_'])).toStrictEqual([])
+                })
+
+                it('if there is no sort string', () => {
+                    expect(queryToSorter([' '])).toStrictEqual([])
+                })
+            })
+
         })
 
         describe('getSortStringFromQuery', () => {
