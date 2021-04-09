@@ -24,7 +24,7 @@ import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { Button } from '@condo/domains/common/components/Button'
 import XLSX from 'xlsx'
 
-const TicketsPage = React.memo(() => {
+const TicketsPage = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -172,7 +172,7 @@ const TicketsPage = React.memo(() => {
             </PageWrapper>
         </>
     )
-})
+}
 
 const HeaderAction = () => {
     const intl = useIntl()
