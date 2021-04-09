@@ -11,10 +11,11 @@ import { Property as PropertyGQL } from '@condo/domains/property/gql'
 import { Property, PropertyUpdateInput, QueryAllPropertiesArgs } from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'address', 'addressMeta', 'type', 'map', 'tickets']
-const RELATIONS = ['tickets']
+const RELATIONS = ['organization']
 
 export interface IPropertyUIState extends Property {
-    id: string
+    id: string,
+    address: string,
     // TODO(codegen): write IPropertyUIState or extends it from
 }
 
@@ -48,6 +49,18 @@ function convertToGQLInput (state: IPropertyFormState): PropertyUpdateInput {
     return result
 }
 
+function extractAttributes (state: IPropertyUIState, attributes: Array<string>): IPropertyUIState | undefined {
+    const result = {}
+    attributes.forEach((attribute) => {
+        if (RELATIONS.includes(attribute)) {
+            result[attribute] = get(state, [attribute, 'name'])
+        } else {
+            result[attribute] = get(state, attribute)
+        }
+    })
+    return result as IPropertyUIState
+}
+
 const {
     useObject,
     useObjects,
@@ -63,4 +76,5 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    extractAttributes,
 }

@@ -7,9 +7,9 @@
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 const gql = require('graphql-tag')
 
-const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const COMMON_FIELDS = 'id dv sender v deletedAt organization { id name} newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const PROPERTY_FIELDS = `{ organization name address addressMeta type map ${COMMON_FIELDS} }`
+const PROPERTY_FIELDS = `{ organization { id name} name address addressMeta type map ${COMMON_FIELDS} }`
 const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
 
 const PROPERTY_UNIT_FIELDS = `{ property { id } map ${COMMON_FIELDS} }`

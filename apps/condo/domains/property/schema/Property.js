@@ -8,8 +8,9 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/property/access/Property')
+const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 
-
+// ORGANIZATION_OWNED_FIELD
 const Property = new GQLListSchema('Property', {
     // TODO(codegen): write doc for the Property domain model!
     schemaDoc: 'TODO DOC!',
@@ -17,12 +18,7 @@ const Property = new GQLListSchema('Property', {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        organization: {
-            // TODO(codegen): write doc for Property.organization field!
-            schemaDoc: 'TODO DOC!',
-            type: Text,
-            isRequired: true,
-        },
+        organization: ORGANIZATION_OWNED_FIELD,
 
         name: {
             // TODO(codegen): write doc for Property.name field!

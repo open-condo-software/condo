@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Typography, Space, Radio, Row, Col, Tooltip, Input, Table } from 'antd'
@@ -17,6 +17,7 @@ import { useOrganization } from '@core/next/organization'
 
 import qs from 'qs'
 import pickBy from 'lodash/pickBy'
+import XLSX from 'xlsx'
 
 import {
     getFiltersFromQuery,
@@ -32,12 +33,11 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import debounce from 'lodash/debounce'
 
-import FormList, {
+import {
     BaseModalForm,
-    CreateFormListItemButton,
-    ExpandableDescription,
     useCreateAndEditModalForm,
 } from '@condo/domains/common/components/containers/FormList'
+
 import { AddressSearchInput } from '@condo/domains/common/components/AddressSearchInput'
 import { Form, Select } from 'antd'
 import { buildingMapJson } from '@condo/domains/property/constants/property.example'
@@ -163,14 +163,6 @@ const PropertyPage = (): React.FC => {
         const offset = current * pageSize - pageSize
         const sort = sorterToQuery(nextSorter)
         const filters = filtersToQuery(nextFilters)
-
-        console.log('handleTableChange', {
-            sortBy: sort,
-            where: filters,
-            offset,
-            first: PROPERTY_PAGE_SIZE,
-            limit: PROPERTY_PAGE_SIZE,
-        })
         if (!loading) {
             fetchMore({
                 sortBy: sort,
@@ -187,6 +179,29 @@ const PropertyPage = (): React.FC => {
             })
         }
     }, 400), [loading])
+
+
+    const generateExcelData = useCallback(() => {
+        return new Promise<void>((resolve, reject) => {
+            try {
+                const cols = [
+                    'address',
+                    'organization',
+                ]
+                const wb = XLSX.utils.book_new()
+                const ws = XLSX.utils.json_to_sheet(
+                    properties.map((property) => Property.extractAttributes(property, cols)), { header: cols }
+                )
+                XLSX.utils.book_append_sheet(wb, ws, 'table')
+                XLSX.writeFile(wb, 'export.xlsx')
+            } catch (e) {
+                reject(e)
+            } finally {
+                resolve()
+            }
+        })
+    }, [properties])
+
 
     const noProperties = !properties.length && !filtersFromQuery
 
@@ -241,7 +256,7 @@ const PropertyPage = (): React.FC => {
                                         </Tooltip>
                                     </Col>
                                     <Col span={6} push={1}>
-                                        <Button type={'inlineLink'} icon={<DatabaseFilled />}  >{ExportAsExcel}</Button>
+                                        <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData} >{ExportAsExcel}</Button>
                                     </Col>
                                     <Col span={6} push={6} align={'right'}>
                                         <CreatePropertyModalBlock modal={modal} create={create} />
