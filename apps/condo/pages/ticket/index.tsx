@@ -49,9 +49,6 @@ const TicketsPage = () => {
         limit: TICKET_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
-        onCompleted: () => {
-            // setDefaultSort(undefined)
-        },
     })
 
     const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery)
