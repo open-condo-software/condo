@@ -66,9 +66,9 @@ export START_WEB_COMMAND='yarn workspace @app/condo start'
 export START_WORKER_COMMAND='yarn workspace @app/condo worker'
 
 dokku apps:create ${APP}
-dokku postgres:create ${APP}
+POSTGRES_IMAGE='postgres' POSTGRES_IMAGE_VERSION='13.2' dokku postgres:create ${APP}
 dokku postgres:link ${APP} ${APP}
-dokku redis:create ${APP}
+REDIS_IMAGE='redis' REDIS_IMAGE_VERSION='6.2' dokku redis:create ${APP}
 dokku redis:link ${APP} ${APP}
 
 dokku config:set --no-restart ${APP} NODE_ENV=production
