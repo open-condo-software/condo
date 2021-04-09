@@ -48,3 +48,7 @@ jobs:
 
           # deploy by image
           bash ./.github/workflows/deploy.dev.sh root@dev.doma.ai $SUBDOMAIN $VERSION by apps:$SUBDOMAIN
+
+          # import database from condo app
+          ssh root@dev.doma.ai "dokku postgres:export condo > condo.dump"
+          ssh root@dev.doma.ai "dokku postgres:import $SUBDOMAIN < condo.dump"
