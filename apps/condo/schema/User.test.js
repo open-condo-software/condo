@@ -53,7 +53,7 @@ describe('SIGNIN', () => {
             'secret': 'wrong password',
         })
         expect(data).toEqual({ 'auth': null })
-        expect(JSON.stringify(errors)).toMatch((WRONG_EMAIL_ERROR))
+        expect(JSON.stringify(errors)).toMatch(WRONG_EMAIL_ERROR)
     })
 
     test('check auth by empty password', async () => {

@@ -10,10 +10,13 @@ const REQUIRED_NO_VALUE_ERROR = '[required:noValue:'
 const DV_UNKNOWN_VERSION_ERROR = '[dv:unknownDataVersion:'
 const STATUS_UPDATED_AT_ERROR = '[dv:incorrectStatusUpdatedAt:'
 
+// TODO(pahaz): move to domains/user/constants/errors and check signup/signin/register pages
 const WRONG_PASSWORD_ERROR = '[passwordAuth:secret:mismatch'
 const EMPTY_PASSWORD_ERROR = '[passwordAuth:secret:notSet'
 const WRONG_EMAIL_ERROR = '[passwordAuth:identity:notFound'
+const AUTH_BY_PASSWORD_FAILED_ERROR = '[passwordAuth:failure'
 const EMAIL_ALREADY_REGISTERED_ERROR = '[register:email:multipleFound'
+const MIN_PASSWORD_LENGTH_ERROR = '[register:password:minLength'
 
 const ALREADY_EXISTS_ERROR = '[constrain:alreadyExists:'
 
@@ -31,7 +34,9 @@ module.exports = {
     WRONG_PASSWORD_ERROR,
     EMPTY_PASSWORD_ERROR,
     WRONG_EMAIL_ERROR,
+    AUTH_BY_PASSWORD_FAILED_ERROR,
     EMAIL_ALREADY_REGISTERED_ERROR,
+    MIN_PASSWORD_LENGTH_ERROR,
     ALREADY_EXISTS_ERROR,
     STATUS_UPDATED_AT_ERROR,
     WRONG_TEXT_FORMAT,
