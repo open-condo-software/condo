@@ -13,6 +13,7 @@ import { useMutation } from '@core/next/apollo'
 import { TopMenuOnlyLayout } from '@condo/domains/common/components/containers/BaseLayout'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR } from '@condo/domains/common/constants/errors'
 
 import { AuthState, PhoneAuthForm } from './register'
 
@@ -46,11 +47,11 @@ const SignInForm = ({ firebaseUser, children, ExtraErrorToFormFieldMsgMapping = 
     const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
     const ForgotPasswordMsg = intl.formatMessage({ id: 'pages.auth.ForgotPassword' })
     const ErrorToFormFieldMsgMapping = {
-        '[passwordAuth:identity:notFound]': {
+        [WRONG_EMAIL_ERROR]: {
             name: 'email',
             errors: [EmailIsNoFoundMsg],
         },
-        '[passwordAuth:secret:mismatch]': {
+        [WRONG_PASSWORD_ERROR]: {
             name: 'password',
             errors: [WrongPasswordMsg],
         },
