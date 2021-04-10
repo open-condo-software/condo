@@ -1,6 +1,7 @@
 {
   "name": "@core/keystone",
   "version": "1.0.0",
+  "main": "./index.js",
   "dependencies": {
     "@keystonejs/adapter-knex": "^13.2.0",
     "@keystonejs/adapter-mongoose": "^11.2.0",
