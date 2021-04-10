@@ -1,6 +1,7 @@
 {
   "name": "@core/next",
   "version": "1.0.0",
+  "main": "./index.js",
   "dependencies": {
     "@apollo/client": "^3.3.14",
     "apollo-upload-client": "^14.1.3",
