@@ -1,5 +1,6 @@
-import * as firebase from 'firebase'
 import getConfig from 'next/config'
+import firebase from 'firebase/app'
+import 'firebase/auth'
 
 const {
     publicRuntimeConfig: { firebaseConfig },
@@ -18,8 +19,9 @@ try {
 
 const isFirebaseConfigValid = !!FIREBASE_CONFIG.apiKey
 
-export default firebase
+const auth = firebase.auth
 export {
+    auth,
     isFirebaseConfigValid,
     FIREBASE_CONFIG,
 }
