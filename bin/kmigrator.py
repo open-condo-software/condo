@@ -31,7 +31,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 1, 7)
+VERSION = (1, 2, 0)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -295,7 +295,8 @@ function createFakeTable (tableName) {
 (async () => {
     keystone.eventHandlers = {}
     await keystone.connect()
-    await asyncForEach(Object.values(keystone.adapters), async adapter => {
+    const adapter = keystone.adapter
+
         if (!adapter._createTables || !adapter.knex) {
             return
         }
@@ -345,10 +346,7 @@ function createFakeTable (tableName) {
                 process.exit(1)
             }
         }
-    }).catch((e) => {
-        console.error(e)
-        process.exit(1)
-    })
+
     if (!hasKnexConnection) {
         console.error('\\nERROR: No KNEX adapter connection settings! Check the DATABASE_URL')
         process.exit(3)
@@ -388,7 +386,8 @@ async function runInContext(knex, config) {
 (async () => {
     keystone.eventHandlers = {}
     await keystone.connect()
-    await asyncForEach(Object.values(keystone.adapters), async adapter => {
+    const adapter = keystone.adapter
+
         if (!adapter._createTables || !adapter.knex) {
             return
         }
@@ -399,10 +398,7 @@ async function runInContext(knex, config) {
             console.error(e)
             process.exit(1)
         }
-    }).catch((e) => {
-        console.error(e)
-        process.exit(1)
-    })
+
     process.exit(0)
 })()
 """
