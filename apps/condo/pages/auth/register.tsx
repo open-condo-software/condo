@@ -14,7 +14,7 @@ import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
 
 import { TopMenuOnlyLayout } from '@condo/domains/common/components/containers/BaseLayout'
-import firebase, { isFirebaseConfigValid } from '@condo/domains/common/utils/firebase.front.utils'
+import { auth, isFirebaseConfigValid } from '@condo/domains/common/utils/firebase.front.utils'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { MIN_PASSWORD_LENGTH_ERROR, EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/common/constants/errors'
@@ -25,11 +25,9 @@ function AuthState ({ children, initialUser }) {
     const [user, setUser] = useState(initialUser || null)
 
     useEffect(() => {
-        return firebase.auth().onAuthStateChanged(async function (user) {
-            console.log('onAuthStateChanged', user)
+        return auth().onAuthStateChanged(async function (user) {
             if (user) {
                 const token = await user.getIdToken(true)
-                console.log('auth:', token)
                 user.token = token
             }
 
@@ -38,7 +36,7 @@ function AuthState ({ children, initialUser }) {
     }, [])
 
     async function sendCode (phoneNumber, recaptchaVerifier) {
-        const phoneProvider = new firebase.auth.PhoneAuthProvider()
+        const phoneProvider = new auth.PhoneAuthProvider()
         const verificationId = await phoneProvider.verifyPhoneNumber(
             phoneNumber,
             // @ts-ignore
@@ -48,15 +46,13 @@ function AuthState ({ children, initialUser }) {
     }
 
     async function verifyCode (verificationId, verificationCode) {
-        const credential = firebase.auth.PhoneAuthProvider.credential(
+        const credential = auth.PhoneAuthProvider.credential(
             verificationId,
             verificationCode,
         )
-        await firebase
-            .auth()
+        await auth()
             .signInWithCredential(credential)
-        // const user = await firebase
-        //     .auth()
+        // const user = await auth()
         //     .currentUser
         // // await setCurrentUser(JSON.parse(JSON.stringify(user)))
         // // const u = await getCurrentUser()
@@ -65,7 +61,7 @@ function AuthState ({ children, initialUser }) {
     }
 
     async function signout () {
-        return await firebase.auth().signOut()
+        return await auth().signOut()
         // setUser(null)
         // await setCurrentUser(null)
     }
@@ -133,7 +129,6 @@ const RegisterForm = ({ children, register, registerExtraData = {}, ExtraErrorTo
         const { name, email, password, confirm, agreement, ...extra } = values
         const extraData = Object.fromEntries(Object.entries(extra).filter(([k, v]) => !k.startsWith('_')))
         const data = { name, email, password, ...extraData, ...registerExtraData }
-        console.log(values, data)
         setIsLoading(true)
         return runMutation({
             mutation: register,
@@ -296,7 +291,7 @@ function PhoneAuthForm ({ onPhoneAuthenticated }) {
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
 
     useEffect(() => {
-        const recapcha = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+        const recapcha = new auth.RecaptchaVerifier('recaptcha-container', {
             'size': 'invisible',
             'callback': function (response) {
                 // reCAPTCHA solved, allow signInWithPhoneNumber.

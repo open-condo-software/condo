@@ -78,7 +78,7 @@ const SignInForm = ({ firebaseUser, children, ExtraErrorToFormFieldMsgMapping = 
                 setIsLoading(false)
             },
             onError: (e) => {
-                console.log(e.friendlyDescription)
+                console.error(e.friendlyDescription)
             },
             intl,
             form,
