@@ -17,6 +17,7 @@ import { TopMenuOnlyLayout } from '@condo/domains/common/components/containers/B
 import firebase, { isFirebaseConfigValid } from '@condo/domains/common/utils/firebase.front.utils'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { MIN_PASSWORD_LENGTH_ERROR, EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/common/constants/errors'
 
 const AuthContext = createContext({})
 
@@ -116,11 +117,11 @@ const RegisterForm = ({ children, register, registerExtraData = {}, ExtraErrorTo
     const WeMustMakeSureThatYouAreHumanMsg = intl.formatMessage({ id: 'pages.auth.WeMustMakeSureThatYouAreHuman' })
     const IHaveReadAndAcceptTheAgreementMsg = intl.formatMessage({ id: 'pages.auth.IHaveReadAndAcceptTheAgreement' })
     const ErrorToFormFieldMsgMapping = {
-        '[register:password:minLength]': {
+        [MIN_PASSWORD_LENGTH_ERROR]: {
             name: 'password',
             errors: [PasswordIsTooShortMsg],
         },
-        '[register:email:multipleFound]': {
+        [EMAIL_ALREADY_REGISTERED_ERROR]: {
             name: 'email',
             errors: [EmailIsAlreadyRegisteredMsg],
         },
