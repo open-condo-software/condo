@@ -24,7 +24,7 @@
     "@keystonejs/adapter-prisma": "^3.2.0",
     "@keystonejs/app-admin-ui": "^7.5.0",
     "@keystonejs/app-graphql": "^6.3.0",
-    "@keystonejs/app-next": "^6.1.0",
+    "@keystonejs/app-next": "^5.2.3",
     "@keystonejs/app-static": "^5.2.0",
     "@keystonejs/auth-password": "^6.1.0",
     "@keystonejs/fields": "^22.1.1",
