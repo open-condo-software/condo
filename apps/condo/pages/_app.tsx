@@ -27,33 +27,28 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 }
 
 function menuDataRender () {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const org = useOrganization()
-
-    if (org && org.link) {
-        return [
-            {
-                path: '/',
-                icon: PieChartFilled,
-                locale: 'menu.Analytics',
-            },
-            {
-                path: '/ticket',
-                icon: ThunderboltFilled,
-                locale: 'menu.ControlRoom',
-            },
-            {
-                path: '/property',
-                icon: HomeFilled,
-                locale: 'menu.Property',
-            },
-            {
-                path: '/employee',
-                icon: HeartFilled,
-                locale: 'menu.Users',
-            },
-        ]
-    }
+    return [
+        {
+            path: '/',
+            icon: PieChartFilled,
+            locale: 'menu.Analytics',
+        },
+        {
+            path: '/ticket',
+            icon: ThunderboltFilled,
+            locale: 'menu.ControlRoom',
+        },
+        {
+            path: '/property',
+            icon: HomeFilled,
+            locale: 'menu.Property',
+        },
+        {
+            path: '/employee',
+            icon: HeartFilled,
+            locale: 'menu.Users',
+        },
+    ]
 }
 
 const MyApp = ({ Component, pageProps }) => {
