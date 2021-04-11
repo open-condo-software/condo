@@ -9,17 +9,25 @@ const gql = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender v deletedAt organization { id name} newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const PROPERTY_FIELDS = `{ organization { id name} name address addressMeta type map ${COMMON_FIELDS} }`
+const PROPERTY_FIELDS = `{ organization { id name} name address addressMeta type ticketsInWork flatsCount map ${COMMON_FIELDS} }`
 const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
 
 const PROPERTY_UNIT_FIELDS = `{ property { id } map ${COMMON_FIELDS} }`
 const PropertyUnit = generateGqlQueries('PropertyUnit', PROPERTY_UNIT_FIELDS)
 
+const GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY = gql`
+    query GetTicketInWorkCountForProperty ($propertyId: ID!) {
+        inwork: _allTicketsMeta(where: { status: { type_not_in:  [ completed, canceled ] }, property: { id: $propertyId } }) {
+            count
+        }  
+  }
+`
 
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Property,
     PropertyUnit,
+    GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -47,10 +47,10 @@ interface ITableColumn {
     ellipsis?: boolean,
     sortOrder?: string,
     filteredValue?: FilterValue,
-    dataIndex: string,
-    key: string,
-    sorter: Record<string, number>,
-    width: string,
+    dataIndex?: string,
+    key?: string,
+    sorter?: Record<string, number>,
+    width?: string,
     filterDropdown?: unknown,
     filterIcon?: unknown
 }
@@ -98,47 +98,16 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters): Array<I
             {
                 title: FlatCountMessage,
                 ellipsis: true,
-                sortOrder: get(sorterMap, 'v'),
-                filteredValue: getFilteredValue(filters, 'v'),
-                render: (map) => {
-                    let count = 0
-                    if (map) {
-                        try {
-                            count = map.sections
-                                .map(section => section.floors
-                                    .map(floor => floor.units.length))
-                                .flat()
-                                .reduce((acc, current) => acc + current, 0)
-                        } catch (e) {
-                            // [TODO] zuch - rewrite to PropertyUnit count
-                            console.warn('count flat error', e)
-                        }
-                    }
-                    return count
-                },
-                dataIndex: 'map',
-                key: 'dv',
-                sorter: {
-                    multiple: 1,
-                },
+                dataIndex: 'flatsCount',
+                key: 'flatsCount',
                 width: '25%',
-                filterIcon: getFilterIcon,
             },       
             {
                 title: TasksInWorkMessage,
                 ellipsis: true,
-                sortOrder: get(sorterMap, 'tasks'),
-                filteredValue: getFilteredValue(filters, 'tasks'),
-                render: () => {
-                    return '0'
-                },
-                dataIndex: 'v',
-                key: 'v',
-                sorter: {
-                    multiple: 1,
-                },
+                dataIndex: 'ticketsInWork',
+                key: 'ticketsInWork',
                 width: '25%',
-                filterIcon: getFilterIcon,
             },                 
         ]
     }, [sort, filters, intl])
