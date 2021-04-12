@@ -4,7 +4,7 @@ import get from 'lodash/get'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import moment from 'moment'
 import { ParsedUrlQuery } from 'querystring'
-import { Ticket, TicketStatusWhereInput, TicketWhereInput } from '../../../schema'
+import { Ticket, TicketStatus, TicketStatusWhereInput, TicketWhereInput } from '../../../schema'
 
 export const getTicketCreateMessage = (intl, ticket) => {
     if (!ticket) {
@@ -72,9 +72,9 @@ export const getTicketLabel = (intl, ticket) => {
     return `${get(ticket, ['status', 'name'])} ${intl.formatMessage({ id: 'From' })} ${formattedDate}`
 }
 
-export const sortStatusesByType = (statuses) => {
+export const sortStatusesByType = (statuses: Array<TicketStatus>) => {
     // status priority map [min -> max]
-    const orderedStatusPriority = ['deferred', 'canceled', 'completed', 'processing', 'new_or_reopened' ]
+    const orderedStatusPriority = ['closed', 'deferred', 'canceled', 'completed', 'processing', 'new_or_reopened']
 
     return statuses.sort((leftStatus, rightStatus) => {
         const leftStatusWeight = orderedStatusPriority.indexOf(leftStatus.type)
