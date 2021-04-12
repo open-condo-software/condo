@@ -81,12 +81,11 @@ async function messagesImporter (locale) {
     return { ...locale_data.default }
 }
 
-const SSR = true
 export default (
-    withApollo({ ssr: SSR })(
-        withIntl({ ssr: SSR, messagesImporter })(
-            withAuth({ ssr: SSR })(
+    withApollo({ ssr: true })(
+        withIntl({ ssr: true, messagesImporter })(
+            withAuth({ ssr: true })(
                 withOrganization({
-                    ssr: SSR,
+                    ssr: true,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
                 })(MyApp)))))
