@@ -34,6 +34,7 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
     query selectOrgarnizationEmployee ($value: String, $organization: ID) {
         objs: allOrganizationEmployees(where: {name_contains_i: $value, organization: {id: $organization}}) {
             name
+            id
             user {
                 id
             }
@@ -71,9 +72,13 @@ export async function searchTicketClassifier (client, value) {
 
 export function searchEmployee (organization) {
     return async function (client, value) {
-        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organization })
+        const { data = [], error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organization })
         if (error) console.warn(error)
-        if (data) return data.objs.map(x => ({ text: x.name, value: x.user.id }))
-        return []
+
+        return data.objs.map(object => {
+            if (object.user) {
+                return ({ text: object.name, value: object.user.id })
+            }
+        }).filter(Boolean)
     }
 }
