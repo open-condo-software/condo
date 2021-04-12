@@ -96,7 +96,7 @@ const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
                         <UserNameField user={{ name: userInfo.name, id: props.user.id }}>
                             {({ name, postfix }) => (
                                 <Typography.Text>
-                                    <Typography.Text type='success' ellipsis>{name}</Typography.Text>
+                                    <Typography.Text ellipsis>{name}</Typography.Text>
                                     {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
                                 </Typography.Text>
                             )}
@@ -105,11 +105,7 @@ const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
                     : NotDefinedMessage
                 }
                 {userInfo.phone
-                    ? (
-                        <Typography.Text>
-                            {PhoneShortMessage} <Typography.Text type={'success'}>{userInfo.phone}</Typography.Text>
-                        </Typography.Text>
-                    )
+                    ? (<Typography.Text>{PhoneShortMessage} <Typography.Text>{userInfo.phone}</Typography.Text></Typography.Text>)
                     : `${PhoneShortMessage} ${PhoneNotDefinedMessage}`
                 }
                 {showPersonalInfoButtonControl && (
@@ -191,7 +187,7 @@ const TicketIdPage = () => {
                                                 <UserNameField user={get(ticket, ['createdBy'])}>
                                                     {({ name, postfix }) => (
                                                         <Typography.Text>
-                                                            <Typography.Text type='success' ellipsis>{name}</Typography.Text>
+                                                            <Typography.Text ellipsis>{name}</Typography.Text>
                                                             {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
                                                         </Typography.Text>
                                                     )}
@@ -265,12 +261,14 @@ const TicketIdPage = () => {
                                             </Col>
                                         </Row>
                                     </Col>
-                                    <Col span={24}>
-                                        <Typography.Title level={5}>{TicketInfoMessage}</Typography.Title>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Typography.Text style={{ fontSize: '24px' }}>{ticket.details}</Typography.Text>
-                                    </Col>
+                                    <Row gutter={[0, 8]}>
+                                        <Col span={24}>
+                                            <Typography.Title level={5} style={{ margin: 0 }}>{TicketInfoMessage}</Typography.Title>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Typography.Text style={{ fontSize: '24px' }}>{ticket.details}</Typography.Text>
+                                        </Col>
+                                    </Row>
                                 </Row>
                             </Col>
                         </FocusContainer>
