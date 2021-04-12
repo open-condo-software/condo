@@ -1,4 +1,4 @@
-const { CANCELED, COMPLETED, DEFERRED, NEW_OR_REOPEND, PROCESSING } = require('./statusTypes')
+const { CANCELED, COMPLETED, DEFERRED, NEW_OR_REOPEND, PROCESSING, CLOSED } = require('./statusTypes')
 const { grey, green, orange, red, yellow  } = require('@ant-design/colors')
 const { colors } = require('@condo/domains/common/constants/style')
 
@@ -22,6 +22,10 @@ const STATUS_SELECT_COLORS = {
     [DEFERRED]: {
         color: red[6],
         backgroundColor: red[2],
+    },
+    [CLOSED]: {
+        color: grey[6],
+        backgroundColor: colors.lightGrey[6],
     },
 }
 
