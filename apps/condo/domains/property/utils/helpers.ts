@@ -26,6 +26,7 @@ export const getFiltersFromQuery = (query: ParsedUrlQuery): IFilters => {
         return {}
     }
     try {
+        // @ts-ignore
         return JSON.parse(filters)
     } catch (e) {
         return {}
