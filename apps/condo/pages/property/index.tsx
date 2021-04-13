@@ -106,7 +106,7 @@ function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancel
     )
 }
 // [todo] zuch - chenge from modal to create page
-function CreatePropertyModalBlock({ modal, create }) {
+function CreatePropertyModalBlock ({ modal, create }) {
     const { visible, editableItem, cancelModal, openCreateModal } = modal
 
     const intl = useIntl()
