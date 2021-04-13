@@ -12,6 +12,8 @@
   "pages.condo.property.index.EmptyList.text": "Добавьте первый, это просто",
   "pages.condo.property.index.CreatePropertyButtonLabel": "Добавить дом",
   "pages.condo.property.index.CreatePropertyModalTitle": "Создать",
+  "pages.condo.property.index.ViewModeTable": "Список",
+  "pages.condo.property.index.ViewModeMap": "На карте",
   "pages.condo.property.index.EditPropertyModalTitle": "Редактировать",
   "pages.condo.property.id.PageTitle": "Объект",
   "pages.condo.property.field.Address": "Адрес",

@@ -49,7 +49,7 @@ interface ITableColumn {
     filteredValue?: FilterValue,
     dataIndex?: string,
     key?: string,
-    sorter?: Record<string, number>,
+    sorter?: boolean,
     width?: string,
     filterDropdown?: unknown,
     filterIcon?: unknown
@@ -75,9 +75,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters): Array<I
                 filteredValue: getFilteredValue(filters, 'address'),
                 dataIndex: 'address',
                 key: 'address',
-                sorter: {
-                    multiple: 1,
-                },
+                sorter: true,
                 width: '50%',
                 filterDropdown: function AddressFilterDropDown ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) {
                     return (
