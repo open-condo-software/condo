@@ -299,15 +299,15 @@ const PropertyPage = (): React.FC => {
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageContent>
+                <PageContent> 
                     <OrganizationRequired>
-                        <Row gutter={[0, 0]} align={'top'} style={{ zIndex: 1, position: 'relative' }}>
+                        <Row gutter={[0, 40]} align={'top'} style={{ zIndex: 1, position: 'relative' }}>
                             <Col span={6} >
                                 <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>
                                     {PageTitleMessage}
                                 </Typography.Title>} />
                             </Col>
-                            <Col span={6} push={12} align={'right'}>
+                            <Col span={6} push={12} align={'right'} style={{ top: 10 }}>
                                 <Radio.Group value={viewMode} buttonStyle="solid" onChange={e => changeViewMode(e.target.value)}>
                                     <Radio.Button value="list">{ShowTable}</Radio.Button>
                                     <Radio.Button value="map">{ShowMap}</Radio.Button>

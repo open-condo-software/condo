@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { load } from '@2gis/mapgl'
 
 import { DEFAULT_CENTER, GUEST_API_KEY, MARKER_SVG_URL } from '../constants/map'
+import { Card, Tag } from 'antd'
 
 export const DEFAULT_MAP_CENTER = [37.618423, 55.751244]
 
@@ -30,6 +31,8 @@ export const MapGL: React.FC<IMapProps> = ({ points }) => {
     
     const [map, setMap] = useState(null)
     const [api, setApi] = useState(null)
+
+    const [selected, setSelected] = useState(null)
     
     useEffect(() => {
         load().then((mapglAPI) => {
@@ -51,21 +54,33 @@ export const MapGL: React.FC<IMapProps> = ({ points }) => {
         }
         map.setCenter(center)
         if (points.length) {
-            points.map(point => {
+            for (const point of points) {
                 const marker = new api.Marker(map, {
                     coordinates: _toArrCoordinates(point.location),
                     icon: MARKER_SVG_URL,                    
                 })
-                marker.on('click', (e) => {
-                    alert('Marker is clicked')
+                marker.on('click', function (e){
+                    setSelected(point)
+                    console.log('Marker is clicked', point)
                 })        
-            })        
+            }
         }
     }, [map, points, api])
 
     return (
         <>  
-            <MapWrapper />
+            <MapWrapper>
+            </MapWrapper>
+            { selected ? 
+                <Card style={{ width: 300, bottom: 20, position: 'absolute' }} >
+                    <p>
+                        <b>{selected.text}</b>
+                    </p>
+                    <p>
+                        <Tag >{selected.title}</Tag>
+                    </p>
+                </Card> : null
+            }
         </>
     )
 }

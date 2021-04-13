@@ -52,7 +52,9 @@ const Property = new GQLListSchema('Property', {
                     if (dv === 1) {
                         // TODO(pahaz): need to checkIt!
                     } else {
-                        return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+                        // [TODO] zuch: need to understand what we are doing here
+                        console.error(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+                        // return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
                     }
                 },
             },

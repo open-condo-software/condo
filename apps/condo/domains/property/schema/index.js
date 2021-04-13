@@ -4,11 +4,9 @@
  */
 
 const { Property } = require('./Property')
-const { PropertyUnit } = require('./PropertyUnit')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Property,
-    PropertyUnit,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -4,5 +4,5 @@
  */
 
 export * as Property from './Property'
-export * as PropertyUnit from './PropertyUnit'
+
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
