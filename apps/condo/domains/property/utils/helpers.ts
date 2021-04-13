@@ -51,7 +51,6 @@ export const createSorterMap = (sortStringFromQuery: Array<string>): Record<stri
     }
     const columns = [
         'address',
-        'map',
     ]
     return sortStringFromQuery.reduce((acc, column) => {
         const [columnKey, sortOrder] = column.split('_')
@@ -73,12 +72,10 @@ export const sorterToQuery = (sorter?: SorterColumn | Array<SorterColumn>): Arra
     }
     return sorter.map((sort) => {
         const { columnKey, order } = sort
-
         const sortKeys = {
             'ascend': 'ASC',
             'descend': 'DESC',
         }
-
         const sortKey = sortKeys[order]
         if (!sortKey) {
             return
@@ -92,7 +89,6 @@ export const filtersToQuery = (filters: IFilters): PropertyWhereInput => {
     const filtersCollection = [
         address && { address_contains_i: address },
     ].filter(Boolean)
-
     if (filtersCollection.length > 0) {
         return {
             AND: filtersCollection,

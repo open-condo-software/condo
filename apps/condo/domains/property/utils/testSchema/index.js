@@ -15,15 +15,24 @@ const Property = generateGQLTestUtils(PropertyGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestProperty (client, extraAttrs = {}) {
+async function createTestProperty (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
+    if (!organization) throw new Error('no organization')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestProperty logic for generate fields
-
+    const name = faker.address.streetAddress(true)
+    const address = faker.address.streetAddress(true)
+    const addressMeta = {
+        dv: 1, city: faker.address.city(), zipCode: faker.address.zipCode(),
+        street: faker.address.streetName(), number: faker.address.secondaryAddress(),
+        county: faker.address.county(),
+        address,
+    }
     const attrs = {
         dv: 1,
         sender,
+        organization: { connect: { id: organization.id } },
+        type: 'building',
+        name, address, addressMeta,
         ...extraAttrs,
     }
     const obj = await Property.create(client, attrs)
