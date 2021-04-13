@@ -1,10 +1,13 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import { initSentry } from '@condo/domains/common/utils/sentry'
+initSentry()
 import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import { ThunderboltFilled, HomeFilled, HeartFilled, PieChartFilled } from '@ant-design/icons'
+import * as Sentry from '@sentry/react'
 
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
@@ -16,7 +19,6 @@ import { useOrganization, withOrganization } from '@core/next/organization'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleAnalytics'
 import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
-import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 
@@ -57,7 +59,7 @@ const MyApp = ({ Component, pageProps }) => {
     const HeaderAction = Component.headerAction
 
     return (
-        <GlobalErrorBoundary>
+        <Sentry.ErrorBoundary fallback={<h1>Something went wrong.</h1>}>
             <CacheProvider value={cache}>
                 <Head>
                     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
@@ -72,7 +74,7 @@ const MyApp = ({ Component, pageProps }) => {
                 </LayoutComponent>
                 <GoogleAnalytics/>
             </CacheProvider>
-        </GlobalErrorBoundary>
+        </Sentry.ErrorBoundary>
     )
 }
 

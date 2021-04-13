@@ -1,3 +1,6 @@
+const Sentry = require('@sentry/node')
+const conf = require('@core/config')
+
 const { Keystone } = require('@keystonejs/keystone')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
@@ -5,9 +8,8 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { StaticApp } = require('@keystonejs/app-static')
 const { NextApp } = require('@keystonejs/app-next')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
-
-const conf = require('@core/config')
 const access = require('@core/keystone/access')
+const { ApolloError } = require('@apollo/client')
 const { EmptyApp } = require('@core/keystone/test.utils')
 const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
@@ -78,10 +80,61 @@ const authStrategy = keystone.createAuthStrategy({
     config: { protectIdentities: false },
 })
 
+//refs. to https://codesandbox.io/s/graphql-errors-sentry-apollo-5s8yu?file=/index.ts
+const SentryApolloPlugin = {
+    requestDidStart (_) {
+        return {
+            didEncounterErrors (ctx) {
+                if (!ctx.operation) {
+                    return
+                }
+
+                for (const err of ctx.errors) {
+                    if (err instanceof ApolloError) {
+                        continue
+                    }
+
+                    Sentry.withScope(scope => {
+                        scope.setTag('kind', ctx.operation.operation)
+                        scope.setExtra('query', ctx.request.query)
+                        scope.setExtra('variables', ctx.request.variables)
+
+                        if (err.path) {
+                            scope.addBreadcrumb({
+                                category: 'query-path',
+                                message: err.path.join(' > '),
+                                level: Sentry.Severity.Debug,
+                            })
+                        }
+
+                        const transactionId = ctx.request.http.headers.get(
+                            'x-transaction-id'
+                        )
+                        if (transactionId) {
+                            scope.setTransaction(transactionId)
+                        }
+
+                        Sentry.captureException(err)
+                    })
+                }
+            },
+        }
+    },
+}
+
 module.exports = {
     keystone,
     apps: [
-        new GraphQLApp({ apollo: { debug: conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test' } }),
+        new GraphQLApp(
+            {
+                apollo: {
+                    debug: conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test',
+                    plugins: [
+                        conf.SENTRY_DSN && conf.NODE_ENV === 'production' && SentryApolloPlugin,
+                    ].filter(Boolean),
+                },
+            }
+        ),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({
             adminPath: '/admin',
@@ -90,4 +143,11 @@ module.exports = {
         }),
         conf.NODE_ENV === 'test' ? new EmptyApp() : new NextApp({ dir: '.' }),
     ],
+}
+
+if (conf.SENTRY_DSN) {
+    Sentry.init({
+        dsn: conf.SENTRY_DSN,
+        enabled: conf.NODE_ENV === 'production',
+    })
 }
