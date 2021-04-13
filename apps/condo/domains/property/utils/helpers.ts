@@ -22,12 +22,12 @@ export interface IFilters extends Pick<Property, 'address'> {
 
 export const getFiltersFromQuery = (query: ParsedUrlQuery): IFilters => {
     const filters = get(query, 'filters')
-    if (!filters) {
+    if (!filters || typeof filters !== 'string') {
         return {}
     }
     try {
-        // @ts-ignore
-        return JSON.parse(filters)
+        const parsed = JSON.parse(filters)
+        return parsed
     } catch (e) {
         return {}
     }

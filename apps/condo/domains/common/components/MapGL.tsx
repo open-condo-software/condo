@@ -7,6 +7,12 @@ import { Card, Tag } from 'antd'
 
 export const DEFAULT_MAP_CENTER = [37.618423, 55.751244]
 
+import getConfig from 'next/config'
+
+const {
+    publicRuntimeConfig: { mapApiKey },
+} = getConfig()
+
 export interface IPointsOfInterest {
     title?: string,
     text?: string,
@@ -18,14 +24,8 @@ export interface IMapProps {
     points: [IPointsOfInterest],
 }
 
-const MapWrapper = React.memo(function MapWrapper () {
-    return <>
-        <div id="map-container" style={{ position: 'absolute', top: 100, bottom: 0, right: 0, left: 0 }}></div>
-    </>
-}, () => true )
 
 const _toArrCoordinates = ({ lng, lat }) => [Number(lng), Number(lat)] 
-
 
 export const MapGL: React.FC<IMapProps> = ({ points }) => {
     
@@ -41,7 +41,7 @@ export const MapGL: React.FC<IMapProps> = ({ points }) => {
                 center: DEFAULT_CENTER,
                 zoom: 13,
                 zoomControl: true,
-                key: GUEST_API_KEY,
+                key: mapApiKey || GUEST_API_KEY,
             })
             setMap(map)
         })
@@ -61,7 +61,6 @@ export const MapGL: React.FC<IMapProps> = ({ points }) => {
                 })
                 marker.on('click', function (e){
                     setSelected(point)
-                    console.log('Marker is clicked', point)
                 })        
             }
         }
@@ -69,8 +68,7 @@ export const MapGL: React.FC<IMapProps> = ({ points }) => {
 
     return (
         <>  
-            <MapWrapper>
-            </MapWrapper>
+            <div id="map-container" style={{ position: 'absolute', top: 100, bottom: 0, right: 0, left: 0 }} />
             { selected ? 
                 <Card style={{ width: 300, bottom: 20, position: 'absolute' }} >
                     <p>

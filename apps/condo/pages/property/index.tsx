@@ -44,7 +44,7 @@ import { Form, Select } from 'antd'
 import { buildingMapJson } from '@condo/domains/property/constants/property.example'
 
 
-// [todo] zuch - chenge from modal to create page
+// TODO(zuch): Change from modal to create page
 function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancelModal }) {
     const intl = useIntl()
     const AddressMsg = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
@@ -105,7 +105,7 @@ function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancel
         </BaseModalForm>
     )
 }
-// [todo] zuch - chenge from modal to create page
+// TODO(zuch): Change from modal to create page
 function CreatePropertyModalBlock ({ modal, create }) {
     const { visible, editableItem, cancelModal, openCreateModal } = modal
 

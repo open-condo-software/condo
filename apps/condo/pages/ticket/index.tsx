@@ -132,7 +132,11 @@ const TicketsPage = () => {
                     <OrganizationRequired>
                         {
                             !tickets.length && !filtersFromQuery
-                                ? <EmptyListView/>
+                                ? <EmptyListView 
+                                    title='ticket.EmptyList.header'
+                                    text='ticket.EmptyList.title'
+                                    createRoute='/ticket/create'
+                                    createLabel='CreateTicket' />
                                 : <Row gutter={[0, 40]} align={'middle'}>
                                     <Col span={6}>
                                         <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData}>{ExportAsExcel}</Button>

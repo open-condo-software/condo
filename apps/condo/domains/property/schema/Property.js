@@ -52,7 +52,7 @@ const Property = new GQLListSchema('Property', {
                     if (dv === 1) {
                         // TODO(pahaz): need to checkIt!
                     } else {
-                        // [TODO] zuch: need to understand what we are doing here
+                        // TODO(zuch): Need to understand what we are doing here
                         console.error(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
                         // return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
                     }
@@ -100,7 +100,7 @@ const Property = new GQLListSchema('Property', {
                             .flat()
                             .reduce((acc, current) => acc + current, 0)
                     } catch (e) {
-                        // [TODO] zuch - rewrite to PropertyUnit count
+                        // TODO(zuch): Rewrite to PropertyUnit count
                         console.error('Error while fetching virtual field flatsCount', e)
                     }
                 }
