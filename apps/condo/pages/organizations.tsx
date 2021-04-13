@@ -24,8 +24,8 @@ import {
     GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY,
     REGISTER_NEW_ORGANIZATION_MUTATION,
     UPDATE_ORGANIZATION_BY_ID_MUTATION,
-} from '../gql/Organization'
-import { convertGQLItemToUIState, convertUIStateToGQLItem } from '../utils/clientSchema/Organization'
+} from '@condo/domains/organization/gql'
+import { convertGQLItemToUIState, convertUIStateToGQLItem } from '@condo/domains/organization/utils/clientSchema'
 
 const DEFAULT_ORGANIZATION_AVATAR_URL = 'https://www.pngitem.com/pimgs/m/226-2261747_company-name-icon-png-transparent-png.png'
 

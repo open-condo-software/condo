@@ -1,13 +1,20 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import React, { useCallback, useMemo } from 'react'
-import { Select, Space, Typography } from 'antd'
-import styled from '@emotion/styled'
-import { useIntl } from '@core/next/intl'
-import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { Organization } from '@condo/domains/organization/utils/clientSchema'
 import { STATUS_SELECT_COLORS } from '@condo/domains/ticket/constants/style'
-import { getTicketFormattedLastStatusUpdate, getTicketLabel, sortStatusesByType } from '@condo/domains/ticket/utils/helpers'
+import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
+import {
+    getTicketFormattedLastStatusUpdate,
+    getTicketLabel,
+    sortStatusesByType,
+} from '@condo/domains/ticket/utils/helpers'
+import { useIntl } from '@core/next/intl'
+import styled from '@emotion/styled'
+import { Select, Space, Typography } from 'antd'
+import get from 'lodash/get'
+import React, { useCallback, useMemo } from 'react'
+import { useStatusTransitions } from '../hooks/useStatusTransitions'
 
 const StyledSelect = styled(Select)`
   width: 100%;
@@ -19,7 +26,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {
     const intl = useIntl()
     const FormattedStatusUpdateMessage = useMemo(() => getTicketFormattedLastStatusUpdate(intl, ticket), [ticket])
 
-    const { objs: statuses, loading } = TicketStatus.useObjects()
+    const { statuses, loading } = useStatusTransitions(get(ticket, ['status', 'id']))
     const update = Ticket.useUpdate({}, () => onUpdate())
 
     const updateTicketStatus = useCallback((variables) => runMutation({
@@ -48,6 +55,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {
                     color,
                     backgroundColor,
                 }}
+                disabled={!statuses.length}
                 loading={loading}
                 onChange={handleChange}
                 defaultValue={selectValue}

@@ -24,7 +24,7 @@ const TicketStatus = new GQLListSchema('TicketStatus', {
         type: {
             type: Select,
             isRequired: true,
-            options: 'new_or_reopened, processing, canceled, completed, deferred',
+            options: 'new_or_reopened, processing, canceled, completed, deferred, closed',
             schemaDoc: 'Ticket status. You should also increase `statusReopenedCounter` if you want to reopen ticket',
             // DEFERRED Отложена + Дата возвращения заявки в работу + deferment_by
             // MORE EXAMPLES: 'inModeration', 'assigned', 'accepted', 'reopened', 'onRoad', 'inWork', 'completed', 'checking', 'closed'

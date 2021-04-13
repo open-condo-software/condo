@@ -1,6 +1,6 @@
-const { createConfirmedEmployee, createAdminRole, createOrganization } = require('../../utils/serverSchema/Organization')
+const { createConfirmedEmployee, createAdminRole, createOrganization } = require('../../../utils/serverSchema/Organization')
 const { getById, GQLCustomSchema } = require('@core/keystone/schema')
-const { rules } = require('../../access')
+const { rules } = require('../../../access')
 
 const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizationService', {
     types: [

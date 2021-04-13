@@ -31,7 +31,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 1, 6)
+VERSION = (1, 1, 7)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -634,6 +634,8 @@ def main(command, keystoneEntryFile='./index.js'):
             _5_1_run_knex_command(ctx, cmd='currentVersion')
         elif command == 'list':
             _5_1_run_knex_command(ctx, cmd='list')
+        elif command == 'unlock':
+            _5_1_run_knex_command(ctx, cmd='forceFreeMigrationsLock')
     except KProblem as e:
         print(e, file=sys.stderr)
         return 1

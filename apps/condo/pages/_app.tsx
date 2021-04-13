@@ -18,7 +18,7 @@ import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleA
 import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
 
-import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '../gql/Organization'
+import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
