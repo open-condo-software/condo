@@ -48,6 +48,7 @@
     "bull-repl": "^0.26.3",
     "classnames": "^2.2.6",
     "date-fns": "^2.20.1",
+    "dd-trace": "^0.32.0",
     "emotion": "^10.0.27",
     "emotion-server": "^10.0.27",
     "express": "^4.17.1",

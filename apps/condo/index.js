@@ -12,6 +12,10 @@ const { EmptyApp } = require('@core/keystone/test.utils')
 const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 
+require('dd-trace').init({
+    logInjection: true,
+})
+
 const keystone = new Keystone({
     ...prepareDefaultKeystoneConfig(conf),
     onConnect: async () => {
