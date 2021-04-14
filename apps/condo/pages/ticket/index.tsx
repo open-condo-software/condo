@@ -43,7 +43,7 @@ const TicketsPage = () => {
         objs: tickets,
     } = Ticket.useObjects({
         // @ts-ignore
-        sortBy: sortFromQuery.length > 0  ? sortFromQuery : 'number_DESC', //TODO(Dimitreee):Find cleanest solution
+        sortBy: sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC', //TODO(Dimitreee):Find cleanest solution
         where: filtersToQuery(filtersFromQuery),
         offset: offsetFromQuery,
         limit: TICKET_PAGE_SIZE,
