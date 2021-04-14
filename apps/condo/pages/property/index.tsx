@@ -19,6 +19,7 @@ import { useOrganization } from '@core/next/organization'
 import qs from 'qs'
 import pickBy from 'lodash/pickBy'
 import XLSX from 'xlsx'
+import has from 'lodash/has'
 
 import {
     getFiltersFromQuery,
@@ -133,7 +134,7 @@ const PropertyPageViewMap = (): React.FC => {
     } = Property.useObjects()
 
     const points = properties
-        .filter(property => Reflect.has(property.addressMeta, 'data'))
+        .filter(property => has(property, ['addressMeta', 'data']))
         .map(property => {
             const { geo_lat, geo_lon } = property.addressMeta.data
             return {
