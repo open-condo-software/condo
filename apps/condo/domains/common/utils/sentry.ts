@@ -27,7 +27,6 @@ export const initSentry = () => {
             )
         }
 
-        console.log(isProduction)
         Sentry.init({
             integrations,
             dsn: sentryDsn,
