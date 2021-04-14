@@ -4,37 +4,50 @@ import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { Button } from './Button'
 import { EmptyIcon } from './EmptyIcon'
+import React from 'react'
 
 const EmptyListViewContainer = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
 `
-export const EmptyListView = () => {
+
+export interface IEmptyListProps {
+    title: string,
+    text: string,
+    createRoute: string,
+    createLabel: string
+}
+
+export const EmptyListView: React.FC<IEmptyListProps> = ({ title, text, createRoute, createLabel }) => {
     const intl = useIntl()
     const router = useRouter()
+
+    const EmptyListHeader = intl.formatMessage({ id: title })
+    const EmptyListTitle = intl.formatMessage({ id: text })
+    const CreateLabel = intl.formatMessage({ id: createLabel })
 
     return (
         <EmptyListViewContainer>
             <Empty
-                image={<EmptyIcon/>}
+                image={<EmptyIcon />}
                 imageStyle={{ height: '120px' }}
                 description={
                     <Space direction={'vertical'} size={0}>
                         <Typography.Title level={3}>
-                            {intl.formatMessage({ id: 'ticket.EmptyList.header' })}
+                            {EmptyListHeader}
                         </Typography.Title>
                         <Typography.Text style={{ fontSize: '16px' }}>
-                            {intl.formatMessage({ id: 'ticket.EmptyList.title' })}
+                            {EmptyListTitle}
                         </Typography.Text>
                         <Button
                             type='sberPrimary'
                             style={{ marginTop: '16px' }}
-                            onClick={() => router.push('/ticket/create')}
+                            onClick={() => router.push(createRoute)}
                         >
-                            {intl.formatMessage({ id: 'CreateTicket' })}
+                            {CreateLabel}
                         </Button>
                     </Space>
                 }

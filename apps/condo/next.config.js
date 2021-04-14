@@ -11,6 +11,7 @@ const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
 const firebaseConfig = conf['FIREBASE_CONFIG'] && JSON.parse(conf['FIREBASE_CONFIG'])
 const addressSuggestionsConfig = conf['ADDRESS_SUGGESTIONS_CONFIG'] && JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG'])
+const mapApiKey = conf['MAP_API_KEY']
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -19,6 +20,7 @@ module.exports = withTM(withLess(withCSS({
         apolloGraphQLUrl,
         firebaseConfig,
         addressSuggestionsConfig,
+        mapApiKey,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,

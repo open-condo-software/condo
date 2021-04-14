@@ -1,26 +1,50 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import Head from 'next/head'
-import Link from 'next/link'
-import React, { useEffect } from 'react'
-import { Avatar, Button, Form, Input, Select } from 'antd'
-
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
+import React, { useCallback, useState } from 'react'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { Typography, Space, Radio, Row, Col, Tooltip, Input, Table } from 'antd'
+import { DatabaseFilled } from '@ant-design/icons'
+
+import Head from 'next/head'
+import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { MapGL } from '@condo/domains/common/components/MapGL'
+import { Button } from '@condo/domains/common/components/Button'
+
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import FormList, {
+import { useIntl } from '@core/next/intl'
+import { useRouter } from 'next/router'
+import { useOrganization } from '@core/next/organization'
+
+import qs from 'qs'
+import pickBy from 'lodash/pickBy'
+import XLSX from 'xlsx'
+
+import {
+    getFiltersFromQuery,
+    getPaginationFromQuery,
+    getSortStringFromQuery,
+    sorterToQuery,
+    filtersToQuery,
+    PROPERTY_PAGE_SIZE,
+} from '@condo/domains/property/utils/helpers'
+
+import { useTableColumns } from '@condo/domains/property/hooks/useTableColumns'
+import { Property } from '@condo/domains/property/utils/clientSchema'
+
+import debounce from 'lodash/debounce'
+
+import {
     BaseModalForm,
-    CreateFormListItemButton,
-    ExpandableDescription,
     useCreateAndEditModalForm,
 } from '@condo/domains/common/components/containers/FormList'
-import { useTable } from '@condo/domains/common/components/containers/FormTableBlocks'
+
 import { AddressSearchInput } from '@condo/domains/common/components/AddressSearchInput'
-import * as Property from '@condo/domains/property/utils/clientSchema/Property'
+import { Form, Select } from 'antd'
 import { buildingMapJson } from '@condo/domains/property/constants/property.example'
 
+
+// TODO(zuch): Change from modal to create page
 function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancelModal }) {
     const intl = useIntl()
     const AddressMsg = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
@@ -58,14 +82,14 @@ function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancel
                 label={AddressMsg}
                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
             >
-                <AddressSearchInput/>
+                <AddressSearchInput />
             </Form.Item>
             <Form.Item
                 name="name"
                 label={NameMsg}
                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
             >
-                <Input/>
+                <Input />
             </Form.Item>
             <Form.Item
                 name="type"
@@ -81,15 +105,20 @@ function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancel
         </BaseModalForm>
     )
 }
-
+// TODO(zuch): Change from modal to create page
 function CreatePropertyModalBlock ({ modal, create }) {
     const { visible, editableItem, cancelModal, openCreateModal } = modal
 
     const intl = useIntl()
-    const CreatePropertyButtonLabelMsg = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
+    const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
 
     return <>
-        <CreateFormListItemButton onClick={openCreateModal} label={CreatePropertyButtonLabelMsg}/>
+        <Button
+            type='sberPrimary'
+            onClick={openCreateModal}
+        >
+            {CreateLabel}
+        </Button>
         <CreateAndEditPropertyModalForm
             action={create}
             visible={visible}
@@ -98,70 +127,199 @@ function CreatePropertyModalBlock ({ modal, create }) {
         />
     </>
 }
+const PropertyPageViewMap = (): React.FC => {
+    const {
+        objs: properties,
+    } = Property.useObjects()
 
-function ViewOrEditPropertyListBlock ({ loading, objs }) {
-    const intl = useIntl()
-    const SelectMsg = intl.formatMessage({ id: 'Select' })
-
-    return (
-        <FormList
-            loading={loading}
-            dataSource={objs}
-            renderItem={(item) => {
-                const { name, address, avatar, href } = item
-                return {
-                    extraBlockMeta: { style: { width: '150px' } },
-                    avatar: <Avatar src={avatar} shape="square" size="large"/>,
-                    title: <Link href={href}><a>{name}</a></Link>,
-                    description: <ExpandableDescription>{address}</ExpandableDescription>,
-                    actions: [
-                        [<Link href={href} key={1}><Button size="small" type={'primary'}>{SelectMsg}</Button></Link>],
-                    ],
-                }
-            }}
-        />
-    )
-}
-
-function PropertyCRUDListBlock () {
-    const { organization } = useOrganization()
-    const modal = useCreateAndEditModalForm()
-    const table = useTable()
-
-    const { objs, count, refetch, loading } = Property.useObjects({}, { 
-        fetchPolicy: 'network-only',
-    })
-    const create = Property.useCreate({ organization: organization.id, map: buildingMapJson }, () => refetch())
-
-    useEffect(() => {
-        if (objs) {
-            table.setData(objs)
-            table.updateFilterPaginationSort({ total: count })
-        }
-    }, [loading])
+    const points = properties
+        .filter(property => Reflect.has(property.addressMeta, 'data'))
+        .map(property => {
+            const { geo_lat, geo_lon } = property.addressMeta.data
+            return {
+                title: property.name,
+                text: property.address,
+                location: { lat: geo_lat, lng: geo_lon },
+                route: `/property/${property.id}/`,
+            }
+        })
 
     return (
         <>
-            <CreatePropertyModalBlock modal={modal} create={create}/>
-            <ViewOrEditPropertyListBlock objs={objs} loading={loading}/>
+            <MapGL points={points} />
         </>
     )
 }
 
-const PropertyIndexPage = () => {
+
+const PropertyPageViewTable = (): React.FC => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.index.PageTitle' })
+    const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const NotImplementedYedMessage = intl.formatMessage({ id: 'NotImplementedYed' })
+    const createRoute = '/property/create'
+    const router = useRouter()
+    const modal = useCreateAndEditModalForm()
+    const { organization } = useOrganization()
+    const create = Property.useCreate({ organization: organization.id, map: buildingMapJson }, () => refetch())
+    const sortFromQuery = getSortStringFromQuery(router.query)
+    const offsetFromQuery = getPaginationFromQuery(router.query)
+    const filtersFromQuery = getFiltersFromQuery(router.query)
+
+    const {
+        refetch,
+        fetchMore,
+        loading,
+        count: total,
+        objs: properties,
+    } = Property.useObjects({
+        sortBy: sortFromQuery,
+        where: filtersToQuery(filtersFromQuery),
+        offset: offsetFromQuery,
+        limit: PROPERTY_PAGE_SIZE,
+    })
+
+    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery)
+
+    const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
+        const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
+        const { current, pageSize } = nextPagination
+        const offset = current * pageSize - pageSize
+        const sort = sorterToQuery(nextSorter)
+        const filters = filtersToQuery(nextFilters)
+        if (!loading) {
+            fetchMore({
+                sortBy: sort,
+                where: filters,
+                offset,
+                first: PROPERTY_PAGE_SIZE,
+                limit: PROPERTY_PAGE_SIZE,
+            }).then(() => {
+                const query = qs.stringify(
+                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy(nextFilters)) },
+                    { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+                )
+                router.push(router.route + query)
+            })
+
+        }
+    }, 400), [loading])
+
+    const generateExcelData = useCallback(() => {
+        return new Promise<void>((resolve, reject) => {
+            try {
+                const cols = [
+                    'address',
+                    'organization',
+                    'flatsCount',
+                    'ticketsInWork',
+                ]
+                const wb = XLSX.utils.book_new()
+                const ws = XLSX.utils.json_to_sheet(
+                    properties.map((property) => Property.extractAttributes(property, cols)), { header: cols }
+                )
+                XLSX.utils.book_append_sheet(wb, ws, 'table')
+                XLSX.writeFile(wb, 'export_properties.xlsx')
+            } catch (e) {
+                reject(e)
+            } finally {
+                resolve()
+            }
+        })
+    }, [properties])
+
+    const noProperties = !properties.length && !filtersFromQuery
+
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: () => {
+                router.push(`/property/${record.id}/`)
+            },
+        }
+    }, [router])
+    return (
+        <>
+            {
+                noProperties ?
+                    <EmptyListView
+                        title='pages.condo.property.index.EmptyList.header'
+                        text='pages.condo.property.index.EmptyList.text'
+                        createRoute={createRoute}
+                        createLabel='pages.condo.property.index.CreatePropertyButtonLabel' />
+                    :
+                    <Row align={'middle'} gutter={[0, 40]}>
+                        <Col span={6}>
+                            <Tooltip title={NotImplementedYedMessage}>
+                                <div>
+                                    <Input placeholder={SearchPlaceholder} disabled />
+                                </div>
+                            </Tooltip>
+                        </Col>
+                        <Col span={6} push={1}>
+                            <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData} >{ExportAsExcel}</Button>
+                        </Col>
+                        <Col span={6} push={6} align={'right'}>
+                            <CreatePropertyModalBlock modal={modal} create={create} />
+                        </Col>
+                        <Col span={24}>
+                            <Table
+                                bordered
+                                tableLayout={'fixed'}
+                                loading={loading}
+                                dataSource={properties}
+                                onRow={handleRowAction}
+                                rowKey={record => record.id}
+                                columns={tableColumns}
+                                onChange={handleTableChange}
+                                pagination={{
+                                    total,
+                                    current: offsetFromQuery,
+                                    pageSize: PROPERTY_PAGE_SIZE,
+                                    position: ['bottomLeft'],
+                                }}
+                            />
+                        </Col>
+                    </Row>
+            }
+        </>
+    )
+
+}
+
+const PropertyPage = (): React.FC => {
+    const intl = useIntl()
+    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.PageTitle' })
+    const ShowMap = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeMap' })  
+    const ShowTable = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeTable' }) 
+    const [viewMode, changeViewMode] = useState('list')
 
     return (
         <>
             <Head>
-                <title>{PageTitleMsg}</title>
+                <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={PageTitleMsg}/>
-                <PageContent>
+                <PageContent> 
                     <OrganizationRequired>
-                        <PropertyCRUDListBlock/>
+                        <Row gutter={[0, 40]} align={'top'} style={{ zIndex: 1, position: 'relative' }}>
+                            <Col span={6} >
+                                <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>
+                                    {PageTitleMessage}
+                                </Typography.Title>} />
+                            </Col>
+                            <Col span={6} push={12} align={'right'} style={{ top: 10 }}>
+                                <Radio.Group value={viewMode} buttonStyle="solid" onChange={e => changeViewMode(e.target.value)}>
+                                    <Radio.Button value="list">{ShowTable}</Radio.Button>
+                                    <Radio.Button value="map">{ShowMap}</Radio.Button>
+                                </Radio.Group>
+                            </Col>
+                        </Row>
+                        {
+                            viewMode == 'map' ?
+                                <PropertyPageViewMap />
+                                :
+                                <PropertyPageViewTable />
+                        }
                     </OrganizationRequired>
                 </PageContent>
             </PageWrapper>
@@ -169,4 +327,18 @@ const PropertyIndexPage = () => {
     )
 }
 
-export default PropertyIndexPage
+const HeaderAction = () => {
+    const intl = useIntl()
+
+    return (
+        <Space>
+            <Typography.Text style={{ fontSize: '12px' }}>
+                {intl.formatMessage({ id: 'menu.Property' })}
+            </Typography.Text>
+        </Space>
+    )
+}
+
+PropertyPage.headerAction = <HeaderAction />
+
+export default PropertyPage

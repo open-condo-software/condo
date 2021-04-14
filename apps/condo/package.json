@@ -16,6 +16,7 @@
     "createschema": "./../../bin/createschema"
   },
   "dependencies": {
+    "@2gis/mapgl": "^1.12.0",
     "@condo/domains": "link:./domains",
     "@emotion/core": "^10.1.1",
     "@emotion/styled": "^10.0.27",
