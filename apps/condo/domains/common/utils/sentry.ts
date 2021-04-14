@@ -5,7 +5,7 @@ import getConfig from 'next/config'
 // refs. to: https://github.com/vercel/next.js/blob/canary/examples/with-sentry/utils/sentry.js
 export const initSentry = () => {
     const { publicRuntimeConfig } = getConfig()
-    const { sentryDsn, isProduction } = publicRuntimeConfig
+    const { sentryDsn } = publicRuntimeConfig
 
     if (sentryDsn) {
         const integrations = []
@@ -30,7 +30,7 @@ export const initSentry = () => {
         Sentry.init({
             integrations,
             dsn: sentryDsn,
-            enabled: isProduction,
+            enabled: true,
         })
     }
 }

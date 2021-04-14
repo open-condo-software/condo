@@ -15,7 +15,6 @@ const apolloGraphQLUrl = `${serverUrl}/admin/api`
 const firebaseConfig = conf['FIREBASE_CONFIG'] && JSON.parse(conf['FIREBASE_CONFIG'])
 const addressSuggestionsConfig = conf['ADDRESS_SUGGESTIONS_CONFIG'] && JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG'])
 const sentryDsn = conf['SENTRY_DSN']
-const isProduction = conf['NODE_ENV'] === 'production'
 const mapApiKey = conf['MAP_API_KEY']
 
 module.exports = withSourceMaps(withTM(withLess(withCSS({
@@ -23,7 +22,6 @@ module.exports = withSourceMaps(withTM(withLess(withCSS({
         // Will be available on both server and client
         sentryDsn,
         serverUrl,
-        isProduction,
         firebaseConfig,
         apolloGraphQLUrl,
         addressSuggestionsConfig,
@@ -38,7 +36,7 @@ module.exports = withSourceMaps(withTM(withLess(withCSS({
             config.resolve.alias['@sentry/node'] = '@sentry/browser'
         }
 
-        if (sentryDsn && isProduction) {
+        if (sentryDsn && conf['ENABLE_SENTRY_SOURCEMAPS_UPLOADING'] === 'true') {
             config.plugins.push(
                 new SentryWebpackPlugin({
                     include: '.next',
