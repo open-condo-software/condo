@@ -18,7 +18,7 @@
   "pages.condo.property.id.PageTitle": "Объект",
   "pages.condo.property.field.Address": "Адрес",
   "pages.condo.property.index.TableField.Address": "Адрес",  
-  "pages.condo.property.index.TableField.FlatCount": "Квартир",
+  "pages.condo.property.index.TableField.UnitsCount": "Квартир",
   "pages.condo.property.index.TableField.TasksInWorkCount": "Заявок в работе",  
   "pages.condo.property.field.Name": "Название",
   "pages.condo.property.field.Type": "Тип объекта",

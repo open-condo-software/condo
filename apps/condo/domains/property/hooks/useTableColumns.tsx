@@ -64,7 +64,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters): Array<I
     const intl = useIntl()
     const columns = useMemo(() => {
         const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Address' })
-        const FlatCountMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.FlatCount' })
+        const UnitsCountMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.UnitsCount' })
         const TasksInWorkMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.TasksInWorkCount' })
         const sorterMap = createSorterMap(sort)
         return [
@@ -94,10 +94,10 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters): Array<I
                 filterIcon: getFilterIcon,
             },
             {
-                title: FlatCountMessage,
+                title: UnitsCountMessage,
                 ellipsis: true,
-                dataIndex: 'flatsCount',
-                key: 'flatsCount',
+                dataIndex: 'unitsCount',
+                key: 'unitsCount',
                 width: '25%',
             },       
             {

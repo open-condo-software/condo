@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react'
 
 import { load } from '@2gis/mapgl'
 
-import { DEFAULT_CENTER, GUEST_API_KEY, MARKER_SVG_URL } from '../constants/map'
+import { DEFAULT_CENTER, MARKER_SVG_URL } from '../constants/map'
 import { Card, Tag } from 'antd'
 
-export const DEFAULT_MAP_CENTER = [37.618423, 55.751244]
+const GUEST_API_KEY = 'bfd8bbca-8abf-11ea-b033-5fa57aae2de7'
 
 import getConfig from 'next/config'
 

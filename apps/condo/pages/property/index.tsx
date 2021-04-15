@@ -155,9 +155,14 @@ const PropertyPageViewMap = (): React.FC => {
 
 const PropertyPageViewTable = (): React.FC => {
     const intl = useIntl()
+
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
+    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.header' })
+    const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
+    const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const NotImplementedYedMessage = intl.formatMessage({ id: 'NotImplementedYed' })
+
     const createRoute = '/property/create'
     const router = useRouter()
     const modal = useCreateAndEditModalForm()
@@ -212,7 +217,7 @@ const PropertyPageViewTable = (): React.FC => {
                 const cols = [
                     'address',
                     'organization',
-                    'flatsCount',
+                    'unitsCount',
                     'ticketsInWork',
                 ]
                 const wb = XLSX.utils.book_new()
@@ -243,10 +248,10 @@ const PropertyPageViewTable = (): React.FC => {
             {
                 noProperties ?
                     <EmptyListView
-                        title='pages.condo.property.index.EmptyList.header'
-                        text='pages.condo.property.index.EmptyList.text'
+                        label={EmptyListLabel}
+                        message={EmptyListMessage}
                         createRoute={createRoute}
-                        createLabel='pages.condo.property.index.CreatePropertyButtonLabel' />
+                        createLabel={CreateLabel} />
                     :
                     <Row align={'middle'} gutter={[0, 40]}>
                         <Col span={6}>

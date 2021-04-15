@@ -60,7 +60,7 @@ describe('Property', () => {
         expect(obj.createdAt).toMatch(DATETIME_RE)
         expect(obj.updatedAt).toMatch(DATETIME_RE)
         expect(obj.updatedAt).not.toEqual(obj.createdAt)
-        expect(obj.flatsCount).toEqual('28')
+        expect(obj.unitsCount).toEqual('28')
     })    
 
     test('user: checking "tickets in work" field', async () => {
