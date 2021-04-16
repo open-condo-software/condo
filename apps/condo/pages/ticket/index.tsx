@@ -30,6 +30,11 @@ const TicketsPage = () => {
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const NotImplementedYedMessage = intl.formatMessage({ id: 'NotImplementedYed' })
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
+    const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
+    const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
+    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
+    
+    
 
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
@@ -129,10 +134,10 @@ const TicketsPage = () => {
                         {
                             !tickets.length && !filtersFromQuery
                                 ? <EmptyListView 
-                                    title='ticket.EmptyList.header'
-                                    text='ticket.EmptyList.title'
+                                    label={EmptyListLabel}
+                                    message={EmptyListMessage}
                                     createRoute='/ticket/create'
-                                    createLabel='CreateTicket' />
+                                    createLabel={CreateTicket} />
                                 : <Row gutter={[0, 40]} align={'middle'}>
                                     <Col span={6}>
                                         <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData}>{ExportAsExcel}</Button>

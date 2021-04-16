@@ -1,7 +1,6 @@
 import styled from '@emotion/styled'
 import { Empty, Space, Typography } from 'antd'
 import { useRouter } from 'next/router'
-import { useIntl } from '@core/next/intl'
 import { Button } from './Button'
 import { EmptyIcon } from './EmptyIcon'
 import React from 'react'
@@ -15,20 +14,14 @@ const EmptyListViewContainer = styled.div`
 `
 
 export interface IEmptyListProps {
-    title: string,
-    text: string,
+    label: string,
+    message: string,
     createRoute: string,
     createLabel: string
 }
 
-export const EmptyListView: React.FC<IEmptyListProps> = ({ title, text, createRoute, createLabel }) => {
-    const intl = useIntl()
+export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, createRoute, createLabel }) => {
     const router = useRouter()
-
-    const EmptyListHeader = intl.formatMessage({ id: title })
-    const EmptyListTitle = intl.formatMessage({ id: text })
-    const CreateLabel = intl.formatMessage({ id: createLabel })
-
     return (
         <EmptyListViewContainer>
             <Empty
@@ -37,17 +30,17 @@ export const EmptyListView: React.FC<IEmptyListProps> = ({ title, text, createRo
                 description={
                     <Space direction={'vertical'} size={0}>
                         <Typography.Title level={3}>
-                            {EmptyListHeader}
+                            {label}
                         </Typography.Title>
                         <Typography.Text style={{ fontSize: '16px' }}>
-                            {EmptyListTitle}
+                            {message}
                         </Typography.Text>
                         <Button
                             type='sberPrimary'
                             style={{ marginTop: '16px' }}
                             onClick={() => router.push(createRoute)}
                         >
-                            {CreateLabel}
+                            {createLabel}
                         </Button>
                     </Space>
                 }

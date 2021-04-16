@@ -15,8 +15,7 @@ const { GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
 
 // ORGANIZATION_OWNED_FIELD
 const Property = new GQLListSchema('Property', {
-    // TODO(codegen): write doc for the Property domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Common property. The property is divided into separate `unit` parts, each of which can be owned by an independent owner. Community farm, residential buildings, or a cottage settlement',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
@@ -24,21 +23,18 @@ const Property = new GQLListSchema('Property', {
         organization: ORGANIZATION_OWNED_FIELD,
 
         name: {
-            // TODO(codegen): write doc for Property.name field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Client understandable Property name. A well-known property name for the client',
             type: Text,
             isRequired: true,
         },
 
         address: {
-            // TODO(codegen): write doc for Property.address field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Normalized address',
             type: Text,
             isRequired: true,
         },
 
         addressMeta: {
-            // TODO(codegen): write doc for Property.addressMeta field!
             schemaDoc: 'Property address components',
             type: Json,
             isRequired: true,
@@ -52,7 +48,7 @@ const Property = new GQLListSchema('Property', {
                     if (dv === 1) {
                         // TODO(pahaz): need to checkIt!
                     } else {
-                        // TODO(zuch): Need to understand what we are doing here
+                        // TODO(zuch): Turn on error after finishing add property
                         console.error(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
                         // return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
                     }
@@ -61,7 +57,6 @@ const Property = new GQLListSchema('Property', {
         },
 
         type: {
-            // TODO(codegen): write doc for Property.type field!
             schemaDoc: 'Common property type',
             type: Select,
             options: 'building,village',
@@ -69,7 +64,6 @@ const Property = new GQLListSchema('Property', {
         },
 
         map: {
-            // TODO(codegen): write doc for Property.map field!
             schemaDoc: 'Property map/schema',
             type: Json,
             isRequired: false,
@@ -88,7 +82,8 @@ const Property = new GQLListSchema('Property', {
                 },
             },
         },
-        flatsCount: {
+        unitsCount: {
+            schemaDoc: 'A number of parts in the property. The number of flats for property.type = house. The number of garden houses for property.type = village.',
             type: Virtual,
             resolver: async (item) => {
                 let count = 0
@@ -101,13 +96,14 @@ const Property = new GQLListSchema('Property', {
                             .reduce((acc, current) => acc + current, 0)
                     } catch (e) {
                         // TODO(zuch): Rewrite to PropertyUnit count
-                        console.error('Error while fetching virtual field flatsCount', e)
+                        console.error('Error while fetching virtual field unitsCount', e)
                     }
                 }
                 return count
             },
         },
         ticketsInWork: {
+            schemaDoc: 'Counter for not closed tickets',
             type: Virtual,
             resolver: async (item, _, context) => {
                 const { data, errors } = await context.executeGraphQL({
