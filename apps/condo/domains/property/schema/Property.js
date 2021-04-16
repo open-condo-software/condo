@@ -83,7 +83,7 @@ const Property = new GQLListSchema('Property', {
             },
         },
         unitsCount: {
-            schemaDoc: 'For houses this is flats',
+            schemaDoc: 'A number of parts in the property. The number of flats for property.type = house. The number of garden houses for property.type = village.',
             type: Virtual,
             resolver: async (item) => {
                 let count = 0
