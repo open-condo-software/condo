@@ -4,7 +4,7 @@ import { Row, Col, Typography, Tag, Space } from 'antd'
 import { useRouter } from 'next/router'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { useObject, useUpdate } from '@condo/domains/property/utils/clientSchema/Property'
+import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { ArrowLeftOutlined, EditFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
@@ -14,43 +14,6 @@ import Link from 'next/link'
 import { Button } from '@condo/domains/common/components/Button'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { PropertyPanels } from '@condo/domains/property/components/panels/index'
-
-function PropertyDescriptionBlock ({ obj }) {
-  //  const intl = useIntl()
-/*
-    
-    const OrganizationMsg = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
-    const AddressMsg = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
-    const TypeMsg = intl.formatMessage({ id: 'pages.condo.property.field.Type' })
-    const BuildingMsg = intl.formatMessage({ id: 'pages.condo.property.type.building' })
-    const VillageMsg = intl.formatMessage({ id: 'pages.condo.property.type.village' })
-    const TypeMappingMsg = {
-        building: BuildingMsg,
-        village: VillageMsg,
-    }
-*/
-    // TODO(pahaz): move small to ANT CONFIG!
-/*    return <Descriptions size="small" column={1}>
-        <Descriptions.Item label={OrganizationMsg}>{obj.organization.name}</Descriptions.Item>
-        <Descriptions.Item label={TypeMsg}>{TypeMappingMsg[obj.type]}</Descriptions.Item>
-        <Descriptions.Item label={AddressMsg}>{obj.address}</Descriptions.Item>
-    </Descriptions>
-*/
-    return (<>
-        <p> { JSON.stringify(obj) }</p>
-    </>
-    )
-
-}
-
-
-function PropertyViewBlock ({ obj }) {
-    return (<>
-        <p> { JSON.stringify(obj) }</p>
-    </>
-    )
-}
-    
 interface IPropertyInfoPanelProps {
     title: string
     message: string
@@ -76,9 +39,11 @@ const PropertyIdPage: React.FC = () => {
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     const router = useRouter()
-    const { query: { id } } = router
+    let { query: { id } } = router
+    if (typeof id !== 'string') {
+        id = String(id)
+    }
     const { loading, obj: property, error } = useObject({ where: { id } })
-
     if (error || loading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={ServerErrorMsg}/>
     }

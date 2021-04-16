@@ -11,6 +11,7 @@
   "pages.condo.property.index.EmptyList.header": "Список домов пока пуст",
   "pages.condo.property.index.EmptyList.text": "Добавьте первый, это просто",
   "pages.condo.property.index.CreatePropertyTitle": "Добавление дома",  
+  "pages.condo.property.index.UpdatePropertyTitle": "Редактирование дома",    
   "pages.condo.property.index.CreatePropertyButtonLabel": "Добавить дом",
   "pages.condo.property.EmptyBuilderHeader": "Визуализируйте дом",
   "pages.condo.property.EmptyBuilderDescription": "Введите всего несколько параметров и мы автоматически построим шахматку вашего дома",

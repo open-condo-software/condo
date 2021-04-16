@@ -15,7 +15,7 @@ interface IOrganization {
 interface IPropertyFormProps {
     organization: IOrganization    
     initialValues?: IPropertyFormState
-    action?: (...args) => void,
+    action?: (...args) => void
     type: string
 }
 
@@ -35,9 +35,15 @@ export const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                 action={action} 
                 initialValues={initialValues} 
                 validateTrigger={['onBlur', 'onSubmit']}
-                formValuesToMutationDataPreprocessor={(x) => {
-                    const addressMeta = { dv: 1, ...JSON.parse(x['address']) } 
-                    return { ...x, addressMeta, address: addressMeta['address'] }
+                formValuesToMutationDataPreprocessor={ formData => {
+                    try {
+                        // address is created or changed
+                        const addressMeta = { dv: 1, ...JSON.parse(formData['address']) } 
+                        return { ...formData, addressMeta, address: addressMeta['address'] }
+                    } catch (err) {
+                        // address is the same
+                        return formData
+                    }
                 }}
             >
                 {({ handleSave, isLoading, form }) => (
