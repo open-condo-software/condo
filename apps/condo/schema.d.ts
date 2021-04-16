@@ -7303,7 +7303,7 @@ export type PropertiesUpdateInput = {
   data?: Maybe<PropertyUpdateInput>;
 };
 
-/**  TODO DOC!  */
+/**  Common property. The property is divided into separate `unit` parts, each of which can be owned by an independent owner. Community farm, residential buildings, or a cottage settlement  */
 export type Property = {
   __typename?: 'Property';
   /**
@@ -7320,9 +7320,9 @@ export type Property = {
   sender?: Maybe<Scalars['JSON']>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
-  /**  TODO DOC!  */
+  /**  Client understandable Property name. A well-known property name for the client  */
   name?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
+  /**  Normalized address  */
   address?: Maybe<Scalars['String']>;
   /**  Property address components  */
   addressMeta?: Maybe<Scalars['JSON']>;
@@ -7330,7 +7330,11 @@ export type Property = {
   type?: Maybe<PropertyTypeType>;
   /**  Property map/schema  */
   map?: Maybe<Scalars['JSON']>;
-  flatsCount?: Maybe<Scalars['String']>;
+  /**  A number of parts in the property. The number of flats for property.type = house. The number of garden houses for property.type = village.  */
+  unitsCount?: Maybe<Scalars['String']>;
+  /**  Counter for completed tickets  */
+  ticketsClosed?: Maybe<Scalars['String']>;
+  /**  Counter for not closed tickets  */
   ticketsInWork?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -7379,7 +7383,8 @@ export type PropertyHistoryRecord = {
   addressMeta?: Maybe<Scalars['JSON']>;
   type?: Maybe<Scalars['String']>;
   map?: Maybe<Scalars['JSON']>;
-  flatsCount?: Maybe<Scalars['JSON']>;
+  unitsCount?: Maybe<Scalars['JSON']>;
+  ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -7403,7 +7408,8 @@ export type PropertyHistoryRecordCreateInput = {
   addressMeta?: Maybe<Scalars['JSON']>;
   type?: Maybe<Scalars['String']>;
   map?: Maybe<Scalars['JSON']>;
-  flatsCount?: Maybe<Scalars['JSON']>;
+  unitsCount?: Maybe<Scalars['JSON']>;
+  ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7432,7 +7438,8 @@ export type PropertyHistoryRecordUpdateInput = {
   addressMeta?: Maybe<Scalars['JSON']>;
   type?: Maybe<Scalars['String']>;
   map?: Maybe<Scalars['JSON']>;
-  flatsCount?: Maybe<Scalars['JSON']>;
+  unitsCount?: Maybe<Scalars['JSON']>;
+  ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7527,10 +7534,14 @@ export type PropertyHistoryRecordWhereInput = {
   map_not?: Maybe<Scalars['JSON']>;
   map_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   map_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  flatsCount?: Maybe<Scalars['JSON']>;
-  flatsCount_not?: Maybe<Scalars['JSON']>;
-  flatsCount_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  flatsCount_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  unitsCount?: Maybe<Scalars['JSON']>;
+  unitsCount_not?: Maybe<Scalars['JSON']>;
+  unitsCount_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  unitsCount_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  ticketsClosed?: Maybe<Scalars['JSON']>;
+  ticketsClosed_not?: Maybe<Scalars['JSON']>;
+  ticketsClosed_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  ticketsClosed_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   ticketsInWork_not?: Maybe<Scalars['JSON']>;
   ticketsInWork_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;

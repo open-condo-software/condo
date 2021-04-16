@@ -14,11 +14,11 @@ const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updat
 const RELATIONS = ['organization']
 
 export interface IPropertyUIState extends Property {
-    id: string,
-    address: string,
-    ticketsInWork,
-    ticketsClosed,
-    unitsCount,
+    id: string
+    address: string
+    ticketsInWork: string
+    ticketsClosed: string
+    unitsCount: string
 }
 
 function convertToUIState (item: Property): IPropertyUIState {

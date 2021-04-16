@@ -33,7 +33,11 @@ const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, 
 
 }
 
-const PropertyIdPage: React.FC = () => {
+interface IPageWithHeaderAction extends React.FC {
+    headerAction?: JSX.Element
+}
+
+const PropertyIdPage: IPageWithHeaderAction = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
@@ -123,62 +127,3 @@ const HeaderAction = () => {
 PropertyIdPage.headerAction = <HeaderAction />
 
 export default PropertyIdPage
-
-
-
-
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-
-/*
-import { Descriptions } from 'antd'
-
-
-
-
-
-import { buildingMapJson } from '@condo/domains/property/constants/property.example'
-import BBuilder from '@condo/domains/property/components/containers/BBuilder'
-
-
-function PropertyViewBlock ({ obj, update }) {
-    function handleSaveState (state) {
-        return update({ map: state }, obj)
-    }
-
-    return <BBuilder state={obj.map || buildingMapJson} onSaveState={handleSaveState}/>
-}
-
-const PropertyIdPage1 = () => {
-    const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-
-    const router = useRouter()
-    const { query: { id } } = router
-    const { refetch, loading, obj, error } = useObject({ where: { id } })
-    const update = useUpdate({}, () => refetch())
-
-    if (error || loading) {
-        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={ServerErrorMsg}/>
-    }
-
-    return <>
-        <Head>
-            <title>{PageTitleMsg}</title>
-        </Head>
-        <PageWrapper>
-            <PageHeader title={obj.name || PageTitleMsg}>
-                <PropertyDescriptionBlock obj={obj}/>
-            </PageHeader>
-            <PageContent>
-                <OrganizationRequired>
-                    <PropertyViewBlock obj={obj} update={update}/>
-                </OrganizationRequired>
-            </PageContent>
-        </PageWrapper>
-    </>
-}
-*/
-

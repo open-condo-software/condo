@@ -114,7 +114,7 @@ const Property = new GQLListSchema('Property', {
                     },
                 })
                 if (errors) {
-                    console.error('Error while fetching virtual field ticketsInWork', errors)
+                    console.error('Error while fetching virtual field ticketsClosed', errors)
                     return 0
                 }
                 return data.closed.count
