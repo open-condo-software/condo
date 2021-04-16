@@ -25,7 +25,6 @@ const Property = new GQLListSchema('Property', {
         name: {
             schemaDoc: 'Client understandable Property name. A well-known property name for the client',
             type: Text,
-            isRequired: true,
         },
 
         address: {
@@ -102,6 +101,7 @@ const Property = new GQLListSchema('Property', {
                 return count
             },
         },
+        
         ticketsInWork: {
             schemaDoc: 'Counter for not closed tickets',
             type: Virtual,

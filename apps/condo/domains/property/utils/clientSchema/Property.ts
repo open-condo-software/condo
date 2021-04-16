@@ -26,6 +26,11 @@ function convertToUIState (item: Property): IPropertyUIState {
 
 export interface IPropertyFormState {
     id?: undefined
+    type?: string
+    organization?: string
+    name?: string
+    address?: string
+    // address: string,
     // TODO(codegen): write IPropertyUIFormState or extends it from
 }
 
