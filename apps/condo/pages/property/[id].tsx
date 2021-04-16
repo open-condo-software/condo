@@ -83,6 +83,12 @@ const PropertyIdPage: React.FC = () => {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={ServerErrorMsg}/>
     }
 
+    const UnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
+    const SquareTitle = intl.formatMessage({ id: 'pages.condo.property.id.Square' })
+    const TicketsClosedTitle = intl.formatMessage({ id: 'pages.condo.property.id.TicketsClosed' })
+    const TicketsInWorkTitle = intl.formatMessage({ id: 'pages.condo.property.id.TicketsInWork' })
+    const UnknownMessage = intl.formatMessage({ id: 'pages.condo.property.id.UnknownMessage' })
+
     return <>
         <Head>
             <title>{PageTitleMsg}</title>
@@ -113,16 +119,16 @@ const PropertyIdPage: React.FC = () => {
                     </Row>       
                     <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
                         <Col flex={1} >
-                            <PropertyInfoPanel title='Помещений' message={property.unitsCount} />
+                            <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} />
                         </Col>
                         <Col flex={1}>
-                            <PropertyInfoPanel title='Площадь' message='не известно' />
+                            <PropertyInfoPanel title={SquareTitle} message={UnknownMessage} />
                         </Col>
                         <Col flex={1}>
-                            <PropertyInfoPanel title='Заявок выполнено' message={property.ticketsClosed} type='success' />
+                            <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type='success' />
                         </Col>
                         <Col flex={1}>
-                            <PropertyInfoPanel title='Заявок в работе' message={property.ticketsInWork}  type='warning' />
+                            <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork}  type='warning' />
                         </Col>
                     </Row>
                     <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
