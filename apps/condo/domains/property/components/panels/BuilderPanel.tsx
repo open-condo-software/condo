@@ -24,8 +24,7 @@ const EmptyBuilderBlock: React.FC  = () => {
     )
 }
 
-const BuilderPanel: React.FC = () => {
-
+export const BuilderPanelView: React.FC = () => {
     return (
         <Row >
             <Col span={8} push={8}>
@@ -35,5 +34,14 @@ const BuilderPanel: React.FC = () => {
     )
 }
 
-export default BuilderPanel
+export const BuilderPanelEdit: React.FC = () => {
+    return (
+        <Row >
+            <Col span={8} push={8}>
+                <EmptyBuilderBlock />
+            </Col>
+        </Row>
+    )
+}
+
 

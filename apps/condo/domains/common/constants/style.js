@@ -45,7 +45,6 @@ const antGlobalVariables = {
     '@tabs-hover-color': '@black',
     '@tabs-active-color': '@black',    
     '@tabs-ink-bar-color': '@black',
-
 }
 
 module.exports = {

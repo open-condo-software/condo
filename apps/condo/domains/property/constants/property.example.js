@@ -1,3 +1,8 @@
+const buildingEmptyMapJson = {
+    'dv': 1,
+    'type': 'building',
+    'sections': [],
+}
 
 const buildingMapJson = {
     'dv': 1,
@@ -260,6 +265,7 @@ const buildingAddressMetaJson = {
 }
 
 module.exports = {
-    buildingMapJson,
+    buildingEmptyMapJson,
+    buildingMapJson,    
     buildingAddressMetaJson,
 }

@@ -1,6 +1,6 @@
 import { useIntl } from '@core/next/intl'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { Col, Row, Typography, Space } from 'antd'
+import { Col, Row, Typography, Space, Tooltip } from 'antd'
 import React from 'react'
 import { Button } from '@condo/domains/common/components/Button'
 
@@ -9,6 +9,7 @@ const EmptyResidentBlock: React.FC = () => {
     const EmptyResidentsTitle = intl.formatMessage({ id: 'pages.condo.property.form.EmptyResidents.header' })
     const EmptyResidentsMessage = intl.formatMessage({ id: 'pages.condo.property.form.EmptyResidents.text' })
     const UploadFile = intl.formatMessage({ id: 'UploadFile' })
+    const NotImplementedYedMessage = intl.formatMessage({ id: 'NotImplementedYed' })
     
     return (
         <BasicEmptyListView>
@@ -19,18 +20,20 @@ const EmptyResidentBlock: React.FC = () => {
                 {EmptyResidentsMessage}
             </Typography.Text>
             <Space style={{ marginTop: '24px' }}>
-                <Button
-                    type={'sberPrimary'}
-                    secondary
-                >
-                    {UploadFile}
-                </Button>
+                <Tooltip title={NotImplementedYedMessage}>
+                    <Button
+                        type={'sberPrimary'}
+                        secondary
+                    >
+                        {UploadFile}
+                    </Button>
+                </Tooltip>
             </Space>
         </BasicEmptyListView>
     )
 }
 
-const ResidentPanel: React.FC = () => {
+export const ResidentPanelView: React.FC = () => {
 
     return (
         <Row >
@@ -41,5 +44,13 @@ const ResidentPanel: React.FC = () => {
     )
 }
 
-export default ResidentPanel
+export const ResidentPanelEdit: React.FC = () => {
 
+    return (
+        <Row >
+            <Col span={8} push={8}>
+                <EmptyResidentBlock />
+            </Col>
+        </Row>
+    )
+}

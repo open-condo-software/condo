@@ -1,18 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
-import { Col, Form, Input, Row, Tabs } from 'antd'
+import { Col, Form, Input, Row } from 'antd'
 import React from 'react'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { AddressSearchInput } from '@condo/domains/common/components/AddressSearchInput'
-import { buildingMapJson } from '@condo/domains/property/constants/property.example'
-import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import BuilderPanel from './BuilderPanel'
-import ResidentPanel from './ResidentPanel'
-
-
-const { TabPane } = Tabs
+import { PropertyPanels } from '../panels'
 
 interface IOrganization {
     id: string
@@ -33,9 +27,6 @@ export const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const NameMsg = intl.formatMessage({ id: 'pages.condo.property.form.field.Name' })
 
-    const BuilderTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.BuilderTabTitle' })
-    const ResidentsTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.ResidentsTabTitle' })
-
     const { action, initialValues } = props
 
     return (
@@ -45,8 +36,7 @@ export const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                 initialValues={initialValues} 
                 validateTrigger={['onBlur', 'onSubmit']}
                 formValuesToMutationDataPreprocessor={(x) => {
-                    console.log('AAAAAAAAAAAAAAAAAA', x)
-                    const addressMeta = JSON.parse(x['address'])
+                    const addressMeta = { dv: 1, ...JSON.parse(x['address']) } 
                     return { ...x, addressMeta, address: addressMeta['address'] }
                 }}
             >
@@ -70,18 +60,7 @@ export const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                             </Form.Item>
                         </Col>
                         <Col span={24}>
-                            <Tabs defaultActiveKey='1'>
-                                <TabPane tab={BuilderTabTitle} key='1'>
-                                    <FocusContainer style={{ margin: 'initial', marginTop: '40px', minHeight: '400px' }}>
-                                        <BuilderPanel />
-                                    </FocusContainer>
-                                </TabPane>
-                                <TabPane tab={ResidentsTabTitle} key='2'>
-                                    <FocusContainer style={{ margin: 'initial', marginTop: '40px', minHeight: '400px' }}>
-                                        <ResidentPanel />
-                                    </FocusContainer>
-                                </TabPane>
-                            </Tabs>
+                            <PropertyPanels mode='edit'></PropertyPanels>
                         </Col>
                         <Col span={24}>
                             {props.children({ handleSave, isLoading, form })}

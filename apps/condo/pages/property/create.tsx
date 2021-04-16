@@ -8,11 +8,14 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { colors } from '@condo/domains/common/constants/style'
- 
-const CreatePropertyPage: React.FC = () => {
+
+interface IPageWithHeaderAction extends React.FC {
+    headerAction?: JSX.Element
+}
+
+const CreatePropertyPage: IPageWithHeaderAction = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.property.index.CreatePropertyTitle' })
-
     return (
         <>
             <Head>
@@ -39,7 +42,6 @@ const CreatePropertyPage: React.FC = () => {
 const HeaderAction = () => {
     const intl = useIntl()
     const AllPropertiesMessage = intl.formatMessage({ id: 'menu.AllProperties' })
-
     return (
         <LinkWithIcon
             icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
