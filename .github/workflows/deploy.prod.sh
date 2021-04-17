@@ -123,4 +123,4 @@ run "docker tag ${DOCKER_IMAGE} dokku/${APP}:${VERSION}"
 run "dokku tags:deploy ${APP} ${VERSION}"
 
 action "Run migrations"
-run "docker exec -u root ${APP}.web.1 '${DOCKER_COMPOSE_MIGRATION_COMMAND}'"
+run "docker exec -u root ${APP}.web.1 ${DOCKER_COMPOSE_MIGRATION_COMMAND}"
