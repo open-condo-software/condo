@@ -10,8 +10,9 @@ const FAKE_WORKER_MODE = conf.FAKE_WORKER_MODE
 const WORKER_REDIS_URL = conf.WORKER_REDIS_URL
 if (!WORKER_REDIS_URL) throw new Error('No WORKER_REDIS_URL environment')
 const taskQueue = new Queue('tasks', WORKER_REDIS_URL)
-const globalTaskOptions = { attempts: 3, backoff: true }
+const globalTaskOptions = {}
 const TASKS = new Map()
+let isWorkerCreated = false
 
 function createTask (name, fn, opts = {}) {
     if (typeof fn !== 'function') throw new Error('unsupported fn argument type. Function expected')
@@ -19,7 +20,7 @@ function createTask (name, fn, opts = {}) {
 
     if (TASKS.has(name)) throw new Error(`Task with name ${name} is already registered`)
     TASKS.set(name, fn)
-    return createTaskWrapper(fn, opts)
+    return createTaskWrapper(name, fn, opts)
 }
 
 async function awaitResult (jobId) {
@@ -27,20 +28,21 @@ async function awaitResult (jobId) {
     return await job.finished()
 }
 
-function createTaskWrapper (fn, defaultTaskOptions = {}) {
+function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
     async function applyAsync (args, taskOptions) {
         if (!isSerializable(args)) throw new Error('arguments is not serializable')
         if (FAKE_WORKER_MODE) {
             // NOTE: it's just for test purposes
             // similar to https://docs.celeryproject.org/en/3.1/configuration.html#celery-always-eager
             // TODO(pahaz): think about test errors!?
-            const result = await executeTask(fn.name, createSerializableCopy([...arguments]))
+            const result = await executeTask(name, createSerializableCopy([...arguments]))
             return {
                 getState: async () => { return Promise.resolve('completed') },
                 awaitResult: async () => { return Promise.resolve(result) },
             }
         }
-        const job = await taskQueue.add(fn.name, { args: createSerializableCopy([...args]) }, {
+
+        const job = await taskQueue.add(name, { args: createSerializableCopy([...args]) }, {
             ...globalTaskOptions,
             ...defaultTaskOptions,
             ...taskOptions,
@@ -110,6 +112,15 @@ function executeTask (name, args, job = null) {
 }
 
 function createWorker () {
+    // NOTE: we should have only one worker per node process!
+    if (isWorkerCreated) {
+        console.warn('Call createWorker() more than one time! (ignored)')
+        return
+    } else {
+        isWorkerCreated = true
+        console.log('Creating worker process')
+    }
+
     taskQueue.process('*', WORKER_CONCURRENCY, async function (job) {
         console.log(`Job:${job.id} status=processing (${JSON.stringify(job.toJSON())})`)
         try {
