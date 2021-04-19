@@ -4,6 +4,7 @@ import gql from 'graphql-tag'
 import cookie from 'js-cookie'
 import { useAuth } from './auth'
 import nextCookie from 'next-cookies'
+import get from 'lodash/get'
 
 const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
@@ -86,6 +87,14 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
         if (auth.isLoading) return
         if (!auth.user && link !== null) setLink(null)
     }, [auth.user])
+
+    useEffect(() => {
+        localStorage.setItem('organization', JSON.stringify(get(link, 'organization')))
+
+        return () => {
+            localStorage.removeItem('organization')
+        }
+    }, [link])
 
     function onError (error) {
         console.error(error)
