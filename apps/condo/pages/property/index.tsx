@@ -1,25 +1,22 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import React, { useCallback, useState } from 'react'
-
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Typography, Space, Radio, Row, Col, Tooltip, Input, Table } from 'antd'
 import { DatabaseFilled } from '@ant-design/icons'
-
 import Head from 'next/head'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { MapGL } from '@condo/domains/common/components/MapGL'
 import { Button } from '@condo/domains/common/components/Button'
-
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { useOrganization } from '@core/next/organization'
-
 import qs from 'qs'
 import pickBy from 'lodash/pickBy'
-import XLSX from 'xlsx'
+import get from 'lodash/get'
 import has from 'lodash/has'
+import XLSX from 'xlsx'
 
 import {
     getFiltersFromQuery,
@@ -164,10 +161,21 @@ const PropertyPageViewTable = (): React.FC => {
     const NotImplementedYedMessage = intl.formatMessage({ id: 'NotImplementedYed' })
 
     const createRoute = '/property/create'
+
     const router = useRouter()
     const modal = useCreateAndEditModalForm()
-    const { organization } = useOrganization()
-    const create = Property.useCreate({ organization: organization.id, map: buildingMapJson }, () => refetch())
+
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+
+    const create = Property.useCreate(
+        {
+            organization: userOrganizationId,
+            map: buildingMapJson,
+        },
+        () => refetch()
+    )
+
     const sortFromQuery = getSortStringFromQuery(router.query)
     const offsetFromQuery = getPaginationFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery(router.query)
@@ -180,7 +188,10 @@ const PropertyPageViewTable = (): React.FC => {
         objs: properties,
     } = Property.useObjects({
         sortBy: sortFromQuery,
-        where: filtersToQuery(filtersFromQuery),
+        where: {
+            ...filtersToQuery(filtersFromQuery),
+            organization: { id: userOrganizationId },
+        },
         offset: offsetFromQuery,
         limit: PROPERTY_PAGE_SIZE,
     })
@@ -243,6 +254,7 @@ const PropertyPageViewTable = (): React.FC => {
             },
         }
     }, [router])
+
     return (
         <>
             {
@@ -289,14 +301,13 @@ const PropertyPageViewTable = (): React.FC => {
             }
         </>
     )
-
 }
 
 const PropertyPage = (): React.FC => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.PageTitle' })
-    const ShowMap = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeMap' })  
-    const ShowTable = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeTable' }) 
+    const ShowMap = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeMap' })
+    const ShowTable = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeTable' })
     const [viewMode, changeViewMode] = useState('list')
 
     return (
@@ -305,7 +316,7 @@ const PropertyPage = (): React.FC => {
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageContent> 
+                <PageContent>
                     <OrganizationRequired>
                         <Row gutter={[0, 40]} align={'top'} style={{ zIndex: 1, position: 'relative' }}>
                             <Col span={6} >
