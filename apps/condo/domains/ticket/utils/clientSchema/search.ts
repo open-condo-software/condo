@@ -77,7 +77,7 @@ export async function searchTicketClassifier (client, value) {
     // const organizationId = get(organization, 'id')
 
     // const { data, error } = await _search(client, GET_ALL_CLASSIFIERS_QUERY, { value, organizationId })
-    const { data, error } = await _search(client, GET_ALL_CLASSIFIERS_QUERY, { value})
+    const { data, error } = await _search(client, GET_ALL_CLASSIFIERS_QUERY, { value })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
     return []
