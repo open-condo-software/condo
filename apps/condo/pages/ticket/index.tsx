@@ -43,7 +43,6 @@ const TicketsPage = () => {
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const ticketFilters = filtersToQuery(filtersFromQuery)
 
     const {
         fetchMore,
@@ -53,7 +52,7 @@ const TicketsPage = () => {
     } = Ticket.useObjects({
         // @ts-ignore
         sortBy: sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC', //TODO(Dimitreee):Find cleanest solution
-        where: { ...ticketFilters, organization: { id: userOrganizationId } },
+        where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
         offset: offsetFromQuery,
         limit: TICKET_PAGE_SIZE,
     }, {
