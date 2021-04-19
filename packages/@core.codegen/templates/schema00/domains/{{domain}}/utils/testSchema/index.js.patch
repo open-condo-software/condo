@@ -10,7 +10,7 @@ const {{ name }} = generateGQLTestUtils({{ name }}GQL)
 async function createTest{{ name }} (client, {% for field in signature | selectattr("isRelation") | selectattr("isRequired") %}{{ field.name }}, {% endfor %}extraAttrs = {}) {
     if (!client) throw new Error('no client')
 {%- for field in signature | selectattr("isRelation") | selectattr("isRequired") %}
-    if (!{ field.name }} || !{{ field.name }}.id) throw new Error('no {{ field.name }}.id')
+    if (!{{ field.name }} || !{{ field.name }}.id) throw new Error('no {{ field.name }}.id')
 {%- endfor %}
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
