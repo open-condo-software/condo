@@ -5,20 +5,27 @@
 async function canReadProperties ({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
+
     return {
-        // TODO(codegen): write canReadProperties logic!
+        OR: [
+            { organization: { employees_some: { user: { id: user.id } } } },
+        ],
     }
 }
 
-async function canManageProperties ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageProperties ({ authentication: { item: user }, operation }) {
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
         // TODO(codegen): write canManageProperties create logic!
-        return true
+        if (user.isPhoneVerified) {
+            return true
+        }
     } else if (operation === 'update') {
         // TODO(codegen): write canManageProperties update logic!
-        return true
+        if (user.isPhoneVerified) {
+            return true
+        }
     }
     return false
 }
