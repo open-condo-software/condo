@@ -220,7 +220,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 >
                                                                     <GraphQlSearchInput
                                                                         formatLabel={formatUserFieldLabel}
-                                                                        search={searchEmployee(organization.id)}
+                                                                        search={searchEmployee}
                                                                         allowClear={false}
                                                                         showArrow={false}
                                                                         disabled={disableUserInteraction}
@@ -235,7 +235,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 >
                                                                     <GraphQlSearchInput
                                                                         formatLabel={formatUserFieldLabel}
-                                                                        search={searchEmployee(organization.id)}
+                                                                        search={searchEmployee}
                                                                         allowClear={false}
                                                                         showArrow={false}
                                                                         disabled={disableUserInteraction}

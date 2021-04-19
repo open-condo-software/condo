@@ -26,22 +26,19 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     const [isLoading, setLoading] = useState(false)
     const [data, setData] = useState([])
     const [value, setValue] = useState('')
-    const options = useMemo(
-        () => data.map((option) => {
-            let optionLabel = option.text
+    const options = data.map((option) => {
+        let optionLabel = option.text
 
-            if (formatLabel) {
-                optionLabel = formatLabel(option)
-            }
+        if (formatLabel) {
+            optionLabel = formatLabel(option)
+        }
 
-            return (
-                <Select.Option key={option.value} value={option.value} title={option.text}>
-                    {optionLabel}
-                </Select.Option>
-            )
-        }),
-        [data, value],
-    )
+        return (
+            <Select.Option key={option.value} value={option.value} title={option.text}>
+                {optionLabel}
+            </Select.Option>
+        )
+    })
 
     useEffect(() => {
         handleSearch('')
