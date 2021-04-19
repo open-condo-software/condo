@@ -17,12 +17,10 @@ async function canManageProperties ({ authentication: { item: user }, operation 
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
-        // TODO(codegen): write canManageProperties create logic!
         if (user.isPhoneVerified) {
             return true
         }
     } else if (operation === 'update') {
-        // TODO(codegen): write canManageProperties update logic!
         if (user.isPhoneVerified) {
             return true
         }
