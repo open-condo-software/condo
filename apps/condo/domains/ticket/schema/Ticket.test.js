@@ -56,7 +56,7 @@ describe('Ticket', () => {
         }
     })
 
-    test.skip('user: read Ticket', async () => {
+    test('user: read Ticket', async () => {
         const client = await makeClientWithProperty()
         const [obj, attrs] = await createTestTicket(client, client.organization, client.property)
         const objs = await Ticket.getAll(client)
@@ -71,6 +71,18 @@ describe('Ticket', () => {
         expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
         expect(objs[0].createdAt).toMatch(obj.createdAt)
         expect(objs[0].updatedAt).toMatch(obj.updatedAt)
+    })
+
+    test('user: no access to another organization ticket', async () => {
+        const hacker = await makeClientWithProperty()
+        const client = await makeClientWithProperty()
+        const [obj] = await createTestTicket(client, client.organization, client.property)
+
+        const objs = await Ticket.getAll(hacker)
+        expect(objs).toHaveLength(0)
+
+        const objsFilteredById = await Ticket.getAll(hacker, { id: obj.id })
+        expect(objsFilteredById).toHaveLength(0)
     })
 
     test('anonymous: read Ticket', async () => {
