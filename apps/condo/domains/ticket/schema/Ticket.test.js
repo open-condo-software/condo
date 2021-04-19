@@ -122,8 +122,7 @@ describe('Ticket', () => {
         expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
         expect(objUpdated.details).toEqual(payload.details)
         expect(objUpdated.organization).toEqual(expect.objectContaining({ id: client.organization.id }))
-        expect(objUpdated.number).toEqual(objCreated.number) 
-        expect(objUpdated.source).toEqual(expect.objectContaining({ id: objCreated.organization.id }))
+        expect(objUpdated.number).toEqual(objCreated.number)
         // TODO(pahaz): check others fields ...
     })
 
