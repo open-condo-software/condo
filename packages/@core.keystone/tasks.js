@@ -45,7 +45,7 @@ function createTaskWrapper (fn, defaultTaskOptions = {}) {
             ...defaultTaskOptions,
             ...taskOptions,
         })
-        console.log('delayed', fn.name, args, job.id)
+
         return {
             getState: async () => {
                 return await job.getState()
