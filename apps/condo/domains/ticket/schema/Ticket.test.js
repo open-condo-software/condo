@@ -100,7 +100,7 @@ describe('Ticket', () => {
         }
     })
 
-    test.skip('user: update Ticket', async () => {
+    test('user: update Ticket', async () => {
         const client = await makeClientWithProperty()
         const payload = { details: 'new data' }
         const [objCreated] = await createTestTicket(client, client.organization, client.property)
