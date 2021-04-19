@@ -11,11 +11,7 @@ async function canReadUsers ({ authentication: { item: user } }) {
         return {}
     }
 
-    if (user.isPhoneVerified) {
-        return true
-    }
-
-    return false
+    return true
 }
 
 async function canManageUsers ({ authentication: { item: user }, operation, itemId }) {
