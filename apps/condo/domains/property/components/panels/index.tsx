@@ -22,14 +22,14 @@ export const PropertyPanels: React.FC<IPropertyPanels> = ({ mode }) => {
             <TabPane tab={BuilderTabTitle} key='1'>
                 <FocusContainer style={{ margin: 'initial', marginTop: '40px', minHeight: '400px' }}>
                     {
-                        mode === 'view' ? <BuilderPanelView />: <BuilderPanelEdit />
+                        mode === 'view' ? <BuilderPanelView /> : <BuilderPanelEdit />
                     }
                 </FocusContainer>
             </TabPane>
             <TabPane tab={ResidentsTabTitle} key='2'>
                 <FocusContainer style={{ margin: 'initial', marginTop: '40px', minHeight: '400px' }}>
                     {
-                        mode === 'view' ? <ResidentPanelView />: <ResidentPanelEdit />
+                        mode === 'view' ? <ResidentPanelView /> : <ResidentPanelEdit />
                     }
                 </FocusContainer>
             </TabPane>
