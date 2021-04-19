@@ -4,21 +4,30 @@
 
 async function canReadTickets ({ authentication: { item: user } }) {
     if (!user) return false
-    if (user.isAdmin) return {}
+
+    if (user.isAdmin) {
+        return {}
+    }
+
     return {
-        // TODO(codegen): write canReadTickets logic!
+        OR: [
+            { organization: { employees_some: { user: { id: user.id } } } },
+        ],
     }
 }
 
-async function canManageTickets ({ authentication: { item: user }, operation, itemId }) {
+async function canManageTickets ({ authentication: { item: user }, operation }) {
     if (!user) return false
     if (user.isAdmin) return true
+
     if (operation === 'create') {
-        // TODO(codegen): write canManageTickets create logic!
-        return true
+        if (user.isPhoneVerified) {
+            return true
+        }
     } else if (operation === 'update') {
-        // TODO(codegen): write canManageTickets update logic!
-        return true
+        if (user.isPhoneVerified) {
+            return true
+        }
     }
     return false
 }
