@@ -43,4 +43,12 @@ describe('tasks', () => {
         const state2 = await delayed.getState()
         expect(state2).toEqual('completed')
     })
+
+    test('createTask().applyAsync result', async () => {
+        const task = createTask('asyncAddTask5', asyncAddTask)
+        createWorker()
+        const delayed = await task.applyAsync([33, 44], { attempts: 2, backoff: true })
+        expect(delayed).toHaveProperty('getState')
+        expect(delayed).toHaveProperty('awaitResult')
+    })
 })
