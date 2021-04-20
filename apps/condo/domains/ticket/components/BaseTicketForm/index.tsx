@@ -3,6 +3,7 @@
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
 import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
+import get from 'lodash/get'
 import React from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { colors } from '@condo/domains/common/constants/style'
@@ -107,7 +108,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                     <Col span={propertyFieldValue ? 18 : 24}>
                                                         <Form.Item name={'property'} label={AddressLabel} rules={validations.property}>
                                                             <GraphQlSearchInput
-                                                                search={searchProperty}
+                                                                search={searchProperty(get(organization, 'id'))}
                                                                 onSelect={() => form.setFieldsValue({ 'unitName': null })}
                                                                 placeholder={AddressPlaceholder}
                                                                 showArrow={false}
@@ -220,7 +221,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 >
                                                                     <GraphQlSearchInput
                                                                         formatLabel={formatUserFieldLabel}
-                                                                        search={searchEmployee}
+                                                                        search={searchEmployee(get(organization, 'id'))}
                                                                         allowClear={false}
                                                                         showArrow={false}
                                                                         disabled={disableUserInteraction}
@@ -235,7 +236,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 >
                                                                     <GraphQlSearchInput
                                                                         formatLabel={formatUserFieldLabel}
-                                                                        search={searchEmployee}
+                                                                        search={searchEmployee(get(organization, 'id'))}
                                                                         allowClear={false}
                                                                         showArrow={false}
                                                                         disabled={disableUserInteraction}

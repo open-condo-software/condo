@@ -174,3 +174,36 @@ describe('Ticket', () => {
         }
     })
 })
+
+describe('Ticket:permissions', () => {
+    test('user: create Ticket', async () => {
+        const client = await makeClientWithProperty()
+        const client2 = await makeClientWithProperty()
+        try {
+            await createTestTicket(client, client.organization, client2.property)
+        } catch (e) {
+            expect(e.errors[0]).toMatchObject({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
+            })
+            expect(e.data).toEqual({ 'obj': null })
+        }
+    })
+
+    test('user: update Ticket', async () => {
+        const client = await makeClientWithProperty()
+        const client2 = await makeClientWithProperty()
+        const [obj] = await createTestTicket(client, client.organization, client.property)
+        try {
+            await updateTestTicket(client, obj.id, { property: { connect: { id: client2.property } } })
+        } catch (e) {
+            expect(e.errors[0]).toMatchObject({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
+            })
+            expect(e.data).toEqual({ 'obj': null })
+        }
+    })
+})

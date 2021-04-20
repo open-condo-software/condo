@@ -29,15 +29,26 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
             return false
         }
 
-        // const propertyId = get(originalInput, ['property', 'connect', 'id'])
-        // const property = await getById('Property', propertyId)
-        // const organizationIdFromProperty = get(property, ['organization', 'id'])
-        // const canManageTickets = await checkOrganizationPermission(user.id, organizationIdFromTicket, 'canManageTickets')
-        // const isSameOrganization = organizationIdFromTicket === organizationIdFromProperty // Add same check for Status/Classifier/Organization
-        //
-        // return canManageTickets && isSameOrganization
+        const propertyId = get(originalInput, ['property', 'connect', 'id'])
 
-        return  await checkOrganizationPermission(user.id, organizationIdFromTicket, 'canManageTickets')
+        const property = await getById('Property', propertyId)
+        if (!property) {
+            return false
+        }
+
+        const organizationIdFromProperty = get(property, 'organization')
+        const canManageTickets = await checkOrganizationPermission(user.id, organizationIdFromTicket, 'canManageTickets')
+        if (!canManageTickets) {
+            return false
+        }
+
+        const isSameOrganization = organizationIdFromTicket === organizationIdFromProperty
+
+        if (!isSameOrganization) {
+            return false
+        }
+
+        return true
     } else if (operation === 'update') {
         if (!itemId) {
             return false
@@ -49,18 +60,28 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
         }
 
         const { organization: organizationIdFromTicket } = ticket
+
         const canManageTickets = await checkOrganizationPermission(user.id, organizationIdFromTicket, 'canManageTickets')
-        const propertyId = get(originalInput, ['property', 'connect', 'id'])
-
-        if (propertyId) {
-            const property = await getById('Property', propertyId)
-            const organizationIdFromProperty = get(property, ['organization', 'id'])
-            const isSameOrganization = organizationIdFromTicket === organizationIdFromProperty
-
-            return canManageTickets && isSameOrganization
+        if (!canManageTickets) {
+            return false
         }
 
-        return canManageTickets
+        const propertyId = get(originalInput, ['property', 'connect', 'id'])
+        if (propertyId) {
+            const property = await getById('Property', propertyId)
+            if (!property) {
+                return false
+            }
+
+            const organizationIdFromProperty = get(property, 'organization')
+            const isSameOrganization = organizationIdFromTicket === organizationIdFromProperty
+
+            if (!isSameOrganization) {
+                return false
+            }
+        }
+
+        return true
     }
 
     return false

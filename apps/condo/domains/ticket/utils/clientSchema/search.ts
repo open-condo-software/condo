@@ -51,48 +51,38 @@ async function _search (client, query, variables) {
     })
 }
 
-export async function searchProperty (client, value) {
-    const organization = getStorageItem<Organization>('organization')
-    const organizationId = get(organization, 'id')
-
-    const { data, error } = await _search(client, GET_ALL_PROPERTIES_QUERY, { value, organizationId })
-    if (error) console.warn(error)
-    if (data) return data.objs.map(x => ({ text: x.address, value: x.id }))
-    return []
+export function searchProperty (organization) {
+    return async function (client, value) {
+        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_QUERY, { value, organization })
+        if (error) console.warn(error)
+        if (data) return data.objs.map(x => ({ text: x.address, value: x.id }))
+        return []
+    }
 }
 
 export async function searchTicketSources (client, value) {
-    const organization = getStorageItem<Organization>('organization')
-    const organizationId = get(organization, 'id')
-
-    const { data, error } = await _search(client, GET_ALL_SOURCES_QUERY, { value, organizationId })
+    const { data, error } = await _search(client, GET_ALL_SOURCES_QUERY, { value })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
     return []
 }
 
 export async function searchTicketClassifier (client, value) {
-    // TODO(Dimitreee): add organization relation to existing classifiers
-    // const organization = getStorageItem<Organization>('organization')
-    // const organizationId = get(organization, 'id')
-
-    // const { data, error } = await _search(client, GET_ALL_CLASSIFIERS_QUERY, { value, organizationId })
     const { data, error } = await _search(client, GET_ALL_CLASSIFIERS_QUERY, { value })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
     return []
 }
 
-export async function searchEmployee (client, value)  {
-    const organization = getStorageItem<Organization>('organization')
-    const organizationId = get(organization, 'id')
+export function searchEmployee (organization) {
+    return async function (client, value) {
+        const { data = [], error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organization })
+        if (error) console.warn(error)
 
-    const { data = [], error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
-    if (error) console.warn(error)
-
-    return data.objs.map(object => {
-        if (object.user) {
-            return ({ text: object.name, value: object.user.id })
-        }
-    }).filter(Boolean)
+        return data.objs.map(object => {
+            if (object.user) {
+                return ({ text: object.name, value: object.user.id })
+            }
+        }).filter(Boolean)
+    }
 }
