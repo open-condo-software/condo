@@ -14,6 +14,7 @@ import Link from 'next/link'
 import { Button } from '@condo/domains/common/components/Button'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { PropertyPanels } from '@condo/domains/property/components/panels/index'
+
 interface IPropertyInfoPanelProps {
     title: string
     message: string
@@ -42,14 +43,11 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
-    const router = useRouter()
-    let { query: { id } } = router
-    if (typeof id !== 'string') {
-        id = String(id)
-    }
-    const { loading, obj: property, error } = useObject({ where: { id } })
+    const { query: { id } } = useRouter()
+    const { loading, obj: property, error } = useObject({ where: { id: id as string } })
+
     if (error || loading) {
-        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={ServerErrorMsg}/>
+        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
     }
 
     const UnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
@@ -102,7 +100,7 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
                     </Row>
                     <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
                         <Col span={24}>
-                            <PropertyPanels mode='view' />                    
+                            <PropertyPanels mode='view' map={property.map} />                    
                         </Col>
                     </Row>
                 </OrganizationRequired>

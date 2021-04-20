@@ -65,7 +65,7 @@ const PropertyPageViewTable = (): React.FC => {
     const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const NotImplementedYedMessage = intl.formatMessage({ id: 'NotImplementedYed' })
+    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const createRoute = '/property/create'
 
     const router = useRouter()
@@ -164,7 +164,7 @@ const PropertyPageViewTable = (): React.FC => {
                     :
                     <Row align={'middle'} gutter={[0, 40]}>
                         <Col span={6}>
-                            <Tooltip title={NotImplementedYedMessage}>
+                            <Tooltip title={NotImplementedYetMessage}>
                                 <div>
                                     <Input placeholder={SearchPlaceholder} disabled />
                                 </div>

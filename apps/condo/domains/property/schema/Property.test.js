@@ -8,7 +8,7 @@ const { Property, createTestProperty, updateTestProperty } = require('@condo/dom
 
 const { makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
 const { buildingMapJson } = require('@condo/domains/property/constants/property.example')
-const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@condo/domains/ticket/utils/testSchema')
 
 async function makeClientWithProperty () {
     const client = await makeClientWithRegisteredOrganization()
@@ -63,11 +63,18 @@ describe('Property', () => {
         expect(obj.unitsCount).toEqual('28')
     })    
 
-    test('user: checking "tickets in work" field', async () => {
+    test('user: checking "tickets in work" and "closed tickets" fields', async () => {
         const client = await makeClientWithProperty()
-        await createTestTicket(client, client.organization, client.property)
+        const [ticket] = await createTestTicket(client, client.organization, client.property)
         const [obj] = await Property.getAll(client, { id_in: [client.property.id] })
         expect(obj.ticketsInWork).toEqual('1')
+        expect(obj.ticketsClosed).toEqual('0')
+        // Close ticket
+        const statuses = await ticketStatusByType(client)
+        await updateTestTicket(client, ticket.id, { status: { connect: { id: statuses.closed } } })
+        const [afterTicketClosed] = await Property.getAll(client, { id_in: [client.property.id] })
+        expect(afterTicketClosed.ticketsInWork).toEqual('0')
+        expect(afterTicketClosed.ticketsClosed).toEqual('1')
     })        
   
     test('anonymous: read Property', async () => {

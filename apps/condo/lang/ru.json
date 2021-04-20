@@ -230,7 +230,7 @@
   "filters.UserName": "Фамилия Имя Отчество",
   "filters.FullSearch": "Поиск по любому полю таблицы",
   "TicketPurpose": "Назначение заявки",
-  "NotImplementedYed": "Пока что не умеем, но обязательно научимся",
+  "NotImplementedYet": "Пока что не умеем, но обязательно научимся",
   "ExportAsExcel": "Экспортировать в Excel",
   "From": "с",
   "Logout": "Выйти",

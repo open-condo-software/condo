@@ -7,6 +7,7 @@ import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/P
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { AddressSearchInput } from '@condo/domains/common/components/AddressSearchInput'
 import { PropertyPanels } from '../panels'
+import has from 'lodash/has'
 
 interface IOrganization {
     id: string
@@ -37,9 +38,14 @@ export const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                 validateTrigger={['onBlur', 'onSubmit']}
                 formValuesToMutationDataPreprocessor={ formData => {
                     try {
-                        // address is created or changed
-                        const addressMeta = { dv: 1, ...JSON.parse(formData['address']) } 
-                        return { ...formData, addressMeta, address: addressMeta['address'] }
+                        const newAddress = JSON.parse(formData['address'])
+                        if (has(newAddress, 'address')) {
+                            // address is created or changed
+                            const addressMeta = { dv: 1, ...newAddress } 
+                            return { ...formData, addressMeta, address: addressMeta['address'] }
+                        } else {
+                            console.warn('JSON parse failed for ', formData['address'])
+                        }
                     } catch (err) {
                         // address is the same
                         return formData

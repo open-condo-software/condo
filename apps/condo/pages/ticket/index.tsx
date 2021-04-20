@@ -30,7 +30,7 @@ const TicketsPage = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const NotImplementedYedMessage = intl.formatMessage({ id: 'NotImplementedYed' })
+    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
@@ -146,7 +146,7 @@ const TicketsPage = () => {
                                         <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData}>{ExportAsExcel}</Button>
                                     </Col>
                                     <Col span={6} push={12}>
-                                        <Tooltip title={NotImplementedYedMessage}>
+                                        <Tooltip title={NotImplementedYetMessage}>
                                             <div>
                                                 <Input placeholder={SearchPlaceholder} disabled/>
                                             </div>

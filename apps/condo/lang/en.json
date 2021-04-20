@@ -228,7 +228,7 @@
   "filters.UserName": "Full Name",
   "filters.FullSearch": "Search by any field of the application",
   "TicketPurpose": "Application assignment",
-  "NotImplementedYed": "We don't know how to do this yet, but we will definitely learn",
+  "NotImplementedYet": "We don't know how to do this yet, but we will definitely learn",
   "ExportAsExcel": "Export to Excel",
   "From": "from",
   "Logout": "Logout",

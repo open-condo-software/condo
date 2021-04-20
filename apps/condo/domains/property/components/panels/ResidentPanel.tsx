@@ -9,7 +9,7 @@ const EmptyResidentBlock: React.FC = () => {
     const EmptyResidentsTitle = intl.formatMessage({ id: 'pages.condo.property.form.EmptyResidents.header' })
     const EmptyResidentsMessage = intl.formatMessage({ id: 'pages.condo.property.form.EmptyResidents.text' })
     const UploadFile = intl.formatMessage({ id: 'UploadFile' })
-    const NotImplementedYedMessage = intl.formatMessage({ id: 'NotImplementedYed' })
+    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     
     return (
         <BasicEmptyListView>
@@ -20,7 +20,7 @@ const EmptyResidentBlock: React.FC = () => {
                 {EmptyResidentsMessage}
             </Typography.Text>
             <Space style={{ marginTop: '24px' }}>
-                <Tooltip title={NotImplementedYedMessage}>
+                <Tooltip title={NotImplementedYetMessage}>
                     <Button
                         type={'sberPrimary'}
                         secondary
