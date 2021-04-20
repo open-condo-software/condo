@@ -4,12 +4,8 @@
 const access = require('@core/keystone/access')
 
 async function canReadUsers ({ authentication: { item: user } }) {
-
     if (!user || !user.id) return false
-
-    if (user.isAdmin) {
-        return {}
-    }
+    if (user.isAdmin) return true
 
     return true
 }
