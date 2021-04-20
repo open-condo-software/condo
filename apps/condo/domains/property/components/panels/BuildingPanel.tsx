@@ -4,50 +4,79 @@ import { Col, Row, Typography, Checkbox } from 'antd'
 import React, { useState } from 'react'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 
-type BUnit = {
+const baseCellStyle = {
+    fontSize: '12px',
+    lineHeight: '40px',
+    height: '40px',
+    width: '40px',
+    display: 'inline-block',
+    borderRadius: '5px',
+    marginTop: '2px',
+    marginRight: '2px',
+}
+
+const unitStyle = {
+    fontSize: '14px',
+    backgroundColor: '#F5F5F5',
+    fontWeight: 'bold',
+}
+
+type BuildingUnit = {
     id: string
     type: 'unit' | 'unknown'
     label: string
 }
-type BFloor = {
+
+type BuildingFloor = {
     id: string
     index: number
     name: string
     type: 'floor' | 'unknown'
-    units: BUnit[]
+    units: BuildingUnit[]
 }
-type BSection = {
+
+type BuildingSection = {
     id: string
     index: number
     name: string
     type: 'section' | 'unknown'
-    floors: BFloor[]
+    floors: BuildingFloor[]
 }
 
-export type BMap = {
+export type BuildingMap = {
     dv: number
-    sections: BSection[]
+    sections: BuildingSection[]
     type: 'building' | 'vilage'
 }
-interface IBuilderPanelProps {
-    map: BMap
+
+interface IBuildingPanelProps {
+    map: BuildingMap
 }
+
 interface ICellProps {
     label: string | number
     addStyle?: Record<string, string>
 }
+
 interface IUnitProps {
     label: string | number
 }
+
 interface ISectionProps {
     label: string | number
     isHidden: boolean
 }
 
-const EmptyBuilderBlock: React.FC = () => {
+interface IChooseSections {
+    sections: BuildingSection[]
+    state: CheckboxValueType[]
+    update(params: CheckboxValueType[]): void
+}
+
+const EmptyBuildingBlock: React.FC = () => {
     const intl = useIntl()
-    const EmptyPropertyBuilderHeader = intl.formatMessage({ id: 'pages.condo.property.EmptyBuilderHeader' })
-    const EmptyPropertyBuilderDescription = intl.formatMessage({ id: 'pages.condo.property.EmptyBuilderDescription' })
+    const EmptyPropertyBuildingHeader = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingHeader' })
+    const EmptyPropertyBuildingDescription = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingDescription' })
     const descriptionStyle = {
         display: 'flex',
         fontSize: '16px',
@@ -56,17 +85,16 @@ const EmptyBuilderBlock: React.FC = () => {
     return (
         <BasicEmptyListView image='/propertyEmpty.svg' >
             <Typography.Title level={3} >
-                {EmptyPropertyBuilderHeader}
+                {EmptyPropertyBuildingHeader}
             </Typography.Title>
             <Typography.Text style={descriptionStyle}>
-                {EmptyPropertyBuilderDescription}
+                {EmptyPropertyBuildingDescription}
             </Typography.Text>
         </BasicEmptyListView>
     )
 }
 
-
-const BAxisY: React.FC<IBuilderPanelProps> = ({ map }) => {
+const BuildingAxisY: React.FC<IBuildingPanelProps> = ({ map }) => {
     const maxFloors = Math.max(...map.sections.map(section => section.floors.length))
     const markerStyle = {
         display: 'block',
@@ -75,25 +103,25 @@ const BAxisY: React.FC<IBuilderPanelProps> = ({ map }) => {
         <div style={{ display: 'inline-block', marginRight: '12px' }}>
             {
                 Array(maxFloors).fill('').map((_, ind) => (
-                    <BCell key={ind} addStyle={{ ...markerStyle }} label={maxFloors - ind} />
+                    <BuildingCell key={ind} addStyle={markerStyle} label={maxFloors - ind} />
                 ))
             }
-            <BCell label='&nbsp;' />
+            <BuildingCell label='&nbsp;' />
         </div>
     )
 }
 
 
-const BSection: React.FC<ISectionProps> = ({ children, label, isHidden }) => {
+const BuildingSection: React.FC<ISectionProps> = ({ children, label, isHidden }) => {
     return (
         <div style={{ display: isHidden ? 'none' : 'inline-block', marginRight: '12px', textAlign: 'center' }}>
             {children}
-            <BCell label={label} addStyle={{ width: '100%', textAlign: 'center' }} />
+            <BuildingCell label={label} addStyle={{ width: '100%', textAlign: 'center' }} />
         </div>
     )
 }
 
-const BFloor: React.FC = ({ children }) => {
+const BuildingFloor: React.FC = ({ children }) => {
     return (
         <div style={{ display: 'block' }}>
             {children}
@@ -101,17 +129,7 @@ const BFloor: React.FC = ({ children }) => {
     )
 }
 
-const BCell: React.FC<ICellProps> = ({ label, addStyle }) => {
-    const baseCellStyle = {
-        fontSize: '12px',
-        lineHeight: '40px',
-        height: '40px',
-        width: '40px',
-        display: 'inline-block',
-        borderRadius: '5px',
-        marginTop: '2px',
-        marginRight: '2px',
-    }
+const BuildingCell: React.FC<ICellProps> = ({ label, addStyle }) => {
     return (
         <div style={{ textAlign: 'center', ...baseCellStyle, ...addStyle }} >
             {label}
@@ -119,15 +137,10 @@ const BCell: React.FC<ICellProps> = ({ label, addStyle }) => {
     )
 }
 
-interface IChooseSections {
-    sections: BSection[]
-    state: CheckboxValueType[]
-    update(params: CheckboxValueType[]): void
-}
 
-const BChooseSections: React.FC<IChooseSections> = ({ sections, state, update }) => {
+
+const BuildingChooseSections: React.FC<IChooseSections> = ({ sections, state, update }) => {
     return (
-
         <Checkbox.Group onChange={checkedValues => update(checkedValues)} value={state} style={{ width: '100%' }} >
             <Row >
                 {
@@ -143,58 +156,52 @@ const BChooseSections: React.FC<IChooseSections> = ({ sections, state, update })
     )
 }
 
-const BUnit: React.FC<IUnitProps> = ({ label }) => {
-    const unitStyle = {
-        fontSize: '14px',
-        backgroundColor: '#F5F5F5',
-        fontWeight: 'bold',
-    }
+const BuildingUnit: React.FC<IUnitProps> = ({ label }) => {
     return (
-        <BCell addStyle={{ ...unitStyle }} label={label} />
+        <BuildingCell addStyle={unitStyle} label={label} />
     )
 }
 
-export const BuilderPanelView: React.FC<IBuilderPanelProps> = ({ map }) => {
+export const BuildingPanelView: React.FC<IBuildingPanelProps> = ({ map }) => {
     const isEmptyMap = !map || !map.sections.length
     const sections = isEmptyMap ? [] : map.sections.map(section => section.id)
     const [checkedSections, setCheckedSections] = useState<CheckboxValueType[]>(sections)
     return (
         <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
-
             {
                 isEmptyMap ?
                     <Col span={24} >
-                        <EmptyBuilderBlock />
+                        <EmptyBuildingBlock />
                     </Col>
                     :
                     <Col span={24}>
-                        <BAxisY map={map} />
+                        <BuildingAxisY map={map} />
                         {
                             map.sections.map((section, sectionIndex) => {
                                 return (
-                                    <BSection key={sectionIndex} label={section.name} isHidden={checkedSections.indexOf(section.id) === -1}>
+                                    <BuildingSection key={sectionIndex} label={section.name} isHidden={checkedSections.indexOf(section.id) === -1}>
                                         {
                                             section.floors.map((floor, floorIndex) => {
                                                 return (
-                                                    <BFloor key={floorIndex}>
+                                                    <BuildingFloor key={floorIndex}>
                                                         {
                                                             floor.units.map((unit, unitIndex) => {
                                                                 return (
-                                                                    <BUnit key={unitIndex} label={unit.label} />
+                                                                    <BuildingUnit key={unitIndex} label={unit.label} />
                                                                 )
                                                             })
                                                         }
-                                                    </BFloor>
+                                                    </BuildingFloor>
                                                 )
                                             })
                                         }
-                                    </BSection>
+                                    </BuildingSection>
                                 )
                             })
                         }
                         {
                             sections.length > 1 ?
-                                <BChooseSections sections={map.sections} state={checkedSections} update={setCheckedSections}></BChooseSections>
+                                <BuildingChooseSections sections={map.sections} state={checkedSections} update={setCheckedSections}></BuildingChooseSections>
                                 : null
                         }
                     </Col>
@@ -203,11 +210,11 @@ export const BuilderPanelView: React.FC<IBuilderPanelProps> = ({ map }) => {
     )
 }
 
-export const BuilderPanelEdit: React.FC<IBuilderPanelProps> = (map) => {
+export const BuildingPanelEdit: React.FC<IBuildingPanelProps> = (map) => {
     return (
         <Row >
             <Col span={8} push={8}>
-                <EmptyBuilderBlock />
+                <EmptyBuildingBlock />
             </Col>
         </Row>
     )
