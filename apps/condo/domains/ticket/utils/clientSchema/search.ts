@@ -1,7 +1,3 @@
-import { getStorageItem } from '@condo/domains/organization/utils/helpers'
-import get from 'lodash/get'
-import { Organization } from '../../../../schema'
-
 const gql = require('graphql-tag')
 
 const GET_ALL_SOURCES_QUERY = gql`
