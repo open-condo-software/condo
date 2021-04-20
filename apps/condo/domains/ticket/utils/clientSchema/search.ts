@@ -72,7 +72,7 @@ export async function searchTicketSources (client, value) {
 }
 
 export async function searchTicketClassifier (client, value) {
-    // TODO(pahaz): add organization relation to existing classifiers
+    // TODO(Dimitreee): add organization relation to existing classifiers
     // const organization = getStorageItem<Organization>('organization')
     // const organizationId = get(organization, 'id')
 
