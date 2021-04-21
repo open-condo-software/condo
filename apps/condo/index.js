@@ -45,7 +45,7 @@ registerSchemas(keystone, [
     require('@condo/domains/property/schema'),
     require('@condo/domains/billing/schema'),
     require('@condo/domains/ticket/schema'),
-    // require('@condo/domains/notification/schema'),
+    require('@condo/domains/notification/schema'),
 ])
 
 registerTasks([
