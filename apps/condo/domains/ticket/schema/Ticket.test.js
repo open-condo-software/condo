@@ -196,7 +196,7 @@ describe('Ticket:permissions', () => {
         const client2 = await makeClientWithProperty()
         const [obj] = await createTestTicket(client, client.organization, client.property)
         try {
-            await updateTestTicket(client, obj.id, { property: { connect: { id: client2.property } } })
+            await updateTestTicket(client, obj.id, { property: { connect: { id: client2.property.id } } })
         } catch (e) {
             expect(e.errors[0]).toMatchObject({
                 'message': 'You do not have access to this resource',
