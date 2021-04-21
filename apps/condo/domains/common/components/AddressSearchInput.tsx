@@ -42,6 +42,9 @@ async function searchAddress (query) {
     })
 }
 
+/**
+ * TODO: `searchText` gets wiped out when control looses focus
+ */
 export const AddressSearchInput: React.FC = (props) => {
     const [value, setValue] = useState()
     const [searchValue, setSearchValue] = useState('')
