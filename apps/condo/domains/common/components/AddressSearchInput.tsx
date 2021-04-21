@@ -106,7 +106,6 @@ type DadataAddressSuggestion = {
         source?: any;
         qc?: any;
     };
-    address: string;
 }
 
 async function searchAddress (query) {
