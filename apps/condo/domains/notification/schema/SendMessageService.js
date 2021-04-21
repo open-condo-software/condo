@@ -22,7 +22,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         },
         {
             access: true,
-            type: `input SendMessageToInput { user: UserWhereUniqueInput, email: String, phone: String }`,
+            type: 'input SendMessageToInput { user: UserWhereUniqueInput, email: String, phone: String }',
         },
         {
             access: true,
@@ -47,7 +47,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                 if (!to.user && !to.email && !to.phone) throw new Error('invalid send to input')
 
                 // TODO(pahaz): check meta
-                const messageAttrs = { dv, sender, status: "sending", type, meta, lang }
+                const messageAttrs = { dv, sender, status: 'sending', type, meta, lang }
                 if (to.email) messageAttrs.email = to.email
                 if (to.phone) messageAttrs.phone = to.phone
                 if (to.user) messageAttrs.user = { connect: to.user }
