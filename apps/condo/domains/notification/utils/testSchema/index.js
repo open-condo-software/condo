@@ -18,15 +18,18 @@ const Message = generateGQLTestUtils(MessageGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestMessage (client, user, extraAttrs = {}) {
+async function createTestMessage (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const email = ('test1.' + getRandomString() + '@example.com').toLowerCase()
+    const type = INVITE_NEW_EMPLOYEE_MESSAGE_TYPE
+    const meta = { name: faker.random.alphaNumeric(8) }
+    const lang = 'en'
 
     const attrs = {
         dv: 1,
         sender,
-        user: { connect: { id: user.id } },
+        email, type, meta, lang,
         ...extraAttrs,
     }
     const obj = await Message.create(client, attrs)

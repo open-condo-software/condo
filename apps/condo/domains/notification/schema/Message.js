@@ -10,7 +10,6 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/notification/access/Message')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 
-
 const Message = new GQLListSchema('Message', {
     schemaDoc: 'Notification message',
     fields: {
@@ -66,6 +65,7 @@ const Message = new GQLListSchema('Message', {
         status: {
             schemaDoc: 'Message status',
             type: Select,
+            defaultValue: 'sending',
             options: 'sending,planned,sent,canceled',
             isRequired: true,
         },
