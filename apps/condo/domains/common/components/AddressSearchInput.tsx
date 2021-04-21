@@ -16,6 +16,11 @@ function getAddressSuggestionsConfig () {
     return { apiUrl, apiToken }
 }
 
+// https://dadata.ru/api/suggest/address/#request
+enum HouseType {
+    house = 'д'
+}
+
 // Generated from API response using http://json2ts.com
 type DadataAddressSuggestion = {
     value: string;
@@ -124,7 +129,11 @@ async function searchAddress (query) {
     const { suggestions } = await response.json()
     // FORMAT: { suggestions: [ { value: "Address1", meta1: value1, meta2: value2, ... }, ... ] }
 
-    return suggestions.map((suggestion: DadataAddressSuggestion) => {
+    return suggestions
+      .filter((suggestion: DadataAddressSuggestion) => (
+        suggestion.data.house_type === HouseType.house
+      ))
+      .map((suggestion: DadataAddressSuggestion) => {
         const cleanedSuggestion = pickBy(suggestion, identity)
 
         return {
