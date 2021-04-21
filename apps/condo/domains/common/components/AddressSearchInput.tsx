@@ -171,7 +171,7 @@ export const AddressSearchInput: React.FC = (props) => {
         clearSelection()
     }, [])
 
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (e) => {
         // `Select` component from Ant displays either `searchText` or selected `Option`,
         // which are two DOM elements on the same position. It's not supposed by Ant to display both of them.
         // Once `Option` is selected, `searchText` (typed by hands) will be wiped out.
