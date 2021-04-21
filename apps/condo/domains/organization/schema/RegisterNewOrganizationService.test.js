@@ -41,6 +41,8 @@ describe('RegisterNewOrganizationService', () => {
                     canManageOrganization: true,
                     canManageEmployees: true,
                     canManageRoles: true,
+                    canManageProperties: true,
+                    canManageTickets: true,
                 }),
             }),
         ])

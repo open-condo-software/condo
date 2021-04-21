@@ -16,7 +16,6 @@ export const useStatusTransitions = (ticketStatusId: string) => {
             ticketStatusId,
             get(organization, 'statusTransitions'),
             get(employee, ['role', 'statusTransitions']),  get(organization, 'defaultEmployeeRoleStatusTransitions'),
-        )
-        ,
+        ),
     }
 }

@@ -56,7 +56,7 @@ describe('Ticket', () => {
         }
     })
 
-    test.skip('user: read Ticket', async () => {
+    test('user: read Ticket', async () => {
         const client = await makeClientWithProperty()
         const [obj, attrs] = await createTestTicket(client, client.organization, client.property)
         const objs = await Ticket.getAll(client)
@@ -71,6 +71,18 @@ describe('Ticket', () => {
         expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
         expect(objs[0].createdAt).toMatch(obj.createdAt)
         expect(objs[0].updatedAt).toMatch(obj.updatedAt)
+    })
+
+    test('user: no access to another organization ticket', async () => {
+        const hacker = await makeClientWithProperty()
+        const client = await makeClientWithProperty()
+        const [obj] = await createTestTicket(client, client.organization, client.property)
+
+        const objs = await Ticket.getAll(hacker)
+        expect(objs).toHaveLength(0)
+
+        const objsFilteredById = await Ticket.getAll(hacker, { id: obj.id })
+        expect(objsFilteredById).toHaveLength(0)
     })
 
     test('anonymous: read Ticket', async () => {
@@ -88,7 +100,7 @@ describe('Ticket', () => {
         }
     })
 
-    test.skip('user: update Ticket', async () => {
+    test('user: update Ticket', async () => {
         const client = await makeClientWithProperty()
         const payload = { details: 'new data' }
         const [objCreated] = await createTestTicket(client, client.organization, client.property)
@@ -108,8 +120,7 @@ describe('Ticket', () => {
         expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
         expect(objUpdated.details).toEqual(payload.details)
         expect(objUpdated.organization).toEqual(expect.objectContaining({ id: client.organization.id }))
-        expect(objUpdated.number).toEqual(objCreated.number) 
-        expect(objUpdated.source).toEqual(expect.objectContaining({ id: objCreated.organization.id }))
+        expect(objUpdated.number).toEqual(objCreated.number)
         // TODO(pahaz): check others fields ...
     })
 
@@ -151,6 +162,39 @@ describe('Ticket', () => {
         const [objCreated] = await createTestTicket(client1, client1.organization, client1.property)
         try {
             await Ticket.delete(client, objCreated.id)
+        } catch (e) {
+            expect(e.errors[0]).toMatchObject({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
+            })
+            expect(e.data).toEqual({ 'obj': null })
+        }
+    })
+})
+
+describe('Ticket:permissions', () => {
+    test('user: create Ticket', async () => {
+        const client = await makeClientWithProperty()
+        const client2 = await makeClientWithProperty()
+        try {
+            await createTestTicket(client, client.organization, client2.property)
+        } catch (e) {
+            expect(e.errors[0]).toMatchObject({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
+            })
+            expect(e.data).toEqual({ 'obj': null })
+        }
+    })
+
+    test('user: update Ticket', async () => {
+        const client = await makeClientWithProperty()
+        const client2 = await makeClientWithProperty()
+        const [obj] = await createTestTicket(client, client.organization, client.property)
+        try {
+            await updateTestTicket(client, obj.id, { property: { connect: { id: client2.property.id } } })
         } catch (e) {
             expect(e.errors[0]).toMatchObject({
                 'message': 'You do not have access to this resource',

@@ -6,20 +6,22 @@ const access = require('@core/keystone/access')
 async function canReadUsers ({ authentication: { item: user } }) {
     if (!user || !user.id) return false
     if (user.isAdmin) return true
+
     return true
 }
 
 async function canManageUsers ({ authentication: { item: user }, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin) return true
-    if (operation === 'create') {
-        // NOTE: only by Admins!
-        return false
-    } else if (operation === 'update') {
-        // NOTE: allow to self-user to update
-        if (itemId === user.id) return true
-        return true
+
+    if (operation === 'update') {
+        return Boolean(itemId === user.id)
     }
+
+    if (operation === 'create') {
+        return false
+    }
+
     return false
 }
 

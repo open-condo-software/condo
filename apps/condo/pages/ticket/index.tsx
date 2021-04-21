@@ -11,6 +11,7 @@ import {
     sorterToQuery, queryToSorter,
 } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
+import get from 'lodash/get'
 
 import { Col, Input, Row, Space, Table, Tooltip, Typography } from 'antd'
 import Head from 'next/head'
@@ -23,6 +24,7 @@ import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { Button } from '@condo/domains/common/components/Button'
 import XLSX from 'xlsx'
+import { useOrganization } from '@core/next/organization'
 
 const TicketsPage = () => {
     const intl = useIntl()
@@ -33,13 +35,14 @@ const TicketsPage = () => {
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
-    
-    
 
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const offsetFromQuery = getPaginationFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery(router.query)
+
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const {
         fetchMore,
@@ -49,7 +52,7 @@ const TicketsPage = () => {
     } = Ticket.useObjects({
         // @ts-ignore
         sortBy: sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC', //TODO(Dimitreee):Find cleanest solution
-        where: filtersToQuery(filtersFromQuery),
+        where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
         offset: offsetFromQuery,
         limit: TICKET_PAGE_SIZE,
     }, {

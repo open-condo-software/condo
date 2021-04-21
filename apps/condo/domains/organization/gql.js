@@ -4,7 +4,7 @@ const { genTestGQLUtils } = require('@core/keystone/gen.gql.utils')
 const ORGANIZATION_FIELDS = '{ id dv sender v country name description avatar { publicUrl } statusTransitions defaultEmployeeRoleStatusTransitions }'
 const Organization = genTestGQLUtils('Organization', ORGANIZATION_FIELDS)
 
-const ORGANIZATION_ROLE_FIELDS = '{ id dv sender v name statusTransitions canManageOrganization canManageEmployees canManageRoles }'
+const ORGANIZATION_ROLE_FIELDS = '{ id dv sender v name statusTransitions canManageOrganization canManageEmployees canManageRoles canManageProperties canManageTickets }'
 const OrganizationEmployeeRole = genTestGQLUtils('OrganizationEmployeeRole', ORGANIZATION_ROLE_FIELDS)
 
 const ORGANIZATION_EMPLOYEE_FIELDS = `{ id dv sender v organization ${ORGANIZATION_FIELDS} user { id name } name email phone role ${ORGANIZATION_ROLE_FIELDS} isRejected isAccepted }`
