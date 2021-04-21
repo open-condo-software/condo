@@ -106,8 +106,6 @@ describe('Ticket', () => {
         const [objCreated] = await createTestTicket(client, client.organization, client.property)
 
         const [objUpdated, attrs] = await updateTestTicket(client, objCreated.id, payload)
-        console.log(objCreated)
-        console.log(objUpdated)
 
         expect(objUpdated.id).toEqual(objCreated.id)
         expect(objUpdated.dv).toEqual(1)

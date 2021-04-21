@@ -1,7 +1,7 @@
 const conf = require('@core/config')
+const util = require('util')
 
 const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
-const util = require('util')
 
 function throwIfError (data, errors) {
     if (errors) {
