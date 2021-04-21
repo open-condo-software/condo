@@ -8,7 +8,6 @@ const { createItems } = require('@keystonejs/server-side-graphql-client')
 
 const conf = require('@core/config')
 const access = require('@core/keystone/access')
-const { registerTasks } = require('@core/keystone/tasks')
 const { EmptyApp } = require('@core/keystone/test.utils')
 const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
@@ -45,11 +44,6 @@ registerSchemas(keystone, [
     require('@condo/domains/property/schema'),
     require('@condo/domains/billing/schema'),
     require('@condo/domains/ticket/schema'),
-    // require('@condo/domains/notification/schema'),
-])
-
-registerTasks([
-    // require('@condo/domains/notification/tasks'),
 ])
 
 function verifySchema (keystone) {
