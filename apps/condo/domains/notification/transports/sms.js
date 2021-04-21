@@ -6,7 +6,7 @@ const SMS_API_CONFIG = (conf.SMS_API_CONFIG) ? JSON.parse(conf.SMS_API_CONFIG) :
 
 async function prepareMessageToSend (messageId) {
     // TODO(pahaz): write the logic here!
-    return { phone: '+79068088824', message: 'hello!' }
+    return { phone: '+79068888888', message: 'hello!' }
 }
 
 async function send ({ phone, message } = {}) {

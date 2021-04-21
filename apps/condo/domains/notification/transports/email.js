@@ -7,7 +7,7 @@ const EMAIL_API_CONFIG = (conf.EMAIL_API_CONFIG) ? JSON.parse(conf.EMAIL_API_CON
 
 async function prepareMessageToSend (messageId) {
     // TODO(pahaz): write the logic here!
-    return { to: 'pahaz@doma.ai', subject: 'test1', text: 'приветы!' }
+    return { to: 'pahaz@example.com', subject: 'test', text: 'Hi!' }
 }
 
 async function send ({ to, cc, bcc, subject, text, html } = {}) {
