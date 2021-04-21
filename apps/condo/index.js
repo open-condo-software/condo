@@ -49,7 +49,7 @@ registerSchemas(keystone, [
 ])
 
 registerTasks([
-    // require('@condo/domains/notification/tasks'),
+    require('@condo/domains/notification/tasks'),
 ])
 
 function verifySchema (keystone) {
