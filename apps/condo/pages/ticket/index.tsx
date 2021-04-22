@@ -145,14 +145,14 @@ const TicketsPage = () => {
                                     createLabel={CreateTicket} />
                                 : <Row gutter={[0, 40]} align={'middle'}>
                                     <Col span={6}>
-                                        <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData}>{ExportAsExcel}</Button>
-                                    </Col>
-                                    <Col span={6} push={12}>
                                         <Input
                                             placeholder={SearchPlaceholder}
                                             onChange={(e)=>{handleSearchChange(e.target.value)}}
                                             value={search}
                                         />
+                                    </Col>
+                                    <Col span={6} push={1}>
+                                        <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData}>{ExportAsExcel}</Button>
                                     </Col>
                                     <Col span={24}>
                                         <Table
