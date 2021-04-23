@@ -13,13 +13,12 @@ import {
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 
-import { Col, Input, Row, Space, Table, Tooltip, Typography } from 'antd'
+import { Col, Input, Row, Space, Table, Typography } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
-import pickBy from 'lodash/pickBy'
-import debounce from 'lodash/debounce'
-import React, { useCallback } from 'react'
+import { pickBy, debounce } from 'lodash'
+import React, { useCallback, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { Button } from '@condo/domains/common/components/Button'
@@ -30,7 +29,6 @@ const TicketsPage = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
@@ -87,7 +85,7 @@ const TicketsPage = () => {
                 limit: TICKET_PAGE_SIZE,
             }).then(() => {
                 const query = qs.stringify(
-                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy(nextFilters)) },
+                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
                     { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
                 )
 
@@ -95,6 +93,23 @@ const TicketsPage = () => {
             })
         }
     }, 400), [loading])
+
+    const searchValue = get(filtersFromQuery, 'search')
+    const [search, setSearch] = useState(searchValue)
+
+    const searchChange = useCallback(debounce((e) => {
+        const query = qs.stringify(
+            { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, search: e })) },
+            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+        )
+
+        router.push(router.route + query)
+    }, 400), [loading])
+
+    const handeleSearchChange = search => { //handeleSearchChange
+        setSearch(search)
+        searchChange(search)
+    }
 
     const generateExcelData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {
@@ -136,7 +151,7 @@ const TicketsPage = () => {
                     <OrganizationRequired>
                         {
                             !tickets.length && !filtersFromQuery
-                                ? <EmptyListView 
+                                ? <EmptyListView
                                     label={EmptyListLabel}
                                     message={EmptyListMessage}
                                     createRoute='/ticket/create'
@@ -146,11 +161,11 @@ const TicketsPage = () => {
                                         <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData}>{ExportAsExcel}</Button>
                                     </Col>
                                     <Col span={6} push={12}>
-                                        <Tooltip title={NotImplementedYetMessage}>
-                                            <div>
-                                                <Input placeholder={SearchPlaceholder} disabled/>
-                                            </div>
-                                        </Tooltip>
+                                        <Input
+                                            placeholder={SearchPlaceholder}
+                                            onChange={(e)=>{handeleSearchChange(e.target.value)}}
+                                            value={search}
+                                        />
                                     </Col>
                                     <Col span={24}>
                                         <Table

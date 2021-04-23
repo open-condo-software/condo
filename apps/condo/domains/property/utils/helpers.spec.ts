@@ -14,14 +14,31 @@ describe('Helpers property', () => {
             describe('it should correctly generate query if', () => {
                 it('all filters are defined', () => {
                     const address = 'address'
+                    const search = 'search'
+
                     expect(filtersToQuery({
                         address,
-                    })).toStrictEqual({ AND: [ { address_contains_i: 'address' } ] })
+                        search,
+                    })).toStrictEqual(
+                        { AND: [
+                            { address_contains_i: 'address' },
+                            { OR: [{ address_contains_i: 'search' }] },
+                        ] })
                 })
                 describe('only filter', () => {
                     it('address is defined', () => {
                         const address = 'address'
                         expect(filtersToQuery({ address })).toStrictEqual({ AND: [ { address_contains_i: 'address' } ] })
+                    })
+                })
+
+                it('search is defined', () => {
+                    const search = 'search'
+
+                    expect(filtersToQuery({ search })).toStrictEqual({
+                        AND: [
+                            { OR: [{ address_contains_i: 'search' }] },
+                        ],
                     })
                 })
             })
