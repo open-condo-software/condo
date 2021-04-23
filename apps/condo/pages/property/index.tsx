@@ -2,7 +2,7 @@
 // @ts-nocheck
 import React, { useCallback, useState } from 'react'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { Typography, Space, Radio, Row, Col, Tooltip, Input, Table } from 'antd'
+import { Typography, Space, Radio, Row, Col, Input, Table } from 'antd'
 import { DatabaseFilled } from '@ant-design/icons'
 import Head from 'next/head'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
@@ -32,6 +32,7 @@ import { useTableColumns } from '@condo/domains/property/hooks/useTableColumns'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import debounce from 'lodash/debounce'
+import get from 'lodash/get'
 
 const PropertyPageViewMap = (): React.FC => {
     const {
@@ -65,7 +66,6 @@ const PropertyPageViewTable = (): React.FC => {
     const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const createRoute = '/property/create'
 
     const router = useRouter()
@@ -110,7 +110,7 @@ const PropertyPageViewTable = (): React.FC => {
                 limit: PROPERTY_PAGE_SIZE,
             }).then(() => {
                 const query = qs.stringify(
-                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy(nextFilters)) },
+                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
                     { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
                 )
                 router.push(router.route + query)
@@ -118,6 +118,23 @@ const PropertyPageViewTable = (): React.FC => {
 
         }
     }, 400), [loading])
+
+    const searchValue = get(filtersFromQuery, 'search')
+    const [search, setSearch] = useState(searchValue)
+
+    const searchChange = useCallback(debounce((e) => {
+        const query = qs.stringify(
+            { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, search: e })) },
+            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+        )
+
+        router.push(router.route + query)
+    }, 400), [loading])
+
+    const handeleSearchChange = search => { //handeleSearchChange
+        setSearch(search)
+        searchChange(search)
+    }
 
     const generateExcelData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {
@@ -164,11 +181,11 @@ const PropertyPageViewTable = (): React.FC => {
                     :
                     <Row align={'middle'} gutter={[0, 40]}>
                         <Col span={6}>
-                            <Tooltip title={NotImplementedYetMessage}>
-                                <div>
-                                    <Input placeholder={SearchPlaceholder} disabled />
-                                </div>
-                            </Tooltip>
+                            <Input
+                                placeholder={SearchPlaceholder}
+                                onChange={(e)=>{handeleSearchChange(e.target.value)}}
+                                value={search}
+                            />
                         </Col>
                         <Col span={6} push={1}>
                             <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData} >{ExportAsExcel}</Button>

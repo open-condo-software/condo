@@ -117,6 +117,7 @@ describe('Helpers', () => {
                     const executor = 'executor'
                     const number = 12
                     const property = 'property'
+                    const search = 'search'
 
                     expect(filtersToQuery({
                         status,
@@ -127,6 +128,7 @@ describe('Helpers', () => {
                         executor,
                         number,
                         property,
+                        search,
                     })).toStrictEqual({
                         AND: [
                             {
@@ -144,6 +146,13 @@ describe('Helpers', () => {
                             { assignee: { AND: [{ name_contains_i: 'assignee' }] } },
                             { number: number },
                             { property: { AND: [{ address_contains_i: 'property' }] } },
+                            { OR: [
+                                { clientName_contains_i: 'search' },
+                                { details_contains_i: 'search' },
+                                { executor: { AND: [{ name_contains_i: 'search' }] } },
+                                { assignee: { AND: [{ name_contains_i: 'search' }] } },
+                                { property: { AND: [{ address_contains_i: 'search' }] } },
+                            ] },
                         ],
                     })
                 })
@@ -232,6 +241,22 @@ describe('Helpers', () => {
                         expect(filtersToQuery({ property })).toStrictEqual({
                             AND: [
                                 { property: { AND: [{ address_contains_i: 'property' }] } },
+                            ],
+                        })
+                    })
+
+                    it('search is defined', () => {
+                        const search = 'search'
+
+                        expect(filtersToQuery({ search })).toStrictEqual({
+                            AND: [
+                                { OR: [
+                                    { clientName_contains_i: 'search' },
+                                    { details_contains_i: 'search' },
+                                    { executor: { AND: [{ name_contains_i: 'search' }] } },
+                                    { assignee: { AND: [{ name_contains_i: 'search' }] } },
+                                    { property: { AND: [{ address_contains_i: 'search' }] } },
+                                ] },
                             ],
                         })
                     })
