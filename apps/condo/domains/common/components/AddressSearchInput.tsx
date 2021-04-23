@@ -1,6 +1,6 @@
 import getConfig from 'next/config'
 import React, { useCallback, useMemo, useState } from 'react'
-import { Select, Spin } from 'antd'
+import { Dropdown, Input, Menu, Spin } from 'antd'
 import debounce from 'lodash/debounce'
 import pickBy from 'lodash/pickBy'
 import identity from 'lodash/identity'
@@ -18,7 +18,7 @@ function getAddressSuggestionsConfig () {
 
 // https://dadata.ru/api/suggest/address/#request
 enum HouseType {
-    house = 'д'
+    house = 'д',
 }
 
 // Generated from API response using http://json2ts.com
@@ -130,94 +130,75 @@ async function searchAddress (query) {
     // FORMAT: { suggestions: [ { value: "Address1", meta1: value1, meta2: value2, ... }, ... ] }
 
     return suggestions
-      .filter((suggestion: DadataAddressSuggestion) => (
-        suggestion.data.house_type === HouseType.house
-      ))
-      .map((suggestion: DadataAddressSuggestion) => {
-        const cleanedSuggestion = pickBy(suggestion, identity)
+        .filter((suggestion: DadataAddressSuggestion) => (
+            suggestion.data.house_type === HouseType.house
+        ))
+        .map((suggestion: DadataAddressSuggestion) => {
+            const cleanedSuggestion = pickBy(suggestion, identity)
 
-        return {
-            text: suggestion.value,
-            value: JSON.stringify({ ...cleanedSuggestion, address: suggestion.value }),
-        }
-    })
+            return {
+                text: suggestion.value,
+                value: JSON.stringify({ ...cleanedSuggestion, address: suggestion.value }),
+            }
+        })
 }
 
-/**
- * TODO: `searchText` gets wiped out when control looses focus
- */
-export const AddressSearchInput: React.FC = (props) => {
-    const [value, setValue] = useState()
-    const [searchValue, setSearchValue] = useState('')
+interface AddressInputProps {
+    value?: string;
+    onChange?: (value: string) => void;
+}
+
+export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
+    const [value, setValue] = useState(props.value)
     const [fetching, setFetching] = useState(false)
-    const [data, setData] = useState([])
-    const options = useMemo(() => {
-        return data.map(d => <Select.Option key={d.value} value={d.value} title={d.text}>{d.text}</Select.Option>)
-    }, [data])
+    const [suggestions, setSuggestions] = useState([])
 
     const searchSuggestions = useCallback(async (term) => {
         setFetching(true)
         const data = await searchAddress(term)
-
         setFetching(false)
-        setData(data)
+        setSuggestions(data)
     }, [searchAddress])
 
     const debouncedSearchSuggestions = useMemo(() => {
         return debounce(searchSuggestions, DEBOUNCE_TIMEOUT)
     }, [searchSuggestions])
 
-    const handleOnSearch = (term) => {
-        setSearchValue(term)
-        debouncedSearchSuggestions(term)
-    }
-
-    const handleSelect = useCallback((val, option) => {
-        setValue(option.children)
-    }, [])
-
-    const handleClear = useCallback(() => {
-        clearSelection()
-    }, [])
-
-    const handleKeyDown = (e) => {
-        // `Select` component from Ant displays either `searchText` or selected `Option`,
-        // which are two DOM elements on the same position. It's not supposed by Ant to display both of them.
-        // Once `Option` is selected, `searchText` (typed by hands) will be wiped out.
-        // Out of the box, it's impossible to continue editing what user has selected,
-        // because `Option` is not editable, it's selectable.
-        // To make it possible from visual point of view, we need to:
-        // 1. Set `searchText` to text of selected `Option` to let user to reuse selected Option's text and edit it
-        // 2. Clear `value`, that causes selected Option to disappear
-        if (e.key === 'Backspace' && value) {
-            setSearchValue(value)
-            clearSelection()
+    const handleChange = (text, addressMeta) => {
+        setValue(text)
+        props.onChange?.(matchesSuggestions(text) ? addressMeta : null)
+        if (text) {
+            debouncedSearchSuggestions(text)
         }
     }
 
-    const clearSelection = () => {
-        setValue(null)
-    }
+    const matchesSuggestions = (address) => (
+        suggestions.filter(({ text }) => text === address).length > 0
+    )
 
     return (
-        <Select
-            showSearch
-            value={value}
-            searchValue={searchValue}
-            autoClearSearchValue={false}
-            allowClear={true}
-            defaultActiveFirstOption={false}
-            onSearch={handleOnSearch}
-            onSelect={handleSelect}
-            onKeyDown={handleKeyDown}
-            onClear={handleClear}
-            loading={fetching}
-            notFoundContent={fetching ? <Spin size="small" /> : null}
-            showArrow={false}
-            filterOption={false}
-            {...props}
+        <Dropdown
+            placement="bottomCenter"
+            overlay={
+                <Menu>
+                    {fetching ? (
+                        <Spin size="small"/>
+                    ) : suggestions.map((item, i) => (
+                        <Menu.Item
+                            key={i}
+                            onClick={() => handleChange(item.text, item.value)}
+                        >
+                            {item.text}
+                        </Menu.Item>
+                    ))}
+                </Menu>
+            }
         >
-            {options}
-        </Select>
+            <Input
+                value={value}
+                allowClear
+                onChange={e => handleChange(e.target.value)}
+            />
+        </Dropdown>
     )
 }
