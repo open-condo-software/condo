@@ -113,7 +113,12 @@ type AddressSuggestion = {
     };
 }
 
-async function searchAddress (query) {
+type TOption = {
+    text: string;
+    value: string;
+}
+
+async function searchAddress (query): Promise<TOption[]> {
     const { apiUrl, apiToken } = getAddressSuggestionsConfig()
 
     const response = await fetch(apiUrl, {
@@ -133,7 +138,7 @@ async function searchAddress (query) {
         .filter((suggestion: AddressSuggestion) => (
             suggestion.data.house_type === HouseType.house
         ))
-        .map((suggestion: AddressSuggestion) => {
+        .map((suggestion) => {
             const cleanedSuggestion = pickBy(suggestion, identity)
 
             return {
@@ -155,26 +160,25 @@ export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
 
     const searchSuggestions = useCallback(async (term) => {
         setFetching(true)
-        const data = await searchAddress(term)
+        const options = await searchAddress(term)
         setFetching(false)
-        setSuggestions(data)
+        setSuggestions(options)
+
+        // Lookup `value` in finally arrived suggestions list and propagate change
+        const match = options.filter(option => option.text === term)[0]
+        props.onChange?.(match?.value || null)
     }, [searchAddress])
 
     const debouncedSearchSuggestions = useMemo(() => {
         return debounce(searchSuggestions, DEBOUNCE_TIMEOUT)
     }, [searchSuggestions])
 
-    const handleChange = (text, addressMeta) => {
-        setValue(text)
-        props.onChange?.(matchesSuggestions(text) ? addressMeta : null)
+    const handleChange = (text) => {
         if (text) {
             debouncedSearchSuggestions(text)
         }
+        setValue(text)
     }
-
-    const matchesSuggestions = (address) => (
-        suggestions.filter(({ text }) => text === address).length > 0
-    )
 
     return (
         <Dropdown
@@ -186,7 +190,7 @@ export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
                     ) : suggestions.map((item, i) => (
                         <Menu.Item
                             key={i}
-                            onClick={() => handleChange(item.text, item.value)}
+                            onClick={() => handleChange(item.text)}
                         >
                             {item.text}
                         </Menu.Item>
@@ -195,6 +199,7 @@ export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
             }
         >
             <Input
+                {...props}
                 value={value}
                 allowClear
                 onChange={e => handleChange(e.target.value)}
