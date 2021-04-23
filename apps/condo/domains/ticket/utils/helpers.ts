@@ -95,6 +95,7 @@ export interface IFilters extends Pick<Ticket, 'clientName' | 'createdAt' | 'det
     assignee?: string
     executor?: string
     property?: string
+    search?: string
 }
 
 export const statusToQuery = (statusIds: Array<string>): TicketStatusWhereInput => {
@@ -158,6 +159,25 @@ export const assigneeToQuery = (assignee?: string) => {
     }
 }
 
+export const searchToQuery = (search?: string) => {
+    if (!search) {
+        return
+    }
+
+    const executorQuery = executorToQuery(search)
+    const assigneeQuery = assigneeToQuery(search)
+    const propertyQuery = propertyToQuery(search)
+
+    return [
+        { clientName_contains_i: search },
+        { details_contains_i: search },
+        { executor: executorQuery },
+        { assignee: assigneeQuery },
+        Number(search) && { number: Number(search) },
+        { property: propertyQuery },
+    ].filter(Boolean)
+}
+
 export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
     const statusIds = get(filters, 'status')
     const clientName = get(filters, 'clientName')
@@ -167,12 +187,14 @@ export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
     const property = get(filters, 'property')
     const executor = get(filters, 'executor')
     const assignee = get(filters, 'assignee')
+    const search = get(filters, 'search')
 
     const executorQuery = executorToQuery(executor)
     const assigneeQuery = assigneeToQuery(assignee)
     const statusFiltersQuery = statusToQuery(statusIds)
     const createdAtQuery = createdAtToQuery(createdAt)
     const propertyQuery = propertyToQuery(property)
+    const searchQuery = searchToQuery(search)
 
     const filtersCollection = [
         statusFiltersQuery && { status: statusFiltersQuery },
@@ -184,6 +206,7 @@ export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
         assignee && { assignee: assigneeQuery },
         number && Number(number) && { number: Number(number) },
         property && { property: propertyQuery },
+        searchQuery && { OR: searchQuery },
     ].filter(Boolean)
 
     if (filtersCollection.length > 0) {

@@ -18,6 +18,7 @@ export const getPaginationFromQuery = (query: ParsedUrlQuery): number => {
 
 export interface IFilters extends Pick<Property, 'address'> {
     address?: string
+    search?: string
 }
 
 export const getFiltersFromQuery = (query: ParsedUrlQuery): IFilters => {
@@ -84,10 +85,25 @@ export const sorterToQuery = (sorter?: SorterColumn | Array<SorterColumn>): Arra
     }).filter(Boolean)
 }
 
+export const searchToQuery = (search?: string) => {
+    if (!search) {
+        return
+    }
+
+    return [
+        { address_contains_i: search },
+    ].filter(Boolean)
+}
+
 export const filtersToQuery = (filters: IFilters): PropertyWhereInput => {
     const address = get(filters, 'address')
+    const search = get(filters, 'search')
+
+    const searchQuery = searchToQuery(search)
+
     const filtersCollection = [
         address && { address_contains_i: address },
+        searchQuery && { OR: searchQuery },
     ].filter(Boolean)
     if (filtersCollection.length > 0) {
         return {
