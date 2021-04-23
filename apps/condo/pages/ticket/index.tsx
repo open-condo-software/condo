@@ -11,7 +11,6 @@ import {
     sorterToQuery, queryToSorter,
 } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
-import get from 'lodash/get'
 
 import { Col, Input, Row, Space, Table, Typography } from 'antd'
 import Head from 'next/head'

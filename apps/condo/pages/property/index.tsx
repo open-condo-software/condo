@@ -31,7 +31,6 @@ import { useTableColumns } from '@condo/domains/property/hooks/useTableColumns'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import debounce from 'lodash/debounce'
-import get from 'lodash/get'
 
 import {
     BaseModalForm,
@@ -235,7 +234,7 @@ const PropertyPageViewTable = (): React.FC => {
         router.push(router.route + query)
     }, 400), [loading])
 
-    const handeleSearchChange = search => { //handeleSearchChange
+    const handeleSearchChange = search => {
         setSearch(search)
         searchChange(search)
     }
