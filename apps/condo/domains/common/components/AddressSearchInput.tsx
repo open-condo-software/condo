@@ -22,7 +22,7 @@ enum HouseType {
 }
 
 // Generated from API response using http://json2ts.com
-type DadataAddressSuggestion = {
+type AddressSuggestion = {
     value: string;
     unrestricted_value: string;
     data: {
@@ -130,10 +130,10 @@ async function searchAddress (query) {
     // FORMAT: { suggestions: [ { value: "Address1", meta1: value1, meta2: value2, ... }, ... ] }
 
     return suggestions
-        .filter((suggestion: DadataAddressSuggestion) => (
+        .filter((suggestion: AddressSuggestion) => (
             suggestion.data.house_type === HouseType.house
         ))
-        .map((suggestion: DadataAddressSuggestion) => {
+        .map((suggestion: AddressSuggestion) => {
             const cleanedSuggestion = pickBy(suggestion, identity)
 
             return {
