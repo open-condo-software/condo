@@ -16,7 +16,6 @@ function getAddressSuggestionsConfig () {
     return { apiUrl, apiToken }
 }
 
-// https://dadata.ru/api/suggest/address/#request
 enum HouseType {
     house = 'д',
 }
