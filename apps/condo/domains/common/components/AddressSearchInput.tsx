@@ -16,10 +16,6 @@ function getAddressSuggestionsConfig () {
     return { apiUrl, apiToken }
 }
 
-enum HouseType {
-    house = 'д',
-}
-
 // Generated from API response using http://json2ts.com
 type AddressSuggestionData = {
     postal_code: string;
@@ -119,7 +115,6 @@ type TOption = {
     value: AddressSuggestion;
 }
 
-
 async function searchAddress (query): Promise<TOption[]> {
     const { apiUrl, apiToken } = getAddressSuggestionsConfig()
 
@@ -137,9 +132,9 @@ async function searchAddress (query): Promise<TOption[]> {
     // FORMAT: { suggestions: [ { value: "Address1", meta1: value1, meta2: value2, ... }, ... ] }
 
     return suggestions.map((suggestion) => ({
-            text: suggestion.value,
-            value: suggestion,
-        }))
+        text: suggestion.value,
+        value: suggestion,
+    }))
 }
 
 interface AddressInputProps {
@@ -161,8 +156,12 @@ export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
 
         // Lookup entered text in arrived suggestions and propagate change
         const match = options.find(option => option.text === term)
-        triggerOnChangeWith(match?.value)
+        triggerOnChangeWith(valid(match?.value) ? match.value : null)
     }, [searchAddress])
+
+    const valid = (matchValue: AddressSuggestion) => (
+        Boolean(matchValue?.data?.house)
+    )
 
     const triggerOnChangeWith = (suggestion?: AddressSuggestion) => {
         props.onChange?.(suggestion ? serialize(suggestion) : null)
