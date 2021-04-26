@@ -140,8 +140,10 @@ async function searchAddress (query): Promise<TOption[]> {
         ))
         .map((suggestion) => {
             // Remove properties with `null` values
-            const cleanedSuggestion = pickBy(suggestion, identity)
-
+            const cleanedSuggestion = {
+                ...pickBy(suggestion, identity),
+                data: pickBy(suggestion.data, identity),
+            }
             return {
                 text: suggestion.value,
                 value: JSON.stringify({ ...cleanedSuggestion, address: suggestion.value }),
