@@ -34,6 +34,8 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import debounce from 'lodash/debounce'
+import { isEmpty } from 'lodash'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 
 const PropertyPageViewMap = (): React.FC => {
     const {
@@ -80,6 +82,7 @@ const PropertyPageViewTable = (): React.FC => {
     const {
         fetchMore,
         loading,
+        error,
         count: total,
         objs: properties,
     } = Property.useObjects({
@@ -145,15 +148,22 @@ const PropertyPageViewTable = (): React.FC => {
         })
     }, [properties])
 
-    const noProperties = !properties.length && !filtersFromQuery
-
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
                 router.push(`/property/${record.id}/`)
             },
         }
-    }, [router])
+    }, [router])    
+    
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+
+    if (error || loading) {
+        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
+    }
+
+    const noProperties = !properties.length && isEmpty(filtersFromQuery)
 
     return (
         <>
@@ -232,13 +242,15 @@ const PropertyPage = (): React.FC => {
                                     <Radio.Button value="map">{ShowMap}</Radio.Button>
                                 </Radio.Group>
                             </Col>
+                            <Col span={24}>
+                                {
+                                    viewMode == 'map' ?
+                                        <PropertyPageViewMap />
+                                        :
+                                        <PropertyPageViewTable />
+                                }
+                            </Col>
                         </Row>
-                        {
-                            viewMode == 'map' ?
-                                <PropertyPageViewMap />
-                                :
-                                <PropertyPageViewTable />
-                        }
                     </OrganizationRequired>
                 </PageContent>
             </PageWrapper>

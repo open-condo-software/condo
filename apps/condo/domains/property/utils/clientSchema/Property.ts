@@ -19,11 +19,13 @@ export interface IPropertyUIState extends Property {
     ticketsInWork: string
     ticketsClosed: string
     unitsCount: string
+    map?: JSON
 }
 
 function convertToUIState (item: Property): IPropertyUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
-    return pick(item, FIELDS) as IPropertyUIState
+    const result = pick(item, FIELDS) as IPropertyUIState
+    return result
 }
 
 export interface IPropertyFormState {
@@ -31,8 +33,8 @@ export interface IPropertyFormState {
     type?: string
     organization?: string
     name?: string
-    address?: string,
-    map?: JSON,
+    address?: string
+    map?: JSON
     // address: string,
     // TODO(codegen): write IPropertyUIFormState or extends it from
 }
