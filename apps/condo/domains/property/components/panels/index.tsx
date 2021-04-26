@@ -1,5 +1,6 @@
-import { BuildingMap, BuildingPanelEdit, BuildingPanelView } from './BuildingPanel'
+import { BuildingPanelEdit, BuildingPanelView } from './BuildingPanel'
 import { ResidentPanelEdit, ResidentPanelView } from './ResidentPanel'
+import { BuildingMap } from './MapConstructor'
 
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Tabs } from 'antd'
@@ -10,12 +11,12 @@ const { TabPane } = Tabs
 interface IPropertyPanels {
     map: BuildingMap
     mode: 'view' | 'edit' 
+    updateMap?(map: BuildingMap): void
 }
 
 
-export const PropertyPanels: React.FC<IPropertyPanels> = ({ mode, map }) => {
+export const PropertyPanels: React.FC<IPropertyPanels> = ({ mode, map, updateMap }) => {
     const intl = useIntl()
-
     const BuildingTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.BuildingTabTitle' })
     const ResidentsTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.ResidentsTabTitle' })
     return (
@@ -23,7 +24,7 @@ export const PropertyPanels: React.FC<IPropertyPanels> = ({ mode, map }) => {
             <TabPane tab={BuildingTabTitle} key='1'>
                 <FocusContainer style={{ margin: 'initial', marginTop: '40px' }}>
                     {
-                        mode === 'view' ? <BuildingPanelView map={map} /> : <BuildingPanelEdit map={map}/>
+                        mode === 'view' ? <BuildingPanelView map={map} /> : <BuildingPanelEdit map={map} updateMap={updateMap}/>
                     }
                 </FocusContainer>
             </TabPane>

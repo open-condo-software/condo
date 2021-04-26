@@ -74,13 +74,16 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
                         </Col>
                         <Col span={1} >
                             <Link href={`/property/${property.id}/update`}>
-                                <Button
-                                    color={'green'}
-                                    type={'sberPrimary'}
-                                    secondary
-                                    icon={<EditFilled />}
-                                >
-                                </Button>
+                                <span>
+                                    <Button
+                                        color={'green'}
+                                        type={'sberPrimary'}
+                                        secondary
+                                        icon={<EditFilled />}
+                                        style={{ lineHeight: '32px' }}
+                                    >
+                                    </Button>
+                                </span>
                             </Link>
                         </Col>
                     </Row>       
