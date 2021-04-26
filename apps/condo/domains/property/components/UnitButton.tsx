@@ -36,6 +36,13 @@ const buttonCss = css`
         color: black;
         border-color: black;
     }
+
+    &:disabled, &:disabled:hover {
+        background-color: #F5F5F5;
+        cursor: default;
+        color: black;
+        border: 1px solid #F5F5F5;
+    }
  `
 
 const buttonSecondaryCss = css`
