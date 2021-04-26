@@ -39,19 +39,11 @@ const Auth = ({ children, initialUser }) => {
     }, [])
 
     async function sendCode (phoneNumber, recaptchaVerifier) {
-        return await firebaseAuth().signInWithPhoneNumber(phoneNumber, recaptchaVerifier).then((res) => {
-            console.log('res from send conde', res)
-
-            return res
-        })
+        return await firebaseAuth().signInWithPhoneNumber(phoneNumber, recaptchaVerifier)
     }
 
     async function verifyCode (confirmationResult, verificationCode) {
-        return await confirmationResult.confirm(verificationCode).then(res => {
-            console.log('res from verify code', res)
-
-            return res
-        })
+        return await confirmationResult.confirm(verificationCode)
     }
 
     async function signout () {
@@ -304,9 +296,8 @@ function PhoneAuthForm ({ onPhoneAuthenticated }) {
             setVerifyError(String(err))
             setVerifyInProgress(false)
 
-            resetRecaptcha()
             // (Dimitreee): Reset recaptcha verifier if sms didnt send
-            console.log('handle recaptcha re init', err)
+            resetRecaptcha()
         }
     }
 
