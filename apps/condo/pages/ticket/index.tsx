@@ -17,9 +17,10 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import { pickBy, debounce } from 'lodash'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Button } from '@condo/domains/common/components/Button'
 import XLSX from 'xlsx'
 import { useOrganization } from '@core/next/organization'
@@ -93,22 +94,7 @@ const TicketsPage = () => {
         }
     }, 400), [loading])
 
-    const searchValue = get(filtersFromQuery, 'search')
-    const [search, setSearch] = useState(searchValue)
-
-    const searchChange = useCallback(debounce((e) => {
-        const query = qs.stringify(
-            { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, search: e })) },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
-
-        router.push(router.route + query)
-    }, 400), [loading])
-
-    const handeleSearchChange = search => { //handeleSearchChange
-        setSearch(search)
-        searchChange(search)
-    }
+    const [search, handeleSearchChange] = useSearch(filtersFromQuery, loading)
 
     const generateExcelData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {

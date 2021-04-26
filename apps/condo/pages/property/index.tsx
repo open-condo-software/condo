@@ -29,6 +29,7 @@ import {
 } from '@condo/domains/property/utils/helpers'
 
 import { useTableColumns } from '@condo/domains/property/hooks/useTableColumns'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import debounce from 'lodash/debounce'
@@ -118,22 +119,7 @@ const PropertyPageViewTable = (): React.FC => {
         }
     }, 400), [loading])
 
-    const searchValue = get(filtersFromQuery, 'search')
-    const [search, setSearch] = useState(searchValue)
-
-    const searchChange = useCallback(debounce((e) => {
-        const query = qs.stringify(
-            { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, search: e })) },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
-
-        router.push(router.route + query)
-    }, 400), [loading])
-
-    const handeleSearchChange = search => {
-        setSearch(search)
-        searchChange(search)
-    }
+    const [search, handeleSearchChange] = useSearch(filtersFromQuery, loading)
 
     const generateExcelData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {
