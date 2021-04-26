@@ -15,7 +15,11 @@ export const AUTH = firebase.auth
 export const initFirebase = () => {
     try {
         if (FIREBASE_CONFIG.apiKey) {
-            firebase.initializeApp(FIREBASE_CONFIG)
+            if (!firebase.apps.length) {
+                return firebase.initializeApp(FIREBASE_CONFIG)
+            } else {
+                return firebase.app()
+            }
         }
     } catch (err) {
         // ignore app already initialized error on snack
