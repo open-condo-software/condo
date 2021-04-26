@@ -15,7 +15,7 @@ import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR } from '@condo/domains/common/constants/errors'
 
-import { AuthState, PhoneAuthForm } from './register'
+import { Auth, PhoneAuthForm } from './register'
 
 const SIGNIN_BY_FIREBASE_ID_TOKEN_MUTATION = gql`
     mutation authenticateUserWithFirebaseIdToken ($token: String!) {
@@ -32,20 +32,16 @@ const SignInForm = ({ firebaseUser, children, ExtraErrorToFormFieldMsgMapping = 
     const intl = useIntl()
     const [isLoading, setIsLoading] = useState(false)
     const { refetch } = useAuth()
-    const [signin, ctx] = useMutation(SIGNIN_BY_FIREBASE_ID_TOKEN_MUTATION)
+    const [signin] = useMutation(SIGNIN_BY_FIREBASE_ID_TOKEN_MUTATION)
     let initialValues = getQueryParams()
     initialValues = { ...initialValues, password: '', confirm: '', captcha: 'no' }
 
     const SignInMsg = intl.formatMessage({ id: 'SignIn' })
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
-    const PasswordMsg = intl.formatMessage({ id: 'Password' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const LoggedInMsg = intl.formatMessage({ id: 'pages.auth.LoggedIn' })
     const EmailIsNoFoundMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNoFound' })
     const WrongPasswordMsg = intl.formatMessage({ id: 'pages.auth.WrongPassword' })
     const UserIsNotFoundMsg = intl.formatMessage({ id: 'pages.auth.UserIsNotFound' })
-    const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
-    const ForgotPasswordMsg = intl.formatMessage({ id: 'pages.auth.ForgotPassword' })
     const ErrorToFormFieldMsgMapping = {
         [WRONG_EMAIL_ERROR]: {
             name: 'email',
@@ -62,7 +58,7 @@ const SignInForm = ({ firebaseUser, children, ExtraErrorToFormFieldMsgMapping = 
         ...ExtraErrorToFormFieldMsgMapping,
     }
 
-    const onFinish = values => {
+    const onFinish = () => {
         setIsLoading(true)
         return runMutation({
             mutation: signin,
@@ -164,9 +160,9 @@ const SignInPage = () => {
             <title>{SignInTitleMsg}</title>
         </Head>
         <Typography.Title css={css`text-align: center;`}>{SignInTitleMsg}</Typography.Title>
-        <AuthState>
+        <Auth>
             <SignInByPhoneForm />
-        </AuthState>
+        </Auth>
     </>)
 }
 
