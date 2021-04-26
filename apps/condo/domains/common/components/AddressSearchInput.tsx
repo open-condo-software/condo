@@ -139,6 +139,7 @@ async function searchAddress (query): Promise<TOption[]> {
             suggestion.data.house_type === HouseType.house
         ))
         .map((suggestion) => {
+            // Remove properties with `null` values
             const cleanedSuggestion = pickBy(suggestion, identity)
 
             return {
