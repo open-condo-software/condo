@@ -2,13 +2,13 @@ import { useCallback, useState } from 'react'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import { pickBy, get, debounce } from 'lodash'
-import { getFiltersFromQuery } from '@condo/domains/property/utils/helpers'
+import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 
 export const useSearch = (loading): [string, (search: string) => void] => {
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery(router.query)
     const searchValue = get(filtersFromQuery, 'search')
-    const [search, setSearch] = useState(searchValue)
+    const [search, setSearch] = useState(searchValue) as [string, (search: string) => void]
 
     const searchChange = useCallback(debounce((e) => {
         const query = qs.stringify(

@@ -7,7 +7,10 @@ import {
     createSorterMap,
     getSortStringFromQuery,
     getPaginationFromQuery,
-    getFiltersFromQuery, propertyToQuery, executorToQuery, assigneeToQuery, queryToSorter,
+    propertyToQuery,
+    executorToQuery,
+    assigneeToQuery,
+    queryToSorter,
 } from './helpers'
 
 describe('Helpers', () => {
@@ -397,21 +400,6 @@ describe('Helpers', () => {
                 })
             })
 
-        })
-
-        describe('getFiltersFromQuery', () => {
-            describe('it should extract filters from query', () => {
-                it('if valid JSON is provided', () => {
-                    expect(getFiltersFromQuery({ filters: '{"key": "value", "key2": "value"}' })).toStrictEqual({
-                        key: 'value',
-                        key2: 'value',
-                    })
-                })
-
-                it('if invalid JSON is provided', () => {
-                    expect(getFiltersFromQuery({ filters: '{"key": value, "key2": value}' })).toStrictEqual({})
-                })
-            })
         })
     })
 })

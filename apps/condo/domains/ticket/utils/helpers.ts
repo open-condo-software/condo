@@ -318,18 +318,3 @@ export const TICKET_PAGE_SIZE = 10
 export const getPaginationFromQuery = (query: ParsedUrlQuery): number => {
     return Math.floor(Number(get(query, 'offset', 0)) / TICKET_PAGE_SIZE) + 1
 }
-
-export const getFiltersFromQuery = (query: ParsedUrlQuery): IFilters => {
-    const filters = get(query, 'filters')
-
-    if (!filters) {
-        return {}
-    }
-
-    try {
-        // @ts-ignore
-        return JSON.parse(filters)
-    } catch (e) {
-        return {}
-    }
-}

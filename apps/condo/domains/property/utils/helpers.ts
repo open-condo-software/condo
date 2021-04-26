@@ -21,19 +21,6 @@ export interface IFilters extends Pick<Property, 'address'> {
     search?: string
 }
 
-export const getFiltersFromQuery = (query: ParsedUrlQuery): IFilters => {
-    const filters = get(query, 'filters')
-    if (!filters || typeof filters !== 'string') {
-        return {}
-    }
-    try {
-        const parsed = JSON.parse(filters)
-        return parsed
-    } catch (e) {
-        return {}
-    }
-}
-
 export const getSortStringFromQuery = (query: ParsedUrlQuery): Array<string> => {
     const sort = get(query, 'sort', [])
     if (Array.isArray(sort)) {
