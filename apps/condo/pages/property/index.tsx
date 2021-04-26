@@ -20,13 +20,13 @@ import has from 'lodash/has'
 import XLSX from 'xlsx'
 
 import {
-    getFiltersFromQuery,
     getPaginationFromQuery,
     getSortStringFromQuery,
     sorterToQuery,
     filtersToQuery,
     PROPERTY_PAGE_SIZE,
 } from '@condo/domains/property/utils/helpers'
+import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 
 import { useTableColumns } from '@condo/domains/property/hooks/useTableColumns'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'

@@ -4,12 +4,13 @@ import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { DatabaseFilled } from '@ant-design/icons'
 import { format } from 'date-fns'
 import {
-    filtersToQuery, getFiltersFromQuery,
+    filtersToQuery,
     getPaginationFromQuery,
     getSortStringFromQuery,
     TICKET_PAGE_SIZE,
     sorterToQuery, queryToSorter,
 } from '@condo/domains/ticket/utils/helpers'
+import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { useIntl } from '@core/next/intl'
 
 import { Col, Input, Row, Space, Table, Typography } from 'antd'
