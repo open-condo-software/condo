@@ -40,7 +40,7 @@ interface IEditMapProps {
     map: BuildingMap
     updateMap(map: BuildingMap, action?: string): void
 }
-interface IBuildingPanelEditProps{
+interface IBuildingPanelEditProps {
     map: BuildingMap
     updateMap?(map: BuildingMap, action?: string): void
     unitClick?(unit: BuildingUnit): void
@@ -266,9 +266,9 @@ const BuildingAxisY: React.FC<IBuildingAxisY> = ({ floors }) => {
 
 const EmptyFloor: React.FC<IEmptyFloorProps> = ({ units }) => {
     return (
-        <div style={{ display: 'block' }} key={Math.random()}>
+        <div style={{ display: 'block' }}>
             {
-                Array(units).fill('').map(_ => <UnitButton key={Math.random()} secondary disabled>&nbsp;</UnitButton>)
+                Array(units).fill('').map((_, idx) => <UnitButton key={idx} secondary disabled>&nbsp;</UnitButton>)
             }
         </div>
     )
@@ -283,7 +283,7 @@ const BuildingChooseSections: React.FC<IChooseSections> = ({ sections, state, up
             setExisted(existed.concat(newIds))
             update(state.concat(newIds))
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sections])
 
     if (sections.length < 2) {
@@ -509,49 +509,51 @@ export const PropertyMap: React.FC<IBuildingPanelEditProps> = ({ map, unitClick,
                         <EmptyBuildingBlock />
                     </Col>
                     :
-                    <Col span={24} style={{ marginTop: '60px' }}>
-                        <BuildingAxisY floors={allFloors} />
-                        {
-                            map.sections.map(section => {
-                                return (
-                                    <PropertyMapSection
-                                        key={section.id}
-                                        section={section}
-                                        isVisible={checkedSections.includes(section.id)}
-                                        isSelected={selectedSection ? selectedSection.id === section.id : false}
-                                        sectionClick={sectionClick}
-                                    >
-                                        {
-                                            allFloors.map(floorIndex => {
-                                                const floorInfo = section.floors.find(floor => floor.index === floorIndex)
-                                                if (floorInfo && floorInfo.units.length) {
-                                                    return (
-                                                        <PropertyMapFloor key={floorInfo.id}>
-                                                            {
-                                                                floorInfo.units.map(unit => {
-                                                                    return (
-                                                                        <UnitButton
-                                                                            key={unit.id}
-                                                                            disabled={!unitClick}
-                                                                            onClick={unitClick ? () => unitClick(unit) : null}
-                                                                            selected={selectedUnit ? unit.id === selectedUnit.id : false}
-                                                                        >{unit.label}</UnitButton>
-                                                                    )
-                                                                })
-                                                            }
-                                                        </PropertyMapFloor>
-                                                    )
-                                                } else {
-                                                    return (
-                                                        <EmptyFloor key={Math.random()} units={section.unitsOnFloor} />
-                                                    )
-                                                }
-                                            })
-                                        }
-                                    </PropertyMapSection>
-                                )
-                            })
-                        }
+                    <Col span={24} style={{ marginTop: '60px', whiteSpace: 'nowrap' }}>
+                        <ScrollContainer className="scroll-container" style={{ marginTop: '60px', maxWidth: '1200px', maxHeight: '480px' }}>
+                            <BuildingAxisY floors={allFloors} />
+                            {
+                                map.sections.map(section => {
+                                    return (
+                                        <PropertyMapSection
+                                            key={section.id}
+                                            section={section}
+                                            isVisible={checkedSections.includes(section.id)}
+                                            isSelected={selectedSection ? selectedSection.id === section.id : false}
+                                            sectionClick={sectionClick}
+                                        >
+                                            {
+                                                allFloors.map(floorIndex => {
+                                                    const floorInfo = section.floors.find(floor => floor.index === floorIndex)
+                                                    if (floorInfo && floorInfo.units.length) {
+                                                        return (
+                                                            <PropertyMapFloor key={floorInfo.id}>
+                                                                {
+                                                                    floorInfo.units.map(unit => {
+                                                                        // disabled={!unitClick}
+                                                                        return (
+                                                                            <UnitButton
+                                                                                key={unit.id}
+                                                                                onClick={unitClick ? () => unitClick(unit) : null}
+                                                                                selected={selectedUnit ? unit.id === selectedUnit.id : false}
+                                                                            >{unit.label}</UnitButton>
+                                                                        )
+                                                                    })
+                                                                }
+                                                            </PropertyMapFloor>
+                                                        )
+                                                    } else {
+                                                        return (
+                                                            <EmptyFloor units={section.unitsOnFloor} />
+                                                        )
+                                                    }
+                                                })
+                                            }
+                                        </PropertyMapSection>
+                                    )
+                                })
+                            }
+                        </ScrollContainer>
                         {
                             <BuildingChooseSections sections={map.sections} state={checkedSections} update={setCheckedSections}></BuildingChooseSections>
                         }
