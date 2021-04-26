@@ -136,11 +136,7 @@ async function searchAddress (query): Promise<TOption[]> {
     const { suggestions } = await response.json()
     // FORMAT: { suggestions: [ { value: "Address1", meta1: value1, meta2: value2, ... }, ... ] }
 
-    return suggestions
-        .filter((suggestion: AddressSuggestion) => (
-            suggestion.data.house_type === HouseType.house
-        ))
-        .map((suggestion) => ({
+    return suggestions.map((suggestion) => ({
             text: suggestion.value,
             value: suggestion,
         }))
