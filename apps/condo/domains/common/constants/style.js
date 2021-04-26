@@ -41,6 +41,10 @@ const antGlobalVariables = {
     '@success-color': green[6],
     '@table-border-color': colors.lightGrey[5],
     '@table-header-bg': ultraLightGrey,
+    '@tabs-highlight-color': '@black',
+    '@tabs-hover-color': '@black',
+    '@tabs-active-color': '@black',    
+    '@tabs-ink-bar-color': '@black',
 }
 
 module.exports = {

@@ -12,6 +12,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { useOrganization } from '@core/next/organization'
+
 import qs from 'qs'
 import pickBy from 'lodash/pickBy'
 import get from 'lodash/get'
@@ -32,106 +33,13 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import debounce from 'lodash/debounce'
 
-import {
-    BaseModalForm,
-    useCreateAndEditModalForm,
-} from '@condo/domains/common/components/containers/FormList'
-
-import { AddressSearchInput } from '@condo/domains/common/components/AddressSearchInput'
-import { Form, Select } from 'antd'
-import { buildingMapJson } from '@condo/domains/property/constants/property.example'
-
-
-// TODO(zuch): Change from modal to create page
-function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancelModal }) {
-    const intl = useIntl()
-    const AddressMsg = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
-    const NameMsg = intl.formatMessage({ id: 'pages.condo.property.field.Name' })
-    const TypeMsg = intl.formatMessage({ id: 'pages.condo.property.field.Type' })
-    const BuildingMsg = intl.formatMessage({ id: 'pages.condo.property.type.building' })
-    const VillageMsg = intl.formatMessage({ id: 'pages.condo.property.type.village' })
-    const CreatePropertyModalTitleMsg = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyModalTitle' })
-    const EditPropertyModalTitleMsg = intl.formatMessage({ id: 'pages.condo.property.index.EditPropertyModalTitle' })
-    const ValueIsTooShortMsg = intl.formatMessage({ id: 'ValueIsTooShort' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const ErrorToFormFieldMsgMapping = {
-        '[name.is.too.short]': {
-            name: 'name',
-            errors: [ValueIsTooShortMsg],
-        },
-    }
-
-    return (
-        <BaseModalForm
-            /* NOTE: we need to recreate form if editableItem changed because the form initialValues are cached */
-            key={editableItem}
-            action={action}
-            formValuesToMutationDataPreprocessor={(x) => {
-                const addressMeta = JSON.parse(x['address'])
-                return { ...x, addressMeta, address: addressMeta['address'] }
-            }}
-            visible={visible}
-            cancelModal={cancelModal}
-            ModalTitleMsg={(editableItem) ? EditPropertyModalTitleMsg : CreatePropertyModalTitleMsg}
-            ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
-        >
-            <Form.Item
-                name="address"
-                label={AddressMsg}
-                rules={[{ required: true, message: FieldIsRequiredMsg }]}
-            >
-                <AddressSearchInput />
-            </Form.Item>
-            <Form.Item
-                name="name"
-                label={NameMsg}
-                rules={[{ required: true, message: FieldIsRequiredMsg }]}
-            >
-                <Input />
-            </Form.Item>
-            <Form.Item
-                name="type"
-                label={TypeMsg}
-                rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                initialValue={'building'}
-            >
-                <Select>
-                    <Select.Option value="building">{BuildingMsg}</Select.Option>
-                    <Select.Option value="village">{VillageMsg}</Select.Option>
-                </Select>
-            </Form.Item>
-        </BaseModalForm>
-    )
-}
-// TODO(zuch): Change from modal to create page
-function CreatePropertyModalBlock ({ modal, create }) {
-    const { visible, editableItem, cancelModal, openCreateModal } = modal
-
-    const intl = useIntl()
-    const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
-
-    return <>
-        <Button
-            type='sberPrimary'
-            onClick={openCreateModal}
-        >
-            {CreateLabel}
-        </Button>
-        <CreateAndEditPropertyModalForm
-            action={create}
-            visible={visible}
-            editableItem={editableItem}
-            cancelModal={cancelModal}
-        />
-    </>
-}
 const PropertyPageViewMap = (): React.FC => {
     const {
         objs: properties,
     } = Property.useObjects()
 
     const points = properties
-        .filter(property => has(property, ['addressMeta', 'data']))
+        .filter(property => has(property, ['addressMeta', 'data'] ))
         .map(property => {
             const { geo_lat, geo_lon } = property.addressMeta.data
             return {
@@ -149,7 +57,6 @@ const PropertyPageViewMap = (): React.FC => {
     )
 }
 
-
 const PropertyPageViewTable = (): React.FC => {
     const intl = useIntl()
 
@@ -158,30 +65,18 @@ const PropertyPageViewTable = (): React.FC => {
     const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const NotImplementedYedMessage = intl.formatMessage({ id: 'NotImplementedYed' })
-
+    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const createRoute = '/property/create'
 
     const router = useRouter()
-    const modal = useCreateAndEditModalForm()
-
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-
-    const create = Property.useCreate(
-        {
-            organization: userOrganizationId,
-            map: buildingMapJson,
-        },
-        () => refetch()
-    )
 
     const sortFromQuery = getSortStringFromQuery(router.query)
     const offsetFromQuery = getPaginationFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery(router.query)
 
     const {
-        refetch,
         fetchMore,
         loading,
         count: total,
@@ -194,6 +89,8 @@ const PropertyPageViewTable = (): React.FC => {
         },
         offset: offsetFromQuery,
         limit: PROPERTY_PAGE_SIZE,
+    }, {
+        fetchPolicy: 'network-only',
     })
 
     const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery)
@@ -267,7 +164,7 @@ const PropertyPageViewTable = (): React.FC => {
                     :
                     <Row align={'middle'} gutter={[0, 40]}>
                         <Col span={6}>
-                            <Tooltip title={NotImplementedYedMessage}>
+                            <Tooltip title={NotImplementedYetMessage}>
                                 <div>
                                     <Input placeholder={SearchPlaceholder} disabled />
                                 </div>
@@ -277,7 +174,9 @@ const PropertyPageViewTable = (): React.FC => {
                             <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData} >{ExportAsExcel}</Button>
                         </Col>
                         <Col span={6} push={6} align={'right'}>
-                            <CreatePropertyModalBlock modal={modal} create={create} />
+                            <Button type='sberPrimary' onClick={() => router.push(createRoute)}>
+                                {CreateLabel}
+                            </Button>
                         </Col>
                         <Col span={24}>
                             <Table
@@ -325,7 +224,7 @@ const PropertyPage = (): React.FC => {
                                 </Typography.Title>} />
                             </Col>
                             <Col span={6} push={12} align={'right'} style={{ top: 10 }}>
-                                <Radio.Group value={viewMode} buttonStyle="solid" onChange={e => changeViewMode(e.target.value)}>
+                                <Radio.Group value={viewMode} buttonStyle="outline" onChange={e => changeViewMode(e.target.value)}>
                                     <Radio.Button value="list">{ShowTable}</Radio.Button>
                                     <Radio.Button value="map">{ShowMap}</Radio.Button>
                                 </Radio.Group>

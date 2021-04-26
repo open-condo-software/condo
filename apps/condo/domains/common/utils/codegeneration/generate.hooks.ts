@@ -76,7 +76,6 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
     function useCreate (attrs: UIForm | Record<string, unknown> = {}, onComplete) {
         if (typeof attrs !== 'object' || !attrs) throw new Error('useCreate(): invalid attrs argument')
         const [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION)
-
         async function _action (state: UIForm) {
             const { data, errors } = await rowAction({
                 variables: { data: convertToGQLInput({ ...state, ...attrs }) },

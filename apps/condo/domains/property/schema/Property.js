@@ -11,7 +11,7 @@ const access = require('@condo/domains/property/access/Property')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
-const { GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
+const { GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
 
 // ORGANIZATION_OWNED_FIELD
 const Property = new GQLListSchema('Property', {
@@ -25,7 +25,7 @@ const Property = new GQLListSchema('Property', {
         name: {
             schemaDoc: 'Client understandable Property name. A well-known property name for the client',
             type: Text,
-            isRequired: true,
+            isRequired: false,
         },
 
         address: {
@@ -102,6 +102,25 @@ const Property = new GQLListSchema('Property', {
                 return count
             },
         },
+
+        ticketsClosed: {
+            schemaDoc: 'Counter for closed tickets',
+            type: Virtual,
+            resolver: async (item, _, context) => {
+                const { data, errors } = await context.executeGraphQL({
+                    query: GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
+                    variables: {
+                        propertyId: item.id,
+                    },
+                })
+                if (errors) {
+                    console.error('Error while fetching virtual field ticketsClosed', errors)
+                    return 0
+                }
+                return data.closed.count
+            },
+        },
+        
         ticketsInWork: {
             schemaDoc: 'Counter for not closed tickets',
             type: Virtual,
@@ -130,7 +149,7 @@ const Property = new GQLListSchema('Property', {
     },
     hooks: {
         validateInput: ({ resolvedData, existingItem, addValidationError }) => {
-            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'type', 'name', 'address', 'addressMeta'], resolvedData, existingItem, addValidationError)) return
+            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'type', 'address', 'addressMeta'], resolvedData, existingItem, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic
