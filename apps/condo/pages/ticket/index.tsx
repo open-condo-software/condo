@@ -16,7 +16,7 @@ import { Col, Input, Row, Space, Table, Typography } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
-import { pickBy, debounce } from 'lodash'
+import { pickBy, get, debounce } from 'lodash'
 import React, { useCallback } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
@@ -94,7 +94,7 @@ const TicketsPage = () => {
         }
     }, 400), [loading])
 
-    const [search, handeleSearchChange] = useSearch(filtersFromQuery, loading)
+    const [search, handeleSearchChange] = useSearch(loading)
 
     const generateExcelData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {

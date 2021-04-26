@@ -2,9 +2,11 @@ import { useCallback, useState } from 'react'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import { pickBy, get, debounce } from 'lodash'
+import { getFiltersFromQuery } from '@condo/domains/property/utils/helpers'
 
-export const useSearch = (filtersFromQuery, loading) => {
+export const useSearch = (loading): [string, (search: string) => void] => {
     const router = useRouter()
+    const filtersFromQuery = getFiltersFromQuery(router.query)
     const searchValue = get(filtersFromQuery, 'search')
     const [search, setSearch] = useState(searchValue)
 
@@ -17,9 +19,10 @@ export const useSearch = (filtersFromQuery, loading) => {
         router.push(router.route + query)
     }, 400), [loading])
 
-    const handeleSearchChange = search => { //handeleSearchChange
-        setSearch(search)
-        searchChange(search)
+    const handeleSearchChange = (value: string): void => {
+        setSearch(value)
+        searchChange(value)
     }
+
     return [search, handeleSearchChange]
 }
