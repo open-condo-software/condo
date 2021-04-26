@@ -119,7 +119,7 @@ const PropertyPageViewTable = (): React.FC => {
         }
     }, 400), [loading])
 
-    const [search, handeleSearchChange] = useSearch(filtersFromQuery, loading)
+    const [search, handeleSearchChange] = useSearch(loading)
 
     const generateExcelData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {
