@@ -12,6 +12,7 @@ import { Property, PropertyUpdateInput, QueryAllPropertiesArgs } from '../../../
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'address', 'addressMeta', 'type', 'map', 'ticketsInWork', 'ticketsClosed', 'unitsCount']
 const RELATIONS = ['organization']
+import { BuildingMap } from '../../components/panels/MapConstructor'
 
 export interface IPropertyUIState extends Property {
     id: string
@@ -19,7 +20,7 @@ export interface IPropertyUIState extends Property {
     ticketsInWork: string
     ticketsClosed: string
     unitsCount: string
-    map?: JSON
+    map?: BuildingMap
 }
 
 function convertToUIState (item: Property): IPropertyUIState {
@@ -34,7 +35,7 @@ export interface IPropertyFormState {
     organization?: string
     name?: string
     address?: string
-    map?: JSON
+    map?: BuildingMap
     // address: string,
     // TODO(codegen): write IPropertyUIFormState or extends it from
 }

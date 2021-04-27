@@ -544,7 +544,7 @@ export const PropertyMap: React.FC<IBuildingPanelEditProps> = ({ map, unitClick,
                                                         )
                                                     } else {
                                                         return (
-                                                            <EmptyFloor units={section.unitsOnFloor} />
+                                                            <EmptyFloor key={`empty_${section.id}_${floorIndex}`} units={section.unitsOnFloor} />
                                                         )
                                                     }
                                                 })
