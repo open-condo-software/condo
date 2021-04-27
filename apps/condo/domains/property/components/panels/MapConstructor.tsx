@@ -1,4 +1,5 @@
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property.example'
+import { cloneDeep } from 'lodash'
 
 type Maybe<T> = T | null
 
@@ -50,14 +51,14 @@ type IndexLocation = {
 
 
 const getMap = (map: Maybe<BuildingMap>): BuildingMap => {
-    return (map ? map : buildingEmptyMapJson) as BuildingMap
+    return (map ? map : buildingEmptyMapJson as BuildingMap) 
 }
 
 const cloneMap = (map: Maybe<BuildingMap>): BuildingMap => {
-    return JSON.parse(JSON.stringify(getMap(map)))
+    return cloneDeep(map)
 }
 
-const nextUnitNumber = (map: BuildingMap): number => {
+const getNextUnitNumber = (map: BuildingMap): number => {
     const result = Math.max(0, ...map.sections
         .map(section => section.floors
             .map(floor => floor.units
@@ -66,7 +67,7 @@ const nextUnitNumber = (map: BuildingMap): number => {
     return result 
 }
 
-const maxFloor = (map: BuildingMap): number => {
+const getMaxFloor = (map: BuildingMap): number => {
     return Math.max(...map.sections
         .map(section => section.floors
             .map(floor => floor.index))
@@ -74,7 +75,7 @@ const maxFloor = (map: BuildingMap): number => {
     )
 }
 
-const minFloor = (map: BuildingMap): number => {
+const getMinFloor = (map: BuildingMap): number => {
     return Math.min(...map.sections
         .map(section => section.floors
             .map(floor => floor.index))
@@ -82,21 +83,21 @@ const minFloor = (map: BuildingMap): number => {
     )
 }
 
-const possibleFloors = (map: BuildingMap): number[] => {
+const getPossibleFloors = (map: BuildingMap): number[] => {
     const improvedMap = getMap(map)
-    const min  = minFloor(improvedMap)
-    const max = maxFloor(improvedMap)
-    const possibleFloors = []
+    const min  = getMinFloor(improvedMap)
+    const max = getMaxFloor(improvedMap)
+    const floors = []
     for (let floorIndex = min; floorIndex <= max; floorIndex++) {
         if (floorIndex !== 0) {
-            possibleFloors.unshift(floorIndex)
+            floors.unshift(floorIndex)
         }
     }
-    return possibleFloors
+    return floors
 }
 
 
-const unitIndex = (map: BuildingMap, unitId: string): IndexLocation => {
+const getUnitIndex = (map: BuildingMap, unitId: string): IndexLocation => {
     const result = { section: -1, floor: -1, unit: -1 }
     try {
         map.sections.forEach( (section, sectionIdx) => {
@@ -116,22 +117,22 @@ const unitIndex = (map: BuildingMap, unitId: string): IndexLocation => {
     return result    
 }
 
-const unitInfo = (map: Maybe<BuildingMap>, id: string): BuildingUnit => {
+const getUnitInfo = (map: Maybe<BuildingMap>, id: string): BuildingUnit => {
     const improvedMap = getMap(map)
     const result = { id: null, type: 'unit', label: '', floor: '', section: '' }
     if (!id) {
         return result
     }
-    const idx = unitIndex(improvedMap, id)
-    if (idx.unit === -1) {
+    const unitIndex = getUnitIndex(improvedMap, id)
+    if (unitIndex.unit === -1) {
         return result
     }
-    result.section = improvedMap.sections[idx.section].id
-    result.floor = improvedMap.sections[idx.section].floors[idx.floor].id
+    result.section = improvedMap.sections[unitIndex.section].id
+    result.floor = improvedMap.sections[unitIndex.section].floors[unitIndex.floor].id
     return result
 }
 
-const sectionFloorOptions = (map: Maybe<BuildingMap>, id: string): BuildingSelectOption[] => {
+const getSectionFloorOptions = (map: Maybe<BuildingMap>, id: string): BuildingSelectOption[] => {
     const improvedMap = getMap(map)
     const foundSection = improvedMap.sections.find(section => section.id === id)
     if (!foundSection) {
@@ -141,7 +142,7 @@ const sectionFloorOptions = (map: Maybe<BuildingMap>, id: string): BuildingSelec
     return options
 }
 
-const sectionOptions = (map: Maybe<BuildingMap>): BuildingSelectOption[] => {
+const getSectionOptions = (map: Maybe<BuildingMap>): BuildingSelectOption[] => {
     const improvedMap = getMap(map)
     const options = improvedMap.sections.map(section => ({ id: section.id, label: section.name }))
     return options
@@ -149,57 +150,64 @@ const sectionOptions = (map: Maybe<BuildingMap>): BuildingSelectOption[] => {
 
 const mapAddSection = (map: Maybe<BuildingMap>, section: BuildingSection): BuildingMap => {
     const improvedMap = cloneMap(map)
-    section.floors = []
-    let unitNumber = nextUnitNumber(improvedMap)
-    let id = improvedMap.autoincrement || 0
-    section.id = String(++id)
-    for (let floor = section.minFloor; floor <= section.maxFloor; floor++) {
+    let unitNumber = getNextUnitNumber(improvedMap)
+    improvedMap.autoincrement = improvedMap.autoincrement || 0 
+    improvedMap.autoincrement++
+    const { name, minFloor, maxFloor, unitsOnFloor } = section
+    const newSection = {
+        id: String(improvedMap.autoincrement),
+        floors: [],
+        name, 
+        minFloor, 
+        maxFloor, 
+        unitsOnFloor,
+    }
+    for (let floor = minFloor; floor <= maxFloor; floor++) {
         if (floor === 0) {
             continue
         }
-        const unitsOnFloor = []
-        for (let unitOnFloor = 0; unitOnFloor < section.unitsOnFloor; unitOnFloor++) {
+        const units = []
+        for (let unitOnFloor = 0; unitOnFloor < unitsOnFloor; unitOnFloor++) {
             let label = ' '
             if (floor > 0) {
                 label = String(unitNumber)
                 unitNumber++
             }
-            unitsOnFloor.push({
-                id: String(++id),
-                label: label,
+            units.push({
+                id: String(++improvedMap.autoincrement),
+                label,
                 type: 'unit',
             })
         }
-        section.floors.unshift({
-            id: String(++id),
+        newSection.floors.unshift({
+            id: String(++improvedMap.autoincrement),
             index: floor,
             name: String(floor),
             type: 'floor',
-            units: unitsOnFloor,
+            units,
         })
     }
-    improvedMap.sections.push(section)
-    improvedMap.autoincrement = id
+    improvedMap.sections.push(newSection)
     return improvedMap
 }
 
 const mapUpdateSection = (map: Maybe<BuildingMap>, section: BuildingSection): BuildingMap => {
     const improvedMap = cloneMap(map)
-    const idx = improvedMap.sections.findIndex(sec => section.id === sec.id)
-    if (idx !== -1) {
-        improvedMap.sections[idx].name = section.name
+    const sectionIndex = improvedMap.sections.findIndex(sec => section.id === sec.id)
+    if (sectionIndex !== -1) {
+        improvedMap.sections[sectionIndex].name = section.name
     }
     return improvedMap
 }
 
 const mapRemoveSection = (map: Maybe<BuildingMap>, id: string): BuildingMap => {
     const improvedMap = cloneMap(map)
-    const idx = improvedMap.sections.findIndex(sec => sec.id === id)
-    improvedMap.sections.splice(idx, 1)
+    const sectionIndex = improvedMap.sections.findIndex(sec => sec.id === id)
+    improvedMap.sections.splice(sectionIndex, 1)
     return improvedMap
 }
 
-const walk = (map: BuildingMap, fromId: string, callback: (unit: BuildingUnit) => void): void => {
+const iterate = (map: BuildingMap, fromId: string, callback: (unit: BuildingUnit) => void): void => {
     let started = false
     map.sections.forEach(section => {
         section.floors.slice().reverse().forEach(floor => {
@@ -218,7 +226,7 @@ const walk = (map: BuildingMap, fromId: string, callback: (unit: BuildingUnit) =
 const updateUnitNumbers = (map: BuildingMap, unit: BuildingUnit): void => {
     if (!isNaN(+unit.label)) {
         let next = Number(unit.label) + 1
-        walk(map, unit.id, (unitToUpdate) => {
+        iterate(map, unit.id, (unitToUpdate) => {
             if (!isNaN(+unitToUpdate.label)) {
                 unitToUpdate.label = String(next++)
             }
@@ -247,17 +255,17 @@ const mapAddUnit = (map: Maybe<BuildingMap>, unit: BuildingUnit): BuildingMap =>
 
 const mapUpdateUnit = (map: Maybe<BuildingMap>, unit: BuildingUnit): BuildingMap => {
     let improvedMap = cloneMap(map)
-    const idx = unitIndex(improvedMap, unit.id)
-    if (idx.unit === -1) {
+    const unitIndex = getUnitIndex(improvedMap, unit.id)
+    if (unitIndex.unit === -1) {
         return improvedMap
     }
-    const oldFloor = improvedMap.sections[idx.section].floors[idx.floor].id
-    const oldSection = improvedMap.sections[idx.section].id
+    const oldFloor = improvedMap.sections[unitIndex.section].floors[unitIndex.floor].id
+    const oldSection = improvedMap.sections[unitIndex.section].id
     if (oldFloor !== unit.floor || oldSection !== unit.section) {
         improvedMap = mapRemoveUnit(improvedMap, unit.id)
         improvedMap = mapAddUnit(improvedMap, unit)
     } else {
-        improvedMap.sections[idx.section].floors[idx.floor].units[idx.unit].label = unit.label
+        improvedMap.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].label = unit.label
         if (unit.label && !isNaN(+unit.label)) {
             updateUnitNumbers(improvedMap, unit)
         }
@@ -267,9 +275,9 @@ const mapUpdateUnit = (map: Maybe<BuildingMap>, unit: BuildingUnit): BuildingMap
 
 const mapRemoveUnit = (map: Maybe<BuildingMap>, id: string): BuildingMap => {
     const improvedMap = cloneMap(map)
-    const idx = unitIndex(improvedMap, id)
-    if (idx.unit !== -1) {
-        improvedMap.sections[idx.section].floors[idx.floor].units.splice(idx.unit, 1)
+    const unitIndex = getUnitIndex(improvedMap, id)
+    if (unitIndex.unit !== -1) {
+        improvedMap.sections[unitIndex.section].floors[unitIndex.floor].units.splice(unitIndex.unit, 1)
     }
     return improvedMap
 }
@@ -284,9 +292,9 @@ export {
     mapUpdateUnit,
     mapRemoveUnit,
 
-    unitInfo,
-    possibleFloors,
+    getUnitInfo,
+    getPossibleFloors,
 
-    sectionFloorOptions,
-    sectionOptions,
+    getSectionFloorOptions,
+    getSectionOptions,
 }

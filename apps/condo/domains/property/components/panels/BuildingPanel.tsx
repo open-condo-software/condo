@@ -11,10 +11,10 @@ import {
     BuildingUnit,
     BuildingSection,
     BuildingMap,
-    unitInfo,
-    possibleFloors,
-    sectionOptions,
-    sectionFloorOptions,
+    getUnitInfo,
+    getPossibleFloors,
+    getSectionOptions,
+    getSectionFloorOptions,
     mapAddSection,
     mapUpdateSection,
     mapRemoveSection,
@@ -43,8 +43,8 @@ interface IEditMapProps {
 interface IBuildingPanelEditProps {
     map: BuildingMap
     updateMap?(map: BuildingMap, action?: string): void
-    unitClick?(unit: BuildingUnit): void
-    sectionClick?(section: BuildingSection): void
+    onUnitClick?(unit: BuildingUnit): void
+    onSectionClick?(section: BuildingSection): void
     selectedUnit?: BuildingUnit
     selectedSection?: BuildingSection
 }
@@ -70,7 +70,7 @@ interface IPropertyMapSectionProps {
     isVisible?: boolean
     isSelected?: boolean
     section: BuildingSection
-    sectionClick?(section: BuildingSection): void
+    onSectionClick?(section: BuildingSection): void
 }
 
 
@@ -108,7 +108,7 @@ const BuildingPanelEdit: React.FC<IEditMapProps> = ({ map, updateMap: parentUpda
     const [section, setSection] = useState({ id: null })
     const [mode, changeMode] = useState('addSection') // addSection, editSection, addUnit, editUnit
 
-    const unitClick = (target) => {
+    const onUnitClick = (target) => {
         if (unit.id === target.id) {
             setUnit({ id: null })
             changeMode('addUnit')
@@ -119,7 +119,7 @@ const BuildingPanelEdit: React.FC<IEditMapProps> = ({ map, updateMap: parentUpda
         }
     }
 
-    const sectionClick = (target) => {
+    const onSectionClick = (target) => {
         if (section.id === target.id) {
             setSection({ id: null })
             changeMode('addSection')
@@ -172,8 +172,8 @@ const BuildingPanelEdit: React.FC<IEditMapProps> = ({ map, updateMap: parentUpda
                         :
                         <PropertyMap
                             map={map}
-                            unitClick={unitClick}
-                            sectionClick={sectionClick}
+                            onUnitClick={onUnitClick}
+                            onSectionClick={onSectionClick}
                             selectedUnit={unit}
                             selectedSection={section}
                         />
@@ -307,7 +307,7 @@ const BuildingChooseSections: React.FC<IChooseSections> = ({ sections, state, up
     )
 }
 
-const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ isVisible, children, section, sectionClick, isSelected }) => {
+const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ isVisible, children, section, onSectionClick, isSelected }) => {
     return (
         <div
             style={{
@@ -320,8 +320,8 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ isVisible, chi
             <UnitButton
                 secondary
                 style={{ width: '100%' }}
-                onClick={sectionClick ? () => sectionClick(section) : null}
-                disabled={!sectionClick}
+                onClick={onSectionClick ? () => onSectionClick(section) : null}
+                disabled={!onSectionClick}
                 selected={isSelected}
             >{section.name}</UnitButton>
         </div>
@@ -355,9 +355,9 @@ const UnitForm: React.FC<IUnitFormProps> = ({ map, unit, updateMap }) => {
 
     const updateSection = (value) => {
         setSection(value)
-        setFloors(sectionFloorOptions(map, value))
+        setFloors(getSectionFloorOptions(map, value))
         if (mode === 'edit') {
-            const mapUnit = unitInfo(map, unit.id)
+            const mapUnit = getUnitInfo(map, unit.id)
             if (value === mapUnit.section) {
                 setFloor(mapUnit.floor)
             } else {
@@ -367,10 +367,10 @@ const UnitForm: React.FC<IUnitFormProps> = ({ map, unit, updateMap }) => {
     }
 
     useEffect(() => {
-        const mapUnit = unitInfo(map, unit.id)
+        const mapUnit = getUnitInfo(map, unit.id)
         setLabel(unit.label)
-        setSections(sectionOptions(map))
-        setFloors(sectionFloorOptions(map, mapUnit.section))
+        setSections(getSectionOptions(map))
+        setFloors(getSectionFloorOptions(map, mapUnit.section))
         setFloor(mapUnit.floor)
         setSection(mapUnit.section)
     }, [unit, map])
@@ -496,11 +496,11 @@ const BuildingPanelView: React.FC<IBuildingPanelViewProps> = ({ map }) => {
 }
 
 
-export const PropertyMap: React.FC<IBuildingPanelEditProps> = ({ map, unitClick, sectionClick, selectedSection, selectedUnit }) => {
+export const PropertyMap: React.FC<IBuildingPanelEditProps> = ({ map, onUnitClick, onSectionClick, selectedSection, selectedUnit }) => {
     const isEmptyMap = !map || !map.sections.length
     const sections = isEmptyMap ? [] : map.sections.map(section => section.id)
     const [checkedSections, setCheckedSections] = useState<CheckboxValueType[]>(sections)
-    const allFloors = possibleFloors(map)
+    const allFloors = getPossibleFloors(map)
     return (
         <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
             {
@@ -520,7 +520,7 @@ export const PropertyMap: React.FC<IBuildingPanelEditProps> = ({ map, unitClick,
                                             section={section}
                                             isVisible={checkedSections.includes(section.id)}
                                             isSelected={selectedSection ? selectedSection.id === section.id : false}
-                                            sectionClick={sectionClick}
+                                            onSectionClick={onSectionClick}
                                         >
                                             {
                                                 allFloors.map(floorIndex => {
@@ -530,11 +530,10 @@ export const PropertyMap: React.FC<IBuildingPanelEditProps> = ({ map, unitClick,
                                                             <PropertyMapFloor key={floorInfo.id}>
                                                                 {
                                                                     floorInfo.units.map(unit => {
-                                                                        // disabled={!unitClick}
                                                                         return (
                                                                             <UnitButton
                                                                                 key={unit.id}
-                                                                                onClick={unitClick ? () => unitClick(unit) : null}
+                                                                                onClick={onUnitClick ? () => onUnitClick(unit) : null}
                                                                                 selected={selectedUnit ? unit.id === selectedUnit.id : false}
                                                                             >{unit.label}</UnitButton>
                                                                         )
