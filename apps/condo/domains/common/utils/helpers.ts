@@ -9,9 +9,7 @@ export const formatPhone = (phone?: string): string => {
     return phone.replace(/(\d)(\d{3})(\d{3})(\d{2})(\d{2})/, '$1 ($2) $3-$4-$5')
 }
 
-export const getFiltersFromQuery = (query: ParsedUrlQuery): {
-    [key: string]: string | Array<string> | number;
-} => {
+export const getFiltersFromQuery = <T>(query: ParsedUrlQuery): T | Record<string, never> => {
     const filters = get(query, 'filters')
     if (!filters || typeof filters !== 'string') {
         return {}
