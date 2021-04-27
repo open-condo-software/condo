@@ -40,6 +40,7 @@ const PropertyPageViewMap = (): React.FC => {
         objs: properties,
     } = Property.useObjects()
 
+
     const points = properties
         .filter(property => has(property, ['addressMeta', 'data'] ))
         .map(property => {
@@ -241,13 +242,15 @@ const PropertyPage = (): React.FC => {
                             </Col>
                             <Col span={24}>
                                 {
-                                    viewMode == 'map' ?
-                                        <PropertyPageViewMap />
-                                        :
-                                        <PropertyPageViewTable />
+                                    viewMode !== 'map' ? <PropertyPageViewTable /> : null
                                 }
                             </Col>
                         </Row>
+                        <>
+                            {
+                                viewMode === 'map' ? <PropertyPageViewMap /> : null
+                            }
+                        </>
                     </OrganizationRequired>
                 </PageContent>
             </PageWrapper>
