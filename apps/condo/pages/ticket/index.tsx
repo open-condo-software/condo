@@ -11,6 +11,7 @@ import {
     sorterToQuery, queryToSorter,
 } from '@condo/domains/ticket/utils/helpers'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
 
 import { Col, Input, Row, Space, Table, Typography } from 'antd'
@@ -38,7 +39,7 @@ const TicketsPage = () => {
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const offsetFromQuery = getPaginationFromQuery(router.query)
-    const filtersFromQuery = getFiltersFromQuery(router.query)
+    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -95,7 +96,7 @@ const TicketsPage = () => {
         }
     }, 400), [loading])
 
-    const [search, handeleSearchChange] = useSearch(loading)
+    const [search, handeleSearchChange] = useSearch<IFilters>(loading)
 
     const generateExcelData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {

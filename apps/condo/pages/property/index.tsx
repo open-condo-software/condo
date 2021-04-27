@@ -9,6 +9,7 @@ import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { MapGL } from '@condo/domains/common/components/MapGL'
 import { Button } from '@condo/domains/common/components/Button'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { IFilters } from '@condo/domains/property/utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { useOrganization } from '@core/next/organization'
@@ -74,7 +75,7 @@ const PropertyPageViewTable = (): React.FC => {
 
     const sortFromQuery = getSortStringFromQuery(router.query)
     const offsetFromQuery = getPaginationFromQuery(router.query)
-    const filtersFromQuery = getFiltersFromQuery(router.query)
+    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
 
     const {
         fetchMore,
@@ -119,7 +120,7 @@ const PropertyPageViewTable = (): React.FC => {
         }
     }, 400), [loading])
 
-    const [search, handeleSearchChange] = useSearch(loading)
+    const [search, handeleSearchChange] = useSearch<IFilters>(loading)
 
     const generateExcelData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {

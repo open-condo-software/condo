@@ -4,11 +4,11 @@ import qs from 'qs'
 import { pickBy, get, debounce } from 'lodash'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 
-export const useSearch = (loading): [string, (search: string) => void] => {
+export const useSearch = <F>(loading): [string, (search: string) => void] => {
     const router = useRouter()
-    const filtersFromQuery = getFiltersFromQuery(router.query)
+    const filtersFromQuery = getFiltersFromQuery<F>(router.query)
     const searchValue = get(filtersFromQuery, 'search')
-    const [search, setSearch] = useState(searchValue) as [string, (search: string) => void]
+    const [search, setSearch] = useState(searchValue)
 
     const searchChange = useCallback(debounce((e) => {
         const query = qs.stringify(
