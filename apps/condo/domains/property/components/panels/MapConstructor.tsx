@@ -6,7 +6,6 @@ export type BuildingUnit = {
     id: Maybe<string>
     type?: string
     label?: string
-    number?: number
     floor?: string
     section?: string
     isPreview?: boolean
@@ -62,7 +61,7 @@ const nextUnitNumber = (map: BuildingMap): number => {
     const result = Math.max(0, ...map.sections
         .map(section => section.floors
             .map(floor => floor.units
-                .map(unit => unit.number)))
+                .map(unit => !isNaN(+unit.label) ? Number(unit.label) : 0)))
         .flat(2)) + 1
     return result 
 }
@@ -161,17 +160,14 @@ const mapAddSection = (map: Maybe<BuildingMap>, section: BuildingSection): Build
         const unitsOnFloor = []
         for (let unitOnFloor = 0; unitOnFloor < section.unitsOnFloor; unitOnFloor++) {
             let label = ' '
-            let setNumber = 0
             if (floor > 0) {
                 label = String(unitNumber)
-                setNumber = unitNumber
                 unitNumber++
             }
             unitsOnFloor.push({
                 id: String(++id),
                 label: label,
                 type: 'unit',
-                number: setNumber,
             })
         }
         section.floors.unshift({
@@ -223,9 +219,8 @@ const updateUnitNumbers = (map: BuildingMap, unit: BuildingUnit): void => {
     if (!isNaN(+unit.label)) {
         let next = Number(unit.label) + 1
         walk(map, unit.id, (unitToUpdate) => {
-            if (unitToUpdate.number) {
-                unitToUpdate.number = next++
-                unitToUpdate.label = String(unitToUpdate.number)
+            if (!isNaN(+unitToUpdate.label)) {
+                unitToUpdate.label = String(next++)
             }
         })
     }
@@ -244,9 +239,6 @@ const mapAddUnit = (map: Maybe<BuildingMap>, unit: BuildingUnit): BuildingMap =>
     if (!unit.id) {
         improvedMap.autoincrement++
         unit.id = String(improvedMap.autoincrement)
-        if (!isNaN(+unit.label)) {
-            unit.number = Number(unit.label) 
-        }
     }
     improvedMap.sections[sectionIndex].floors[floorIndex].units.push(unit)
     updateUnitNumbers(improvedMap, unit)
