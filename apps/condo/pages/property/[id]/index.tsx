@@ -101,10 +101,11 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
                         <Col flex={1}>
                             <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork}  type='warning' />
                         </Col>
+                        <Col flex='auto'></Col>
                     </Row>
                     <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
                         <Col span={24}>
-                            <PropertyPanels mode='view' map={property.map as BuildingMap} />                    
+                            <PropertyPanels mode='view' map={property.map} />                    
                         </Col>
                     </Row>
                 </OrganizationRequired>

@@ -164,12 +164,12 @@ const PropertyPageViewTable = (): React.FC => {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
     }
 
-    const noProperties = !properties.length && isEmpty(filtersFromQuery)
+    const isNoProperties = !properties.length && isEmpty(filtersFromQuery)
 
     return (
         <>
             {
-                noProperties ?
+                isNoProperties ?
                     <EmptyListView
                         label={EmptyListLabel}
                         message={EmptyListMessage}

@@ -7,11 +7,11 @@ import {
     mapUpdateUnit,
     mapRemoveUnit,
 
-    unitInfo,
-    possibleFloors,
+    getUnitInfo,
+    getPossibleFloors,
 
-    sectionFloorOptions,
-    sectionOptions,
+    getSectionFloorOptions,
+    getSectionOptions,
 } from './MapConstructor'
 
 
@@ -21,9 +21,9 @@ describe('Map constructor', () => {
             it('should correctly generate floor list for choosed section', () => {
                 let map = mapAddSection(null, { id: null, minFloor: -5, maxFloor: 20, unitsOnFloor: 10 })
                 map = mapAddSection(map, { id: null, minFloor: -10, maxFloor: 10, unitsOnFloor: 10 })
-                const floors1 = sectionFloorOptions(map, map.sections[0].id)
+                const floors1 = getSectionFloorOptions(map, map.sections[0].id)
                 expect(floors1).toHaveLength(25)
-                const floors2 = sectionFloorOptions(map, map.sections[1].id)
+                const floors2 = getSectionFloorOptions(map, map.sections[1].id)
                 expect(floors2).toHaveLength(20)
             })
         })
@@ -31,16 +31,16 @@ describe('Map constructor', () => {
             it('should correctly generate floor list', () => {
                 let map = mapAddSection(null, { id: null, minFloor: -5, maxFloor: 20, unitsOnFloor: 10 })
                 map = mapAddSection(map, { id: null, minFloor: -10, maxFloor: 10, unitsOnFloor: 10 })
-                const sections = sectionOptions(map)
+                const sections = getSectionOptions(map)
                 expect(sections).toHaveLength(2)
             })
         })
-        describe('geting unitInfo by id', () => {
+        describe('geting getUnitInfo by id', () => {
             it('should correctly get unit position on section and floor', () => {
                 let map = mapAddSection(null, { id: null, minFloor: -5, maxFloor: 20, unitsOnFloor: 10 })
                 map = mapAddSection(map, { id: null, minFloor: -10, maxFloor: 10, unitsOnFloor: 10 })
                 const unitFromMap = map.sections[1].floors[3].units[2]
-                const unit = unitInfo(map, unitFromMap.id)
+                const unit = getUnitInfo(map, unitFromMap.id)
                 expect(unit.section).toEqual(map.sections[1].id)
                 expect(unit.floor).toEqual(map.sections[1].floors[3].id)
             })
@@ -49,7 +49,7 @@ describe('Map constructor', () => {
             it('should correctly get min and max floor from all sections', () => {
                 let map = mapAddSection(null, { id: null, minFloor: -2, maxFloor: 5, unitsOnFloor: 10 })
                 map = mapAddSection(map, { id: null, minFloor: -1, maxFloor: 10, unitsOnFloor: 10 })
-                const floors = possibleFloors(map)
+                const floors = getPossibleFloors(map)
                 expect(floors).toEqual([10, 9, 8, 7, 6, 5, 4, 3, 2, 1, -1, -2])
             })
         })
@@ -96,7 +96,7 @@ describe('Map constructor', () => {
             })
             it('should correctly update map if floor/section is changed', () => {
                 map = mapUpdateUnit(map, { ...editUnit, floor: map.sections[0].floors[0].id, section: map.sections[0].id } )
-                const info = unitInfo(map, editUnit.id)
+                const info = getUnitInfo(map, editUnit.id)
                 expect(info.floor).toEqual(map.sections[0].floors[0].id)
                 expect(info.section).toEqual(map.sections[0].id)
             })
@@ -107,7 +107,7 @@ describe('Map constructor', () => {
                 let map = mapAddSection(null, { id: null, minFloor: -2, maxFloor: 5, unitsOnFloor: 10 })
                 const unitToRemove = map.sections[0].floors[1].units[2]
                 map = mapRemoveUnit(map, unitToRemove.id)
-                const found = unitInfo(map, unitToRemove.id)
+                const found = getUnitInfo(map, unitToRemove.id)
                 expect(found.floor).toBe('')
             })
         })
