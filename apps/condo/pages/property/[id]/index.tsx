@@ -14,6 +14,7 @@ import Link from 'next/link'
 import { Button } from '@condo/domains/common/components/Button'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { PropertyPanels } from '@condo/domains/property/components/panels/index'
+import { BuildingMap } from '@condo/domains/property/components/panels/MapConstructor'
 
 interface IPropertyInfoPanelProps {
     title: string
@@ -103,7 +104,7 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
                     </Row>
                     <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
                         <Col span={24}>
-                            <PropertyPanels mode='view' map={property.map} />                    
+                            <PropertyPanels mode='view' map={property.map as BuildingMap} />                    
                         </Col>
                     </Row>
                 </OrganizationRequired>
