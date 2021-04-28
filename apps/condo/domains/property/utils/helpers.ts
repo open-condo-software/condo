@@ -72,14 +72,14 @@ export const sorterToQuery = (sorter?: SorterColumn | Array<SorterColumn>): Arra
     }).filter(Boolean)
 }
 
-export const searchToQuery = (search?: string) => {
+export const searchToQuery = (search?: string): PropertyWhereInput[] => {
     if (!search) {
         return
     }
 
     return [
         { address_contains_i: search },
-    ].filter(Boolean)
+    ]
 }
 
 export const filtersToQuery = (filters: IFilters): PropertyWhereInput => {
