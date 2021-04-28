@@ -2,25 +2,14 @@ import { useIntl } from '@core/next/intl'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Col, Row, Typography, Checkbox, Input, Select, InputNumber, Space } from 'antd'
 import React, { useEffect, useState } from 'react'
-import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import { DeleteFilled } from '@ant-design/icons'
-import { has } from 'lodash'
+import { cloneDeep } from 'lodash'
 import { Button } from '@condo/domains/common/components/Button'
 import { UnitButton } from '../../components/UnitButton'
-import {
+import MapConstructor, {
+    BuildingMap,
     BuildingUnit,
     BuildingSection,
-    BuildingMap,
-    getUnitInfo,
-    getPossibleFloors,
-    getSectionOptions,
-    getSectionFloorOptions,
-    mapAddSection,
-    mapUpdateSection,
-    mapRemoveSection,
-    mapAddUnit,
-    mapUpdateUnit,
-    mapRemoveUnit,
 } from './MapConstructor'
 
 import ScrollContainer from 'react-indiana-drag-scroll'
@@ -31,48 +20,38 @@ const INPUT_STYLE = {
     width: '136px',
 }
 
-
-
 interface IBuildingPanelViewProps {
     map: BuildingMap
 }
-interface IEditMapProps {
-    map: BuildingMap
-    updateMap(map: BuildingMap, action?: string): void
-}
 interface IBuildingPanelEditProps {
     map: BuildingMap
-    updateMap?(map: BuildingMap, action?: string): void
-    onUnitClick?(unit: BuildingUnit): void
-    onSectionClick?(section: BuildingSection): void
-    selectedUnit?: BuildingUnit
-    selectedSection?: BuildingSection
+    updateMap: (map: BuildingMap) => void
 }
-interface IUnitFormProps extends IEditMapProps {
+interface IEditMapProps {
+    Builder: MapConstructor
+    refresh(): void
+}
+interface IPropertyMapUnitProps {
     unit: BuildingUnit
+    Builder: MapConstructor
+    refresh(): void
 }
-interface IEditSectionProps extends IEditMapProps {
-    section: BuildingSection
-}
+
 interface IBuildingAxisY {
     floors: number[]
 }
-interface IEmptyFloorProps {
-    units: number
-}
 interface IChooseSections {
-    sections: BuildingSection[]
-    state: CheckboxValueType[]
-    update(params: CheckboxValueType[]): void
+    Builder: MapConstructor
+    refresh(): void
 }
-
 interface IPropertyMapSectionProps {
-    isVisible?: boolean
-    isSelected?: boolean
     section: BuildingSection
-    onSectionClick?(section: BuildingSection): void
+    Builder: MapConstructor
+    refresh(): void
 }
 
+
+// Service blocks
 
 const EmptyBuildingBlock: React.FC = () => {
     const intl = useIntl()
@@ -95,57 +74,74 @@ const EmptyBuildingBlock: React.FC = () => {
     )
 }
 
-const BuildingPanelEdit: React.FC<IEditMapProps> = ({ map, updateMap: parentUpdateMap }) => {
 
+const BuildingAxisY: React.FC<IBuildingAxisY> = ({ floors }) => {
+    return (
+        <div style={{ display: 'inline-block', marginRight: '12px' }}>
+            {
+                floors.map(floorNum => (
+                    <UnitButton secondary disabled key={`floor_${floorNum}`} style={{ display: 'block' }}>{floorNum}</UnitButton>
+                ))
+            }
+            <UnitButton secondary disabled >&nbsp;</UnitButton>
+        </div>
+    )
+}
+
+
+// View
+
+const BuildingPanelView: React.FC<IBuildingPanelViewProps> = ({ map }) => {
+    const [Map, setMap] = useState(new MapConstructor(map, null))
+    const refresh = () => setMap(cloneDeep(Map))
+    return (
+        <PropertyMapView Builder={Map} refresh={refresh}></PropertyMapView>
+    )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, updateMap: updateFormField }) => {
     const intl = useIntl()
-
+    const [Map, setMap] = useState(new MapConstructor(map, updateFormField))
+    const refresh = () => setMap(cloneDeep(Map))
     const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
-
-    const isEmptyMap = !map || !has(map, 'sections') || map.sections.length === 0
-    const [unit, setUnit] = useState({ id: null })
-    const [section, setSection] = useState({ id: null })
-    const [mode, changeMode] = useState('addSection') // addSection, editSection, addUnit, editUnit
-
-    const onUnitClick = (target) => {
-        if (unit.id === target.id) {
-            setUnit({ id: null })
-            changeMode('addUnit')
-        } else {
-            setUnit(target)
-            setSection({ id: null })
-            changeMode('editUnit')
-        }
+    const isEmptyMap = Map.isEmpty()
+    const changeMode = (mode) => {
+        Map.setEditMode(mode)
+        refresh()
     }
-
-    const onSectionClick = (target) => {
-        if (section.id === target.id) {
-            setSection({ id: null })
-            changeMode('addSection')
-        } else {
-            setSection(target)
-            setUnit({ id: null })
-            changeMode('editSection')
-        }
-    }
-
-    const updateMap = (map, action) => {
-        changeMode('addSection')
-        setSection({ id: null })
-        setUnit({ id: null })
-        parentUpdateMap(map)
-    }
-
+    const mode = Map.getEditMode()
     return (
         <>
-            <Row align='middle' style={{ marginBottom: '40px' }}>
+            <Row align='middle' style={{ marginBottom: '40px' }} gutter={[45, 40]} justify='start'>
                 {
                     (mode === 'addSection' || mode === 'addUnit') ? (
-                        <Col flex={1} >
-                            <Space direction={'vertical'} size={8} style={{ width: '136px' }}>
+                        <Col flex={0} style={{ maxWidth: '400px' }}>
+                            <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
                                 <Typography.Text type={'secondary'} >{AddLabel}</Typography.Text>
-                                <Select value={mode} onChange={value => changeMode(value)} style={{ width: '136px' }}>
+                                <Select value={mode} onChange={value => changeMode(value)} style={INPUT_STYLE}>
                                     <Option value='addSection'>{AddSection}</Option>
                                     <Option value='addUnit'>{AddUnit}</Option>
                                 </Select>
@@ -155,10 +151,10 @@ const BuildingPanelEdit: React.FC<IEditMapProps> = ({ map, updateMap: parentUpda
                 }
                 {
                     {
-                        addSection: <AddSectionForm map={map} updateMap={updateMap}></AddSectionForm>,
-                        addUnit: <UnitForm map={map} unit={{ id: null }} updateMap={updateMap}></UnitForm>,
-                        editSection: <EditSectionForm map={map} section={section} updateMap={updateMap}></EditSectionForm>,
-                        editUnit: <UnitForm map={map} unit={unit} updateMap={updateMap}></UnitForm>,
+                        addSection: <AddSectionForm Builder={Map} refresh={refresh}></AddSectionForm>,
+                        addUnit: <UnitForm Builder={Map} refresh={refresh}></UnitForm>,
+                        editSection: <EditSectionForm Builder={Map} refresh={refresh}></EditSectionForm>,
+                        editUnit: <UnitForm Builder={Map} refresh={refresh}></UnitForm>,
                     }[mode] || null
                 }
             </Row>
@@ -171,20 +167,188 @@ const BuildingPanelEdit: React.FC<IEditMapProps> = ({ map, updateMap: parentUpda
                         </Col>
                         :
                         <PropertyMap
-                            map={map}
-                            onUnitClick={onUnitClick}
-                            onSectionClick={onSectionClick}
-                            selectedUnit={unit}
-                            selectedSection={section}
+                            Builder={Map}
+                            refresh={refresh}
                         />
-
                 }
             </Row>
         </>
     )
 }
 
-const AddSectionForm: React.FC<IEditMapProps> = ({ map, updateMap }) => {
+
+
+
+
+
+
+
+
+const BuildingChooseSections: React.FC<IChooseSections> = ({ Builder, refresh }) => {
+    const updateVisibleSections = (value) => {
+        Builder.setVisibleSections(value)
+        refresh()
+    }
+    const sections = Builder.getSections()
+    if (sections.length < 2) {
+        return (
+            null
+        )
+    }
+    return (
+        <Checkbox.Group onChange={updateVisibleSections} value={Builder.visibleSections} style={{ width: '100%' }} >
+            <Row gutter={[40, 40]} style={{ marginTop: '60px' }}>
+                {
+                    sections.map(section => (
+                        <Col key={section.id} flex={0}>
+                            <Checkbox value={section.id}>{section.name}</Checkbox>
+                        </Col>
+                    ))
+                }
+                <Col flex="auto" />
+            </Row>
+        </Checkbox.Group>
+    )
+}
+
+
+export const PropertyMap: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
+    const isEmptyMap = Builder.isEmpty()
+    const allFloors = Builder.getPossibleFloors()
+    const sections = Builder.getSections()
+    return (
+        <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
+            {
+                isEmptyMap ?
+                    <Col span={24} style={{ marginTop: '60px', marginBottom: '60px' }}>
+                        <EmptyBuildingBlock />
+                    </Col>
+                    :
+                    <Col span={24} style={{ marginTop: '60px', whiteSpace: 'nowrap' }}>
+                        <ScrollContainer className="scroll-container" style={{ marginTop: '60px', maxWidth: '1200px', maxHeight: '480px' }}>
+                            <BuildingAxisY floors={allFloors} />
+                            {
+                                sections.map(section => {
+                                    return (
+                                        <PropertyMapSection
+                                            key={section.id}
+                                            section={section}
+                                            Builder={Builder}
+                                            refresh={refresh}
+                                        >
+                                            {
+                                                allFloors.map(floorIndex => {
+                                                    const floorInfo = section.floors.find(floor => floor.index === floorIndex)
+                                                    if (floorInfo && floorInfo.units.length) {
+                                                        return (
+                                                            <PropertyMapFloor key={floorInfo.id}>
+                                                                {
+                                                                    floorInfo.units.map(unit => {
+                                                                        return (
+                                                                            <PropertyMapUnit
+                                                                                key={unit.id}
+                                                                                unit={unit}
+                                                                                Builder={Builder}
+                                                                                refresh={refresh}
+                                                                            ></PropertyMapUnit>
+                                                                        )
+                                                                    })
+                                                                }
+                                                            </PropertyMapFloor>
+                                                        )
+                                                    } else {
+                                                        return (
+                                                            <div key={`empty_${section.id}_${floorIndex}`} style={{ display: 'block', height: '40px', margin: '1px' }}>&nbsp;</div>
+                                                        )
+                                                    }
+                                                })
+                                            }
+                                        </PropertyMapSection>
+                                    )
+                                })
+                            }
+                        </ScrollContainer>
+                        {
+                            <BuildingChooseSections Builder={Builder} refresh={refresh}></BuildingChooseSections>
+                        }
+                    </Col>
+            }
+        </Row>
+    )
+}
+
+
+export const PropertyMapView: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
+    const isEmptyMap = Builder.isEmpty()
+    const allFloors = Builder.getPossibleFloors()
+    const sections = Builder.getSections()
+    return (
+        <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
+            {
+                isEmptyMap ?
+                    <Col span={24} style={{ marginTop: '60px', marginBottom: '60px' }}>
+                        <EmptyBuildingBlock />
+                    </Col>
+                    :
+                    <Col span={24} style={{ marginTop: '60px', whiteSpace: 'nowrap' }}>
+                        <ScrollContainer className="scroll-container" style={{ marginTop: '60px', maxWidth: '1200px', maxHeight: '480px' }}>
+                            <BuildingAxisY floors={allFloors} />
+                            {
+                                sections.map(section => {
+                                    return (
+                                        <div key={section.id}
+                                            style={{
+                                                display: Builder.isSectionVisible(section.id) ? 'inline-block' : 'none',
+                                                marginRight: '12px',
+                                                textAlign: 'center',
+                                            }}
+                                        >{
+                                                allFloors.map(floorIndex => {
+                                                    const floorInfo = section.floors.find(floor => floor.index === floorIndex)
+                                                    if (floorInfo && floorInfo.units.length) {
+                                                        return (
+                                                            <div key={floorInfo.id} style={{ display: 'block' }}>
+                                                                {
+                                                                    floorInfo.units.map(unit => {
+                                                                        return (
+                                                                            <UnitButton
+                                                                                key={unit.id}
+                                                                                disabled
+                                                                            >{unit.label}</UnitButton>                                                                
+                                                                        )
+                                                                    })
+                                                                }
+                                                            </div>
+                                                        )
+                                                    } else {
+                                                        return (
+                                                            <div key={`empty_${section.id}_${floorIndex}`} style={{ display: 'block', height: '40px', margin: '1px' }}>&nbsp;</div>
+                                                        )
+                                                    }
+                                                })
+                                            }
+                                            <UnitButton
+                                                secondary
+                                                style={{ width: '100%', marginTop: '8px' }}
+                                                disabled
+                                            >{section.name}</UnitButton>
+                                        </div>
+                                    )
+                                })
+                            }
+                        </ScrollContainer>
+                        {
+                            <BuildingChooseSections Builder={Builder} refresh={refresh}></BuildingChooseSections>
+                        }
+                    </Col>
+            }
+        </Row>
+    )
+}
+
+
+
+const AddSectionForm: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
     const intl = useIntl()
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
@@ -206,37 +370,37 @@ const AddSectionForm: React.FC<IEditMapProps> = ({ map, updateMap }) => {
     }
 
     const handleFinish = () => {
-        const newMap = mapAddSection(map, { id: null, name, minFloor, maxFloor, unitsOnFloor })
-        updateMap(newMap)
+        Builder.mapAddSection({ id: null, name, minFloor, maxFloor, unitsOnFloor })
+        refresh()
         resetForm()
     }
     return (
         <>
-            <Col flex={1}>
+            <Col flex={0}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
                     <Input value={name} placeholder={NamePlaceholderLabel} onChange={e => setName(e.target.value)} style={INPUT_STYLE} />
                 </Space>
             </Col>
-            <Col flex={1}>
+            <Col flex={0}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
                     <InputNumber value={minFloor} onChange={v => setMinFloor(v)} style={INPUT_STYLE} />
                 </Space>
             </Col>
-            <Col flex={1}>
+            <Col flex={0}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{MaxFloorLabel}</Typography.Text>
                     <InputNumber value={maxFloor} onChange={v => setMaxFloor(v)} style={INPUT_STYLE} />
                 </Space>
             </Col>
-            <Col flex={1}>
+            <Col flex={0}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{UnitsOnFloorLabel}</Typography.Text>
                     <InputNumber value={unitsOnFloor} onChange={v => setUnitsOnFloor(v)} style={INPUT_STYLE} />
                 </Space>
             </Col>
-            <Col flex={1}>
+            <Col flex={0}>
                 <Button
                     key='submit'
                     secondary
@@ -251,67 +415,16 @@ const AddSectionForm: React.FC<IEditMapProps> = ({ map, updateMap }) => {
     )
 }
 
-const BuildingAxisY: React.FC<IBuildingAxisY> = ({ floors }) => {
-    return (
-        <div style={{ display: 'inline-block', marginRight: '12px' }}>
-            {
-                floors.map(floorNum => (
-                    <UnitButton secondary disabled key={`floor_${floorNum}`} style={{ display: 'block' }}>{floorNum}</UnitButton>
-                ))
-            }
-            <UnitButton secondary disabled >&nbsp;</UnitButton>
-        </div>
-    )
-}
 
-const EmptyFloor: React.FC<IEmptyFloorProps> = ({ units }) => {
-    return (
-        <div style={{ display: 'block' }}>
-            {
-                Array(units).fill('').map((_, idx) => <UnitButton key={idx} secondary disabled>&nbsp;</UnitButton>)
-            }
-        </div>
-    )
-}
-
-const BuildingChooseSections: React.FC<IChooseSections> = ({ sections, state, update }) => {
-    const [existed, setExisted] = useState(sections.map(section => section.id))
-
-    useEffect(() => {
-        const newIds = sections.map(section => section.id).filter(id => !existed.includes(id))
-        if (newIds.length) {
-            setExisted(existed.concat(newIds))
-            update(state.concat(newIds))
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [sections])
-
-    if (sections.length < 2) {
-        return (
-            null
-        )
+const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, Builder, refresh }) => {
+    const chooseSection = (section) => {
+        Builder.setSelectedSection(section)
+        refresh()
     }
-    return (
-        <Checkbox.Group onChange={update} value={state} style={{ width: '100%' }} >
-            <Row style={{ marginTop: '60px' }}>
-                {
-                    sections.map(section => (
-                        <Col key={section.id} flex={1}>
-                            <Checkbox value={section.id}>{section.name}</Checkbox>
-                        </Col>
-                    ))
-                }
-                <Col flex="auto" />
-            </Row>
-        </Checkbox.Group>
-    )
-}
-
-const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ isVisible, children, section, onSectionClick, isSelected }) => {
     return (
         <div
             style={{
-                display: isVisible ? 'inline-block' : 'none',
+                display: Builder.isSectionVisible(section.id) ? 'inline-block' : 'none',
                 marginRight: '12px',
                 textAlign: 'center',
             }}
@@ -319,10 +432,9 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ isVisible, chi
             {children}
             <UnitButton
                 secondary
-                style={{ width: '100%' }}
-                onClick={onSectionClick ? () => onSectionClick(section) : null}
-                disabled={!onSectionClick}
-                selected={isSelected}
+                style={{ width: '100%', marginTop: '8px' }}
+                onClick={() => chooseSection(section)}
+                selected={Builder.isSectionSelected(section.id)}
             >{section.name}</UnitButton>
         </div>
     )
@@ -336,12 +448,24 @@ const PropertyMapFloor: React.FC = ({ children }) => {
     )
 }
 
-const UnitForm: React.FC<IUnitFormProps> = ({ map, unit, updateMap }) => {
+const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ Builder, refresh, unit }) => {
+    const selectUnit = (unit) => {
+        Builder.setSelectedUnit(unit)
+        refresh()
+    }
+    return (
+        <UnitButton
+            onClick={() => selectUnit(unit)}
+            selected={Builder.isUnitSelected(unit.id)}
+        >{unit.label}</UnitButton>
+    )
+}
+
+
+const UnitForm: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
     const intl = useIntl()
-
-    const mode = unit.id ? 'edit' : 'add'
-
-    const SaveLabel = intl.formatMessage({ id: mode === 'edit' ? 'Save' : 'Add' })
+    const mode = Builder.getEditMode()
+    const SaveLabel = intl.formatMessage({ id: mode === 'editUnit' ? 'Save' : 'Add' })
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.unit.Name' })
     const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
@@ -355,9 +479,9 @@ const UnitForm: React.FC<IUnitFormProps> = ({ map, unit, updateMap }) => {
 
     const updateSection = (value) => {
         setSection(value)
-        setFloors(getSectionFloorOptions(map, value))
-        if (mode === 'edit') {
-            const mapUnit = getUnitInfo(map, unit.id)
+        setFloors(Builder.getSectionFloorOptions(value))
+        if (mode === 'editUnit') {
+            const mapUnit = Builder.getSelectedUnit()
             if (value === mapUnit.section) {
                 setFloor(mapUnit.floor)
             } else {
@@ -367,34 +491,36 @@ const UnitForm: React.FC<IUnitFormProps> = ({ map, unit, updateMap }) => {
     }
 
     useEffect(() => {
-        const mapUnit = getUnitInfo(map, unit.id)
-        setLabel(unit.label)
-        setSections(getSectionOptions(map))
-        setFloors(getSectionFloorOptions(map, mapUnit.section))
-        setFloor(mapUnit.floor)
-        setSection(mapUnit.section)
-    }, [unit, map])
+        setSections(Builder.getSectionOptions())
+        const mapUnit = Builder.getSelectedUnit()
+        if (mapUnit) {
+            setFloors(Builder.getSectionFloorOptions(mapUnit.section))
+            setLabel(mapUnit.label)
+            setSection(mapUnit.section)
+            setFloor(mapUnit.floor)
+        }
+    }, [Builder])
 
     const applyChanges = () => {
-        const unitToSave = { ...unit, label, floor, section }
-        let newMap = mapRemoveUnit(map, 'preview-unit')
-        newMap = (mode === 'edit') ? mapUpdateUnit(map, unitToSave) : mapAddUnit(map, unitToSave)
-        updateMap(newMap)
+        const mapUnit = Builder.getSelectedUnit()
+        Builder.mapUpdateUnit({ ...mapUnit, label, floor, section })
+        refresh()
     }
     const deleteUnit = () => {
-        const newMap = mapRemoveUnit(map, unit.id)
-        updateMap(newMap)
+        const mapUnit = Builder.getSelectedUnit()
+        Builder.mapRemoveUnit(mapUnit.id)
+        refresh()
     }
 
     return (
         <>
-            <Col flex={1}>
+            <Col flex={0}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
                     <Input value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
                 </Space>
             </Col>
-            <Col flex={1}>
+            <Col flex={0}>
                 <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
                     <Typography.Text type={'secondary'} >{SectionLabel}</Typography.Text>
                     <Select value={section} onSelect={updateSection} style={INPUT_STYLE} >
@@ -404,7 +530,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ map, unit, updateMap }) => {
                     </Select>
                 </Space>
             </Col>
-            <Col flex={1}>
+            <Col flex={0}>
                 <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
                     <Typography.Text type={'secondary'} >{FloorLabel}</Typography.Text>
                     <Select value={floor} onSelect={setFloor} style={INPUT_STYLE} >
@@ -414,7 +540,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ map, unit, updateMap }) => {
                     </Select>
                 </Space>
             </Col>
-            <Col flex={1}>
+            <Col flex={0}>
                 <Button
                     secondary
                     onClick={applyChanges}
@@ -423,7 +549,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ map, unit, updateMap }) => {
                     style={{ marginTop: '30px' }}
                 > {SaveLabel} </Button>
                 {
-                    mode === 'edit' ?
+                    mode === 'editUnit' ?
                         <Button
                             secondary
                             danger
@@ -434,41 +560,41 @@ const UnitForm: React.FC<IUnitFormProps> = ({ map, unit, updateMap }) => {
                         > </Button> : null
                 }
             </Col>
-            <Col flex="auto" />
         </>
     )
 }
 
-const EditSectionForm: React.FC<IEditSectionProps> = ({ map, section, updateMap }) => {
-    const [name, setName] = useState(section.name)
+const EditSectionForm: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
+    const section = Builder.getSelectedSection()
+    const [name, setName] = useState('')
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
 
+    useEffect(() => {
+        setName(section ? section.name : '')
+    }, [section])
 
     const updateSection = () => {
-        const newMap = mapUpdateSection(map, { ...section, name })
-        updateMap(newMap)
-    }
-    const deleteSection = () => {
-        const newMap = mapRemoveSection(map, section.id)
-        updateMap(newMap)
+        Builder.mapUpdateSection({ ...section, name })
+        refresh()
     }
 
-    useEffect(() => {
-        setName(section.name)
-    }, [section, map])
+    const deleteSection = () => {
+        Builder.mapRemoveSection(section.id)
+        refresh()
+    }
 
     return (
         <>
-            <Col flex={1}>
+            <Col flex={0} >
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
                     <Input value={name} placeholder={NamePlaceholderLabel} onChange={e => setName(e.target.value)} style={INPUT_STYLE} />
                 </Space>
             </Col>
-            <Col flex={1}>
+            <Col flex={0} >
                 <Button
                     secondary
                     onClick={updateSection}
@@ -488,85 +614,6 @@ const EditSectionForm: React.FC<IEditSectionProps> = ({ map, section, updateMap 
         </>
     )
 }
-
-const BuildingPanelView: React.FC<IBuildingPanelViewProps> = ({ map }) => {
-    return (
-        <PropertyMap map={map}> </PropertyMap>
-    )
-}
-
-
-export const PropertyMap: React.FC<IBuildingPanelEditProps> = ({ map, onUnitClick, onSectionClick, selectedSection, selectedUnit }) => {
-    const isEmptyMap = !map || !map.sections.length
-    const sections = isEmptyMap ? [] : map.sections.map(section => section.id)
-    const [checkedSections, setCheckedSections] = useState<CheckboxValueType[]>(sections)
-    const allFloors = getPossibleFloors(map)
-    return (
-        <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
-            {
-                isEmptyMap ?
-                    <Col span={24} style={{ marginTop: '60px', marginBottom: '60px' }}>
-                        <EmptyBuildingBlock />
-                    </Col>
-                    :
-                    <Col span={24} style={{ marginTop: '60px', whiteSpace: 'nowrap' }}>
-                        <ScrollContainer className="scroll-container" style={{ marginTop: '60px', maxWidth: '1200px', maxHeight: '480px' }}>
-                            <BuildingAxisY floors={allFloors} />
-                            {
-                                map.sections.map(section => {
-                                    return (
-                                        <PropertyMapSection
-                                            key={section.id}
-                                            section={section}
-                                            isVisible={checkedSections.includes(section.id)}
-                                            isSelected={selectedSection ? selectedSection.id === section.id : false}
-                                            onSectionClick={onSectionClick}
-                                        >
-                                            {
-                                                allFloors.map(floorIndex => {
-                                                    const floorInfo = section.floors.find(floor => floor.index === floorIndex)
-                                                    if (floorInfo && floorInfo.units.length) {
-                                                        return (
-                                                            <PropertyMapFloor key={floorInfo.id}>
-                                                                {
-                                                                    floorInfo.units.map(unit => {
-                                                                        return (
-                                                                            <UnitButton
-                                                                                key={unit.id}
-                                                                                onClick={onUnitClick ? () => onUnitClick(unit) : null}
-                                                                                selected={selectedUnit ? unit.id === selectedUnit.id : false}
-                                                                            >{unit.label}</UnitButton>
-                                                                        )
-                                                                    })
-                                                                }
-                                                            </PropertyMapFloor>
-                                                        )
-                                                    } else {
-                                                        return (
-                                                            <EmptyFloor key={`empty_${section.id}_${floorIndex}`} units={section.unitsOnFloor} />
-                                                        )
-                                                    }
-                                                })
-                                            }
-                                        </PropertyMapSection>
-                                    )
-                                })
-                            }
-                        </ScrollContainer>
-                        {
-                            <BuildingChooseSections sections={map.sections} state={checkedSections} update={setCheckedSections}></BuildingChooseSections>
-                        }
-                    </Col>
-            }
-        </Row>
-    )
-}
-
-
-
-
-
-
 
 
 export {

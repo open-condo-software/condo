@@ -78,8 +78,7 @@ export const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         ({ getFieldsValue, setFieldsValue }) => {
                                             const { map } = getFieldsValue(['map'])
                                             return (
-                                                <PropertyPanels mode='edit' map={map} updateMap={(map) => setFieldsValue({ map })}>
-                                                </PropertyPanels>
+                                                <PropertyPanels mode='edit' map={map} updateMap={(map) => setFieldsValue({ map })} />
                                             )
                                         }
                                     }                                

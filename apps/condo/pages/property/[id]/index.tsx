@@ -14,7 +14,6 @@ import Link from 'next/link'
 import { Button } from '@condo/domains/common/components/Button'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { PropertyPanels } from '@condo/domains/property/components/panels/index'
-import { BuildingMap } from '@condo/domains/property/components/panels/MapConstructor'
 
 interface IPropertyInfoPanelProps {
     title: string
@@ -88,20 +87,19 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
                             </Link>
                         </Col>
                     </Row>       
-                    <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
-                        <Col flex={1} >
+                    <Row gutter={[47, 40]} style={{ marginTop: '40px' }} justify='start'>
+                        <Col flex={0} >
                             <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} />
                         </Col>
-                        <Col flex={1}>
+                        <Col flex={0}>
                             <PropertyInfoPanel title={SquareTitle} message={UnknownMessage} />
                         </Col>
-                        <Col flex={1}>
+                        <Col flex={0}>
                             <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type='success' />
                         </Col>
-                        <Col flex={1}>
+                        <Col flex={0}>
                             <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork}  type='warning' />
                         </Col>
-                        <Col flex='auto'></Col>
                     </Row>
                     <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
                         <Col span={24}>

@@ -1,17 +1,17 @@
 import { BuildingPanelEdit, BuildingPanelView } from './BuildingPanel'
 import { ResidentPanelEdit, ResidentPanelView } from './ResidentPanel'
 import { BuildingMap } from './MapConstructor'
-
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Tabs } from 'antd'
 
 import { useIntl } from '@core/next/intl'
 
 const { TabPane } = Tabs
+
 interface IPropertyPanels {
     map: BuildingMap
     mode: 'view' | 'edit' 
-    updateMap?(map: BuildingMap): void
+    updateMap?(map: BuildingMap): void    
 }
 
 
@@ -39,4 +39,3 @@ export const PropertyPanels: React.FC<IPropertyPanels> = ({ mode, map, updateMap
 
     )
 }
-
