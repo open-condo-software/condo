@@ -7,8 +7,8 @@ const { makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils'
 const { Property, createTestProperty, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 
 const { makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
-const { buildingMapJson } = require('@condo/domains/property/constants/property.example')
 const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@condo/domains/ticket/utils/testSchema')
+const { buildingMapJson } = require('@condo/domains/property/constants/property')
 
 async function makeClientWithProperty () {
     const client = await makeClientWithRegisteredOrganization()
@@ -75,7 +75,7 @@ describe('Property', () => {
         const [afterTicketClosed] = await Property.getAll(client, { id_in: [client.property.id] })
         expect(afterTicketClosed.ticketsInWork).toEqual('0')
         expect(afterTicketClosed.ticketsClosed).toEqual('1')
-    })        
+    })
   
     test('anonymous: read Property', async () => {
         const client = await makeClient()
