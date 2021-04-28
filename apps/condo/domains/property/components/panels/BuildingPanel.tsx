@@ -503,7 +503,12 @@ const UnitForm: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
 
     const applyChanges = () => {
         const mapUnit = Builder.getSelectedUnit()
-        Builder.mapUpdateUnit({ ...mapUnit, label, floor, section })
+        console.log(mapUnit)
+        if (mapUnit) {
+            Builder.mapUpdateUnit({ ...mapUnit, label, floor, section })
+        } else {
+            Builder.mapAddUnit({ id: null, label, floor, section })
+        }
         refresh()
     }
     const deleteUnit = () => {
