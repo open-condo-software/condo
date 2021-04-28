@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from 'react'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Typography, Space, Radio, Row, Col, Tooltip, Input, Table } from 'antd'
-import { DatabaseFilled } from '@ant-design/icons'
+import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import Head from 'next/head'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { MapGL } from '@condo/domains/common/components/MapGL'
@@ -17,7 +17,6 @@ import pickBy from 'lodash/pickBy'
 import get from 'lodash/get'
 import has from 'lodash/has'
 import XLSX from 'xlsx'
-
 import {
     getFiltersFromQuery,
     getPaginationFromQuery,
@@ -26,21 +25,18 @@ import {
     filtersToQuery,
     PROPERTY_PAGE_SIZE,
 } from '@condo/domains/property/utils/helpers'
-
 import { useTableColumns } from '@condo/domains/property/hooks/useTableColumns'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-
 import debounce from 'lodash/debounce'
-
 import {
     BaseModalForm,
     useCreateAndEditModalForm,
 } from '@condo/domains/common/components/containers/FormList'
-
 import { AddressSearchInput } from '@condo/domains/common/components/AddressSearchInput'
 import { Form, Select } from 'antd'
-import { buildingMapJson } from '@condo/domains/property/constants/property.example'
-
+import { buildingMapJson } from '@condo/domains/property/constants/property'
+import { DataImporter } from '@condo/domains/common/components/DataImporter'
+import { PropertyImporter } from '../../domains/property/utils/PropertyImporter'
 
 // TODO(zuch): Change from modal to create page
 function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancelModal }) {
@@ -245,8 +241,6 @@ const PropertyPageViewTable = (): React.FC => {
         })
     }, [properties])
 
-    const noProperties = !properties.length && !filtersFromQuery
-
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
@@ -254,6 +248,11 @@ const PropertyPageViewTable = (): React.FC => {
             },
         }
     }, [router])
+
+    const importer = new PropertyImporter()
+
+    const noProperties = !properties.length && !filtersFromQuery
+
 
     return (
         <>
@@ -277,7 +276,20 @@ const PropertyPageViewTable = (): React.FC => {
                             <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData} >{ExportAsExcel}</Button>
                         </Col>
                         <Col span={6} push={6} align={'right'}>
-                            <CreatePropertyModalBlock modal={modal} create={create} />
+                            <Space size={16}>
+                                <DataImporter
+                                    onUpload={(e) => {
+                                        importer.import(e.data)
+                                    }}
+                                >
+                                    <Button
+                                        type={'sberPrimary'}
+                                        icon={<DiffOutlined />}
+                                        secondary
+                                    />
+                                </DataImporter>
+                                <CreatePropertyModalBlock modal={modal} create={create} />
+                            </Space>
                         </Col>
                         <Col span={24}>
                             <Table
