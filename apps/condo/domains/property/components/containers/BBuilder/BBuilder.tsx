@@ -5,7 +5,7 @@ import { useImmer } from 'use-immer'
 import { Button, Input, Modal, Form, InputNumber, Select } from 'antd'
 import { useState, useRef, useEffect } from 'react'
 import { useIntl } from '@core/next/intl'
-import { addNewBBuildingUnitToSectionData, BBuildingData, createNewBBuildingSectionData, updateUnitsLabels } from './BBuildingData'
+import { addNewBBuildingUnitToSectionData, BBuildingData, createNewBBuildingSectionData, updateUnitsLabels } from '../../../utils/BBuildingData'
 
 // TODO(pahaz): translation!
 

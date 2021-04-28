@@ -7,7 +7,7 @@ const { makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils'
 const { Property, createTestProperty, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 
 const { makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
-const { buildingMapJson } = require('@condo/domains/property/constants/property.example')
+const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 
 async function makeClientWithProperty () {

@@ -4,30 +4,12 @@ import { Select, Spin } from 'antd'
 import debounce from 'lodash/debounce'
 import pickBy from 'lodash/pickBy'
 import identity from 'lodash/identity'
+import { DadataApi, IDadataApi } from '../utils/dadataApi'
 
 const DEBOUNCE_TIMEOUT = 800
 
-function getAddressSuggestionsConfig () {
-    const {
-        publicRuntimeConfig: { addressSuggestionsConfig },
-    } = getConfig()
-    const { apiUrl, apiToken } = addressSuggestionsConfig
-    if (!apiToken || !apiUrl) console.error('Wrong AddressSuggestionsConfig! no apiUrl/apiToken')
-    return { apiUrl, apiToken }
-}
-
-async function searchAddress (query) {
-    const { apiUrl, apiToken } = getAddressSuggestionsConfig()
-
-    const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            Authorization: `Token ${apiToken}`,
-        },
-        body: JSON.stringify({ query }),
-    })
+async function searchAddress (api: IDadataApi, query) {
+    const response = await api.getSuggestions(query)
 
     const { suggestions } = await response.json()
     // FORMAT: { suggestions: [ { value: "Address1", meta1: value1, meta2: value2, ... }, ... ] }
@@ -46,13 +28,16 @@ export const AddressSearchInput: React.FC = (props) => {
     const [selected, setSelected] = useState('')
     const [fetching, setFetching] = useState(false)
     const [data, setData] = useState([])
+    const api = useMemo(() => {
+        return new DadataApi()
+    }, [])
     const options = useMemo(() => {
         return data.map(d => <Select.Option key={d.value} value={d.value} title={d.text}>{d.text}</Select.Option>)
     }, [data])
 
     const searchSuggestions = useCallback(async (value) => {
         setFetching(true)
-        const data = await searchAddress((selected) ? selected + ' ' + value : value)
+        const data = await searchAddress(api, (selected) ? selected + ' ' + value : value)
 
         setFetching(false)
         setData(data)

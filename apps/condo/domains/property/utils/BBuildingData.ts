@@ -1,9 +1,10 @@
 import cloneDeep from 'lodash/cloneDeep'
 
-enum BDataTypes {
+export enum BDataTypes {
     Section = 'section',
     Floor = 'floor',
     Unit = 'unit',
+    Building = 'building',
 }
 
 type BDataUnit = {
@@ -21,7 +22,7 @@ type BDataFloor = {
     units: BDataUnit[],
 }
 
-type BDataSection = {
+export type BDataSection = {
     type: BDataTypes.Section,
     id: string | number,
     name?: string,
