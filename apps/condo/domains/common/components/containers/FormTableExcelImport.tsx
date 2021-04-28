@@ -1,20 +1,21 @@
+import { InboxOutlined } from '@ant-design/icons'
+import { TABLE_UPLOAD_ACCEPT_FILES } from '@condo/domains/common/constants/fileExtensions'
+import {
+    defaultValidator,
+    fromExData,
+    makeAntdCols,
+    makeAntdData,
+    reValidateExData,
+} from '@condo/domains/common/utils/excel.utils'
+import { useIntl } from '@core/next/intl'
+import styled from '@emotion/styled'
+import { Button, Col, Form, Input, Progress, Row, Select, Table, Tooltip, Typography, Upload } from 'antd'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import React, { useEffect, useState } from 'react'
-import XLSX from 'xlsx'
-import { Button, Col, Form, Input, Progress, Row, Select, Table, Tooltip, Typography, Upload } from 'antd'
-import { InboxOutlined } from '@ant-design/icons'
-import { defaultValidator, fromExData, reValidateExData, toExData } from '@condo/domains/common/utils/excel.utils'
-import { useIntl } from '@core/next/intl'
 import { useImmer } from 'use-immer'
-import styled from '@emotion/styled'
+import XLSX from 'xlsx'
 import { CreateFormListItemButton } from './FormList'
-
-const SHEET_JS_ACCEPT_FILES = [
-    'xlsx', 'xlsb', 'xlsm', 'xls', 'xml', 'csv', 'txt',
-    'ods', 'fods', 'uos', 'sylk', 'dif', 'dbf', 'prn',
-    'qpw', '123', 'wb*', 'wq*', 'html', 'htm',
-].map(function (x) { return '.' + x }).join(',')
 
 const ErrorText = styled.div`
     word-break: break-word;
@@ -40,7 +41,7 @@ function MappingForm ({ columns, cols, onChangeMapping, onFinish }) {
     const [form] = Form.useForm()
     const [values, setValues] = useState({})
 
-    function handleChanges (changedValues, allValues) {
+    function handleChanges (changedValues, allValues: Record<string, string>) {
         const titleToIndex = Object.fromEntries(cols.map((col) => [col.title, col.dataIndex]))
         const remapped = Object.fromEntries(
             Object.entries(allValues)
@@ -163,6 +164,8 @@ function ExcelExporterButton ({ columns, setExportedData }) {
         setExportedData(fromExData(tableState.data, tableState.mapping))
     }
 
+    const formatted_files = TABLE_UPLOAD_ACCEPT_FILES.map(function (x) { return '.' + x }).join(',')
+
     return <>
         <CreateFormListItemButton
             onClick={() => setStep(1)} label={ImportFromFileButtonLabel}
@@ -176,7 +179,7 @@ function ExcelExporterButton ({ columns, setExportedData }) {
 
         <Upload.Dragger
             style={{ marginBottom: '16px', padding: '10px', display: step === 1 ? 'block' : 'none' }}
-            accept={SHEET_JS_ACCEPT_FILES}
+            accept={formatted_files}
             showUploadList={false}
             // TODO(pahaz): is the customRequest required?: customRequest={() => {}}
             action={handleFile}
@@ -237,22 +240,6 @@ function renderCell (obj, record, rowIndex) {
         return <Tooltip title={obj.message}>{text}</Tooltip>
     }
     return obj.value
-}
-
-function makeAntdCols (refstr, extra) {
-    const o = [], C = XLSX.utils.decode_range(refstr).e.c + 1
-    for (let i = 0; i < C; ++i) o[i] = {
-        title: XLSX.utils.encode_col(i),
-        key: i,
-        dataIndex: i,
-        ...extra,
-    }
-    return o
-}
-
-function makeAntdData (ws) {
-    const data = XLSX.utils.sheet_to_json(ws, { header: 1 }).filter((x) => x.length)
-    return toExData(data)
 }
 
 export default ExcelExporterButton

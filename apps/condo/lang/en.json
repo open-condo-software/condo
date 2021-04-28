@@ -232,6 +232,8 @@
   "errors.PhoneShort": "phone",
   "errors.NotDefinedShort": "not defined",
   "errors.PdfGenerationError": "Sorry, an error has occurred, please try refreshing the page",
+  "errors.fileUploadSuccess": "File uploaded successfully",
+  "errors.fileUploadError": "An error occurred while uploading the file, please try again",
   "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Resident Name",
   "filters.Reset": "ResetFilters",

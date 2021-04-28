@@ -234,6 +234,8 @@
   "errors.PhoneShort": "тел.",
   "errors.NotDefinedShort": "не указан",
   "errors.PdfGenerationError": "К сожалению произошла ошибка, попробуйте обновить страницу",
+  "errors.fileUploadSuccess": "Файл успешно загружен",
+  "errors.fileUploadError": "При загрузке файла произошла ошибка, попробуйте повторить попытку",
   "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Фио Жителя",
   "filters.Reset": "Сбросить фильтр",
