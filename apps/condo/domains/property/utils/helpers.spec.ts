@@ -4,6 +4,7 @@ import {
     createSorterMap,
     getSortStringFromQuery,
     getPaginationFromQuery,
+    searchToQuery,
 } from './helpers'
 
 describe('Helpers property', () => {
@@ -136,6 +137,22 @@ describe('Helpers property', () => {
 
                 it('is valid and not defined', () => {
                     expect(getPaginationFromQuery({ offset: undefined })).toStrictEqual(1)
+                })
+            })
+        })
+
+        describe('searchToQuery', () => {
+            describe('it should correctly generate query if', () => {
+                const search = 'search'
+
+                it('search is defined', () => {
+                    expect(searchToQuery(search)).toStrictEqual([
+                        { address_contains_i: search },
+                    ])
+                })
+
+                it('search is not defined', () => {
+                    expect(searchToQuery()).toBeUndefined()
                 })
             })
         })

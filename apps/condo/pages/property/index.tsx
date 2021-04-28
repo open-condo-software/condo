@@ -120,7 +120,7 @@ const PropertyPageViewTable = (): React.FC => {
         }
     }, 400), [loading])
 
-    const [search, handeleSearchChange] = useSearch<IFilters>(loading)
+    const [search, handleSearchChange] = useSearch<IFilters>(loading)
 
     const generateExcelData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {
@@ -169,7 +169,7 @@ const PropertyPageViewTable = (): React.FC => {
                         <Col span={6}>
                             <Input
                                 placeholder={SearchPlaceholder}
-                                onChange={(e)=>{handeleSearchChange(e.target.value)}}
+                                onChange={(e)=>{handleSearchChange(e.target.value)}}
                                 value={search}
                             />
                         </Col>

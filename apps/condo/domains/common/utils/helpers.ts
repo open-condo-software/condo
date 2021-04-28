@@ -1,5 +1,4 @@
 import { ParsedUrlQuery } from 'querystring'
-import get from 'lodash/get'
 
 export const formatPhone = (phone?: string): string => {
     if (!phone) {
@@ -7,16 +6,19 @@ export const formatPhone = (phone?: string): string => {
     }
 
     return phone.replace(/(\d)(\d{3})(\d{3})(\d{2})(\d{2})/, '$1 ($2) $3-$4-$5')
+    /*
+        Formats a phone, convert it from number string to string with dividers
+        for example: 01234567890 -> 0 (123) 456-78-90
+    */
 }
 
 export const getFiltersFromQuery = <T>(query: ParsedUrlQuery): T | Record<string, never> => {
-    const filters = get(query, 'filters')
+    const { filters } = query
     if (!filters || typeof filters !== 'string') {
         return {}
     }
     try {
-        const parsed = JSON.parse(filters)
-        return parsed
+        return JSON.parse(filters)
     } catch (e) {
         return {}
     }

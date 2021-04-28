@@ -159,7 +159,7 @@ export const assigneeToQuery = (assignee?: string) => {
     }
 }
 
-export const searchToQuery = (search?: string) => {
+export const searchToQuery = (search?: string): TicketWhereInput[] => {
     if (!search) {
         return
     }

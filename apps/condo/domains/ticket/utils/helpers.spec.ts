@@ -11,6 +11,7 @@ import {
     executorToQuery,
     assigneeToQuery,
     queryToSorter,
+    searchToQuery,
 } from './helpers'
 
 describe('Helpers', () => {
@@ -400,6 +401,39 @@ describe('Helpers', () => {
                 })
             })
 
+        })
+
+        describe('searchToQuery', () => {
+            describe('it should correctly generate query if', () => {
+                const search = 'search'
+
+                it('search is a string', () => {
+                    expect(searchToQuery(search)).toStrictEqual([
+                        { clientName_contains_i: search },
+                        { details_contains_i: search },
+                        { executor: { AND: [{ name_contains_i: search }] } },
+                        { assignee: { AND: [{ name_contains_i: search }] } },
+                        { property: { AND: [{ address_contains_i: search }] } },
+                    ])
+                })
+
+                const search2 = '10'
+
+                it('search is string that can be converted to a number', () => {
+                    expect(searchToQuery(search2)).toStrictEqual([
+                        { clientName_contains_i: search2 },
+                        { details_contains_i: search2 },
+                        { executor: { AND: [{ name_contains_i: search2 }] } },
+                        { assignee: { AND: [{ name_contains_i: search2 }] } },
+                        { number: 10 },
+                        { property: { AND: [{ address_contains_i: search2 }] } },
+                    ])
+                })
+
+                it('search is not defined', () => {
+                    expect(searchToQuery()).toBeUndefined()
+                })
+            })
         })
     })
 })
