@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from 'react'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Typography, Space, Radio, Row, Col, Input, Table } from 'antd'
-import { DatabaseFilled } from '@ant-design/icons'
+import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import Head from 'next/head'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { MapGL } from '@condo/domains/common/components/MapGL'
@@ -33,8 +33,9 @@ import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { useTableColumns } from '@condo/domains/property/hooks/useTableColumns'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-
 import debounce from 'lodash/debounce'
+import { DataImporter } from '@condo/domains/common/components/DataImporter'
+import { PropertyImporter } from '../../domains/property/utils/PropertyImporter'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 
@@ -156,14 +157,16 @@ const PropertyPageViewTable = (): React.FC => {
                 router.push(`/property/${record.id}/`)
             },
         }
-    }, [router])    
-    
+    }, [router])
+
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     if (error || loading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
     }
+
+    const importer = new PropertyImporter()
 
     const isNoProperties = !properties.length && isEmpty(filtersFromQuery)
 
@@ -189,9 +192,22 @@ const PropertyPageViewTable = (): React.FC => {
                             <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData} >{ExportAsExcel}</Button>
                         </Col>
                         <Col span={6} push={6} align={'right'}>
-                            <Button type='sberPrimary' onClick={() => router.push(createRoute)}>
-                                {CreateLabel}
-                            </Button>
+                            <Space size={16}>
+                                <DataImporter
+                                    onUpload={(e) => {
+                                        importer.import(e.data)
+                                    }}
+                                >
+                                    <Button
+                                        type={'sberPrimary'}
+                                        icon={<DiffOutlined />}
+                                        secondary
+                                    />
+                                </DataImporter>
+                                <Button type='sberPrimary' onClick={() => router.push(createRoute)}>
+                                    {CreateLabel}
+                                </Button>
+                            </Space>
                         </Col>
                         <Col span={24}>
                             <Table
