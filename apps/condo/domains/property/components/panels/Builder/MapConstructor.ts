@@ -11,7 +11,7 @@ type Maybe<T> = T | null
 
 export type BuildingUnit = {
     id: Maybe<string>
-    type: string
+    type?: string
     label: string
     floor?: string
     section?: string
@@ -27,9 +27,9 @@ export type BuildingFloor = {
 
 export type BuildingSection = {
     id: string
-    index: number
+    index?: number
     name: string
-    type: string
+    type?: string
     floors?: BuildingFloor[]
     minFloor?: number
     maxFloor?: number
