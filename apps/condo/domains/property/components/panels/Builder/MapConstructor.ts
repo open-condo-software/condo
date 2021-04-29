@@ -40,7 +40,6 @@ export type BuildingSection = {
 export type BuildingMap = {
     dv: number
     sections: BuildingSection[]
-    autoincrement: number
     type: 'building' | 'vilage'
 }
 
@@ -63,31 +62,46 @@ class MapValid {
     public isMapValid: boolean
     public validationError: Maybe<string>
 
+    protected autoincrement: number
+
     constructor (map: BuildingMap) {
         this.map = map ? cloneDeep(map) : buildingEmptyMapJson as BuildingMap
-        this.updateStructure() 
-        this.isMapValid = this.validate()        
+        this.autoincrement = 0
+        this.isMapValid = this.validate()
+        if (!this.isMapValid) {
+            this.updateStructure() 
+            this.isMapValid = this.validate()        
+        }
+        this.setAutoincrement()
+    }
+    
+    private setAutoincrement () {
+        this.autoincrement = Math.max(0, ...this.map.sections
+            .map(section => section.floors
+                .map(floor => floor.units
+                    .map(unit => !isNaN(+unit.id) ? Number(unit.id) : 0)))
+            .flat(2)) + 1
     }
 
     private updateStructure (): void {
-        this.map.autoincrement = 0
+        this.autoincrement = 0
         this.map.sections.forEach((section, idx) => {
             section.type = 'section'
-            section.id = String(++this.map.autoincrement)
+            section.id = String(++this.autoincrement)
             section.index = idx
             section.floors.forEach(floor => {
                 floor.type = 'floor'
-                floor.id = String(++this.map.autoincrement)
+                floor.id = String(++this.autoincrement)
                 floor.units.forEach(unit => {
                     unit.type = 'unit'
-                    unit.id = String(++this.map.autoincrement)
+                    unit.id = String(++this.autoincrement)
                 })
             })
         })
     }
 
-
     validate (): boolean {
+        this.validationError = null
         if (!validator(this.map)){
             this.validationError = JSON.stringify(validator.errors, null, 2)
             return false
@@ -192,7 +206,7 @@ class MapView extends MapValid {
         }
     }
 
-    get sectionOptions (): BuildingSelectOption[] {
+    public  getSectionOptions (): BuildingSelectOption[] {
         const options = this.sections.map(section => ({ id: section.id, label: section.name }))
         return options
     }
@@ -313,10 +327,11 @@ class MapEdit extends MapView {
         let unitNumber = this.nextUnitNumber
         const { name, minFloor, maxFloor, unitsOnFloor } = section
         const newSection = {
-            id: String(++this.map.autoincrement),
+            id: String(++this.autoincrement),
             floors: [],
             name,
             minFloor,
+            index: this.sections.length + 1,
             maxFloor,
             unitsOnFloor,
         }
@@ -332,13 +347,13 @@ class MapEdit extends MapView {
                     unitNumber++
                 }
                 units.push({
-                    id: String(++this.map.autoincrement),
+                    id: String(++this.autoincrement),
                     label,
                     type: 'unit',
                 })
             }
             newSection.floors.unshift({
-                id: String(++this.map.autoincrement),
+                id: String(++this.autoincrement),
                 index: floor,
                 name: String(floor),
                 type: 'floor',
@@ -382,7 +397,7 @@ class MapEdit extends MapView {
             type: 'unit',
         }
         if (!id) {
-            newUnit.id = String(++this.map.autoincrement)
+            newUnit.id = String(++this.autoincrement)
         }
         this.map.sections[sectionIndex].floors[floorIndex].units.push(newUnit)
         this.updateUnitNumbers(newUnit)
@@ -426,9 +441,20 @@ class MapEdit extends MapView {
 }
 
 
+class MapDebug extends MapEdit {
+
+    constructor () {
+        super(null, null)
+    }
+
+    public getMap (): BuildingMap {
+        return this.map
+    }
+}
 
 export {
     MapValid,
     MapView,
     MapEdit,
+    MapDebug,
 }

@@ -46,7 +46,9 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                     :
                     <Col span={24} style={{ marginTop: '60px', whiteSpace: 'nowrap' }}>
                         <ScrollContainer className="scroll-container" style={{ marginTop: '60px', maxWidth: '1200px', maxHeight: '480px' }}>
-                            <BuildingAxisY floors={Builder.possibleFloors} />
+                            {
+                                Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleFloors} /> : null
+                            }
                             {
                                 Builder.sections.map(section => {
                                     return (
@@ -67,7 +69,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                                                         return (
                                                                             <UnitButton
                                                                                 key={unit.id}
-                                                                                disabled
+                                                                                noninteractive
                                                                             >{unit.label}</UnitButton>
                                                                         )
                                                                     })

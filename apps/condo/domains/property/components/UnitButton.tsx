@@ -110,14 +110,22 @@ const selectedCss = css`
 const previewCss = css`
     opacity: 0.5;
 `
+const noninteractiveCss = css`
+    &:hover, &:focus, &:active {
+        background-color: #F5F5F5;
+        color: black;
+        border-color:  #F5F5F5;
+    }
+`
 
 interface CustomButtonProps extends ButtonProps {
     secondary?: boolean
     selected?: boolean
+    noninteractive?: boolean
     preview?: boolean
 }
 
-export const UnitButton: React.FC<CustomButtonProps> = ({ secondary, selected, preview, children, ...restProps }) => {
+export const UnitButton: React.FC<CustomButtonProps> = ({ secondary, selected, preview, noninteractive, children, ...restProps }) => {
     const OriginalLabel = children ? children.toString() : ''
     if (!secondary && OriginalLabel.length > 4) {        
         let ButtonLabel = OriginalLabel
@@ -132,6 +140,7 @@ export const UnitButton: React.FC<CustomButtonProps> = ({ secondary, selected, p
                     ${buttonCss};
                     ${selected ? selectedCss : ''};
                     ${selected ? selectedCss : ''};
+                    ${noninteractive ? noninteractiveCss : ''};                    
                     ${preview ? previewCss : ''};
                 `} {...restProps}>{ButtonLabel}</Button>
             </Tooltip>            
@@ -141,6 +150,7 @@ export const UnitButton: React.FC<CustomButtonProps> = ({ secondary, selected, p
             <Button css={css`
                 ${secondary ? buttonSecondaryCss : buttonCss};
                 ${selected ? selectedCss : ''};
+                ${noninteractive ? noninteractiveCss : ''};
                 ${preview ? previewCss : ''};
             `} {...restProps}>{children || ' ' }</Button>
         )

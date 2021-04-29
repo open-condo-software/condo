@@ -48,7 +48,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, upda
     const mode = Map.editMode
     return (
         <>
-            <Row align='middle' style={{ marginBottom: '40px' }} gutter={[45, 40]} justify='start'>
+            <Row align='middle' style={{ marginBottom: '40px' }} gutter={[45, 10]} justify='start'>
                 {
                     (mode === 'addSection' || mode === 'addUnit') ? (
                         <Col flex={0} style={{ maxWidth: '400px' }}>
@@ -105,7 +105,9 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
                     :
                     <Col span={24} style={{ marginTop: '60px', whiteSpace: 'nowrap' }}>
                         <ScrollContainer className="scroll-container" style={{ marginTop: '60px', maxWidth: '1200px', maxHeight: '480px' }}>
-                            <BuildingAxisY floors={Builder.possibleFloors} />
+                            {
+                                Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleFloors} /> : null
+                            }
                             {
                                 Builder.sections.map(section => {
                                     return (
@@ -113,6 +115,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
                                             key={section.id}
                                             section={section}
                                             Builder={Builder}
+                                            refresh={refresh}
                                         >
                                             {
                                                 Builder.possibleFloors.map(floorIndex => {
@@ -158,9 +161,14 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
 interface IPropertyMapSectionProps {
     section: BuildingSection
     Builder: MapEdit
+    refresh: () => void
 }
 
-const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, Builder }) => {
+const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, Builder, refresh }) => {
+    const chooseSection = (section) => {
+        Builder.setSelectedSection(section)
+        refresh()
+    }
     return (
         <div
             style={{
@@ -173,6 +181,8 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, child
             <UnitButton
                 secondary
                 style={{ width: '100%', marginTop: '8px' }}
+                onClick={() => chooseSection(section)}
+                selected={Builder.isSectionSelected(section.id)}
             >{section.name}</UnitButton>
         </div>
     )
@@ -313,30 +323,40 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
     }
 
     useEffect(() => {
-        setSections(Builder.sectionOptions)
+        setSections(Builder.getSectionOptions())
         const mapUnit = Builder.getSelectedUnit()
         if (mapUnit) {
             setFloors(Builder.getSectionFloorOptions(mapUnit.section))
             setLabel(mapUnit.label)
             setSection(mapUnit.section)
             setFloor(mapUnit.floor)
+        } else {
+            resetForm()  
         }
     }, [Builder])
 
+    const resetForm = () => {
+        setLabel('')
+        setFloor('')
+        setSection('')
+    }
+
     const applyChanges = () => {
         const mapUnit = Builder.getSelectedUnit()
-        console.log(mapUnit)
         if (mapUnit) {
             Builder.mapUpdateUnit({ ...mapUnit, label, floor, section })
         } else {
             Builder.mapAddUnit({ id: null, label, floor, section })
+            resetForm()
         }
-        refresh()
+        refresh()        
     }
+
     const deleteUnit = () => {
         const mapUnit = Builder.getSelectedUnit()
         Builder.mapRemoveUnit(mapUnit.id)
         refresh()
+        resetForm()
     }
 
     return (
@@ -395,6 +415,7 @@ interface IEditSectionFormProps {
     Builder: MapEdit
     refresh(): void        
 }
+
 const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) => {
     const section = Builder.getSelectedSection()
     const [name, setName] = useState('')
@@ -445,7 +466,3 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) 
         </>
     )
 }
-
-
-
-
