@@ -101,7 +101,6 @@ export class PropertyImporter implements IPropertyImporter {
 
                 if (suggestion) {
                     const map = this.createPropertyUnitMap(units.value, sections.value, floors.value)
-                    console.log(map)
 
                     return this.addProperty(suggestion, map)
                 }
@@ -134,6 +133,7 @@ export class PropertyImporter implements IPropertyImporter {
                         map,
                     })
                 }
+
                 return Promise.resolve()
             }).then(() => {
                 this.updateProgress()

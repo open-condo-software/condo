@@ -53,8 +53,8 @@ const TicketsPage = () => {
         // @ts-ignore
         sortBy: sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC', //TODO(Dimitreee):Find cleanest solution
         where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
-        offset: offsetFromQuery,
-        limit: TICKET_PAGE_SIZE,
+        skip: (offsetFromQuery * TICKET_PAGE_SIZE) - TICKET_PAGE_SIZE,
+        first: TICKET_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
     })
@@ -82,9 +82,8 @@ const TicketsPage = () => {
                 // @ts-ignore
                 sortBy: sort,
                 where: filters,
-                offset,
+                skip: offset,
                 first: TICKET_PAGE_SIZE,
-                limit: TICKET_PAGE_SIZE,
             }).then(() => {
                 const query = qs.stringify(
                     { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
