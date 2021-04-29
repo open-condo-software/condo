@@ -74,7 +74,7 @@ const useUploadConfig = (onUpload: OnUpload) => {
 }
 
 interface IDataImporterProps {
-    onUpload: () => void,
+    onUpload: OnUpload,
 }
 
 const FILE_EXTENSIONS = TABLE_UPLOAD_ACCEPT_FILES.map(function (x) { return '.' + x }).join(',')
@@ -82,7 +82,6 @@ const FILE_EXTENSIONS = TABLE_UPLOAD_ACCEPT_FILES.map(function (x) { return '.' 
 export const DataImporter: React.FC<IDataImporterProps> = (props) => {
     const intl = useIntl()
     const ImportFromExcelMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
-
 
     const uploadConfig = useUploadConfig(props.onUpload)
 

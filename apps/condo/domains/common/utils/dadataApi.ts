@@ -22,7 +22,8 @@ export class DadataApi implements IDadataApi {
                 Authorization: `Token ${this.apiToken}`,
             },
             body: JSON.stringify({ query }),
-        })
+        }).then(response => response.text())
+            .then((res) => JSON.parse(res))
     }
 
     // TODO(Dimitreee): remove any
@@ -44,5 +45,4 @@ export class DadataApi implements IDadataApi {
 
     private suggestionsUrl: string
     private apiToken: string
-    private normalizeUrl = 'https://cleaner.dadata.ru/api/v1/clean/address'
 }

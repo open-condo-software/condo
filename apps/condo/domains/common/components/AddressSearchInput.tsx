@@ -1,4 +1,3 @@
-import getConfig from 'next/config'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Select, Spin } from 'antd'
 import debounce from 'lodash/debounce'
@@ -9,11 +8,9 @@ import { DadataApi, IDadataApi } from '../utils/dadataApi'
 const DEBOUNCE_TIMEOUT = 800
 
 async function searchAddress (api: IDadataApi, query) {
-    const response = await api.getSuggestions(query)
+    const { suggestions } = await api.getSuggestions(query)
 
-    const { suggestions } = await response.json()
     // FORMAT: { suggestions: [ { value: "Address1", meta1: value1, meta2: value2, ... }, ... ] }
-
     return suggestions.map(suggestion => {
         const cleanedSuggestion = pickBy(suggestion, identity)
 

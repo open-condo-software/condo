@@ -10,7 +10,6 @@
 import isEqual from 'lodash/isEqual'
 import get from 'lodash/get'
 import cloneDeep from 'lodash/cloneDeep'
-import { Scalars } from '../../../schema'
 import { DadataApi, IDadataApi } from '../../common/utils/dadataApi'
 import { BDataSection, BDataTypes, createNewBBuildingSectionData } from './BBuildingData'
 
@@ -22,65 +21,117 @@ type IBuildingMap = {
     sections: Array<BDataSection>
 }
 
+export type ProgressUpdateHandler = (progress: number) => void
+export type FinishHandler = () => void
+export type ErrorHandler = (error: Error) => void
 
 interface IPropertyImporter {
     import: (data: Array<TableRow>) => Promise<void>
+    onProgressUpdate: (handleProgressUpdate: ProgressUpdateHandler) => void
+    onFinish: (handleFinish: FinishHandler) => void
+    onError: (handleError: ErrorHandler) => void
+    break: () => void
 }
 
 export class PropertyImporter implements IPropertyImporter {
-    constructor (private dadataApi: IDadataApi = new DadataApi() ) {
-    }
+    constructor (
+        // TODO(Dimitreee): remove any
+        private propertyCreator: (...args: any) => Promise<any>,
+        private propertyValidator: (address: string) => Promise<boolean>,
+        private dadataApi: IDadataApi = new DadataApi(),
+    ) {}
 
+    // TODO(Dimitreee): remove any
     public import (data: Array<TableRow>): Promise<any> {
-        const [columns, ...body] = data
+        this.tableData = data
+        const [columns, ...body] = this.tableData
 
         if (!this.isColumnsValid(columns)) {
+            this.errorHandler(new Error('Таблица имеет некорректную структуру. Обратитесь к администратору за дополнительной информацией.'))
+
             return
         }
 
-        return this.normalizeAddress(cloneDeep(body))
+        return this.createPropertyRecord(cloneDeep(body)).catch(e => {
+            this.errorHandler(e)
+        })
     }
 
-    private async normalizeAddress (table) {
+    public onProgressUpdate (handleProgressUpdate: ProgressUpdateHandler): void {
+        this.progressUpdateHandler = handleProgressUpdate
+    }
+
+    public break = () => {
+        this.breakImport = true
+    }
+
+    public onFinish (handleFinish: FinishHandler): void {
+        this.finishHandler = handleFinish
+    }
+
+    public onError (handleError: ErrorHandler): void {
+        this.errorHandler = handleError
+    }
+
+    private async createPropertyRecord (table, index = 0) {
+        if (this.breakImport) {
+            return Promise.resolve()
+        }
+
         if (!table.length) {
+            this.updateProgress(100)
+            this.finishHandler()
+
             return Promise.resolve()
         }
 
         const row = table.shift()
 
         if (!this.isRowValid(row)) {
-            return this.normalizeAddress(table)
+            return this.createPropertyRecord(table, index++)
         }
 
         const [address, units, sections, floors] = row
 
         return this.dadataApi
             .getSuggestions(String(address.value))
-            .then(response => response.text())
             .then((result) => {
-                const suggestion = get(JSON.parse(result), ['suggestions', 0])
+                const suggestion = get(result, ['suggestions', 0])
 
                 if (suggestion) {
-                    const { value, data } = suggestion
-
-                    return this.addProperty(value, data)
+                    return this.addProperty(suggestion)
                 }
 
                 return Promise.resolve()
-            }).then(() => {
+            })
+            .then(() => {
                 return sleep(300)
-            }).then(() => {
-                return this.normalizeAddress(table)
+            })
+            .then(() => {
+                return this.createPropertyRecord(table, index++)
+            })
+            .catch(e => {
+                this.errorHandler(e)
             })
     }
 
-    private addProperty (value: string, addressMeta: Scalars['JSON']) {
+    private addProperty (property) {
+        return this.validateAddress(property.value)
+            .then((isPropertyValid) => {
+                if (isPropertyValid) {
+                    const { value } = property
 
-        console.log('addProperty', value)
-
-        // добавляет объект в базку
-
-        return Promise.resolve()
+                    return this.propertyCreator({
+                        type: 'building',
+                        name: value,
+                        dv: 1,
+                        address: value,
+                        addressMeta: property,
+                    })
+                }
+            }).then(() => {
+                this.updateProgress()
+            })
     }
 
     private isColumnsValid (row: TableRow): boolean {
@@ -106,9 +157,25 @@ export class PropertyImporter implements IPropertyImporter {
         )
     }
 
-    private validateAddress (address: string): boolean {
-        // ходит в апишку и проверяет все данные
-        return true
+    private updateProgress (value?: number) {
+        if (value) {
+            this.progress.current = value
+        } else {
+            const step = 100 / (this.tableData.length - 1)
+            const nextProgress = this.progress.current + step
+
+            if (nextProgress < 100) {
+                this.progress.current = nextProgress
+            } else {
+                this.progress.current = 100
+            }
+        }
+
+        this.progressUpdateHandler(this.progress.current)
+    }
+
+    private validateAddress (address: string): Promise<boolean> {
+        return this.propertyValidator(address)
     }
 
     private createPropertyUnitMap (units: number, sections: number, floors: number): IBuildingMap {
@@ -145,8 +212,13 @@ export class PropertyImporter implements IPropertyImporter {
         max: 100,
         current: 0,
     }
+    private tableData: Array<TableRow> = []
+    private progressUpdateHandler: ProgressUpdateHandler
+    private finishHandler: FinishHandler
+    private errorHandler: ErrorHandler
+    private breakImport = false
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+function sleep (ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms))
 }
