@@ -209,7 +209,7 @@ const VALIDATORS = {
 
 type Validator = (...args: Array<unknown>) => Record<string, string>
 
-export function validate(formatter, value, validators: Record<string, Validator> = VALIDATORS) {
+export function validate ( formatter, value, validators: Record<string, Validator> = VALIDATORS) {
     if (!validators[formatter]) throw new Error(`unknown formatter ${formatter}`)
     const validator = validators[formatter]
     if (value === null || value === undefined) value = ''
@@ -229,7 +229,7 @@ export function toExData (data) {
     return exData
 }
 
-export function reValidateExData(exData, currentSettings, newSettings, validators: Record<string, Validator> = VALIDATORS) {
+export function reValidateExData (exData, currentSettings, newSettings, validators: Record<string, Validator> = VALIDATORS) {
     Object.entries(newSettings).forEach(([colIndex, formatter]) => {
         if (!formatter) return
         for (let i = 0; i < exData.length; i++) {
