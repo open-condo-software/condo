@@ -27,14 +27,12 @@ const useImporter = (onFinish, onError) => {
     const createProperty = Property.useCreate(
         {
             organization: userOrganizationId,
-            map: buildingMapJson,
         },
         () => Promise.resolve()
     )
 
     const validateProperty = (address) => searchProperty(userOrganizationId)(client, address)
         .then((res) => {
-            console.log(res.length, address)
             return res.length === 0
         })
 
@@ -188,7 +186,10 @@ export const PropertyImport: React.FC<IPropertyImport> = (props) => {
 
     const handleUpload = useCallback((file) => {
         destroyActiveModal()
-        const config = getPropertyUploadInfoModalConfig(breakImport)
+        const config = getPropertyUploadInfoModalConfig(() => {
+            breakImport()
+            props.onFinish()}
+        )
         activeModal.current = modal.info(config)
 
         importData(file.data)
