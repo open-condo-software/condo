@@ -10,8 +10,9 @@
 import isEqual from 'lodash/isEqual'
 import get from 'lodash/get'
 import cloneDeep from 'lodash/cloneDeep'
+import { Scalars } from '../../../schema'
 import { DadataApi, IDadataApi } from '../../common/utils/dadataApi'
-import { BDataSection, BDataTypes, createNewBBuildingSectionData } from './BBuildingData'
+import { BDataSection, BDataTypes, createNewBBuildingSectionData, updateUnitsLabels } from './BBuildingData'
 
 type TableRow = Array<Record<'value', string | number>>
 
@@ -99,7 +100,10 @@ export class PropertyImporter implements IPropertyImporter {
                 const suggestion = get(result, ['suggestions', 0])
 
                 if (suggestion) {
-                    return this.addProperty(suggestion)
+                    const map = this.createPropertyUnitMap(units.value, sections.value, floors.value)
+                    console.log(map)
+
+                    return this.addProperty(suggestion, map)
                 }
 
                 return Promise.resolve()
@@ -115,20 +119,22 @@ export class PropertyImporter implements IPropertyImporter {
             })
     }
 
-    private addProperty (property) {
+    private addProperty (property, map: Scalars['JSON']) {
         return this.validateAddress(property.value)
             .then((isPropertyValid) => {
                 if (isPropertyValid) {
                     const { value } = property
 
                     return this.propertyCreator({
+                        dv: 1,
                         type: 'building',
                         name: value,
-                        dv: 1,
                         address: value,
-                        addressMeta: property,
+                        addressMeta: { ...property, dv: 1 },
+                        map,
                     })
                 }
+                return Promise.resolve()
             }).then(() => {
                 this.updateProgress()
             })
@@ -183,7 +189,6 @@ export class PropertyImporter implements IPropertyImporter {
         if (!unitsPerFloor) {
             return
         }
-        // const unitsDelta = units - (unitsPerFloor * floors * sections)
 
         const propertyUnitsMap = {
             dv: 1,
@@ -203,8 +208,10 @@ export class PropertyImporter implements IPropertyImporter {
             propertyUnitsMap.sections.push(sectionData)
         }
 
+        const updatedSections = updateUnitsLabels(propertyUnitsMap)
+
         // TODO: непонятно что делать с оставшимися после округления квартирами
-        return propertyUnitsMap
+        return { ...updatedSections, dv: 1, type: BDataTypes.Building }
     }
 
     private progress = {
