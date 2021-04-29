@@ -1,0 +1,98 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+        "dv": {
+            "type": "number"
+        },
+        "sections": {
+            "items": {
+                "properties": {
+                    "floors": {
+                        "items": {
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "index": {
+                                    "type": "number"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "units": {
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "label": {
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "id",
+                                            "label",
+                                            "type"
+                                        ],
+                                        "type": "object"
+                                    },
+                                    "type": "array"
+                                }
+                            },
+                            "required": [
+                                "id",
+                                "index",
+                                "name",
+                                "type",
+                                "units"
+                            ],
+                            "type": "object"
+                        },
+                        "type": "array"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "index": {
+                        "type": "number"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "floors",
+                    "id",
+                    "index",
+                    "name",
+                    "type"
+                ],
+                "type": "object"
+            },
+            "type": "array"
+        },
+        "type": {
+            "enum": [
+                "building",
+                "vilage"
+            ],
+            "type": "string"
+        }
+    },
+    "required": [
+        "dv",
+        "sections",
+        "type"
+    ],
+    "type": "object"
+}
+

@@ -1,12 +1,18 @@
 import { useIntl } from '@core/next/intl'
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Col, Row, Typography, Checkbox, Input, Select, InputNumber, Space } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { DeleteFilled } from '@ant-design/icons'
 import { cloneDeep } from 'lodash'
+import { 
+    EmptyBuildingBlock, 
+    EmptyFloor, 
+    BuildingAxisY, 
+    BuildingChooseSections,
+} from './BuildingPanelCommon'
 import { Button } from '@condo/domains/common/components/Button'
-import { UnitButton } from '../../components/UnitButton'
-import MapConstructor, {
+import { UnitButton } from '../../UnitButton'
+import {
+    MapEdit,
     BuildingMap,
     BuildingUnit,
     BuildingSection,
@@ -20,119 +26,26 @@ const INPUT_STYLE = {
     width: '136px',
 }
 
-interface IBuildingPanelViewProps {
-    map: BuildingMap
-}
 interface IBuildingPanelEditProps {
     map: BuildingMap
     updateMap: (map: BuildingMap) => void
 }
-interface IEditMapProps {
-    Builder: MapConstructor
-    refresh(): void
-}
-interface IPropertyMapUnitProps {
-    unit: BuildingUnit
-    Builder: MapConstructor
-    refresh(): void
-}
 
-interface IBuildingAxisY {
-    floors: number[]
-}
-interface IChooseSections {
-    Builder: MapConstructor
-    refresh(): void
-}
-interface IPropertyMapSectionProps {
-    section: BuildingSection
-    Builder: MapConstructor
-    refresh(): void
-}
-
-
-// Service blocks
-
-const EmptyBuildingBlock: React.FC = () => {
+export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, updateMap: updateFormField }) => {
     const intl = useIntl()
-    const EmptyPropertyBuildingHeader = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingHeader' })
-    const EmptyPropertyBuildingDescription = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingDescription' })
-    const descriptionStyle = {
-        display: 'flex',
-        fontSize: '16px',
-        maxWidth: '350px',
-    }
-    return (
-        <BasicEmptyListView image='/propertyEmpty.svg' >
-            <Typography.Title level={3} >
-                {EmptyPropertyBuildingHeader}
-            </Typography.Title>
-            <Typography.Text style={descriptionStyle}>
-                {EmptyPropertyBuildingDescription}
-            </Typography.Text>
-        </BasicEmptyListView>
-    )
-}
 
-
-const BuildingAxisY: React.FC<IBuildingAxisY> = ({ floors }) => {
-    return (
-        <div style={{ display: 'inline-block', marginRight: '12px' }}>
-            {
-                floors.map(floorNum => (
-                    <UnitButton secondary disabled key={`floor_${floorNum}`} style={{ display: 'block' }}>{floorNum}</UnitButton>
-                ))
-            }
-            <UnitButton secondary disabled >&nbsp;</UnitButton>
-        </div>
-    )
-}
-
-
-// View
-
-const BuildingPanelView: React.FC<IBuildingPanelViewProps> = ({ map }) => {
-    const [Map, setMap] = useState(new MapConstructor(map, null))
+    const [Map, setMap] = useState(new MapEdit(map, updateFormField))
+    // TODO(zuch): Ask for a better solution
     const refresh = () => setMap(cloneDeep(Map))
-    return (
-        <PropertyMapView Builder={Map} refresh={refresh}></PropertyMapView>
-    )
-}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, updateMap: updateFormField }) => {
-    const intl = useIntl()
-    const [Map, setMap] = useState(new MapConstructor(map, updateFormField))
-    const refresh = () => setMap(cloneDeep(Map))
     const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
-    const isEmptyMap = Map.isEmpty()
     const changeMode = (mode) => {
-        Map.setEditMode(mode)
+        Map.editMode = mode
         refresh()
     }
-    const mode = Map.getEditMode()
+    const mode = Map.editMode
     return (
         <>
             <Row align='middle' style={{ marginBottom: '40px' }} gutter={[45, 40]} justify='start'>
@@ -160,13 +73,13 @@ const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, updateMap: 
             </Row>
             <Row>
                 {
-                    isEmptyMap
+                    Map.isEmpty
                         ?
                         <Col span={24}>
                             <EmptyBuildingBlock />
                         </Col>
                         :
-                        <PropertyMap
+                        <ChessBoard
                             Builder={Map}
                             refresh={refresh}
                         />
@@ -176,59 +89,25 @@ const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, updateMap: 
     )
 }
 
-
-
-
-
-
-
-
-
-const BuildingChooseSections: React.FC<IChooseSections> = ({ Builder, refresh }) => {
-    const updateVisibleSections = (value) => {
-        Builder.setVisibleSections(value)
-        refresh()
-    }
-    const sections = Builder.getSections()
-    if (sections.length < 2) {
-        return (
-            null
-        )
-    }
-    return (
-        <Checkbox.Group onChange={updateVisibleSections} value={Builder.visibleSections} style={{ width: '100%' }} >
-            <Row gutter={[40, 40]} style={{ marginTop: '60px' }}>
-                {
-                    sections.map(section => (
-                        <Col key={section.id} flex={0}>
-                            <Checkbox value={section.id}>{section.name}</Checkbox>
-                        </Col>
-                    ))
-                }
-                <Col flex="auto" />
-            </Row>
-        </Checkbox.Group>
-    )
+interface IChessBoardProps {
+    Builder: MapEdit
+    refresh(): void    
 }
 
-
-export const PropertyMap: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
-    const isEmptyMap = Builder.isEmpty()
-    const allFloors = Builder.getPossibleFloors()
-    const sections = Builder.getSections()
+const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
     return (
         <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
             {
-                isEmptyMap ?
+                Builder.isEmpty ?
                     <Col span={24} style={{ marginTop: '60px', marginBottom: '60px' }}>
                         <EmptyBuildingBlock />
                     </Col>
                     :
                     <Col span={24} style={{ marginTop: '60px', whiteSpace: 'nowrap' }}>
                         <ScrollContainer className="scroll-container" style={{ marginTop: '60px', maxWidth: '1200px', maxHeight: '480px' }}>
-                            <BuildingAxisY floors={allFloors} />
+                            <BuildingAxisY floors={Builder.possibleFloors} />
                             {
-                                sections.map(section => {
+                                Builder.sections.map(section => {
                                     return (
                                         <PropertyMapSection
                                             key={section.id}
@@ -237,7 +116,7 @@ export const PropertyMap: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
                                             refresh={refresh}
                                         >
                                             {
-                                                allFloors.map(floorIndex => {
+                                                Builder.possibleFloors.map(floorIndex => {
                                                     const floorInfo = section.floors.find(floor => floor.index === floorIndex)
                                                     if (floorInfo && floorInfo.units.length) {
                                                         return (
@@ -258,7 +137,7 @@ export const PropertyMap: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
                                                         )
                                                     } else {
                                                         return (
-                                                            <div key={`empty_${section.id}_${floorIndex}`} style={{ display: 'block', height: '40px', margin: '1px' }}>&nbsp;</div>
+                                                            <EmptyFloor key={`empty_${section.id}_${floorIndex}`} />
                                                         )
                                                     }
                                                 })
@@ -277,78 +156,63 @@ export const PropertyMap: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
     )
 }
 
+interface IPropertyMapSectionProps {
+    section: BuildingSection
+    Builder: MapEdit
+}
 
-export const PropertyMapView: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
-    const isEmptyMap = Builder.isEmpty()
-    const allFloors = Builder.getPossibleFloors()
-    const sections = Builder.getSections()
+const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, Builder }) => {
     return (
-        <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
-            {
-                isEmptyMap ?
-                    <Col span={24} style={{ marginTop: '60px', marginBottom: '60px' }}>
-                        <EmptyBuildingBlock />
-                    </Col>
-                    :
-                    <Col span={24} style={{ marginTop: '60px', whiteSpace: 'nowrap' }}>
-                        <ScrollContainer className="scroll-container" style={{ marginTop: '60px', maxWidth: '1200px', maxHeight: '480px' }}>
-                            <BuildingAxisY floors={allFloors} />
-                            {
-                                sections.map(section => {
-                                    return (
-                                        <div key={section.id}
-                                            style={{
-                                                display: Builder.isSectionVisible(section.id) ? 'inline-block' : 'none',
-                                                marginRight: '12px',
-                                                textAlign: 'center',
-                                            }}
-                                        >{
-                                                allFloors.map(floorIndex => {
-                                                    const floorInfo = section.floors.find(floor => floor.index === floorIndex)
-                                                    if (floorInfo && floorInfo.units.length) {
-                                                        return (
-                                                            <div key={floorInfo.id} style={{ display: 'block' }}>
-                                                                {
-                                                                    floorInfo.units.map(unit => {
-                                                                        return (
-                                                                            <UnitButton
-                                                                                key={unit.id}
-                                                                                disabled
-                                                                            >{unit.label}</UnitButton>                                                                
-                                                                        )
-                                                                    })
-                                                                }
-                                                            </div>
-                                                        )
-                                                    } else {
-                                                        return (
-                                                            <div key={`empty_${section.id}_${floorIndex}`} style={{ display: 'block', height: '40px', margin: '1px' }}>&nbsp;</div>
-                                                        )
-                                                    }
-                                                })
-                                            }
-                                            <UnitButton
-                                                secondary
-                                                style={{ width: '100%', marginTop: '8px' }}
-                                                disabled
-                                            >{section.name}</UnitButton>
-                                        </div>
-                                    )
-                                })
-                            }
-                        </ScrollContainer>
-                        {
-                            <BuildingChooseSections Builder={Builder} refresh={refresh}></BuildingChooseSections>
-                        }
-                    </Col>
-            }
-        </Row>
+        <div
+            style={{
+                display: Builder.isSectionVisible(section.id) ? 'inline-block' : 'none',
+                marginRight: '12px',
+                textAlign: 'center',
+            }}
+        >
+            {children}
+            <UnitButton
+                secondary
+                style={{ width: '100%', marginTop: '8px' }}
+            >{section.name}</UnitButton>
+        </div>
+    )
+}
+
+const PropertyMapFloor: React.FC = ({ children }) => {
+    return (
+        <div style={{ display: 'block' }}>
+            {children}
+        </div>
+    )
+}
+
+interface IPropertyMapUnitProps {
+    unit: BuildingUnit
+    Builder: MapEdit
+    refresh(): void        
+}
+
+const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ Builder, refresh, unit }) => {
+    const selectUnit = (unit) => {
+        Builder.setSelectedUnit(unit)
+        refresh()
+    }
+    return (
+        <UnitButton
+            onClick={() => selectUnit(unit)}
+            selected={Builder.isUnitSelected(unit.id)}
+        >{unit.label}</UnitButton>
     )
 }
 
 
+interface IAddSectionFormProps {
+    Builder: MapEdit
+    refresh(): void        
+}
 
-const AddSectionForm: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
+const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) => {
     const intl = useIntl()
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
@@ -416,55 +280,14 @@ const AddSectionForm: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
 }
 
 
-const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, Builder, refresh }) => {
-    const chooseSection = (section) => {
-        Builder.setSelectedSection(section)
-        refresh()
-    }
-    return (
-        <div
-            style={{
-                display: Builder.isSectionVisible(section.id) ? 'inline-block' : 'none',
-                marginRight: '12px',
-                textAlign: 'center',
-            }}
-        >
-            {children}
-            <UnitButton
-                secondary
-                style={{ width: '100%', marginTop: '8px' }}
-                onClick={() => chooseSection(section)}
-                selected={Builder.isSectionSelected(section.id)}
-            >{section.name}</UnitButton>
-        </div>
-    )
+interface IUnitFormProps {
+    Builder: MapEdit
+    refresh(): void        
 }
 
-const PropertyMapFloor: React.FC = ({ children }) => {
-    return (
-        <div style={{ display: 'block' }}>
-            {children}
-        </div>
-    )
-}
-
-const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ Builder, refresh, unit }) => {
-    const selectUnit = (unit) => {
-        Builder.setSelectedUnit(unit)
-        refresh()
-    }
-    return (
-        <UnitButton
-            onClick={() => selectUnit(unit)}
-            selected={Builder.isUnitSelected(unit.id)}
-        >{unit.label}</UnitButton>
-    )
-}
-
-
-const UnitForm: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
+const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
     const intl = useIntl()
-    const mode = Builder.getEditMode()
+    const mode = Builder.editMode
     const SaveLabel = intl.formatMessage({ id: mode === 'editUnit' ? 'Save' : 'Add' })
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.unit.Name' })
     const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
@@ -491,7 +314,7 @@ const UnitForm: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
     }
 
     useEffect(() => {
-        setSections(Builder.getSectionOptions())
+        setSections(Builder.sectionOptions)
         const mapUnit = Builder.getSelectedUnit()
         if (mapUnit) {
             setFloors(Builder.getSectionFloorOptions(mapUnit.section))
@@ -569,7 +392,11 @@ const UnitForm: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
     )
 }
 
-const EditSectionForm: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
+interface IEditSectionFormProps {
+    Builder: MapEdit
+    refresh(): void        
+}
+const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) => {
     const section = Builder.getSelectedSection()
     const [name, setName] = useState('')
     const intl = useIntl()
@@ -621,9 +448,5 @@ const EditSectionForm: React.FC<IEditMapProps> = ({ Builder, refresh }) => {
 }
 
 
-export {
-    BuildingPanelEdit,
-    BuildingPanelView,
-}
 
 
