@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from 'react'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Typography, Space, Radio, Row, Col, Input, Table } from 'antd'
-import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
+import { DatabaseFilled } from '@ant-design/icons'
 import Head from 'next/head'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { MapGL } from '@condo/domains/common/components/MapGL'
@@ -34,8 +34,7 @@ import { useTableColumns } from '@condo/domains/property/hooks/useTableColumns'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import debounce from 'lodash/debounce'
-import { DataImporter } from '@condo/domains/common/components/DataImporter'
-import { PropertyImporter } from '../../domains/property/utils/PropertyImporter'
+import { PropertyImport } from '../../domains/property/components/PropertyImport'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 
@@ -83,6 +82,7 @@ const PropertyPageViewTable = (): React.FC => {
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
 
     const {
+        refetch,
         fetchMore,
         loading,
         error,
@@ -166,8 +166,6 @@ const PropertyPageViewTable = (): React.FC => {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
     }
 
-    const importer = new PropertyImporter()
-
     const isNoProperties = !properties.length && isEmpty(filtersFromQuery)
 
     return (
@@ -193,17 +191,7 @@ const PropertyPageViewTable = (): React.FC => {
                         </Col>
                         <Col span={6} push={6} align={'right'}>
                             <Space size={16}>
-                                <DataImporter
-                                    onUpload={(e) => {
-                                        importer.import(e.data)
-                                    }}
-                                >
-                                    <Button
-                                        type={'sberPrimary'}
-                                        icon={<DiffOutlined />}
-                                        secondary
-                                    />
-                                </DataImporter>
+                                <PropertyImport onFinish={refetch}/>
                                 <Button type='sberPrimary' onClick={() => router.push(createRoute)}>
                                     {CreateLabel}
                                 </Button>
@@ -220,6 +208,7 @@ const PropertyPageViewTable = (): React.FC => {
                                 columns={tableColumns}
                                 onChange={handleTableChange}
                                 pagination={{
+                                    showSizeChanger: false,
                                     total,
                                     current: offsetFromQuery,
                                     pageSize: PROPERTY_PAGE_SIZE,
