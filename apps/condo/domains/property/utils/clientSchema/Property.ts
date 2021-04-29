@@ -12,7 +12,7 @@ import { Property, PropertyUpdateInput, QueryAllPropertiesArgs } from '../../../
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'address', 'addressMeta', 'type', 'map', 'ticketsInWork', 'ticketsClosed', 'unitsCount']
 const RELATIONS = ['organization']
-import { BuildingMap } from '../../components/panels/MapConstructor'
+import { BuildingMap } from '@condo/domains/property/components/panels/Builder/MapConstructor'
 
 export interface IPropertyUIState extends Property {
     id: string
