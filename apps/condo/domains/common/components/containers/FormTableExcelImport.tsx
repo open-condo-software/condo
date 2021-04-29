@@ -137,6 +137,7 @@ function ExcelExporterButton ({ columns, setExportedData }) {
             const wsname = wb.SheetNames[0]
             const ws = wb.Sheets[wsname]
             /* Convert array of arrays */
+            // @ts-ignore
             const cols = makeAntdCols(ws['!ref'], { render: renderCell })
             const data = makeAntdData(ws)
             setStep(2)
