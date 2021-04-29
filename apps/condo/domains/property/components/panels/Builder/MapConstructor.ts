@@ -11,26 +11,25 @@ type Maybe<T> = T | null
 
 export type BuildingUnit = {
     id: Maybe<string>
-    type?: string
-    label?: string
+    type: string
+    label: string
     floor?: string
     section?: string
-    isPreview?: boolean
 }
 
 export type BuildingFloor = {
     id: string
     index: number
     name: string
-    type: 'floor'
+    type: string
     units: BuildingUnit[]
 }
 
 export type BuildingSection = {
     id: string
-    index?: number
-    name?: string
-    type?: 'section'
+    index: number
+    name: string
+    type: string
     floors?: BuildingFloor[]
     minFloor?: number
     maxFloor?: number
@@ -361,10 +360,8 @@ class MapEdit extends MapView {
             id: String(++this.autoincrement),
             floors: [],
             name,
-            minFloor,
             index: this.sections.length + 1,
-            maxFloor,
-            unitsOnFloor,
+            type: 'section',
         }
         for (let floor = minFloor; floor <= maxFloor; floor++) {
             if (floor === 0) {
