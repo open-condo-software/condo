@@ -94,8 +94,8 @@ const PropertyPageViewTable = (): React.FC => {
             ...filtersToQuery(filtersFromQuery),
             organization: { id: userOrganizationId },
         },
-        offset: offsetFromQuery,
-        limit: PROPERTY_PAGE_SIZE,
+        skip: (offsetFromQuery * PROPERTY_PAGE_SIZE) - PROPERTY_PAGE_SIZE,
+        first: PROPERTY_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
     })
@@ -112,9 +112,8 @@ const PropertyPageViewTable = (): React.FC => {
             fetchMore({
                 sortBy: sort,
                 where: filters,
-                offset,
+                skip: offset,
                 first: PROPERTY_PAGE_SIZE,
-                limit: PROPERTY_PAGE_SIZE,
             }).then(() => {
                 const query = qs.stringify(
                     { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },

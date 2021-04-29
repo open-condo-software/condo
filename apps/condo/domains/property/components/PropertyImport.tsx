@@ -10,7 +10,6 @@ import { useApolloClient } from '@core/next/apollo'
 import { Button } from '../../common/components/Button'
 import { DataImporter } from '../../common/components/DataImporter'
 import { searchProperty } from '../../ticket/utils/clientSchema/search'
-import { buildingMapJson } from '../constants/property'
 import { Property } from '../utils/clientSchema'
 import { PropertyImporter } from '../utils/PropertyImporter'
 
