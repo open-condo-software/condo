@@ -8,7 +8,7 @@ import {
 import { Col, Row } from 'antd'
 import React, { useState } from 'react'
 import { cloneDeep } from 'lodash'
-import { UnitButton } from '../../UnitButton'
+import { UnitButton } from '@condo/domains/property/components/UnitButton'
 import {
     MapView,
     BuildingMap,

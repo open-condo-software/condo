@@ -1,25 +1,16 @@
 import { useIntl } from '@core/next/intl'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { Col, Row, Typography, Checkbox, Input, Select, InputNumber, Space } from 'antd'
-import React, { useEffect, useState } from 'react'
-import { DeleteFilled } from '@ant-design/icons'
-import { cloneDeep } from 'lodash'
-import { Button } from '@condo/domains/common/components/Button'
-import { UnitButton } from '../../UnitButton'
-import {
-    MapConstructorView,
-    MapConstructorEdit,
-    BuildingMap,
-    BuildingUnit,
-    BuildingSection,
-} from './MapConstructor'
+import { Col, Row, Typography, Checkbox } from 'antd'
+import React from 'react'
+import { UnitButton } from '@condo/domains/property/components/UnitButton'
+import { MapEdit, MapView } from './MapConstructor'
 
-import ScrollContainer from 'react-indiana-drag-scroll'
-
-const { Option } = Select
-
-const INPUT_STYLE = {
-    width: '136px',
+export const PropertyMapFloor: React.FC = ({ children }) => {
+    return (
+        <div style={{ display: 'block' }}>
+            {children}
+        </div>
+    )
 }
 
 export const EmptyFloor: React.FC = () => {
@@ -69,7 +60,7 @@ export const BuildingAxisY: React.FC<IBuildingAxisYProps> = ({ floors }) => {
 }
 
 interface IBuildingChooseSectionsProps {
-    Builder: MapConstructorEdit | MapConstructorView
+    Builder: MapEdit | MapView
     refresh(): void
 }
 

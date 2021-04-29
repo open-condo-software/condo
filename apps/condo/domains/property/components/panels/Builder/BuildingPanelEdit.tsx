@@ -1,5 +1,5 @@
 import { useIntl } from '@core/next/intl'
-import { Col, Row, Typography, Checkbox, Input, Select, InputNumber, Space } from 'antd'
+import { Col, Row, Typography, Input, Select, InputNumber, Space } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { DeleteFilled } from '@ant-design/icons'
 import { cloneDeep } from 'lodash'
@@ -10,7 +10,7 @@ import {
     BuildingChooseSections,
 } from './BuildingPanelCommon'
 import { Button } from '@condo/domains/common/components/Button'
-import { UnitButton } from '../../UnitButton'
+import { UnitButton } from '@condo/domains/property/components/UnitButton'
 import {
     MapEdit,
     BuildingMap,
@@ -113,7 +113,6 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
                                             key={section.id}
                                             section={section}
                                             Builder={Builder}
-                                            refresh={refresh}
                                         >
                                             {
                                                 Builder.possibleFloors.map(floorIndex => {
