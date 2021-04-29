@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from 'react'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Typography, Space, Radio, Row, Col, Tooltip, Input, Table } from 'antd'
-import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
+import { DatabaseFilled } from '@ant-design/icons'
 import Head from 'next/head'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { MapGL } from '@condo/domains/common/components/MapGL'
@@ -35,8 +35,7 @@ import {
 import { AddressSearchInput } from '@condo/domains/common/components/AddressSearchInput'
 import { Form, Select } from 'antd'
 import { buildingMapJson } from '@condo/domains/property/constants/property'
-import { DataImporter } from '@condo/domains/common/components/DataImporter'
-import { PropertyImporter } from '../../domains/property/utils/PropertyImporter'
+import { PropertyImport } from '../../domains/property/components/PropertyImport'
 
 // TODO(zuch): Change from modal to create page
 function CreateAndEditPropertyModalForm ({ action, visible, editableItem, cancelModal }) {
@@ -249,10 +248,7 @@ const PropertyPageViewTable = (): React.FC => {
         }
     }, [router])
 
-    const importer = new PropertyImporter()
-
     const noProperties = !properties.length && !filtersFromQuery
-
 
     return (
         <>
@@ -277,17 +273,7 @@ const PropertyPageViewTable = (): React.FC => {
                         </Col>
                         <Col span={6} push={6} align={'right'}>
                             <Space size={16}>
-                                <DataImporter
-                                    onUpload={(e) => {
-                                        importer.import(e.data)
-                                    }}
-                                >
-                                    <Button
-                                        type={'sberPrimary'}
-                                        icon={<DiffOutlined />}
-                                        secondary
-                                    />
-                                </DataImporter>
+                                <PropertyImport onFinish={refetch}/>
                                 <CreatePropertyModalBlock modal={modal} create={create} />
                             </Space>
                         </Col>
@@ -302,6 +288,7 @@ const PropertyPageViewTable = (): React.FC => {
                                 columns={tableColumns}
                                 onChange={handleTableChange}
                                 pagination={{
+                                    showSizeChanger: false,
                                     total,
                                     current: offsetFromQuery,
                                     pageSize: PROPERTY_PAGE_SIZE,

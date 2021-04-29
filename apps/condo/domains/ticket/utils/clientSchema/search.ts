@@ -44,6 +44,7 @@ async function _search (client, query, variables) {
     return await client.query({
         query: query,
         variables: variables,
+        fetchPolicy: 'network-only',
     })
 }
 
