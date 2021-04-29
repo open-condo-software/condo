@@ -65,7 +65,7 @@ class MapValid {
     protected autoincrement: number
 
     constructor (map: BuildingMap) {
-        this.map = map ? cloneDeep(map) : { ...buildingEmptyMapJson } as BuildingMap
+        this.map = map ? cloneDeep(map) : cloneDeep(buildingEmptyMapJson) as BuildingMap
         this.autoincrement = 0
         this.isMapValid = this.validate()
         if (!this.isMapValid) {
@@ -484,7 +484,6 @@ class MapDebug extends MapEdit {
         return this.map
     }
 }
-
 
 export {
     MapValid,

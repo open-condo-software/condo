@@ -6,6 +6,7 @@ const testSection = {
     maxFloor: 10,
     unitsOnFloor: 10,
 }
+
 const sectionName = () => {
     return Math.random().toString()
 }
@@ -69,11 +70,11 @@ describe('Map constructor', () => {
             it('after adding unit with numeric label should update names of units placed next', () => {
                 const Building = createBuildingMap(10)
                 const jsonMap = Building.getMap()
-                const unitPlacedAfter = jsonMap.sections[5].floors[5].units[5]
+                const unitPlacedAfterLabel = jsonMap.sections[5].floors[5].units[5].label
                 const newUnit = { id: null, floor: jsonMap.sections[3].floors[3].id, section: jsonMap.sections[3].id, label: '1000' }
                 Building.mapAddUnit(newUnit)
                 const newJsonMap = Building.getMap()
-                expect(newJsonMap.sections[5].floors[5].units[5].label).not.toEqual(unitPlacedAfter.label)
+                expect(newJsonMap.sections[5].floors[5].units[5].label).not.toEqual(unitPlacedAfterLabel)
             })
             it('after adding unit with not-numeric label shouldn\'t update names of units placed before', () => {
                 const Building = createBuildingMap(10)
