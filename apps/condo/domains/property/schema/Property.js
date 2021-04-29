@@ -12,6 +12,7 @@ const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const { GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
+const { MapValid } = require('@condo/domains/property/components/panels/Builder/MapConstructor')
 
 // ORGANIZATION_OWNED_FIELD
 const Property = new GQLListSchema('Property', {
@@ -75,6 +76,10 @@ const Property = new GQLListSchema('Property', {
                     if (typeof value !== 'object') { return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`) }
                     const { dv } = value
                     if (dv === 1) {
+                        const MapValidator = new MapValid(value)
+                        if (!MapValidator.isMapValid){
+                            return addFieldValidationError(`${MapValidator.validationError}] invalid json structure`)    
+                        }
                         // TODO(pahaz): need to checkIt! sections and so on
                     } else {
                         return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)

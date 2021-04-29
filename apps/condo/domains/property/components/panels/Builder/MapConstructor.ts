@@ -1,5 +1,5 @@
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property.example'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, compact, uniq } from 'lodash'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import MapSchemaJSON from './MapJsonSchema.json'
 import Ajv from 'ajv'
@@ -100,12 +100,43 @@ class MapValid {
         })
     }
 
+    validateUniqueId (): boolean {
+        const ids = this.sectionIds.concat(this.floorIds).concat(this.unitIds)
+        const uniqArray = uniq(compact(ids))
+        return ids.length === uniqArray.length
+    }
+
+    get sectionIds (): string[] {
+        return this.map.sections.map(section => section.id)
+    }
+
+    get floorIds (): string[] {
+        return this.map.sections
+            .map(section => section.floors
+                .map(floor => floor.id))
+            .flat()
+    }
+ 
+    get unitIds (): string[] {
+        return this.map.sections
+            .map(section => section.floors
+                .map(floor => floor.units
+                    .map(unit => unit.id)))
+            .flat(2)
+    }
+
+
     validate (): boolean {
+        // TODO(zuch): check if json schema can validate unique id field 
         this.validationError = null
         if (!validator(this.map)){
             this.validationError = JSON.stringify(validator.errors, null, 2)
             return false
         }        
+        if (!this.validateUniqueId()) {
+            this.validationError = 'ID field must be unique'
+            return false
+        }
         return true
     }
 
@@ -117,7 +148,7 @@ class MapView extends MapValid {
     constructor (map: Maybe<BuildingMap>) {
         super(map)
         if (!this.isMapValid) {
-            console.log('Invalid JSON field for property:map', this.validationError)
+            console.log('Invalid JSON for property:map', this.validationError)
         }
         this.setVisibleSections(this.sections.map(section => section.id))
     }    
