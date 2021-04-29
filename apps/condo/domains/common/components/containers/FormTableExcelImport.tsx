@@ -151,6 +151,8 @@ function ExcelExporterButton ({ columns, setExportedData }) {
         } else {
             reader.readAsArrayBuffer(file)
         }
+
+        return ''
     }
 
     function handleChangeMapping (mapping) {
@@ -167,6 +169,7 @@ function ExcelExporterButton ({ columns, setExportedData }) {
 
     const formatted_files = TABLE_UPLOAD_ACCEPT_FILES.map(function (x) { return '.' + x }).join(',')
 
+    // @ts-ignore
     return <>
         <CreateFormListItemButton
             onClick={() => setStep(1)} label={ImportFromFileButtonLabel}
