@@ -1,37 +1,58 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
     "properties": {
         "dv": {
+            "enum": [
+                1
+            ],
+            "title": "dv",
             "type": "number"
         },
         "sections": {
             "items": {
+                "additionalProperties": false,
                 "properties": {
                     "floors": {
                         "items": {
+                            "additionalProperties": false,
                             "properties": {
                                 "id": {
+                                    "title": "id",
                                     "type": "string"
                                 },
                                 "index": {
+                                    "title": "index",
                                     "type": "number"
                                 },
                                 "name": {
+                                    "title": "name",
                                     "type": "string"
                                 },
                                 "type": {
+                                    "enum": [
+                                        "floor"
+                                    ],
+                                    "title": "type",
                                     "type": "string"
                                 },
                                 "units": {
                                     "items": {
+                                        "additionalProperties": false,
                                         "properties": {
                                             "id": {
+                                                "title": "id",
                                                 "type": "string"
                                             },
                                             "label": {
+                                                "title": "label",
                                                 "type": "string"
                                             },
                                             "type": {
+                                                "enum": [
+                                                    "unit"
+                                                ],
+                                                "title": "type",
                                                 "type": "string"
                                             }
                                         },
@@ -42,6 +63,7 @@
                                         ],
                                         "type": "object"
                                     },
+                                    "title": "units",
                                     "type": "array"
                                 }
                             },
@@ -54,18 +76,26 @@
                             ],
                             "type": "object"
                         },
+                        "title": "floors",
                         "type": "array"
                     },
                     "id": {
+                        "title": "id",
                         "type": "string"
                     },
                     "index": {
+                        "title": "index",
                         "type": "number"
                     },
                     "name": {
+                        "title": "name",
                         "type": "string"
                     },
                     "type": {
+                        "enum": [
+                            "section"
+                        ],
+                        "title": "type",
                         "type": "string"
                     }
                 },
@@ -78,6 +108,7 @@
                 ],
                 "type": "object"
             },
+            "title": "sections",
             "type": "array"
         },
         "type": {
@@ -85,6 +116,7 @@
                 "building",
                 "vilage"
             ],
+            "title": "type",
             "type": "string"
         }
     },

@@ -2,7 +2,7 @@ import { useIntl } from '@core/next/intl'
 import { Col, Row, Typography, Input, Select, InputNumber, Space } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { DeleteFilled } from '@ant-design/icons'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
 import { 
     EmptyBuildingBlock, 
     EmptyFloor, 
@@ -10,7 +10,7 @@ import {
     BuildingChooseSections,
 } from './BuildingPanelCommon'
 import { Button } from '@condo/domains/common/components/Button'
-import { UnitButton } from '@condo/domains/property/components/UnitButton'
+import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import {
     MapEdit,
     BuildingMap,
@@ -243,7 +243,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
     }
 
     const handleFinish = () => {
-        Builder.mapAddSection({ id: null, name, minFloor, maxFloor, unitsOnFloor })
+        Builder.addSection({ id: '', name, minFloor, maxFloor, unitsOnFloor })
         refresh()
         resetForm()
     }
@@ -344,9 +344,9 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
     const applyChanges = () => {
         const mapUnit = Builder.getSelectedUnit()
         if (mapUnit) {
-            Builder.mapUpdateUnit({ ...mapUnit, label, floor, section })
+            Builder.updateUnit({ ...mapUnit, label, floor, section })
         } else {
-            Builder.mapAddUnit({ id: null, label, floor, section })
+            Builder.addUnit({ id: '', label, floor, section })
             resetForm()
         }
         refresh()        
@@ -354,7 +354,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
 
     const deleteUnit = () => {
         const mapUnit = Builder.getSelectedUnit()
-        Builder.mapRemoveUnit(mapUnit.id)
+        Builder.removeUnit(mapUnit.id)
         refresh()
         resetForm()
     }
@@ -429,12 +429,12 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) 
     }, [section])
 
     const updateSection = () => {
-        Builder.mapUpdateSection({ ...section, name })
+        Builder.updateSection({ ...section, name })
         refresh()
     }
 
     const deleteSection = () => {
-        Builder.mapRemoveSection(section.id)
+        Builder.removeSection(section.id)
         refresh()
     }
 

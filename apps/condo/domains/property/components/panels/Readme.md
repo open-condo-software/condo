@@ -6,3 +6,9 @@ For now, there are only 2 panels:
 1. General information - this panel is in TODO
 
 Each panel can have read and edit mode.
+
+# Create validation schema for json from typescript type
+```bash
+npm install typescript-json-schema -g
+typescript-json-schema './MapType.ts' BuildingMap -o ./schema.json --titles --defaultProps --noExtraProps --required --strictNullChecks --id
+```

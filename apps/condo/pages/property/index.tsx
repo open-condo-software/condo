@@ -19,6 +19,7 @@ import pickBy from 'lodash/pickBy'
 import get from 'lodash/get'
 import has from 'lodash/has'
 import XLSX from 'xlsx'
+import isEmpty from 'lodash/isEmpty'
 
 import {
     getPaginationFromQuery,
@@ -34,7 +35,7 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import debounce from 'lodash/debounce'
-import { isEmpty } from 'lodash'
+
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 
 const PropertyPageViewMap = (): React.FC => {

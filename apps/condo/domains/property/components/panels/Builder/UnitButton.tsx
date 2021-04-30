@@ -129,7 +129,7 @@ export const UnitButton: React.FC<CustomButtonProps> = ({ secondary, selected, p
     const OriginalLabel = children ? children.toString() : ''
     if (!secondary && OriginalLabel.length > 4) {        
         let ButtonLabel = OriginalLabel
-        if (!isNaN(+ButtonLabel)) {
+        if (!isNaN(Number(ButtonLabel))) {
             ButtonLabel = `…${ButtonLabel.substring(ButtonLabel.length - 2)}`
         } else {
             ButtonLabel = `${ButtonLabel.substring(0, 2)}…`
@@ -138,7 +138,6 @@ export const UnitButton: React.FC<CustomButtonProps> = ({ secondary, selected, p
             <Tooltip placement='topLeft' title={OriginalLabel}>
                 <Button css={css`
                     ${buttonCss};
-                    ${selected ? selectedCss : ''};
                     ${selected ? selectedCss : ''};
                     ${noninteractive ? noninteractiveCss : ''};                    
                     ${preview ? previewCss : ''};

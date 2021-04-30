@@ -2,7 +2,7 @@ import { useIntl } from '@core/next/intl'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Col, Row, Typography, Checkbox } from 'antd'
 import React from 'react'
-import { UnitButton } from '@condo/domains/property/components/UnitButton'
+import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MapEdit, MapView } from './MapConstructor'
 
 export const PropertyMapFloor: React.FC = ({ children }) => {
