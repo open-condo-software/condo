@@ -1,6 +1,4 @@
 import React from 'react'
-// const conf = require('@core/config')
-// import getConfig from 'next/config'
 import getConfig from 'next/config'
 
 const YandexMetrika = () => {
