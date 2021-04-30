@@ -6,7 +6,7 @@ import { Button, Form, Input, Result, Typography, Alert, Row, Col } from 'antd'
 import Head from 'next/head'
 import Router from 'next/router'
 import { useIntl } from '@core/next/intl'
-import gql from 'graphql-tag'
+import { gql } from 'graphql-tag'
 import { useMutation } from '@core/next/apollo'
 
 import { TopMenuOnlyLayout } from '@condo/domains/common/components/containers/BaseLayout'

@@ -7,7 +7,7 @@ import Head from 'next/head'
 import Router from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
-import gql from 'graphql-tag'
+import { gql } from 'graphql-tag'
 
 import { TopMenuOnlyLayout } from '@condo/domains/common/components/containers/BaseLayout'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'

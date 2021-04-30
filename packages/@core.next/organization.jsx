@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useQuery } from './apollo'
-import gql from 'graphql-tag'
+import { gql } from 'graphql-tag'
 import cookie from 'js-cookie'
 import { useAuth } from './auth'
 import nextCookie from 'next-cookies'

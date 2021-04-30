@@ -3,7 +3,7 @@
 import { css, jsx } from '@emotion/core'
 import { Button, Form, Input, Typography, Row, Col } from 'antd'
 import { useState } from 'react'
-import gql from 'graphql-tag'
+import { gql } from 'graphql-tag'
 import Head from 'next/head'
 import Router from 'next/router'
 import { useAuth } from '@core/next/auth'

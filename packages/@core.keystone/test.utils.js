@@ -1,6 +1,6 @@
 const axios = require('axios').default
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
-const gql = require('graphql-tag')
+const { gql } = require('graphql-tag')
 const { CookieJar } = require('tough-cookie')
 const { print } = require('graphql/language/printer')
 const crypto = require('crypto')

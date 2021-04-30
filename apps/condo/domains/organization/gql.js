@@ -1,4 +1,4 @@
-const gql = require('graphql-tag')
+const { gql } = require('graphql-tag')
 const { genTestGQLUtils } = require('@core/keystone/gen.gql.utils')
 
 const ORGANIZATION_FIELDS = '{ id dv sender v country name description avatar { publicUrl } statusTransitions defaultEmployeeRoleStatusTransitions }'

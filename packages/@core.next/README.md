@@ -56,7 +56,7 @@ export default SignInPage
 `Apollo` example:
 ```js
 import React from 'react'
-import gql from 'graphql-tag'
+import { gql } from 'graphql-tag'
 
 const START_PASSWORD_RECOVERY_MUTATION = gql`
     mutation startPasswordRecovery($email: String!){
