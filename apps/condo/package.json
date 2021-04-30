@@ -56,7 +56,6 @@
     "firebase": "^7.19.0",
     "firebase-admin": "^9.5.0",
     "get-contrast": "^2.0.0",
-    "graphql-tag": "^2.11.0",
     "html2canvas": "^1.0.0-rc.7",
     "immer": "^8.0.1",
     "jspdf": "^2.3.1",

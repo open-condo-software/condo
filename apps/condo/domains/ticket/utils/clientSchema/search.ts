@@ -1,4 +1,4 @@
-const gql = require('graphql-tag')
+const { gql } = require('graphql-tag')
 
 const GET_ALL_SOURCES_QUERY = gql`
     query selectSource ($value: String, $organizationId: ID) {

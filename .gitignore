@@ -19,7 +19,6 @@ schema.graphql
 
 # yarn + npm
 yarn-error.log
-yarn.lock
 npm-debug.*
 
 # mobile
