@@ -64,7 +64,7 @@ function genDeleteGQL (key, fields) {
     `
 }
 
-function genTestGQLUtils (key, fields) {
+function generateGQLUtils (key, fields) {
     const [MODEL, MODELS] = _genGQLName(key)
     if (!fields.startsWith('{') || !fields.endsWith('}'))
         throw new Error('wrong list fields format. Try "{ name1 name2 }"')
@@ -134,5 +134,5 @@ module.exports = {
     genCreateGQL,
     genUpdateGQL,
     genDeleteGQL,
-    genTestGQLUtils,
+    generateGQLUtils,
 }
