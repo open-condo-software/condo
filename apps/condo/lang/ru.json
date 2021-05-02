@@ -104,8 +104,6 @@
   "menu.Employee": "Сотрудники",
   "menu.Residents": "Жители",
   "Welcome": "Привет, {name}!",
-  "pages.auth.RegistrationTitle": "Регистрация",
-  "pages.auth.SignInTitle": "Авторизация",
   "baselayout.menuheader.GuestUsername": "гость",
   "Avatar": "Аватар",
   "SignIn": "Войти",
@@ -120,7 +118,6 @@
   "Phone": "Телефон",
   "Password": "Пароль",
   "UploadFile": "Загрузить файл", 
-  "From": "От",
   "Captcha": "Капча",
   "ConfirmPassword": "Пароль (проверка)",
   "ServerError": "Ошибка сервера",
@@ -185,6 +182,42 @@
   "WeAreStillDevelopingThisPage": "Мы еще **разрабатываем** эту страницу, она пока недоступна",
   "example.Name": "Иванов Сергей",
   "example.Phone": "+7 (900) 800 22 22",
+
+  
+  "pages.auth.AlreadyRegistered": "Я уже зарегистрирован", 
+  "pages.auth.Register": "Зарегистрироваться", 
+  
+  "pages.auth.RegistrationTitle": "Регистрация",
+  "pages.auth.SignInTitle": "Вход",
+  "pages.auth.ResetTitle": "Восстановление пароля",
+  
+  
+  
+  "pages.auth.register.AllFieldsAreRequired": "Все поля обязательны для заполнения", 
+  "pages.auth.register.field.Password": "Придумайте пароль", 
+  "pages.auth.signin.field.Password": "Пароль", 
+  "pages.auth.signin.ResetPasswordLinkTitle": "Сбросить", 
+  "pages.auth.signin.ResetPasswordLink": "Забыли пароль? {link}", 
+  "pages.auth.reset.ResetHelp": "Введите эл. почту и вы получите письмо с инструкцией по восстановлению доступа к вашей учётной записи", 
+  "pages.auth.reset.RestorePasswordTitle": "Восстановить пароль", 
+  "pages.auth.reset.CheckEmail": "Проверьте почту", 
+  "pages.auth.reset.ReturnToLoginPage": "Вернуться на форму входа", 
+  "pages.auth.reset.CreateNewPasswordMsg": "Придумайте новый пароль", 
+  "pages.auth.reset.AndSignInMsg": "и войти в CRM", 
+  
+  
+  
+  
+  "pages.auth.register.field.ConfirmPassword": "Пароль ещё раз", 
+  "pages.auth.register.field.Name": "ФИО", 
+  "pages.auth.register.field.Email": "Эл. почта", 
+  "pages.auth.register.field.Phone": "Телефон", 
+  
+  
+  
+
+
+  "pages.auth.FooterText": "Проблемы с регистрацией или входом? Напишите на {email} или позвоните по телефону {phone}", 
   "pages.auth.LoggedIn": "Авторизован",
   "pages.auth.EmailIsNoFound": "Email не найден",
   "pages.auth.WrongPassword": "Неверный пароль",
