@@ -7,6 +7,7 @@ const { Footer, Content } = Layout
 import { Logo } from '@condo/domains/common/components/Logo'
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from '@condo/domains/common/constants/requisites'
 
+const LINK_STYLE = { color: '#389E0D' }
 interface IPageHeaderProps extends PageHeaderProps {
     title?: React.ReactChild
     headerAction?: React.ReactChild
@@ -15,7 +16,7 @@ interface IPageHeaderProps extends PageHeaderProps {
 const PageHeader: React.FC<IPageHeaderProps> = ({ children, headerAction }) => {
     return (
         <AntPageHeader
-            style={{ margin: '40px', padding: '0px', background: 'white' }}
+            style={{ background: 'white', marginTop: '20px', marginLeft: '12px', marginRight: '12px' }}
             title={<Logo onClick={() => Router.push('/')} />}
             extra={[headerAction]}
         >
@@ -26,21 +27,20 @@ const PageHeader: React.FC<IPageHeaderProps> = ({ children, headerAction }) => {
 
 const PageContent: React.FC = ({ children }) => {
     return (
-        <Content>
+        <Content style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 200px)', minWidth: '500px' }}>
             {children}
         </Content>
     )
 }
 
-
 const PageFooter: React.FC = () => {
     return (
-        <Footer style={{ color: 'gray', backgroundColor: 'white', marginTop: '60px' }}>
+        <Footer style={{ color: 'gray', backgroundColor: 'white', fontSize: '12px', lineHeight: '20px' }}>
             <FormattedMessage
                 id='pages.auth.FooterText'
                 values={{
-                    email: <a style={{ color: '#44c77f' }} href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>,
-                    phone: <a style={{ color: '#44c77f' }} href={`tel:${SUPPORT_PHONE}`}>{SUPPORT_PHONE}</a>,
+                    email: <a style={LINK_STYLE} href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>,
+                    phone: <a style={LINK_STYLE} href={`tel:${SUPPORT_PHONE}`}>{SUPPORT_PHONE}</a>,
                 }}
             ></FormattedMessage>
         </Footer>

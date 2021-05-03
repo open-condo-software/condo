@@ -44,7 +44,7 @@
     "@zeit/next-less": "^1.0.1",
     "ajv": "^8.2.0",
     "antd": "^4.8.2",
-    "antd-mask-input": "^0.1.14",
+    "antd-mask-input": "^0.1.15",
     "bull": "^3.22.0",
     "bull-repl": "^0.26.3",
     "classnames": "^2.2.6",

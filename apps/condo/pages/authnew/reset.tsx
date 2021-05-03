@@ -3,25 +3,22 @@ import { Col, Form, Input, Row, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
 import Router from 'next/router'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 const INPUT_STYLE = { width: '273px' }
+const LINK_STYLE = { color: '#389E0D' }
 
 const ResetPage = (): React.ReactElement => {
-    const [resetState, setResetState] = useState('input')
+    const [resetState, setResetState] = useState('inputEmail')
 
-    useEffect(() => {
-        console.log('State is ', resetState)
-    }, [resetState])
-    
     return (
         <div style={{ textAlign: 'center' }}>
             <div style={{ display: 'inline-block', maxWidth: '400px' }}>
                 {   
                     {
-                        input: <ResetForm onFinish={() => setResetState('checkemail')}/>,
-                        checkemail: <CheckEmailInfo onFinish={() => setResetState('changepassword')} />,
-                        changepassword: <ChangePasswordForm onFinish={() => setResetState('input')}/>,
+                        inputEmail: <ResetForm onFinish={() => setResetState('checkEmail')}/>,
+                        checkEmail: <CheckEmailInfo onFinish={() => setResetState('changePassword')} />,
+                        changePassword: <ChangePasswordForm onFinish={() => setResetState('inputEmail')}/>,
                     }[resetState] || null
                 }
             </div>
@@ -40,9 +37,12 @@ const ResetForm = ({ onFinish }): React.ReactElement<IResetFormProps>  => {
     const RestorePasswordMsg = intl.formatMessage({ id: 'pages.auth.reset.RestorePasswordTitle' })
     const ResetTitle = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
     const EmailMsg = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
+    const InstructionsMsg = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp' })
+    
     return (
         <>
             <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
+            <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>    
             <Form
                 form={form}
                 name="register"
@@ -93,7 +93,7 @@ const CheckEmailInfo = ({ onFinish }): React.ReactElement<ICheckEmailInfoProps> 
             <Typography.Title style={{ textAlign: 'left' }}>{CheckEmailMsg}</Typography.Title>
             <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>    
             <Typography.Paragraph style={{ textAlign: 'left' }}>
-                <a style={{ color: '#44c77f' }} onClick={onFinish}>{ReturnToLoginPage}</a>
+                <a style={LINK_STYLE} onClick={onFinish}>{ReturnToLoginPage}</a>
             </Typography.Paragraph>    
         </>
     )
