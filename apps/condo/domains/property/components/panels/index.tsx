@@ -10,7 +10,7 @@ import { useIntl } from '@core/next/intl'
 const { TabPane } = Tabs
 
 interface IPropertyPanels {
-    map: BuildingMap
+    map: BuildingMap | null
     mode: 'view' | 'edit' 
     updateMap?(map: BuildingMap): void    
 }
@@ -25,7 +25,7 @@ export const PropertyPanels: React.FC<IPropertyPanels> = ({ mode, map, updateMap
             <TabPane tab={BuildingTabTitle} key='1'>
                 <FocusContainer style={{ margin: 'initial', marginTop: '40px' }}>
                     {
-                        mode === 'view' ? <BuildingPanelView map={map} /> : <BuildingPanelEdit map={map} updateMap={updateMap}/>
+                        mode === 'view' ? <BuildingPanelView map={map as BuildingMap} /> : <BuildingPanelEdit map={map as BuildingMap} updateMap={updateMap}/>
                     }
                 </FocusContainer>
             </TabPane>

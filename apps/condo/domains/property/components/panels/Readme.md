@@ -10,5 +10,9 @@ Each panel can have read and edit mode.
 # Create validation schema for json from typescript type
 ```bash
 npm install typescript-json-schema -g
-typescript-json-schema './MapType.ts' BuildingMap -o ./schema.json --titles --defaultProps --noExtraProps --required --strictNullChecks --id
+
+typescript-json-schema './MapType.ts' BuildingMap -o ./schema.json --titles --noExtraProps --required --strictNullChecks --id
+
+--noExtraProps # do not allow to save extra fields 
+
 ```

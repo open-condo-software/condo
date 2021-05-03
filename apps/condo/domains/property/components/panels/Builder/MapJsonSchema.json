@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "additionalProperties": false,
+    "additionalProperties": true,
     "properties": {
         "dv": {
             "enum": [
@@ -11,11 +11,11 @@
         },
         "sections": {
             "items": {
-                "additionalProperties": false,
+                "additionalProperties": true,
                 "properties": {
                     "floors": {
                         "items": {
-                            "additionalProperties": false,
+                            "additionalProperties": true,
                             "properties": {
                                 "id": {
                                     "title": "id",
@@ -38,7 +38,7 @@
                                 },
                                 "units": {
                                     "items": {
-                                        "additionalProperties": false,
+                                        "additionalProperties": true,
                                         "properties": {
                                             "id": {
                                                 "title": "id",
@@ -46,6 +46,10 @@
                                             },
                                             "label": {
                                                 "title": "label",
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "title": "name",
                                                 "type": "string"
                                             },
                                             "type": {
