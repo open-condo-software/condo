@@ -15,6 +15,9 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
 
         organization: ORGANIZATION_OWNED_FIELD,
 
+        // There is no `user` reference, because Organization will have a set of pre-defined roles
+        // and each employee will be associated with one of the role, not role with user.
+
         name: {
             type: Text,
             isRequired: true,
