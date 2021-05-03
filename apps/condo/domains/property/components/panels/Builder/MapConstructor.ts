@@ -30,7 +30,9 @@ label: autogenerate
 export type BuildingUnit = {
     id: string
     type: MapTypesList.Unit
+    name?: string,
     label: string
+    preview?: boolean
 }
 
 export type BuildingFloor = {
@@ -47,6 +49,7 @@ export type BuildingSection = {
     name: string
     type: MapTypesList.Section
     floors: BuildingFloor[]
+    preview?: boolean    
 }
 
 export type BuildingMap = {
@@ -289,6 +292,9 @@ class MapView extends Map {
 
 class MapEdit extends MapView {
 
+    private previewSectionId: string
+    private previewUnitId: string
+
     constructor (map: Maybe<BuildingMap>, private updateMap: Maybe<(map: BuildingMap) => void>) {
         super(map)
     }   
@@ -313,8 +319,14 @@ class MapEdit extends MapView {
             section.floors.slice().reverse().forEach(floor => {
                 floor.units.forEach(unit => {
                     if (started) {
-                        if (!isNaN(Number(unit.label))) {
-                            unit.label = String(next++)
+                        if (unit.name) {
+                            if (!isNaN(Number(unit.name))) {
+                                next = Number(unit.name) + 1
+                            } 
+                        } else {
+                            if (!isNaN(Number(unit.label))) {
+                                unit.label = String(next++)
+                            }
                         }
                     }
                     if (unit.id === id) {
@@ -325,7 +337,6 @@ class MapEdit extends MapView {
         })
     }
 
-
     private mode = 'addSection'   
 
     get editMode (): string {
@@ -335,17 +346,23 @@ class MapEdit extends MapView {
     set editMode (mode: string) {
         switch (mode) {
             case 'addSection':
+                this.removePreviewUnit()
                 this.selectedUnit = null
                 this.selectedSection = null
                 break              
             case 'editSection':
+                this.removePreviewUnit()
+                this.removePreviewSection()
                 this.selectedUnit = null
                 break        
             case 'addUnit':
+                this.removePreviewSection()
                 this.selectedSection = null
                 this.selectedUnit = null
                 break        
             case 'editUnit':
+                this.removePreviewUnit()
+                this.removePreviewSection()
                 this.selectedSection = null
                 break        
             default:
@@ -378,7 +395,7 @@ class MapEdit extends MapView {
 
     public setSelectedUnit (unit: BuildingUnit): void {
         if (this.isUnitSelected(unit.id)) {
-            this.editMode = 'addUnit'
+            this.editMode = 'addSection'
             this.selectedUnit = null
         } else {
             this.editMode = 'editUnit'
@@ -394,7 +411,21 @@ class MapEdit extends MapView {
         return this.selectedUnit && this.selectedUnit.id === id
     }
 
-    public addSection (section: Partial<BuildingSectionArg>): void {
+    public removePreviewSection (): void {
+        if (this.previewSectionId) {
+            this.removeSection(this.previewSectionId)
+            this.previewSectionId = null
+        }
+    }
+
+    public removePreviewUnit (): void {
+        if (this.previewUnitId) {
+            this.removeUnit(this.previewUnitId)
+            this.previewUnitId = null
+        }
+    }
+
+    private generateSection (section: Partial<BuildingSectionArg>): BuildingSection {
         let unitNumber = this.nextUnitNumber
         const { name, minFloor, maxFloor, unitsOnFloor } = section
         const newSection = {
@@ -430,6 +461,24 @@ class MapEdit extends MapView {
                 units,
             })
         }
+        return newSection
+    }
+
+    public addPreviewSection (section: Partial<BuildingSectionArg>): void {
+        this.removePreviewSection()
+        const newSection = this.generateSection(section)
+        newSection.preview = true
+        newSection.floors.forEach(floor => floor.units.map(unit => {
+            unit.preview = true
+            return unit
+        }))
+        this.previewSectionId = newSection.id
+        this.map.sections.push(newSection)
+        this.visibleSections.push(newSection.id)
+    }
+
+    public addSection (section: Partial<BuildingSectionArg>): void {
+        const newSection = this.generateSection(section)
         this.map.sections.push(newSection)
         this.visibleSections.push(newSection.id)
         this.updateMap(this.map)
@@ -450,6 +499,31 @@ class MapEdit extends MapView {
         this.editMode = 'addSection'
         this.updateMap(this.map)
     }
+    
+    public addPreviewUnit (unit: Partial<BuildingUnitArg>): void {
+        this.removePreviewUnit()
+        const { id, section, floor, label } = unit
+        const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === section)
+        if (sectionIndex === -1) {
+            return
+        }
+        const floorIndex = this.map.sections[sectionIndex].floors.findIndex(sectionFloor => sectionFloor.id === floor)
+        if (floorIndex === -1) {
+            return
+        }
+        const newUnit = {
+            id,
+            label, 
+            type: null,
+            preview: true,
+        }
+        newUnit.type = MapTypesList.Unit
+        if (!id) {
+            newUnit.id = String(++this.autoincrement)
+        }
+        this.map.sections[sectionIndex].floors[floorIndex].units.push(newUnit)
+        this.previewUnitId = newUnit.id
+    }
 
     public addUnit (unit: Partial<BuildingUnitArg>): void {
         const { id, section, floor, label } = unit
@@ -463,6 +537,7 @@ class MapEdit extends MapView {
         }
         const newUnit = {
             id,
+            name: label,
             label, 
             type: null,
         }
@@ -498,10 +573,11 @@ class MapEdit extends MapView {
             this.removeUnit(unit.id)
             this.addUnit(unit)
         } else {
+            this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].name = unit.label
             this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].label = unit.label
             this.updateUnitNumbers(unit)
         }
-        this.editMode = 'editUnit'
+        this.editMode = 'addSection'
         this.updateMap(this.map)
     }
 

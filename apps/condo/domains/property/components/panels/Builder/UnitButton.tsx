@@ -108,7 +108,7 @@ const selectedCss = css`
     }    
 `
 const previewCss = css`
-    opacity: 0.5;
+    opacity: 0.3;
 `
 const noninteractiveCss = css`
     &:hover, &:focus, &:active {

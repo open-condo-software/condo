@@ -181,6 +181,8 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, child
             <UnitButton
                 secondary
                 style={{ width: '100%', marginTop: '8px' }}
+                disabled={section.preview}
+                preview={section.preview}
                 onClick={() => chooseSection(section)}
                 selected={Builder.isSectionSelected(section.id)}
             >{section.name}</UnitButton>
@@ -210,6 +212,8 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ Builder, refresh, un
     return (
         <UnitButton
             onClick={() => selectUnit(unit)}
+            disabled={unit.preview}
+            preview={unit.preview}
             selected={Builder.isUnitSelected(unit.id)}
         >{unit.label}</UnitButton>
     )
@@ -242,7 +246,18 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
         setUnitsOnFloor(null)
     }
 
+    useEffect(() => {
+        if (name && minFloor && maxFloor && unitsOnFloor) {
+            Builder.addPreviewSection({ id: '', name, minFloor, maxFloor, unitsOnFloor })
+            refresh()    
+        } else {
+            Builder.removePreviewSection()
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [name, minFloor, maxFloor, unitsOnFloor])
+
     const handleFinish = () => {
+        Builder.removePreviewSection()
         Builder.addSection({ id: '', name, minFloor, maxFloor, unitsOnFloor })
         refresh()
         resetForm()
@@ -319,6 +334,8 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
             } else {
                 setFloor(null)
             }
+        } else {
+            setFloor(null)
         }
     }
 
@@ -330,9 +347,8 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
             setLabel(mapUnit.label)
             setSection(mapUnit.section)
             setFloor(mapUnit.floor)
-        } else {
-            resetForm()  
-        }
+        } 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [Builder])
 
     const resetForm = () => {
@@ -341,11 +357,23 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
         setSection('')
     }
 
+    useEffect(() => {
+        if (label && floor && section && mode === 'addUnit') {
+            Builder.addPreviewUnit({ id: '', label, floor, section })
+            refresh()    
+        } else {
+            Builder.removePreviewUnit()
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [label, floor, section, mode])
+
+
     const applyChanges = () => {
         const mapUnit = Builder.getSelectedUnit()
         if (mapUnit) {
             Builder.updateUnit({ ...mapUnit, label, floor, section })
         } else {
+            Builder.removePreviewUnit()
             Builder.addUnit({ id: '', label, floor, section })
             resetForm()
         }
