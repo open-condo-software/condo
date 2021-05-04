@@ -104,7 +104,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                 const message = await Message.update(context, messageInput.id, {
                     dv, sender,
                     status: 'resending',
-                    sentAt: null,
+                    deliveredAt: null,
                 })
 
                 await scheduleMessageDelivery(message)
