@@ -7,5 +7,6 @@ if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('./index'))
 if (conf.TESTS_FAKE_WORKER_MODE) createWorker(require.resolve('./index')).catch(() => process.exit(2))
 
 afterAll(async () => {
+    await taskQueue.disconnect()
     return await taskQueue.close()
 })
