@@ -46,10 +46,12 @@ jobs:
           yarn workspace @app/condo worker &
           # Wait until server is up!
           bash ./.github/workflows/waitForLocalhostApiReady.sh
+          jobs
           sleep 3
           yarn workspace @app/condo test --silent --coverage --testTimeout=15000
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
+          killall node || echo 'no node processes'
           yarn jest ./packages/@core.keystone
         env:
           DATABASE_URL: ${{ matrix.database }}
