@@ -82,7 +82,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
     },
     hooks: {
         validateInput: ({ resolvedData, existingItem, addValidationError }) => {
-            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'source', 'status', 'classifier', 'details'], resolvedData, existingItem, addValidationError)) return
+            if (!hasRequestAndDbFields(['dv', 'sender'], [], resolvedData, existingItem, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic
