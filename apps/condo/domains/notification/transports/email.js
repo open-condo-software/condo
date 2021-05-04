@@ -44,6 +44,19 @@ async function prepareMessageToSend (message) {
     return { to: email, subject, text, html }
 }
 
+/**
+ * Send a email message by remote API service
+ *
+ * @param {Object} args - send email arguments
+ * @param {string} args.to - Email address `To` recipient(s). Example: "Bob <bob@host.com>". You can use commas to separate multiple recipients.
+ * @param {string} args.cc - Email address for `Cc` (Carbon Copy)
+ * @param {string} args.bcc - Email address for `Bcc` (Blind Carbon Copy)
+ * @param {string} args.subject - Message subject
+ * @param {string} args.text - Body of the message. (text version)
+ * @param {string} args.html - Body of the message. (HTML version)
+ * @typedef {[boolean, Object]} StatusAndMetadata
+ * @return {StatusAndMetadata} Status and delivery Metadata (debug only)
+ */
 async function send ({ to, cc, bcc, subject, text, html } = {}) {
     if (!EMAIL_API_CONFIG) throw new Error('no EMAIL_API_CONFIG')
     if (!to || !to.includes('@')) throw new Error('unsupported to argument format')
