@@ -5,6 +5,7 @@ const { JSON_UNKNOWN_ATTR_NAME_ERROR } = require('@condo/domains/notification/co
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 const { sendMessageByTestClient, resendMessageByTestClient } = require('../utils/testSchema')
+const { MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS } = require('../constants')
 
 describe('SendMessageService.sendMessage', () => {
     test('admin: use send message', async () => {
@@ -12,7 +13,7 @@ describe('SendMessageService.sendMessage', () => {
 
         const [data] = await sendMessageByTestClient(admin)
         expect(data.id).toMatch(UUID_RE)
-        expect(data.status).toEqual('sending')
+        expect(data.status).toEqual(MESSAGE_SENDING_STATUS)
     })
 
     test('admin: use send message without requiredAttr', async () => {
@@ -59,6 +60,6 @@ describe('SendMessageService.resendMessage', () => {
 
         const [data] = await resendMessageByTestClient(admin, message)
         expect(data.id).toMatch(UUID_RE)
-        expect(data.status).toEqual('resending')
+        expect(data.status).toEqual(MESSAGE_RESENDING_STATUS)
     })
 })
