@@ -8,6 +8,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/notification/access/Message')
+const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 
 const Message = new GQLListSchema('Message', {
@@ -60,14 +61,30 @@ const Message = new GQLListSchema('Message', {
             schemaDoc: 'Message context',
             type: Json,
             isRequired: true,
+            hooks: {
+                validateInput: (args) => {
+                    if (!hasValidJsonStructure(args, true, 1, {})) return
+                },
+            },
         },
 
         status: {
             schemaDoc: 'Message status',
             type: Select,
             defaultValue: 'sending',
-            options: 'sending,planned,sent,canceled',
+            options: 'sending,resending,processing,error,sent,canceled',
             isRequired: true,
+        },
+
+        processingMeta: {
+            schemaDoc: 'Task processing metadata',
+            type: Json,
+            isRequired: false,
+            hooks: {
+                validateInput: (args) => {
+                    if (!hasValidJsonStructure(args, false, 1, {})) return
+                },
+            },
         },
 
         sentAt: {
