@@ -18,10 +18,10 @@ export interface IBasicEmptyListProps {
 export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({ image, children } ) => {
     const style = { 
         display:'flex', 
-        width: '100%', 
-        height: '100%', 
         justifyContent: 'center', 
         alignItems: 'center',
+        height: '100%',
+        width: '100%',
     }
     return (
         <div style={style}>

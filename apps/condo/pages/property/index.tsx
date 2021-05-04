@@ -19,6 +19,7 @@ import pickBy from 'lodash/pickBy'
 import get from 'lodash/get'
 import has from 'lodash/has'
 import XLSX from 'xlsx'
+import isEmpty from 'lodash/isEmpty'
 
 import {
     getPaginationFromQuery,
@@ -35,10 +36,13 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import debounce from 'lodash/debounce'
 
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+
 const PropertyPageViewMap = (): React.FC => {
     const {
         objs: properties,
     } = Property.useObjects()
+
 
     const points = properties
         .filter(property => has(property, ['addressMeta', 'data'] ))
@@ -80,6 +84,7 @@ const PropertyPageViewTable = (): React.FC => {
     const {
         fetchMore,
         loading,
+        error,
         count: total,
         objs: properties,
     } = Property.useObjects({
@@ -145,20 +150,27 @@ const PropertyPageViewTable = (): React.FC => {
         })
     }, [properties])
 
-    const noProperties = !properties.length && !filtersFromQuery
-
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
                 router.push(`/property/${record.id}/`)
             },
         }
-    }, [router])
+    }, [router])    
+    
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+
+    if (error || loading) {
+        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
+    }
+
+    const isNoProperties = !properties.length && isEmpty(filtersFromQuery)
 
     return (
         <>
             {
-                noProperties ?
+                isNoProperties ?
                     <EmptyListView
                         label={EmptyListLabel}
                         message={EmptyListMessage}
@@ -232,13 +244,17 @@ const PropertyPage = (): React.FC => {
                                     <Radio.Button value="map">{ShowMap}</Radio.Button>
                                 </Radio.Group>
                             </Col>
+                            <Col span={24}>
+                                {
+                                    viewMode !== 'map' ? <PropertyPageViewTable /> : null
+                                }
+                            </Col>
                         </Row>
-                        {
-                            viewMode == 'map' ?
-                                <PropertyPageViewMap />
-                                :
-                                <PropertyPageViewTable />
-                        }
+                        <>
+                            {
+                                viewMode === 'map' ? <PropertyPageViewMap /> : null
+                            }
+                        </>
                     </OrganizationRequired>
                 </PageContent>
             </PageWrapper>

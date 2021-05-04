@@ -4,6 +4,44 @@ const buildingEmptyMapJson = {
     'sections': [],
 }
 
+const notValidBuildingMapJson = {
+    'dv': 1,
+    'type': 'building',
+    'sections': [  {
+        'id': '1',
+        'type': 'section',
+        'name': 'Подъезд №1',
+        'floors': [
+            {
+                'id': '7',
+                'type': 'floor',
+                'name': '7',
+                'units': [
+                    {
+                        'id': '25',
+                        'label': '25',
+                        'type': 'unit',
+                    },
+                    {
+                        'id': '26',
+                        'type': 'unit',
+                    },
+                    {
+                        'id': '27',
+                        'label': '27',
+                        'type': 'unit',
+                    },
+                    {
+                        'id': '28',
+                        'label': '28',
+                        'type': 'unit',
+                    },
+                ],
+            },
+        ],
+    }],
+}
+
 const buildingMapJson = {
     'dv': 1,
     'type': 'building',
@@ -268,4 +306,5 @@ module.exports = {
     buildingEmptyMapJson,
     buildingMapJson,    
     buildingAddressMetaJson,
+    notValidBuildingMapJson,
 }
