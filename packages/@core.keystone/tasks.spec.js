@@ -29,7 +29,7 @@ describe('tasks', () => {
     })
 
     test('awaitResult', async () => {
-        const task = createTask('asyncAddTask3', asyncAddTask)
+        const task = createTask('asyncAddTask3', asyncAddTask, { attempts: 3, backoff: true })
         const delayed = await task.delay(44, 45)
         const result = await delayed.awaitResult()
         expect(result).toEqual(44 + 45)
