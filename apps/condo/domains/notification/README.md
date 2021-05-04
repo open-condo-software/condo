@@ -53,6 +53,16 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
 # test and debug
 
 You can use `NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE` environment 
-to fake transport.send() logic and disploay message context in console.
+to fake transport.send() logic and display message context in console.
 
 Debug and test purposes!
+
+If you want to run tests inside your IDE with fake express server and in the same process worker
+and display all transport messages in console use:
+
+`.env`:
+```
+TESTS_FAKE_CLIENT_MODE=true
+TESTS_FAKE_WORKER_MODE=true
+NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
+```
