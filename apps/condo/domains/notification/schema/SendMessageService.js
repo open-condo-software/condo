@@ -1,5 +1,6 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/notification/access/SendMessageService')
+const { MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS } = require('../constants')
 
 const { JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { ALPHANUMERIC_REGEXP } = require('@condo/domains/common/constants/regexps')
@@ -79,7 +80,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
 
                 await checkSendMessageMeta(type, meta)
 
-                const messageAttrs = { dv, sender, status: 'sending', type, meta, lang }
+                const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang }
                 if (to.email) messageAttrs.email = to.email
                 if (to.phone) messageAttrs.phone = to.phone
                 if (to.user) messageAttrs.user = { connect: to.user }
@@ -103,7 +104,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
 
                 const message = await Message.update(context, messageInput.id, {
                     dv, sender,
-                    status: 'resending',
+                    status: MESSAGE_RESENDING_STATUS,
                     deliveredAt: null,
                 })
 

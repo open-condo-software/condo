@@ -5,7 +5,7 @@ const { Message } = require('@condo/domains/notification/utils/serverSchema')
 
 const sms = require('./transports/sms')
 const email = require('./transports/email')
-const { SMS_TRANSPORT, EMAIL_TRANSPORT } = require('./constants')
+const { SMS_TRANSPORT, EMAIL_TRANSPORT, MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS, MESSAGE_PROCESSING_STATUS, MESSAGE_ERROR_STATUS, MESSAGE_DELIVERED_STATUS } = require('./constants')
 
 const TRANSPORTS = {
     [SMS_TRANSPORT]: sms,
@@ -18,7 +18,7 @@ async function sendMessageByTransport (messageId, transport) {
     const message = messages[0]
 
     if (message.id !== messageId) throw new Error('get message by id wrong result')
-    if (message.status !== 'sending' && message.status !== 'resending') {
+    if (message.status !== MESSAGE_SENDING_STATUS && message.status !== MESSAGE_RESENDING_STATUS) {
         return `already-${message.status}`
     }
 
@@ -31,7 +31,8 @@ async function sendMessageByTransport (messageId, transport) {
     const processingMeta = { dv: 1, transport, step: 'init' }
     await Message.update(keystone, message.id, {
         ...baseAttrs,
-        status: 'processing',
+        status: MESSAGE_PROCESSING_STATUS,
+        deliveredAt: null,
         processingMeta,
     })
 
@@ -49,7 +50,8 @@ async function sendMessageByTransport (messageId, transport) {
 
         await Message.update(keystone, message.id, {
             ...baseAttrs,
-            status: 'error',
+            status: MESSAGE_ERROR_STATUS,
+            deliveredAt: null,
             processingMeta,
         })
 
@@ -59,7 +61,8 @@ async function sendMessageByTransport (messageId, transport) {
     // update meta
     await Message.update(keystone, message.id, {
         ...baseAttrs,
-        status: 'sent',
+        status: MESSAGE_DELIVERED_STATUS,
+        deliveredAt: new Date().toISOString(),
         processingMeta,
     })
 
