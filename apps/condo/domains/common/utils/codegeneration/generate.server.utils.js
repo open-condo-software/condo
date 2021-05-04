@@ -4,6 +4,8 @@ const isNotUndefined = (x) => typeof x !== 'undefined'
 
 async function execGqlWithoutAccess (context, { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj' }) {
     if (!context) throw new Error('wrong context argument')
+    if (!context.executeGraphQL) throw new Error('wrong context argument: no executeGraphQL')
+    if (!context.createContext) throw new Error('wrong context argument: no createContext')
     if (!query) throw new Error('wrong query argument')
     if (!variables) throw new Error('wrong variables argument')
     const { errors, data } = await context.executeGraphQL({
