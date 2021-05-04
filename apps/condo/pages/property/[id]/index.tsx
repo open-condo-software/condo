@@ -74,27 +74,30 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
                         </Col>
                         <Col span={1} >
                             <Link href={`/property/${property.id}/update`}>
-                                <Button
-                                    color={'green'}
-                                    type={'sberPrimary'}
-                                    secondary
-                                    icon={<EditFilled />}
-                                >
-                                </Button>
+                                <span>
+                                    <Button
+                                        color={'green'}
+                                        type={'sberPrimary'}
+                                        secondary
+                                        icon={<EditFilled />}
+                                        style={{ lineHeight: '32px' }}
+                                    >
+                                    </Button>
+                                </span>
                             </Link>
                         </Col>
                     </Row>       
-                    <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
-                        <Col flex={1} >
+                    <Row gutter={[47, 40]} style={{ marginTop: '40px' }} justify='start'>
+                        <Col flex={0} >
                             <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} />
                         </Col>
-                        <Col flex={1}>
+                        <Col flex={0}>
                             <PropertyInfoPanel title={SquareTitle} message={UnknownMessage} />
                         </Col>
-                        <Col flex={1}>
+                        <Col flex={0}>
                             <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type='success' />
                         </Col>
-                        <Col flex={1}>
+                        <Col flex={0}>
                             <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork}  type='warning' />
                         </Col>
                     </Row>

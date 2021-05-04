@@ -16,7 +16,7 @@ const EmptyResidentBlock: React.FC = () => {
             <Typography.Title level={3}>
                 {EmptyResidentsTitle}
             </Typography.Title>
-            <Typography.Text style={{ fontSize: '16px' }}>
+            <Typography.Text  style={{ fontSize: '16px', maxWidth: '350px', display: 'flex' }}>
                 {EmptyResidentsMessage}
             </Typography.Text>
             <Space style={{ marginTop: '24px' }}>
@@ -36,8 +36,8 @@ const EmptyResidentBlock: React.FC = () => {
 export const ResidentPanelView: React.FC = () => {
 
     return (
-        <Row >
-            <Col span={8} push={8}>
+        <Row style={{ marginTop: '40px', marginBottom: '40px' }}>
+            <Col span={24}>
                 <EmptyResidentBlock />
             </Col>
         </Row>
@@ -47,8 +47,8 @@ export const ResidentPanelView: React.FC = () => {
 export const ResidentPanelEdit: React.FC = () => {
 
     return (
-        <Row >
-            <Col span={8} push={8}>
+        <Row style={{ marginTop: '40px', marginBottom: '40px' }}>
+            <Col span={24}>
                 <EmptyResidentBlock />
             </Col>
         </Row>

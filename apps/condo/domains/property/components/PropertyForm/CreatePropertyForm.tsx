@@ -9,7 +9,6 @@ import { Button } from '@condo/domains/common/components/Button'
 import { ErrorsContainer } from '../BasePropertyForm/ErrorsContainer'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
-import { buildingMapJson } from '@condo/domains/property/constants/property.example'
 
 const DEFAULT_PROPERTY_TYPE = 'building'
 
@@ -21,12 +20,10 @@ export const CreatePropertyForm: React.FC = () => {
     const action = Property.useCreate({ 
         organization: organization.id,
         type: DEFAULT_PROPERTY_TYPE,
-        map: buildingMapJson,
     }, () => { router.push('/property/') })
 
     const initialValues = {
         name: '',
-        map: buildingMapJson,
     }
 
     return (
