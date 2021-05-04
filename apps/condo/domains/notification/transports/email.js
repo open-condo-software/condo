@@ -3,11 +3,45 @@ const FormData = require('form-data')
 
 const conf = require('@core/config')
 
+const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('../constants')
+
 const EMAIL_API_CONFIG = (conf.EMAIL_API_CONFIG) ? JSON.parse(conf.EMAIL_API_CONFIG) : null
 
-async function prepareMessageToSend (messageId) {
+async function renderTemplate (message) {
+    // TODO(pahaz): we need to decide where to store templates! HArDCODE!
     // TODO(pahaz): write the logic here!
-    return { to: 'pahaz@example.com', subject: 'test', text: 'Hi!' }
+    //  1) we should find message template by TYPE + LANG
+    //  2) we should render the template and return transport context
+
+    const serverUrl = conf.SERVER_URL
+    if (message.type === INVITE_NEW_EMPLOYEE_MESSAGE_TYPE) {
+        const { organizationName, inviteCode } = message.meta
+
+        if (message.lang === 'en') {
+            return {
+                subject: 'You are invited to join organization as employee',
+                text: `Organization "${organizationName}" invited you as employee.\n` +
+                    `Click to the link to join: ${serverUrl}/auth/invite/${inviteCode}`,
+            }
+        } else if (message.lang === 'ru') {
+            return {
+                subject: 'Вас приглаиси присоединиться к организации в качестве сотрудника',
+                text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
+                    `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/invite/${inviteCode}`,
+            }
+        }
+    }
+
+    throw new Error('unknown template or lang')
+}
+
+async function prepareMessageToSend (message) {
+    const email = message.email || (message.user && message.user.email) || null
+    if (!email) throw new Error('on email to send')
+
+    const { subject, text, html } = await renderTemplate(message)
+
+    return { to: email, subject, text, html }
 }
 
 async function send ({ to, cc, bcc, subject, text, html } = {}) {
