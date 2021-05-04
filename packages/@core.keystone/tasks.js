@@ -124,7 +124,11 @@ async function createWorker (keystoneModule) {
     }
 
     // we needed to prepare keystone to use it inside tasks logic!
-    await prepareKeystoneExpressApp(keystoneModule)
+    if (keystoneModule) {
+        await prepareKeystoneExpressApp(keystoneModule)
+    } else {
+        console.warn('Keystone APP context is not prepared! You can\'t use Keystone GQL query inside the tasks!')
+    }
 
     taskQueue.process('*', WORKER_CONCURRENCY, async function (job) {
         console.log(`Job:${job.id} status=processing (${JSON.stringify(job.toJSON())})`)
@@ -143,6 +147,9 @@ async function createWorker (keystoneModule) {
     taskQueue.on('completed', function (job) {
         console.log(`Job:${job.id} status=completed t0=${job.finishedOn - job.timestamp}ms t1=${job.processedOn - job.timestamp}ms t2=${job.finishedOn - job.processedOn} (${JSON.stringify(job.toJSON())})`)
     })
+
+    await taskQueue.isReady()
+    console.log('Worker: ready to work!')
 }
 
 module.exports = {
