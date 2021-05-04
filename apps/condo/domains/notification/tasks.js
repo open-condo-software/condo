@@ -1,3 +1,4 @@
+const conf = require('@core/config')
 const { createTask } = require('@core/keystone/tasks')
 const { getSchemaCtx } = require('@core/keystone/schema')
 
@@ -7,9 +8,19 @@ const sms = require('./transports/sms')
 const email = require('./transports/email')
 const { SMS_TRANSPORT, EMAIL_TRANSPORT, MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS, MESSAGE_PROCESSING_STATUS, MESSAGE_ERROR_STATUS, MESSAGE_DELIVERED_STATUS } = require('./constants')
 
+const SEND_TO_CONSOLE = conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE || false
+
 const TRANSPORTS = {
     [SMS_TRANSPORT]: sms,
     [EMAIL_TRANSPORT]: email,
+}
+
+async function _sendMessageByAdapter (transport, adapter, messageContext) {
+    if (SEND_TO_CONSOLE) {
+        console.info(`MESSAGE by ${transport.toUpperCase()} ADAPTER: ${JSON.stringify(messageContext)}`)
+        return [true, { fakeAdapter: true }]
+    }
+    return await adapter.send(messageContext)
 }
 
 async function sendMessageByTransport (messageId, transport) {
@@ -38,12 +49,14 @@ async function sendMessageByTransport (messageId, transport) {
 
     try {
         const adapter = TRANSPORTS[transport]
-        const context = await adapter.prepareMessageToSend(message)
+        const messageContext = await adapter.prepareMessageToSend(message)
         processingMeta.step = 'prepared'
-        processingMeta.context = context
+        processingMeta.messageContext = messageContext
 
-        await adapter.send(context)
-        processingMeta.step = 'delivered'
+        const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext)
+        processingMeta.deliveryMetadata = deliveryMetadata
+        processingMeta.step = (isOk) ? 'delivered' : 'notDelivered'
+        if (!isOk) throw Error('Transport send result is not OK. Check deliveryMetadata')
     } catch (e) {
         console.error(e)
         processingMeta.error = e.stack || String(e)

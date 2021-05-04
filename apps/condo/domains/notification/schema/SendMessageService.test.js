@@ -1,11 +1,13 @@
 const faker = require('faker')
-const { UUID_RE } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { JSON_UNKNOWN_ATTR_NAME_ERROR } = require('@condo/domains/notification/constants')
 
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { sendMessageByTestClient, resendMessageByTestClient, Message } = require('../utils/testSchema')
+const { MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS, MESSAGE_DELIVERED_STATUS } = require('../constants')
 
-const { sendMessageByTestClient, resendMessageByTestClient } = require('../utils/testSchema')
-const { MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS } = require('../constants')
+const sleep = async (time) => (new Promise((resolve => {
+    setTimeout(resolve, time)
+})))
 
 describe('SendMessageService.sendMessage', () => {
     test('admin: use send message', async () => {
@@ -14,6 +16,33 @@ describe('SendMessageService.sendMessage', () => {
         const [data] = await sendMessageByTestClient(admin)
         expect(data.id).toMatch(UUID_RE)
         expect(data.status).toEqual(MESSAGE_SENDING_STATUS)
+    })
+
+    test('admin: send message and wait for delivered status', async () => {
+        const admin = await makeLoggedInAdminClient()
+
+        const [data, attrs] = await sendMessageByTestClient(admin)
+        await sleep(1000) // wait for worker delivery
+
+        const messages = await Message.getAll(admin, { id: data.id })
+        const message = messages[0]
+
+        expect(message.lang).toEqual(attrs.lang)
+        expect(message.type).toEqual(attrs.type)
+        expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+        expect(message.deliveredAt).toMatch(DATETIME_RE)
+        expect(message.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+        expect(message.updatedBy).toEqual(null)
+        expect(message.organization).toEqual(null)
+        expect(message.user).toEqual(expect.objectContaining({ id: admin.user.id }))
+        expect(message.processingMeta).toEqual(expect.objectContaining({
+            dv: 1,
+            step: 'delivered',
+            transport: 'email',
+            messageContext: expect.objectContaining({
+                to: attrs.to.email,
+            }),
+        }))
     })
 
     test('admin: use send message without requiredAttr', async () => {
