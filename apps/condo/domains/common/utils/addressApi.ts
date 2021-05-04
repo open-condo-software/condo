@@ -1,13 +1,13 @@
 import getConfig from 'next/config'
 
-export interface IDadataApi {
+export interface IAddressApi {
     // TODO(Dimitreee): remove any
     getSuggestions(query: string): Promise<any>
     // TODO(Dimitreee): remove any
     normalizeAddress(query: string): Promise<any>
 }
 
-export class DadataApi implements IDadataApi {
+export class AddressApi implements IAddressApi {
     constructor () {
         this.getAddressSuggestionsConfig()
     }
