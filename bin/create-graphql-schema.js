@@ -6,6 +6,7 @@ const { promisify } = require('util')
 const { printSchema } = require('graphql')
 
 const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
+const { taskQueue } = require('@core/keystone/tasks')
 
 const writeFile = promisify(fs.writeFile)
 
@@ -25,6 +26,7 @@ async function getGraphQLSchema (keystoneModule) {
     const internalSchema = keystone._schemas['internal']
     const result = printSchema(internalSchema)
     await keystone.disconnect()
+    await taskQueue.close()
     return result
 }
 
