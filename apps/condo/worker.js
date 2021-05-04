@@ -1,4 +1,7 @@
 const { createWorker } = require('@core/keystone/tasks')
 
 createWorker(require('./index'))
-    .catch(() => process.exit(2))
+    .catch((error) => {
+        console.error(error)
+        process.exit(2)
+    })
