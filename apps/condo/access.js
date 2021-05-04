@@ -86,7 +86,7 @@ const rules = {
             // Actually, here we repeating the same logic, as declared for another operations
             if (user.isAdmin) return true
             const employeeForUser = await getByCondition('OrganizationEmployee', {
-                organization: { id: originalInput.organization },
+                organization: { id: originalInput.organization.connect.id },
                 user: { id: user.id },
             })
             const employeeRole = await getByCondition('OrganizationEmployeeRole', {
