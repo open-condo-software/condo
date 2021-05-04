@@ -1,6 +1,6 @@
 import { useIntl } from '@core/next/intl'
 import { Col, Row, Typography, Input, Select, InputNumber, Space } from 'antd'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { DeleteFilled } from '@ant-design/icons'
 import cloneDeep from 'lodash/cloneDeep'
 import { 
@@ -95,6 +95,17 @@ interface IChessBoardProps {
 }
 
 const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
+    const container = useRef(null)
+    
+    useEffect(() => {
+        if (container.current) {
+            if (Builder.previewSectionId) {
+                const { scrollWidth, clientWidth, scrollHeight, clientHeight } = container.current
+                container.current.scrollTo( scrollWidth - clientWidth, scrollHeight - clientHeight)
+            }
+        }
+    }, [Builder])
+
     return (
         <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
             {
@@ -104,7 +115,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
                     </Col>
                     :
                     <Col span={24} style={{ marginTop: '60px', whiteSpace: 'nowrap' }}>
-                        <ScrollContainer className="scroll-container" style={{ marginTop: '60px', maxWidth: '1200px', maxHeight: '480px' }}>
+                        <ScrollContainer className="scroll-container" innerRef={container} style={{ marginTop: '60px', maxWidth: '1200px', maxHeight: '480px' }}>
                             {
                                 Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleFloors} /> : null
                             }
@@ -239,6 +250,8 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
     const [maxFloor, setMaxFloor] = useState(null)
     const [unitsOnFloor, setUnitsOnFloor] = useState(null)
 
+    const [maxMinError, setMaxMinError] = useState(false)
+
     const resetForm = () => {
         setName('')
         setMinFloor(null)
@@ -247,7 +260,10 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
     }
 
     useEffect(() => {
-        if (name && minFloor && maxFloor && unitsOnFloor) {
+        if (minFloor && maxFloor) {
+            setMaxMinError((maxFloor < minFloor) ? true : false)
+        }
+        if (name && minFloor && maxFloor && unitsOnFloor && !maxMinError) {
             Builder.addPreviewSection({ id: '', name, minFloor, maxFloor, unitsOnFloor })
             refresh()    
         } else {
@@ -259,8 +275,8 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
     const handleFinish = () => {
         Builder.removePreviewSection()
         Builder.addSection({ id: '', name, minFloor, maxFloor, unitsOnFloor })
-        refresh()
         resetForm()
+        refresh()        
     }
     return (
         <>
@@ -271,15 +287,15 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
                 </Space>
             </Col>
             <Col flex={0}>
-                <Space direction={'vertical'} size={8}>
+                <Space direction={'vertical'} size={8}  className={ maxMinError ? 'ant-form-item-has-error' : ''}>
                     <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
                     <InputNumber value={minFloor} onChange={v => setMinFloor(v)} style={INPUT_STYLE} />
                 </Space>
             </Col>
             <Col flex={0}>
-                <Space direction={'vertical'} size={8}>
+                <Space direction={'vertical'} size={8} className={ maxMinError ? 'ant-form-item-has-error' : ''}>
                     <Typography.Text type={'secondary'}>{MaxFloorLabel}</Typography.Text>
-                    <InputNumber value={maxFloor} onChange={v => setMaxFloor(v)} style={INPUT_STYLE} />
+                    <InputNumber  value={maxFloor} onChange={v => setMaxFloor(v)} style={INPUT_STYLE} />
                 </Space>
             </Col>
             <Col flex={0}>
@@ -295,7 +311,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
                     onClick={handleFinish}
                     type='sberPrimary'
                     style={{ marginTop: '30px' }}
-                    disabled={!(name.length && minFloor && maxFloor && unitsOnFloor)}
+                    disabled={!(name.length && minFloor && maxFloor && unitsOnFloor && !maxMinError)}
                 > {AddLabel} </Button>
             </Col>
             <Col flex="auto" />

@@ -12,7 +12,7 @@ const testSection = {
 const sectionName = () => {
     return Math.random().toString()
 }
-const createBuildingMap = (sections: number) => {
+const createBuildingMap = (sections: number): MapEdit => {
     const PropertyMap = new MapEdit(null, () => null )
     for (let i = 0; i < sections; i++){
         PropertyMap.addSection({ ...testSection, name: sectionName(), type: MapTypesList.Section })
@@ -20,6 +20,10 @@ const createBuildingMap = (sections: number) => {
     return PropertyMap
 }
 
+const createBuilding = (data): MapEdit => {
+    const Map = new MapEdit(JSON.parse(JSON.stringify(data)), () => null)
+    return Map
+}
 
 describe('Map constructor', () => {
     describe('Service functions', () => {
@@ -206,4 +210,138 @@ describe('Map constructor', () => {
 
     })
 
+})
+
+const ONE_SECTION_TWO_FLOORS = {
+    name: 'Justice 1th',
+    sections: [
+        {
+            id: 1,
+            type: 'section',
+            name: '1',
+            floors: [
+                {
+                    id: 2,
+                    type: 'floor',
+                    name: '2',
+                    index: 2,
+                    units: [
+                        { id: 3, type: 'unit', name: '22' },
+                        { id: 4, type: 'unit', name: '23' },
+                    ],
+                },
+                {
+                    id: 5,
+                    type: 'floor',
+                    name: '1',
+                    index: 1,
+                    units: [
+                        { id: 6, type: 'unit', name: '11' },
+                    ],
+                },
+            ],
+        },
+    ],
+}
+
+const TWO_SECTION_THREE_FLOORS = {
+    name: 'Justice 2th',
+    sections: [
+        {
+            id: 1,
+            type: 'section',
+            floors: [
+                {
+                    id: 2,
+                    type: 'floor',
+                    name: '2',
+                    index: 2,
+                    units: [{ id: 3, type: 'unit', name: '22' }, { id: 4, type: 'unit', name: '23' }],
+                },
+                {
+                    id: 5,
+                    type: 'floor',
+                    name: '1',
+                    index: 1,
+                    units: [{ id: 6, type: 'unit', name: '11' }],
+                },
+            ],
+        },
+        {
+            id: 7,
+            type: 'section',
+            index: 2,
+            floors: [
+                {
+                    id: 8,
+                    type: 'floor',
+                    name: '1',
+                    index: 1,
+                    units: [{ id: 9, type: 'unit', name: '22x' }, { id: 10, type: 'unit', name: '23x' }],
+                },
+                {
+                    id: 11,
+                    type: 'floor',
+                    name: '-1',
+                    index: -1,
+                    units: [{ id: 12, type: 'unit', name: '11x' }, { id: 15, type: 'unit', name: '12x' }],
+                },
+            ],
+        },
+    ],
+}
+
+describe('Check new MapConstructor to work on old JSON data', () => {
+    describe('ONE_SECTION_TWO_FLOORS', () => {
+        it('Structure shoud be auto repaired (missing type, dv)', () => {
+            const Building = createBuilding(ONE_SECTION_TWO_FLOORS)
+            expect(Building.isMapValid).toBe(true)
+        })
+        it('Structure shoud contain 1 section', () => {
+            const Building = createBuilding(ONE_SECTION_TWO_FLOORS)
+            expect(Building.sections).toHaveLength(1)
+        })
+        it('Structure shoud contain 2 floors', () => {
+            const Building = createBuilding(ONE_SECTION_TWO_FLOORS)
+            const allFloors = Building.sections
+                .map( section => section.floors )
+                .flat()
+            expect(allFloors).toHaveLength(2)
+        })
+        it('Structure shoud contain 3 units', () => {
+            const Building = createBuilding(ONE_SECTION_TWO_FLOORS)
+            const allUnits = Building.sections
+                .map( section => section.floors
+                    .map( floor => floor.units))
+                .flat(2)
+            expect(allUnits).toHaveLength(3)
+        })
+
+    })
+    describe('TWO_SECTION_THREE_FLOORS: ', () => {
+        it('Structure shoud be auto repaired (missing type, dv)', () => {
+            const Building = createBuilding(TWO_SECTION_THREE_FLOORS)
+            expect(Building.isMapValid).toBe(true)
+        })
+        it('Structure shoud contain 2 sections', () => {
+            const Building = createBuilding(TWO_SECTION_THREE_FLOORS)
+            expect(Building.sections).toHaveLength(2)
+        })
+        it('Structure shoud contain 4 floors', () => {
+            const Building = createBuilding(TWO_SECTION_THREE_FLOORS)
+            const allFloors = Building.sections
+                .map( section => section.floors )
+                .flat()
+            expect(allFloors).toHaveLength(4)
+            
+        })
+        it('Structure shoud contain 7 units', () => {
+            const Building = createBuilding(TWO_SECTION_THREE_FLOORS)
+            const allUnits = Building.sections
+                .map( section => section.floors
+                    .map( floor => floor.units))
+                .flat(2)
+            expect(allUnits).toHaveLength(7)
+        })
+    })
 })

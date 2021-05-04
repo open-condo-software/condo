@@ -114,10 +114,19 @@ class Map {
 
     private repairMapStructure (): void {
         this.autoincrement = 0
+        if (!has(this.map, 'dv')) {
+            this.map.dv = 1
+        }
+        if (!has(this.map, 'type')) {
+            this.map.type = MapTypesList.Building
+        }
         this.map.sections.forEach((section, sectionIndex) => {
             section.type = MapTypesList.Section
             section.id = String(++this.autoincrement)
             section.index = sectionIndex
+            if (!has(section, 'name')) {
+                section.name = String(section.index)
+            }
             section.floors.forEach((floor, floorIndex) => {
                 floor.type = MapTypesList.Floor
                 floor.id = String(++this.autoincrement)
@@ -130,6 +139,9 @@ class Map {
                 floor.units.forEach(unit => {
                     unit.type = MapTypesList.Unit
                     unit.id = String(++this.autoincrement)
+                    if (!has(unit, 'label')) {
+                        unit.label = has(unit, 'name') ? unit.name : ''
+                    }
                 })
             })
         })
@@ -292,8 +304,8 @@ class MapView extends Map {
 
 class MapEdit extends MapView {
 
-    private previewSectionId: string
-    private previewUnitId: string
+    public previewSectionId: string
+    public previewUnitId: string
 
     constructor (map: Maybe<BuildingMap>, private updateMap: Maybe<(map: BuildingMap) => void>) {
         super(map)
