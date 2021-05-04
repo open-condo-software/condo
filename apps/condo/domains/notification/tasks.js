@@ -23,10 +23,17 @@ async function _sendMessageByAdapter (transport, adapter, messageContext) {
     return await adapter.send(messageContext)
 }
 
-async function sendMessageByTransport (messageId, transport) {
+async function deliveryMessage (messageId) {
     const { keystone } = await getSchemaCtx('Message')
     const messages = await Message.getAll(keystone, { id: messageId })
     const message = messages[0]
+
+    // TODO(pahaz): extend this logic
+    //  1) we should chose the best transport for the message
+    //  2) then sending it by the transport
+    // For example: if we want to send invite to user and he wants to get receive messages by TG we should schedule
+    // TG transport sending
+    const transport = EMAIL_TRANSPORT
 
     if (message.id !== messageId) throw new Error('get message by id wrong result')
     if (message.status !== MESSAGE_SENDING_STATUS && message.status !== MESSAGE_RESENDING_STATUS) {
@@ -87,5 +94,5 @@ async function sendMessageByTransport (messageId, transport) {
 }
 
 module.exports = {
-    sendMessageByTransport: createTask('sendMessageByTransport', sendMessageByTransport),
+    deliveryMessage: createTask('deliveryMessage', deliveryMessage),
 }

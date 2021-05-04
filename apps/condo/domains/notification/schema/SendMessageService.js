@@ -9,18 +9,8 @@ const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 
 const { MESSAGE_TYPES } = require('../constants')
-const { JSON_UNKNOWN_ATTR_NAME_ERROR, JSON_SUSPICIOUS_ATTR_NAME_ERROR, JSON_NO_REQUIRED_ATTR_ERROR, MESSAGE_META, EMAIL_TRANSPORT } = require('../constants')
-const { sendMessageByTransport } = require('../tasks')
-
-async function scheduleMessageDelivery (message) {
-    // TODO(pahaz): extend this logic
-    //  1) we should chose the best transport for the message
-    //  2) then schedule the message sending by the transport
-    // For example: if we want to send invite to user and he wants to get receive messages by TG we should schedule
-    // TG transport sending
-    const transport = EMAIL_TRANSPORT
-    await sendMessageByTransport.delay(message.id, transport)
-}
+const { JSON_UNKNOWN_ATTR_NAME_ERROR, JSON_SUSPICIOUS_ATTR_NAME_ERROR, JSON_NO_REQUIRED_ATTR_ERROR, MESSAGE_META } = require('../constants')
+const { deliveryMessage } = require('../tasks')
 
 async function checkSendMessageMeta (type, meta) {
     if (meta.dv !== 1) throw new Error(`${JSON_UNKNOWN_VERSION_ERROR}meta] Unknown \`dv\` attr inside JSON Object`)
@@ -87,7 +77,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
 
                 const message = await Message.create(context, messageAttrs)
 
-                await scheduleMessageDelivery(message)
+                await deliveryMessage.delay(message.id)
 
                 return {
                     id: message.id,
@@ -108,7 +98,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                     deliveredAt: null,
                 })
 
-                await scheduleMessageDelivery(message)
+                await deliveryMessage.delay(message.id)
 
                 return {
                     id: message.id,
