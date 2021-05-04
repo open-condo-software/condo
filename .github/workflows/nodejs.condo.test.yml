@@ -41,11 +41,11 @@ jobs:
       - name: test front build
         run: |
           set -x
-          echo "# Build time .env config!" > .env && \
-          	echo "COOKIE_SECRET=undefined" >> .env && \
-          	echo "DATABASE_URL=undefined" >> .env && \
-          	echo "WORKER_REDIS_URL=undefined" >> .env && \
-          	echo "NODE_ENV=production" >> .env
+          echo '# Build time .env config!' > .env
+          echo 'COOKIE_SECRET=undefined' >> .env
+          echo 'DATABASE_URL=undefined' >> .env
+          echo 'WORKER_REDIS_URL=undefined' >> .env
+          echo 'NODE_ENV=production' >> .env
 
           yarn workspace @app/condo build
 
@@ -65,7 +65,7 @@ jobs:
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
 
-          yarn workspace @app/condo test --silent --coverage --testTimeout=15000
+          yarn workspace @app/condo test --silent --coverage --testTimeout=15000 --forceExit
 
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
