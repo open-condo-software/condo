@@ -1,6 +1,7 @@
 const Queue = require('bull')
 
 const conf = require('@core/config')
+const { prepareKeystoneExpressApp } = require('./test.utils')
 
 const TASK_TYPE = 'TASK'
 const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')
@@ -35,7 +36,8 @@ function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
             // NOTE: it's just for test purposes
             // similar to https://docs.celeryproject.org/en/3.1/configuration.html#celery-always-eager
             // TODO(pahaz): think about test errors!?
-            const result = await executeTask(name, createSerializableCopy([...arguments]))
+            console.warn('LocalTaskExecution', name, args, taskOptions, '(task options ignored)')
+            const result = await executeTask(name, createSerializableCopy(args))
             return {
                 getState: async () => { return Promise.resolve('completed') },
                 awaitResult: async () => { return Promise.resolve(result) },
@@ -111,7 +113,7 @@ function executeTask (name, args, job = null) {
     return fn.apply(job, args)
 }
 
-function createWorker () {
+async function createWorker (keystoneModule) {
     // NOTE: we should have only one worker per node process!
     if (isWorkerCreated) {
         console.warn('Call createWorker() more than one time! (ignored)')
@@ -120,6 +122,9 @@ function createWorker () {
         isWorkerCreated = true
         console.log('Creating worker process')
     }
+
+    // we needed to prepare keystone to use it inside tasks logic!
+    await prepareKeystoneExpressApp(keystoneModule)
 
     taskQueue.process('*', WORKER_CONCURRENCY, async function (job) {
         console.log(`Job:${job.id} status=processing (${JSON.stringify(job.toJSON())})`)
