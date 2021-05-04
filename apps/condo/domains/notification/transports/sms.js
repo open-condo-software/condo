@@ -41,6 +41,15 @@ async function prepareMessageToSend (message) {
     return { phone, message: text }
 }
 
+/**
+ * Send a SMS message by remote API service
+ *
+ * @param {Object} args - send sms arguments
+ * @param {string} args.phone - Phone number to send to. Example: "+79068088888"
+ * @param {string} args.message - Message text
+ * @typedef {[boolean, Object]} StatusAndMetadata
+ * @return {StatusAndMetadata} Status and delivery Metadata (debug only)
+ */
 async function send ({ phone, message } = {}) {
     if (!SMS_API_CONFIG) throw new Error('no SMS_API_CONFIG')
     if (!/^[+]7[0-9]{10}$/g.test(phone)) throw new Error('unsupported phone number')
