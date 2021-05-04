@@ -9,18 +9,24 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const MESSAGE_FIELDS = `{ organization { id } user { id } lang type meta status sentAt ${COMMON_FIELDS} }`
+const MESSAGE_FIELDS = `{ organization { id } user { id email phone } email phone lang type meta status processingMeta sentAt ${COMMON_FIELDS} }`
 const Message = generateGqlQueries('Message', MESSAGE_FIELDS)
 
 const SEND_MESSAGE = gql`
     mutation sendMessage ($data: SendMessageInput!) {
-        result: sendMessage(data: $data) { status }
+        result: sendMessage(data: $data) { status id }
+    }
+`
+
+const RESEND_MESSAGE = gql`
+    mutation resendMessage ($data: ResendMessageInput!) {
+        result: resendMessage(data: $data) { status id }
     }
 `
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Message,
-    SEND_MESSAGE,
+    SEND_MESSAGE, RESEND_MESSAGE,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
