@@ -83,5 +83,6 @@ function generateGQLTestUtils (gql) {
 }
 
 module.exports = {
+    throwIfError,
     generateGQLTestUtils,
 }
