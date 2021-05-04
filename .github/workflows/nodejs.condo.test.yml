@@ -16,53 +16,64 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x]
-        database: ["postgresql://postgres:postgres@127.0.0.1/main"]
+        node-version: [ 14.x ]
+        database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
 
     steps:
       - uses: actions/checkout@v2
-      - name: Prepare .env
-        run: cp .env.example .env
+
       - name: Docker compose up databases
-        run: docker-compose up -d postgresdb redis
+        run: |
+          cp .env.example .env
+          docker-compose up -d postgresdb redis
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+
       - name: install packages
         run: |
           yarn
           pip3 install django
           pip3 install psycopg2-binary
-      - name: run tests for ${{ matrix.database }}
-        run: |
-          set -x
-          # export DEBUG=knex:query,knex:tx
-          # export DEBUG_MONGOOSE=1
-          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
-          export NODE_ENV=test
-          export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
-          yarn workspace @app/condo dev &
-          yarn workspace @app/condo worker &
-          # Wait until server is up!
-          bash ./.github/workflows/waitForLocalhostApiReady.sh
-          jobs
-          sleep 3
-          yarn workspace @app/condo test --silent --coverage --testTimeout=15000
-          # Note: we need to stop background worker! because packages tests use the same redis queue
-          kill $(jobs -p) || echo 'background worker and dev server is already killed!'
-          killall node || echo 'no node processes'
-          yarn jest ./packages/@core.keystone
-        env:
-          DATABASE_URL: ${{ matrix.database }}
-          NODE_ENV: development
-          DISABLE_LOGGING: true
+
       - name: test front build
         run: |
-          docker-compose down
+          set -x
           echo "# Build time .env config!" > .env && \
           	echo "COOKIE_SECRET=undefined" >> .env && \
           	echo "DATABASE_URL=undefined" >> .env && \
           	echo "WORKER_REDIS_URL=undefined" >> .env && \
           	echo "NODE_ENV=production" >> .env
+
           yarn workspace @app/condo build
+
+      - name: run tests for ${{ matrix.database }}
+        run: |
+          set -x
+          cp .env.example .env
+          export NODE_ENV=test
+          export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
+
+          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
+          yarn workspace @app/condo dev &
+          yarn workspace @app/condo worker &
+
+          # Wait until server is up! And check background processes!
+          bash ./.github/workflows/waitForLocalhostApiReady.sh
+          [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
+          sleep 3
+
+          yarn workspace @app/condo test --silent --coverage --testTimeout=15000
+
+          # Note: we need to stop background worker! because packages tests use the same redis queue
+          kill $(jobs -p) || echo 'background worker and dev server is already killed!'
+          killall node || echo 'no node processes'
+
+          yarn jest ./packages/@core.keystone
+
+        env:
+          DATABASE_URL: ${{ matrix.database }}
+          NODE_ENV: development
+          DISABLE_LOGGING: true
