@@ -44,6 +44,7 @@ jobs:
           # Wait until server is up!
           bash ./.github/workflows/waitForLocalhostApiReady.sh
           sleep 3
+          jest ./packages/@core.keystone
           yarn workspace @app/condo test --silent --coverage
         env:
           DATABASE_URL: ${{ matrix.database }}
