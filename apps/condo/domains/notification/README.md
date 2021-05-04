@@ -49,3 +49,10 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
 ...
 
 ```
+
+# test and debug
+
+You can use `NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE` environment 
+to fake transport.send() logic and disploay message context in console.
+
+Debug and test purposes!

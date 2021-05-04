@@ -41,6 +41,7 @@ jobs:
           # export DEBUG_MONGOOSE=1
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
           yarn workspace @app/condo dev &
+          yarn workspace @app/condo worker &
           # Wait until server is up!
           bash ./.github/workflows/waitForLocalhostApiReady.sh
           sleep 3
