@@ -57,11 +57,14 @@ jobs:
           export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
 
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
-          yarn workspace @app/condo dev &
-          yarn workspace @app/condo worker &
 
-          # Wait until server is up! And check background processes!
+          yarn workspace @app/condo dev &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
+
+          yarn workspace @app/condo worker &
+          sleep 3
+
+          # And check background processes!
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
 
