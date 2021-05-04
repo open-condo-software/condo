@@ -190,6 +190,7 @@ export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
     return (
         <Dropdown
             placement="bottomCenter"
+            trigger={['click']}
             overlay={
                 <Menu>
                     {fetching ? (
