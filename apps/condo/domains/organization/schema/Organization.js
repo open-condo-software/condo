@@ -11,7 +11,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
 const { rules } = require('../../../access')
-const countries = require('@condo/domains/common/constants/countries')
+const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 
@@ -30,7 +30,7 @@ const Organization = new GQLListSchema('Organization', {
             schemaDoc: 'Country level specific',
             isRequired: true,
             type: Select,
-            options: countries.COUNTRIES,
+            options: Object.keys(COUNTRIES).join(','),
         },
         name: {
             schemaDoc: 'Customer-friendly name',

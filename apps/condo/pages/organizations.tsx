@@ -9,6 +9,7 @@ import { useIntl } from '@core/next/intl'
 import { useMutation, useQuery } from '@core/next/apollo'
 import { useOrganization } from '@core/next/organization'
 
+import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import FormList, {
@@ -41,7 +42,7 @@ function CreateAndEditOrganizationModalForm ({ visible, editableItem, cancelModa
 
     const formInitialValues = { ...(editableItem) ? convertGQLItemToUIState(editableItem) : {} }
     const mutationExtraData = {
-        country: 'ru',
+        country: RUSSIA_COUNTRY,
         meta: { v: 1, inn: 'fake!' },
     }
     const ErrorToFormFieldMsgMapping = {

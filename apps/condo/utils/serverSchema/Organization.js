@@ -1,4 +1,4 @@
-const countries = require('@condo/domains/common/constants/countries')
+const { COUNTRIES, DEFAULT_ENGLISH_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { Organization, OrganizationEmployee, OrganizationEmployeeRole } = require('@condo/domains/organization/gql')
 const { execGqlWithoutAccess } = require('./utils')
 
@@ -33,7 +33,7 @@ async function createAdminRole (context, organization, data) {
     if (!context) throw new Error('no context')
     if (!organization.id) throw new Error('wrong organization.id argument')
     if (!organization.country) throw new Error('wrong organization.country argument')
-    const adminRoleName = countries[organization.country].adminRoleName
+    const adminRoleName = (COUNTRIES[organization.country] || COUNTRIES[DEFAULT_ENGLISH_COUNTRY]).adminRoleName
     return await execGqlWithoutAccess(context, {
         query: OrganizationEmployeeRole.CREATE_OBJ_MUTATION,
         variables: {

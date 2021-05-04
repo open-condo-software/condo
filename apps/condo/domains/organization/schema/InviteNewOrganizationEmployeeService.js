@@ -20,14 +20,14 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
             resolver: async (parent, args, context, info, extra = {}) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data } = args
-                const { organization, email, name, ...restData } = data
+                const { organization: { id: organiationId }, email, name, ...restData } = data
                 let user
 
                 // Note: check is already exists (email + organization)
                 {
                     const objs = await findOrganizationEmployee(context, {
                         email,
-                        organization: { id: organization.id },
+                        organization: { id: organiationId },
                     })
 
                     if (objs.length > 0) {
@@ -49,7 +49,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 if (user) {
                     const objs = await findOrganizationEmployee(context, {
                         user: { id: user.id },
-                        organization: { id: organization.id },
+                        organization: { id: organiationId },
                     })
 
                     if (objs.length > 0) {
@@ -59,9 +59,9 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     }
                 }
 
-                const obj = await createOrganizationEmployee(context, {
+                const employee = await createOrganizationEmployee(context, {
                     user: (user) ? { connect: { id: user.id } } : undefined,
-                    organization: { connect: { id: organization.id } },
+                    organization: { connect: { id: organiationId } },
                     email,
                     name,
                     ...restData,
@@ -70,7 +70,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 // TODO(pahaz): send email !?!?!
                 console.log('Fake send security email!')
 
-                return await getById('OrganizationEmployee', obj.id)
+                return await getById('OrganizationEmployee', employee.id)
             },
         },
     ],
