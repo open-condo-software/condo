@@ -12,12 +12,15 @@ const getLocalize = (locale) => {
     throw new Error('Something wrong with locales in date-fns again')
 }
 
-
+const RU_LOCALE = 'ru'
+const EN_LOCALE = 'en'
 const LOCALES = {
-    ru: getLocalize(RU),
-    en: getLocalize(EN),
+    [RU_LOCALE]: getLocalize(RU),
+    [EN_LOCALE]: getLocalize(EN),
 }
 
+// TODO(pahaz): we also have a LANG. We need to check the locale usage and refactor it to locale or lang
 module.exports = {
+    RU_LOCALE, EN_LOCALE,
     LOCALES,
 }
