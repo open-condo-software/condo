@@ -25,7 +25,7 @@ async function renderTemplate (message) {
             }
         } else if (message.lang === 'ru') {
             return {
-                subject: 'Вас приглаиси присоединиться к организации в качестве сотрудника',
+                subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
                 text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
                     `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/invite/${inviteCode}`,
             }
