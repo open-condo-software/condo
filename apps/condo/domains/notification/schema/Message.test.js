@@ -22,6 +22,21 @@ describe('Message', () => {
         expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
         expect(obj.createdAt).toMatch(DATETIME_RE)
         expect(obj.updatedAt).toMatch(DATETIME_RE)
+        expect(obj.status).toEqual('sending')
+        expect(obj.lang).toEqual('en')
+        expect(obj.user).toEqual(null)
+        expect(obj.email).toEqual(attrs.email)
+        expect(obj.phone).toEqual(null)
+        expect(obj.processingMeta).toEqual(null)
+        expect(obj.sentAt).toEqual(null)
+    })
+
+    test('admin: update Message', async () => {
+        const client = await makeLoggedInAdminClient()
+
+        const [objCreated] = await createTestMessage(client)
+        const [obj] = await updateTestMessage(client, objCreated.id, { email: 'new.user.mail@example.org' })
+        expect(obj.email).toEqual('new.user.mail@example.org')
     })
 
     test('user: create Message', async () => {
