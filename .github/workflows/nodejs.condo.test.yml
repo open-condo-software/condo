@@ -47,7 +47,7 @@ jobs:
           # Wait until server is up!
           bash ./.github/workflows/waitForLocalhostApiReady.sh
           sleep 3
-          yarn workspace @app/condo test --silent --coverage
+          yarn workspace @app/condo test --silent --coverage --testTimeout=15000
           yarn jest ./packages/@core.keystone
           killall node
         env:
