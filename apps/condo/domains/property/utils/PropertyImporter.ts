@@ -11,7 +11,7 @@ import isEqual from 'lodash/isEqual'
 import get from 'lodash/get'
 import cloneDeep from 'lodash/cloneDeep'
 import { Scalars } from '../../../schema'
-import { DadataApi, IDadataApi } from '../../common/utils/dadataApi'
+import { AddressApi, IAddressApi } from '../../common/utils/addressApi'
 import { BDataSection, BDataTypes, createNewBBuildingSectionData, updateUnitsLabels } from './BBuildingData'
 
 type TableRow = Array<Record<'value', string | number>>
@@ -39,7 +39,7 @@ export class PropertyImporter implements IPropertyImporter {
         // TODO(Dimitreee): remove any
         private propertyCreator: (...args: any) => Promise<any>,
         private propertyValidator: (address: string) => Promise<boolean>,
-        private dadataApi: IDadataApi = new DadataApi(),
+        private addressApi: IAddressApi = new AddressApi(),
     ) {}
 
     // TODO(Dimitreee): remove any
@@ -94,13 +94,13 @@ export class PropertyImporter implements IPropertyImporter {
 
         const [address, units, sections, floors] = row
 
-        return this.dadataApi
+        return this.addressApi
             .getSuggestions(String(address.value))
             .then((result) => {
                 const suggestion = get(result, ['suggestions', 0])
 
                 if (suggestion) {
-                    const map = this.createPropertyUnitMap(units.value, sections.value, floors.value)
+                    const map = this.createPropertyUnitsMap(units.value, sections.value, floors.value)
 
                     return this.addProperty(suggestion, map)
                 }
@@ -184,7 +184,7 @@ export class PropertyImporter implements IPropertyImporter {
         return this.propertyValidator(address)
     }
 
-    private createPropertyUnitMap (units: number, sections: number, floors: number): IBuildingMap {
+    private createPropertyUnitsMap (units: number, sections: number, floors: number): IBuildingMap {
         const unitsPerFloor = Math.floor(units / (floors * sections))
         if (!unitsPerFloor) {
             return

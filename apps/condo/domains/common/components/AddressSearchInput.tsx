@@ -3,11 +3,11 @@ import { Select, Spin } from 'antd'
 import debounce from 'lodash/debounce'
 import pickBy from 'lodash/pickBy'
 import identity from 'lodash/identity'
-import { DadataApi, IDadataApi } from '../utils/dadataApi'
+import { AddressApi, IAddressApi } from '../utils/addressApi'
 
 const DEBOUNCE_TIMEOUT = 800
 
-async function searchAddress (api: IDadataApi, query) {
+async function searchAddress (api: IAddressApi, query) {
     const { suggestions } = await api.getSuggestions(query)
 
     // FORMAT: { suggestions: [ { value: "Address1", meta1: value1, meta2: value2, ... }, ... ] }
@@ -26,7 +26,7 @@ export const AddressSearchInput: React.FC = (props) => {
     const [fetching, setFetching] = useState(false)
     const [data, setData] = useState([])
     const api = useMemo(() => {
-        return new DadataApi()
+        return new AddressApi()
     }, [])
     const options = useMemo(() => {
         return data.map(d => <Select.Option key={d.value} value={d.value} title={d.text}>{d.text}</Select.Option>)
