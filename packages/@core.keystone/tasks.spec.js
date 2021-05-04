@@ -38,8 +38,6 @@ describe('tasks', () => {
     test('getState', async () => {
         const task = createTask('asyncAddTask4', asyncAddTask)
         const delayed = await task.delay(44, 45)
-        const state1 = await delayed.getState()
-        expect(state1).toEqual('waiting')
         await delayed.awaitResult()
         const state2 = await delayed.getState()
         expect(state2).toEqual('completed')
