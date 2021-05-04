@@ -1,4 +1,4 @@
 const { createWorker } = require('@core/keystone/tasks')
-require('./index')  // we need to register Task!
 
-createWorker()
+createWorker(require('./index'))
+    .catch(() => process.exit(2))
