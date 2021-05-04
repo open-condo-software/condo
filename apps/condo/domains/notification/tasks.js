@@ -28,7 +28,7 @@ async function sendMessageByTransport (messageId, transport) {
         sender: message.sender,
     }
 
-    const processingMeta = { dv: 1, transport, step: 1 }
+    const processingMeta = { dv: 1, transport, step: 'init' }
     await Message.update(keystone, message.id, {
         ...baseAttrs,
         status: 'processing',
@@ -38,11 +38,11 @@ async function sendMessageByTransport (messageId, transport) {
     try {
         const adapter = TRANSPORTS[transport]
         const context = await adapter.prepareMessageToSend(message)
-        processingMeta.step = 2
+        processingMeta.step = 'prepared'
         processingMeta.context = context
 
         await adapter.send(context)
-        processingMeta.step = 3
+        processingMeta.step = 'delivered'
     } catch (e) {
         console.error(e)
         processingMeta.error = e.stack || String(e)
@@ -65,8 +65,8 @@ async function sendMessageByTransport (messageId, transport) {
 
     if (processingMeta.error) {
         throw new Error(processingMeta.error)
-        // TODO(pahaz): need to think about some repeat logic? 2 times?
-        //  at the moment we just skip it!
+        // TODO(pahaz): need to think about some repeat logic?
+        //  at the moment we just throw the error to worker scheduler!
     }
 }
 
