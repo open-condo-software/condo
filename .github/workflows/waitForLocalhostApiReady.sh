@@ -21,9 +21,9 @@ while [[ "${API_AUTH_RESULT}" != *'"__typename":"User"'* && ((${API_WAIT_TIMEOUT
   ((API_WAIT_TIMEOUT-=${API_SLEEP_INTERVAL}))
 done
 
-REDIS_RESULT=$(echo -e '*1\r\n$4\r\nPING\r\n' | nc 127.0.0.1 6379)
-while [[ "${REDIS_RESULT}" != *'PONG'* && ((${API_WAIT_TIMEOUT} > 0)) ]]; do
-  sleep ${API_SLEEP_INTERVAL}
-  REDIS_RESULT=$(echo -e '*1\r\n$4\r\nPING\r\n' | nc 127.0.0.1 6379)
-  ((API_WAIT_TIMEOUT-=${API_SLEEP_INTERVAL}))
-done
+#REDIS_RESULT=$(echo -e '*1\r\n$4\r\nPING\r\n' | nc 127.0.0.1 6379)
+#while [[ "${REDIS_RESULT}" != *'PONG'* && ((${API_WAIT_TIMEOUT} > 0)) ]]; do
+#  sleep ${API_SLEEP_INTERVAL}
+#  REDIS_RESULT=$(echo -e '*1\r\n$4\r\nPING\r\n' | nc 127.0.0.1 6379)
+#  ((API_WAIT_TIMEOUT-=${API_SLEEP_INTERVAL}))
+#done
