@@ -41,11 +41,11 @@ jobs:
           # export DEBUG_MONGOOSE=1
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
           yarn workspace @app/condo dev &
-          yarn workspace @app/condo worker &
+          NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true yarn workspace @app/condo worker &
           # Wait until server is up!
           bash ./.github/workflows/waitForLocalhostApiReady.sh
           sleep 3
-          jest ./packages/@core.keystone
+          yarn jest ./packages/@core.keystone
           yarn workspace @app/condo test --silent --coverage
         env:
           DATABASE_URL: ${{ matrix.database }}
