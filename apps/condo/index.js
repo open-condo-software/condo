@@ -21,7 +21,7 @@ const keystone = new Keystone({
     ...prepareDefaultKeystoneConfig(conf),
     onConnect: async () => {
         // Initialise some data
-        if (conf.NODE_ENV !== 'development') return // Just for dev env purposes!
+        if (conf.NODE_ENV !== 'development' && conf.NODE_ENV !== 'test') return // Just for dev env purposes!
         // This function can be called before tables are created! (we just ignore this)
         const users = await keystone.lists.User.adapter.findAll()
         if (!users.length) {
