@@ -22,7 +22,7 @@ const LoginPage = (): React.ReactElement => {
             <Head>
                 <title>{SignInTitleMsg}</title>
             </Head>
-            <div >
+            <div>
                 <Typography.Title>{SignInTitleMsg}</Typography.Title>
                 <LoginForm />
             </div>
@@ -68,7 +68,7 @@ const LoginForm = (): React.ReactElement => {
                 name="password"
                 label={PasswordMsg}
                 labelAlign='left'
-                labelCol={{ flex: 1 }}
+                labelCol={{ flex: 1 }} 
                 style={{ marginTop: '24px' }}
             >
                 <Input.Password style={{ ...INPUT_STYLE }}  />
