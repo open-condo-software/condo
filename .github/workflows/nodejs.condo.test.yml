@@ -40,8 +40,10 @@ jobs:
           # export DEBUG=knex:query,knex:tx
           # export DEBUG_MONGOOSE=1
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
+          export NODE_ENV=test
+          export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
           yarn workspace @app/condo dev &
-          NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true yarn workspace @app/condo worker &
+          yarn workspace @app/condo worker &
           # Wait until server is up!
           bash ./.github/workflows/waitForLocalhostApiReady.sh
           sleep 3
