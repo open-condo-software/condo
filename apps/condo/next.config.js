@@ -12,7 +12,6 @@ const apolloGraphQLUrl = `${serverUrl}/admin/api`
 const firebaseConfig = conf['FIREBASE_CONFIG'] && JSON.parse(conf['FIREBASE_CONFIG'])
 const addressSuggestionsConfig = conf['ADDRESS_SUGGESTIONS_CONFIG'] && JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG'])
 const mapApiKey = conf['MAP_API_KEY']
-const ymAccount = conf['YM_ACCOUNT']
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -22,7 +21,6 @@ module.exports = withTM(withLess(withCSS({
         firebaseConfig,
         addressSuggestionsConfig,
         mapApiKey,
-        ymAccount,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
