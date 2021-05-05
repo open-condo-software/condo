@@ -8,7 +8,7 @@ const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')
 // NOTE: If this is True, all tasks will be executed locally by blocking until the task returns.
 // Tasks will be executed locally instead of being sent to the queue.
 const FAKE_WORKER_MODE = conf.FAKE_WORKER_MODE
-const WORKER_REDIS_URL = conf.WORKER_REDIS_URL
+const WORKER_REDIS_URL = conf.WORKER_REDIS_URL || conf.REDIS_URL
 if (!WORKER_REDIS_URL) throw new Error('No WORKER_REDIS_URL environment')
 const taskQueue = new Queue('tasks', WORKER_REDIS_URL)
 const globalTaskOptions = {}
