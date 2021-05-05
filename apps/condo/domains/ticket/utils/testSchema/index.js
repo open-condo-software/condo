@@ -5,10 +5,12 @@
  */
 
 const faker = require('faker')
+const { TICKET_STATUS_TYPES } = require('../../constants')
 
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
-const { Ticket: TicketGQL, TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
+const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
+const { TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -60,9 +62,40 @@ async function ticketStatusByType (client) {
     return Object.fromEntries(statuses.map(status => [status.type, status.id]))
 }
 
+async function createTestTicketStatus (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const name = faker.random.alphaNumeric(8)
+    const type = faker.random.arrayElement(TICKET_STATUS_TYPES)
+
+    const attrs = {
+        dv: 1,
+        sender,
+        name, type,
+        ...extraAttrs,
+    }
+    const obj = await TicketStatus.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketStatus (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketStatus.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    Ticket, createTestTicket, updateTestTicket, ticketStatusByType
+    Ticket, createTestTicket, updateTestTicket, ticketStatusByType,
+    TicketStatus, createTestTicketStatus, updateTestTicketStatus,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
