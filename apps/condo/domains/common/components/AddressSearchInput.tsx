@@ -158,6 +158,7 @@ export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
     const [fetching, setFetching] = useState(false)
     const [suggestions, setSuggestions] = useState([])
     const [selectedIndex, setSelectedIndex] = useState(0)
+    const [dropdownVisible, setDropdownVisible] = useState(false)
 
     // Used this hook, because Ant `Input` does not catches press on arrows with `onKeyPress`
     useKeypress('ArrowDown', () => {
@@ -178,6 +179,7 @@ export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
         const item = suggestions[selectedIndex]
         handleChange(item.text, true)
         triggerOnChangeWith(suggestions[selectedIndex])
+        setDropdownVisible(false)
     })
 
     const searchSuggestions = useCallback(async (term) => {
@@ -224,6 +226,8 @@ export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
         <Dropdown
             placement="bottomCenter"
             trigger={['click']}
+            onVisibleChange={setDropdownVisible}
+            visible={dropdownVisible}
             overlay={
                 <Menu selectedKeys={[String(selectedIndex)]}>
                     {fetching ? (
