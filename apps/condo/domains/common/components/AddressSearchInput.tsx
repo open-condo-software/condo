@@ -152,6 +152,8 @@ interface AddressInputProps {
  * one of them, value is considered to be valid.
  * The reason of such implementation from scratch and not using standard `Select` from Ant is because
  * `Select` component conceptually does't allows to edit selected value.
+ *
+ * A hook `useKeypress` is used, because Ant `Input` does not catches press on arrows with `onKeyPress`
  */
 export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
     const [value, setValue] = useState(props.value)
@@ -160,7 +162,6 @@ export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
     const [selectedIndex, setSelectedIndex] = useState(0)
     const [dropdownVisible, setDropdownVisible] = useState(false)
 
-    // Used this hook, because Ant `Input` does not catches press on arrows with `onKeyPress`
     useKeypress('ArrowDown', () => {
         const newSelectedIndex = selectedIndex + 1
         if (newSelectedIndex < suggestions.length) {
