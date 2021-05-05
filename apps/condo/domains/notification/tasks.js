@@ -23,17 +23,23 @@ async function _sendMessageByAdapter (transport, adapter, messageContext) {
     return await adapter.send(messageContext)
 }
 
+async function _choseMessageTransport (message) {
+    // TODO(pahaz): we should chose the best transport for the message.
+    //  We can chose transport depends on the message.type?
+    //  or use something like message.user.profile.preferredNotificationTransport if user want to get messages from TG
+    return EMAIL_TRANSPORT
+}
+
 async function deliveryMessage (messageId) {
     const { keystone } = await getSchemaCtx('Message')
-    const messages = await Message.getAll(keystone, { id: messageId })
-    const message = messages[0]
 
-    // TODO(pahaz): extend this logic
-    //  1) we should chose the best transport for the message
-    //  2) then sending it by the transport
-    // For example: if we want to send invite to user and he wants to get receive messages by TG we should schedule
-    // TG transport sending
-    const transport = EMAIL_TRANSPORT
+    const messages = await Message.getAll(keystone, { id: messageId })
+    if (messages.length !== 1) throw new Error('message id not found or found multiple results')
+
+    const message = messages[0]
+    if (message.id !== messageId) throw new Error('get message by id has wrong result')
+
+    const transport = await _choseMessageTransport(message)
 
     if (message.id !== messageId) throw new Error('get message by id wrong result')
     if (message.status !== MESSAGE_SENDING_STATUS && message.status !== MESSAGE_RESENDING_STATUS) {
