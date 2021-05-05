@@ -27,21 +27,20 @@ const AuthenticateUserWithFirebaseIdTokenService = new GQLCustomSchema('Authenti
                 const { firebaseIdToken } = data
                 if (!firebaseIdToken) throw new Error('[error] no firebaseIdToken')
 
-                const { uid, phone_number } = await admin.auth().verifyIdToken(firebaseIdToken)
+                const { phone_number } = await admin.auth().verifyIdToken(firebaseIdToken)
 
                 const { errors: findErrors, data: findData } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
-                        query findUserByImportId($uid: String!) {
-                          objs: allUsers(where: { importId: $uid }) {
+                        query findUserByImportId($phone: String!) {
+                          objs: allUsers(where: { phone: $phone }) {
                             id
-                            importId
                             email
                             phone
                           }
                         }
                     `,
-                    variables: { uid },
+                    variables: { phone: phone_number },
                 })
 
                 if (findErrors || !findData.objs || findData.objs.length !== 1 || !findData.objs[0].id) {
