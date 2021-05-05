@@ -1,3 +1,4 @@
+import { identity } from 'lodash/util'
 import { Tag, Typography, Input, Space, DatePicker, Checkbox } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { FilterValue } from 'antd/es/table/interface'
@@ -57,7 +58,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
     const UserNameMessage = intl.formatMessage({ id: 'filters.UserName' })
 
     const sorterMap = createSorterMap(sort)
-    const { loading, objs: ticketStatuses } = TicketStatus.useObjects()
+    const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
 
     const columns = useMemo(() => {
         return [
@@ -140,7 +141,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 sorter: true,
                 width: '10%',
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                    const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState)
+                    const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
 
                     return (
                         <FilterContainer
