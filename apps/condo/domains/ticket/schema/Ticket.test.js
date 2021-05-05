@@ -189,7 +189,7 @@ describe('Ticket:permissions', () => {
         }
     })
 
-    test('user: update Ticket', async () => {
+    test('user: cannot assign Ticket to another organization', async () => {
         const client = await makeClientWithProperty()
         const client2 = await makeClientWithProperty()
         const [obj] = await createTestTicket(client, client.organization, client.property)
