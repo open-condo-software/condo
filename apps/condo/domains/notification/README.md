@@ -15,6 +15,10 @@ Features:
  - we can delivery message by user preferred transport (not implemented yet)
  - user can ignore some messages types if want (not implemented yet)
 
+Everything you needed is to call `sendMessage` inside your code.
+
+![sendMessage Sequence Diagram](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/open-condo-software/condo/master/apps/condo/domains/notification/docs/send-message-sequence-diagram.iuml)
+
 # server side logic example
 
 ```javascript
