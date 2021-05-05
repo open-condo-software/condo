@@ -4,6 +4,7 @@ import { Dropdown, Input, Menu, Spin } from 'antd'
 import debounce from 'lodash/debounce'
 import pickBy from 'lodash/pickBy'
 import identity from 'lodash/identity'
+import useKeypress from 'react-use-keypress'
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -156,11 +157,34 @@ export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
     const [value, setValue] = useState(props.value)
     const [fetching, setFetching] = useState(false)
     const [suggestions, setSuggestions] = useState([])
+    const [selectedIndex, setSelectedIndex] = useState(0)
+
+    // Used this hook, because Ant `Input` does not catches press on arrows with `onKeyPress`
+    useKeypress('ArrowDown', () => {
+        const newSelectedIndex = selectedIndex + 1
+        if (newSelectedIndex < suggestions.length) {
+            setSelectedIndex(newSelectedIndex)
+        }
+    })
+
+    useKeypress('ArrowUp', () => {
+        const newSelectedIndex = selectedIndex - 1
+        if (newSelectedIndex >= 0) {
+            setSelectedIndex(newSelectedIndex)
+        }
+    })
+
+    useKeypress('Enter', () => {
+        const item = suggestions[selectedIndex]
+        handleChange(item.text, true)
+        triggerOnChangeWith(suggestions[selectedIndex])
+    })
 
     const searchSuggestions = useCallback(async (term) => {
         setFetching(true)
         const options = await searchAddress(term)
         setFetching(false)
+        setSelectedIndex(0)
         setSuggestions(options)
 
         // Lookup entered text in arrived suggestions and propagate change
@@ -189,8 +213,8 @@ export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
         return debounce(searchSuggestions, DEBOUNCE_TIMEOUT)
     }, [searchSuggestions])
 
-    const handleChange = (text) => {
-        if (text) {
+    const handleChange = (text, skipFetch = false) => {
+        if (text && !skipFetch) {
             debouncedSearchSuggestions(text)
         }
         setValue(text)
@@ -201,7 +225,7 @@ export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
             placement="bottomCenter"
             trigger={['click']}
             overlay={
-                <Menu>
+                <Menu selectedKeys={[String(selectedIndex)]}>
                     {fetching ? (
                         <Spin size="small"/>
                     ) : suggestions.map((item, i) => (
