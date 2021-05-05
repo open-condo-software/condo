@@ -228,7 +228,7 @@ export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
             placement="bottomCenter"
             trigger={['click']}
             onVisibleChange={setDropdownVisible}
-            visible={dropdownVisible}
+            visible={dropdownVisible && suggestions.length > 0}
             overlay={
                 <Menu selectedKeys={[String(selectedIndex)]}>
                     {fetching ? (
