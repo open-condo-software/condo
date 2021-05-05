@@ -143,6 +143,15 @@ interface AddressInputProps {
     onChange?: (value: string) => void;
 }
 
+/**
+ * Displays suggestions, fetched from remote service, as user types.
+ * On select of suggestion, sets it's value to text field.
+ * Allows further editing of text field value, after selection.
+ * Changed text field value will be looked up in fetched suggestions and when it matches
+ * one of them, value is considered to be valid.
+ * The reason of such implementation from scratch and not using standard `Select` from Ant is because
+ * `Select` component conceptually does't allows to edit selected value.
+ */
 export const AddressSearchInput: React.FC<AddressInputProps> = (props) => {
     const [value, setValue] = useState(props.value)
     const [fetching, setFetching] = useState(false)
