@@ -56,7 +56,7 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-  OrganizationEmployee, OrganizationEmployeeRole, createTestOrganizationEmployeeRole
+  OrganizationEmployee, OrganizationEmployeeRole, createTestOrganizationEmployeeRole,
       Organization, createTestOrganization, updateTestOrganization,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
