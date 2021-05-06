@@ -30,13 +30,13 @@ describe('Organization', () => {
         expect(data).toEqual({ meta: { count: null } })
     })
 
-    test('user: allow to getAll', async () => {
+    test('user: can read only organizations, it employed in', async () => {
         const admin = await makeLoggedInAdminClient()
         await createOrganization(admin)
-        const [, userAttrs] = await createTestUser(admin)
-        const client = await makeLoggedInClient(userAttrs)
+        const client = await makeClientWithRegisteredOrganization()
+
         const objs = await Organization.getAll(client, {})
-        expect(objs.length).toBeGreaterThan(0)
+        expect(objs.length).toBe(1)
     })
 
     test('user: allow to count', async () => {

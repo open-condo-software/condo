@@ -8,7 +8,7 @@ async function canReadOrganizations ({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
     return {
-        // TODO(codegen): write canReadOrganizations logic!
+        employees_some: { user: { id: user.id } },
     }
 }
 
