@@ -31,15 +31,6 @@ const rules = {
       Organization
 
     */
-    canReadOrganizations: isSignedIn,
-    canManageOrganizations: ({ authentication: { item: user } }) => {
-        if (!user) return false
-        if (user.isAdmin) return true
-        return {
-            // user is inside employee list
-            employees_some: { user: { id: user.id, canManageOrganization: true } },
-        }
-    },
     canReadEmployees: ({ authentication: { item: user } }) => {
         if (!user) return false
         if (user.isAdmin) return {}
