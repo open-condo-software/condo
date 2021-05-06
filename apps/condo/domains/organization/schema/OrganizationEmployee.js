@@ -4,11 +4,11 @@ const { v4: uuid } = require('uuid')
 const { Text, Relationship, Uuid, Checkbox } = require('@keystonejs/fields')
 
 const access = require('@core/keystone/access')
+const rules = require('@condo/domains/organization/access/Employee')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, tracked } = require('@core/keystone/plugins')
 
 const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
-const { rules } = require('../../../access')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasRequestAndDbFields, hasOneOfFields } = require('@condo/domains/common/utils/validation.utils')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')

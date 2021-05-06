@@ -1,4 +1,4 @@
-const { getByCondition } = require('@core/keystone/schema');
+const { getByCondition } = require('@core/keystone/schema')
 const { userIsAuthenticated } = require('@core/keystone/access')
 
 async function canManageOrganizations ({ authentication: { item: user } }) {
