@@ -1,7 +1,6 @@
 const { makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
 const { Organization } = require('@condo/domains/organization/gql')
-const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { createTestUser } = require('@condo/domains/user/utils/testSchema')
+const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
 const { createOrganization } = require('../../../utils/testSchema/Organization')
 
@@ -39,11 +38,22 @@ describe('Organization', () => {
         expect(objs.length).toBe(1)
     })
 
+    test('admin: can read all organizations', async () => {
+        const admin = await makeLoggedInAdminClient()
+        await createOrganization(admin)
+        await makeClientWithRegisteredOrganization()
+
+        const objs = await Organization.getAll(admin, {})
+        // Because database is not cleaned up before tests, there is a lot of organizations, created by previous test runs
+        // So, just expect more organizations, than created by admin in question
+        expect(objs.length).toBeGreaterThan(1)
+    })
+
     test('user: allow to count', async () => {
         const admin = await makeLoggedInAdminClient()
         await createOrganization(admin)
-        const [, userAttrs] = await createTestUser(admin)
-        const client = await makeLoggedInClient(userAttrs)
+        const client = await makeClientWithRegisteredOrganization()
+
         const count = await Organization.count(client, {})
         expect(count).toBeGreaterThan(0)
     })
