@@ -12,7 +12,7 @@ Features:
  - support different transport (email, sms, push, ...)
  - sending messages by worker process
  - we can filter all messages related to some user or organization
- - we can delivery message by user preferred transport (not implemented yet)
+ - we can deliver a message by user preferred transport (not implemented yet)
  - user can ignore some messages types if want (not implemented yet)
 
 Everything you needed is to call `sendMessage` inside your code.
