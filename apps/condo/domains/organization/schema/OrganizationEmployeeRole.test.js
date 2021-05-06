@@ -1,6 +1,6 @@
 const faker = require('faker')
 const _ = require('lodash')
-const {makeClientWithNewRegisteredAndLoggedInUser} = require('@condo/domains/user/utils/testSchema');
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { getRandomString } = require('@core/keystone/test.utils')
 const { createTestOrganizationEmployeeRole, OrganizationEmployee, OrganizationEmployeeRole } = require('../utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
