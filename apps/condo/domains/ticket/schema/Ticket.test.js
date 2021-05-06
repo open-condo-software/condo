@@ -206,6 +206,38 @@ describe('Ticket:permissions', () => {
         }
     })
 
+    test('user: cannot assign Ticket to another assignee', async () => {
+        const client = await makeClientWithProperty()
+        const client2 = await makeClientWithProperty()
+        const [obj] = await createTestTicket(client, client.organization, client.property)
+        try {
+            await updateTestTicket(client, obj.id, { assignee: { connect: { id: client2.user.id } } })
+        } catch (e) {
+            expect(e.errors[0]).toMatchObject({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
+            })
+            expect(e.data).toEqual({ 'obj': null })
+        }
+    })
+
+    test('user: cannot assign Ticket to another executor', async () => {
+        const client = await makeClientWithProperty()
+        const client2 = await makeClientWithProperty()
+        const [obj] = await createTestTicket(client, client.organization, client.property)
+        try {
+            await updateTestTicket(client, obj.id, { executor: { connect: { id: client2.user.id } } })
+        } catch (e) {
+            expect(e.errors[0]).toMatchObject({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['obj'],
+            })
+            expect(e.data).toEqual({ 'obj': null })
+        }
+    })
+
     test('user: cannot update Ticket belonging to another organization', async () => {
         // It's not the same, as previous test case "user: cannot assign Ticket to another organization",
         // because we're testing here checking organization not from input attrs,
