@@ -1,17 +1,16 @@
 import React from 'react'
+import getConfig from 'next/config'
 
 const BehaviorRecorder = () => {
-    return (
+    const { publicRuntimeConfig } = getConfig()
+    const { behaviorRecorder } = publicRuntimeConfig
+
+    return behaviorRecorder ? (
         <div dangerouslySetInnerHTML={{
-            __html: `<script type="text/javascript" defer>
-                var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
-                var _site_hash_code = "4b23250e438223063d2fb9af042a8199";
-                var _suid = 17358;
-                </script>
-            <script type="text/javascript" defer src="https://a.plerdy.com/public/js/click/main.js"></script>`,
+            __html: behaviorRecorder,
         }}>
         </div>
-    )
+    ) : null
 }
 
 export default BehaviorRecorder
