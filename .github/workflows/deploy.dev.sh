@@ -4,15 +4,15 @@
 set -eo pipefail
 
 function escape {
-    echo "$1" | tr A-Z a-z | sed "s/[^a-z0-9]/-/g" | sed "s/^-+\|-+$//g"
+  echo "$1" | tr A-Z a-z | sed "s/[^a-z0-9]/-/g" | sed "s/^-+\|-+$//g"
 }
 
 function action {
-    echo "!!===> $1"
+  echo "!!===> $1"
 }
 
 function info {
-    echo "       $1"
+  echo "       $1"
 }
 
 function rollback {
@@ -33,6 +33,10 @@ VERSION=$(escape $3)
 BY_KEYWORD=$4
 DOCKER_IMAGE=$5
 
+if [[ "$6" == "--import" ]]; then
+  IMPORT_DB_FROM_APP="$7"
+fi
+
 DOMAIN=${APP}.dev.doma.ai
 DESTROY_SCRIPT_PATH="~/do.${APP}.destroy.sh"
 RUN_AFTER_DEPLOY=false
@@ -40,21 +44,21 @@ RUN_AFTER_DEPLOY=false
 source .env
 
 if [[ -z "${DOCKER_COMPOSE_START_APP_COMMAND}" ]]; then
-    echo "NO: DOCKER_COMPOSE_START_APP_COMMAND check .env"
-    exit 1
+  echo "NO: DOCKER_COMPOSE_START_APP_COMMAND check .env"
+  exit 1
 fi
 if [[ -z "${DOCKER_COMPOSE_START_WORKER_COMMAND}" ]]; then
-    echo "NO: DOCKER_COMPOSE_START_WORKER_COMMAND check .env"
-    exit 1
+  echo "NO: DOCKER_COMPOSE_START_WORKER_COMMAND check .env"
+  exit 1
 fi
 if [[ -z "${DOCKER_COMPOSE_MIGRATION_COMMAND}" ]]; then
-    echo "NO: DOCKER_COMPOSE_MIGRATION_COMMAND check .env"
-    exit 1
+  echo "NO: DOCKER_COMPOSE_MIGRATION_COMMAND check .env"
+  exit 1
 fi
 if [[ -z "${SSH_DESTINATION}" ]] || [[ -z "${APP}" ]] || [[ "${BY_KEYWORD}" != "by" ]] || [[ -z "${DOCKER_IMAGE}" ]]; then
-    echo "Use: $0 <SSH_DESTINATION> <APP-NAME> <APP-VERSION-NAME> by <DOCKER-IMAGE>"
-    echo "Example: $0 root@prod.8iq.dev demo v1 by apps:demo"
-    exit 1
+  echo "Use: $0 <SSH_DESTINATION> <APP-NAME> <APP-VERSION-NAME> by <DOCKER-IMAGE>"
+  echo "Example: $0 root@prod.8iq.dev demo v1 by apps:demo"
+  exit 1
 fi
 
 echo "$(date +%Y-%m-%d-%H-%M-%S) - deploy.dev.sh $@ (APP=${APP}; VERSION=${VERSION})"
@@ -99,6 +103,14 @@ fi
 action "Deploy app ${APP} by ${DOCKER_IMAGE}"
 run "docker tag ${DOCKER_IMAGE} dokku/${APP}:${VERSION}"
 run "dokku tags:deploy ${APP} ${VERSION}"
+
+if [[ ! -z "${IMPORT_DB_FROM_APP}" ]]; then
+  action "Import database from ${IMPORT_DB_FROM_APP}"
+  run "dokku postgres:export ${IMPORT_DB_FROM_APP} > /tmp/temp.dump" || echo 'export error!'
+  run "dokku postgres:import ${APP} < /tmp/temp.dump" || echo 'import error!'
+fi
+
+action "Run migrations"
 run "docker exec -u root ${APP}.web.1 ${DOCKER_COMPOSE_MIGRATION_COMMAND}"
 
 if [[ "$RUN_AFTER_DEPLOY" == "true" ]]; then
