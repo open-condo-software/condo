@@ -11,6 +11,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
 const { rules } = require('../../../access')
+const access = require('@condo/domains/organization/access/Organization')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
@@ -98,9 +99,9 @@ const Organization = new GQLListSchema('Organization', {
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
-        read: rules.canReadOrganizations,
-        create: rules.canManageOrganizations,
-        update: rules.canManageOrganizations,
+        read: access.canReadOrganizations,
+        create: access.canManageOrganizations,
+        update: access.canManageOrganizations,
         delete: false,
         auth: true,
     },
