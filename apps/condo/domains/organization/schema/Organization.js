@@ -1,5 +1,3 @@
-const faker = require('faker')
-
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const { File, Text, Relationship, Select } = require('@keystonejs/fields')
@@ -35,7 +33,6 @@ const Organization = new GQLListSchema('Organization', {
         },
         name: {
             schemaDoc: 'Customer-friendly name',
-            factory: () => faker.company.companyName(),
             type: Text,
             isRequired: true,
             kmigratorOptions: { null: false },
