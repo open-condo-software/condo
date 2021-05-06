@@ -1,3 +1,4 @@
+const faker = require('faker')
 const { getRandomString } = require('@core/keystone/test.utils')
 
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
@@ -20,22 +21,28 @@ async function createTestOrganizationEmployeeRole (client, extraAttrs={}) {
   return [obj, attrs]
 }
 
-async function createTestOrganization (client, employees, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!employees || !employees.id) throw new Error('no employees.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestOrganization logic for generate fields
+async function createTestOrganization (client, extraAttrs = {}) {
+    if (!client) throw new Error ('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric (8) }
+    const country = 'ru'
+    const name = faker.company.companyName ()
+    const description = faker.company.catchPhrase ()
+    const meta = {
+        dv: 1, inn: '6670428515', kpp: '667001001', city: faker.address.city (), zipCode: faker.address.zipCode (),
+        street: faker.address.streetName (), number: faker.address.secondaryAddress (),
+        county: faker.address.county (),
+    }
 
     const attrs = {
         dv: 1,
         sender,
-        employees: { connect: { id: employees.id } },
+        country, name, description, meta,
         ...extraAttrs,
     }
-    const obj = await Organization.create(client, attrs)
+    const obj = await Organization.create (client, attrs)
     return [obj, attrs]
 }
+
 
 async function updateTestOrganization (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')

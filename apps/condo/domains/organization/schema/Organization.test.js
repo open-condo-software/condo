@@ -1,8 +1,7 @@
 const { makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
 const { Organization } = require('@condo/domains/organization/gql')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-
-const { createOrganization } = require('../../../utils/testSchema/Organization')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 
 describe('Organization', () => {
     test('anonymous: no access to getAll', async () => {
@@ -31,7 +30,7 @@ describe('Organization', () => {
 
     test('user: can read only organizations, it employed in', async () => {
         const admin = await makeLoggedInAdminClient()
-        await createOrganization(admin)
+        await createTestOrganization(admin)
         const client = await makeClientWithRegisteredOrganization()
 
         const objs = await Organization.getAll(client, {})
@@ -40,7 +39,7 @@ describe('Organization', () => {
 
     test('admin: can read all organizations', async () => {
         const admin = await makeLoggedInAdminClient()
-        await createOrganization(admin)
+        await createTestOrganization(admin)
         await makeClientWithRegisteredOrganization()
 
         const objs = await Organization.getAll(admin, {})
@@ -51,7 +50,7 @@ describe('Organization', () => {
 
     test('user: allow to count', async () => {
         const admin = await makeLoggedInAdminClient()
-        await createOrganization(admin)
+        await createTestOrganization(admin)
         const client = await makeClientWithRegisteredOrganization()
 
         const count = await Organization.count(client, {})
