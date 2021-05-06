@@ -8,22 +8,6 @@ import { Logo } from '@condo/domains/common/components/Logo'
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from '@condo/domains/common/constants/requisites'
 
 const LINK_STYLE = { color: '#389E0D' }
-interface IPageHeaderProps extends PageHeaderProps {
-    title?: React.ReactChild
-    headerAction?: React.ReactChild
-}
-
-const PageHeader: React.FC<IPageHeaderProps> = ({ children, headerAction }) => {
-    return (
-        <AntPageHeader
-            style={{ background: 'white', marginTop: '20px', marginLeft: '12px', marginRight: '12px' }}
-            title={<Logo onClick={() => Router.push('/')} />}
-            extra={[headerAction]}
-        >
-            {children}
-        </AntPageHeader>
-    )
-}
 
 const PageContent: React.FC = ({ children }) => {
     return (
@@ -60,7 +44,12 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
             style={{ background: 'white' }}
             key={Math.random().toString()}
         >
-            <PageHeader headerAction={headerAction} />
+            <AntPageHeader
+                style={{ background: 'white', marginTop: '20px', marginLeft: '12px', marginRight: '12px' }}
+                title={<Logo onClick={() => Router.push('/')} />}
+                extra={headerAction}
+            >
+            </AntPageHeader>
             <PageContent>
                 {children}
             </PageContent>

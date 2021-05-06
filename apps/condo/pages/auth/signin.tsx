@@ -1,170 +1,121 @@
-// @ts-nocheck
-/** @jsx jsx */
-import { css, jsx } from '@emotion/core'
-import { Button, Form, Input, Typography, Row, Col } from 'antd'
-import { useState } from 'react'
-import { gql } from 'graphql-tag'
-import Head from 'next/head'
-import Router from 'next/router'
-import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
-import { useMutation } from '@core/next/apollo'
-
-import { TopMenuOnlyLayout } from '@condo/domains/common/components/containers/BaseLayout'
+import { Form, Input, Typography } from 'antd'
+import { Button } from '@condo/domains/common/components/Button'
+import AuthLayout from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
+import Router from 'next/router'
+import { FormattedMessage } from 'react-intl'
+import React from 'react'
+import Head from 'next/head'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR } from '@condo/domains/common/constants/errors'
+import MaskedInput from 'antd-mask-input'
 
-import { Auth, PhoneAuthForm } from './register'
 
-const SIGNIN_BY_FIREBASE_ID_TOKEN_MUTATION = gql`
-    mutation authenticateUserWithFirebaseIdToken ($token: String!) {
-        obj: authenticateUserWithFirebaseIdToken(data: { firebaseIdToken: $token }) {
-            item {
-                id
-            }
-        }
-    }
-`
+const INPUT_STYLE = { minWidth: '273px' }
+const LINK_STYLE = { color: '#389E0D' }
+const SMALL_TEXT = { fontSize: '12px', lineHeight: '20px', color: 'gray' }
 
-const SignInForm = ({ firebaseUser, children, ExtraErrorToFormFieldMsgMapping = {} }) => {
-    const [form] = Form.useForm()
+const LoginPage = (): React.ReactElement => {
     const intl = useIntl()
-    const [isLoading, setIsLoading] = useState(false)
-    const { refetch } = useAuth()
-    const [signin] = useMutation(SIGNIN_BY_FIREBASE_ID_TOKEN_MUTATION)
+    const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
+    return (
+        <>
+            <Head>
+                <title>{SignInTitleMsg}</title>
+            </Head>
+            <div>
+                <Typography.Title>{SignInTitleMsg}</Typography.Title>
+                <LoginForm />
+            </div>
+        </>
+    )
+}
+
+
+const LoginForm = (): React.ReactElement => {
+    const [form] = Form.useForm()
     let initialValues = getQueryParams()
     initialValues = { ...initialValues, password: '', confirm: '', captcha: 'no' }
-
+    const intl = useIntl()
     const SignInMsg = intl.formatMessage({ id: 'SignIn' })
-    const RegisterMsg = intl.formatMessage({ id: 'Register' })
-    const LoggedInMsg = intl.formatMessage({ id: 'pages.auth.LoggedIn' })
-    const EmailIsNoFoundMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNoFound' })
-    const WrongPasswordMsg = intl.formatMessage({ id: 'pages.auth.WrongPassword' })
-    const UserIsNotFoundMsg = intl.formatMessage({ id: 'pages.auth.UserIsNotFound' })
-    const ErrorToFormFieldMsgMapping = {
-        [WRONG_EMAIL_ERROR]: {
-            name: 'email',
-            errors: [EmailIsNoFoundMsg],
-        },
-        [WRONG_PASSWORD_ERROR]: {
-            name: 'password',
-            errors: [WrongPasswordMsg],
-        },
-        '[notfound.error]': {
-            name: 'user',
-            errors: [UserIsNotFoundMsg],
-        },
-        ...ExtraErrorToFormFieldMsgMapping,
-    }
+    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
+    const PasswordMsg = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
+    const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
+    const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
 
-    const onFinish = () => {
-        setIsLoading(true)
-        return runMutation({
-            mutation: signin,
-            variables: {
-                token: firebaseUser.token,
-            },
-            onCompleted: () => {
-                refetch()
-                if (initialValues.next) Router.push(initialValues.next)
-                else Router.push('/')
-            },
-            onFinally: () => {
-                setIsLoading(false)
-            },
-            onError: (e) => {
-                console.error(e.friendlyDescription)
-            },
-            intl,
-            form,
-            ErrorToFormFieldMsgMapping,
-            OnCompletedMsg: LoggedInMsg,
-        })
+    const onFinish = values => {
+        console.log('onFinish')
     }
 
     return (
         <Form
             form={form}
-            name="signin"
+            name="register"
             onFinish={onFinish}
             initialValues={initialValues}
+            colon={false}
+            style={{ marginTop: '36px', width: '450px' }}
         >
-            {children}
-            <Form.Item style={{ textAlign: 'center' }}>
-                <Button type="primary" htmlType="submit" loading={isLoading}>
+            <Form.Item
+                name="phone"
+                label={PhoneMsg}
+                labelAlign='left'
+                labelCol={{ flex: 1 }}
+            >
+                <MaskedInput mask='+7 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
+            </Form.Item>
+
+            <Form.Item
+                name="password"
+                label={PasswordMsg}
+                labelAlign='left'
+                labelCol={{ flex: 1 }} 
+                style={{ marginTop: '24px' }}
+            >
+                <Input.Password style={{ ...INPUT_STYLE }}  />
+            </Form.Item>
+            
+            <div style={{ marginTop: '60px', display: 'flex', justifyContent: 'space-between' }}>
+                <Button
+                    key='submit'
+                    type='sberPrimary'
+                    style={{ justifySelf: 'flex-start' }}
+                >
                     {SignInMsg}
                 </Button>
-                <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/register')}>
-                    {RegisterMsg}
-                </Button>
-            </Form.Item>
+
+                <Typography.Text  style={SMALL_TEXT}>
+                    <FormattedMessage
+                        id='pages.auth.signin.ResetPasswordLink'
+                        values={{
+                            link: <a style={LINK_STYLE} onClick={() => Router.push('/auth/forgot')}>{ResetMsg}</a>,
+                        }}
+                    ></FormattedMessage>
+                </Typography.Text>
+            </div>
+            
+
         </Form>
     )
 }
 
-function SignInByPhoneForm () {
+const HeaderAction = (): React.ReactElement => {
     const intl = useIntl()
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const PhoneIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsAlreadyRegistered' })
-    const PhoneMsg = intl.formatMessage({ id: 'Phone' })
-    const ExtraErrorToFormFieldMsgMapping = {
-        '[unique:importId:multipleFound]': {
-            name: '_phone',
-            errors: [PhoneIsAlreadyRegisteredMsg],
-        },
-        '[unique:phone:multipleFound]': {
-            name: '_phone',
-            errors: [PhoneIsAlreadyRegisteredMsg],
-        },
-    }
-
-    return <PhoneAuthForm onPhoneAuthenticated={({ user }) => {
-        return <SignInForm ExtraErrorToFormFieldMsgMapping={ExtraErrorToFormFieldMsgMapping} firebaseUser={user}>
-            <Row gutter={[0, 24]} >
-                <Col span={24}>
-                    <Form.Item
-                        name="_phone"
-                        label={
-                            <span>
-                                {PhoneMsg}{' '}
-                            </span>
-                        }
-                        rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                        key={user.phoneNumber}
-                        initialValue={user.phoneNumber}
-                    >
-                        <Input disabled={true} />
-                    </Form.Item>
-                </Col>
-                <Col span={24}>
-                    <Form.Item
-                        name="firebaseIdToken"
-                        noStyle={true}
-                        key={user.token}
-                        initialValue={user.token}
-                    >
-                        <Input disabled={true} hidden={true} />
-                    </Form.Item>
-                </Col>
-            </Row>
-        </SignInForm>
-    }} />
+    const RegisterTitle = intl.formatMessage({ id: 'pages.auth.Register' })
+    return (
+        <Button
+            key='submit'
+            onClick={() => Router.push('/auth/register')}
+            type='sberPrimary'
+            secondary={true}
+            style={{ fontSize: '16px', lineHeight: '24px' }}
+        >
+            {RegisterTitle}
+        </Button>
+    )
 }
 
-const SignInPage = () => {
-    const intl = useIntl()
-    const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
-    return (<>
-        <Head>
-            <title>{SignInTitleMsg}</title>
-        </Head>
-        <Typography.Title css={css`text-align: center;`}>{SignInTitleMsg}</Typography.Title>
-        <Auth>
-            <SignInByPhoneForm />
-        </Auth>
-    </>)
-}
+LoginPage.headerAction = <HeaderAction />
 
-SignInPage.container = TopMenuOnlyLayout
-export default SignInPage
+LoginPage.container = AuthLayout
+
+export default LoginPage

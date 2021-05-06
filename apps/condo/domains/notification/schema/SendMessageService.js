@@ -5,7 +5,6 @@ const { MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS } = require('../constan
 const { JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { ALPHANUMERIC_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 
 const { MESSAGE_TYPES } = require('../constants')

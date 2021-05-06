@@ -199,6 +199,7 @@
   "pages.auth.signin.ResetPasswordLinkTitle": "Сбросить", 
   "pages.auth.signin.ResetPasswordLink": "Забыли пароль? {link}", 
   "pages.auth.reset.ResetHelp": "Введите эл. почту и вы получите письмо с инструкцией по восстановлению доступа к вашей учётной записи", 
+  "pages.auth.reset.ResetSuccessMessage": "Отправили вам инструкцию на адрес {email}. Перейдите в вашу почту и следуйте инструкциям.", 
   "pages.auth.reset.RestorePasswordTitle": "Восстановить пароль", 
   "pages.auth.reset.CheckEmail": "Проверьте почту", 
   "pages.auth.reset.ReturnToLoginPage": "Вернуться на форму входа", 
