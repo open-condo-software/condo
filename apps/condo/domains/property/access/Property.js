@@ -3,7 +3,7 @@
  */
 const get = require('lodash/get')
 const { getById } = require('@core/keystone/schema')
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { checkOrganizationPermission } = require('@condo/domains/organization/access/Organization')
 
 async function canReadProperties ({ authentication: { item: user } }) {
     if (!user) return false
