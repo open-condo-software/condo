@@ -1,14 +1,14 @@
 const { gql } = require('graphql-tag')
-const { genTestGQLUtils } = require('@core/keystone/gen.gql.utils')
+const { generateGQLUtils } = require('@core/keystone/gen.gql.utils')
 
-const ORGANIZATION_FIELDS = '{ id dv sender v country name description avatar { publicUrl } statusTransitions defaultEmployeeRoleStatusTransitions createdBy { id } }'
-const Organization = genTestGQLUtils('Organization', ORGANIZATION_FIELDS)
+const ORGANIZATION_FIELDS = '{ id dv sender v country name description avatar { publicUrl } statusTransitions defaultEmployeeRoleStatusTransitions }'
+const Organization = generateGQLUtils('Organization', ORGANIZATION_FIELDS)
 
 const ORGANIZATION_ROLE_FIELDS = '{ id dv sender v name statusTransitions canManageOrganization canManageEmployees canManageRoles canManageProperties canManageTickets }'
-const OrganizationEmployeeRole = genTestGQLUtils('OrganizationEmployeeRole', ORGANIZATION_ROLE_FIELDS)
+const OrganizationEmployeeRole = generateGQLUtils('OrganizationEmployeeRole', ORGANIZATION_ROLE_FIELDS)
 
 const ORGANIZATION_EMPLOYEE_FIELDS = `{ id dv sender v organization ${ORGANIZATION_FIELDS} user { id name } name email phone role ${ORGANIZATION_ROLE_FIELDS} isRejected isAccepted }`
-const OrganizationEmployee = genTestGQLUtils('OrganizationEmployee', ORGANIZATION_EMPLOYEE_FIELDS)
+const OrganizationEmployee = generateGQLUtils('OrganizationEmployee', ORGANIZATION_EMPLOYEE_FIELDS)
 
 // TODO(pahaz): rename autocomplete queries
 
