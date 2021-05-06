@@ -1,28 +1,6 @@
 const faker = require('faker')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { Organization, OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION, ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } = require('@condo/domains/organization/gql')
-
-async function createOrganization (client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const country = 'ru'
-    const name = faker.company.companyName()
-    const description = faker.company.catchPhrase()
-    const meta = {
-        dv: 1, inn: '6670428515', kpp: '667001001', city: faker.address.city(), zipCode: faker.address.zipCode(),
-        street: faker.address.streetName(), number: faker.address.secondaryAddress(),
-        county: faker.address.county(),
-    }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        country, name, description, meta,
-        ...extraAttrs,
-    }
-    const obj = await Organization.create(client, attrs)
-    return [obj, attrs]
-}
+const { OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION, ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } = require('@condo/domains/organization/gql')
 
 async function createOrganizationEmployee (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -120,7 +98,6 @@ async function makeClientWithRegisteredOrganization () {
 }
 
 module.exports = {
-    createOrganization,
     registerNewOrganization,
     createOrganizationEmployee,
     inviteNewOrganizationEmployee,
