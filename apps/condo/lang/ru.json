@@ -181,18 +181,12 @@
   "VerificationCodeHasBeenSentToYourPhone": "Код подтверждения был отправлен на телефон",
   "WeAreStillDevelopingThisPage": "Мы еще **разрабатываем** эту страницу, она пока недоступна",
   "example.Name": "Иванов Сергей",
-  "example.Phone": "+7 (900) 800 22 22",
-
-  
+  "example.Phone": "+7 (900) 800 22 22",  
   "pages.auth.AlreadyRegistered": "Я уже зарегистрирован", 
-  "pages.auth.Register": "Зарегистрироваться", 
-  
+  "pages.auth.Register": "Зарегистрироваться",   
   "pages.auth.RegistrationTitle": "Регистрация",
   "pages.auth.SignInTitle": "Вход",
-  "pages.auth.ResetTitle": "Восстановление пароля",
-  
-  
-  
+  "pages.auth.ResetTitle": "Восстановление пароля",  
   "pages.auth.register.AllFieldsAreRequired": "Все поля обязательны для заполнения", 
   "pages.auth.register.field.Password": "Придумайте пароль", 
   "pages.auth.signin.field.Password": "Пароль", 
@@ -208,9 +202,6 @@
   "pages.auth.reset.RegisterHelp": "После ввода номера телефона вам автоматически придёт СМС-код. Это нужно для обеспечения безопасности CRM.", 
   "pages.auth.register.field.SmsCode": "Код из СМС", 
   "pages.auth.register.info.SmsCodeSent": "Мы отправили СМС-код на номер {phone}. Введите его в поле ниже.", 
-  
-  
-  
   "pages.auth.register.field.ConfirmPassword": "Пароль ещё раз", 
   "pages.auth.register.field.Name": "ФИО", 
   "pages.auth.register.field.Email": "Эл. почта", 
@@ -218,11 +209,6 @@
   "pages.auth.register.info.UserAgreement": "Нажимая на кнопку «Зарегистрироваться» вы принимаете {link}", 
   "pages.auth.register.info.UserAgreementFileName": "условия политики конфиденциальности", 
   "pages.auth.register.ChangePhoneNumber": "Изменить номер", 
-  
-  
-  
-
-
   "pages.auth.FooterText": "Проблемы с регистрацией или входом? Напишите на {email} или позвоните по телефону {phone}", 
   "pages.auth.LoggedIn": "Авторизован",
   "pages.auth.EmailIsNoFound": "Email не найден",
