@@ -75,8 +75,8 @@ describe('OrganizationEmployeeRole', () => {
         })
     })
 
-    describe('canMangeRoles', () => {
-        test('user: no access to create role without granted `canMangeRoles`', async () => {
+    describe('canManageRoles', () => {
+        test('user: no access to create role without granted `canManageRoles`', async () => {
             const organizationAdminClient = await makeClientWithRegisteredOrganization()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const adminClient = await makeLoggedInAdminClient()
@@ -112,7 +112,7 @@ describe('OrganizationEmployeeRole', () => {
             })
         })
 
-        test('user: can create role when granted `canMangeRoles`', async () => {
+        test('user: can create role when granted `canManageRoles`', async () => {
             const organizationAdminClient = await makeClientWithRegisteredOrganization()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const adminClient = await makeLoggedInAdminClient()
