@@ -2,7 +2,6 @@ import { useIntl } from '@core/next/intl'
 import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import MaskedInput from 'antd-mask-input'
-import { gql } from 'graphql-tag'
 import AuthLayout from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
 import Router from 'next/router'
 import { FormattedMessage } from 'react-intl'
@@ -12,24 +11,15 @@ import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useMutation } from '@core/next/apollo'
 import { useAuth } from '@core/next/auth'
+import { colors } from '@condo/domains/common/constants/style'
 
+import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 
-
-const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
-    mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
-        obj: authenticateUserWithPhoneAndPassword(data: { phone: $phone, password: $password }) {
-            item {
-                id
-            }
-        }
-    }
-` 
+const LINK_STYLE = { color: colors.sberPrimary[7] }
 
 const INPUT_STYLE = { minWidth: '273px' }
-const LINK_STYLE = { color: '#389E0D' }
-const SMALL_TEXT = { fontSize: '12px', lineHeight: '20px', color: 'gray' }
 
-const LoginPage = (): React.ReactElement => {
+const SignInPage = (): React.ReactElement => {
     const intl = useIntl()
     const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
     return (
@@ -39,14 +29,14 @@ const LoginPage = (): React.ReactElement => {
             </Head>
             <div>
                 <Typography.Title>{SignInTitleMsg}</Typography.Title>
-                <LoginForm />
+                <SignInForm />
             </div>
         </>
     )
 }
 
 
-const LoginForm = (): React.ReactElement => {
+const SignInForm = (): React.ReactElement => {
     const [form] = Form.useForm()
     const { next } = getQueryParams()
     const { refetch } = useAuth()
@@ -81,7 +71,6 @@ const LoginForm = (): React.ReactElement => {
             onCompleted: () => {
                 refetch()
                 Router.push(next ? next : '/')
-                console.log('COMPLETE ! LOGIN ')
             },
             onFinally: () => {
                 setIsLoading(false)
@@ -90,62 +79,63 @@ const LoginForm = (): React.ReactElement => {
             form,
             ErrorToFormFieldMsgMapping,
         }).catch(error => {
-            console.log('Mutation error: ', error)
             setIsLoading(false)
         })
     }
 
     return (
-        <Form
-            form={form}
-            name="register"
-            onFinish={onFinish}
-            initialValues={initialValues}
-            colon={false}
-            style={{ marginTop: '36px', width: '450px' }}
-        >
-            <Form.Item
-                name="phone"
-                label={PhoneMsg}
-                labelAlign='left'
-                labelCol={{ flex: 1 }}
+        <div>
+            <Form
+                form={form}
+                name="register"
+                onFinish={onFinish}
+                initialValues={initialValues}
+                colon={false}
+                style={{ marginTop: '36px', width: '450px' }}
             >
-                <MaskedInput mask='+7 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
-            </Form.Item>
-
-            <Form.Item
-                name="password"
-                label={PasswordMsg}
-                labelAlign='left'
-                labelCol={{ flex: 1 }} 
-                style={{ marginTop: '24px' }}
-            >
-                <Input.Password style={{ ...INPUT_STYLE }}  />
-            </Form.Item>
-            
-            <div style={{ marginTop: '60px', display: 'flex', justifyContent: 'space-between' }}>
-                <Button
-                    key='submit'
-                    type='sberPrimary'
-                    htmlType="submit" 
-                    style={{ justifySelf: 'flex-start' }}
-                    loading={isLoading}
+                <Form.Item
+                    name="phone"
+                    label={PhoneMsg}
+                    labelAlign='left'
+                    labelCol={{ flex: 1 }}
                 >
-                    {SignInMsg}
-                </Button>
+                    <MaskedInput mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
+                </Form.Item>
 
-                <Typography.Text  style={SMALL_TEXT}>
-                    <FormattedMessage
-                        id='pages.auth.signin.ResetPasswordLink'
-                        values={{
-                            link: <a style={LINK_STYLE} onClick={() => Router.push('/auth/forgot')}>{ResetMsg}</a>,
-                        }}
-                    ></FormattedMessage>
-                </Typography.Text>
-            </div>
-            
+                <Form.Item
+                    name="password"
+                    label={PasswordMsg}
+                    labelAlign='left'
+                    labelCol={{ flex: 1 }} 
+                    style={{ marginTop: '24px' }}
+                >
+                    <Input.Password style={{ ...INPUT_STYLE }}  />
+                </Form.Item>
+                
+                <div style={{ marginTop: '60px', display: 'flex', justifyContent: 'space-between' }}>
+                    <Button
+                        key='submit'
+                        type='sberPrimary'
+                        htmlType="submit" 
+                        style={{ justifySelf: 'flex-start' }}
+                        loading={isLoading}
+                    >
+                        {SignInMsg}
+                    </Button>
 
-        </Form>
+                    <Typography.Text  type='secondary'>
+                        <FormattedMessage
+                            id='pages.auth.signin.ResetPasswordLink'
+                            values={{
+                                link: <a style={LINK_STYLE} onClick={() => Router.push('/auth/forgot')}>{ResetMsg}</a>,
+                            }}
+                        ></FormattedMessage>
+                    </Typography.Text>
+                </div>
+                
+
+            </Form>
+        </div>
     )
 }
 
@@ -158,15 +148,15 @@ const HeaderAction = (): React.ReactElement => {
             onClick={() => Router.push('/auth/register')}
             type='sberPrimary'
             secondary={true}
-            style={{ fontSize: '16px', lineHeight: '24px' }}
+            size='large'
         >
             {RegisterTitle}
         </Button>
     )
 }
 
-LoginPage.headerAction = <HeaderAction />
+SignInPage.headerAction = <HeaderAction />
 
-LoginPage.container = AuthLayout
+SignInPage.container = AuthLayout
 
-export default LoginPage
+export default SignInPage

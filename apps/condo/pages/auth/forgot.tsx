@@ -10,16 +10,13 @@ import React, { useState } from 'react'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useMutation } from '@core/next/apollo'
-import { gql } from 'graphql-tag'
+import { START_PASSWORD_RECOVERY_MUTATION } from '@condo/domains/user/gql'
 
-const START_PASSWORD_RECOVERY_MUTATION = gql`
-    mutation startPasswordRecovery($email: String!){
-        status: startPasswordRecovery(email: $email)
-    }
-`
+import { colors } from '@condo/domains/common/constants/style'
 
+const LINK_STYLE = { color: colors.sberPrimary[7] }
 const INPUT_STYLE = { width: '273px' }
-const LINK_STYLE = { color: '#389E0D' }
+
 
 const ResetPage = (): React.ReactElement  => {
     const [form] = Form.useForm()
@@ -65,7 +62,6 @@ const ResetPage = (): React.ReactElement  => {
     const onSubmit = values => {
         if (values.email) values.email = values.email.toLowerCase()
         setIsLoading(true)
-        console.log('Run mutation')
         return runMutation({
             mutation: startPasswordRecovery,
             variables: values,
@@ -79,12 +75,11 @@ const ResetPage = (): React.ReactElement  => {
             ErrorToFormFieldMsgMapping,
         }).catch(err => {
             setIsLoading(false)
-            console.log('Run mutation err ', err )
         })
     }
 
     return (
-        <div style={{ maxWidth: '450px' }}>
+        <div >
             <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
             <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>    
             <Form
@@ -129,7 +124,7 @@ const HeaderAction = (): React.ReactElement => {
             onClick={() => Router.push('/auth/register')}
             type='sberPrimary'
             secondary={true}
-            style={{ fontSize: '16px', lineHeight: '24px' }}
+            size='large'
         >
             {RegisterTitle}
         </Button>

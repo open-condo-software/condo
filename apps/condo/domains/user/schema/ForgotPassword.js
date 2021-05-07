@@ -7,6 +7,7 @@ const conf = require('@core/config')
 
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
 const SERVER_URL = conf.SERVER_URL
+const MIN_PASSWORD_LENGTH = 7
 
 
 const USER_OWNED_FIELD = {
@@ -104,8 +105,6 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 }
 
                 const userId = userData.allUsers[0].id
-                const user = userData.allUsers[0]
-                console.log('User found ', userId, user)
 
                 const variables = {
                     userId,
@@ -143,7 +142,6 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     variables,
                 })
                 if (createErrors) {
-                    console.error(createErrors, variables)
                     throw new Error('[error]: Unable to create forgotten password action')
                 }
 
@@ -167,23 +165,14 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 })
 
                 if (userAndTokenErrors) {
-                    console.error(userAndTokenErrors)
                     throw new Error('[error]: Unable to construct forgot password context')
                 }
-
-                const ForgotPasswordAction = data.allForgotPasswordActions[0]
-                const User = data.User
-
-                const result = {
-                    User,
-                    ForgotPasswordAction,
-                    forgotPasswordUrl: `${SERVER_URL}/auth/change-password?token=${ForgotPasswordAction.token}`,
-                }
                 // hook for send mail!
-                await ForgotPasswordService.emit('afterStartPasswordRecovery', {
-                    parent, args, context, info, extra, result,
-                })
-                console.log('ForgotPasswordService AFTER', `${SERVER_URL}/auth/change-password?token=${ForgotPasswordAction.token}`)
+                // SendMail `${SERVER_URL}/auth/change-password?token=${ForgotPasswordAction.token}` User.email
+                //                 const ForgotPasswordAction = data.allForgotPasswordActions[0]
+                // const User = data.User
+
+                // console.log('ForgotPasswordService AFTER', `${SERVER_URL}/auth/change-password?token=${ForgotPasswordAction.token}`)
                 return 'ok'
             },
         },
@@ -191,14 +180,16 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             access: true,
             schema: 'changePasswordWithToken(token: String!, password: String!): String',
             resolver: async (parent, args, context, info, extra) => {
-                await ForgotPasswordService.emit('beforeChangePasswordWithToken', {
-                    parent, args, context, info, extra,
-                })
 
                 const { token, password } = args
                 const now = extra.extraNow || (new Date(Date.now())).toISOString()
 
-                // check usedAt
+                if (password.length < MIN_PASSWORD_LENGTH) {
+                    const msg = '[password:min:length] Password too short'
+                    throw new Error(msg)
+                }
+
+                // TODO(zuch): add check  usedAt  - to be null
                 const { errors, data } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
@@ -218,7 +209,6 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
 
                 if (errors || !data.passwordTokens || !data.passwordTokens.length) {
                     const msg = '[error] Unable to find token'
-                    console.error(msg, errors)
                     throw new Error(msg)
                 }
 
@@ -264,14 +254,6 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     throw new Error(msg)
                 }
 
-                // hook for send mail!
-                const result = {
-                    User: data.passwordTokens[0].user,
-                    ForgotPasswordAction: data.passwordTokens[0],
-                }
-                await ForgotPasswordService.emit('afterChangePasswordWithToken', {
-                    parent, args, context, info, extra, result,
-                })
                 return 'ok'
             },
         },

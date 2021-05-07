@@ -1,4 +1,3 @@
-import { jsx } from '@emotion/core'
 import Router from 'next/router'
 
 import { useIntl } from '@core/next/intl'
@@ -10,22 +9,15 @@ import React, { useState } from 'react'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useMutation } from '@core/next/apollo'
-import { gql } from 'graphql-tag'
-
-
+import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION } from '@condo/domains/user/gql'
 
 const INPUT_STYLE = { width: '273px' }
 
-const CHANGE_PASSWORD_WITH_TOKEN_MUTATION = gql`
-    mutation changePasswordWithToken($token: String!, $password: String!) {
-        status: changePasswordWithToken(token: $token, password: $password)
-    }
-`
-
+// Todo(zuch): React.FC
 const ChangePasswordPage = (): React.ReactElement => {
     const [form] = Form.useForm()
-    const queryParams = getQueryParams()
-    const initialValues = { ...queryParams, password: 'zeliboba', confirm: 'zeliboba' }
+    const { token } = getQueryParams()
+    const initialValues = { token, password: '', confirm: '' }
     const [isLoading, setIsLoading] = useState(false)
     const [changePassword] = useMutation(CHANGE_PASSWORD_WITH_TOKEN_MUTATION)
 
@@ -33,7 +25,7 @@ const ChangePasswordPage = (): React.ReactElement => {
     const SaveMsg = intl.formatMessage({ id: 'Save' })
     const PasswordMsg = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const ResetTitle = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
-    const CreateNewPassword = intl.formatMessage({ id: 'pages.auth.reset.CreateNewPasswordMsg' })
+    const CreateNewPasswordMsg = intl.formatMessage({ id: 'pages.auth.reset.CreateNewPasswordMsg' })
     const ConfirmPasswordMsg = intl.formatMessage({ id: 'pages.auth.register.field.ConfirmPassword' })
     const AndSignInMsg = intl.formatMessage({ id: 'pages.auth.reset.AndSignInMsg' })
     const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
@@ -51,7 +43,7 @@ const ChangePasswordPage = (): React.ReactElement => {
             mutation: changePassword,
             variables: values,
             onCompleted: () => {
-                console.log('COMPLETE ! LOGIN ')
+                //
             },
             onFinally: () => {
                 setIsLoading(false)
@@ -61,15 +53,14 @@ const ChangePasswordPage = (): React.ReactElement => {
             form,
             ErrorToFormFieldMsgMapping,
         }).catch(error => {
-            console.log('Mutation error: ', error)
             setIsLoading(false)
         })
     }
 
     return (
-        <div style={{ maxWidth: '450px' }}>
+        <div >
             <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
-            <Typography.Paragraph style={{ textAlign: 'left' }} >{CreateNewPassword}</Typography.Paragraph>
+            <Typography.Paragraph style={{ textAlign: 'left' }} >{CreateNewPasswordMsg}</Typography.Paragraph>
                 
             <Form
                 form={form}
@@ -124,19 +115,21 @@ const ChangePasswordPage = (): React.ReactElement => {
                 >
                     <Input.Password  style={INPUT_STYLE}/>
                 </Form.Item>
-                <Form.Item style={{ textAlign: 'left', marginTop: '36px' }}>
-                    <Button
-                        key='submit'
-                        type='sberPrimary'
-                        loading={isLoading}
-                        htmlType="submit" 
-                    >
-                        {SaveMsg}
-                    </Button>
-                    <Typography.Text style={{ color: 'gray', marginLeft: '20px', marginTop: '40px', fontSize: '12px' }}>
-                        {AndSignInMsg}
-                    </Typography.Text>
-                </Form.Item>
+                <div style={{ marginTop: '60px', display: 'flex', justifyContent: 'flex-start' }}>
+                    <Form.Item >
+                        <Button
+                            key='submit'
+                            type='sberPrimary'
+                            loading={isLoading}
+                            htmlType="submit" 
+                        >
+                            {SaveMsg}
+                        </Button>
+                        <Typography.Text type='secondary' style={{ marginLeft: '20px' }}>
+                            {AndSignInMsg}
+                        </Typography.Text>
+                    </Form.Item>
+                </div>
             </Form>
         </div>
     )
@@ -152,7 +145,7 @@ const HeaderAction = (): React.ReactElement => {
             onClick={() => Router.push('/auth/register')}
             type='sberPrimary'
             secondary={true}
-            style={{ fontSize: '16px', lineHeight: '24px' }}
+            size='large'
         >
             {RegisterTitle}
         </Button>

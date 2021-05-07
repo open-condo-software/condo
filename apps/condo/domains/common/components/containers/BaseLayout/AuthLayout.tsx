@@ -1,4 +1,4 @@
-import { PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
+import { PageHeader as AntPageHeader } from 'antd'
 import React from 'react'
 import Router from 'next/router'
 import { FormattedMessage } from 'react-intl'
@@ -6,33 +6,38 @@ import { Layout } from 'antd'
 const { Footer, Content } = Layout
 import { Logo } from '@condo/domains/common/components/Logo'
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from '@condo/domains/common/constants/requisites'
+import { colors } from '@condo/domains/common/constants/style'
 
-const LINK_STYLE = { color: '#389E0D' }
+const FOOTER_STYLE = { color: colors.lightGrey[7], backgroundColor: colors.white, fontSize: '12px', lineHeight: '20px', marginLeft: '36px', padding: '0px' }
+const FOOTER_LINK_STYLE = { color: colors.sberPrimary[7] }
+const HEADER_STYLE = { background: colors.white, marginTop: '20px', marginLeft: '12px', marginRight: '12px' }
+const AUTH_PAGES_STYLE = { maxWidth: '450px' } 
+
 
 const PageContent: React.FC = ({ children }) => {
+    // TODO(zuch): change parent height from calc value
     return (
-        <Content style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 200px)', minWidth: '500px' }}>
-            {children}
+        <Content style={{ marginLeft: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 200px)' }}>
+            <div style={AUTH_PAGES_STYLE}>
+                {children}
+            </div>
         </Content>
     )
 }
 
 const PageFooter: React.FC = () => {
     return (
-        <Footer style={{ color: 'gray', backgroundColor: 'white', fontSize: '12px', lineHeight: '20px' }}>
+        <Footer style={FOOTER_STYLE}>
             <FormattedMessage
                 id='pages.auth.FooterText'
                 values={{
-                    email: <a style={LINK_STYLE} href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>,
-                    phone: <a style={LINK_STYLE} href={`tel:${SUPPORT_PHONE}`}>{SUPPORT_PHONE}</a>,
+                    email: <a style={FOOTER_LINK_STYLE} href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>,
+                    phone: <a style={FOOTER_LINK_STYLE} href={`tel:${SUPPORT_PHONE}`}>{SUPPORT_PHONE}</a>,
                 }}
             ></FormattedMessage>
         </Footer>
     )
 }
-
-
-
 
 interface IAuthLayoutProps {
     headerAction: React.ReactElement
@@ -41,11 +46,10 @@ interface IAuthLayoutProps {
 const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
     return (
         <Layout
-            style={{ background: 'white' }}
-            key={Math.random().toString()}
+            style={{ background: colors.white }}
         >
             <AntPageHeader
-                style={{ background: 'white', marginTop: '20px', marginLeft: '12px', marginRight: '12px' }}
+                style={HEADER_STYLE}
                 title={<Logo onClick={() => Router.push('/')} />}
                 extra={headerAction}
             >
@@ -59,188 +63,3 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
 }
 
 export default AuthLayout
-/*
-import { jsx } from '@emotion/core'
-
-
-import { PageContent } from './BaseLayout'
-import { ConfigProvider, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
-import { createContext, CSSProperties, FunctionComponent, useContext, useState } from 'react'
-
-
-
-
-
-import { layoutCss, pageContentCss, pageHeaderCss, pageWrapperCss } from './components/styles'
-
-interface IPageWrapperProps {
-    className?: string
-    style?: CSSProperties
-}
-
-const PageWrapper: FunctionComponent<IPageWrapperProps> =  ({ children, className, style }) => {
-    return (
-        <Content className={classnames('page-wrapper', className)} css={pageWrapperCss} as="main" style={style}>
-            {children}
-        </Content>
-    )
-}
-
-interface IAuthLayoutProps {
-    backActionButton?: React.FunctionComponent
-}
-
-const AuthLayout: React.FunctionComponent<IAuthLayoutProps> = ({ children, backActionButton }) => {
-    return (
-        <Layout css={layoutCss}>
-            <AntPageHeader css={pageHeaderCss}>МУМУ</AntPageHeader>
-            <Content css={pageContentCss}>
-                <PageWrapper>
-                    {children}
-                </PageWrapper>
-            </Content>
-            <Footer>МУМУ</Footer>
-        </Layout>
-    )
-}
-
-export default AuthLayout
-
-/*
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-
-
-
-import { DashboardOutlined } from '@ant-design/icons'
-import { SideMenu } from './components/SideMenu'
-
-import enUS from 'antd/lib/locale/en_US'
-import ruRU from 'antd/lib/locale/ru_RU'
-
-
-import 'antd/dist/antd.less'
-import { TopMenuItems } from './components/TopMenuItems'
-import { useIntl } from '@core/next/intl'
-import { useAntdMediaQuery } from '../../../utils/mediaQuery.utils'
-
-
-const LayoutContext = createContext({})
-const useLayoutContext = () => useContext(LayoutContext)
-
-const { Header, Content } = Layout
-
-const ANT_DEFAULT_LOCALE = enUS
-
-const ANT_LOCALES = {
-    ru: ruRU,
-    en: enUS,
-}
-
-const DEFAULT_MENU = [
-    {
-        path: '/',
-        icon: <DashboardOutlined/>,
-        locale: 'menu.Home',
-    },
-]
-
-function BaseLayout (props) {
-    const {
-        style,
-        children,
-        className,
-        disableMobile,
-        headerAction,
-        onLogoClick = () => Router.push('/'),
-        menuDataRender = () => DEFAULT_MENU,
-    } = props
-
-    const intl = useIntl()
-    const colSize = useAntdMediaQuery()
-    // TODO(Dimitreee): add UA base isMobile detection
-    const isMobile = (colSize === 'xs') && !disableMobile
-    const menuData = menuDataRender()
-    const [isSideMenuCollapsed, setIsSideMenuCollapsed] = useState(!isMobile)
-
-    const menuDataClassNames = classnames(
-        'layout',
-        { 'hided-side-menu': !menuData || menuData.length === 0 },
-        className
-    )
-
-    const toggleSideMenuCollapsed = () => setIsSideMenuCollapsed(!isSideMenuCollapsed)
-
-    return (
-        <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
-            <LayoutContext.Provider value={{ isMobile }}>
-                <Layout className={menuDataClassNames} style={style} css={layoutCss} as="section">
-                    <SideMenu {...{
-                        onLogoClick,
-                        menuData,
-                        isMobile,
-                        isSideMenuCollapsed,
-                        toggleSideMenuCollapsed,
-                    }}/>
-                    <Layout css={subLayoutCss}>
-                        <Header css={topMenuCss}>
-                            <TopMenuItems
-                                headerAction={headerAction}
-                                isMobile={isMobile}
-                                isSideMenuCollapsed={isSideMenuCollapsed}
-                                toggleSideMenuCollapsed={toggleSideMenuCollapsed}
-                            />
-                        </Header>
-                        {children}
-                    </Layout>
-                </Layout>
-            </LayoutContext.Provider>
-        </ConfigProvider>
-    )
-}
-
-
-
-interface IPageHeaderProps extends PageHeaderProps {
-    title?: React.ReactChild
-    subTitle?: string
-    className?: string
-    style?: CSSProperties
-}
-
-const PageHeader: FunctionComponent<IPageHeaderProps> = ({ children, className, style, title, subTitle, ...pageHeaderProps }) => {
-    return (
-        <AntPageHeader
-            className={classnames('page-header', className)} css={pageHeaderCss} style={style}
-            title={title} subTitle={subTitle}
-            {...pageHeaderProps}
-        >
-            {children}
-        </AntPageHeader>
-    )
-}
-
-interface IPageContentProps {
-    className?: string
-    style?: CSSProperties
-}
-
-const PageContent: FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
-    return (
-        <div className={classnames('page-content', className)} css={pageContentCss} style={style}>
-            {children}
-        </div>
-    )
-}
-
-export default BaseLayout
-export {
-    useLayoutContext,
-    PageWrapper,
-    PageHeader,
-    PageContent,
-}
-
-
-*/
