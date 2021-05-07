@@ -3,7 +3,7 @@ const { get } = require('lodash')
 
 const { getByCondition, getById } = require('@core/keystone/schema')
 const { userIsAuthenticated, userIsAdmin } = require('@core/keystone/access')
-const { checkOrganizationPermission } = require('@condo/domains/organization/access/Organization')
+const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { checkBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/accessSchema')
 
 const isSignedIn = userIsAuthenticated
