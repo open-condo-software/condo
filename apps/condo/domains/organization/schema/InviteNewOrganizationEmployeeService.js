@@ -1,10 +1,10 @@
+const passwordGenerator = require('generate-password')
 const { getById, GQLCustomSchema } = require('@core/keystone/schema')
-const { User } = require('@condo/domains/user/utils/serverSchema')
 
-const { findOrganizationEmployee, createOrganizationEmployee } = require('../../../utils/serverSchema/Organization')
-
+const { createOrganizationEmployee } = require('../../../utils/serverSchema/Organization')
 const { rules } = require('../../../access')
-const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
+const guards = require('../utils/serverScheema/guards')
+const { REGISTER_NEW_USER_MUTATION } = require('../../user/gql')
 
 const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrganizationEmployeeService', {
     types: [
@@ -17,58 +17,47 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
         {
             access: rules.canInviteEmployee,
             schema: 'inviteNewOrganizationEmployee(data: InviteNewOrganizationEmployeeInput!): OrganizationEmployee',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data } = args
-                const { organization: { id: organiationId }, email, name, ...restData } = data
-                let user
+                const { organization, email, phone, name, ...restData } = data
 
-                // Note: check is already exists (email + organization)
-                {
-                    const objs = await findOrganizationEmployee(context, {
-                        email,
-                        organization: { id: organiationId },
-                    })
+                await guards.checkEmployeeExistency(context, organization, email, phone)
+                await guards.checkUserExistency(context, organization, email, phone)
 
-                    if (objs.length > 0) {
-                        const msg = `${ALREADY_EXISTS_ERROR}] User is already invited in the organization`
-                        console.error(msg)
-                        throw new Error(msg)
-                    }
+                const password = passwordGenerator.generate({
+                    length: 8,
+                    numbers: true,
+                })
+
+                const userAttributes = {
+                    name,
+                    email,
+                    phone,
+                    password,
+                    ...restData,
                 }
 
-                if (!user) {
-                    const objs = await User.getAll(context, { email })
+                const { data: registerData, errors: registerErrors } = await context.executeGraphQL({
+                    query: REGISTER_NEW_USER_MUTATION,
+                    variables: {
+                        data: userAttributes,
+                    },
+                })
 
-                    if (objs && objs.length === 1) {
-                        user = objs[0]
-                    }
-                }
-
-                // Note: check is already exists (user + organization)
-                if (user) {
-                    const objs = await findOrganizationEmployee(context, {
-                        user: { id: user.id },
-                        organization: { id: organiationId },
-                    })
-
-                    if (objs.length > 0) {
-                        const msg = `${ALREADY_EXISTS_ERROR}] User is already invited in the organization`
-                        console.error(msg)
-                        throw new Error(msg)
-                    }
+                if (registerErrors) {
+                    const msg = '[error] Unable to register user'
+                    throw new Error(msg)
                 }
 
                 const employee = await createOrganizationEmployee(context, {
-                    user: (user) ? { connect: { id: user.id } } : undefined,
-                    organization: { connect: { id: organiationId } },
+                    user: { connect: { id: registerData.user.id } },
+                    organization: { connect: { id: organization.id } },
                     email,
                     name,
+                    phone,
                     ...restData,
                 })
-
-                // TODO(pahaz): send email !?!?!
-                console.log('Fake send security email!')
 
                 return await getById('OrganizationEmployee', employee.id)
             },

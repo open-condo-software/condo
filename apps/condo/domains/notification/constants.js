@@ -13,7 +13,8 @@ const PUSH_TRANSPORT = 'push'
 const MESSAGE_TRANSPORTS = [SMS_TRANSPORT, EMAIL_TRANSPORT, TELEGRAM_TRANSPORT, PUSH_TRANSPORT]
 
 const INVITE_NEW_EMPLOYEE_MESSAGE_TYPE = 'INVITE_NEW_EMPLOYEE'
-const MESSAGE_TYPES = [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]
+const REGISTER_NEW_USER_MESSAGE_TYPE = 'REGISTER_NEW_USER'
+const MESSAGE_TYPES = [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, REGISTER_NEW_USER_MESSAGE_TYPE]
 const MESSAGE_META = {
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
@@ -22,6 +23,11 @@ const MESSAGE_META = {
         userEmail: { defaultValue: '', required: false },
         userPhone: { defaultValue: '', required: false },
         organizationName: { defaultValue: 'ORGANIZATION', required: false },
+    },
+    [REGISTER_NEW_USER_MESSAGE_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        userPhone: { defaultValue: '', required: false },
+        userPassword: { defaultValue: '', required: false },
     },
 }
 
@@ -45,6 +51,7 @@ module.exports = {
     TELEGRAM_TRANSPORT,
     PUSH_TRANSPORT,
     MESSAGE_TRANSPORTS,
+    REGISTER_NEW_USER_MESSAGE_TYPE,
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
     MESSAGE_TYPES,
     MESSAGE_META,
