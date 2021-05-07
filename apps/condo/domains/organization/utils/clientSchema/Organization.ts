@@ -11,7 +11,7 @@ import { Organization as OrganizationGQL } from '@condo/domains/organization/gql
 import { Organization, OrganizationUpdateInput, QueryAllOrganizationsArgs } from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'country', 'name', 'description', 'avatar', 'meta', 'employees', 'statusTransitions', 'defaultEmployeeRoleStatusTransitions']
-const RELATIONS = ['employees']
+const RELATIONS = []
 
 export interface IOrganizationUIState extends Organization {
     id: string
