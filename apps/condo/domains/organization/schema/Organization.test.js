@@ -60,7 +60,7 @@ describe('Organization', () => {
         const client = await makeClientWithRegisteredOrganization()
 
         const count = await Organization.count(client, {})
-        expect(count).toBeGreaterThan(0)
+        expect(count).toBe(1)
     })
 
     test('default status transitions is defined', async () => {
