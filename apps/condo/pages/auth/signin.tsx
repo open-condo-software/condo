@@ -11,6 +11,7 @@ import Head from 'next/head'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useMutation } from '@core/next/apollo'
+import { useAuth } from '@core/next/auth'
 
 
 
@@ -47,18 +48,30 @@ const LoginPage = (): React.ReactElement => {
 
 const LoginForm = (): React.ReactElement => {
     const [form] = Form.useForm()
-    let initialValues = getQueryParams()
-    initialValues = { ...initialValues, password: '', confirm: '', captcha: 'no' }
+    const { next } = getQueryParams()
+    const { refetch } = useAuth()
+    const initialValues = { password: '', phone: '' }
     const intl = useIntl()
     const SignInMsg = intl.formatMessage({ id: 'SignIn' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const PasswordMsg = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
+    const UserNotFound = intl.formatMessage({ id: 'pages.auth.UserIsNotFound' })
+    const PasswordMismatch = intl.formatMessage({ id: 'pages.auth.WrongPassword' }) 
 
     const [isLoading, setIsLoading] = useState(false)
     const [signinByPhoneAndPassword] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
-    const ErrorToFormFieldMsgMapping = {}
+    const ErrorToFormFieldMsgMapping = {
+        '[notfound.error]': {
+            name: 'phone',
+            errors: [UserNotFound],
+        },
+        '[passwordAuth:secret:mismatch]': {
+            name: 'password',
+            errors: [PasswordMismatch],
+        },
+    }
     
     const onFinish = values => {
         setIsLoading(true)
@@ -66,11 +79,12 @@ const LoginForm = (): React.ReactElement => {
             mutation: signinByPhoneAndPassword,
             variables: values,
             onCompleted: () => {
+                refetch()
+                Router.push(next ? next : '/')
                 console.log('COMPLETE ! LOGIN ')
             },
             onFinally: () => {
                 setIsLoading(false)
-                Router.push('/')
             },
             intl,
             form,
