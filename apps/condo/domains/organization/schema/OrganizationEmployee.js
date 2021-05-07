@@ -17,9 +17,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
-
         organization: { ...ORGANIZATION_OWNED_FIELD, ref: 'Organization.employees' },
-
         user: {
             schemaDoc: 'If user exists => invite is matched by email/phone (user can reject or accept it)',
             type: Relationship,
@@ -33,7 +31,6 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
                 create: access.userIsAdmin,
             },
         },
-
         inviteCode: {
             schemaDoc: 'Secret invite code (used for accept invite verification)',
             type: Uuid,
@@ -45,7 +42,6 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
                 create: access.userIsAdmin,
             },
         },
-
         name: {
             factory: () => faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}'),
             type: Text,
@@ -71,7 +67,6 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
                 },
             },
         },
-
         role: {
             type: Relationship,
             ref: 'OrganizationEmployeeRole',
@@ -79,7 +74,6 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             knexOptions: { isNotNullable: false }, // Relationship only!
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
-
         isAccepted: {
             type: Checkbox,
             defaultValue: false,
