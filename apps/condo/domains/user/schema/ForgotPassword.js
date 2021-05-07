@@ -4,10 +4,12 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { GQLListSchema, GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@core/keystone/access')
 const conf = require('@core/config')
-
+const { BOT_EMAIL } = require('@condo/domains/common/constants/requisites')
+const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
-const SERVER_URL = conf.SERVER_URL
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const MIN_PASSWORD_LENGTH = 7
+const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 
 
 const USER_OWNED_FIELD = {
@@ -167,10 +169,29 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 if (userAndTokenErrors) {
                     throw new Error('[error]: Unable to construct forgot password context')
                 }
+                const { token } = data.allForgotPasswordActions[0]
+                const user = data.User
+                const lang = COUNTRIES[RUSSIA_COUNTRY].locale
+                await sendMessage(context, {
+                    lang,
+                    to: {
+                        user: {
+                            id: user.id,
+                        },
+                    },
+                    type: RESET_PASSWORD_MESSAGE_TYPE,
+                    meta: {
+                        token,
+                        dv: 1,
+                    },
+                    sender: BOT_EMAIL,
+                })
+
+
                 // hook for send mail!
                 // SendMail `${SERVER_URL}/auth/change-password?token=${ForgotPasswordAction.token}` User.email
-                //                 const ForgotPasswordAction = data.allForgotPasswordActions[0]
-                // const User = data.User
+                //                 
+                // 
 
                 // console.log('ForgotPasswordService AFTER', `${SERVER_URL}/auth/change-password?token=${ForgotPasswordAction.token}`)
                 return 'ok'

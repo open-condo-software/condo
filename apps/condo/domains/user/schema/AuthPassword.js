@@ -23,18 +23,19 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { phone: inputPhone, password } = info.variableValues
                 const phone = inputPhone.replace(PHONE_CLEAR_REGEXP, '')
-
+                // Todo(zuch): find a way to use several password auth strategy without brokening all tests
                 const users = await User.getAll(context, { phone })
                 if (users.length !== 1) {
                     const msg = '[notfound.error] Unable to find user. Try to register'
                     throw new Error(msg)
                 }
+                const user = await getById('User', users[0].id)
 
                 const { keystone } = await getSchemaCtx(AuthenticateUserWithPhoneAndPasswordService)  
 
                 const { auth: { User: { password: PasswordStrategy } } } = keystone
                 
-                const { success, message } = await PasswordStrategy.validate({ phone, password })
+                const { success, message } = await PasswordStrategy.validate({ email: user.email, password })
                 
                 if (!success) {
                     throw new Error(message)
@@ -43,7 +44,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 await context.startAuthedSession({ item: users[0], list: keystone.lists['User'] })
 
                 const result = {
-                    item: await getById('User', users[0].id),
+                    item: user,
                 }
                 return result
             },

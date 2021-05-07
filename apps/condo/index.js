@@ -88,11 +88,10 @@ const authStrategy = keystone.createAuthStrategy({
     type: PasswordAuthStrategy,
     list: 'User',
     config: {
-        identityField: 'phone',
-        secretField: 'password',
         protectIdentities: false,
     },
 })
+
 
 module.exports = {
     keystone,
