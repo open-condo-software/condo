@@ -87,7 +87,11 @@ verifySchema(keystone)
 const authStrategy = keystone.createAuthStrategy({
     type: PasswordAuthStrategy,
     list: 'User',
-    config: { protectIdentities: false },
+    config: {
+        identityField: 'phone',
+        secretField: 'password',
+        protectIdentities: false,
+    },
 })
 
 module.exports = {

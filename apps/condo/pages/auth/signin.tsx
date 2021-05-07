@@ -1,14 +1,28 @@
 import { useIntl } from '@core/next/intl'
 import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
+import MaskedInput from 'antd-mask-input'
+import { gql } from 'graphql-tag'
 import AuthLayout from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
 import Router from 'next/router'
 import { FormattedMessage } from 'react-intl'
-import React from 'react'
+import React, { useState } from 'react'
 import Head from 'next/head'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
-import MaskedInput from 'antd-mask-input'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { useMutation } from '@core/next/apollo'
 
+
+
+const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
+    mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
+        obj: authenticateUserWithPhoneAndPassword(data: { phone: $phone, password: $password }) {
+            item {
+                id
+            }
+        }
+    }
+` 
 
 const INPUT_STYLE = { minWidth: '273px' }
 const LINK_STYLE = { color: '#389E0D' }
@@ -42,8 +56,29 @@ const LoginForm = (): React.ReactElement => {
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
 
+    const [isLoading, setIsLoading] = useState(false)
+    const [signinByPhoneAndPassword] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
+    const ErrorToFormFieldMsgMapping = {}
+    
     const onFinish = values => {
-        console.log('onFinish')
+        setIsLoading(true)
+        return runMutation({
+            mutation: signinByPhoneAndPassword,
+            variables: values,
+            onCompleted: () => {
+                console.log('COMPLETE ! LOGIN ')
+            },
+            onFinally: () => {
+                setIsLoading(false)
+                Router.push('/')
+            },
+            intl,
+            form,
+            ErrorToFormFieldMsgMapping,
+        }).catch(error => {
+            console.log('Mutation error: ', error)
+            setIsLoading(false)
+        })
     }
 
     return (
@@ -78,7 +113,9 @@ const LoginForm = (): React.ReactElement => {
                 <Button
                     key='submit'
                     type='sberPrimary'
+                    htmlType="submit" 
                     style={{ justifySelf: 'flex-start' }}
+                    loading={isLoading}
                 >
                     {SignInMsg}
                 </Button>
