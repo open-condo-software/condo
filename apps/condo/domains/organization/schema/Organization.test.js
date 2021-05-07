@@ -35,17 +35,23 @@ describe('Organization', () => {
 
         const objs = await Organization.getAll(client, {})
         expect(objs.length).toBe(1)
+        expect(objs[0].id).toEqual(client.organization.id)
     })
 
     test('admin: can read all organizations', async () => {
         const admin = await makeLoggedInAdminClient()
         await createTestOrganization(admin)
-        await makeClientWithRegisteredOrganization()
+        const client = await makeClientWithRegisteredOrganization()
 
-        const objs = await Organization.getAll(admin, {})
+        const objs = await Organization.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
         // Because database is not cleaned up before tests, there is a lot of organizations, created by previous test runs
         // So, just expect more organizations, than created by admin in question
         expect(objs.length).toBeGreaterThan(1)
+        expect(objs).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                id: client.organization.id,
+            }),
+        ]))
     })
 
     test('user: allow to count', async () => {
