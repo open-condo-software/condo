@@ -5,7 +5,7 @@
 const { get } = require('lodash')
 
 const { getById } = require('@core/keystone/schema')
-const { checkOrganizationPermission } = require('@condo/domains/organization/access/Organization')
+const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { checkBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/accessSchema')
 
 async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item: user } }) {
