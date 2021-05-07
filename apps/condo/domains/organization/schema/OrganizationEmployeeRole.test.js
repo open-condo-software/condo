@@ -33,13 +33,16 @@ describe('OrganizationEmployeeRole', () => {
                 name: faker.name.firstName(),
                 sender: { dv: 1, fingerprint: getRandomString() },
             }
-            const result = await OrganizationEmployee.update(userClient, employee.id, attrs, { raw: true })
-            expect(result.errors[0]).toMatchObject({
-                'data': { 'target': 'updateOrganizationEmployee', 'type': 'mutation' },
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
+            try {
+                await OrganizationEmployee.update(userClient, employee.id, attrs)
+            } catch (e) {
+                expect(e.errors[0]).toMatchObject({
+                    'data': { 'target': 'updateOrganizationEmployee', 'type': 'mutation' },
+                    'message': 'You do not have access to this resource',
+                    'name': 'AccessDeniedError',
+                    'path': ['obj'],
+                })
+            }
         })
 
         test('user: has access to update employee with granted `canManageEmployees`', async () => {
@@ -69,9 +72,12 @@ describe('OrganizationEmployeeRole', () => {
                 name: faker.name.firstName(),
                 sender: { dv: 1, fingerprint: getRandomString() },
             }
-            const result = await OrganizationEmployee.update(userClient, employee.id, attrs, { raw: true })
-            expect(result.errors).toBeUndefined()
-            expect(result.data.obj).toMatchObject(attrs)
+            try {
+                await OrganizationEmployee.update(userClient, employee.id, attrs)
+            } catch (e) {
+                expect(e.errors).toBeUndefined()
+                expect(e.data.obj).toMatchObject(attrs)
+            }
         })
     })
 
@@ -103,13 +109,16 @@ describe('OrganizationEmployeeRole', () => {
                 organization: { connect: { id: organizationAdminClient.organization.id } },
             }
 
-            const { errors } = await OrganizationEmployeeRole.create(userClient, attrs, { raw: true })
-            expect(errors[0]).toMatchObject({
-                'data': { 'target': 'createOrganizationEmployeeRole', 'type': 'mutation' },
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
+            try {
+                await OrganizationEmployeeRole.create(userClient, attrs)
+            } catch (e) {
+                expect(e.errors[0]).toMatchObject({
+                    'data': { 'target': 'createOrganizationEmployeeRole', 'type': 'mutation' },
+                    'message': 'You do not have access to this resource',
+                    'name': 'AccessDeniedError',
+                    'path': ['obj'],
+                })
+            }
         })
 
         test('user: can create role when granted `canManageRoles`', async () => {
@@ -141,9 +150,12 @@ describe('OrganizationEmployeeRole', () => {
                 organization: { connect: { id: organizationAdminClient.organization.id } },
             }
 
-            const { data, errors } = await OrganizationEmployeeRole.create(userClient, attrs, { raw: true })
-            expect(data.obj).toMatchObject(_.omit(attrs, 'organization'))
-            expect(errors).toBeUndefined()
+            try {
+                await OrganizationEmployeeRole.create(userClient, attrs)
+            } catch (e) {
+                expect(e.data.obj).toMatchObject(_.omit(attrs, 'organization'))
+                expect(e.errors).toBeUndefined()
+            }
         })
     })
 })
