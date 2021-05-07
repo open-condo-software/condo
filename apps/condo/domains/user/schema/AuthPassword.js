@@ -1,7 +1,6 @@
 const { getById, getSchemaCtx } = require('@core/keystone/schema')
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const { PHONE_CLEAR_REGEXP } = require('@condo/domains/common/constants/regexps')
-const get = require('lodash/get')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
 
