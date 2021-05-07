@@ -1,5 +1,4 @@
 const { get } = require('lodash')
-
 const { getByCondition } = require('@core/keystone/schema')
 
 async function checkBillingIntegrationAccessRight (userId, integrationId) {
