@@ -273,12 +273,13 @@ function createschema (argv) {
                     case 'DateTimeUtc':
                     case 'CalendarDay':
                     case 'Json':
+                    case 'Uuid':
                     case 'Checkbox':
                         if (result.length !== 2) throw new Error(`Wrong number of argument for filed signature "${field}"`)
                         break
                     case 'Select':
                         if (result.length !== 3) throw new Error(`Wrong number of argument for filed signature "${field}"`)
-                        if (!result[2].match(/^([a-z0-9, ]+)$/g)) throw new Error(`Wrong argument 1 for type ${type}. Filed signature "${field}"`)
+                        if (!result[2].match(/^([a-z0-9-_, ]+)$/g)) throw new Error(`Wrong argument 1 for type ${type}. Filed signature "${field}"`)
                         break
                     case 'Relationship':
                         if (result.length !== 4) throw new Error(`Wrong number of argument for filed signature "${field}"`)
