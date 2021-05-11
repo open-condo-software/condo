@@ -1,7 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { Organization } from '@condo/domains/organization/utils/clientSchema'
 import { STATUS_SELECT_COLORS } from '@condo/domains/ticket/constants/style'
 import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import {
