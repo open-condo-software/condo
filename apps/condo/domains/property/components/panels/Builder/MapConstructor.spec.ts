@@ -1,5 +1,5 @@
 import { MapEdit, MapTypesList } from './MapConstructor'
-import { notValidBuildingMapJson, buildingMapJson } from '@condo/domains/property/constants/property.example'
+import { notValidBuildingMapJson, buildingMapJson } from '@condo/domains/property/constants/property'
 import { cloneDeep } from 'lodash'
 
 const testSection = {
