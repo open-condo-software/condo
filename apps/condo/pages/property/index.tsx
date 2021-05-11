@@ -161,7 +161,7 @@ const PropertyPageViewTable = (): React.FC => {
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
-    if (error || loading) {
+    if (error) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
     }
 
