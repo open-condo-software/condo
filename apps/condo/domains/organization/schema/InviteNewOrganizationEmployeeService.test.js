@@ -1,26 +1,28 @@
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { createTestUser } = require('@condo/domains/user/utils/testSchema')
-
 const { inviteNewOrganizationEmployee, makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
 const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 
 
 describe('InviteNewOrganizationEmployeeService', () => {
     test('owner: invite new user', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [user, userAttrs] = await createTestUser(admin)
+        const userAttrs = {
+            email: 'exmaple@mail.ru',
+            phone: '79999999999',
+            name: 'User Name',
+        }
         const client = await makeClientWithRegisteredOrganization()
         const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
-        expect(employee.user.id).toEqual(user.id)
         expect(employee.email).toEqual(userAttrs.email)
         expect(employee.phone).toEqual(userAttrs.phone)
         expect(employee.name).toEqual(userAttrs.name)
     })
 
     test('owner: try to invite already invited user', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [, userAttrs] = await createTestUser(admin)
         const client = await makeClientWithRegisteredOrganization()
+        const userAttrs = {
+            email: 'exmaple2@mail.ru',
+            phone: '79999999998',
+            name: 'User Name',
+        }
         await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
 
         const { errors } = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, {}, { raw: true })
