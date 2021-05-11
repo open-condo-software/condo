@@ -21,7 +21,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
     test('owner: try to invite already registered User by Phone', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const admin = await makeLoggedInAdminClient()
-        const [, userAttrs] = await createTestUser(admin)
+        const [obj, userAttrs] = await createTestUser(admin)
         const employeeUserAttrs = {
             ...userAttrs,
             email: createTestEmail(),
@@ -30,6 +30,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
         const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs)
 
         expect(employee.email).toEqual(employeeUserAttrs.email)
+        expect(employee.user.id).toEqual(obj.id)
         expect(employee.phone).toEqual(employeeUserAttrs.phone)
         expect(employee.name).toEqual(employeeUserAttrs.name)
     })
@@ -37,7 +38,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
     test('owner: try to invite already registered User by Email', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const admin = await makeLoggedInAdminClient()
-        const [, userAttrs] = await createTestUser(admin)
+        const [obj, userAttrs] = await createTestUser(admin)
         const employeeUserAttrs = {
             ...userAttrs,
             phone: createTestPhone(),
@@ -46,6 +47,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
         const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs)
 
         expect(employee.email).toEqual(employeeUserAttrs.email)
+        expect(employee.user.id).toEqual(obj.id)
         expect(employee.phone).toEqual(employeeUserAttrs.phone)
         expect(employee.name).toEqual(employeeUserAttrs.name)
     })
