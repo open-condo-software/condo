@@ -158,7 +158,6 @@ interface IPropertyImport {
 
 export const PropertyImport: React.FC<IPropertyImport> = (props) => {
     const userOrganization = useOrganization()
-    const auth = useAuth()
     const intl = useIntl()
     const [modal, contextHolder] = Modal.useModal()
     const activeModal = useRef(null)
@@ -199,13 +198,10 @@ export const PropertyImport: React.FC<IPropertyImport> = (props) => {
         importData(file.data)
     }, [])
 
-    console.log(auth)
-    const organizationCreatorId = get(userOrganization, ['organization', 'createdBy', 'id'])
-    const userID = get(auth, ['user', 'id'])
-    const isOwner = organizationCreatorId === userID
+    const canManageProperties = get(userOrganization, ['link', 'role', 'canManageProperties'], false)
 
     return (
-        isOwner && (
+        canManageProperties && (
             <ModalContext.Provider value={{ progress, error, isImported }}>
                 <DataImporter onUpload={handleUpload}>
                     <Button
