@@ -14,12 +14,15 @@ const { User: UserGQL, UserAdmin: UserAdminGQL, REGISTER_NEW_USER_MUTATION } = r
 const User = generateGQLTestUtils(UserGQL)
 const UserAdmin = generateGQLTestUtils(UserAdminGQL)
 
+const createTestEmail = () => ('test.' + getRandomString() + '@example.com').toLowerCase()
+const createTestPhone = () => '00' + String(Math.random()).slice(2).slice(-9)
+
 async function createTestUser (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
-    const email = ('test.' + getRandomString() + '@example.com').toLowerCase()
-    const phone = '00' + String(Math.random()).slice(2).slice(-9)
+    const email = createTestEmail()
+    const phone = createTestPhone()
     const password = getRandomString()
     const meta = {
         dv: 1, city: faker.address.city(), county: faker.address.county(),
@@ -96,6 +99,7 @@ async function addAdminAccess (user) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient, makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess,
+    User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient,
+    makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, createTestEmail, createTestPhone
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
