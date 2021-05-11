@@ -10,7 +10,6 @@ const checkEmployeeExistency = async (context, organization, email, phone) => {
 
     if (employeesByEmail.length > 0) {
         const msg = `${ALREADY_EXISTS_ERROR}] User is already invited in the organization`
-        console.error(msg)
         throw new Error(msg)
     }
 
@@ -21,7 +20,6 @@ const checkEmployeeExistency = async (context, organization, email, phone) => {
 
     if (employeesByPhone.length > 0) {
         const msg = `${ALREADY_EXISTS_ERROR}] User is already invited in the organization`
-        console.error(msg)
         throw new Error(msg)
     }
 }
@@ -31,7 +29,6 @@ const checkUserExistency = async (context, organization, email, phone) => {
 
     if (userByEmail) {
         const msg = `${ALREADY_EXISTS_ERROR}] User is already exists`
-        console.error(msg)
         throw new Error(msg)
     }
 
@@ -39,7 +36,6 @@ const checkUserExistency = async (context, organization, email, phone) => {
 
     if (userByPhone) {
         const msg = `${ALREADY_EXISTS_ERROR}] User is already exists`
-        console.error(msg)
         throw new Error(msg)
     }
 }
