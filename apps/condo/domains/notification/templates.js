@@ -1,4 +1,5 @@
 const conf = require('@core/config')
+const { RU_LOCALE, EN_LOCALE } = require('@condo/domains/common/constants/locale')
 
 const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_TRANSPORTS, REGISTER_NEW_USER_MESSAGE_TYPE } = require('./constants')
 
@@ -15,13 +16,13 @@ async function renderTemplate (transport, message) {
     if (message.type === INVITE_NEW_EMPLOYEE_MESSAGE_TYPE) {
         const { organizationName, inviteCode } = message.meta
 
-        if (message.lang === 'en') {
+        if (message.lang === EN_LOCALE) {
             return {
                 subject: 'You are invited to join organization as employee',
                 text: `Organization "${organizationName}" invited you as employee.\n` +
                     `Click to the link to join: ${serverUrl}/auth/invite/${inviteCode}`,
             }
-        } else if (message.lang === 'ru') {
+        } else if (message.lang === RU_LOCALE) {
             return {
                 subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
                 text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +

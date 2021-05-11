@@ -7,25 +7,23 @@ const {
 } = require('../../../utils/testSchema/Organization')
 
 // TODO(pahaz): check antonymous ACCEPT_OR_REJECT_BY_ID_MUTATION
-// TODO(Dimitreee): implement later
 describe('AcceptOrRejectOrganizationInviteService', () => {
     test('user: accept/reject', async () => {
-        expect(true).toEqual(true)
-        // const client1 = await makeClientWithRegisteredOrganization()
-        // const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
-        //
-        // const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
-        // const [accepted] = await acceptOrRejectOrganizationInviteById(client2, invite)
-        //
-        // expect(accepted).toEqual(expect.objectContaining({
-        //     isAccepted: true,
-        //     isRejected: false,
-        // }))
-        //
-        // const [rejected] = await acceptOrRejectOrganizationInviteById(client2, invite, { isRejected: true })
-        //
-        // expect(rejected).toEqual(expect.objectContaining({
-        //     isRejected: true,
-        // }))
+        const client1 = await makeClientWithRegisteredOrganization()
+        const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+        const [accepted] = await acceptOrRejectOrganizationInviteById(client2, invite)
+
+        expect(accepted).toEqual(expect.objectContaining({
+            isAccepted: true,
+            isRejected: false,
+        }))
+
+        const [rejected] = await acceptOrRejectOrganizationInviteById(client2, invite, { isRejected: true })
+
+        expect(rejected).toEqual(expect.objectContaining({
+            isRejected: true,
+        }))
     })
 })

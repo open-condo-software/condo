@@ -24,19 +24,17 @@ const checkEmployeeExistency = async (context, organization, email, phone) => {
     }
 }
 
-const checkUserExistency = async (context, organization, email, phone) => {
+const checkUserExistency = async (context, email, phone) => {
     const [userByEmail] = await User.getAll(context, { email })
 
     if (userByEmail) {
-        const msg = `${ALREADY_EXISTS_ERROR}] User is already exists`
-        throw new Error(msg)
+        return userByEmail
     }
 
     const [userByPhone] = await User.getAll(context, { phone })
 
     if (userByPhone) {
-        const msg = `${ALREADY_EXISTS_ERROR}] User is already exists`
-        throw new Error(msg)
+        return userByPhone
     }
 }
 

@@ -27,9 +27,11 @@ describe('InviteNewOrganizationEmployeeService', () => {
             email: createTestEmail(),
         }
 
-        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs, {}, { raw: true })
+        const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs)
 
-        expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+        expect(employee.email).toEqual(employeeUserAttrs.email)
+        expect(employee.phone).toEqual(employeeUserAttrs.phone)
+        expect(employee.name).toEqual(employeeUserAttrs.name)
     })
 
     test('owner: try to invite already registered User by Email', async () => {
@@ -41,9 +43,11 @@ describe('InviteNewOrganizationEmployeeService', () => {
             phone: createTestPhone(),
         }
 
-        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs, {}, { raw: true })
+        const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs)
 
-        expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+        expect(employee.email).toEqual(employeeUserAttrs.email)
+        expect(employee.phone).toEqual(employeeUserAttrs.phone)
+        expect(employee.name).toEqual(employeeUserAttrs.name)
     })
 
     test('owner: try to invite Employee with duplicate Phone', async () => {

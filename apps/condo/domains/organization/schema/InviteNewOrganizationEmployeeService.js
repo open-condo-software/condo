@@ -23,35 +23,39 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const { organization, email, phone, name, ...restData } = data
 
                 await guards.checkEmployeeExistency(context, organization, email, phone)
-                await guards.checkUserExistency(context, organization, email, phone)
+                let user = await guards.checkUserExistency(context, email, phone)
 
-                const password = passwordGenerator.generate({
-                    length: 8,
-                    numbers: true,
-                })
+                if (!user) {
+                    const password = passwordGenerator.generate({
+                        length: 8,
+                        numbers: true,
+                    })
 
-                const userAttributes = {
-                    name,
-                    email,
-                    phone,
-                    password,
-                    ...restData,
-                }
+                    const userAttributes = {
+                        name,
+                        email,
+                        phone,
+                        password,
+                        ...restData,
+                    }
 
-                const { data: registerData, errors: registerErrors } = await context.executeGraphQL({
-                    query: REGISTER_NEW_USER_MUTATION,
-                    variables: {
-                        data: userAttributes,
-                    },
-                })
+                    const { data: registerData, errors: registerErrors } = await context.executeGraphQL({
+                        query: REGISTER_NEW_USER_MUTATION,
+                        variables: {
+                            data: userAttributes,
+                        },
+                    })
 
-                if (registerErrors) {
-                    const msg = '[error] Unable to register user'
-                    throw new Error(msg)
+                    if (registerErrors) {
+                        const msg = '[error] Unable to register user'
+                        throw new Error(msg)
+                    }
+
+                    user = registerData.user
                 }
 
                 const employee = await createOrganizationEmployee(context, {
-                    user: { connect: { id: registerData.user.id } },
+                    user: { connect: { id: user.id } },
                     organization: { connect: { id: organization.id } },
                     email,
                     name,
