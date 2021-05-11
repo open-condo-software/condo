@@ -8,7 +8,11 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { OrganizationEmployee as OrganizationEmployeeGQL } from '@condo/domains/organization/gql'
-import { OrganizationEmployee, OrganizationEmployeeUpdateInput, QueryAllOrganizationEmployeesArgs } from '../../../../schema'
+import {
+    OrganizationEmployee,
+    OrganizationEmployeeUpdateInput,
+    QueryAllOrganizationEmployeesArgs,
+} from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'isBlocked', 'updatedBy', 'organization', 'user', 'inviteCode', 'name', 'email', 'phone', 'role', 'position', 'isAccepted', 'isRejected']
 const RELATIONS = ['organization', 'user', 'role']
@@ -37,6 +41,17 @@ function convertToUIFormState (state: IOrganizationEmployeeUIState): IOrganizati
         result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
     }
     return result as IOrganizationEmployeeFormState
+}
+
+function convertGQLItemToFormSelectState (item: OrganizationEmployee): { value: string, label: string } | undefined {
+    const userOrganization = get(item, 'organization')
+    if (!userOrganization) {
+        return
+    }
+
+    const { name } = userOrganization
+
+    return { value: item.id, label: name }
 }
 
 function convertToGQLInput (state: IOrganizationEmployeeFormState): OrganizationEmployeeUpdateInput {
@@ -90,6 +105,7 @@ export {
     useUpdate,
     useDelete,
     useSoftDelete,
+    convertGQLItemToFormSelectState,
     convertToGQLInput,
     convertToUIFormState,
 }

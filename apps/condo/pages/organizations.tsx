@@ -22,11 +22,14 @@ import FormList, {
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import {
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
-    GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY,
     REGISTER_NEW_ORGANIZATION_MUTATION,
     UPDATE_ORGANIZATION_BY_ID_MUTATION,
 } from '@condo/domains/organization/gql'
-import { convertGQLItemToUIState, convertUIStateToGQLItem } from '@condo/domains/organization/utils/clientSchema'
+import {
+    convertGQLItemToUIState,
+    convertUIStateToGQLItem,
+    OrganizationEmployee,
+} from '@condo/domains/organization/utils/clientSchema'
 import { getClientSideSenderInfo } from '../domains/common/utils/userid.utils'
 
 const DEFAULT_ORGANIZATION_AVATAR_URL = 'https://www.pngitem.com/pimgs/m/226-2261747_company-name-icon-png-transparent-png.png'
@@ -52,7 +55,7 @@ function CreateAndEditOrganizationModalForm ({ visible, editableItem, cancelModa
             errors: [ValueIsTooShortMsg],
         },
     }
-    
+
     return <BaseModalForm
         /* NOTE: we need to recreate form if editableItem changed because the form initialValues are cached */
         key={editableItem}
@@ -101,10 +104,10 @@ function OrganizationCRUDListBlock () {
     const { user } = useAuth()
     const { selectLink } = useOrganization()
 
-    const { loading, data, refetch } = useQuery(GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY, {
-        variables: { where: user ? { user: { id: user.id } } : {} },
-    })
+    const { loading, objs, refetch } = OrganizationEmployee.useObjects({})
     const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION)
+
+    console.log(objs)
 
     function handleAcceptOrReject (item, action) {
         let data = {}
@@ -116,6 +119,7 @@ function OrganizationCRUDListBlock () {
             data = { isRejected: true }
         }
         const sender = getClientSideSenderInfo()
+
         acceptOrReject({ variables: { id: item.id, data: { ...data, dv: 1, sender } } })
             .then(
                 () => {
@@ -153,7 +157,7 @@ function OrganizationCRUDListBlock () {
             loading={loading}
             // loadMore={loadMore}
             // TODO(pahaz): add this feature ^^
-            dataSource={data && data.objs || []}
+            dataSource={objs || []}
             renderItem={(item) => {
                 const { organization = {}, role, avatar, isRejected, isAccepted } = item
                 return {

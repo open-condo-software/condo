@@ -56,7 +56,6 @@ const AvatarContainer = styled.div`
 `
 
 const UserMenuWrapper = styled.div`
-  padding-left: 44px;
 `
 
 const UserMenuContainer = styled.div`
