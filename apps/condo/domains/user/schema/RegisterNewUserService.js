@@ -58,6 +58,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     userData.importId = uid
                 }
 
+                // TODO(Dimitreee): use ensureNotExists
                 const { errors: findErrors, data: findData } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
@@ -106,6 +107,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     throw new Error(msg)
                 }
 
+                // TODO(Dimitreee): use locale from .env
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
                 await sendMessage(context, {
                     lang,
