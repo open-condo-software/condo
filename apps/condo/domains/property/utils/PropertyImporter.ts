@@ -1,11 +1,11 @@
 /*
-* На вход принимает excel файл
-* Разбирает его по столбцам
-* Валидирует адрес
-* Нормализует адрес
-* Проверяет уникальность адреса
-* Генерирует шахматку по заданным параметрам (Если параметров нет, подставляет дефолтную разметку)
-* Создает объект
+* Accepts an excel file as input
+* Parses it column by column
+* Validates address
+* Normalizes address
+* Checks the uniqueness of the address
+* Generates a checkerboard according to the specified parameters (If there are no parameters, it substitutes the default markup)
+* Creates an object
 * */
 import isEqual from 'lodash/isEqual'
 import get from 'lodash/get'
