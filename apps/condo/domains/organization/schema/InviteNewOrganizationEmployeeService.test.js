@@ -1,13 +1,15 @@
 const { inviteNewOrganizationEmployee, makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
 const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
-
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
+const faker = require('faker')
 
 describe('InviteNewOrganizationEmployeeService', () => {
     test('owner: invite new user', async () => {
         const userAttrs = {
-            email: 'exmaple@mail.ru',
-            phone: '79999999999',
-            name: 'User Name',
+            name: faker.name.firstName(),
+            email: createTestEmail(),
+            phone: createTestPhone(),
         }
         const client = await makeClientWithRegisteredOrganization()
         const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
@@ -16,16 +18,69 @@ describe('InviteNewOrganizationEmployeeService', () => {
         expect(employee.name).toEqual(userAttrs.name)
     })
 
-    test('owner: try to invite already invited user', async () => {
+    test('owner: try to invite already registered User by Phone', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+        const admin = await makeLoggedInAdminClient()
+        const [, userAttrs] = await createTestUser(admin)
+        const employeeUserAttrs = {
+            ...userAttrs,
+            email: createTestEmail(),
+        }
+
+        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs, {}, { raw: true })
+
+        expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+    })
+
+    test('owner: try to invite already registered User by Email', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+        const admin = await makeLoggedInAdminClient()
+        const [, userAttrs] = await createTestUser(admin)
+        const employeeUserAttrs = {
+            ...userAttrs,
+            phone: createTestPhone(),
+        }
+
+        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs, {}, { raw: true })
+
+        expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+    })
+
+    test('owner: try to invite Employee with duplicate Phone', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const userAttrs = {
-            email: 'exmaple2@mail.ru',
-            phone: '79999999998',
-            name: 'User Name',
+            name: faker.name.firstName(),
+            email: createTestEmail(),
+            phone: createTestPhone(),
         }
-        await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
 
-        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, {}, { raw: true })
+        await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+        const secondUserAttrs = {
+            ...userAttrs,
+            email: createTestEmail(),
+        }
+
+        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {}, { raw: true })
+
+        expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+    })
+
+    test('owner: try to invite Employee with duplicate Email', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+        const userAttrs = {
+            name: faker.name.firstName(),
+            email: createTestEmail(),
+            phone: createTestPhone(),
+        }
+
+        await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+        const secondUserAttrs = {
+            ...userAttrs,
+            phone: createTestPhone(),
+        }
+
+        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {}, { raw: true })
+
         expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
     })
 })
