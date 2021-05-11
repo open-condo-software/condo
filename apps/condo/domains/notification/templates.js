@@ -34,7 +34,7 @@ async function renderTemplate (transport, message) {
     if (message.type === REGISTER_NEW_USER_MESSAGE_TYPE) {
         const { userPhone, userPassword } = message.meta
 
-        if (message.lang === 'en') {
+        if (message.lang === EN_LOCALE) {
             return {
                 subject: 'Your access data to doma.ai service.',
                 text: `
@@ -44,7 +44,7 @@ async function renderTemplate (transport, message) {
                     Please follow link: ${serverUrl}/auth/signin
                 `,
             }
-        } else if (message.lang === 'ru') {
+        } else if (message.lang === RU_LOCALE) {
             return {
                 subject: 'Ваши данные для доступа к сервису doma.ai.',
                 text: `
