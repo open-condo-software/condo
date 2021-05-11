@@ -48,7 +48,7 @@ export class PropertyImporter implements IPropertyImporter {
         const [columns, ...body] = this.tableData
 
         if (!this.isColumnsValid(columns)) {
-            this.errorHandler(new Error('Таблица имеет некорректную структуру. Обратитесь к администратору за дополнительной информацией.'))
+            this.errorHandler(new Error())
 
             return
         }
@@ -148,7 +148,7 @@ export class PropertyImporter implements IPropertyImporter {
             }
         })
 
-        // Проверяет корректность колонок файла
+        // excel table columns validation
         return isEqual(validColumns, normalizedTableColumns)
     }
 
@@ -199,7 +199,7 @@ export class PropertyImporter implements IPropertyImporter {
         const mapEditor = new MapEdit(propertyUnitsMap)
 
         for (let currentSection = 0; currentSection < sections; currentSection++) {
-            const name = `Подъезд №${currentSection + 1}`
+            const name = `№${currentSection + 1}`
             mapEditor.addSection({
                 name,
                 unitsOnFloor,
@@ -208,7 +208,7 @@ export class PropertyImporter implements IPropertyImporter {
             })
         }
 
-        // TODO: непонятно что делать с оставшимися после округления квартирами
+        // TODO(Dimitree): thing about rest flats
         return mapEditor.getMap()
     }
 

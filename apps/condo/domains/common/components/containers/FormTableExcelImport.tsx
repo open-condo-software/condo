@@ -167,7 +167,7 @@ function ExcelExporterButton ({ columns, setExportedData }) {
         setExportedData(fromExData(tableState.data, tableState.mapping))
     }
 
-    const formatted_files = TABLE_UPLOAD_ACCEPT_FILES.map(function (x) { return '.' + x }).join(',')
+    const formattedFiles = TABLE_UPLOAD_ACCEPT_FILES.map(function (x) { return '.' + x }).join(',')
 
     // @ts-ignore
     return <>
@@ -183,7 +183,7 @@ function ExcelExporterButton ({ columns, setExportedData }) {
 
         <Upload.Dragger
             style={{ marginBottom: '16px', padding: '10px', display: step === 1 ? 'block' : 'none' }}
-            accept={formatted_files}
+            accept={formattedFiles}
             showUploadList={false}
             // TODO(pahaz): is the customRequest required?: customRequest={() => {}}
             action={handleFile}

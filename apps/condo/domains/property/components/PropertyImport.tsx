@@ -7,6 +7,7 @@ import React, { useCallback, useRef, useState } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useAuth } from '@core/next/auth'
 import { useApolloClient } from '@core/next/apollo'
+import { useIntl } from '@core/next/intl'
 import { Button } from '../../common/components/Button'
 import { DataImporter } from '../../common/components/DataImporter'
 import { searchProperty } from '../../ticket/utils/clientSchema/search'
@@ -70,10 +71,10 @@ const useImporter = (onFinish, onError) => {
 
 const ModalContext = React.createContext({ progress: 0, error: null, isImported: false })
 
-const getPropertyUploadInfoModalConfig = (onButtonClick) => {
+const getPropertyUploadInfoModalConfig = (intl, onButtonClick) => {
     return {
         // TODO(Dimitreee):add translations
-        title: 'Импорт',
+        title: intl.formatMessage({ id: 'property.Import' }),
         closable: false,
         content: (
             <ModalContext.Consumer>
@@ -89,7 +90,7 @@ const getPropertyUploadInfoModalConfig = (onButtonClick) => {
                                 <Alert
                                     style={{ marginTop: 16 }}
                                     // TODO(Dimitreee): add translations
-                                    message='Данные обрабатываются, не закрывайте вкладку браузера и не выключайте компьютер.'
+                                    message={intl.formatMessage({ id: 'property.Processing' })}
                                     type='info'
                                 />
                             </>
@@ -98,7 +99,7 @@ const getPropertyUploadInfoModalConfig = (onButtonClick) => {
                 }
             </ModalContext.Consumer>
         ),
-        okText: 'Прервать',
+        okText: intl.formatMessage({ id: 'property.Break' }),
         onOk: onButtonClick,
         okButtonProps: {
             type: 'primary',
@@ -107,33 +108,33 @@ const getPropertyUploadInfoModalConfig = (onButtonClick) => {
     }
 }
 
-const getPropertyUploadSuccessModalConfig = () => {
+const getPropertyUploadSuccessModalConfig = (intl) => {
     return {
         // TODO(Dimitreee):add translations
-        title: 'Импорт',
+        title: intl.formatMessage({ id: 'property.Import' }),
         closable: true,
         content: (
             <Alert
                 style={{ marginTop: 16 }}
                 // TODO(Dimitreee): add translations
-                message='Дома добавлены.'
+                message={intl.formatMessage({ id: 'property.ImportSuccess' })}
                 type='success'
             />
         ),
-        okText: 'Продолжить',
+        okText: intl.formatMessage({ id: 'property.Continue' }),
     }
 }
 
-const getPropertyUploadErrorModalConfig = () => {
+const getPropertyUploadErrorModalConfig = (intl) => {
     return {
         // TODO(Dimitreee):add translations
-        title: 'Импорт',
+        title: intl.formatMessage({ id: 'property.Import' }),
         closable: true,
         content: (
             <ModalContext.Consumer>
                 {
                     ({ error }) => {
-                        const errorMessage = get(error, 'message') || 'Во время обработки документа произошла ошибка, проверьте корректность предоставленных данных или обратитесь в службу поддержки.'
+                        const errorMessage = get(error, 'message') || intl.formatMessage({ id: 'property.ImportError' })
 
                         return (
                             <Alert
@@ -147,7 +148,7 @@ const getPropertyUploadErrorModalConfig = () => {
                 }
             </ModalContext.Consumer>
         ),
-        okText: 'Продолжить',
+        okText: intl.formatMessage({ id: 'property.Continue' }),
     }
 }
 
@@ -158,6 +159,7 @@ interface IPropertyImport {
 export const PropertyImport: React.FC<IPropertyImport> = (props) => {
     const userOrganization = useOrganization()
     const auth = useAuth()
+    const intl = useIntl()
     const [modal, contextHolder] = Modal.useModal()
     const activeModal = useRef(null)
 
@@ -171,29 +173,33 @@ export const PropertyImport: React.FC<IPropertyImport> = (props) => {
     const [importData, progress, error, isImported, breakImport] = useImporter(
         () => {
             destroyActiveModal()
-            const config = getPropertyUploadSuccessModalConfig()
+            const config = getPropertyUploadSuccessModalConfig(intl)
             activeModal.current = modal.success(config)
 
             props.onFinish()
         },
         () => {
             destroyActiveModal()
-            const config = getPropertyUploadErrorModalConfig()
+            const config = getPropertyUploadErrorModalConfig(intl)
             activeModal.current = modal.error(config)
         },
     )
 
     const handleUpload = useCallback((file) => {
         destroyActiveModal()
-        const config = getPropertyUploadInfoModalConfig(() => {
-            breakImport()
-            props.onFinish()}
+        const config = getPropertyUploadInfoModalConfig(
+            intl,
+            () => {
+                breakImport()
+                props.onFinish()
+            }
         )
         activeModal.current = modal.info(config)
 
         importData(file.data)
     }, [])
 
+    console.log(auth)
     const organizationCreatorId = get(userOrganization, ['organization', 'createdBy', 'id'])
     const userID = get(auth, ['user', 'id'])
     const isOwner = organizationCreatorId === userID
