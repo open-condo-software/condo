@@ -75,7 +75,7 @@ describe('Message', () => {
 
         const objs = await Message.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
-        expect(objs).toHaveLength(1)
+        expect(objs).toHaveLength(2)
         expect(objs[0].id).toMatch(obj.id)
         expect(objs[0].dv).toEqual(1)
         expect(objs[0].sender).toEqual(attrs.sender)
