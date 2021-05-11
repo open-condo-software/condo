@@ -1,4 +1,4 @@
-import { buildingEmptyMapJson } from '@condo/domains/property/constants/property.example'
+import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
 
 import cloneDeep from 'lodash/cloneDeep'
 import compact from 'lodash/compact'
@@ -53,14 +53,15 @@ export type BuildingSection = {
 }
 
 export type BuildingMap = {
-    dv: 1
+    dv: number
     sections: BuildingSection[]
-    type: MapTypesList.Building | MapTypesList.Village
+    type: MapTypesList
 }
 export type BuildingSectionArg =  BuildingSection & {
     minFloor?: number
     maxFloor?: number
-    unitsOnFloor?: number   
+    unitsOnFloor?: number
+    name?: string
 }
 
 export type BuildingUnitArg = BuildingUnit & {
@@ -82,7 +83,6 @@ type IndexLocation = {
 
 
 class Map {
-    
     public isMapValid: boolean
     public validationErrors: null | string[]
 
@@ -195,7 +195,6 @@ class Map {
 
 
 class MapView extends Map {
-
     constructor (map: Maybe<BuildingMap>) {
         super(map)
         if (!this.isMapValid) {
@@ -307,7 +306,7 @@ class MapEdit extends MapView {
     public previewSectionId: string
     public previewUnitId: string
 
-    constructor (map: Maybe<BuildingMap>, private updateMap: Maybe<(map: BuildingMap) => void>) {
+    constructor (map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>) {
         super(map)
     }   
 
@@ -493,7 +492,7 @@ class MapEdit extends MapView {
         const newSection = this.generateSection(section)
         this.map.sections.push(newSection)
         this.visibleSections.push(newSection.id)
-        this.updateMap(this.map)
+        this.notifyUpdater()
     }
     
     public updateSection (section: BuildingSection): void {
@@ -502,14 +501,14 @@ class MapEdit extends MapView {
             this.map.sections[sectionIndex].name = section.name
         }
         this.editMode = 'addSection'
-        this.updateMap(this.map)
+        this.notifyUpdater()
     }
     
     public removeSection (id: string): void {
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === id)
         this.map.sections.splice(sectionIndex, 1)
         this.editMode = 'addSection'
-        this.updateMap(this.map)
+        this.notifyUpdater()
     }
     
     public addPreviewUnit (unit: Partial<BuildingUnitArg>): void {
@@ -560,7 +559,7 @@ class MapEdit extends MapView {
         this.map.sections[sectionIndex].floors[floorIndex].units.push(newUnit)
         this.updateUnitNumbers(newUnit)
         this.editMode = 'addUnit'
-        this.updateMap(this.map)
+        this.notifyUpdater()
     }
 
     public removeUnit (id: string): void {
@@ -570,7 +569,7 @@ class MapEdit extends MapView {
         }
         this.selectedUnit = null
         this.editMode = 'addUnit'
-        this.updateMap(this.map)
+        this.notifyUpdater()
     }
 
     public updateUnit (unit: BuildingUnitArg): void {
@@ -590,7 +589,13 @@ class MapEdit extends MapView {
             this.updateUnitNumbers(unit)
         }
         this.editMode = 'addSection'
-        this.updateMap(this.map)
+        this.notifyUpdater()
+    }
+
+    private notifyUpdater () {
+        if (this.updateMap) {
+            this.updateMap(this.map)
+        }
     }
 
 }

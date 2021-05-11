@@ -12,14 +12,14 @@ import get from 'lodash/get'
 import cloneDeep from 'lodash/cloneDeep'
 import { Scalars } from '../../../schema'
 import { AddressApi, IAddressApi } from '../../common/utils/addressApi'
-import { BDataSection, BDataTypes, createNewBBuildingSectionData, updateUnitsLabels } from './BBuildingData'
+import { MapEdit, MapTypesList, BuildingSection } from '../components/panels/Builder/MapConstructor'
 
 type TableRow = Array<Record<'value', string | number>>
 
 type IBuildingMap = {
     dv: number,
-    type: BDataTypes,
-    sections: Array<BDataSection>
+    type: MapTypesList,
+    sections: Array<BuildingSection>
 }
 
 export type ProgressUpdateHandler = (progress: number) => void
@@ -185,33 +185,31 @@ export class PropertyImporter implements IPropertyImporter {
     }
 
     private createPropertyUnitsMap (units: number, sections: number, floors: number): IBuildingMap {
-        const unitsPerFloor = Math.floor(units / (floors * sections))
-        if (!unitsPerFloor) {
+        const unitsOnFloor = Math.floor(units / (floors * sections))
+        if (!unitsOnFloor) {
             return
         }
 
         const propertyUnitsMap = {
             dv: 1,
-            type: BDataTypes.Building,
+            type: MapTypesList.Building,
             sections: [],
         }
 
+        const mapEditor = new MapEdit(propertyUnitsMap)
+
         for (let currentSection = 0; currentSection < sections; currentSection++) {
-            const sectionName = `Подъезд №${currentSection + 1}`
-            const sectionData = createNewBBuildingSectionData({
-                sectionName,
-                unitsPerFloor,
+            const name = `Подъезд №${currentSection + 1}`
+            mapEditor.addSection({
+                name,
+                unitsOnFloor,
                 minFloor: 1,
                 maxFloor: floors,
             })
-
-            propertyUnitsMap.sections.push(sectionData)
         }
 
-        const updatedSections = updateUnitsLabels(propertyUnitsMap)
-
         // TODO: непонятно что делать с оставшимися после округления квартирами
-        return { ...updatedSections, dv: 1, type: BDataTypes.Building }
+        return mapEditor.getMap()
     }
 
     private progress = {
