@@ -3,7 +3,6 @@ const { DateTimeUtc, Relationship } = require('@keystonejs/fields')
 const access = require('@core/keystone/access')
 const { ForgotPasswordService } = require('@core/keystone/schemas/User')
 const { ForgotPasswordAction: BaseForgotPasswordAction } = require('@core/keystone/schemas/User')
-const { RegisterNewUserService } = require('@core/keystone/schemas/User')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
 const USER_OWNED_FIELD = {
@@ -53,5 +52,4 @@ const ForgotPasswordAction = BaseForgotPasswordAction._override({
 module.exports = {
     ForgotPasswordAction,
     ForgotPasswordService,
-    RegisterNewUserService,
 }

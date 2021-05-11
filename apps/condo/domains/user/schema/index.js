@@ -5,10 +5,12 @@
 
 const { User } = require('./User')
 const { AuthenticateUserWithFirebaseIdTokenService } = require('./Auth')
+const { RegisterNewUserService } = require('./RegisterNewUserService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     User,
+    RegisterNewUserService,
     AuthenticateUserWithFirebaseIdTokenService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
