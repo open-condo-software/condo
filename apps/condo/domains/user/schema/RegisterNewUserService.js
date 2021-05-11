@@ -5,7 +5,7 @@ const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { admin } = require('@condo/domains/common/utils/firebase.back.utils')
 
-async function checkUnique (context, model, models, field, value) {
+async function ensureNotExists (context, model, models, field, value) {
     const { errors, data } = await context.executeGraphQL({
         context: context.createContext({ skipAccessControl: true }),
         query: `
@@ -50,8 +50,8 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 if (firebaseIdToken) {
                     const { uid, phone_number } = await admin.auth().verifyIdToken(firebaseIdToken)
 
-                    await checkUnique(context, 'User', 'Users', 'phone', phone_number)
-                    await checkUnique(context, 'User', 'Users', 'importId', uid)
+                    await ensureNotExists(context, 'User', 'Users', 'phone', phone_number)
+                    await ensureNotExists(context, 'User', 'Users', 'importId', uid)
 
                     userData.phone = phone_number
                     userData.isPhoneVerified = true

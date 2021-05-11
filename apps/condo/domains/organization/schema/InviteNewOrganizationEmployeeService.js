@@ -3,7 +3,7 @@ const { getById, GQLCustomSchema } = require('@core/keystone/schema')
 
 const { createOrganizationEmployee } = require('../../../utils/serverSchema/Organization')
 const { rules } = require('../../../access')
-const guards = require('../utils/serverScheema/guards')
+const guards = require('../utils/serverSchema/guards')
 const { REGISTER_NEW_USER_MUTATION } = require('../../user/gql')
 
 const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrganizationEmployeeService', {
