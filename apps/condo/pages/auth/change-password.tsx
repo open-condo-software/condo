@@ -32,8 +32,7 @@ const ChangePasswordPage = (): React.ReactElement => {
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
     const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
     const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
-    const ErrorToFormFieldMsgMapping = {
-    }
+    const ErrorToFormFieldMsgMapping = {}
 
 
     

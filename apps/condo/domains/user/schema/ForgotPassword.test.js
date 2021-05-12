@@ -53,7 +53,8 @@ describe('FORGOT_RECOVERY_CHANGE_PASSWORD', () => {
     })
 
     test('user: get all ForgotPasswordActions', async () => {
-        const [_, userAttrs] = await createTestUser(await makeLoggedInAdminClient())
+        const admin = await makeLoggedInAdminClient()
+        const [, userAttrs] = await createTestUser(admin)
         const client = await makeLoggedInClient(userAttrs)
         const { data, errors } = await client.query(ALL_FORGOT_PASSWORD_ACTIONS_QUERY)
         expect(errors[0]).toMatchObject({
@@ -66,14 +67,14 @@ describe('FORGOT_RECOVERY_CHANGE_PASSWORD', () => {
     })
 
     test('reset forgotten password', async () => {
-        const [user, userAttrs] = await createTestUser(await makeLoggedInAdminClient())
-        const client = await makeClient()
-        const adm = await makeLoggedInAdminClient()
+        const admin = await makeLoggedInAdminClient()
+        const [user, userAttrs] = await createTestUser(admin)
+        const client = await makeClient()        
         const res1 = await client.mutate(START_PASSWORD_RECOVERY_MUTATION, { email: userAttrs.email })
         expect(res1.errors).toEqual(undefined)
         expect(res1.data).toEqual({ status: 'ok' })
         // get created token
-        const { data: { passwordTokens } } = await adm.query(ALL_TOKENS_FOR_USER_QUERY, { email: userAttrs.email })
+        const { data: { passwordTokens } } = await admin.query(ALL_TOKENS_FOR_USER_QUERY, { email: userAttrs.email })
         expect(passwordTokens).toHaveLength(1)
         const token = passwordTokens[0].token
         expect(token).toMatch(/^[a-zA-Z0-9-]{7,40}$/g)
@@ -93,8 +94,7 @@ describe('FORGOT_RECOVERY_CHANGE_PASSWORD', () => {
         expect(JSON.stringify(res1.errors)).toEqual(expect.stringMatching('unknown-user'))
     })
 
-    // zuch(todo): Ask why we need this. Now we have validation for 7 symbols length in mutation
-    test.skip('change password to empty', async () => {
+    test('change password to empty', async () => {
         const { id } = await createSchemaObject(ForgotPasswordAction)
         const obj = await getSchemaObject(ForgotPasswordAction, ['token'], { id })
         const client = await makeClient()

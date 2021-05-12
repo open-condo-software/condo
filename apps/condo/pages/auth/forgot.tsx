@@ -1,27 +1,27 @@
-import { useIntl } from '@core/next/intl'
 import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-import AuthLayout from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
-import { FormattedMessage } from 'react-intl'
+import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import Router from 'next/router'
-import React, { useState } from 'react'
-
-import { getQueryParams } from '@condo/domains/common/utils/url.utils'
+import React, { useState, useContext } from 'react'
+import { colors } from '@condo/domains/common/constants/style'
+import { useIntl } from '@core/next/intl'
+import { FormattedMessage } from 'react-intl'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useMutation } from '@core/next/apollo'
 import { START_PASSWORD_RECOVERY_MUTATION } from '@condo/domains/user/gql'
+import { WRONG_EMAIL_ERROR } from '@condo/domains/user/constants/errors'
 
-import { colors } from '@condo/domains/common/constants/style'
 
 const LINK_STYLE = { color: colors.sberPrimary[7] }
-const INPUT_STYLE = { width: '273px' }
+const INPUT_STYLE = { width: '20em' }
 
 
-const ResetPage = (): React.ReactElement  => {
+
+
+const ResetPage: AuthPage = () => {
     const [form] = Form.useForm()
-    const queryParams = getQueryParams()
-    const initialValues = { ...queryParams, password: '', confirm: '', email: '' }
+    const initialValues = { email: '' }
     const intl = useIntl()
     const RestorePasswordMsg = intl.formatMessage({ id: 'pages.auth.reset.RestorePasswordTitle' })
     const ResetTitle = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
@@ -31,12 +31,13 @@ const ResetPage = (): React.ReactElement  => {
     const PleaseInputYourEmailMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
     const CheckEmailMsg = intl.formatMessage({ id: 'pages.auth.reset.CheckEmail' })
     const ReturnToLoginPage = intl.formatMessage({ id: 'pages.auth.reset.ReturnToLoginPage' })
+    const EmailPlaceholder = intl.formatMessage({ id: 'example.Email' })
 
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccessMessage, setIsSuccessMessage] = useState(false)
     const [startPasswordRecovery] = useMutation(START_PASSWORD_RECOVERY_MUTATION)
     const ErrorToFormFieldMsgMapping = {
-        '[unknown-user]': {
+        [WRONG_EMAIL_ERROR]: {
             name: 'email',
             errors: [EmailIsNotRegisteredMsg],
         },
@@ -44,23 +45,24 @@ const ResetPage = (): React.ReactElement  => {
     if (isLoading) {
         return <LoadingOrErrorPage title={ResetTitle} loading={isLoading} error={null}/>
     }
-
     if (isSuccessMessage) {
         return (
-            <div style={{ maxWidth: '450px' }}>
-                <Typography.Title style={{ textAlign: 'left' }}>{CheckEmailMsg}</Typography.Title>
-                <Typography.Paragraph style={{ textAlign: 'left' }}>
+            <div style={{ maxWidth: '450px', textAlign: 'left' }}>
+                <Typography.Title>{CheckEmailMsg}</Typography.Title>
+                <Typography.Paragraph>
                     <FormattedMessage id='pages.auth.reset.ResetSuccessMessage' values={{ email: form.getFieldValue('email') }} />
                 </Typography.Paragraph>    
-                <Typography.Paragraph style={{ textAlign: 'left' }}>
+                <Typography.Paragraph>
                     <a style={LINK_STYLE} onClick={() => Router.push('/auth/signin')}>{ReturnToLoginPage}</a>
                 </Typography.Paragraph>    
             </div>
         )    
     }
 
-    const onSubmit = values => {
-        if (values.email) values.email = values.email.toLowerCase()
+    const onFormSubmit = values => {
+        if (values.email) {
+            values.email = values.email.toLowerCase()
+        }
         setIsLoading(true)
         return runMutation({
             mutation: startPasswordRecovery,
@@ -79,13 +81,13 @@ const ResetPage = (): React.ReactElement  => {
     }
 
     return (
-        <div >
+        <div  style={{ maxWidth: '450px' }}>
             <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
             <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>    
             <Form
                 form={form}
                 name="forgot-password"
-                onFinish={onSubmit}
+                onFinish={onFormSubmit}
                 initialValues={initialValues}
                 colon={false}
                 style={{ marginTop: '40px' }}
@@ -97,7 +99,7 @@ const ResetPage = (): React.ReactElement  => {
                     labelAlign='left'
                     labelCol={{ flex: 1 }}                            
                 >
-                    <Input placeholder={'name@example.org'}  style={INPUT_STYLE}/>
+                    <Input placeholder={EmailPlaceholder}  style={INPUT_STYLE}/>
                 </Form.Item>
                 <Form.Item style={{ textAlign: 'left', marginTop: '36px' }}>
                     <Button
@@ -118,13 +120,14 @@ const ResetPage = (): React.ReactElement  => {
 const HeaderAction = (): React.ReactElement => {
     const intl = useIntl()
     const RegisterTitle = intl.formatMessage({ id: 'pages.auth.Register' })
+    const { isMobile } = useContext(AuthLayoutContext)
     return (
         <Button
             key='submit'
             onClick={() => Router.push('/auth/register')}
             type='sberPrimary'
             secondary={true}
-            size='large'
+            size={isMobile ? 'middle' : 'large'}
         >
             {RegisterTitle}
         </Button>

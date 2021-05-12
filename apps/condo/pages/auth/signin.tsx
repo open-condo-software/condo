@@ -1,25 +1,24 @@
-import { useIntl } from '@core/next/intl'
+import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
+import React, { useState, useContext } from 'react'
+import Router from 'next/router'
+import { getQueryParams } from '@condo/domains/common/utils/url.utils'
+import { useAuth } from '@core/next/auth'
 import { Form, Input, Typography } from 'antd'
+import Head from 'next/head'
 import { Button } from '@condo/domains/common/components/Button'
 import MaskedInput from 'antd-mask-input'
-import AuthLayout from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
-import Router from 'next/router'
+import { colors } from '@condo/domains/common/constants/style'
+import { useIntl } from '@core/next/intl'
 import { FormattedMessage } from 'react-intl'
-import React, { useState } from 'react'
-import Head from 'next/head'
-import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useMutation } from '@core/next/apollo'
-import { useAuth } from '@core/next/auth'
-import { colors } from '@condo/domains/common/constants/style'
-
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
+import { WRONG_PHONE_ERROR, WRONG_PASSWORD_ERROR } from '@condo/domains/user/constants/errors'
 
 const LINK_STYLE = { color: colors.sberPrimary[7] }
+const INPUT_STYLE = { minWidth: '20em' }
 
-const INPUT_STYLE = { minWidth: '273px' }
-
-const SignInPage = (): React.ReactElement => {
+const SignInPage: AuthPage = () => {
     const intl = useIntl()
     const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
     return (
@@ -35,13 +34,14 @@ const SignInPage = (): React.ReactElement => {
     )
 }
 
-
+// Todo(zuch): responsive HTML
 const SignInForm = (): React.ReactElement => {
     const [form] = Form.useForm()
     const { next } = getQueryParams()
     const { refetch } = useAuth()
     const initialValues = { password: '', phone: '' }
     const intl = useIntl()
+    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const SignInMsg = intl.formatMessage({ id: 'SignIn' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const PasswordMsg = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
@@ -53,17 +53,17 @@ const SignInForm = (): React.ReactElement => {
     const [isLoading, setIsLoading] = useState(false)
     const [signinByPhoneAndPassword] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
     const ErrorToFormFieldMsgMapping = {
-        '[notfound.error]': {
+        [WRONG_PHONE_ERROR]: {
             name: 'phone',
             errors: [UserNotFound],
-        },
-        '[passwordAuth:secret:mismatch]': {
+        },        
+        [WRONG_PASSWORD_ERROR]: {
             name: 'password',
             errors: [PasswordMismatch],
         },
     }
     
-    const onFinish = values => {
+    const onFormSubmit = values => {
         setIsLoading(true)
         return runMutation({
             mutation: signinByPhoneAndPassword,
@@ -87,8 +87,8 @@ const SignInForm = (): React.ReactElement => {
         <div>
             <Form
                 form={form}
-                name="register"
-                onFinish={onFinish}
+                name="signin"
+                onFinish={onFormSubmit}
                 initialValues={initialValues}
                 colon={false}
                 style={{ marginTop: '36px', width: '450px' }}
@@ -98,6 +98,7 @@ const SignInForm = (): React.ReactElement => {
                     label={PhoneMsg}
                     labelAlign='left'
                     labelCol={{ flex: 1 }}
+                    rules={[{ required: true, message: FieldIsRequiredMsg }]}
                 >
                     <MaskedInput mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
                 </Form.Item>
@@ -108,11 +109,12 @@ const SignInForm = (): React.ReactElement => {
                     labelAlign='left'
                     labelCol={{ flex: 1 }} 
                     style={{ marginTop: '24px' }}
+                    rules={[{ required: true, message: FieldIsRequiredMsg }]}
                 >
                     <Input.Password style={{ ...INPUT_STYLE }}  />
                 </Form.Item>
                 
-                <div style={{ marginTop: '60px', display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ paddingTop: '60px', display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                     <Button
                         key='submit'
                         type='sberPrimary'
@@ -129,26 +131,25 @@ const SignInForm = (): React.ReactElement => {
                             values={{
                                 link: <a style={LINK_STYLE} onClick={() => Router.push('/auth/forgot')}>{ResetMsg}</a>,
                             }}
-                        ></FormattedMessage>
+                        />
                     </Typography.Text>
                 </div>
-                
-
             </Form>
         </div>
     )
 }
 
-const HeaderAction = (): React.ReactElement => {
+const HeaderAction: React.FunctionComponent = () => {
     const intl = useIntl()
     const RegisterTitle = intl.formatMessage({ id: 'pages.auth.Register' })
+    const { isMobile } = useContext(AuthLayoutContext)
     return (
         <Button
             key='submit'
             onClick={() => Router.push('/auth/register')}
             type='sberPrimary'
             secondary={true}
-            size='large'
+            size={isMobile ? 'middle' : 'large'}
         >
             {RegisterTitle}
         </Button>

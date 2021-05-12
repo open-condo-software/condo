@@ -209,6 +209,7 @@
   "WeAreStillDevelopingThisPage": "We are still **developing** this page, it is not **yet** available",
   "example.Name": "Jon Johnson",
   "example.Phone": "+1 (300) 300 22 22",
+  "example.Email": "name@example.org", 
   "pages.auth.LoggedIn": "Logged in",
   "pages.auth.EmailIsNoFound": "Email is not found",
   "pages.auth.WrongPassword": "Wrong password",

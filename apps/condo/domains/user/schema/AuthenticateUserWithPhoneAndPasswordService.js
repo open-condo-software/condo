@@ -2,7 +2,7 @@ const { getById, getSchemaCtx } = require('@core/keystone/schema')
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const { PHONE_CLEAR_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { User } = require('@condo/domains/user/utils/serverSchema')
-
+const { WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
 
 const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('AuthenticateUserWithPhoneAndPasswordService', {
     types: [
@@ -20,12 +20,12 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
             access: true,
             schema: 'authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
+                // Todo(zuch): find a way to use several password auth strategy without breaking all tests
                 const { phone: inputPhone, password } = info.variableValues
                 const phone = inputPhone.replace(PHONE_CLEAR_REGEXP, '')
-                // Todo(zuch): find a way to use several password auth strategy without brokening all tests
                 const users = await User.getAll(context, { phone })
                 if (users.length !== 1) {
-                    const msg = '[notfound.error] Unable to find user. Try to register'
+                    const msg = `${WRONG_EMAIL_ERROR}] Unable to find user. Try to register`
                     throw new Error(msg)
                 }
                 const user = await getById('User', users[0].id)
@@ -37,7 +37,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 const { success, message } = await PasswordStrategy.validate({ email: user.email, password })
                 
                 if (!success) {
-                    throw new Error(message)
+                    throw new Error(`${WRONG_PASSWORD_ERROR}] ${message}`)
                 }
                 
                 await context.startAuthedSession({ item: users[0], list: keystone.lists['User'] })

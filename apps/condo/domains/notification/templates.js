@@ -31,24 +31,6 @@ async function renderTemplate (transport, message) {
         }
     }
 
-    if (message.type === INVITE_NEW_EMPLOYEE_MESSAGE_TYPE) {
-        const { organizationName, inviteCode } = message.meta
-
-        if (message.lang === 'en') {
-            return {
-                subject: 'You are invited to join organization as employee',
-                text: `Organization "${organizationName}" invited you as employee.\n` +
-                    `Click to the link to join: ${serverUrl}/auth/invite/${inviteCode}`,
-            }
-        } else if (message.lang === 'ru') {
-            return {
-                subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
-                text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
-                    `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/invite/${inviteCode}`,
-            }
-        }
-    }
-
     if (message.type === RESET_PASSWORD_MESSAGE_TYPE) {
         const { token } = message.meta
 

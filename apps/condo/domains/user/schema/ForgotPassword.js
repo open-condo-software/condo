@@ -4,13 +4,14 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { GQLListSchema, GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@core/keystone/access')
 const conf = require('@core/config')
-const { BOT_EMAIL } = require('@condo/domains/common/constants/requisites')
 const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const MIN_PASSWORD_LENGTH = 7
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-
+const { WRONG_EMAIL_ERROR, MULTIPLE_ACCOUNTS_MATCHES, RESET_TOKEN_NOT_FOUND } = require('@condo/domains/user/constants/errors')
+const has = require('lodash/has')
+const { BOT_EMAIL } = require('@condo/domains/common/constants/requisites')
 
 const USER_OWNED_FIELD = {
     schemaDoc: 'Ref to the user. The object will be deleted if the user ceases to exist',
@@ -21,7 +22,7 @@ const USER_OWNED_FIELD = {
     kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
     access: {
         read: true,
-        create: true, // TODO(pahaz): check access!
+        create: true, // needed to be set to true - if false then guest user will not be able to reset password
         update: access.userIsAdmin,
         delete: false,
     },
@@ -31,18 +32,15 @@ const ForgotPasswordAction = new GQLListSchema('ForgotPasswordAction', {
     fields: {
         user: USER_OWNED_FIELD,
         token: {
-            factory: () => uuid(),
             type: Text,
             isUnique: true,
             isRequired: true,
         },
         requestedAt: {
-            factory: () => new Date(Date.now()).toISOString(),
             type: DateTimeUtc,
             isRequired: true,
         },
         expiresAt: {
-            factory: () => new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
             type: DateTimeUtc,
             isRequired: true,
         },
@@ -73,18 +71,14 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             access: true,
             schema: 'startPasswordRecovery(email: String!): String',
             resolver: async (parent, args, context, info, extra = {}) => {
-                await ForgotPasswordService.emit('beforeStartPasswordRecovery', {
-                    parent, args, context, info, extra,
-                })
-
                 const { email } = args
+                const sender = has(args, 'sender') ? args.sender : BOT_EMAIL
                 const extraToken = extra.extraToken || uuid()
                 const extraTokenExpiration = extra.extraTokenExpiration || parseInt(RESET_PASSWORD_TOKEN_EXPIRY)
                 const extraNowTimestamp = extra.extraNowTimestamp || Date.now()
 
                 const requestedAt = new Date(extraNowTimestamp).toISOString()
                 const expiresAt = new Date(extraNowTimestamp + extraTokenExpiration).toISOString()
-
                 const { errors: userErrors, data: userData } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
@@ -97,13 +91,12 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     `,
                     variables: { email },
                 })
-                
                 if (userErrors || !userData.allUsers || !userData.allUsers.length) {
-                    throw new Error('[unknown-user]: Unable to find user when trying to start password recovery')
+                    throw new Error(`${WRONG_EMAIL_ERROR}] Unable to find user when trying to start password recovery`)
                 }
 
                 if (userData.allUsers.length !== 1) {
-                    throw new Error('[unknown-user]: Unable to find exact one user to start password recovery')
+                    throw new Error(`${MULTIPLE_ACCOUNTS_MATCHES}] Unable to find exact one user to start password recovery`)
                 }
 
                 const userId = userData.allUsers[0].id
@@ -184,16 +177,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                         token,
                         dv: 1,
                     },
-                    sender: BOT_EMAIL,
+                    sender: sender,
                 })
-
-
-                // hook for send mail!
-                // SendMail `${SERVER_URL}/auth/change-password?token=${ForgotPasswordAction.token}` User.email
-                //                 
-                // 
-
-                // console.log('ForgotPasswordService AFTER', `${SERVER_URL}/auth/change-password?token=${ForgotPasswordAction.token}`)
                 return 'ok'
             },
         },
@@ -210,12 +195,11 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     throw new Error(msg)
                 }
 
-                // TODO(zuch): add check  usedAt  - to be null
                 const { errors, data } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
                         query findUserFromToken($token: String!, $now: String!) {
-                          passwordTokens: allForgotPasswordActions(where: { token: $token, expiresAt_gte: $now }) {
+                          passwordTokens: allForgotPasswordActions(where: { token: $token, expiresAt_gte: $now, usedAt: null }) {
                             id
                             token
                             user {
@@ -229,8 +213,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 })
 
                 if (errors || !data.passwordTokens || !data.passwordTokens.length) {
-                    const msg = '[error] Unable to find token'
-                    throw new Error(msg)
+                    throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find token`)
                 }
 
                 const user = data.passwordTokens[0].user.id
@@ -251,12 +234,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 })
 
                 if (markAsUsedError) {
-                    const msg = '[error] Unable to mark token as used'
-                    console.error(msg, markAsUsedError)
-                    throw new Error(msg)
+                    throw new Error('[error] Unable to mark token as used')
                 }
-
-                // change password
                 const { errors: passwordError } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
@@ -268,13 +247,9 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     `,
                     variables: { user, password },
                 })
-
                 if (passwordError) {
-                    const msg = '[error] Unable to change password'
-                    console.error(msg, passwordError)
-                    throw new Error(msg)
+                    throw new Error('[error] Unable to change password')
                 }
-
                 return 'ok'
             },
         },
