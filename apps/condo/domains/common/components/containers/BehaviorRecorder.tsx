@@ -40,7 +40,6 @@ type PlerdyParams = {
 export const parseParamsFor = {
     plerdy: (params: String): PlerdyParams => {
         const SITE_HASH_CODE_REGEXP = /\b([a-z0-9]{32})\b/
-        const SUID_REGEXP = /\b([0-9]{5})\b/
 
         let plerdyParams;
         try {
