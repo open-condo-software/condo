@@ -1,6 +1,5 @@
-// import TestRenderer from 'react-test-renderer';
+import TestRenderer from 'react-test-renderer'
 import BehaviorRecorder, { htmlFor, parseParamsFor } from './BehaviorRecorder'
-
 
 const CORRECT_PLERDY_PARAMS = '{"site_hash_code": "1234567890abcdefghijklmnopqrstyv", "suid": 12345}'
 
@@ -9,24 +8,42 @@ const CORRECT_PLERDY_PARSED_PARAMS = {
     suid: 12345,
 }
 
+jest.mock('next/config', () => () => ({
+    publicRuntimeConfig: {
+        behaviorRecorder: {
+            plerdy: CORRECT_PLERDY_PARAMS,
+        },
+    },
+}))
+
 const CORRECT_PLERDY_HTML = '<script type="text/javascript" defer>var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");var _site_hash_code = "1234567890abcdefghijklmnopqrstyv";var _suid = 12345;</script><script type="text/javascript" defer src="https://a.plerdy.com/public/js/click/main.js"></script>'
 
 describe('BehaviorRecorder', () => {
     describe('plerdy', () => {
 
-        // TODO(antonal): figure out how to fetch Next.js Config in Test environment
-        // TypeError: Cannot destructure property 'publicRuntimeConfig' of '(0 , _config.default)(...)' as it is undefined.
-        // it('renders correctly', () => {
+        it('renders html in div for correct config params', () => {
+            const result = TestRenderer.create(
+                <BehaviorRecorder engine="plerdy"/>
+            )
+            expect(result.toJSON()).toMatchObject({
+                type: 'div',
+                props: {
+                    dangerouslySetInnerHTML: {
+                        __html: CORRECT_PLERDY_HTML,
+                    },
+                },
+            })
+        })
+
+        // TODO(antonal): figure out how to mock Next Config for each test case
+        // When we call `jest.mock` inside of test case, it throws an error:
+        // >> The module factory of `jest.mock()` is not allowed to reference any out-of-scope variables.
+
+        // it('renders null for incorrect config params', () => {
         //     const result = TestRenderer.create(
         //         <BehaviorRecorder engine="plerdy"/>
         //     )
-        //     expect(result.toJSON()).toMatchObject({
-        //         type: 'div',
-        //         props: {
-        //             engine: 'plerdy'
-        //         },
-        //         children: CORRECT_PLERDY_HTML
-        //     })
+        //     expect(result).toBeNull()
         // })
 
         describe('injectParamsFor', () => {
