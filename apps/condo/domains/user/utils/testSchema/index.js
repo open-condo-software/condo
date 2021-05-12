@@ -15,7 +15,7 @@ const User = generateGQLTestUtils(UserGQL)
 const UserAdmin = generateGQLTestUtils(UserAdminGQL)
 
 const createTestEmail = () => ('test.' + getRandomString() + '@example.com').toLowerCase()
-const createTestPhone = () => '+1' + String(Math.random()).slice(2).slice(-10)
+const createTestPhone = () => '+18170' + String(Math.random()).slice(2).slice(-6)
 
 async function createTestUser (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')

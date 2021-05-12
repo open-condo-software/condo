@@ -11,6 +11,7 @@ const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../../../s
 const { rules } = require('../../../access')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasRequestAndDbFields, hasOneOfFields } = require('@condo/domains/common/utils/validation.utils')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
     schemaDoc: 'B2B customer employees',
@@ -63,7 +64,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             kmigratorOptions: { null: true },
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
-                    return resolvedData['phone'] && resolvedData['phone'].toLowerCase().replace(/\D/g, '')
+                    return normalizePhone(resolvedData['phone'])
                 },
             },
         },
