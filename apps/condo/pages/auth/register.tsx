@@ -63,7 +63,7 @@ const Auth = ({ children }): React.ReactElement => {
             recaptchaVerifier.current.clear()
             setCaptcha(null)
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     async function sendCode (phoneNumber) {
@@ -71,14 +71,17 @@ const Auth = ({ children }): React.ReactElement => {
         const confirmation = await firebaseAuth().signInWithPhoneNumber(phoneNumber, recaptchaVerifier.current)
         setConfirmationResult(confirmation)
     }
+
     async function verifyCode (verificationCode) {
         const result = await confirmationResult.confirm(verificationCode)
         result.user.token = await result.user.getIdToken(true)
         setUser(result.user)
     }
+
     async function signout () {
         return await firebaseAuth().signOut()
     }
+
     return (
         <AuthContext.Provider
             value={{
@@ -95,25 +98,27 @@ const Auth = ({ children }): React.ReactElement => {
     )
 }
 
+const RegisterSteps = (): React.ReactElement => {
+    const [state, setState] = useState('inputPhone')
+    console.log(state)
+    const steps = {
+        inputPhone: <InputPhoneForm onFinish={() => setState('validatePhone')}/>,
+        validatePhone: <ValidatePhoneForm onFinish={() => setState('register')} onReset={() => setState('inputPhone')}/>,
+        register: <RegisterForm onFinish={() => null}/>,
+    }
+    return steps[state]
+}
 
 // Todo(zuch): responsive HTML
 const RegisterPage: AuthPage = () => {
     const intl = useIntl()
     const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
-    const [state, setState] = useState('inputPhone')
+
     return (
         <Auth>
-            <div id={'recaptcha-container'} ></div>
             <div style={{ textAlign: 'center', display: 'inline-block', maxWidth: '512px' }}>
                 <Typography.Title style={{ textAlign: 'left' }}>{RegistrationTitleMsg}</Typography.Title>
-                {
-                    {
-                        inputPhone: <InputPhoneForm onFinish={() => setState('validatePhone')} />,
-                        validatePhone: <ValidatePhoneForm onFinish={() => setState('register')} onReset={() => setState('inputPhone')} />,
-                        register: <RegisterForm onFinish={() => null}></RegisterForm>,
-
-                    } [state] || null
-                }               
+                <RegisterSteps/>
             </div>
         </Auth>
     )
@@ -133,7 +138,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const { phone, sendCode } = useContext(AuthContext)
-    
+
     async function handleSendCode () {
         const { phone } = await form.validateFields(['phone'])
         try {
@@ -151,6 +156,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
             resetRecaptcha()
         }
     }
+
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     return (
         <>
@@ -163,7 +169,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
                 style={{ marginTop: '40px' }}
                 initialValues={{ phone }}
             >
-                <Row gutter={[0, 24]} >
+                <Row gutter={[0, 24]}>
                     <Col span={24}>
                         <Form.Item
                             name="phone"
@@ -185,7 +191,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
                             />
                         </Typography.Paragraph>
                     </Col>
-                    <Col span={24} >
+                    <Col span={24}>
                         <Form.Item style={{ textAlign: 'left', marginTop: '24px' }}>
                             <Button
                                 key='submit'
@@ -206,6 +212,7 @@ interface IValidatePhoneFormProps {
     onFinish: () => void
     onReset: () => void
 }
+
 const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidatePhoneFormProps> => {
     const [form] = Form.useForm()
     const initialValues = { smscode: '' }
@@ -240,7 +247,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
         }
     }
 
-    async function resetPhone (){
+    async function resetPhone () {
         await signout()
         resetRecaptcha()
         onReset()
@@ -264,7 +271,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
                 colon={false}
                 style={{ marginTop: '40px' }}
             >
-                <Row gutter={[0, 24]} >
+                <Row gutter={[0, 24]}>
                     <Col span={24}>
                         <Form.Item
                             name="smscode"
@@ -331,10 +338,10 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
             name: 'password',
             errors: [PasswordIsTooShortMsg],
         },
-    
+
     }
     const [register] = useMutation(REGISTER_NEW_USER_MUTATION)
-    const registerComplete = values => {        
+    const registerComplete = values => {
         const registerExtraData = {
             dv: 1,
             sender: getClientSideSenderInfo(),
@@ -369,9 +376,8 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                 initialValues={initialValues}
                 colon={false}
                 style={{ marginTop: '40px' }}
-
             >
-                <Row gutter={[0, 24]} >
+                <Row gutter={[0, 24]}>
                     <Col span={24}>
                         <Form.Item
                             name="phone"
@@ -456,18 +462,18 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                                         return Promise.reject(TwoPasswordDontMatchMsg)
                                     },
                                 }),
-                            ]}                            
+                            ]}
                         >
-                            <Input.Password style={INPUT_STYLE} />
+                            <Input.Password style={INPUT_STYLE}/>
                         </Form.Item>
                     </Col>
                     <Form.Item
                         name="firebaseIdToken"
                         noStyle={true}
                     >
-                        <Input disabled={true}  hidden={true} />
+                        <Input disabled={true} hidden={true}/>
                     </Form.Item>
-                    <Col span={24} >
+                    <Col span={24}>
                         <Form.Item style={{ textAlign: 'left', marginTop: '36px' }}>
                             <Button
                                 key='submit'
@@ -504,7 +510,7 @@ const HeaderAction = (): React.ReactElement => {
     )
 }
 
-RegisterPage.headerAction = <HeaderAction />
+RegisterPage.headerAction = <HeaderAction/>
 
 RegisterPage.container = AuthLayout
 
