@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Typography, Space, Radio, Row, Col, Input, Table } from 'antd'
 import { DatabaseFilled } from '@ant-design/icons'
@@ -42,7 +42,6 @@ const PropertyPageViewMap = (): React.FC => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const {
-        refetch,
         objs: properties,
     } = Property.useObjects({
         where: {
@@ -51,11 +50,6 @@ const PropertyPageViewMap = (): React.FC => {
     }, {
         fetchPolicy: 'network-only',
     })
-
-    useEffect(() => {
-        console.log('refetch')
-        refetch()
-    }, [refetch])
 
     const points = properties
         .filter(property => has(property, ['addressMeta', 'data'] ))
