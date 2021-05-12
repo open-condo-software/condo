@@ -4,6 +4,8 @@ const { getById, GQLCustomSchema } = require('@core/keystone/schema')
 const { createOrganizationEmployee } = require('../../../utils/serverSchema/Organization')
 const { rules } = require('../../../access')
 const guards = require('../utils/serverSchema/guards')
+const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
+const { findOrganizationEmployee } = require('../../../utils/serverSchema/Organization')
 const { REGISTER_NEW_USER_MUTATION } = require('../../user/gql')
 
 const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrganizationEmployeeService', {
@@ -52,6 +54,20 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     }
 
                     user = registerData.user
+                }
+
+                // Note: check is already exists (user + organization)
+                if (user) {
+                    const objs = await findOrganizationEmployee(context, {
+                        user: { id: user.id },
+                        organization: { id: organization.id },
+                    })
+
+                    if (objs.length > 0) {
+                        const msg = `${ALREADY_EXISTS_ERROR}] User is already invited in the organization`
+                        console.error(msg)
+                        throw new Error(msg)
+                    }
                 }
 
                 const employee = await createOrganizationEmployee(context, {
