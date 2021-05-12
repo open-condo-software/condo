@@ -25,7 +25,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const { data } = args
                 let { organization, email, phone, name, ...restData } = data
                 phone = normalizePhone(phone)
-                if (!phone) throw new Error(`${PHONE_WRONG_FORMAT_ERROR}:phone] invalid format`)
+                if (!phone) throw new Error(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
 
                 // TODO(pahaz): normalize email!
 

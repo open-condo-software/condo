@@ -19,4 +19,9 @@ describe('normalizePhone()', () => {
         expect(normalizePhone('+1 817 569 89 00')).toEqual('+18175698900')
         expect(normalizePhone('817 569 89 00')).toBeUndefined()
     })
+
+    test('random', () => {
+        const data = '+1' + String(Math.random()).slice(2).slice(-10)
+        expect(normalizePhone(data)).toEqual(data)
+    })
 })
