@@ -10,7 +10,7 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const ORGANIZATION_FIELDS = `{ country name description avatar { publicUrl } meta employees { id } statusTransitions defaultEmployeeRoleStatusTransitions ${COMMON_FIELDS} }`
+const ORGANIZATION_FIELDS = `{ country name description avatar { publicUrl } meta statusTransitions defaultEmployeeRoleStatusTransitions ${COMMON_FIELDS} }`
 const Organization = generateGqlQueries('Organization', ORGANIZATION_FIELDS)
 
 const ORGANIZATION_ROLE_FIELDS = `{ name statusTransitions canManageOrganization canManageEmployees canManageRoles canManageProperties canManageTickets ${COMMON_FIELDS} }`
