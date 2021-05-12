@@ -23,8 +23,8 @@ module.exports = withTM(withLess(withCSS({
         addressSuggestionsConfig,
         mapApiKey,
         behaviorRecorder: {
-            plerdy
-        }
+            plerdy,
+        },
     },
     lessLoaderOptions: {
         javascriptEnabled: true,

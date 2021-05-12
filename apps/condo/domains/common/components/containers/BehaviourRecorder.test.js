@@ -6,7 +6,7 @@ const CORRECT_PLERDY_PARAMS = '{"site_hash_code": "4b23250e438223063d2fb9af042a8
 
 const CORRECT_PLERDY_PARSED_PARAMS = {
     site_hash_code: '4b23250e438223063d2fb9af042a8199',
-    suid: 17358
+    suid: 17358,
 }
 
 const CORRECT_PLERDY_HTML = '<script type="text/javascript" defer>var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");var _site_hash_code = "4b23250e438223063d2fb9af042a8199";var _suid = 17358;</script><script type="text/javascript" defer src="https://a.plerdy.com/public/js/click/main.js"></script>'
@@ -33,7 +33,7 @@ describe('BehaviorRecorder', () => {
             it('produces correct html to embed', () => {
                 const params = {
                     site_hash_code: '4b23250e438223063d2fb9af042a8199',
-                    suid: 17358
+                    suid: 17358,
                 }
                 expect(injectParamsFor.plerdy(params)).toBe(CORRECT_PLERDY_HTML)
             })
@@ -65,4 +65,4 @@ describe('BehaviorRecorder', () => {
             })
         })
     })
-});
+})

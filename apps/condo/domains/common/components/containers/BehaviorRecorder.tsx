@@ -25,23 +25,23 @@ const BehaviorRecorder = ({ engine }: Props) => {
     const params = parseParamsFor[engine](behaviorRecorder[engine])
 
     return (
-      <div dangerouslySetInnerHTML={{
-          __html: injectParamsFor[engine](params),
-      }}>
-      </div>
+        <div dangerouslySetInnerHTML={{
+            __html: injectParamsFor[engine](params),
+        }}>
+        </div>
     )
 }
 
 type PlerdyParams = {
-    site_hash_code: String;
+    site_hash_code: string;
     suid: number;
 }
 
 export const parseParamsFor = {
-    plerdy: (params: String): PlerdyParams => {
+    plerdy: (params: string): PlerdyParams => {
         const SITE_HASH_CODE_REGEXP = /\b([a-z0-9]{32})\b/
 
-        let plerdyParams;
+        let plerdyParams
         try {
             plerdyParams = JSON.parse(params)
         } catch (e) {
@@ -69,7 +69,7 @@ export const parseParamsFor = {
 
 export const injectParamsFor = {
     plerdy: ({ site_hash_code, suid }: PlerdyParams) => (
-      `<script type="text/javascript" defer>var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");var _site_hash_code = "${site_hash_code}";var _suid = ${suid};</script><script type="text/javascript" defer src="https://a.plerdy.com/public/js/click/main.js"></script>`
+        `<script type="text/javascript" defer>var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");var _site_hash_code = "${site_hash_code}";var _suid = ${suid};</script><script type="text/javascript" defer src="https://a.plerdy.com/public/js/click/main.js"></script>`
     ),
 }
 
