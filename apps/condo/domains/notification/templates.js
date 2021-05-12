@@ -1,7 +1,7 @@
 const conf = require('@core/config')
 const { RU_LOCALE, EN_LOCALE } = require('@condo/domains/common/constants/locale')
 
-const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_TRANSPORTS, RESET_PASSWORD_MESSAGE_TYPE  } = require('./constants')
+const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_TRANSPORTS, REGISTER_NEW_USER_MESSAGE_TYPE, RESET_PASSWORD_MESSAGE_TYPE} = require('./constants')
 
 async function renderTemplate (transport, message) {
     if (!MESSAGE_TRANSPORTS.includes(transport)) throw new Error('unexpected transport argument')
@@ -31,6 +31,32 @@ async function renderTemplate (transport, message) {
         }
     }
 
+    if (message.type === REGISTER_NEW_USER_MESSAGE_TYPE) {
+        const { userPhone, userPassword } = message.meta
+
+        if (message.lang === EN_LOCALE) {
+            return {
+                subject: 'Your access data to doma.ai service.',
+                text: `
+                    Phone: ${userPhone}
+                    Password: ${userPassword}
+                    
+                    Please follow link: ${serverUrl}/auth/signin
+                `,
+            }
+        } else if (message.lang === RU_LOCALE) {
+            return {
+                subject: 'Ваши данные для доступа к сервису doma.ai.',
+                text: `
+                    Номер телефона: ${userPhone}
+                    Пароль: ${userPassword}
+                    
+                    Ссылка для авторизации: ${serverUrl}/auth/signin 
+                `,
+            }
+        }
+    }
+
     if (message.type === RESET_PASSWORD_MESSAGE_TYPE) {
         const { token } = message.meta
 
@@ -49,9 +75,9 @@ async function renderTemplate (transport, message) {
                 `,
             }
         }
-    }
+    }    
 
-    throw new Error('unknown template or lang', message)
+    throw new Error('unknown template or lang')
 }
 
 module.exports = {
