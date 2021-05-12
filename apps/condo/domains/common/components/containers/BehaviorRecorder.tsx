@@ -26,7 +26,7 @@ const BehaviorRecorder = ({ engine }: Props) => {
 
     return (
         <div dangerouslySetInnerHTML={{
-            __html: injectParamsFor[engine](params),
+            __html: htmlFor[engine](params),
         }}>
         </div>
     )
@@ -67,7 +67,7 @@ export const parseParamsFor = {
 }
 
 
-export const injectParamsFor = {
+export const htmlFor = {
     plerdy: ({ site_hash_code, suid }: PlerdyParams) => (
         `<script type="text/javascript" defer>var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");var _site_hash_code = "${site_hash_code}";var _suid = ${suid};</script><script type="text/javascript" defer src="https://a.plerdy.com/public/js/click/main.js"></script>`
     ),
