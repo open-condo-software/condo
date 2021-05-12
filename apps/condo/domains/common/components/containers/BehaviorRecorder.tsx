@@ -22,6 +22,10 @@ const BehaviorRecorder = ({ engine }: Props) => {
     // Don't know yet, what type comes here, will check it below ;)
     const { behaviorRecorder }  = publicRuntimeConfig
 
+    if (!behaviorRecorder?.[engine]) {
+        return null
+    }
+
     const params = parseParamsFor[engine](behaviorRecorder[engine])
 
     return (
