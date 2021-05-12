@@ -73,8 +73,8 @@ const Auth = ({ children }): React.ReactElement => {
     }
     async function verifyCode (verificationCode) {
         const result = await confirmationResult.confirm(verificationCode)
-        const user = result.user
-        setUser(user)
+        result.user.token = await result.user.getIdToken(true)
+        setUser(result.user)
     }
     async function signout () {
         return await firebaseAuth().signOut()
@@ -465,7 +465,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                         name="firebaseIdToken"
                         noStyle={true}
                     >
-                        <Input disabled={true} hidden={true} />
+                        <Input disabled={true}  hidden={true} />
                     </Form.Item>
                     <Col span={24} >
                         <Form.Item style={{ textAlign: 'left', marginTop: '36px' }}>
