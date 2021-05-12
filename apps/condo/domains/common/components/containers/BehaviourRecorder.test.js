@@ -1,15 +1,15 @@
 // import TestRenderer from 'react-test-renderer';
-import BehaviorRecorder, { injectParamsFor, parseParamsFor } from './BehaviorRecorder'
+import BehaviorRecorder, { htmlFor, parseParamsFor } from './BehaviorRecorder'
 
 
-const CORRECT_PLERDY_PARAMS = '{"site_hash_code": "4b23250e438223063d2fb9af042a8199", "suid": 17358}'
+const CORRECT_PLERDY_PARAMS = '{"site_hash_code": "1234567890abcdefghijklmnopqrstyv", "suid": 12345}'
 
 const CORRECT_PLERDY_PARSED_PARAMS = {
-    site_hash_code: '4b23250e438223063d2fb9af042a8199',
-    suid: 17358,
+    site_hash_code: '1234567890abcdefghijklmnopqrstyv',
+    suid: 12345,
 }
 
-const CORRECT_PLERDY_HTML = '<script type="text/javascript" defer>var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");var _site_hash_code = "4b23250e438223063d2fb9af042a8199";var _suid = 17358;</script><script type="text/javascript" defer src="https://a.plerdy.com/public/js/click/main.js"></script>'
+const CORRECT_PLERDY_HTML = '<script type="text/javascript" defer>var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");var _site_hash_code = "1234567890abcdefghijklmnopqrstyv";var _suid = 12345;</script><script type="text/javascript" defer src="https://a.plerdy.com/public/js/click/main.js"></script>'
 
 describe('BehaviorRecorder', () => {
     describe('plerdy', () => {
@@ -31,11 +31,7 @@ describe('BehaviorRecorder', () => {
 
         describe('injectParamsFor', () => {
             it('produces correct html to embed', () => {
-                const params = {
-                    site_hash_code: '4b23250e438223063d2fb9af042a8199',
-                    suid: 17358,
-                }
-                expect(injectParamsFor.plerdy(params)).toBe(CORRECT_PLERDY_HTML)
+                expect(htmlFor.plerdy(CORRECT_PLERDY_PARSED_PARAMS)).toBe(CORRECT_PLERDY_HTML)
             })
         })
 
@@ -45,7 +41,7 @@ describe('BehaviorRecorder', () => {
             })
 
             it('throws exception, when provided JSON-string is in Relaxed JSON Format', () => {
-                const relaxedJsonParams = '{site_hash_code: "4b23250e438223063d2fb9af042a8199", suid: 17358}'
+                const relaxedJsonParams = `{site_hash_code: "${CORRECT_PLERDY_PARSED_PARAMS.site_hash_code}", suid: ${CORRECT_PLERDY_PARSED_PARAMS.suid}`
                 expect(() => {
                     parseParamsFor.plerdy(relaxedJsonParams)
                 }).toThrow('Incorrect JSON syntax in config for Plerdy behaviour recorder')
@@ -53,13 +49,13 @@ describe('BehaviorRecorder', () => {
 
             it('throws error when provided correct JSON-string has incorrect "site_hash_code" param', () => {
                 [
-                    '4b23250e438223063d2fb9af042a819',   // too short
-                    '4b23250e438223063d2fb9af042a81991', // too wide
-                    '-b23250e438223063d2fb9af042a8199',  // forbidden symbols
-                    '_b23250e438223063d2fb9af042a8199',  // forbidden symbols
+                    '1234567890abcdefghijklmnopqrsty',   // too short
+                    '1234567890abcdefghijklmnopqrstyvw', // too wide
+                    '-1234567890abcdefghijklmnopqrsty',  // forbidden symbols
+                    '_1234567890abcdefghijklmnopqrsty',  // forbidden symbols
                 ].map(sample => {
                     expect(() => {
-                        parseParamsFor.plerdy(`{"site_hash_code": "${sample}", "suid": 17358}`)
+                        parseParamsFor.plerdy(`{"site_hash_code": "${sample}", "suid": ${CORRECT_PLERDY_PARSED_PARAMS.suid}}`)
                     }).toThrow('Incorrect value of site_hash_code param for Plerdy behaviour recorder')
                 })
             })
