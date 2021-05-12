@@ -10,7 +10,7 @@ const withTM = require('next-transpile-modules')(['@core/next', '@core/keystone'
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
 const firebaseConfig = conf['FIREBASE_CONFIG'] && JSON.parse(conf['FIREBASE_CONFIG'])
-const behaviorRecorder = conf['BEHAVIOR_RECORDER']
+const plerdy = conf['BEHAVIOR_RECORDER_PLERDY_CONFIG']
 const addressSuggestionsConfig = conf['ADDRESS_SUGGESTIONS_CONFIG'] && JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG'])
 const mapApiKey = conf['MAP_API_KEY']
 
@@ -22,7 +22,9 @@ module.exports = withTM(withLess(withCSS({
         firebaseConfig,
         addressSuggestionsConfig,
         mapApiKey,
-        behaviorRecorder,
+        behaviorRecorder: {
+            plerdy
+        }
     },
     lessLoaderOptions: {
         javascriptEnabled: true,

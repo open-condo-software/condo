@@ -75,7 +75,7 @@ const MyApp = ({ Component, pageProps }) => {
                     <Component {...pageProps} />
                 </LayoutComponent>
                 <GoogleAnalytics/>
-                <BehaviorRecorder/>
+                <BehaviorRecorder engine="plerdy"/>
             </CacheProvider>
         </GlobalErrorBoundary>
     )
