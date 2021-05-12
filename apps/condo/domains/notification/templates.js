@@ -1,7 +1,7 @@
 const conf = require('@core/config')
 const { RU_LOCALE, EN_LOCALE } = require('@condo/domains/common/constants/locale')
 
-const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_TRANSPORTS, REGISTER_NEW_USER_MESSAGE_TYPE, RESET_PASSWORD_MESSAGE_TYPE} = require('./constants')
+const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_TRANSPORTS, REGISTER_NEW_USER_MESSAGE_TYPE, RESET_PASSWORD_MESSAGE_TYPE } = require('./constants')
 
 async function renderTemplate (transport, message) {
     if (!MESSAGE_TRANSPORTS.includes(transport)) throw new Error('unexpected transport argument')
