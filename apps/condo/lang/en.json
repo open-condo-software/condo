@@ -86,7 +86,7 @@
   "pages.condo.residents.PageTitle": "Residents",
   "pages.condo.employee.PageTitle": "Employee",
   "pages.condo.buildings.PageTitle": "Houses",
-  "property.Import": "Импорт",
+  "property.Import": "Import",
   "property.Processing": "Data is being processed, do not close the browser tab or turn off the computer",
   "property.ImportSuccess": "Homes added",
   "property.Continue": "Proceed",
