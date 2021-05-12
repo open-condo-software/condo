@@ -21,7 +21,7 @@ describe('normalizePhone()', () => {
     })
 
     test('random', () => {
-        const data = '+1' + String(Math.random()).slice(2).slice(-10)
+        const data = '+1817' + String(Math.random()).slice(2).slice(-7)
         expect(normalizePhone(data)).toEqual(data)
     })
 })
