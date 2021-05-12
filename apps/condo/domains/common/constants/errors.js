@@ -1,3 +1,4 @@
+const PHONE_WRONG_FORMAT_ERROR = '[phone:wrongFormat:'
 
 // assume format `[type:error:field] message`
 const JSON_EXPECT_OBJECT_ERROR = '[json:expectObject:'
@@ -16,6 +17,7 @@ const ALREADY_EXISTS_ERROR = '[constrain:alreadyExists:'
 const WRONG_TEXT_FORMAT = '[text:wrongFormat:'
 
 module.exports = {
+    PHONE_WRONG_FORMAT_ERROR,
     JSON_UNKNOWN_VERSION_ERROR,
     JSON_WRONG_VERSION_FORMAT_ERROR,
     JSON_EXPECT_OBJECT_ERROR,

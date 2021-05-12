@@ -4,7 +4,8 @@ const { getById, GQLCustomSchema } = require('@core/keystone/schema')
 const { createOrganizationEmployee } = require('../../../utils/serverSchema/Organization')
 const { rules } = require('../../../access')
 const guards = require('../utils/serverSchema/guards')
-const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { PHONE_WRONG_FORMAT_ERROR, ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { findOrganizationEmployee } = require('../../../utils/serverSchema/Organization')
 const { REGISTER_NEW_USER_MUTATION } = require('../../user/gql')
 
@@ -22,7 +23,11 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
             resolver: async (parent, args, context) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data } = args
-                const { organization, email, phone, name, ...restData } = data
+                let { organization, email, phone, name, ...restData } = data
+                phone = normalizePhone(phone)
+                if (!phone) throw new Error(`${PHONE_WRONG_FORMAT_ERROR}:phone] invalid format`)
+
+                // TODO(pahaz): normalize email!
 
                 await guards.checkEmployeeExistency(context, organization, email, phone)
                 let user = await guards.checkUserExistency(context, email, phone)
