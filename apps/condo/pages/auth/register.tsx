@@ -100,7 +100,6 @@ const Auth = ({ children }): React.ReactElement => {
 
 const RegisterSteps = (): React.ReactElement => {
     const [state, setState] = useState('inputPhone')
-    console.log(state)
     const steps = {
         inputPhone: <InputPhoneForm onFinish={() => setState('validatePhone')}/>,
         validatePhone: <ValidatePhoneForm onFinish={() => setState('register')} onReset={() => setState('inputPhone')}/>,
