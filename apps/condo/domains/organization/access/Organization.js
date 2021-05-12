@@ -10,13 +10,18 @@ async function canReadOrganizations ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageOrganizations ({ authentication: { item: user } }) {
+async function canManageOrganizations ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin) return true
-    return {
+    if (operation === 'create') {
+        return false
+    } else if (operation === 'update') {
         // user is inside employee list
-        employees_some: { user: { id: user.id, canManageOrganization: true } },
+        return {
+            employees_some: { user: { id: user.id, canManageOrganization: true } },
+        }
     }
+    return false
 }
 
 /*
@@ -24,6 +29,6 @@ async function canManageOrganizations ({ authentication: { item: user } }) {
   all or no items are available) or a set of filters that limit the available items.
 */
 module.exports = {
-    canManageOrganizations,
     canReadOrganizations,
+    canManageOrganizations,
 }
