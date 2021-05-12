@@ -9,7 +9,7 @@ const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 10
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const MIN_PASSWORD_LENGTH = 7
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { WRONG_EMAIL_ERROR, MULTIPLE_ACCOUNTS_MATCHES, RESET_TOKEN_NOT_FOUND } = require('@condo/domains/user/constants/errors')
+const { WRONG_EMAIL_ERROR, MULTIPLE_ACCOUNTS_MATCHES, RESET_TOKEN_NOT_FOUND, PASSWORD_TOO_SHORT } = require('@condo/domains/user/constants/errors')
 const has = require('lodash/has')
 const { BOT_EMAIL } = require('@condo/domains/common/constants/requisites')
 
@@ -191,8 +191,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const now = extra.extraNow || (new Date(Date.now())).toISOString()
 
                 if (password.length < MIN_PASSWORD_LENGTH) {
-                    const msg = '[password:min:length] Password too short'
-                    throw new Error(msg)
+                    throw new Error(`${PASSWORD_TOO_SHORT}] Password too short`)
                 }
 
                 const { errors, data } = await context.executeGraphQL({

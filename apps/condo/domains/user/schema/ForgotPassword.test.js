@@ -1,7 +1,8 @@
 const { gql } = require('graphql-tag')
-const { makeLoggedInAdminClient, makeClient, makeLoggedInClient, createUser, createSchemaObject, getSchemaObject } = require('@core/keystone/test.utils')
-const { ForgotPasswordAction } = require('@condo/domains/user/schema/ForgotPassword')
+const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@core/keystone/test.utils')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
+const { WRONG_EMAIL_ERROR, PASSWORD_TOO_SHORT } = require('@condo/domains/user/constants/errors')
+
 
 describe('FORGOT_RECOVERY_CHANGE_PASSWORD', () => {
     const ALL_FORGOT_PASSWORD_ACTIONS_QUERY = gql`
@@ -90,17 +91,19 @@ describe('FORGOT_RECOVERY_CHANGE_PASSWORD', () => {
 
     test('start recovery for unknown email', async () => {
         const client = await makeClient()
-        const res1 = await client.mutate(START_PASSWORD_RECOVERY_MUTATION, { email: `r${Math.random()}@emample.com` })
-        expect(JSON.stringify(res1.errors)).toEqual(expect.stringMatching('unknown-user'))
+        const res1 = await client.mutate(START_PASSWORD_RECOVERY_MUTATION, { email: `r${Math.random()}@example.com` })
+        expect(JSON.stringify(res1.errors)).toContain(WRONG_EMAIL_ERROR)
     })
 
     test('change password to empty', async () => {
-        const { id } = await createSchemaObject(ForgotPasswordAction)
-        const obj = await getSchemaObject(ForgotPasswordAction, ['token'], { id })
-        const client = await makeClient()
-        const res1 = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, {
-            token: obj.token, password: '',
-        })
-        expect(res1.data).toEqual({ status: 'ok' })
+        const admin = await makeLoggedInAdminClient()
+        const [, userAttrs] = await createTestUser(admin)
+        const client = await makeClient()        
+        await client.mutate(START_PASSWORD_RECOVERY_MUTATION, { email: userAttrs.email })
+        const { data: { passwordTokens } } = await admin.query(ALL_TOKENS_FOR_USER_QUERY, { email: userAttrs.email })
+        expect(passwordTokens).toHaveLength(1)
+        const token = passwordTokens[0].token
+        const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { token, password: '' })
+        expect(JSON.stringify(result.errors)).toContain(PASSWORD_TOO_SHORT)
     })
 })

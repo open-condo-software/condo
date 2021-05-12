@@ -2,13 +2,11 @@ const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const { DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
 const { makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { createTestUser, registerNewUser } = require('@condo/domains/user/utils/testSchema')
-const { EMPTY_PASSWORD_ERROR } = require('@condo/domains/common/constants/errors')
-const { WRONG_EMAIL_ERROR } = require('@condo/domains/common/constants/errors')
-const { WRONG_PASSWORD_ERROR } = require('@condo/domains/common/constants/errors')
+const { WRONG_EMAIL_ERROR, EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/user/constants/errors')
+const { WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
-const faker = require('faker')
-const { EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/common/constants/errors')
 
+const faker = require('faker')
 
 describe('SIGNIN', () => {
     test('anonymous: SIGNIN_MUTATION', async () => {
@@ -42,6 +40,7 @@ describe('SIGNIN', () => {
             'secret': 'wrong password',
         })
         expect(data).toEqual({ 'auth': null })
+        console.log()
         expect(JSON.stringify(errors)).toMatch((WRONG_PASSWORD_ERROR))
     })
 

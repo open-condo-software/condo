@@ -9,6 +9,7 @@ const EMAIL_ALREADY_REGISTERED_ERROR = '[register:email:multipleFound'
 const MIN_PASSWORD_LENGTH_ERROR = '[register:password:minLength'
 const ALREADY_REGISTERED = '[unique:phone:multipleFound'
 const RESET_TOKEN_NOT_FOUND = '[resetPassword:token:notFound'
+const PASSWORD_TOO_SHORT = '[password:min:length'
 
 module.exports = {
     WRONG_PASSWORD_ERROR,
@@ -17,6 +18,7 @@ module.exports = {
     ALREADY_REGISTERED,
     MULTIPLE_ACCOUNTS_MATCHES,
     WRONG_PHONE_ERROR,
+    PASSWORD_TOO_SHORT,
     AUTH_BY_PASSWORD_FAILED_ERROR,
     EMAIL_ALREADY_REGISTERED_ERROR,
     RESET_TOKEN_NOT_FOUND,
