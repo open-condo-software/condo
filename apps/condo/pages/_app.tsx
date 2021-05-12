@@ -16,6 +16,7 @@ import { initFirebase } from '@condo/domains/common/utils/firebase.front.utils'
 
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleAnalytics'
+import BehaviorRecorder from '@condo/domains/common/components/containers/BehaviorRecorder'
 import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
 
@@ -74,6 +75,7 @@ const MyApp = ({ Component, pageProps }) => {
                     <Component {...pageProps} />
                 </LayoutComponent>
                 <GoogleAnalytics/>
+                <BehaviorRecorder/>
             </CacheProvider>
         </GlobalErrorBoundary>
     )
