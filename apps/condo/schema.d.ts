@@ -4811,30 +4811,6 @@ export type MessagesUpdateInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  /**  Create a single ForgotPasswordActionHistoryRecord item.  */
-  createForgotPasswordActionHistoryRecord?: Maybe<ForgotPasswordActionHistoryRecord>;
-  /**  Create multiple ForgotPasswordActionHistoryRecord items.  */
-  createForgotPasswordActionHistoryRecords?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecord>>>;
-  /**  Update a single ForgotPasswordActionHistoryRecord item by ID.  */
-  updateForgotPasswordActionHistoryRecord?: Maybe<ForgotPasswordActionHistoryRecord>;
-  /**  Update multiple ForgotPasswordActionHistoryRecord items by ID.  */
-  updateForgotPasswordActionHistoryRecords?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecord>>>;
-  /**  Delete a single ForgotPasswordActionHistoryRecord item by ID.  */
-  deleteForgotPasswordActionHistoryRecord?: Maybe<ForgotPasswordActionHistoryRecord>;
-  /**  Delete multiple ForgotPasswordActionHistoryRecord items by ID.  */
-  deleteForgotPasswordActionHistoryRecords?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecord>>>;
-  /**  Create a single ForgotPasswordAction item.  */
-  createForgotPasswordAction?: Maybe<ForgotPasswordAction>;
-  /**  Create multiple ForgotPasswordAction items.  */
-  createForgotPasswordActions?: Maybe<Array<Maybe<ForgotPasswordAction>>>;
-  /**  Update a single ForgotPasswordAction item by ID.  */
-  updateForgotPasswordAction?: Maybe<ForgotPasswordAction>;
-  /**  Update multiple ForgotPasswordAction items by ID.  */
-  updateForgotPasswordActions?: Maybe<Array<Maybe<ForgotPasswordAction>>>;
-  /**  Delete a single ForgotPasswordAction item by ID.  */
-  deleteForgotPasswordAction?: Maybe<ForgotPasswordAction>;
-  /**  Delete multiple ForgotPasswordAction items by ID.  */
-  deleteForgotPasswordActions?: Maybe<Array<Maybe<ForgotPasswordAction>>>;
   /**  Create a single UserHistoryRecord item.  */
   createUserHistoryRecord?: Maybe<UserHistoryRecord>;
   /**  Create multiple UserHistoryRecord items.  */
@@ -4859,6 +4835,30 @@ export type Mutation = {
   deleteUser?: Maybe<User>;
   /**  Delete multiple User items by ID.  */
   deleteUsers?: Maybe<Array<Maybe<User>>>;
+  /**  Create a single ForgotPasswordActionHistoryRecord item.  */
+  createForgotPasswordActionHistoryRecord?: Maybe<ForgotPasswordActionHistoryRecord>;
+  /**  Create multiple ForgotPasswordActionHistoryRecord items.  */
+  createForgotPasswordActionHistoryRecords?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecord>>>;
+  /**  Update a single ForgotPasswordActionHistoryRecord item by ID.  */
+  updateForgotPasswordActionHistoryRecord?: Maybe<ForgotPasswordActionHistoryRecord>;
+  /**  Update multiple ForgotPasswordActionHistoryRecord items by ID.  */
+  updateForgotPasswordActionHistoryRecords?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecord>>>;
+  /**  Delete a single ForgotPasswordActionHistoryRecord item by ID.  */
+  deleteForgotPasswordActionHistoryRecord?: Maybe<ForgotPasswordActionHistoryRecord>;
+  /**  Delete multiple ForgotPasswordActionHistoryRecord items by ID.  */
+  deleteForgotPasswordActionHistoryRecords?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecord>>>;
+  /**  Create a single ForgotPasswordAction item.  */
+  createForgotPasswordAction?: Maybe<ForgotPasswordAction>;
+  /**  Create multiple ForgotPasswordAction items.  */
+  createForgotPasswordActions?: Maybe<Array<Maybe<ForgotPasswordAction>>>;
+  /**  Update a single ForgotPasswordAction item by ID.  */
+  updateForgotPasswordAction?: Maybe<ForgotPasswordAction>;
+  /**  Update multiple ForgotPasswordAction items by ID.  */
+  updateForgotPasswordActions?: Maybe<Array<Maybe<ForgotPasswordAction>>>;
+  /**  Delete a single ForgotPasswordAction item by ID.  */
+  deleteForgotPasswordAction?: Maybe<ForgotPasswordAction>;
+  /**  Delete multiple ForgotPasswordAction items by ID.  */
+  deleteForgotPasswordActions?: Maybe<Array<Maybe<ForgotPasswordAction>>>;
   /**  Create a single OrganizationHistoryRecord item.  */
   createOrganizationHistoryRecord?: Maybe<OrganizationHistoryRecord>;
   /**  Create multiple OrganizationHistoryRecord items.  */
@@ -5303,10 +5303,10 @@ export type Mutation = {
   deleteMessage?: Maybe<Message>;
   /**  Delete multiple Message items by ID.  */
   deleteMessages?: Maybe<Array<Maybe<Message>>>;
-  startPasswordRecovery?: Maybe<Scalars['String']>;
-  changePasswordWithToken?: Maybe<Scalars['String']>;
   registerNewUser?: Maybe<User>;
   authenticateUserWithFirebaseIdToken?: Maybe<AuthenticateUserWithFirebaseIdTokenOutput>;
+  startPasswordRecovery?: Maybe<Scalars['String']>;
+  changePasswordWithToken?: Maybe<Scalars['String']>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
@@ -5317,68 +5317,6 @@ export type Mutation = {
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
   updateAuthenticatedUser?: Maybe<User>;
-};
-
-
-export type MutationCreateForgotPasswordActionHistoryRecordArgs = {
-  data?: Maybe<ForgotPasswordActionHistoryRecordCreateInput>;
-};
-
-
-export type MutationCreateForgotPasswordActionHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecordsCreateInput>>>;
-};
-
-
-export type MutationUpdateForgotPasswordActionHistoryRecordArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<ForgotPasswordActionHistoryRecordUpdateInput>;
-};
-
-
-export type MutationUpdateForgotPasswordActionHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecordsUpdateInput>>>;
-};
-
-
-export type MutationDeleteForgotPasswordActionHistoryRecordArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteForgotPasswordActionHistoryRecordsArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateForgotPasswordActionArgs = {
-  data?: Maybe<ForgotPasswordActionCreateInput>;
-};
-
-
-export type MutationCreateForgotPasswordActionsArgs = {
-  data?: Maybe<Array<Maybe<ForgotPasswordActionsCreateInput>>>;
-};
-
-
-export type MutationUpdateForgotPasswordActionArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<ForgotPasswordActionUpdateInput>;
-};
-
-
-export type MutationUpdateForgotPasswordActionsArgs = {
-  data?: Maybe<Array<Maybe<ForgotPasswordActionsUpdateInput>>>;
-};
-
-
-export type MutationDeleteForgotPasswordActionArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteForgotPasswordActionsArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
 };
 
 
@@ -5440,6 +5378,68 @@ export type MutationDeleteUserArgs = {
 
 
 export type MutationDeleteUsersArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateForgotPasswordActionHistoryRecordArgs = {
+  data?: Maybe<ForgotPasswordActionHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateForgotPasswordActionHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateForgotPasswordActionHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<ForgotPasswordActionHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateForgotPasswordActionHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteForgotPasswordActionHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteForgotPasswordActionHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateForgotPasswordActionArgs = {
+  data?: Maybe<ForgotPasswordActionCreateInput>;
+};
+
+
+export type MutationCreateForgotPasswordActionsArgs = {
+  data?: Maybe<Array<Maybe<ForgotPasswordActionsCreateInput>>>;
+};
+
+
+export type MutationUpdateForgotPasswordActionArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<ForgotPasswordActionUpdateInput>;
+};
+
+
+export type MutationUpdateForgotPasswordActionsArgs = {
+  data?: Maybe<Array<Maybe<ForgotPasswordActionsUpdateInput>>>;
+};
+
+
+export type MutationDeleteForgotPasswordActionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteForgotPasswordActionsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -6591,6 +6591,16 @@ export type MutationDeleteMessagesArgs = {
 };
 
 
+export type MutationRegisterNewUserArgs = {
+  data: RegisterNewUserInput;
+};
+
+
+export type MutationAuthenticateUserWithFirebaseIdTokenArgs = {
+  data: AuthenticateUserWithFirebaseIdTokenInput;
+};
+
+
 export type MutationStartPasswordRecoveryArgs = {
   email: Scalars['String'];
 };
@@ -6599,16 +6609,6 @@ export type MutationStartPasswordRecoveryArgs = {
 export type MutationChangePasswordWithTokenArgs = {
   token: Scalars['String'];
   password: Scalars['String'];
-};
-
-
-export type MutationRegisterNewUserArgs = {
-  data: RegisterNewUserInput;
-};
-
-
-export type MutationAuthenticateUserWithFirebaseIdTokenArgs = {
-  data: AuthenticateUserWithFirebaseIdTokenInput;
 };
 
 
@@ -8449,22 +8449,6 @@ export type PropertyWhereUniqueInput = {
 
 export type Query = {
   __typename?: 'Query';
-  /**  Search for all ForgotPasswordActionHistoryRecord items which match the where clause.  */
-  allForgotPasswordActionHistoryRecords?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecord>>>;
-  /**  Search for the ForgotPasswordActionHistoryRecord item with the matching ID.  */
-  ForgotPasswordActionHistoryRecord?: Maybe<ForgotPasswordActionHistoryRecord>;
-  /**  Perform a meta-query on all ForgotPasswordActionHistoryRecord items which match the where clause.  */
-  _allForgotPasswordActionHistoryRecordsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the ForgotPasswordActionHistoryRecord list.  */
-  _ForgotPasswordActionHistoryRecordsMeta?: Maybe<_ListMeta>;
-  /**  Search for all ForgotPasswordAction items which match the where clause.  */
-  allForgotPasswordActions?: Maybe<Array<Maybe<ForgotPasswordAction>>>;
-  /**  Search for the ForgotPasswordAction item with the matching ID.  */
-  ForgotPasswordAction?: Maybe<ForgotPasswordAction>;
-  /**  Perform a meta-query on all ForgotPasswordAction items which match the where clause.  */
-  _allForgotPasswordActionsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the ForgotPasswordAction list.  */
-  _ForgotPasswordActionsMeta?: Maybe<_ListMeta>;
   /**  Search for all UserHistoryRecord items which match the where clause.  */
   allUserHistoryRecords?: Maybe<Array<Maybe<UserHistoryRecord>>>;
   /**  Search for the UserHistoryRecord item with the matching ID.  */
@@ -8481,6 +8465,22 @@ export type Query = {
   _allUsersMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the User list.  */
   _UsersMeta?: Maybe<_ListMeta>;
+  /**  Search for all ForgotPasswordActionHistoryRecord items which match the where clause.  */
+  allForgotPasswordActionHistoryRecords?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecord>>>;
+  /**  Search for the ForgotPasswordActionHistoryRecord item with the matching ID.  */
+  ForgotPasswordActionHistoryRecord?: Maybe<ForgotPasswordActionHistoryRecord>;
+  /**  Perform a meta-query on all ForgotPasswordActionHistoryRecord items which match the where clause.  */
+  _allForgotPasswordActionHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the ForgotPasswordActionHistoryRecord list.  */
+  _ForgotPasswordActionHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all ForgotPasswordAction items which match the where clause.  */
+  allForgotPasswordActions?: Maybe<Array<Maybe<ForgotPasswordAction>>>;
+  /**  Search for the ForgotPasswordAction item with the matching ID.  */
+  ForgotPasswordAction?: Maybe<ForgotPasswordAction>;
+  /**  Perform a meta-query on all ForgotPasswordAction items which match the where clause.  */
+  _allForgotPasswordActionsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the ForgotPasswordAction list.  */
+  _ForgotPasswordActionsMeta?: Maybe<_ListMeta>;
   /**  Search for all OrganizationHistoryRecord items which match the where clause.  */
   allOrganizationHistoryRecords?: Maybe<Array<Maybe<OrganizationHistoryRecord>>>;
   /**  Search for the OrganizationHistoryRecord item with the matching ID.  */
@@ -8785,56 +8785,6 @@ export type Query = {
 };
 
 
-export type QueryAllForgotPasswordActionHistoryRecordsArgs = {
-  where?: Maybe<ForgotPasswordActionHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortForgotPasswordActionHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryForgotPasswordActionHistoryRecordArgs = {
-  where: ForgotPasswordActionHistoryRecordWhereUniqueInput;
-};
-
-
-export type Query_AllForgotPasswordActionHistoryRecordsMetaArgs = {
-  where?: Maybe<ForgotPasswordActionHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortForgotPasswordActionHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllForgotPasswordActionsArgs = {
-  where?: Maybe<ForgotPasswordActionWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortForgotPasswordActionsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryForgotPasswordActionArgs = {
-  where: ForgotPasswordActionWhereUniqueInput;
-};
-
-
-export type Query_AllForgotPasswordActionsMetaArgs = {
-  where?: Maybe<ForgotPasswordActionWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortForgotPasswordActionsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
 export type QueryAllUserHistoryRecordsArgs = {
   where?: Maybe<UserHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
@@ -8879,6 +8829,56 @@ export type Query_AllUsersMetaArgs = {
   where?: Maybe<UserWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortUsersBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllForgotPasswordActionHistoryRecordsArgs = {
+  where?: Maybe<ForgotPasswordActionHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortForgotPasswordActionHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryForgotPasswordActionHistoryRecordArgs = {
+  where: ForgotPasswordActionHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllForgotPasswordActionHistoryRecordsMetaArgs = {
+  where?: Maybe<ForgotPasswordActionHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortForgotPasswordActionHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllForgotPasswordActionsArgs = {
+  where?: Maybe<ForgotPasswordActionWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortForgotPasswordActionsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryForgotPasswordActionArgs = {
+  where: ForgotPasswordActionWhereUniqueInput;
+};
+
+
+export type Query_AllForgotPasswordActionsMetaArgs = {
+  where?: Maybe<ForgotPasswordActionWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortForgotPasswordActionsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;

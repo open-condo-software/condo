@@ -14,7 +14,10 @@ const MESSAGE_TRANSPORTS = [SMS_TRANSPORT, EMAIL_TRANSPORT, TELEGRAM_TRANSPORT, 
 
 const INVITE_NEW_EMPLOYEE_MESSAGE_TYPE = 'INVITE_NEW_EMPLOYEE'
 const REGISTER_NEW_USER_MESSAGE_TYPE = 'REGISTER_NEW_USER'
-const MESSAGE_TYPES = [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, REGISTER_NEW_USER_MESSAGE_TYPE]
+const RESET_PASSWORD_MESSAGE_TYPE = 'RESSET_PASSWORD'
+const MESSAGE_TYPES = [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, REGISTER_NEW_USER_MESSAGE_TYPE, RESET_PASSWORD_MESSAGE_TYPE]
+
+
 const MESSAGE_META = {
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
@@ -28,6 +31,12 @@ const MESSAGE_META = {
         dv: { defaultValue: '', required: true },
         userPhone: { defaultValue: '', required: false },
         userPassword: { defaultValue: '', required: false },
+    },
+    [RESET_PASSWORD_MESSAGE_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        token: { defaultValue: '', required: true },
+        userName: { defaultValue: 'USERNAME', required: false },
+        userEmail: { defaultValue: '', required: false },
     },
 }
 
@@ -53,6 +62,7 @@ module.exports = {
     MESSAGE_TRANSPORTS,
     REGISTER_NEW_USER_MESSAGE_TYPE,
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+    RESET_PASSWORD_MESSAGE_TYPE,
     MESSAGE_TYPES,
     MESSAGE_META,
     MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS, MESSAGE_PROCESSING_STATUS, MESSAGE_ERROR_STATUS,

@@ -1,152 +1,159 @@
-// @ts-nocheck
-/** @jsx jsx */
-import { css, jsx } from '@emotion/core'
-import { useState } from 'react'
-import { Button, Form, Input, Result, Typography, Row, Col } from 'antd'
-import Head from 'next/head'
 import Router from 'next/router'
-import { useIntl } from '@core/next/intl'
-import { useMutation } from '@core/next/apollo'
-import { gql } from 'graphql-tag'
 
-import { TopMenuOnlyLayout } from '@condo/domains/common/components/containers/BaseLayout'
+import { useIntl } from '@core/next/intl'
+import { Form, Input, Typography } from 'antd'
+import { Button } from '@condo/domains/common/components/Button'
+import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
+import React, { useState, useContext } from 'react'
+
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { useMutation } from '@core/next/apollo'
+import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION } from '@condo/domains/user/gql'
 
-const CHANGE_PASSWORD_WITH_TOKEN_MUTATION = gql`
-    mutation changePasswordWithToken($token: String!, $password: String!) {
-        status: changePasswordWithToken(token: $token, password: $password)
-    }
-`
+const INPUT_STYLE = { width: '20em' }
 
-const ChangePasswordForm = () => {
+// Todo(zuch): responsive HTML
+const ChangePasswordPage: AuthPage = () => {
     const [form] = Form.useForm()
-    const intl = useIntl()
+    const { token } = getQueryParams()
+    const initialValues = { token, password: '', confirm: '' }
     const [isLoading, setIsLoading] = useState(false)
-    const [isSuccessMessage, setIsSuccessMessage] = useState(false)
-    const [changePassword, ctx] = useMutation(CHANGE_PASSWORD_WITH_TOKEN_MUTATION)
-    let initialValues = getQueryParams()
-    initialValues = { ...initialValues, password: '', confirm: '' }
+    const [changePassword] = useMutation(CHANGE_PASSWORD_WITH_TOKEN_MUTATION)
 
-    const PasswordMsg = intl.formatMessage({ id: 'Password' })
-    const ConfirmPasswordMsg = intl.formatMessage({ id: 'ConfirmPassword' })
-    const ChangeMsg = intl.formatMessage({ id: 'Change' })
-    // const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    // const ChangedMsg = intl.formatMessage({ id: 'Changed' })
-    const GoToLoginMsg = intl.formatMessage({ id: 'GoToLogin' })
-    const PasswordWasChangedMsg = intl.formatMessage({ id: 'pages.auth.PasswordWasChanged' })
-    const PasswordWasChangedDescriptionMsg = intl.formatMessage({ id: 'pages.auth.PasswordWasChangedDescription' })
+    const intl = useIntl()
+    const SaveMsg = intl.formatMessage({ id: 'Save' })
+    const PasswordMsg = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
+    const ResetTitle = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
+    const CreateNewPasswordMsg = intl.formatMessage({ id: 'pages.auth.reset.CreateNewPasswordMsg' })
+    const ConfirmPasswordMsg = intl.formatMessage({ id: 'pages.auth.register.field.ConfirmPassword' })
+    const AndSignInMsg = intl.formatMessage({ id: 'pages.auth.reset.AndSignInMsg' })
     const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
-    const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
+    const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
     const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
-    const ErrorToFormFieldMsgMapping = {}  // TODO(pahaz): password is the same error?!
+    const ErrorToFormFieldMsgMapping = {}
 
+
+    
     const onFinish = values => {
         setIsLoading(true)
         return runMutation({
             mutation: changePassword,
             variables: values,
-            onCompleted: () => setIsSuccessMessage(true),
+            onCompleted: () => {
+                //
+            },
             onFinally: () => {
                 setIsLoading(false)
+                Router.push('/auth/signin')
             },
             intl,
             form,
             ErrorToFormFieldMsgMapping,
+        }).catch(error => {
+            setIsLoading(false)
         })
     }
 
-    if (isSuccessMessage) {
-        return <Result
-            status="success"
-            title={PasswordWasChangedMsg}
-            subTitle={PasswordWasChangedDescriptionMsg}
-            extra={[
-                <Button onClick={() => Router.push('/auth/signin')} key={1}>{GoToLoginMsg}</Button>,
-            ]}
-        />
-    }
-
     return (
-        <Form
-            form={form}
-            name="change-password"
-            onFinish={onFinish}
-            initialValues={initialValues}
-        >
-            <Row gutter={[0, 24]} >
-                <Col span={24}>
-                    <Form.Item name="token" style={{ display: 'none' }}>
-                        <Input type="hidden" />
-                    </Form.Item>
-                </Col>
-                <Col span={24}>
-                    <Form.Item
-                        name="password"
-                        label={PasswordMsg}
-                        rules={[
-                            {
-                                required: true,
-                                message: PleaseInputYourPasswordMsg,
+        <div >
+            <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
+            <Typography.Paragraph style={{ textAlign: 'left' }} >{CreateNewPasswordMsg}</Typography.Paragraph>
+                
+            <Form
+                form={form}
+                name="change-password"
+                onFinish={onFinish}
+                initialValues={initialValues}
+                colon={false}
+                style={{ marginTop: '40px' }}
+            >
+                <Form.Item name="token" style={{ display: 'none' }}>
+                    <Input type="hidden" />
+                </Form.Item>
+                <Form.Item
+                    name="password"
+                    label={PasswordMsg}
+                    labelAlign='left'
+                    labelCol={{ flex: 1 }}                            
+                    rules={[
+                        {
+                            required: true,
+                            message: PleaseInputYourPasswordMsg,
+                        },
+                        {
+                            min: 7,
+                            message: PasswordIsTooShortMsg,
+                        },
+                    ]}
+                >
+                    <Input.Password style={INPUT_STYLE}/>
+                </Form.Item>
+                <Form.Item
+                    name="confirm"
+                    label={ConfirmPasswordMsg}
+                    labelAlign='left'
+                    labelCol={{ flex: 1 }}                            
+                    style={{ marginTop: '40px' }}                        
+                    dependencies={['password']}
+                    rules={[
+                        {
+                            required: true,
+                            message: PleaseConfirmYourPasswordMsg,
+                        },
+                        ({ getFieldValue }) => ({
+                            validator (_, value) {
+                                if (!value || getFieldValue('password') === value) {
+                                    return Promise.resolve()
+                                }
+                                return Promise.reject(TwoPasswordDontMatchMsg)
                             },
-                            {
-                                min: 7,
-                                message: PasswordIsTooShortMsg,
-                            },
-                        ]}
-                        hasFeedback
-                    >
-                        <Input.Password />
-                    </Form.Item>
-                </Col>
-                <Col span={24}>
-                    <Form.Item
-                        name="confirm"
-                        label={ConfirmPasswordMsg}
-                        dependencies={['password']}
-                        hasFeedback
-                        rules={[
-                            {
-                                required: true,
-                                message: PleaseConfirmYourPasswordMsg,
-                            },
-                            ({ getFieldValue }) => ({
-                                validator (rule, value) {
-                                    if (!value || getFieldValue('password') === value) {
-                                        return Promise.resolve()
-                                    }
-                                    return Promise.reject(TwoPasswordDontMatchMsg)
-                                },
-                            }),
-                        ]}
-                    >
-                        <Input.Password />
-                    </Form.Item>
-                </Col>
-                <Col span={24}>
-                    <Form.Item style={{ textAlign: 'center' }}>
-                        <Button type="primary" htmlType="submit" loading={isLoading}>
-                            {ChangeMsg}
+                        }),
+                    ]}                            
+                >
+                    <Input.Password  style={INPUT_STYLE}/>
+                </Form.Item>
+                <div style={{ marginTop: '60px', display: 'flex', justifyContent: 'flex-start' }}>
+                    <Form.Item >
+                        <Button
+                            key='submit'
+                            type='sberPrimary'
+                            loading={isLoading}
+                            htmlType="submit" 
+                        >
+                            {SaveMsg}
                         </Button>
+                        <Typography.Text type='secondary' style={{ marginLeft: '20px' }}>
+                            {AndSignInMsg}
+                        </Typography.Text>
                     </Form.Item>
-                </Col>
-            </Row>
-        </Form>
+                </div>
+            </Form>
+        </div>
     )
 }
 
-const ChangePasswordPage = () => {
+
+const HeaderAction = (): React.ReactElement => {
     const intl = useIntl()
-    const ChangePasswordTitleMsg = intl.formatMessage({ id: 'pages.auth.ChangePasswordTitle' })
-    return (<>
-        <Head>
-            <title>{ChangePasswordTitleMsg}</title>
-        </Head>
-        <Typography.Title css={css`text-align: center;`} level={2}>{ChangePasswordTitleMsg}</Typography.Title>
-        <ChangePasswordForm />
-    </>)
+    const RegisterTitle = intl.formatMessage({ id: 'pages.auth.Register' })
+    const { isMobile } = useContext(AuthLayoutContext)
+    return (
+        <Button
+            key='submit'
+            onClick={() => Router.push('/auth/register')}
+            type='sberPrimary'
+            secondary={true}
+            size={isMobile ? 'middle' : 'large'}
+        >
+            {RegisterTitle}
+        </Button>
+    )
 }
 
-ChangePasswordPage.container = TopMenuOnlyLayout
+ChangePasswordPage.headerAction = <HeaderAction />
+
+ChangePasswordPage.container = AuthLayout
+
 export default ChangePasswordPage

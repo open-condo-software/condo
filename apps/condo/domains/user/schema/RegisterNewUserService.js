@@ -4,6 +4,7 @@ const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { admin } = require('@condo/domains/common/utils/firebase.back.utils')
+const { MIN_PASSWORD_LENGTH_ERROR, EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/user/constants/errors')
 
 async function ensureNotExists (context, model, models, field, value) {
     const { errors, data } = await context.executeGraphQL({
@@ -79,11 +80,11 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 }
 
                 if (findData.users.length !== 0) {
-                    throw new Error('[register:email:multipleFound] User with this email is already registered')
+                    throw new Error(`${EMAIL_ALREADY_REGISTERED_ERROR}] User with this email is already registered`)
                 }
 
-                if (userData.password.length < 8) {
-                    throw new Error('[register:password:minLength] Password length less then 7 character')
+                if (userData.password.length < 7) {
+                    throw new Error(`${MIN_PASSWORD_LENGTH_ERROR}] Password length less then 7 character`)
                 }
 
                 const { data: createData, errors: createErrors } = await context.executeGraphQL({

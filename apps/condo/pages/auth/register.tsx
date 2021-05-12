@@ -1,55 +1,84 @@
-// @ts-nocheck
-/** @jsx jsx */
-import { css, jsx } from '@emotion/core'
-import { QuestionCircleOutlined } from '@ant-design/icons'
-
-import { TopMenuOnlyLayout } from '@condo/domains/common/components/containers/BaseLayout'
-import { EMAIL_ALREADY_REGISTERED_ERROR, MIN_PASSWORD_LENGTH_ERROR } from '@condo/domains/common/constants/errors'
-import {
-    AUTH as firebaseAuth,
-    initRecaptcha,
-    IS_FIREBASE_CONFIG_VALID, resetRecaptcha,
-} from '@condo/domains/common/utils/firebase.front.utils'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { getQueryParams } from '@condo/domains/common/utils/url.utils'
-
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
-import { useMutation } from '@core/next/apollo'
-import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
-import { Alert, Button, Checkbox, Col, Form, Input, Row, Tooltip, Typography } from 'antd'
-import Head from 'next/head'
+import { FormattedMessage } from 'react-intl'
 import Router from 'next/router'
-import { createContext, useContext, useEffect, useRef, useState } from 'react'
 
-const AuthContext = createContext({})
+import { Col, Form, Input, Row, Typography } from 'antd'
+import { Button } from '@condo/domains/common/components/Button'
+import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
+import React, { createContext, useEffect, useState, useRef, useContext } from 'react'
+import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
 
-const Auth = ({ children, initialUser }) => {
-    const [user, setUser] = useState(initialUser || null)
+import { formatPhone } from '@condo/domains/common/utils/helpers'
+import MaskedInput from 'antd-mask-input'
+import { AUTH as firebaseAuth, initRecaptcha, resetRecaptcha, IS_FIREBASE_CONFIG_VALID } from '@condo/domains/common/utils/firebase.front.utils'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { useAuth } from '@core/next/auth'
+import { useMutation } from '@core/next/apollo'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { ALREADY_REGISTERED, MIN_PASSWORD_LENGTH_ERROR, EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
+
+import { colors } from '@condo/domains/common/constants/style'
+const LINK_STYLE = { color: colors.sberPrimary[7] }
+
+
+const INPUT_STYLE = { minWidth: '12em', maxWidth: '20em' }
+const POLICY_LOCATION = '/policy.pdf'
+const SMS_CODE_LENGTH = 6
+
+
+
+
+const AuthContext = createContext({
+    isAuthenticated: false,
+    user: null,
+    sendCode: async (phone: string) => null,
+    verifyCode: async (code: string) => null,
+    signout: () => null,
+    phone: '',
+})
+declare global {
+    interface Window {
+        recaptchaVerifier: unknown
+    }
+}
+
+const Auth = ({ children }): React.ReactElement => {
+    const [user, setUser] = useState(null)
+    const intl = useIntl()
+    const ClientSideErrorMsg = intl.formatMessage({ id: 'ClientSideError' })
+    const recaptchaVerifier = useRef(null)
+    const [, setCaptcha] = useState('')
+    const [confirmationResult, setConfirmationResult] = useState(null)
+    const [phone, setPhone] = useState('')
 
     useEffect(() => {
-        return firebaseAuth().onAuthStateChanged(async function (user) {
-            if (user) {
-                user.token = await user.getIdToken(true)
-            }
-
-            setUser(user)
-        })
+        if (!IS_FIREBASE_CONFIG_VALID) {
+            throw new Error(ClientSideErrorMsg)
+        }
+        recaptchaVerifier.current = initRecaptcha(setCaptcha, setCaptcha)
+        if (typeof window !== 'undefined') {
+            window.recaptchaVerifier = recaptchaVerifier.current
+        }
+        return () => {
+            recaptchaVerifier.current.clear()
+            setCaptcha(null)
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    async function sendCode (phoneNumber, recaptchaVerifier) {
-        return await firebaseAuth().signInWithPhoneNumber(phoneNumber, recaptchaVerifier)
+    async function sendCode (phoneNumber) {
+        setPhone(phoneNumber)
+        const confirmation = await firebaseAuth().signInWithPhoneNumber(phoneNumber, recaptchaVerifier.current)
+        setConfirmationResult(confirmation)
     }
-
-    async function verifyCode (confirmationResult, verificationCode) {
-        return await confirmationResult.confirm(verificationCode)
+    async function verifyCode (verificationCode) {
+        const result = await confirmationResult.confirm(verificationCode)
+        result.user.token = await result.user.getIdToken(true)
+        setUser(result.user)
     }
-
     async function signout () {
         return await firebaseAuth().signOut()
     }
-
     return (
         <AuthContext.Provider
             value={{
@@ -58,6 +87,7 @@ const Auth = ({ children, initialUser }) => {
                 sendCode,
                 verifyCode,
                 signout,
+                phone,
             }}
         >
             {children}
@@ -65,51 +95,255 @@ const Auth = ({ children, initialUser }) => {
     )
 }
 
-const RegisterForm = ({ children, register, registerExtraData = {}, ExtraErrorToFormFieldMsgMapping = {} }) => {
+
+// Todo(zuch): responsive HTML
+const RegisterPage: AuthPage = () => {
+    const intl = useIntl()
+    const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
+    const [state, setState] = useState('inputPhone')
+    return (
+        <Auth>
+            <div id={'recaptcha-container'} ></div>
+            <div style={{ textAlign: 'center', display: 'inline-block', maxWidth: '512px' }}>
+                <Typography.Title style={{ textAlign: 'left' }}>{RegistrationTitleMsg}</Typography.Title>
+                {
+                    {
+                        inputPhone: <InputPhoneForm onFinish={() => setState('validatePhone')} />,
+                        validatePhone: <ValidatePhoneForm onFinish={() => setState('register')} onReset={() => setState('inputPhone')} />,
+                        register: <RegisterForm onFinish={() => null}></RegisterForm>,
+
+                    } [state] || null
+                }               
+            </div>
+        </Auth>
+    )
+}
+
+
+interface IInputPhoneFormProps {
+    onFinish: () => void
+}
+
+const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> => {
     const [form] = Form.useForm()
+    const intl = useIntl()
+    const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
+    const RegisterHelpMessage = intl.formatMessage({ id: 'pages.auth.reset.RegisterHelp' })
+    const UserAgreementFileName = intl.formatMessage({ id: 'pages.auth.register.info.UserAgreementFileName' })
+    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
+    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
+    const { phone, sendCode } = useContext(AuthContext)
+    
+    async function handleSendCode () {
+        const { phone } = await form.validateFields(['phone'])
+        try {
+            await sendCode(phone)
+            onFinish()
+        } catch (error) {
+            /*
+            const authErrors = [
+                'auth/invalid-phone-number',
+                'auth/missing-phone-number',
+                'auth/too-many-requests',
+            ]
+            */
+            console.error('send sms error ', error)
+            resetRecaptcha()
+        }
+    }
+    const RegisterMsg = intl.formatMessage({ id: 'Register' })
+    return (
+        <>
+            <Typography.Paragraph style={{ textAlign: 'left', fontSize: '16px' }}>{RegisterHelpMessage}</Typography.Paragraph>
+            <Form
+                form={form}
+                name="register-input-phone"
+                onFinish={handleSendCode}
+                colon={false}
+                style={{ marginTop: '40px' }}
+                initialValues={{ phone }}
+            >
+                <Row gutter={[0, 24]} >
+                    <Col span={24}>
+                        <Form.Item
+                            name="phone"
+                            label={PhoneMsg}
+                            labelAlign='left'
+                            style={{ textAlign: 'right' }}
+                            rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                        >
+                            <MaskedInput mask='+1 (111) 111-11-11' value={phone} placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Typography.Paragraph style={{ textAlign: 'left', fontSize: '12px', marginTop: '12px', lineHeight: '20px' }}>
+                            <FormattedMessage
+                                id='pages.auth.register.info.UserAgreement'
+                                values={{
+                                    link: <a style={LINK_STYLE} target='_blank' href={POLICY_LOCATION} rel="noreferrer">{UserAgreementFileName}</a>,
+                                }}
+                            />
+                        </Typography.Paragraph>
+                    </Col>
+                    <Col span={24} >
+                        <Form.Item style={{ textAlign: 'left', marginTop: '24px' }}>
+                            <Button
+                                key='submit'
+                                type='sberPrimary'
+                                htmlType='submit'
+                            >
+                                {RegisterMsg}
+                            </Button>
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Form>
+        </>
+    )
+}
+
+interface IValidatePhoneFormProps {
+    onFinish: () => void
+    onReset: () => void
+}
+const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidatePhoneFormProps> => {
+    const [form] = Form.useForm()
+    const initialValues = { smscode: '' }
+    const intl = useIntl()
+    const ChangePhoneNumberLabel = intl.formatMessage({ id: 'pages.auth.register.ChangePhoneNumber' })
+    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
+    const SmsCodeTitle = intl.formatMessage({ id: 'pages.auth.register.field.SmsCode' })
+    const [isPhoneVisible, setisPhoneVisible] = useState(false)
+    const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'Hide' }) : intl.formatMessage({ id: 'Show' })
+    const { verifyCode, signout, phone } = useContext(AuthContext)
+    const [showPhone, setShowPhone] = useState(phone)
+    useEffect(() => {
+        if (isPhoneVisible) {
+            setShowPhone(formatPhone(phone))
+        } else {
+            const unHidden = formatPhone(phone)
+            setShowPhone(`${unHidden.substring(0, 9)}***${unHidden.substring(12)}`)
+        }
+    }, [isPhoneVisible, phone, setShowPhone])
+
+    async function handleVerifyCode () {
+        const { smscode } = await form.validateFields(['smscode'])
+        if (smscode.toString().length < SMS_CODE_LENGTH) {
+            return
+        }
+        try {
+            await verifyCode(smscode)
+            onFinish()
+        } catch (error) {
+            console.error('verify error ', error)
+            resetRecaptcha()
+        }
+    }
+
+    async function resetPhone (){
+        await signout()
+        resetRecaptcha()
+        onReset()
+    }
+
+    return (
+        <>
+            <Typography.Paragraph style={{ textAlign: 'left' }}>
+                <FormattedMessage
+                    id='pages.auth.register.info.SmsCodeSent'
+                    values={{
+                        phone: <span>{showPhone} <a style={LINK_STYLE} onClick={() => setisPhoneVisible(!isPhoneVisible)}>({PhoneToggleLabel})</a></span>,
+                    }}
+                />
+            </Typography.Paragraph>
+            <Form
+                form={form}
+                name="register-verify-code"
+                onFinish={onFinish}
+                initialValues={initialValues}
+                colon={false}
+                style={{ marginTop: '40px' }}
+            >
+                <Row gutter={[0, 24]} >
+                    <Col span={24}>
+                        <Form.Item
+                            name="smscode"
+                            label={SmsCodeTitle}
+                            labelAlign='left'
+                            style={{ textAlign: 'right' }}
+                            rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                        >
+                            <Input onChange={handleVerifyCode} style={INPUT_STYLE} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24} >
+                        <Typography.Paragraph style={{ textAlign: 'left', marginTop: '32px' }}>
+                            <a style={{ ...LINK_STYLE, fontSize: '12px', lineHeight: '20px' }} onClick={resetPhone}>{ChangePhoneNumberLabel}</a>
+                        </Typography.Paragraph>
+                    </Col>
+                </Row>
+            </Form>
+        </>
+    )
+}
+
+interface IRegisterFormProps {
+    onFinish: () => void
+}
+
+const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
+    const [form] = Form.useForm()
+    const { user } = useContext(AuthContext)
     const [isLoading, setIsLoading] = useState(false)
     const { signin } = useAuth()
-
-    let initialValues = getQueryParams()
-    initialValues = { ...initialValues, password: '', confirm: '', captcha: 'no' }
-
+    const initialValues = { phone: user.phoneNumber, firebaseIdToken: user.token }
     const intl = useIntl()
-    const SignInMsg = intl.formatMessage({ id: 'SignIn' })
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
-    const EmailMsg = intl.formatMessage({ id: 'Email' })
-    const NameMsg = intl.formatMessage({ id: 'Name' })
+    const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
+    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const ExampleNameMsg = intl.formatMessage({ id: 'example.Name' })
-    const PasswordMsg = intl.formatMessage({ id: 'Password' })
-    const ConfirmPasswordMsg = intl.formatMessage({ id: 'ConfirmPassword' })
-    const RegisteredMsg = intl.formatMessage({ id: 'pages.auth.Registered' })
-    const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
-    const WhatDoYouWantOthersToCallYouMsg = intl.formatMessage({ id: 'pages.auth.WhatDoYouWantOthersToCallYou' })
-    const PleaseInputYourNameMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourName' })
+    const EmailPlaceholder = intl.formatMessage({ id: 'example.Email' })
     const PleaseInputYourEmailMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
+    const NameMsg = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
+    const PasswordMsg = intl.formatMessage({ id: 'pages.auth.register.field.Password' })
+    const ConfirmPasswordMsg = intl.formatMessage({ id: 'pages.auth.register.field.ConfirmPassword' })
+    const EmailMsg = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
     const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
-    const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
-    const EmailIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
+    const AllFieldsAreRequired = intl.formatMessage({ id: 'pages.auth.register.AllFieldsAreRequired' })
+    const PhoneIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsAlreadyRegistered' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
-    const ShouldAcceptAgreementMsg = intl.formatMessage({ id: 'pages.auth.ShouldAcceptAgreement' })
+    const PleaseInputYourNameMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourName' })
+    const EmailIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
+    const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
     const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
-    const IHaveReadAndAcceptTheAgreementMsg = intl.formatMessage({ id: 'pages.auth.IHaveReadAndAcceptTheAgreement' })
+    const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
+
     const ErrorToFormFieldMsgMapping = {
-        [MIN_PASSWORD_LENGTH_ERROR]: {
-            name: 'password',
-            errors: [PasswordIsTooShortMsg],
+        [ALREADY_REGISTERED]: {
+            name: 'phone',
+            errors: [PhoneIsAlreadyRegisteredMsg],
         },
         [EMAIL_ALREADY_REGISTERED_ERROR]: {
             name: 'email',
             errors: [EmailIsAlreadyRegisteredMsg],
         },
-        ...ExtraErrorToFormFieldMsgMapping,
+        [MIN_PASSWORD_LENGTH_ERROR]: {
+            name: 'password',
+            errors: [PasswordIsTooShortMsg],
+        },
+    
     }
-
-    const onFinish = values => {
-        if (values.email) values.email = values.email.toLowerCase()
-        const { name, email, password, confirm, agreement, ...extra } = values
-        const extraData = Object.fromEntries(Object.entries(extra).filter(([k, v]) => !k.startsWith('_')))
-        const data = { name, email, password, ...extraData, ...registerExtraData }
+    const [register] = useMutation(REGISTER_NEW_USER_MUTATION)
+    const registerComplete = values => {        
+        const registerExtraData = {
+            dv: 1,
+            sender: getClientSideSenderInfo(),
+        }
+        if (values.email) {
+            values.email = values.email.toLowerCase().trim()
+        }
+        const { name, email, password, firebaseIdToken } = values
+        const data = { name, email, password, firebaseIdToken, ...registerExtraData }
         setIsLoading(true)
         return runMutation({
             mutation: register,
@@ -123,351 +357,155 @@ const RegisterForm = ({ children, register, registerExtraData = {}, ExtraErrorTo
             intl,
             form,
             ErrorToFormFieldMsgMapping,
-            OnCompletedMsg: RegisteredMsg,
         })
     }
-
     return (
-        <Form
-            form={form}
-            name="register"
-            onFinish={onFinish}
-            initialValues={initialValues}
-        >
-            <Row gutter={[0, 24]} >
-                <Col span={24}>
-                    {children}
-                </Col>
-                <Col span={24}>
-                    <Form.Item
-                        name="name"
-                        label={
-                            <span>
-                                {NameMsg}{' '}
-                                <Tooltip title={WhatDoYouWantOthersToCallYouMsg}>
-                                    <QuestionCircleOutlined />
-                                </Tooltip>
-                            </span>
-                        }
-                        rules={[{ required: true, message: PleaseInputYourNameMsg, whitespace: true }]}
-                    >
-                        <Input placeholder={ExampleNameMsg} />
-                    </Form.Item>
-                </Col>
-                <Col span={24}>
-                    <Form.Item
-                        name="email"
-                        label={EmailMsg}
-                        rules={[
-                            {
-                                type: 'email',
-                                message: EmailIsNotValidMsg,
-                            },
-                            {
-                                required: true,
-                                message: PleaseInputYourEmailMsg,
-                            },
-                        ]}
-                    >
-                        <Input placeholder={'name@example.org'} />
-                    </Form.Item>
-                </Col>
-                <Col span={24}>
-                    <Form.Item
-                        name="password"
-                        label={PasswordMsg}
-                        rules={[
-                            {
-                                required: true,
-                                message: PleaseInputYourPasswordMsg,
-                            },
-                            {
-                                min: 7,
-                                message: PasswordIsTooShortMsg,
-                            },
-                        ]}
-                        hasFeedback
-                    >
-                        <Input.Password />
-                    </Form.Item>
-                </Col>
-                <Col span={24}>
-                    <Form.Item
-                        name="confirm"
-                        label={ConfirmPasswordMsg}
-                        dependencies={['password']}
-                        hasFeedback
-                        rules={[
-                            {
-                                required: true,
-                                message: PleaseConfirmYourPasswordMsg,
-                            },
-                            ({ getFieldValue }) => ({
-                                validator (rule, value) {
-                                    if (!value || getFieldValue('password') === value) {
-                                        return Promise.resolve()
-                                    }
-                                    return Promise.reject(TwoPasswordDontMatchMsg)
-                                },
-                            }),
-                        ]}
-                    >
-                        <Input.Password />
-                    </Form.Item>
-                </Col>
-                <Col span={24}>
-                    <Form.Item
-                        name="agreement"
-                        valuePropName="checked"
-                        rules={[
-                            { validator: (_, value) => value ? Promise.resolve() : Promise.reject(ShouldAcceptAgreementMsg) },
-                        ]}
-                    >
-                        <Checkbox>
-                            {/* TODO(pahaz): agreement link! */}
-                            {IHaveReadAndAcceptTheAgreementMsg}<a href="">*</a>.
-                        </Checkbox>
-                    </Form.Item>
-                </Col>
-                <Col span={24}>
-                    <Form.Item style={{ textAlign: 'center' }}>
-                        <Button type="primary" htmlType="submit" loading={isLoading}>
-                            {RegisterMsg}
-                        </Button>
-                        <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/signin')}>
-                            {SignInMsg}
-                        </Button>
-                    </Form.Item>
-                </Col>
-            </Row>
-        </Form>
-    )
-}
+        <div>
+            <Typography.Paragraph style={{ textAlign: 'left', fontSize: '12px' }} >{AllFieldsAreRequired}</Typography.Paragraph>
+            <Form
+                form={form}
+                name="register"
+                onFinish={registerComplete}
+                initialValues={initialValues}
+                colon={false}
+                style={{ marginTop: '40px' }}
 
-function PhoneAuthForm ({ onPhoneAuthenticated }) {
-    // TODO(pahaz): how-to change phone!? If you want to register new user?!?!
-    const { user, sendCode, verifyCode } = useContext(AuthContext)
-    const recaptchaVerifier = useRef(null)
-    const verificationCodeTextInput = useRef(null)
-    const [, setCaptcha] = useState('')
-    const [confirmationResult, setConfirmationResult] = useState('')
-    const [verifyError, setVerifyError] = useState('')
-    const [, setVerifyInProgress] = useState(false)
-    const [, setVerificationCode] = useState('')
-    const [confirmError, setConfirmError] = useState('')
-    const [, setConfirmInProgress] = useState(false)
-    const [form] = Form.useForm()
-
-    const intl = useIntl()
-    const SignInMsg = intl.formatMessage({ id: 'SignIn' })
-    const ClientSideErrorMsg = intl.formatMessage({ id: 'ClientSideError' })
-    const EnterPhoneNumberMsg = intl.formatMessage({ id: 'EnterPhoneNumber' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const SendVerificationCodeMsg = intl.formatMessage({ id: 'SendVerificationCode' })
-    const ResendVerificationCodeMsg = intl.formatMessage({ id: 'ResendVerificationCode' })
-    const EnterVerificationCodeMsg = intl.formatMessage({ id: 'EnterVerificationCode' })
-    const ConfirmVerificationCodeMsg = intl.formatMessage({ id: 'ConfirmVerificationCode' })
-    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
-
-    useEffect(() => {
-        recaptchaVerifier.current = initRecaptcha(setCaptcha, setCaptcha)
-
-        if (typeof window !== 'undefined') {
-            window.recaptchaVerifier = recaptchaVerifier.current
-        }
-
-        return () => {
-            recaptchaVerifier.current.clear()
-        }
-    }, [])
-
-    async function handleSendCode () {
-        const { phone } = await form.validateFields(['phone'])
-
-        try {
-            setVerifyError('')
-            setVerifyInProgress(true)
-            setConfirmationResult('')
-            const confirmationResult = await sendCode(phone, recaptchaVerifier.current)
-            setVerifyInProgress(false)
-            setConfirmationResult(confirmationResult)
-            verificationCodeTextInput.current?.focus()
-        } catch (err) {
-            setVerifyError(String(err))
-            setVerifyInProgress(false)
-
-            // (Dimitreee): Reset recaptcha verifier if sms didnt send
-            resetRecaptcha()
-        }
-    }
-
-    async function handleVerifyCode () {
-        const { code } = await form.validateFields(['code'])
-        try {
-            setConfirmError('')
-            setConfirmInProgress(true)
-            await verifyCode(confirmationResult, code)
-            setConfirmInProgress(false)
-            setConfirmationResult('')
-            setVerificationCode('')
-            verificationCodeTextInput.current?.clear()
-            // Alert.alert('Phone authentication successful!')
-        } catch (err) {
-            setConfirmError(String(err))
-            setConfirmInProgress(false)
-        }
-    }
-
-    if (!IS_FIREBASE_CONFIG_VALID) {
-        return <Typography.Title style={{ color: '#f00' }}>{ClientSideErrorMsg}</Typography.Title>
-    }
-
-    if (user) {
-        return onPhoneAuthenticated({ user })
-    }
-
-    return <>
-        <div id={'recaptcha-container'} />
-        <Form
-            form={form}
-            name="auth.phone"
-            // onFinish={onFinish}
-        >
-            <Row gutter={[0, 24]} >
-                <Col span={24}>
-                    {
-                        (verifyError || confirmError)
-                            ? <Alert
-                                message="Error"
-                                description={verifyError || confirmError}
-                                type="error"
-                                closable
-                            ></Alert> : null
-                    }
-                </Col>
-                <Col span={24}>
-                    <Form.Item
-                        name="phone"
-                        label={EnterPhoneNumberMsg}
-                        rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                    >
-                        <Input placeholder={ExamplePhoneMsg} />
-                    </Form.Item>
-                </Col>
-                {(confirmationResult)
-                    ? <Col span={24}>
+            >
+                <Row gutter={[0, 24]} >
+                    <Col span={24}>
                         <Form.Item
-                            name="code"
-                            label={EnterVerificationCodeMsg}
-                            rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                            name="phone"
+                            label={PhoneMsg}
+                            labelAlign='left'
+                            style={{ textAlign: 'right' }}
                         >
-                            <Input ref={verificationCodeTextInput} />
+                            <MaskedInput disabled={true} mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
                         </Form.Item>
                     </Col>
-                    : null
-                }
-                <Col span={24}>
-                    <Form.Item style={{ textAlign: 'center' }}>
-                        {(confirmationResult) ?
-                            <>
-                                <Button type="primary" onClick={handleVerifyCode}>
-                                    {ConfirmVerificationCodeMsg}
-                                </Button>
-                                <Button type="link" css={css`margin-left: 10px;`} onClick={handleSendCode}>
-                                    {(confirmationResult) ? ResendVerificationCodeMsg : SendVerificationCodeMsg}
-                                </Button>
-                            </>
-                            :
-                            <>
-                                <Button type="primary" onClick={handleSendCode}>
-                                    {(confirmationResult) ? ResendVerificationCodeMsg : SendVerificationCodeMsg}
-                                </Button>
-                                <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/signin')}>
-                                    {SignInMsg}
-                                </Button>
-                            </>
-                        }
-                    </Form.Item>
-                </Col>
-            </Row>
-        </Form>
-    </>
-}
 
-function RegisterByPhoneForm () {
-    const [register] = useMutation(REGISTER_NEW_USER_MUTATION)
-    const registerExtraData = {
-        dv: 1,
-        sender: getClientSideSenderInfo(),
-    }
-
-    const intl = useIntl()
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const PhoneIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsAlreadyRegistered' })
-    const PhoneMsg = intl.formatMessage({ id: 'Phone' })
-    const ExtraErrorToFormFieldMsgMapping = {
-        '[unique:importId:multipleFound]': {
-            name: '_phone',
-            errors: [PhoneIsAlreadyRegisteredMsg],
-        },
-        '[unique:phone:multipleFound]': {
-            name: '_phone',
-            errors: [PhoneIsAlreadyRegisteredMsg],
-        },
-    }
-
-    return <PhoneAuthForm onPhoneAuthenticated={({ user }) => {
-        return <RegisterForm register={register} registerExtraData={registerExtraData} ExtraErrorToFormFieldMsgMapping={ExtraErrorToFormFieldMsgMapping}>
-            <Row gutter={[0, 24]} >
-                <Col span={24}>
-                    <Form.Item
-                        name="_phone"
-                        label={
-                            <span>
-                                {PhoneMsg}{' '}
-                            </span>
-                        }
-                        rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                        key={user.phoneNumber}
-                        initialValue={user.phoneNumber}
-                    >
-                        <Input disabled={true} />
-                    </Form.Item>
-                </Col>
-                <Col span={24}>
+                    <Col span={24}>
+                        <Form.Item
+                            name="name"
+                            label={NameMsg}
+                            labelAlign='left'
+                            style={{ textAlign: 'right' }}
+                            rules={[{ required: true, message: PleaseInputYourNameMsg, whitespace: true }]}
+                        >
+                            <Input placeholder={ExampleNameMsg} style={INPUT_STYLE} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item
+                            name="email"
+                            label={EmailMsg}
+                            labelAlign='left'
+                            style={{ textAlign: 'right' }}
+                            rules={[
+                                {
+                                    type: 'email',
+                                    message: EmailIsNotValidMsg,
+                                },
+                                {
+                                    required: true,
+                                    message: PleaseInputYourEmailMsg,
+                                },
+                            ]}
+                        >
+                            <Input placeholder={EmailPlaceholder} style={INPUT_STYLE} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item
+                            name="password"
+                            label={PasswordMsg}
+                            labelAlign='left'
+                            style={{ textAlign: 'right' }}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: PleaseInputYourPasswordMsg,
+                                },
+                                {
+                                    min: 7,
+                                    message: PasswordIsTooShortMsg,
+                                },
+                            ]}
+                            hasFeedback
+                        >
+                            <Input.Password style={INPUT_STYLE} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item
+                            name="confirm"
+                            label={ConfirmPasswordMsg}
+                            labelAlign='left'
+                            style={{ textAlign: 'right' }}
+                            dependencies={['password']}
+                            hasFeedback
+                            rules={[
+                                {
+                                    required: true,
+                                    message: PleaseConfirmYourPasswordMsg,
+                                },
+                                ({ getFieldValue }) => ({
+                                    validator (rule, value) {
+                                        if (!value || getFieldValue('password') === value) {
+                                            return Promise.resolve()
+                                        }
+                                        return Promise.reject(TwoPasswordDontMatchMsg)
+                                    },
+                                }),
+                            ]}                            
+                        >
+                            <Input.Password style={INPUT_STYLE} />
+                        </Form.Item>
+                    </Col>
                     <Form.Item
                         name="firebaseIdToken"
                         noStyle={true}
-                        key={user.token}
-                        initialValue={user.token}
                     >
-                        <Input disabled={true} hidden={true} />
+                        <Input disabled={true}  hidden={true} />
                     </Form.Item>
-                </Col>
-            </Row>
-        </RegisterForm>
-    }} />
+                    <Col span={24} >
+                        <Form.Item style={{ textAlign: 'left', marginTop: '36px' }}>
+                            <Button
+                                key='submit'
+                                onClick={onFinish}
+                                type='sberPrimary'
+                                htmlType='submit'
+                                loading={isLoading}
+                            >
+                                {RegisterMsg}
+                            </Button>
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Form>
+        </div>
+    )
 }
 
-const RegisterPage = () => {
+
+const HeaderAction = (): React.ReactElement => {
     const intl = useIntl()
-    const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
-    return (<>
-        <Head>
-            <title>{RegistrationTitleMsg}</title>
-        </Head>
-        <Typography.Title css={css`text-align: center;`}>{RegistrationTitleMsg}</Typography.Title>
-        <Auth>
-            <RegisterByPhoneForm />
-        </Auth>
-    </>)
+    const AllreadyRegisteredTitle = intl.formatMessage({ id: 'pages.auth.AlreadyRegistered' })
+    const { isMobile } = useContext(AuthLayoutContext)
+    return (
+        <Button
+            key='submit'
+            onClick={() => Router.push('/auth/signin')}
+            type='sberPrimary'
+            secondary={true}
+            size={isMobile ? 'middle' : 'large'}
+        >
+            {AllreadyRegisteredTitle}
+        </Button>
+    )
 }
 
-RegisterPage.container = TopMenuOnlyLayout
+RegisterPage.headerAction = <HeaderAction />
+
+RegisterPage.container = AuthLayout
 
 export default RegisterPage
-
-export {
-    Auth,
-    PhoneAuthForm,
-}

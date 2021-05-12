@@ -41,7 +41,6 @@ const keystone = new Keystone({
 })
 
 registerSchemas(keystone, [
-    require('./schema/User'),
     require('@condo/domains/user/schema'),
     require('@condo/domains/organization/schema'),
     require('@condo/domains/property/schema'),
@@ -87,8 +86,11 @@ verifySchema(keystone)
 const authStrategy = keystone.createAuthStrategy({
     type: PasswordAuthStrategy,
     list: 'User',
-    config: { protectIdentities: false },
+    config: {
+        protectIdentities: false,
+    },
 })
+
 
 module.exports = {
     keystone,

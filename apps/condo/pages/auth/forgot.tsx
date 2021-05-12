@@ -1,124 +1,141 @@
-// @ts-nocheck
-/** @jsx jsx */
-import { css, jsx } from '@emotion/core'
-import { useState } from 'react'
-import { Button, Form, Input, Result, Typography, Alert, Row, Col } from 'antd'
-import Head from 'next/head'
+import { Form, Input, Typography } from 'antd'
+import { Button } from '@condo/domains/common/components/Button'
+import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import Router from 'next/router'
+import React, { useState, useContext } from 'react'
+import { colors } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
-import { gql } from 'graphql-tag'
-import { useMutation } from '@core/next/apollo'
-
-import { TopMenuOnlyLayout } from '@condo/domains/common/components/containers/BaseLayout'
-import { getQueryParams } from '@condo/domains/common/utils/url.utils'
+import { FormattedMessage } from 'react-intl'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { useMutation } from '@core/next/apollo'
+import { START_PASSWORD_RECOVERY_MUTATION } from '@condo/domains/user/gql'
+import { WRONG_EMAIL_ERROR } from '@condo/domains/user/constants/errors'
 
-const START_PASSWORD_RECOVERY_MUTATION = gql`
-    mutation startPasswordRecovery($email: String!){
-        status: startPasswordRecovery(email: $email)
-    }
-`
 
-const ForgotForm = () => {
+const LINK_STYLE = { color: colors.sberPrimary[7] }
+const INPUT_STYLE = { width: '20em' }
+
+
+
+// Todo(zuch): responsive HTML
+const ResetPage: AuthPage = () => {
     const [form] = Form.useForm()
+    const initialValues = { email: '' }
     const intl = useIntl()
+    const RestorePasswordMsg = intl.formatMessage({ id: 'pages.auth.reset.RestorePasswordTitle' })
+    const ResetTitle = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
+    const EmailMsg = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
+    const InstructionsMsg = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp' })
+    const EmailIsNotRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotRegistered' })
+    const PleaseInputYourEmailMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
+    const CheckEmailMsg = intl.formatMessage({ id: 'pages.auth.reset.CheckEmail' })
+    const ReturnToLoginPage = intl.formatMessage({ id: 'pages.auth.reset.ReturnToLoginPage' })
+    const EmailPlaceholder = intl.formatMessage({ id: 'example.Email' })
+
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccessMessage, setIsSuccessMessage] = useState(false)
-    const [startPasswordRecovery, ctx] = useMutation(START_PASSWORD_RECOVERY_MUTATION)
-    let initialValues = getQueryParams()
-    initialValues = { ...initialValues, password: '', confirm: '' }
-
-    const StartRecoveryMsg = intl.formatMessage({ id: 'StartRecovery' })
-    const EmailMsg = intl.formatMessage({ id: 'Email' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const StartedMsg = intl.formatMessage({ id: 'Started' })
-    const RegisterMsg = intl.formatMessage({ id: 'Register' })
-    const PleaseInputYourEmailMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
-    const EmailIsNotRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotRegistered' })
-    const ForgotPasswordDescriptionMsg = intl.formatMessage({ id: 'pages.auth.ForgotPasswordDescription' })
-    const ForgotPasswordStartedDescriptionMsg = intl.formatMessage({ id: 'pages.auth.ForgotPasswordStartedDescription' })
+    const [startPasswordRecovery] = useMutation(START_PASSWORD_RECOVERY_MUTATION)
     const ErrorToFormFieldMsgMapping = {
-        '[unknown-user]': {
+        [WRONG_EMAIL_ERROR]: {
             name: 'email',
             errors: [EmailIsNotRegisteredMsg],
         },
     }
+    if (isLoading) {
+        return <LoadingOrErrorPage title={ResetTitle} loading={isLoading} error={null}/>
+    }
+    if (isSuccessMessage) {
+        return (
+            <div style={{ maxWidth: '450px', textAlign: 'left' }}>
+                <Typography.Title>{CheckEmailMsg}</Typography.Title>
+                <Typography.Paragraph>
+                    <FormattedMessage id='pages.auth.reset.ResetSuccessMessage' values={{ email: form.getFieldValue('email') }} />
+                </Typography.Paragraph>    
+                <Typography.Paragraph>
+                    <a style={LINK_STYLE} onClick={() => Router.push('/auth/signin')}>{ReturnToLoginPage}</a>
+                </Typography.Paragraph>    
+            </div>
+        )    
+    }
 
-    const onFinish = values => {
-        if (values.email) values.email = values.email.toLowerCase()
+    const onFormSubmit = values => {
+        if (values.email) {
+            values.email = values.email.toLowerCase()
+        }
         setIsLoading(true)
         return runMutation({
             mutation: startPasswordRecovery,
             variables: values,
-            onCompleted: () => setIsSuccessMessage(true),
-            onFinally: () => {
+            onCompleted: () => {
                 setIsLoading(false)
+                setIsSuccessMessage(true)
             },
+            finally: () => setIsLoading(false),
             intl,
             form,
             ErrorToFormFieldMsgMapping,
+        }).catch(err => {
+            setIsLoading(false)
         })
     }
 
-    if (isSuccessMessage) {
-        return <Result
-            status="success"
-            title={StartedMsg}
-            subTitle={ForgotPasswordStartedDescriptionMsg}
-        />
-    }
-
     return (
-        <Form
-            form={form}
-            name="forgot"
-            onFinish={onFinish}
-            initialValues={initialValues}
-        >
-            <Row gutter={[0, 24]} >
-                <Col span={24}>
-                    <Alert
-                        message=""
-                        description={ForgotPasswordDescriptionMsg}
-                        type="info"
-                    ></Alert>
-                </Col>
-                <Col span={24}>
-                    <Form.Item
-                        label={EmailMsg}
-                        name="email"
-                        rules={[{ required: true, message: PleaseInputYourEmailMsg }]}
-                        placeholder="name@example.com"
+        <div  style={{ maxWidth: '450px' }}>
+            <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
+            <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>    
+            <Form
+                form={form}
+                name="forgot-password"
+                onFinish={onFormSubmit}
+                initialValues={initialValues}
+                colon={false}
+                style={{ marginTop: '40px' }}
+            >
+                <Form.Item
+                    name="email"
+                    label={EmailMsg}
+                    rules={[{ required: true, message: PleaseInputYourEmailMsg }]}
+                    labelAlign='left'
+                    labelCol={{ flex: 1 }}                            
+                >
+                    <Input placeholder={EmailPlaceholder}  style={INPUT_STYLE}/>
+                </Form.Item>
+                <Form.Item style={{ textAlign: 'left', marginTop: '36px' }}>
+                    <Button
+                        key='submit'
+                        type='sberPrimary'
+                        htmlType="submit" 
+                        loading={isLoading}
+                        style={{ marginTop: '24px' }}
                     >
-                        <Input />
-                    </Form.Item>
-                </Col>
-                <Col span={24}>
-                    <Form.Item style={{ textAlign: 'center' }}>
-                        <Button type="primary" htmlType="submit" loading={isLoading}>
-                            {StartRecoveryMsg}
-                        </Button>
-                        <Button type="link" css={css`margin-left: 10px;`} onClick={() => Router.push('/auth/register')}>
-                            {RegisterMsg}
-                        </Button>
-                    </Form.Item>
-                </Col>
-            </Row>
-        </Form>
+                        {RestorePasswordMsg}
+                    </Button>
+                </Form.Item>
+            </Form>
+        </div>
     )
 }
 
-const ForgotPage = () => {
+const HeaderAction = (): React.ReactElement => {
     const intl = useIntl()
-    const ForgotPasswordTitleMsg = intl.formatMessage({ id: 'pages.auth.ForgotPasswordTitle' })
-    return (<>
-        <Head>
-            <title>{ForgotPasswordTitleMsg}</title>
-        </Head>
-        <Typography.Title css={css`text-align: center;`} level={2}>{ForgotPasswordTitleMsg}</Typography.Title>
-        <ForgotForm />
-    </>)
+    const RegisterTitle = intl.formatMessage({ id: 'pages.auth.Register' })
+    const { isMobile } = useContext(AuthLayoutContext)
+    return (
+        <Button
+            key='submit'
+            onClick={() => Router.push('/auth/register')}
+            type='sberPrimary'
+            secondary={true}
+            size={isMobile ? 'middle' : 'large'}
+        >
+            {RegisterTitle}
+        </Button>
+    )
 }
 
-ForgotPage.container = TopMenuOnlyLayout
-export default ForgotPage
+ResetPage.headerAction = <HeaderAction />
+
+ResetPage.container = AuthLayout
+
+export default ResetPage
