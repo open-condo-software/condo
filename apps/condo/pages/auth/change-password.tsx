@@ -3,18 +3,18 @@ import Router from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-import AuthLayout from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
-import React, { useState } from 'react'
+import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
+import React, { useState, useContext } from 'react'
 
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useMutation } from '@core/next/apollo'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION } from '@condo/domains/user/gql'
 
-const INPUT_STYLE = { width: '273px' }
+const INPUT_STYLE = { width: '20em' }
 
-// Todo(zuch): React.FC
-const ChangePasswordPage = (): React.ReactElement => {
+// Todo(zuch): responsive HTML
+const ChangePasswordPage: AuthPage = () => {
     const [form] = Form.useForm()
     const { token } = getQueryParams()
     const initialValues = { token, password: '', confirm: '' }
@@ -138,13 +138,14 @@ const ChangePasswordPage = (): React.ReactElement => {
 const HeaderAction = (): React.ReactElement => {
     const intl = useIntl()
     const RegisterTitle = intl.formatMessage({ id: 'pages.auth.Register' })
+    const { isMobile } = useContext(AuthLayoutContext)
     return (
         <Button
             key='submit'
             onClick={() => Router.push('/auth/register')}
             type='sberPrimary'
             secondary={true}
-            size='large'
+            size={isMobile ? 'middle' : 'large'}
         >
             {RegisterTitle}
         </Button>

@@ -4,7 +4,7 @@ import Router from 'next/router'
 
 import { Col, Form, Input, Row, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-import AuthLayout from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
+import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
 import React, { createContext, useEffect, useState, useRef, useContext } from 'react'
 import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
 
@@ -96,8 +96,8 @@ const Auth = ({ children }): React.ReactElement => {
 }
 
 
-
-const RegisterPage = (): React.ReactElement => {
+// Todo(zuch): responsive HTML
+const RegisterPage: AuthPage = () => {
     const intl = useIntl()
     const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
     const [state, setState] = useState('inputPhone')
@@ -490,13 +490,14 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
 const HeaderAction = (): React.ReactElement => {
     const intl = useIntl()
     const AllreadyRegisteredTitle = intl.formatMessage({ id: 'pages.auth.AlreadyRegistered' })
+    const { isMobile } = useContext(AuthLayoutContext)
     return (
         <Button
             key='submit'
             onClick={() => Router.push('/auth/signin')}
             type='sberPrimary'
             secondary={true}
-            size='large'
+            size={isMobile ? 'middle' : 'large'}
         >
             {AllreadyRegisteredTitle}
         </Button>

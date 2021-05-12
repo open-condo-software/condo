@@ -18,7 +18,7 @@ const INPUT_STYLE = { width: '20em' }
 
 
 
-
+// Todo(zuch): responsive HTML
 const ResetPage: AuthPage = () => {
     const [form] = Form.useForm()
     const initialValues = { email: '' }
