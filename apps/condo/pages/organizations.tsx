@@ -27,6 +27,7 @@ import {
     UPDATE_ORGANIZATION_BY_ID_MUTATION,
 } from '@condo/domains/organization/gql'
 import { convertGQLItemToUIState, convertUIStateToGQLItem } from '@condo/domains/organization/utils/clientSchema'
+import { getClientSideSenderInfo } from '../domains/common/utils/userid.utils'
 
 const DEFAULT_ORGANIZATION_AVATAR_URL = 'https://www.pngitem.com/pimgs/m/226-2261747_company-name-icon-png-transparent-png.png'
 
@@ -106,7 +107,6 @@ function OrganizationCRUDListBlock () {
     const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION)
 
     function handleAcceptOrReject (item, action) {
-        console.log(item, action)
         let data = {}
         if (action === 'accept') {
             data = { isAccepted: true, isRejected: false }
@@ -115,7 +115,8 @@ function OrganizationCRUDListBlock () {
         } else if (action === 'leave') {
             data = { isRejected: true }
         }
-        acceptOrReject({ variables: { id: item.id, data } })
+        const sender = getClientSideSenderInfo()
+        acceptOrReject({ variables: { id: item.id, data: { ...data, dv: 1, sender } } })
             .then(
                 () => {
                     notification.success({ message: DoneMessage })
