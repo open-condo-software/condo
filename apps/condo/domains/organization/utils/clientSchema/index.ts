@@ -73,4 +73,5 @@ module.exports = {
 }
 export * as Organization from './Organization'
 export * as OrganizationEmployee from './OrganizationEmployee'
+export * as OrganizationEmployeeRole from './OrganizationEmployeeRole'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

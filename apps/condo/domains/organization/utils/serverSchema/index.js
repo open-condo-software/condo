@@ -8,14 +8,17 @@ const { generateServerUtils } = require('@condo/domains/common/utils/codegenerat
 
 const { Organization: OrganizationGQL } = require('@condo/domains/organization/gql')
 const { OrganizationEmployee: OrganizationEmployeeGQL } = require('@condo/domains/organization/gql')
+const { OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Organization = generateServerUtils(OrganizationGQL)
 const OrganizationEmployee = generateServerUtils(OrganizationEmployeeGQL)
+const OrganizationEmployeeRole = generateServerUtils(OrganizationEmployeeRoleGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Organization,
     OrganizationEmployee,
+    OrganizationEmployeeRole,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
