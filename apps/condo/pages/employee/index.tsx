@@ -10,6 +10,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { emailValidator, nameValidator, phoneValidator } from '@condo/domains/common/utils/excel.utils'
 import { OrganizationEmployee, useInviteNewOrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { PHONE_WRONG_FORMAT_ERROR, ALREADY_EXISTS_ERROR } from '@condo/domains/common/constants/errors'
 
 import {
     NewOrExportTableBlock,
@@ -154,12 +155,25 @@ function EmployeeCRUDTableBlock () {
     const columns = _useUserColumns()
 
     const intl = useIntl()
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const UserIsAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
+    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const UserIsAlreadyInListMessage = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
+    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const ErrorToFormFieldMsgMapping = {
-        '[error.already.exists]': {
+        [PHONE_WRONG_FORMAT_ERROR]: {
+            name: 'phone',
+            errors: [PhoneIsNotValidMessage],
+        },
+        [ALREADY_EXISTS_ERROR + 'email']: {
             name: 'email',
-            errors: [UserIsAlreadyInListMsg],
+            errors: [UserIsAlreadyInListMessage],
+        },
+        [ALREADY_EXISTS_ERROR + 'phone']: {
+            name: 'phone',
+            errors: [UserIsAlreadyInListMessage],
+        },
+        [ALREADY_EXISTS_ERROR + 'user']: {
+            name: 'name',
+            errors: [UserIsAlreadyInListMessage],
         },
     }
 
@@ -183,15 +197,8 @@ function EmployeeCRUDTableBlock () {
         return runMutation(
             {
                 action: () => action(values, (item.isUnsavedNew) ? null : item),
-                onError: (e) => {
-                    console.log(e.friendlyDescription, form)
-                    const msg = e.friendlyDescription || ServerErrorMsg
-                    if (msg) {
-                        form.setFields([{ name: 'email', errors: [msg] }])
-                    }
-                    throw e
-                },
                 intl,
+                form,
                 ErrorToFormFieldMsgMapping,
             },
         )
@@ -204,7 +211,7 @@ function EmployeeCRUDTableBlock () {
                 action: () => del(item),
                 onError: (e) => {
                     console.log(e.friendlyDescription, form)
-                    const msg = e.friendlyDescription || ServerErrorMsg
+                    const msg = e.friendlyDescription || ServerErrorMessage
                     if (msg) {
                         form.setFields([{ name: 'email', errors: [msg] }])
                     }

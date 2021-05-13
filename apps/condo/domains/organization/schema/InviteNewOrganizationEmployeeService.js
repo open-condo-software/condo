@@ -29,8 +29,8 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
 
                 // TODO(pahaz): normalize email!
 
-                await guards.checkEmployeeExistency(context, organization, email, phone)
                 let user = await guards.checkUserExistency(context, email, phone)
+                await guards.checkEmployeeExistency(context, organization, email, phone, user)
 
                 if (!user) {
                     const password = passwordGenerator.generate({
@@ -59,20 +59,6 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     }
 
                     user = registerData.user
-                }
-
-                // Note: check is already exists (user + organization)
-                if (user) {
-                    const objs = await findOrganizationEmployee(context, {
-                        user: { id: user.id },
-                        organization: { id: organization.id },
-                    })
-
-                    if (objs.length > 0) {
-                        const msg = `${ALREADY_EXISTS_ERROR}] User is already invited in the organization`
-                        console.error(msg)
-                        throw new Error(msg)
-                    }
                 }
 
                 const employee = await createOrganizationEmployee(context, {
