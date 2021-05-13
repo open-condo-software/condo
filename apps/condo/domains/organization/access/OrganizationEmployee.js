@@ -13,10 +13,20 @@ async function canReadOrganizationEmployees ({ authentication: { item: user } })
     }
 }
 
-async function canManageOrganizationEmployees (args) {
-    const { authentication: { item: user }, operation, itemId } = args
+async function canManageOrganizationEmployees ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin) return true
+    if (operation === 'create') {
+        const employeeForUser = await getByCondition('OrganizationEmployee', {
+            organization: { id: originalInput.organization.connect.id },
+            user: { id: user.id },
+        })
+        const employeeRole = await getByCondition('OrganizationEmployeeRole', {
+            id: employeeForUser.role,
+            organization: { id: employeeForUser.organization },
+        })
+        return employeeRole && employeeRole.canManageEmployees
+    }
     if (operation === 'update' || operation === 'delete') {
         if (!itemId) return false
         const employeeToEdit = await getById('OrganizationEmployee', itemId)
