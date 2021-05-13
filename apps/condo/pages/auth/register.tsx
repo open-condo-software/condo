@@ -159,10 +159,10 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
             } else {
                 console.error('send sms error ', error)
             }            
+            form.validateFields()
             resetRecaptcha()
         }
     }
-
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     return (
         <>
@@ -197,7 +197,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
                         }),
                     ]}              
                 >
-                    <MaskedInput mask='+1 (111) 111-11-11' value={phone} placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
+                    <MaskedInput mask='+1 (111) 111-11-11' value={phone} placeholder={ExamplePhoneMsg} onChange={() => setfirebaseError(null)} style={{ ...INPUT_STYLE }} />
                 </Form.Item>
 
                 <Typography.Paragraph style={{ textAlign: 'left', fontSize: '12px', marginTop: '40px', lineHeight: '20px' }}>
@@ -273,6 +273,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
             } else {
                 console.error('send sms error ', error)
             }            
+            form.validateFields()            
             resetRecaptcha()
         }
     }
