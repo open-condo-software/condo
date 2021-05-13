@@ -10,6 +10,10 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { Organization, createTestOrganization, updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 
 describe('Organization', () => {
+    // Despite just registered user can create Organization from UI, calling `Organization.create`
+    // should be forbidden for it. User can create organization using UI, because it executes
+    // `registerNewOrganization` GraphQL mutation, that creates all the stuff without
+    // access check, using `execGqlWithoutAccess` under the hood.
     test('user: create Organization', async () => {
         const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         try {
