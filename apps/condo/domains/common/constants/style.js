@@ -2,6 +2,7 @@ const { generate, grey, green  } = require('@ant-design/colors')
 
 const sberBlue = '#5EB1FC'
 const sberGreen = '#4CD174'
+const sberRed = '#FF4D4F'
 const white = '#fff'
 const lightGrey = '#D9D9D9'
 const ultraLightGrey = '#F0F0F0F0'
@@ -11,6 +12,7 @@ const beautifulBlue = '#eFF7FF'
 const colors = {
     sberDefault: generate(sberBlue),
     sberPrimary: generate(sberGreen),
+    sberDanger:  generate(sberRed),
     defaultWhite: generate(white),
     lightGrey: generate(lightGrey),
     beautifulBlue: generate(beautifulBlue),
