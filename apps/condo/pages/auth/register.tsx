@@ -180,7 +180,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
                     name="phone"
                     label={PhoneMsg}
                     labelAlign='left'
-                    style={{ marginTop: '40px' }}
+                    style={{ marginTop: '40px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }} 
                     rules={[
                         {
@@ -305,7 +305,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
                     name="smscode"
                     label={SmsCodeTitle}
                     labelAlign='left'
-                    style={{ marginTop: '40px' }}
+                    style={{ marginTop: '40px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }} 
                     rules={[
                         {
@@ -421,7 +421,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     name="phone"
                     label={PhoneMsg}
                     labelAlign='left'
-                    style={{ marginTop: '24px' }}
+                    style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }} 
                 >
                     <MaskedInput disabled={true} mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
@@ -430,7 +430,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     name="name"
                     label={NameMsg}
                     labelAlign='left'
-                    style={{ marginTop: '24px' }}
+                    style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }} 
                     rules={[{ required: true, message: PleaseInputYourNameMsg, whitespace: true }]}
                 >
@@ -440,7 +440,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     name="email"
                     label={EmailMsg}
                     labelAlign='left'
-                    style={{ marginTop: '24px' }}
+                    style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }} 
                     rules={[
                         {
@@ -459,7 +459,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     name="password"
                     label={PasswordMsg}
                     labelAlign='left'
-                    style={{ marginTop: '24px' }}
+                    style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }} 
                     rules={[
                         {
@@ -479,7 +479,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     name="confirm"
                     label={ConfirmPasswordMsg}
                     labelAlign='left'
-                    style={{ marginTop: '24px' }}
+                    style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }} 
                     dependencies={['password']}
                     hasFeedback
