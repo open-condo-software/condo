@@ -17,8 +17,6 @@ const LINK_STYLE = { color: colors.sberPrimary[7] }
 const INPUT_STYLE = { width: '20em' }
 
 
-
-// Todo(zuch): responsive HTML
 const ResetPage: AuthPage = () => {
     const [form] = Form.useForm()
     const initialValues = { email: '' }
@@ -47,7 +45,7 @@ const ResetPage: AuthPage = () => {
     }
     if (isSuccessMessage) {
         return (
-            <div style={{ maxWidth: '450px', textAlign: 'left' }}>
+            <div style={{ textAlign: 'left' }}>
                 <Typography.Title>{CheckEmailMsg}</Typography.Title>
                 <Typography.Paragraph>
                     <FormattedMessage id='pages.auth.reset.ResetSuccessMessage' values={{ email: form.getFieldValue('email') }} />
@@ -81,7 +79,7 @@ const ResetPage: AuthPage = () => {
     }
 
     return (
-        <div  style={{ maxWidth: '450px' }}>
+        <div>
             <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
             <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>    
             <Form

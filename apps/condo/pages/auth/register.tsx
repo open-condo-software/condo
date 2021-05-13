@@ -18,13 +18,12 @@ import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { ALREADY_REGISTERED, MIN_PASSWORD_LENGTH_ERROR, EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
 
 import { colors } from '@condo/domains/common/constants/style'
-const LINK_STYLE = { color: colors.sberPrimary[7] }
 
-
-const INPUT_STYLE = { minWidth: '12em', maxWidth: '20em' }
 const POLICY_LOCATION = '/policy.pdf'
 const SMS_CODE_LENGTH = 6
 
+const LINK_STYLE = { color: colors.sberPrimary[7] }
+const INPUT_STYLE = { width: '20em' }
 
 
 
@@ -108,14 +107,12 @@ const RegisterSteps = (): React.ReactElement => {
     return steps[state]
 }
 
-// Todo(zuch): responsive HTML
 const RegisterPage: AuthPage = () => {
     const intl = useIntl()
     const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
-
     return (
         <Auth>
-            <div style={{ textAlign: 'center', display: 'inline-block', maxWidth: '512px' }}>
+            <div style={{ textAlign: 'center' }}>
                 <Typography.Title style={{ textAlign: 'left' }}>{RegistrationTitleMsg}</Typography.Title>
                 <RegisterSteps/>
             </div>
@@ -136,26 +133,36 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
     const UserAgreementFileName = intl.formatMessage({ id: 'pages.auth.register.info.UserAgreementFileName' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
+    
+    const FirebaseEmptyPhoneError = intl.formatMessage({ id: 'auth.firebase.EmptyPhoneNumber' })
+    const FirebaseValidatePhoneError = intl.formatMessage({ id: 'auth.firebase.InvalidPhoneNumber' })
+    const FirebaseTooManyRequests = intl.formatMessage({ id: 'auth.firebase.TooManyRequests' })
+
     const { phone, sendCode } = useContext(AuthContext)
 
+    const [firebaseError, setfirebaseError] = useState(null)
+
     async function handleSendCode () {
+        setfirebaseError(null)
         const { phone } = await form.validateFields(['phone'])
         try {
             await sendCode(phone)
             onFinish()
         } catch (error) {
-            /*
-            const authErrors = [
-                'auth/invalid-phone-number',
-                'auth/missing-phone-number',
-                'auth/too-many-requests',
-            ]
-            */
-            console.error('send sms error ', error)
+            if (error.code) {
+                const msg = {
+                    'auth/invalid-phone-number': FirebaseValidatePhoneError,
+                    'auth/too-many-requests': FirebaseTooManyRequests,
+                    'auth/missing-phone-number': FirebaseEmptyPhoneError,
+                }[error.code] || 'send sms unknown error code'
+                setfirebaseError(msg)
+            } else {
+                console.error('send sms error ', error)
+            }            
+            form.validateFields()
             resetRecaptcha()
         }
     }
-
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     return (
         <>
@@ -168,40 +175,50 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
                 style={{ marginTop: '40px' }}
                 initialValues={{ phone }}
             >
-                <Row gutter={[0, 24]}>
-                    <Col span={24}>
-                        <Form.Item
-                            name="phone"
-                            label={PhoneMsg}
-                            labelAlign='left'
-                            style={{ textAlign: 'right' }}
-                            rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                        >
-                            <MaskedInput mask='+1 (111) 111-11-11' value={phone} placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={24}>
-                        <Typography.Paragraph style={{ textAlign: 'left', fontSize: '12px', marginTop: '12px', lineHeight: '20px' }}>
-                            <FormattedMessage
-                                id='pages.auth.register.info.UserAgreement'
-                                values={{
-                                    link: <a style={LINK_STYLE} target='_blank' href={POLICY_LOCATION} rel="noreferrer">{UserAgreementFileName}</a>,
-                                }}
-                            />
-                        </Typography.Paragraph>
-                    </Col>
-                    <Col span={24}>
-                        <Form.Item style={{ textAlign: 'left', marginTop: '24px' }}>
-                            <Button
-                                key='submit'
-                                type='sberPrimary'
-                                htmlType='submit'
-                            >
-                                {RegisterMsg}
-                            </Button>
-                        </Form.Item>
-                    </Col>
-                </Row>
+                
+                <Form.Item
+                    name="phone"
+                    label={PhoneMsg}
+                    labelAlign='left'
+                    style={{ marginTop: '40px', textAlign: 'left' }}
+                    labelCol={{ flex: 1 }} 
+                    rules={[
+                        {
+                            required: true,
+                            message: FieldIsRequiredMsg,
+                        },
+                        () => ({
+                            validator () {
+                                if (!firebaseError) {
+                                    return Promise.resolve()
+                                }
+                                return Promise.reject(firebaseError)
+                            },
+                        }),
+                    ]}              
+                >
+                    <MaskedInput mask='+1 (111) 111-11-11' value={phone} placeholder={ExamplePhoneMsg} onChange={() => setfirebaseError(null)} style={{ ...INPUT_STYLE }} />
+                </Form.Item>
+
+                <Typography.Paragraph style={{ textAlign: 'left', fontSize: '12px', marginTop: '40px', lineHeight: '20px' }}>
+                    <FormattedMessage
+                        id='pages.auth.register.info.UserAgreement'
+                        values={{
+                            link: <a style={LINK_STYLE} target='_blank' href={POLICY_LOCATION} rel="noreferrer">{UserAgreementFileName}</a>,
+                        }}
+                    />
+                </Typography.Paragraph>
+
+                <Form.Item style={{ textAlign: 'left', marginTop: '24px' }}>
+                    <Button
+                        key='submit'
+                        type='sberPrimary'
+                        htmlType='submit'
+                        style={{ marginTop: '40px' }}
+                    >
+                        {RegisterMsg}
+                    </Button>
+                </Form.Item>
             </Form>
         </>
     )
@@ -219,6 +236,9 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
     const ChangePhoneNumberLabel = intl.formatMessage({ id: 'pages.auth.register.ChangePhoneNumber' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const SmsCodeTitle = intl.formatMessage({ id: 'pages.auth.register.field.SmsCode' })
+    const FirebaseValidateCodeError = intl.formatMessage({ id: 'auth.firebase.WrongValidationCode' })
+    const FirebaseEmptyCodeError = intl.formatMessage({ id: 'auth.firebase.EmptyValidationCode' })
+
     const [isPhoneVisible, setisPhoneVisible] = useState(false)
     const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'Hide' }) : intl.formatMessage({ id: 'Show' })
     const { verifyCode, signout, phone } = useContext(AuthContext)
@@ -232,7 +252,10 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
         }
     }, [isPhoneVisible, phone, setShowPhone])
 
+    const [firebaseError, setfirebaseError] = useState(null)
+
     async function handleVerifyCode () {
+        setfirebaseError(null)
         const { smscode } = await form.validateFields(['smscode'])
         if (smscode.toString().length < SMS_CODE_LENGTH) {
             return
@@ -241,7 +264,16 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
             await verifyCode(smscode)
             onFinish()
         } catch (error) {
-            console.error('verify error ', error)
+            if (error.code) {
+                const msg = {
+                    'auth/invalid-verification-code': FirebaseValidateCodeError,
+                    'auth/missing-verification-code': FirebaseEmptyCodeError,
+                }[error.code] || `validate code unknown error code: ${error.code}`
+                setfirebaseError(msg)
+            } else {
+                console.error('send sms error ', error)
+            }            
+            form.validateFields()            
             resetRecaptcha()
         }
     }
@@ -265,29 +297,36 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
             <Form
                 form={form}
                 name="register-verify-code"
-                onFinish={onFinish}
                 initialValues={initialValues}
                 colon={false}
                 style={{ marginTop: '40px' }}
             >
-                <Row gutter={[0, 24]}>
-                    <Col span={24}>
-                        <Form.Item
-                            name="smscode"
-                            label={SmsCodeTitle}
-                            labelAlign='left'
-                            style={{ textAlign: 'right' }}
-                            rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                        >
-                            <Input onChange={handleVerifyCode} style={INPUT_STYLE} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={24} >
-                        <Typography.Paragraph style={{ textAlign: 'left', marginTop: '32px' }}>
-                            <a style={{ ...LINK_STYLE, fontSize: '12px', lineHeight: '20px' }} onClick={resetPhone}>{ChangePhoneNumberLabel}</a>
-                        </Typography.Paragraph>
-                    </Col>
-                </Row>
+                <Form.Item
+                    name="smscode"
+                    label={SmsCodeTitle}
+                    labelAlign='left'
+                    style={{ marginTop: '40px', textAlign: 'left' }}
+                    labelCol={{ flex: 1 }} 
+                    rules={[
+                        {
+                            required: true,
+                            message: FieldIsRequiredMsg,
+                        },
+                        () => ({
+                            validator () {
+                                if (!firebaseError) {
+                                    return Promise.resolve()
+                                }
+                                return Promise.reject(firebaseError)
+                            },
+                        }),
+                    ]}
+                >
+                    <Input onChange={handleVerifyCode} style={INPUT_STYLE} />
+                </Form.Item>
+                <Typography.Paragraph style={{ textAlign: 'left', marginTop: '32px' }}>
+                    <a style={{ ...LINK_STYLE, fontSize: '12px', lineHeight: '20px' }} onClick={resetPhone}>{ChangePhoneNumberLabel}</a>
+                </Typography.Paragraph>
             </Form>
         </>
     )
@@ -363,6 +402,8 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
             intl,
             form,
             ErrorToFormFieldMsgMapping,
+        }).catch(error => {
+            setIsLoading(false)
         })
     }
     return (
@@ -376,116 +417,106 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                 colon={false}
                 style={{ marginTop: '40px' }}
             >
-                <Row gutter={[0, 24]}>
-                    <Col span={24}>
-                        <Form.Item
-                            name="phone"
-                            label={PhoneMsg}
-                            labelAlign='left'
-                            style={{ textAlign: 'right' }}
-                        >
-                            <MaskedInput disabled={true} mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
-                        </Form.Item>
-                    </Col>
-
-                    <Col span={24}>
-                        <Form.Item
-                            name="name"
-                            label={NameMsg}
-                            labelAlign='left'
-                            style={{ textAlign: 'right' }}
-                            rules={[{ required: true, message: PleaseInputYourNameMsg, whitespace: true }]}
-                        >
-                            <Input placeholder={ExampleNameMsg} style={INPUT_STYLE} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={24}>
-                        <Form.Item
-                            name="email"
-                            label={EmailMsg}
-                            labelAlign='left'
-                            style={{ textAlign: 'right' }}
-                            rules={[
-                                {
-                                    type: 'email',
-                                    message: EmailIsNotValidMsg,
-                                },
-                                {
-                                    required: true,
-                                    message: PleaseInputYourEmailMsg,
-                                },
-                            ]}
-                        >
-                            <Input placeholder={EmailPlaceholder} style={INPUT_STYLE} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={24}>
-                        <Form.Item
-                            name="password"
-                            label={PasswordMsg}
-                            labelAlign='left'
-                            style={{ textAlign: 'right' }}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: PleaseInputYourPasswordMsg,
-                                },
-                                {
-                                    min: 7,
-                                    message: PasswordIsTooShortMsg,
-                                },
-                            ]}
-                            hasFeedback
-                        >
-                            <Input.Password style={INPUT_STYLE} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={24}>
-                        <Form.Item
-                            name="confirm"
-                            label={ConfirmPasswordMsg}
-                            labelAlign='left'
-                            style={{ textAlign: 'right' }}
-                            dependencies={['password']}
-                            hasFeedback
-                            rules={[
-                                {
-                                    required: true,
-                                    message: PleaseConfirmYourPasswordMsg,
-                                },
-                                ({ getFieldValue }) => ({
-                                    validator (rule, value) {
-                                        if (!value || getFieldValue('password') === value) {
-                                            return Promise.resolve()
-                                        }
-                                        return Promise.reject(TwoPasswordDontMatchMsg)
-                                    },
-                                }),
-                            ]}
-                        >
-                            <Input.Password style={INPUT_STYLE}/>
-                        </Form.Item>
-                    </Col>
-                    <Form.Item
-                        name="firebaseIdToken"
-                        noStyle={true}
+                <Form.Item
+                    name="phone"
+                    label={PhoneMsg}
+                    labelAlign='left'
+                    style={{ marginTop: '24px', textAlign: 'left' }}
+                    labelCol={{ flex: 1 }} 
+                >
+                    <MaskedInput disabled={true} mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
+                </Form.Item>
+                <Form.Item
+                    name="name"
+                    label={NameMsg}
+                    labelAlign='left'
+                    style={{ marginTop: '24px', textAlign: 'left' }}
+                    labelCol={{ flex: 1 }} 
+                    rules={[{ required: true, message: PleaseInputYourNameMsg, whitespace: true }]}
+                >
+                    <Input placeholder={ExampleNameMsg} style={INPUT_STYLE} />
+                </Form.Item>
+                <Form.Item
+                    name="email"
+                    label={EmailMsg}
+                    labelAlign='left'
+                    style={{ marginTop: '24px', textAlign: 'left' }}
+                    labelCol={{ flex: 1 }} 
+                    rules={[
+                        {
+                            type: 'email',
+                            message: EmailIsNotValidMsg,
+                        },
+                        {
+                            required: true,
+                            message: PleaseInputYourEmailMsg,
+                        },
+                    ]}
+                >
+                    <Input placeholder={EmailPlaceholder} style={INPUT_STYLE} />
+                </Form.Item>
+                <Form.Item
+                    name="password"
+                    label={PasswordMsg}
+                    labelAlign='left'
+                    style={{ marginTop: '24px', textAlign: 'left' }}
+                    labelCol={{ flex: 1 }} 
+                    rules={[
+                        {
+                            required: true,
+                            message: PleaseInputYourPasswordMsg,
+                        },
+                        {
+                            min: 7,
+                            message: PasswordIsTooShortMsg,
+                        },
+                    ]}
+                    hasFeedback
+                >
+                    <Input.Password style={INPUT_STYLE} />
+                </Form.Item>
+                <Form.Item
+                    name="confirm"
+                    label={ConfirmPasswordMsg}
+                    labelAlign='left'
+                    style={{ marginTop: '24px', textAlign: 'left' }}
+                    labelCol={{ flex: 1 }} 
+                    dependencies={['password']}
+                    hasFeedback
+                    rules={[
+                        {
+                            required: true,
+                            message: PleaseConfirmYourPasswordMsg,
+                        },
+                        ({ getFieldValue }) => ({
+                            validator (rule, value) {
+                                if (!value || getFieldValue('password') === value) {
+                                    return Promise.resolve()
+                                }
+                                return Promise.reject(TwoPasswordDontMatchMsg)
+                            },
+                        }),
+                    ]}
+                >
+                    <Input.Password style={INPUT_STYLE}/>
+                </Form.Item>
+                <Form.Item
+                    name="firebaseIdToken"
+                    noStyle={true}
+                >
+                    <Input disabled={true} hidden={true}/>
+                </Form.Item>
+                <Form.Item style={{ textAlign: 'left', marginTop: '36px' }}>
+                    <Button
+                        key='submit'
+                        onClick={onFinish}
+                        type='sberPrimary'
+                        htmlType='submit'
+                        loading={isLoading}
                     >
-                        <Input disabled={true} hidden={true}/>
-                    </Form.Item>
-                    <Col span={24}>
-                        <Form.Item style={{ textAlign: 'left', marginTop: '36px' }}>
-                            <Button
-                                key='submit'
-                                onClick={onFinish}
-                                type='sberPrimary'
-                                htmlType='submit'
-                                loading={isLoading}
-                            >
-                                {RegisterMsg}
-                            </Button>
-                        </Form.Item>
-                    </Col>
-                </Row>
+                        {RegisterMsg}
+                    </Button>
+                </Form.Item>
             </Form>
         </div>
     )
