@@ -16,7 +16,7 @@ import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 import { WRONG_PHONE_ERROR, WRONG_PASSWORD_ERROR } from '@condo/domains/user/constants/errors'
 
 const LINK_STYLE = { color: colors.sberPrimary[7] }
-const INPUT_STYLE = { minWidth: '20em' }
+const INPUT_STYLE = { width: '20em' }
 
 const SignInPage: AuthPage = () => {
     const intl = useIntl()
@@ -34,7 +34,6 @@ const SignInPage: AuthPage = () => {
     )
 }
 
-// Todo(zuch): responsive HTML
 const SignInForm = (): React.ReactElement => {
     const [form] = Form.useForm()
     const { next } = getQueryParams()
@@ -84,58 +83,56 @@ const SignInForm = (): React.ReactElement => {
     }
 
     return (
-        <div>
-            <Form
-                form={form}
-                name="signin"
-                onFinish={onFormSubmit}
-                initialValues={initialValues}
-                colon={false}
-                style={{ marginTop: '36px', width: '450px' }}
+        <Form
+            form={form}
+            name="signin"
+            onFinish={onFormSubmit}
+            initialValues={initialValues}
+            colon={false}
+            style={{ marginTop: '36px' }}
+        >
+            <Form.Item
+                name="phone"
+                label={PhoneMsg}
+                labelAlign='left'
+                labelCol={{ flex: 1 }}
+                rules={[{ required: true, message: FieldIsRequiredMsg }]}
             >
-                <Form.Item
-                    name="phone"
-                    label={PhoneMsg}
-                    labelAlign='left'
-                    labelCol={{ flex: 1 }}
-                    rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                >
-                    <MaskedInput mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
-                </Form.Item>
+                <MaskedInput mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
+            </Form.Item>
 
-                <Form.Item
-                    name="password"
-                    label={PasswordMsg}
-                    labelAlign='left'
-                    labelCol={{ flex: 1 }} 
-                    style={{ marginTop: '24px' }}
-                    rules={[{ required: true, message: FieldIsRequiredMsg }]}
+            <Form.Item
+                name="password"
+                label={PasswordMsg}
+                labelAlign='left'
+                labelCol={{ flex: 1 }} 
+                style={{ marginTop: '24px' }}
+                rules={[{ required: true, message: FieldIsRequiredMsg }]}
+            >
+                <Input.Password style={INPUT_STYLE}  />
+            </Form.Item>
+            
+            <div style={{ paddingTop: '4em', display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                <Button
+                    key='submit'
+                    type='sberPrimary'
+                    htmlType="submit" 
+                    style={{ justifySelf: 'flex-start' }}
+                    loading={isLoading}
                 >
-                    <Input.Password style={{ ...INPUT_STYLE }}  />
-                </Form.Item>
-                
-                <div style={{ paddingTop: '60px', display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                    <Button
-                        key='submit'
-                        type='sberPrimary'
-                        htmlType="submit" 
-                        style={{ justifySelf: 'flex-start' }}
-                        loading={isLoading}
-                    >
-                        {SignInMsg}
-                    </Button>
+                    {SignInMsg}
+                </Button>
 
-                    <Typography.Text  type='secondary'>
-                        <FormattedMessage
-                            id='pages.auth.signin.ResetPasswordLink'
-                            values={{
-                                link: <a style={LINK_STYLE} onClick={() => Router.push('/auth/forgot')}>{ResetMsg}</a>,
-                            }}
-                        />
-                    </Typography.Text>
-                </div>
-            </Form>
-        </div>
+                <Typography.Text  type='secondary'>
+                    <FormattedMessage
+                        id='pages.auth.signin.ResetPasswordLink'
+                        values={{
+                            link: <a style={LINK_STYLE} onClick={() => Router.push('/auth/forgot')}>{ResetMsg}</a>,
+                        }}
+                    />
+                </Typography.Text>
+            </div>
+        </Form>
     )
 }
 

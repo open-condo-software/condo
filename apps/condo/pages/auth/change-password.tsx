@@ -13,7 +13,6 @@ import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION } from '@condo/domains/user/gql'
 
 const INPUT_STYLE = { width: '20em' }
 
-// Todo(zuch): responsive HTML
 const ChangePasswordPage: AuthPage = () => {
     const [form] = Form.useForm()
     const { token } = getQueryParams()
