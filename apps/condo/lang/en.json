@@ -117,7 +117,7 @@
   "pages.auth.PasswordWasChanged": "The password was changed",
   "pages.auth.PasswordWasChangedDescription": "You can use you new password to sign in",
   "pages.auth.PhoneIsAlreadyRegistered": "This phone is already registered!",
-  "pages.auth.PhoneIsNotValid": "The phone has wrong format!",
+  "pages.auth.PhoneIsNotValid": "Wrong phone format or it's not a mobile number, we expect +1 (XXX) XXX XX XX",
   "pages.auth.PleaseConfirmYourPassword": "Please confirm your password",
   "pages.auth.PleaseInputYourEmail": "Please input your Email",
   "pages.auth.PleaseInputYourName": "Please input your Name",

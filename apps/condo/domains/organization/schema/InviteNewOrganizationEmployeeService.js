@@ -5,8 +5,7 @@ const { createOrganizationEmployee } = require('../../../utils/serverSchema/Orga
 const { rules } = require('../../../access')
 const guards = require('../utils/serverSchema/guards')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { PHONE_WRONG_FORMAT_ERROR, ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
-const { findOrganizationEmployee } = require('../../../utils/serverSchema/Organization')
+const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { REGISTER_NEW_USER_MUTATION } = require('../../user/gql')
 
 const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrganizationEmployeeService', {

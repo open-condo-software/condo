@@ -117,7 +117,7 @@
   "pages.auth.PasswordWasChanged": "Пароль изменен",
   "pages.auth.PasswordWasChangedDescription": "Вы уже можете использовать свой новый пароль для входа",
   "pages.auth.PhoneIsAlreadyRegistered": "Данный номер телефона уже зарегистрирован",
-  "pages.auth.PhoneIsNotValid": "Странный формат телефонного номера",
+  "pages.auth.PhoneIsNotValid": "Не соответствует формату +7 (XXX) XXX-XX-XX или это не мобильный телефон",
   "pages.auth.PleaseConfirmYourPassword": "Введите пароль повторно для подтверждения",
   "pages.auth.PleaseInputYourEmail": "Введите Email",
   "pages.auth.PleaseInputYourName": "Введите имя",
