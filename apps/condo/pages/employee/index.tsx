@@ -11,6 +11,7 @@ import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { emailValidator, nameValidator, phoneValidator } from '@condo/domains/common/utils/excel.utils'
 import { OrganizationEmployee, useInviteNewOrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { PHONE_WRONG_FORMAT_ERROR, ALREADY_EXISTS_ERROR } from '@condo/domains/common/constants/errors'
+import { normalizePhone } from '@condo/domains/common/utils/phone'
 
 import {
     NewOrExportTableBlock,
@@ -97,7 +98,13 @@ function _useUserColumns () {
             create: true,
             editable: true,
             rules: [
-                { pattern: /^[+]?[0-9-. ()]{7,}[0-9]$/gi, message: PhoneIsNotValidMsg },
+                {
+                    validator: (_, value) => {
+                        const v = normalizePhone(value)
+                        if (!v) return Promise.reject(PhoneIsNotValidMsg)
+                        return Promise.resolve()
+                    },
+                },
                 { required: true, message: FieldIsRequiredMsg },
             ],
             importFromFile: true,
