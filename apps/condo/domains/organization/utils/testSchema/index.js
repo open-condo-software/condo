@@ -15,16 +15,6 @@ const Organization = generateGQLTestUtils(OrganizationGQL)
 const OrganizationEmployee = generateGQLTestUtils(OrganizationEmployeeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestOrganizationEmployeeRole (client, extraAttrs={}) {
-  const attrs = {
-    dv: 1,
-    sender: { dv: 1, fingerprint: getRandomString() },
-    ...extraAttrs
-  }
-  const obj = await OrganizationEmployeeRole.create(client, attrs)
-  return [obj, attrs]
-}
-
 async function createTestOrganization (client, extraAttrs = {}) {
     if (!client) throw new Error ('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric (8) }
@@ -100,11 +90,50 @@ async function updateTestOrganizationEmployee (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestOrganizationEmployeeRole (client, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestOrganizationEmployeeRole logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await OrganizationEmployeeRole.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestOrganizationEmployeeRole (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestOrganizationEmployeeRole logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await OrganizationEmployeeRole.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    Organization, OrganizationEmployee, OrganizationEmployeeRole, createTestOrganizationEmployeeRole,
-    createTestOrganization, updateTestOrganization,
-    createTestOrganizationEmployee, updateTestOrganizationEmployee,
+    Organization,
+    OrganizationEmployee,
+    OrganizationEmployeeRole,
+    createTestOrganizationEmployeeRole,
+    updateTestOrganizationEmployeeRole,
+    createTestOrganization,
+    updateTestOrganization,
+    createTestOrganizationEmployee,
+    updateTestOrganizationEmployee,
 }
 /* AUTOGENERATE MARKER <EXPORTS> */
