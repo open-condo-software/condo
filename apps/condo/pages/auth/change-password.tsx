@@ -5,7 +5,7 @@ import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
 import React, { useState, useContext } from 'react'
-
+import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useMutation } from '@core/next/apollo'
@@ -33,16 +33,11 @@ const ChangePasswordPage: AuthPage = () => {
     const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
     const ErrorToFormFieldMsgMapping = {}
 
-
-    
     const onFinish = values => {
         setIsLoading(true)
         return runMutation({
             mutation: changePassword,
             variables: values,
-            onCompleted: () => {
-                //
-            },
             onFinally: () => {
                 setIsLoading(false)
                 Router.push('/auth/signin')
@@ -82,7 +77,7 @@ const ChangePasswordPage: AuthPage = () => {
                             message: PleaseInputYourPasswordMsg,
                         },
                         {
-                            min: 7,
+                            min: MIN_PASSWORD_LENGTH,
                             message: PasswordIsTooShortMsg,
                         },
                     ]}
