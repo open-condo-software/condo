@@ -8,7 +8,7 @@ import {
     TopMenuItem,
     StyledMenuItem,
     menuIconStyles,
-} from '../../../common/components/containers/BaseLayout/components/styles'
+} from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import React from 'react'
 import Router from 'next/router'
 import { useAuth } from '@core/next/auth'

@@ -7,7 +7,7 @@ import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import { TopMenuItem, menuIconStyles } from './styles'
 
-import { UserMenu } from '../../../../../user/components/components/UserMenu'
+import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 interface ITopMenuItemsProps {
     isMobile: boolean
