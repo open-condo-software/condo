@@ -107,13 +107,13 @@ async function createTestOrganizationEmployeeRole (client, organization, extraAt
 /**
  * Simplifies creating series of instances
  */
-async function createTestOrganizationEmployeeFullChain () {
+async function makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee () {
     const admin = await makeLoggedInAdminClient()
     const [organization] = await createTestOrganization(admin)
     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-    const [obj, attrs] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
-    return [obj, attrs, {role, organization, admin}]
+    const [employee] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
+    return { employee, role, organization, admin }
 }
 
 async function updateTestOrganizationEmployeeRole (client, id, extraAttrs = {}) {
@@ -142,7 +142,7 @@ module.exports = {
     createTestOrganization,
     updateTestOrganization,
     createTestOrganizationEmployee,
-    createTestOrganizationEmployeeFullChain,
+    makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
     updateTestOrganizationEmployee,
 }
 /* AUTOGENERATE MARKER <EXPORTS> */
