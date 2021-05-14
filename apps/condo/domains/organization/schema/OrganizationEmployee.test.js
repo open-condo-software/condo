@@ -34,7 +34,7 @@ describe('OrganizationEmployee', () => {
             }
         })
 
-        test.skip('can with granted "canManageEmployees" permission', async () => {
+        test('can with granted "canManageEmployees" permission', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
