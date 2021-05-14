@@ -245,6 +245,8 @@
   "pages.users.status.Rejected": "Отклонил приглашение",
   "pages.users.status.WaitAcceptOrReject": "Зарегистрировался, пока не принял приглашение",
   "pages.users.UserIsAlreadyInList": "Пользователь уже добавлен в список",
+  "employee.Position": "Должность",
+  "employee.Role": "Роль",
   "Paid": "Платная",
   "Password": "Пароль",
   "Phone": "Телефон",
