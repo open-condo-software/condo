@@ -32,7 +32,8 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             access: {
                 read: true,
                 update: userIsAdmin,
-                create: userIsAdmin,
+                // Allow employee to assign user for the first time, when it creates another employee
+                create: access.canManageOrganizationEmployees,
             },
         },
         inviteCode: {
