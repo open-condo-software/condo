@@ -65,6 +65,7 @@ async function createTestOrganizationEmployee (client, organization, user, role,
     const attrs = {
         dv: 1,
         sender,
+        email: faker.internet.email(),
         organization: { connect: { id: organization.id } },
         user: { connect: { id: user.id } },
         role: { connect: { id: role.id } },
@@ -95,11 +96,10 @@ async function createTestOrganizationEmployeeRole (client, organization, extraAt
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestOrganizationEmployeeRole logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
+        name: faker.random.alphaNumeric(8),
         organization: { connect: { id: organization.id } },
         ...extraAttrs,
     }
