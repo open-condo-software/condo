@@ -14,6 +14,7 @@ async function canReadOrganizationEmployeeRoles ({ authentication: { item: user 
 
 async function canManageOrganizationEmployeeRoles ({ authentication: { item: user }, operation, originalInput }) {
     if (!user) return false
+    if (user.isAdmin) return true
     if (operation === 'create') {
         // `GraphQLWhere` type cannot be used in case of `create` operation,
         // because we will get an error:
@@ -21,7 +22,6 @@ async function canManageOrganizationEmployeeRoles ({ authentication: { item: use
         // In https://www.keystonejs.com/api/access-control#list-level-access-control it states:
         // > For `create` operations, an `AccessDeniedError` is returned if the operation is set to / returns `false`
         // Actually, here we repeating the same logic, as declared for another operations
-        if (user.isAdmin) return true
         const employeeForUser = await getByCondition('OrganizationEmployee', {
             organization: { id: originalInput.organization.connect.id },
             user: { id: user.id },
@@ -31,12 +31,10 @@ async function canManageOrganizationEmployeeRoles ({ authentication: { item: use
         })
         if (!employeeRole) return false
         return employeeRole.canManageRoles
-    } else {
-        if (user.isAdmin) return {}
-        return {
-            // user is inside employee list
-            organization: { employees_some: { user: { id: user.id }, role: { canManageRoles: true } } },
-        }
+    }
+    return {
+        // user is inside employee list
+        organization: { employees_some: { user: { id: user.id }, role: { canManageRoles: true } } },
     }
 }
 
