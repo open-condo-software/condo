@@ -35,6 +35,13 @@ describe('BehaviorRecorder', () => {
             })
         })
 
+        it('renders null for not supported engine', () => {
+            const result = TestRenderer.create(
+                <BehaviorRecorder engine="not_supported_engine"/>
+            )
+            expect(result.toJSON()).toBeNull()
+        })
+
         // TODO(antonal): figure out how to mock Next Config for each test case
         // When we call `jest.mock` inside of test case, it throws an error:
         // >> The module factory of `jest.mock()` is not allowed to reference any out-of-scope variables.

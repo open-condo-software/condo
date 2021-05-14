@@ -1,5 +1,6 @@
 import React from 'react'
 import getConfig from 'next/config'
+import _ from 'lodash'
 
 type BehaviourRecordingEngine = 'plerdy'
 
@@ -22,7 +23,7 @@ const BehaviorRecorder = ({ engine }: Props) => {
     // Don't know yet, what type comes here, will check it below ;)
     const { behaviorRecorder }  = publicRuntimeConfig
 
-    if (!behaviorRecorder?.[engine]) {
+    if (!_.get(behaviorRecorder, engine) || !_.get(parseParamsFor, engine) || !_.get(htmlFor, engine)) {
         return null
     }
 
