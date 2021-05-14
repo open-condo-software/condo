@@ -139,9 +139,9 @@ describe('Organization', () => {
         const admin = await makeLoggedInAdminClient()
         const [objCreated] = await createTestOrganization(admin)
 
-        const client = await makeClient()
+        const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         try {
-            await Organization.delete(client, objCreated.id)
+            await Organization.delete(userClient, objCreated.id)
         } catch (e) {
             expect(e.errors[0]).toMatchObject({
                 'message': 'You do not have access to this resource',
