@@ -43,8 +43,6 @@ describe('OrganizationEmployee', () => {
             const managerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
             await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
             const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
-            // Exception will be thrown, because of `OrganizationEmployee.fields.user.access.create: userIsAdmin`
-            // It's impossible to test from OrganizationEmployee perspective with such restriction on `OrganizationEmployee.user` field
             const [obj, attrs] = await createTestOrganizationEmployee(managerUserClient, organization, user, role)
             expect(obj.id).toBeDefined()
             expect(obj.dv).toEqual(1)
