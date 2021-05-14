@@ -246,6 +246,8 @@
   "pages.users.status.Rejected": "Invite is rejected",
   "pages.users.status.WaitAcceptOrReject": "User registered, waiting for an accept/reject action",
   "pages.users.UserIsAlreadyInList": "The user is already in user list",
+  "employee.Position": "Position",
+  "employee.Role": "Role",
   "Paid": "Paid",
   "Password": "Password",
   "Phone": "Phone",

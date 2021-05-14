@@ -3,7 +3,6 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-
 const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
@@ -33,6 +32,7 @@ const SIGNIN_MUTATION = gql`
         }
     }
 `
+
 const CHANGE_PASSWORD_WITH_TOKEN_MUTATION = gql`
     mutation changePasswordWithToken($token: String!, $password: String!) {
         status: changePasswordWithToken(token: $token, password: $password)
