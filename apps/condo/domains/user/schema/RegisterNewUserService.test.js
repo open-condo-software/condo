@@ -1,7 +1,7 @@
 const faker = require('faker')
 const { createTestUser, registerNewUser } = require('@condo/domains/user/utils/testSchema')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
-const { EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/common/constants/errors')
+const { EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/user/constants/errors')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
 describe('RegisterNewUserService', () => {

@@ -4,6 +4,8 @@ const { getById, GQLCustomSchema } = require('@core/keystone/schema')
 const { createOrganizationEmployee } = require('../../../utils/serverSchema/Organization')
 const { rules } = require('../../../access')
 const guards = require('../utils/serverSchema/guards')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { REGISTER_NEW_USER_MUTATION } = require('../../user/gql')
 
 const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrganizationEmployeeService', {
@@ -20,10 +22,14 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
             resolver: async (parent, args, context) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data } = args
-                const { organization, email, phone, name, ...restData } = data
+                let { organization, email, phone, name, ...restData } = data
+                phone = normalizePhone(phone)
+                if (!phone) throw new Error(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
 
-                await guards.checkEmployeeExistency(context, organization, email, phone)
+                // TODO(pahaz): normalize email!
+
                 let user = await guards.checkUserExistency(context, email, phone)
+                await guards.checkEmployeeExistency(context, organization, email, phone, user)
 
                 if (!user) {
                     const password = passwordGenerator.generate({

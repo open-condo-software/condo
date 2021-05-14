@@ -33,7 +33,27 @@ const SIGNIN_MUTATION = gql`
         }
     }
 `
+const CHANGE_PASSWORD_WITH_TOKEN_MUTATION = gql`
+    mutation changePasswordWithToken($token: String!, $password: String!) {
+        status: changePasswordWithToken(token: $token, password: $password)
+    }
+`
 
+const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
+    mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
+        obj: authenticateUserWithPhoneAndPassword(data: { phone: $phone, password: $password }) {
+            item {
+                id
+            }
+        }
+    }
+` 
+
+const START_PASSWORD_RECOVERY_MUTATION = gql`
+    mutation startPasswordRecovery($email: String!){
+        status: startPasswordRecovery(email: $email)
+    }
+`
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -42,5 +62,8 @@ module.exports = {
     REGISTER_NEW_USER_MUTATION,
     GET_MY_USERINFO,
     SIGNIN_MUTATION,
+    CHANGE_PASSWORD_WITH_TOKEN_MUTATION,
+    SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,
+    START_PASSWORD_RECOVERY_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

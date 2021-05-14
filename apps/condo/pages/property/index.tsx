@@ -39,10 +39,17 @@ import { PropertyImport } from '../../domains/property/components/PropertyImport
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 
 const PropertyPageViewMap = (): React.FC => {
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const {
         objs: properties,
-    } = Property.useObjects()
-
+    } = Property.useObjects({
+        where: {
+            organization: { id: userOrganizationId },
+        },
+    }, {
+        fetchPolicy: 'network-only',
+    })
 
     const points = properties
         .filter(property => has(property, ['addressMeta', 'data'] ))
@@ -57,9 +64,7 @@ const PropertyPageViewMap = (): React.FC => {
         })
 
     return (
-        <>
-            <MapGL points={points} />
-        </>
+        <MapGL points={points} />
     )
 }
 

@@ -11,6 +11,7 @@ const conf = require('@core/config')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/user/access/User')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 
 // TODO(pahaz): we should change it to Remote S3 like storage! #scalability
@@ -78,8 +79,7 @@ const User = new GQLListSchema('User', {
             kmigratorOptions: { null: true, unique: true },
             hooks: {
                 resolveInput: ({ resolvedData }) => {
-                    // TODO(pahaz): verify country level! and check country codes!
-                    return resolvedData['phone'] && resolvedData['phone'].toLowerCase().replace(/[^+0-9]/g, '')
+                    return normalizePhone(resolvedData['phone'])
                 },
             },
         },

@@ -1,7 +1,7 @@
 const conf = require('@core/config')
 const { RU_LOCALE, EN_LOCALE } = require('@condo/domains/common/constants/locale')
 
-const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_TRANSPORTS, REGISTER_NEW_USER_MESSAGE_TYPE } = require('./constants')
+const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_TRANSPORTS, REGISTER_NEW_USER_MESSAGE_TYPE, RESET_PASSWORD_MESSAGE_TYPE } = require('./constants')
 
 async function renderTemplate (transport, message) {
     if (!MESSAGE_TRANSPORTS.includes(transport)) throw new Error('unexpected transport argument')
@@ -56,6 +56,26 @@ async function renderTemplate (transport, message) {
             }
         }
     }
+
+    if (message.type === RESET_PASSWORD_MESSAGE_TYPE) {
+        const { token } = message.meta
+
+        if (message.lang === 'en') {
+            return {
+                subject: 'You are trying to reset password',
+                text:  `Click to the link to set new password: ${serverUrl}/auth/change-password?token=${token}`,
+            }
+        } else if (message.lang === 'ru') {
+            return {
+                subject: '🔑 Восстановление пароля',
+                text: `
+                    Добрый день! \n
+                    Чтобы задать новый пароль к платформе Doma.ai, вам просто нужно перейти по сслыке.\n
+                    ${serverUrl}/auth/change-password?token=${token}
+                `,
+            }
+        }
+    }    
 
     throw new Error('unknown template or lang')
 }
