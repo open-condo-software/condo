@@ -70,51 +70,88 @@ describe('Organization', () => {
     })
 
     describe('user: update Organization', async () => {
-        it('cannot without granted "canManageOrganization"', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [organization] = await createTestOrganization(admin)
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canManageOrganization: false,
-            })
-            const managerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
-            await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
 
-            let thrownError
-            try {
-                await updateTestOrganization(managerUserClient, organization.id)
-            } catch (e) {
-                thrownError = e
-            }
-            expect(thrownError).toBeDefined()
-            expect(thrownError.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
+        describe('not employed into organization', () => {
+
+            it('cannot regardless of granted "canManageOrganization"', async () => {
+                [true, false].map(async (canManageOrganization) => {
+                    const admin = await makeLoggedInAdminClient()
+                    const [organization] = await createTestOrganization(admin)
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canManageOrganization
+                    })
+                    const managerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
+
+                    const [anotherOrganization] = await createTestOrganization(admin)
+
+                    let thrownError
+                    try {
+                        await updateTestOrganization(managerUserClient, anotherOrganization.id)
+                    } catch (e) {
+                        thrownError = e
+                    }
+                    expect(thrownError).toBeDefined()
+                    expect(thrownError.errors[0]).toMatchObject({
+                        'message': 'You do not have access to this resource',
+                        'name': 'AccessDeniedError',
+                        'path': ['obj'],
+                    })
+                    expect(thrownError.data).toEqual({ 'obj': null })
+                })
             })
-            expect(thrownError.data).toEqual({ 'obj': null })
+
         })
 
-        it('can with granted "canManageOrganization"', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [organization] = await createTestOrganization(admin)
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canManageOrganization: true,
-            })
-            const managerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
-            await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
+        describe('employed into organization', () => {
 
-            const [objUpdated, attrs] = await updateTestOrganization(managerUserClient, organization.id)
-            expect(objUpdated.id).toEqual(organization.id)
-            expect(objUpdated.dv).toEqual(1)
-            expect(objUpdated.sender).toEqual(attrs.sender)
-            expect(objUpdated.v).toEqual(2)
-            expect(objUpdated.newId).toEqual(null)
-            expect(objUpdated.deletedAt).toEqual(null)
-            expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-            expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: managerUserClient.user.id }))
-            expect(objUpdated.createdAt).toMatch(DATETIME_RE)
-            expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
-            expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+            it('cannot without granted "canManageOrganization"', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageOrganization: false,
+                })
+                const managerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
+
+                let thrownError
+                try {
+                    await updateTestOrganization(managerUserClient, organization.id)
+                } catch (e) {
+                    thrownError = e
+                }
+                expect(thrownError).toBeDefined()
+                expect(thrownError.errors[0]).toMatchObject({
+                    'message': 'You do not have access to this resource',
+                    'name': 'AccessDeniedError',
+                    'path': ['obj'],
+                })
+                expect(thrownError.data).toEqual({ 'obj': null })
+            })
+
+            it('can with granted "canManageOrganization"', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageOrganization: true,
+                })
+                const managerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
+
+                const [objUpdated, attrs] = await updateTestOrganization(managerUserClient, organization.id)
+                expect(objUpdated.id).toEqual(organization.id)
+                expect(objUpdated.dv).toEqual(1)
+                expect(objUpdated.sender).toEqual(attrs.sender)
+                expect(objUpdated.v).toEqual(2)
+                expect(objUpdated.newId).toEqual(null)
+                expect(objUpdated.deletedAt).toEqual(null)
+                expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+                expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: managerUserClient.user.id }))
+                expect(objUpdated.createdAt).toMatch(DATETIME_RE)
+                expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
+                expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+            })
+
         })
     })
 
