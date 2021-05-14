@@ -70,7 +70,7 @@ describe('Organization', () => {
     // Test case, where user can update organization are in OrganizationEmployeeRole.test.js
     test('user: update Organization — cannot', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestOrganization(admin)  // TODO(codegen): check create function!
+        const [objCreated] = await createTestOrganization(admin)
 
         const client = await makeClient()
         const payload = {
@@ -91,12 +91,11 @@ describe('Organization', () => {
 
     test('anonymous: update Organization', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestOrganization(admin)  // TODO(codegen): check create function!
+        const [objCreated] = await createTestOrganization(admin)
 
         const client = await makeClient()
-        const payload = {}  // TODO(codegen): change the 'anonymous: update Organization' payload
         try {
-            await updateTestOrganization(client, objCreated.id, payload)
+            await updateTestOrganization(client, objCreated.id)
         } catch (e) {
             expect(e.errors[0]).toMatchObject({
                 'message': 'You do not have access to this resource',
@@ -109,9 +108,9 @@ describe('Organization', () => {
 
     test('user: delete Organization', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestOrganization(admin)  // TODO(codegen): check create function!
+        const [objCreated] = await createTestOrganization(admin)
 
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
+        const client = await makeClient()
         try {
             await Organization.delete(client, objCreated.id)
         } catch (e) {
@@ -126,7 +125,7 @@ describe('Organization', () => {
 
     test('anonymous: delete Organization', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestOrganization(admin)  // TODO(codegen): check create function!
+        const [objCreated] = await createTestOrganization(admin)
 
         const client = await makeClient()
         try {
