@@ -148,31 +148,10 @@ export const TopMenuItem = styled.div`
   }
 `
 
-export const UserInfoWrapper = styled.div`
-  padding-left: 44px;
-`
-
-export const UserInfoContainer = styled.div`
-  height: 24px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  box-sizing: border-box;
-`
-
 export const menuIconStyles = {
     color: colors.lightGrey[5],
     fontSize: '24px',
 }
-
-export const StyledMenu = styled(Menu)`
-  padding: 20px;
-  width: 210px;
-  box-sizing: border-box;
-  border-radius: 8px;
-  transform: translate(-5%, 10px);
-`
 
 export const StyledMenuItem = styled(Menu.Item)`
   border-bottom: 1px solid ${colors.defaultWhite[6]};
@@ -252,9 +231,4 @@ export const pageContentCss = css`
   max-width: 1200px;
   padding-bottom: 56px;
   background: ${colors.white};
-`
-
-export const AvatarContainer = styled.div`
-  width: 24px;
-  height: 24px;
 `

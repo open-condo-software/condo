@@ -7,7 +7,7 @@ import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import { TopMenuItem, menuIconStyles } from './styles'
 
-import { UserInfo } from './UserInfo'
+import { UserMenu } from '../../../../../user/components/components/UserMenu'
 
 interface ITopMenuItemsProps {
     isMobile: boolean
@@ -39,7 +39,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
                 )
             }
             <BellFilled style={{ ...menuIconStyles, marginLeft: 'auto' }}/>
-            <UserInfo/>
+            <UserMenu/>
         </>
     )
 }
