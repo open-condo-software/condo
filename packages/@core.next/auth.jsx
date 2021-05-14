@@ -25,6 +25,8 @@ const userFragment = `
   avatar {
     publicUrl
   }
+  phone
+  email
   isAdmin
 `
 

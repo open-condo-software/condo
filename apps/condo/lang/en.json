@@ -281,6 +281,7 @@
   "Started": "Started",
   "StartRecovery": "Start recovery",
   "Status": "Status",
+  "Account": "Account",
   "ticket.EmptyList.header": "The list of applications is still empty",
   "ticket.EmptyList.title": "Create the first one, it's simple",
   "TicketPurpose": "Application assignment",
