@@ -7,7 +7,7 @@ const conf = require('@core/config')
 const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const MIN_PASSWORD_LENGTH = 7
+const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { WRONG_EMAIL_ERROR, MULTIPLE_ACCOUNTS_MATCHES, RESET_TOKEN_NOT_FOUND, PASSWORD_TOO_SHORT } = require('@condo/domains/user/constants/errors')
 const has = require('lodash/has')
@@ -235,10 +235,11 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 if (markAsUsedError) {
                     throw new Error('[error] Unable to mark token as used')
                 }
+
                 const { errors: passwordError } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
-                        mutation UpdateUserPassword($user: ID!, $password: String!) {
+                        mutation updateUserPassword($user: ID!, $password: String!) {
                           updateUser(id: $user, data: { password: $password }) {
                             id
                           }
@@ -246,9 +247,11 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     `,
                     variables: { user, password },
                 })
+
                 if (passwordError) {
                     throw new Error('[error] Unable to change password')
                 }
+
                 return 'ok'
             },
         },

@@ -2,12 +2,12 @@ import { useIntl } from '@core/next/intl'
 import { FormattedMessage } from 'react-intl'
 import Router from 'next/router'
 
-import { Col, Form, Input, Row, Typography } from 'antd'
+import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
 import React, { createContext, useEffect, useState, useRef, useContext } from 'react'
 import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
-
+import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import MaskedInput from 'antd-mask-input'
 import { AUTH as firebaseAuth, initRecaptcha, resetRecaptcha, IS_FIREBASE_CONFIG_VALID } from '@condo/domains/common/utils/firebase.front.utils'
@@ -24,8 +24,6 @@ const SMS_CODE_LENGTH = 6
 
 const LINK_STYLE = { color: colors.sberPrimary[7] }
 const INPUT_STYLE = { width: '20em' }
-
-
 
 const AuthContext = createContext({
     isAuthenticated: false,
@@ -467,7 +465,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                             message: PleaseInputYourPasswordMsg,
                         },
                         {
-                            min: 7,
+                            min: MIN_PASSWORD_LENGTH,
                             message: PasswordIsTooShortMsg,
                         },
                     ]}
