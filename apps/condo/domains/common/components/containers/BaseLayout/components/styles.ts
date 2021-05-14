@@ -253,3 +253,8 @@ export const pageContentCss = css`
   padding-bottom: 56px;
   background: ${colors.white};
 `
+
+export const AvatarContainer = styled.div`
+  width: 24px;
+  height: 24px;
+`
