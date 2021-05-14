@@ -9,7 +9,6 @@ import { Button } from '@condo/domains/common/components/Button'
 import { GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY } from '@condo/domains/organization/gql'
 import { useAuth } from '@core/next/auth'
 
-
 const OrganizationName = ({ name, organizationId, employeeOrganizationId, selectOrganization }) => {
     if (organizationId === employeeOrganizationId) {
         return (<Typography.Text style={{ fontSize: '16px', fontWeight: 'bold' }}>{ name }</Typography.Text>)
@@ -48,12 +47,12 @@ const OrganizationEmployeeItem = ({ employee, employeeOrganizationData }) => {
                 </Col>
                 <Col span={19} push={2}>
                     <NotDefinedField
-                        value={employee.organization.name}
+                        value={get(employee, ['organization', 'name'])}
                         render={(name) => (
                             <OrganizationName
-                                organizationId={employee.organization.id}
-                                employeeOrganizationId={employeeOrganizationId}
                                 name={name}
+                                organizationId={get(employee, ['organization', 'id'])}
+                                employeeOrganizationId={employeeOrganizationId}
                                 selectOrganization={selectOrganization}
                             />
                         )}
@@ -88,9 +87,11 @@ export const UserOrganizationsList: React.FC = () => {
     const userId = get(user, 'id')
     const employeeOrganizationData = useOrganization()
 
-    const { data } = useQuery(GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY, {
+    const { data, loading } = useQuery(GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY, {
         variables: { where: { user: { id: userId } } },
     })
+
+    const employeeOrganizationId = get(employeeOrganizationData, ['link', 'organization', 'id'])
 
     const list = useMemo(() => {
         return  get(data, 'objs', []).map((employee, index) => (
@@ -100,11 +101,15 @@ export const UserOrganizationsList: React.FC = () => {
                 employeeOrganizationData={employeeOrganizationData}
             />
         ))
-    }, [employeeOrganizationData.link.organization.id])
+    }, [employeeOrganizationId])
 
     return (
         <Row gutter={[0, 60]}>
-            {list}
+            {
+                loading
+                    ? <Skeleton active/>
+                    : list
+            }
         </Row>
     )
 }
