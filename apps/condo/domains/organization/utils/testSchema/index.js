@@ -47,6 +47,7 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
+        name: faker.company.companyName(),
         ...extraAttrs,
     }
     const obj = await Organization.update(client, id, attrs)
