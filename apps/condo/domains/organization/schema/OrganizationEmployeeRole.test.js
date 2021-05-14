@@ -140,7 +140,6 @@ describe('OrganizationEmployeeRole', () => {
 
             const [objUpdated, attrs] = await updateTestOrganizationEmployeeRole(managerUserClient, role.id)
 
-            // TODO(codegen): white checks for 'user: update OrganizationEmployeeRole' test
             expect(objUpdated.id).toEqual(role.id)
             expect(objUpdated.dv).toEqual(1)
             expect(objUpdated.sender).toEqual(attrs.sender)
