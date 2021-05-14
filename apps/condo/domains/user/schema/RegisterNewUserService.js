@@ -85,7 +85,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 }
 
                 if (userData.password.length < MIN_PASSWORD_LENGTH) {
-                    throw new Error(`${MIN_PASSWORD_LENGTH_ERROR}] Password length less then 8 character`)
+                    throw new Error(`${MIN_PASSWORD_LENGTH_ERROR}] Password length less then ${MIN_PASSWORD_LENGTH} character`)
                 }
 
                 const { data: createData, errors: createErrors } = await context.executeGraphQL({
