@@ -6,7 +6,10 @@ const { getByCondition } = require('@core/keystone/schema')
 async function canReadOrganizationEmployeeRoles ({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
-    return {}
+    return {
+        // user is inside employee list
+        organization: { employees_some: { user: { id: user.id } } },
+    }
 }
 
 async function canManageOrganizationEmployeeRoles ({ authentication: { item: user }, operation, originalInput }) {
