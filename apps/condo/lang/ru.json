@@ -280,6 +280,7 @@
   "Started": "Процесс запущен",
   "StartRecovery": "Восстановить",
   "Status": "Статус",
+  "Account": "Аккаунт",
   "ticket.EmptyList.header": "Список заявок пока пуст",
   "ticket.EmptyList.title": "Создайте первую, это просто",
   "TicketPurpose": "Назначение заявки",
