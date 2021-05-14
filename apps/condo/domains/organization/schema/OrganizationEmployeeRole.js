@@ -4,7 +4,7 @@
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { Text, Checkbox } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { historical, versioned, uuided, tracked } = require('@core/keystone/plugins')
 const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
 const { rules } = require('../../../access')
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRole')
@@ -51,7 +51,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         canManageProperties: { type: Checkbox, defaultValue: false },
         canManageTickets: { type: Checkbox, defaultValue: false },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), historical()],
     access: {
         read: access.canReadOrganizationEmployeeRoles,
         create: access.canManageOrganizationEmployeeRoles,
