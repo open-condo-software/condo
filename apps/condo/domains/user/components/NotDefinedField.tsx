@@ -1,5 +1,5 @@
 import { Typography } from 'antd'
-import React, { ReactElement, useMemo } from 'react'
+import React, { ReactElement } from 'react'
 import { useIntl } from '@core/next/intl'
 
 interface INotDefinedFieldProps {
@@ -10,13 +10,11 @@ interface INotDefinedFieldProps {
 export const NotDefinedField: React.FC<INotDefinedFieldProps> = ({ value, render }) => {
     const intl = useIntl()
 
-    const child = render
+    if (!value) {
+        return intl.formatMessage({ id: 'errors.NotDefined' })
+    }
+
+    return render
         ? render(value)
         : <Typography.Text style={{ fontSize: '16px' }}>{value}</Typography.Text>
-
-    return (
-        value
-            ? child
-            : intl.formatMessage({ id: 'errors.NotDefined' })
-    )
 }
