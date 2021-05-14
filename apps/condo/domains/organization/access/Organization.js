@@ -18,7 +18,7 @@ async function canManageOrganizations ({ authentication: { item: user }, origina
     } else if (operation === 'update') {
         // user is inside employee list
         return {
-            employees_some: { user: { id: user.id, canManageOrganization: true } },
+            employees_some: { user: { id: user.id }, role: { canManageOrganization: true } },
         }
     }
     return false
