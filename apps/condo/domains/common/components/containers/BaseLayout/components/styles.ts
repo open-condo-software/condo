@@ -1,4 +1,5 @@
 import { colors } from '@condo/domains/common/constants/style'
+const { red } = require('@ant-design/colors')
 import { css } from '@emotion/core'
 import styled from '@emotion/styled'
 import { Menu } from 'antd'
@@ -12,29 +13,29 @@ export const formInputFixCss = css`
 .ant-input-affix-wrapper-focused,
 .ant-form-item-has-error .ant-input-affix-wrapper:focus,
 .ant-form-item-has-error .ant-input-affix-wrapper-focused {
-    background-color: white;
+    background-color: ${colors.white};
 }
 .ant-input-affix-wrapper > input.ant-input,
 .ant-form-item-has-error .ant-input-affix-wrapper > input.ant-input {
-    -webkit-box-shadow: inset 0 0 0 50px #f0f0f0;
-    -webkit-text-fill-color: #000;
+    -webkit-box-shadow: inset 0 0 0 50px ${colors.ultraLightGrey};
+    -webkit-text-fill-color: ${colors.black};
 }
 .ant-form-item-has-error .ant-input-affix-wrapper > input.ant-input:focus,
 .ant-input-affix-wrapper > input.ant-input:focus {
-    -webkit-box-shadow: inset 0 0 0 50px #fff;
-    -webkit-text-fill-color: #000;
-    background-color: white;
+    -webkit-box-shadow: inset 0 0 0 50px ${colors.white};
+    -webkit-text-fill-color: ${colors.black};
+    background-color: ${colors.white};
 }
 .ant-form-item-has-error .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled):hover {
-    border-color: #ff4d4f;
+    border-color: ${red[5]};
 }
 .ant-form-item-has-error .ant-input-affix-wrapper-focused:hover,
 .ant-form-item-has-error .ant-input-affix-wrapper:focus:hover {
-    border-color: #ff4d4f;
-    background-color: white;
+    border-color: ${red[5]};
+    background-color: ${colors.white};
 }
 .ant-input:focus:hover, .ant-input:active:hover {
-    background-color: white;
+    background-color: ${colors.white};
 }
 `
 
