@@ -5,6 +5,39 @@ import { Menu } from 'antd'
 
 export const SIDE_MENU_WIDTH = 256
 
+
+// Ant inputs
+export const formInputFixCss = css`
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused,
+.ant-form-item-has-error .ant-input-affix-wrapper:focus,
+.ant-form-item-has-error .ant-input-affix-wrapper-focused {
+    background-color: white;
+}
+.ant-input-affix-wrapper > input.ant-input,
+.ant-form-item-has-error .ant-input-affix-wrapper > input.ant-input {
+    -webkit-box-shadow: inset 0 0 0 50px #f0f0f0;
+    -webkit-text-fill-color: #000;
+}
+.ant-form-item-has-error .ant-input-affix-wrapper > input.ant-input:focus,
+.ant-input-affix-wrapper > input.ant-input:focus {
+    -webkit-box-shadow: inset 0 0 0 50px #fff;
+    -webkit-text-fill-color: #000;
+    background-color: white;
+}
+.ant-form-item-has-error .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled):hover {
+    border-color: #ff4d4f;
+}
+.ant-form-item-has-error .ant-input-affix-wrapper-focused:hover,
+.ant-form-item-has-error .ant-input-affix-wrapper:focus:hover {
+    border-color: #ff4d4f;
+    background-color: white;
+}
+.ant-input:focus:hover, .ant-input:active:hover {
+    background-color: white;
+}
+`
+
 const shadow = css`
   box-shadow: 0 9px 28px 8px rgba(0, 0, 0, 0.05), 0 3px 6px -4px rgba(0, 0, 0, 0.12);
   filter: drop-shadow(0px 6px 16px rgba(0, 0, 0, 0.08));

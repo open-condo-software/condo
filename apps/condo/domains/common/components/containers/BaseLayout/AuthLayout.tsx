@@ -8,6 +8,8 @@ const { Footer, Content } = Layout
 import { Logo } from '@condo/domains/common/components/Logo'
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from '@condo/domains/common/constants/requisites'
 import { colors } from '@condo/domains/common/constants/style'
+import { formInputFixCss } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
+import { Global } from '@emotion/core'
 
 import { useIntl } from '@core/next/intl'
 import enUS from 'antd/lib/locale/en_US'
@@ -68,6 +70,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE}>
             <AuthLayoutContext.Provider value={{ isMobile }}>
+                <Global styles={formInputFixCss}></Global>
                 <Layout style={{ background: colors.white, height: '100vh' }}>
                     <AntPageHeader
                         style={{ ...HEADER_STYLE, position: 'fixed' }}

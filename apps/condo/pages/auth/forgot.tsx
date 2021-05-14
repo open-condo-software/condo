@@ -89,6 +89,7 @@ const ResetPage: AuthPage = () => {
                 initialValues={initialValues}
                 colon={false}
                 style={{ marginTop: '40px' }}
+                requiredMark={false}                
             >
                 <Form.Item
                     name="email"

@@ -90,6 +90,7 @@ const SignInForm = (): React.ReactElement => {
             initialValues={initialValues}
             colon={false}
             style={{ marginTop: '36px' }}
+            requiredMark={false}
         >
             <Form.Item
                 name="phone"
@@ -98,7 +99,7 @@ const SignInForm = (): React.ReactElement => {
                 labelCol={{ flex: 1 }}
                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
             >
-                <MaskedInput mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
+                <MaskedInput mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={INPUT_STYLE} />
             </Form.Item>
 
             <Form.Item
