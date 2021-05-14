@@ -172,6 +172,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
                 colon={false}
                 style={{ marginTop: '40px' }}
                 initialValues={{ phone }}
+                requiredMark={false}                
             >
                 
                 <Form.Item
@@ -298,6 +299,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
                 initialValues={initialValues}
                 colon={false}
                 style={{ marginTop: '40px' }}
+                requiredMark={false}                
             >
                 <Form.Item
                     name="smscode"
@@ -414,6 +416,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                 initialValues={initialValues}
                 colon={false}
                 style={{ marginTop: '40px' }}
+                requiredMark={false}
             >
                 <Form.Item
                     name="phone"
@@ -421,6 +424,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     labelAlign='left'
                     style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }} 
+                    rules={[{ required: true }]}
                 >
                     <MaskedInput disabled={true} mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
                 </Form.Item>
@@ -451,7 +455,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                         },
                     ]}
                 >
-                    <Input placeholder={EmailPlaceholder} style={INPUT_STYLE} />
+                    <Input autoComplete='chrome-off' placeholder={EmailPlaceholder} style={INPUT_STYLE} />
                 </Form.Item>
                 <Form.Item
                     name="password"
@@ -469,9 +473,8 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                             message: PasswordIsTooShortMsg,
                         },
                     ]}
-                    hasFeedback
                 >
-                    <Input.Password style={INPUT_STYLE} />
+                    <Input.Password autoComplete='new-password' style={INPUT_STYLE} />
                 </Form.Item>
                 <Form.Item
                     name="confirm"
@@ -480,7 +483,6 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }} 
                     dependencies={['password']}
-                    hasFeedback
                     rules={[
                         {
                             required: true,

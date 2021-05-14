@@ -16,6 +16,7 @@ const colors = {
     beautifulBlue: generate(beautifulBlue),
     white,
     black,
+    ultraLightGrey,
 }
 
 // Possible customizations can be found at https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less

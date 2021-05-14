@@ -62,6 +62,7 @@ const ChangePasswordPage: AuthPage = () => {
                 initialValues={initialValues}
                 colon={false}
                 style={{ marginTop: '40px' }}
+                requiredMark={false}                
             >
                 <Form.Item name="token" style={{ display: 'none' }}>
                     <Input type="hidden" />
