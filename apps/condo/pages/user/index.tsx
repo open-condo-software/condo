@@ -28,7 +28,7 @@ export const UserInfoPage = () => {
                                 <UserAvatar borderRadius={24}/>
                             </Col>
                             <Col span={20} push={1}>
-                                <Typography.Title>{name}</Typography.Title>
+                                <Typography.Title level={1}>{name}</Typography.Title>
                             </Col>
                         </Row>
                     </OrganizationRequired>

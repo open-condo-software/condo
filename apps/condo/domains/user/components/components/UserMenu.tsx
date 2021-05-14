@@ -1,17 +1,14 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+import styled from '@emotion/styled'
 // @ts-nocheck
-import { Dropdown, Tag, Space } from 'antd'
+import { Dropdown, Tag, Space, Menu } from 'antd'
 import { EnvironmentFilled, RestFilled } from '@ant-design/icons'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import {
     TopMenuItem,
-    UserInfoContainer,
-    UserInfoWrapper,
-    StyledMenu,
     StyledMenuItem,
     menuIconStyles,
-    AvatarContainer,
-} from './styles'
+} from '../../../common/components/containers/BaseLayout/components/styles'
 import React from 'react'
 import Router from 'next/router'
 import { useAuth } from '@core/next/auth'
@@ -41,7 +38,33 @@ function formatUserName (name) {
     }
 }
 
-export const UserInfo = () => {
+export const StyledMenu = styled(Menu)`
+  padding: 20px;
+  width: 210px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  transform: translate(-5%, 10px);
+`
+
+const AvatarContainer = styled.div`
+  width: 24px;
+  height: 24px;
+`
+
+const UserMenuWrapper = styled.div`
+  padding-left: 44px;
+`
+
+const UserMenuContainer = styled.div`
+  height: 24px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  box-sizing: border-box;
+`
+
+export const UserMenu = () => {
     const intl = useIntl()
     const SignInMessage = intl.formatMessage({ id: 'SignIn' })
     const GuestUsernameMessage = intl.formatMessage({ id: 'baselayout.menuheader.GuestUsername' })
@@ -75,12 +98,12 @@ export const UserInfo = () => {
     )
 
     return (
-        <UserInfoWrapper>
+        <UserMenuWrapper>
             {
                 auth.isAuthenticated
                     ? (
                         <Dropdown overlay={DropdownOverlay} placement='bottomCenter'>
-                            <UserInfoContainer>
+                            <UserMenuContainer>
                                 <Space size={1}>
                                     <AvatarContainer>
                                         <UserAvatar/>
@@ -89,13 +112,13 @@ export const UserInfo = () => {
                                         {auth.user ? formatUserName(auth.user.name) : GuestUsernameMessage}
                                     </Button>
                                 </Space>
-                            </UserInfoContainer>
+                            </UserMenuContainer>
                         </Dropdown>
                     )
                     : <TopMenuItem onClick={goToSignin}>
                         <span className='link'>{SignInMessage}</span>
                     </TopMenuItem>
             }
-        </UserInfoWrapper>
+        </UserMenuWrapper>
     )
 }
