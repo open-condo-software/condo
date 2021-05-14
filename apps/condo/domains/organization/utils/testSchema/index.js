@@ -4,6 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require ('../../../user/utils/testSchema');
+const { makeLoggedInAdminClient } = require ('@core/keystone/test.utils');
 const { getRandomString } = require('@core/keystone/test.utils')
 
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
@@ -124,11 +126,10 @@ async function updateTestOrganizationEmployeeRole (client, id, extraAttrs = {}) 
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestOrganizationEmployeeRole logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
+        name: faker.random.alphaNumeric(8),
         ...extraAttrs,
     }
     const obj = await OrganizationEmployeeRole.update(client, id, attrs)
