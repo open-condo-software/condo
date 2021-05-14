@@ -44,8 +44,6 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestOrganization logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -61,8 +59,6 @@ async function createTestOrganizationEmployee (client, organization, user, role,
     if (!user || !user.id) throw new Error('no user.id')
     if (!role || !role.id) throw new Error('no role.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestOrganizationEmployee logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -81,8 +77,6 @@ async function updateTestOrganizationEmployee (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestOrganizationEmployee logic for generate fields
 
     const attrs = {
         dv: 1,
