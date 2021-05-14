@@ -184,7 +184,7 @@ describe('OrganizationEmployee', () => {
     describe('user: delete OrganizationEmployee', async () => {
 
         test('cannot without granted "canManageEmployees" permission', async () => {
-            const {employee, admin, organization } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee()
+            const { employee, admin, organization } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee()
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                 canManageEmployees: false,
             })
