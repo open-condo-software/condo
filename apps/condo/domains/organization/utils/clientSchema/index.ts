@@ -10,6 +10,10 @@ import { useMutation } from '@core/next/apollo'
 import { REGISTER_NEW_ORGANIZATION_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } from '@condo/domains/organization/gql'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
+import * as Organization from './Organization'
+import * as OrganizationEmployee from './OrganizationEmployee'
+import * as OrganizationEmployeeRole from './OrganizationEmployeeRole'
+
 function convertGQLItemToUIState (item) {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return { ...item, dv: undefined }
@@ -70,8 +74,9 @@ module.exports = {
     convertGQLItemToUIState, convertUIStateToGQLItem,
     useRegisterNewOrganization,
     useInviteNewOrganizationEmployee,
+    Organization,
+    OrganizationEmployee,
+    OrganizationEmployeeRole
 }
-export * as Organization from './Organization'
-export * as OrganizationEmployee from './OrganizationEmployee'
-export * as OrganizationEmployeeRole from './OrganizationEmployeeRole'
+
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
