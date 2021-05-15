@@ -113,4 +113,3 @@ export const UserOrganizationsList: React.FC = () => {
         </Row>
     )
 }
-
