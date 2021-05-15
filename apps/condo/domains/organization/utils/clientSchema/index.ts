@@ -76,7 +76,7 @@ module.exports = {
     useInviteNewOrganizationEmployee,
     Organization,
     OrganizationEmployee,
-    OrganizationEmployeeRole
+    OrganizationEmployeeRole,
 }
 
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
