@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require ('@condo/domains/common/constants/countries');
 const { makeClientWithNewRegisteredAndLoggedInUser } = require ('../../../user/utils/testSchema');
 const { makeLoggedInAdminClient } = require ('@core/keystone/test.utils');
 const { getRandomString } = require('@core/keystone/test.utils')
@@ -20,18 +21,18 @@ const OrganizationEmployee = generateGQLTestUtils(OrganizationEmployeeGQL)
 async function createTestOrganization (client, extraAttrs = {}) {
     if (!client) throw new Error ('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric (8) }
-    const country = 'ru'
+    const country = DEFAULT_ENGLISH_COUNTRY
     const name = faker.company.companyName ()
     const description = faker.company.catchPhrase ()
     const meta = {
         dv: 1,
-        inn: '6670428515',
-        kpp: '667001001',
+        inn: faker.random.alphaNumeric(10),
+        kpp: faker.random.alphaNumeric(9),
         city: faker.address.city(),
         zipCode: faker.address.zipCode(),
         street: faker.address.streetName(),
         number: faker.address.secondaryAddress(),
-        county: faker.address.county(),
+        country: faker.address.country(),
     }
 
     const attrs = {
@@ -52,10 +53,22 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
+    const meta = {
+        inn: faker.random.alphaNumeric(10),
+        kpp: faker.random.alphaNumeric(9),
+        city: faker.address.city(),
+        zipCode: faker.address.zipCode(),
+        street: faker.address.streetName(),
+        number: faker.address.secondaryAddress(),
+    }
+
     const attrs = {
         dv: 1,
         sender,
+        meta,
         name: faker.company.companyName(),
+        description: faker.company.catchPhrase(),
+        country: RUSSIA_COUNTRY,
         ...extraAttrs,
     }
     const obj = await Organization.update(client, id, attrs)
