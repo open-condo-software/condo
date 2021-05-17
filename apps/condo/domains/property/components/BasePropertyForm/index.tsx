@@ -54,6 +54,8 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                         return formData
                     }
                 }}
+                // Todo(zuch): find a better solution for disabling prompt after save button click
+                resetOnComplete={true}
             >
                 {({ handleSave, isLoading, form }) => {
                     return (
