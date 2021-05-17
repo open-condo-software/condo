@@ -24,15 +24,23 @@ async function createTestOrganization (client, extraAttrs = {}) {
     const name = faker.company.companyName ()
     const description = faker.company.catchPhrase ()
     const meta = {
-        dv: 1, inn: '6670428515', kpp: '667001001', city: faker.address.city (), zipCode: faker.address.zipCode (),
-        street: faker.address.streetName (), number: faker.address.secondaryAddress (),
-        county: faker.address.county (),
+        dv: 1,
+        inn: '6670428515',
+        kpp: '667001001',
+        city: faker.address.city(),
+        zipCode: faker.address.zipCode(),
+        street: faker.address.streetName(),
+        number: faker.address.secondaryAddress(),
+        county: faker.address.county(),
     }
 
     const attrs = {
         dv: 1,
         sender,
-        country, name, description, meta,
+        country,
+        name,
+        description,
+        meta,
         ...extraAttrs,
     }
     const obj = await Organization.create(client, attrs)
