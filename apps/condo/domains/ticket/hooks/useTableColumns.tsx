@@ -188,7 +188,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
             },
             {
                 title: AddressMessage,
-                ellipsis: true,
+                ellipsis: false,
                 sortOrder: get(sorterMap, 'property'),
                 filteredValue: getFilteredValue(filters, 'property'),
                 dataIndex: 'property',
