@@ -97,7 +97,7 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
                                         type={'sberPrimary'}
                                         secondary
                                         icon={<EditFilled />}
-                                        style={{ lineHeight: '24px' }}
+                                        size={'large'}
                                     >
                                         {UpdateTitle}
                                     </Button>

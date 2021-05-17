@@ -20,7 +20,6 @@ const colors = {
     black,
     ultraLightGrey,
 }
-// mark
 
 // Possible customizations can be found at https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less
 const antGlobalVariables = {
