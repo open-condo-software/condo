@@ -5,9 +5,9 @@ import { useRouter } from 'next/router'
 import { Button } from '@condo/domains/common/components/Button'
 
 interface IPromptProps {
-    title?: string
+    title: string
     form: FormInstance<unknown>
-    handleSave: (...args) => void
+    handleSave: () => void
 }
 
 const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: formSubmit }) => {
