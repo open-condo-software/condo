@@ -33,8 +33,9 @@ export const MapGL: React.FC<IMapProps> = ({ points }) => {
     const [api, setApi] = useState(null)
 
     const [selected, setSelected] = useState(null)
-    
+
     useEffect(() => {
+        let handleResize
         load().then((mapglAPI) => {
             setApi(mapglAPI)
             const map = new mapglAPI.Map('map-container', {
@@ -44,7 +45,14 @@ export const MapGL: React.FC<IMapProps> = ({ points }) => {
                 key: mapApiKey || GUEST_API_KEY,
             })
             setMap(map)
+            handleResize = (() => {
+                map.invalidateSize()
+            })
+            window.addEventListener('resize', handleResize)
         })
+        return () => {
+            window.removeEventListener('resize', handleResize)
+        }
     }, [])
 
     useEffect(() => {        
@@ -59,7 +67,7 @@ export const MapGL: React.FC<IMapProps> = ({ points }) => {
                     coordinates: _toArrCoordinates(point.location),
                     icon: MARKER_SVG_URL,                    
                 })
-                marker.on('click', function (e){
+                marker.on('click', function (){
                     setSelected(point)
                 })        
             }

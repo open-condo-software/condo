@@ -40,12 +40,19 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
         <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
             {
                 Builder.isEmpty ?
-                    <Col span={24} style={{ marginTop: '60px', marginBottom: '60px' }}>
+                    <Col span={24} style={{ paddingTop: '60px', paddingBottom: '60px' }}>
                         <EmptyBuildingBlock />
                     </Col>
                     :
-                    <Col span={24} style={{ marginTop: '60px', whiteSpace: 'nowrap' }}>
-                        <ScrollContainer className="scroll-container" style={{ marginTop: '60px', maxWidth: '1200px', maxHeight: '480px' }}>
+                    <Col span={24} style={{ whiteSpace: 'nowrap' }}>
+                        <ScrollContainer 
+                            className="scroll-container" 
+                            style={{ paddingTop: '16px', width: '100%', overflowY: 'hidden' }}
+                            vertical={false}
+                            horizontal={true}
+                            hideScrollbars={false}
+                            nativeMobileScroll={true}                            
+                        >
                             {
                                 Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleFloors} /> : null
                             }

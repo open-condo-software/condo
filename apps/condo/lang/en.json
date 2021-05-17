@@ -178,7 +178,7 @@
   "pages.condo.property.floor.Name": "Floor",
   "pages.condo.property.form.BuildingTabTitle": "Map",
   "pages.condo.property.form.EmptyResidents.header": "Residents list is empty",
-  "pages.condo.property.form.EmptyResidents.text": "You can upload excel file to import residents (example)",
+  "pages.condo.property.form.EmptyResidents.text": "You can upload excel file to import residents",
   "pages.condo.property.form.field.Name": "Property name",
   "pages.condo.property.form.ResidentsTabTitle": "Residents",
   "pages.condo.property.id.PageTitle": "Property",

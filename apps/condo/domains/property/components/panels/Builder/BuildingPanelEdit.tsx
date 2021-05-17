@@ -24,6 +24,7 @@ const { Option } = Select
 
 const INPUT_STYLE = {
     width: '136px',
+    borderColor: 'transparent',
 }
 
 interface IBuildingPanelEditProps {
@@ -33,7 +34,6 @@ interface IBuildingPanelEditProps {
 
 export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, updateMap: updateFormField }) => {
     const intl = useIntl()
-
     const [Map, setMap] = useState(new MapEdit(map, updateFormField))
     // TODO(zuch): Ask for a better solution
     const refresh = () => setMap(cloneDeep(Map))
@@ -48,7 +48,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, upda
     const mode = Map.editMode
     return (
         <>
-            <Row align='middle' style={{ marginBottom: '40px' }} gutter={[45, 10]} justify='start'>
+            <Row align='middle' style={{ paddingBottom: '24px' }} gutter={[45, 10]} justify='start'>
                 {
                     (mode === 'addSection' || mode === 'addUnit') ? (
                         <Col flex={0} style={{ maxWidth: '400px' }}>
@@ -110,12 +110,19 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
         <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
             {
                 Builder.isEmpty ?
-                    <Col span={24} style={{ marginTop: '60px', marginBottom: '60px' }}>
+                    <Col span={24} style={{ paddingTop: '60px', paddingBottom: '60px'  }}>
                         <EmptyBuildingBlock />
                     </Col>
                     :
-                    <Col span={24} style={{ marginTop: '60px', whiteSpace: 'nowrap' }}>
-                        <ScrollContainer className="scroll-container" innerRef={container} style={{ marginTop: '60px', maxWidth: '1200px', maxHeight: '480px' }}>
+                    <Col span={24} style={{ whiteSpace: 'nowrap' }}>
+                        <ScrollContainer 
+                            className="scroll-container" 
+                            style={{ paddingTop: '16px', width: '100%', overflowY: 'hidden' }}
+                            vertical={false}
+                            horizontal={true}
+                            hideScrollbars={false}
+                            nativeMobileScroll={true}  
+                        >
                             {
                                 Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleFloors} /> : null
                             }
@@ -275,8 +282,8 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
     const handleFinish = () => {
         Builder.removePreviewSection()
         Builder.addSection({ id: '', name, minFloor, maxFloor, unitsOnFloor })
-        resetForm()
         refresh()        
+        resetForm()
     }
     return (
         <>
@@ -289,19 +296,19 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
             <Col flex={0}>
                 <Space direction={'vertical'} size={8}  className={ maxMinError ? 'ant-form-item-has-error' : ''}>
                     <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
-                    <InputNumber value={minFloor} onChange={v => setMinFloor(v)} style={INPUT_STYLE} />
+                    <InputNumber value={minFloor} onChange={setMinFloor} style={INPUT_STYLE} />
                 </Space>
             </Col>
             <Col flex={0}>
                 <Space direction={'vertical'} size={8} className={ maxMinError ? 'ant-form-item-has-error' : ''}>
                     <Typography.Text type={'secondary'}>{MaxFloorLabel}</Typography.Text>
-                    <InputNumber  value={maxFloor} onChange={v => setMaxFloor(v)} style={INPUT_STYLE} />
+                    <InputNumber  value={maxFloor} onChange={setMaxFloor} style={INPUT_STYLE} />
                 </Space>
             </Col>
             <Col flex={0}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{UnitsOnFloorLabel}</Typography.Text>
-                    <InputNumber value={unitsOnFloor} onChange={v => setUnitsOnFloor(v)} style={INPUT_STYLE} />
+                    <InputNumber value={unitsOnFloor} onChange={setUnitsOnFloor} style={INPUT_STYLE} />
                 </Space>
             </Col>
             <Col flex={0}>

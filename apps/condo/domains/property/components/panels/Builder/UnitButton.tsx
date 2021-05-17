@@ -111,6 +111,10 @@ const previewCss = css`
     opacity: 0.3;
 `
 const noninteractiveCss = css`
+    cursor: default;
+    &:after {
+        animation: none !important;
+    }    
     &:hover, &:focus, &:active {
         background-color: #F5F5F5;
         color: black;

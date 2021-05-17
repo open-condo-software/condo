@@ -77,7 +77,7 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
     }
     return (
         <Checkbox.Group onChange={updateVisibleSections} value={Builder.visibleSections} style={{ width: '100%' }} >
-            <Row gutter={[40, 40]} style={{ marginTop: '60px' }}>
+            <Row gutter={[40, 40]} style={{ paddingTop: '48px' }}>
                 {
                     sections.map(section => (
                         <Col key={section.id} flex={0}>
