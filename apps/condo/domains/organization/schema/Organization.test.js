@@ -69,7 +69,7 @@ describe('Organization', () => {
         }
     })
 
-    describe('user: update Organization', async () => {
+    describe('user: update Organization',  () => {
 
         describe('not employed into organization', () => {
 
