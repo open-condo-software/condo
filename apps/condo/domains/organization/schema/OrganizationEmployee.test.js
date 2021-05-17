@@ -11,7 +11,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 const { OrganizationEmployee, createTestOrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 
 describe('OrganizationEmployee', () => {
-    describe('user: create OrganizationEmployee', async () => {
+    describe('user: create OrganizationEmployee', () => {
 
         test('cannot without granted "canManageEmployees" permission', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -113,7 +113,7 @@ describe('OrganizationEmployee', () => {
         }
     })
 
-    describe('user: update OrganizationEmployee', async () => {
+    describe('user: update OrganizationEmployee', () => {
 
         test('cannot without granted "canManageEmployees" permission', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -181,7 +181,7 @@ describe('OrganizationEmployee', () => {
         }
     })
 
-    describe('user: delete OrganizationEmployee', async () => {
+    describe('user: delete OrganizationEmployee', () => {
 
         test('cannot without granted "canManageEmployees" permission', async () => {
             const { employee, admin, organization } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee()

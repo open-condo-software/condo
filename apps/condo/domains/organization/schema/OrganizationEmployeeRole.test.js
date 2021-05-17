@@ -10,7 +10,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 const { OrganizationEmployeeRole, createTestOrganizationEmployeeRole, updateTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 
 describe('OrganizationEmployeeRole', () => {
-    describe('user: create OrganizationEmployeeRole', async () => {
+    describe('user: create OrganizationEmployeeRole', () => {
 
         it('can with granted "canManageRoles" permission', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -78,7 +78,7 @@ describe('OrganizationEmployeeRole', () => {
         expect(thrownError.data).toEqual({ 'obj': null })
     })
 
-    describe('user: read OrganizationEmployeeRole', async () => {
+    describe('user: read OrganizationEmployeeRole', () => {
 
         it('can only for organization it employed in', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -127,7 +127,7 @@ describe('OrganizationEmployeeRole', () => {
         expect(thrownError.data).toEqual({ 'objs': null })
     })
 
-    describe('user: update OrganizationEmployeeRole', async () => {
+    describe('user: update OrganizationEmployeeRole', () => {
 
         it('can with granted "canManageRoles" permission', async () => {
             const admin = await makeLoggedInAdminClient()
