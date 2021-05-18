@@ -63,7 +63,7 @@ export const getTicketLabel = (intl, ticket) => {
     }
 
     const { createdAt, statusUpdatedAt } = ticket
-    const ticketLastUpdateDate = createdAt || statusUpdatedAt
+    const ticketLastUpdateDate = statusUpdatedAt || createdAt
     const formattedDate = format(
         new Date(ticketLastUpdateDate), 'M MMM',
         { locale: LOCALES[intl.locale] }
