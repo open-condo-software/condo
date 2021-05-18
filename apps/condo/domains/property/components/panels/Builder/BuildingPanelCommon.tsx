@@ -1,7 +1,7 @@
 import { useIntl } from '@core/next/intl'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Col, Row, Typography, Checkbox } from 'antd'
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MapEdit, MapView } from './MapConstructor'
 
@@ -89,4 +89,23 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
             </Row>
         </Checkbox.Group>
     )
+}
+
+export function useHorizontalScroll (): React.RefObject<HTMLElement>{
+    const elementRef = useRef<HTMLElement | null>(null)
+    useEffect(() => {
+        const element = elementRef.current
+        if (element) {
+            const onWheel = (event: WheelEvent) => {
+                if (event.deltaY == 0) return
+                event.preventDefault()
+                element.scrollTo({
+                    left: element.scrollLeft + event.deltaY,
+                })
+            }
+            element.addEventListener('wheel', onWheel)
+            return () => element.removeEventListener('wheel', onWheel)
+        }
+    }, [])
+    return elementRef
 }
