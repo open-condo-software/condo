@@ -14,6 +14,9 @@ const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 const TICKET_STATUS_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
 const TicketStatus = generateGqlQueries('TicketStatus', TICKET_STATUS_FIELDS)
 
+const TICKET_FILE_FIELDS = `{ file ticket { id } name ${COMMON_FIELDS} }`
+const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
+
 const TICKET_SOURCE_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
 const TicketSource = generateGqlQueries('TicketSource', TICKET_SOURCE_FIELDS)
 
@@ -113,5 +116,6 @@ module.exports = {
     TicketChange,
     TicketSource,
     TicketClassifier,
+    TicketFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
