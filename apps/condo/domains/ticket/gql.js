@@ -14,10 +14,14 @@ const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 const TICKET_STATUS_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
 const TicketStatus = generateGqlQueries('TicketStatus', TICKET_STATUS_FIELDS)
 
+const TICKET_CHANGE_FIELDS = `{ ticket { id } ${COMMON_FIELDS} }`
+const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Ticket,
     TicketStatus,
+    TicketChange,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

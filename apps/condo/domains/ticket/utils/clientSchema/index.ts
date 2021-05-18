@@ -5,4 +5,5 @@
 
 export * as Ticket from './Ticket'
 export * as TicketStatus from './TicketStatus'
+export * as TicketChange from './TicketChange'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

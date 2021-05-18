@@ -8,14 +8,17 @@ const { generateServerUtils } = require('@condo/domains/common/utils/codegenerat
 
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
+const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
 const TicketStatus = generateServerUtils(TicketStatusGQL)
+const TicketChange = generateServerUtils(TicketChangeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Ticket,
     TicketStatus,
+    TicketChange,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -11,6 +11,7 @@ const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegenera
 
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
+const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -19,6 +20,7 @@ const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
 
 const Ticket = generateGQLTestUtils(TicketGQL)
 const TicketStatus = generateGQLTestUtils(TicketStatusGQL)
+const TicketChange = generateGQLTestUtils(TicketChangeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -92,10 +94,44 @@ async function updateTestTicketStatus (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestTicketChange (client, ticket, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!ticket || !ticket.id) throw new Error('no ticket.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestTicketChange logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ticket: { connect: { id: ticket.id } },
+        ...extraAttrs,
+    }
+    const obj = await TicketChange.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketChange (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestTicketChange logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketChange.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     Ticket, createTestTicket, updateTestTicket, ticketStatusByType,
     TicketStatus, createTestTicketStatus, updateTestTicketStatus,
+    TicketChange, createTestTicketChange, updateTestTicketChange,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
