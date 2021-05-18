@@ -189,6 +189,41 @@ describe('Organization', () => {
                 })
                 expect(thrownError.data).toEqual({ 'obj': null })
             })
+
+            // TODO(antonal): Why this test passes
+            test.skip('cannot update "defaultEmployeeRoleStatusTransitions"', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageOrganization: true,
+                })
+                const managerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
+
+                let thrownError
+                try {
+                    await updateTestOrganization(managerUserClient, organization.id, {
+                        defaultEmployeeRoleStatusTransitions: {
+                            ...DEFAULT_STATUS_TRANSITIONS,
+                            [STATUS_IDS.DECLINED]: [STATUS_IDS.OPEN],
+                        },
+                    })
+                } catch (e) {
+                    thrownError = e
+                }
+                expect(thrownError).toBeDefined()
+                expect(thrownError.errors[0]).toMatchObject({
+                    'message': 'You do not have access to this resource',
+                    'name': 'AccessDeniedError',
+                    'path': ['obj'],
+                    'data': {
+                        'type': 'mutation',
+                        'target': 'updateOrganization',
+                        'restrictedFields': [ 'defaultEmployeeRoleStatusTransitions' ],
+                    },
+                })
+                expect(thrownError.data).toEqual({ 'obj': null })
+            })
         })
     })
 
