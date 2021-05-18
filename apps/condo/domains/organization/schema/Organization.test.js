@@ -190,8 +190,7 @@ describe('Organization', () => {
                 expect(thrownError.data).toEqual({ 'obj': null })
             })
 
-            // TODO(antonal): Why this test passes
-            test.skip('cannot update "defaultEmployeeRoleStatusTransitions"', async () => {
+            it('cannot update "defaultEmployeeRoleStatusTransitions"', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
