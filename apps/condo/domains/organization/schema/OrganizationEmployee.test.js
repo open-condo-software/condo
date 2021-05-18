@@ -234,4 +234,22 @@ describe('OrganizationEmployee', () => {
             expect(e.data).toEqual({ 'obj': null })
         }
     })
+
+    describe('admin', () => {
+        it('can count all', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+            const userClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
+            await createTestOrganizationEmployee(admin, organization, userClient1.user, role)
+            const userClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
+            await createTestOrganizationEmployee(admin, organization, userClient2.user, role)
+
+            const countOfCreatedByAdmin = await OrganizationEmployee.count(admin, { createdBy: { id: admin.user.id } })
+            expect(countOfCreatedByAdmin).toBeGreaterThan(2)
+
+            const countOfAll = await OrganizationEmployee.count(admin)
+            expect(countOfAll).toBeGreaterThanOrEqual(countOfCreatedByAdmin)
+        })
+    })
 })
