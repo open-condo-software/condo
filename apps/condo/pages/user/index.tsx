@@ -43,7 +43,7 @@ export const UserInfoPage = () => {
                                             <Col span={24}>
                                                 <Typography.Title
                                                     level={1}
-                                                    style={{ fontSize: '46px', margin: 0, fontWeight: 'bold' }}
+                                                    style={{ margin: 0, fontWeight: 'bold' }}
                                                 >
                                                     {name}
                                                 </Typography.Title>
