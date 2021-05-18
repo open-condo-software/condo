@@ -8,26 +8,49 @@ import { useOrganization } from '@core/next/organization'
 import { Button } from '@condo/domains/common/components/Button'
 import { GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY } from '@condo/domains/organization/gql'
 import { useAuth } from '@core/next/auth'
+import { OrganizationEmployee } from '../../../schema'
 
-const OrganizationName = ({ name, organizationId, employeeOrganizationId, selectOrganization }) => {
+interface IOrganizationName {
+    name: string
+    organizationId: string
+    employeeOrganizationId: string
+    selectOrganization: () => void
+}
+
+const OrganizationName: React.FC<IOrganizationName> = (props) => {
+    const intl = useIntl()
+    const EnterMessage = intl.formatMessage({ id: 'SignIn' })
+
+    const {
+        name,
+        organizationId,
+        employeeOrganizationId,
+        selectOrganization,
+    } = props
+
     if (organizationId === employeeOrganizationId) {
         return (<Typography.Text style={{ fontSize: '16px', fontWeight: 'bold' }}>{ name }</Typography.Text>)
     }
 
     return (
         <Typography.Text style={{ fontSize: '16px' }}>
-            { name } ({ <Button type={'inlineLink'} onClick={selectOrganization}>войти</Button> })
+            { name } ({ <Button type={'inlineLink'} onClick={selectOrganization}>{ EnterMessage }</Button> })
         </Typography.Text>
     )
 }
 
-const OrganizationEmployeeItem = ({ employee, employeeOrganizationData }) => {
-    const intl = useIntl()
-    const employeeOrganizationId = get(employeeOrganizationData, ['link', 'organization', 'id'])
+interface IOrganizationEmployeeItem {
+    employee: OrganizationEmployee
+    employeeOrganizationData
+}
 
+const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) => {
+    const intl = useIntl()
     const OrganizationMessage = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
+
+    const { employee, employeeOrganizationData } = props
 
     const selectOrganization = useCallback(() => {
         employeeOrganizationData.selectLink(employee)
@@ -52,7 +75,7 @@ const OrganizationEmployeeItem = ({ employee, employeeOrganizationData }) => {
                             <OrganizationName
                                 name={name}
                                 organizationId={get(employee, ['organization', 'id'])}
-                                employeeOrganizationId={employeeOrganizationId}
+                                employeeOrganizationId={get(employeeOrganizationData, ['link', 'organization', 'id'])}
                                 selectOrganization={selectOrganization}
                             />
                         )}

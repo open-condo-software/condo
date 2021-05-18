@@ -9,9 +9,10 @@ interface INotDefinedFieldProps {
 
 export const NotDefinedField: React.FC<INotDefinedFieldProps> = ({ value, render }) => {
     const intl = useIntl()
+    const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
 
     if (!value) {
-        return intl.formatMessage({ id: 'errors.NotDefined' })
+        return NotDefinedMessage
     }
 
     return render

@@ -28,6 +28,10 @@ function goToOrganization () {
     Router.push('/organizations')
 }
 
+function goToUserProfile () {
+    Router.push('/user')
+}
+
 function formatUserName (name) {
     const splittedName = name.split(' ')
 
@@ -108,7 +112,11 @@ export const UserMenu = () => {
                                     <AvatarContainer>
                                         <UserAvatar/>
                                     </AvatarContainer>
-                                    <Button type='link' style={{ paddingRight: 0, color: green[6], fontSize: '12px' }}>
+                                    <Button
+                                        type='link'
+                                        style={{ paddingRight: 0, color: green[6], fontSize: '12px' }}
+                                        onClick={goToUserProfile}
+                                    >
                                         {auth.user ? formatUserName(auth.user.name) : GuestUsernameMessage}
                                     </Button>
                                 </Space>

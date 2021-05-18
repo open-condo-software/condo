@@ -33,7 +33,6 @@ export const UserProfileForm = () => {
     const MinLengthError = intl.formatMessage({ id: 'field.ClientName.minLengthError' })
 
     const { user, refetch } = useAuth()
-
     const updateUserAction = User.useUpdate({}, refetch)
     const formAction = (formValues) => updateUserAction(formValues, user)
 
