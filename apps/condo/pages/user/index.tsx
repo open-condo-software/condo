@@ -21,7 +21,6 @@ export const UserInfoPage = () => {
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
 
     const { user } = useAuth()
-
     const name = get(user, 'name')
 
     return (
@@ -107,11 +106,12 @@ export const UserInfoPage = () => {
 
 const HeaderAction = () => {
     const intl = useIntl()
+    const AccountMessage = intl.formatMessage({ id: 'Account' })
 
     return (
         <Space>
             <Typography.Text style={{ fontSize: '12px' }}>
-                {intl.formatMessage({ id: 'Account' })}
+                {AccountMessage}
             </Typography.Text>
         </Space>
     )

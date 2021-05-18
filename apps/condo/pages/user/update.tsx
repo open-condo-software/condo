@@ -17,7 +17,6 @@ export const UserInfoPage = () => {
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
 
     const { user } = useAuth()
-
     const name = get(user, 'name')
 
     return (
@@ -40,7 +39,6 @@ export const UserInfoPage = () => {
                                             style={{ margin: 0, fontWeight: 'bold' }}
                                         >
                                             {ProfileUpdateTitle}
-
                                         </Typography.Title>
                                     </Col>
                                     <Col span={24}>

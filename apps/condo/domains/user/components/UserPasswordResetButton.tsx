@@ -6,6 +6,7 @@ import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useAuth } from '@core/next/auth'
+import { FormattedMessage } from 'react-intl'
 import { timer } from '../../common/utils/timer'
 import { START_PASSWORD_RECOVERY_MUTATION } from '../gql'
 import { extractRootDomain } from '@condo/domains/common/utils/url.utils.js'
@@ -29,37 +30,34 @@ const getCountDownDateFromCookies = () => {
     }
 
     if (cookie.match('COUNTDOWN_DATE')){
-        const countDownFromCookie = document.cookie.replace(/(?:(?:^|.*;\s*)COUNTDOWN_DATE\s*\=\s*([^;]*).*$)|^.*$/, '$1')
-        console.log(new Date(countDownFromCookie))
+        const countDownFromCookie = document
+            .cookie
+            .replace(/(?:(?:^|.*;\s*)COUNTDOWN_DATE\s*=\s*([^;]*).*$)|^.*$/, '$1')
 
         if (!countDownFromCookie) {
             return 0
         }
 
-        if (new Date(countDownFromCookie) < new Date()) {
+        const now = new Date()
+        const countDownDate = new Date(countDownFromCookie)
+
+        if (countDownDate < now) {
             return 0
         } else {
-            return new Date( Number(new Date(countDownFromCookie)) - Number(new Date())).getSeconds()
+            return new Date(Number(countDownDate) - Number(now)).getSeconds()
         }
     }
 }
 
 export const UserPasswordResetButton = () => {
     const intl = useIntl()
-    const { user } = useAuth()
-
     const ChangePasswordLabel = intl.formatMessage({ id: 'profile.ChangePassword' })
+    const { user } = useAuth()
     const [passwordRecoveryLoading, setPasswordRecoveryLoading] = React.useState(false)
     const [startPasswordRecovery] = useMutation(START_PASSWORD_RECOVERY_MUTATION)
     const [countdown, setCountDown] = useState(0)
 
-    useEffect(() => {
-        const countDownFromCookies = getCountDownDateFromCookies()
-        setCountDown(countDownFromCookies)
-        startTimer(countDownFromCookies)
-    }, [])
-
-    const startTimer = (duration) => {
+    const startTimer = React.useCallback((duration) => {
         timer({
             duration,
             onStart: (countDownDate) => {
@@ -73,7 +71,13 @@ export const UserPasswordResetButton = () => {
                 setCountDownDate(0)
             },
         })
-    }
+    }, [])
+
+    useEffect(() => {
+        const countDownFromCookies = getCountDownDateFromCookies()
+        setCountDown(countDownFromCookies)
+        startTimer(countDownFromCookies)
+    }, [])
 
     const updatePassword = () => {
         setPasswordRecoveryLoading(true)
@@ -88,24 +92,34 @@ export const UserPasswordResetButton = () => {
             onCompleted: () => {
                 setPasswordRecoveryLoading(false)
             },
-            onFinally: () => setPasswordRecoveryLoading(false),
+            onFinally: () => {
+                setPasswordRecoveryLoading(false)
+            },
             intl,
         }).catch(() => {
             setPasswordRecoveryLoading(false)
         })
     }
 
+    const isCountDownActive = countdown > 0
+
     return (
         <Button
             onClick={updatePassword}
             type={'inlineLink'}
             loading={passwordRecoveryLoading}
-            disabled={countdown > 0}
+            disabled={isCountDownActive}
         >
             {ChangePasswordLabel}
-            {countdown > 0 && (
+            {isCountDownActive && (
                 <Typography.Text type={'secondary'}>
-                    &nbsp;{`(сбросить ещё раз можно через 00:${countdown} секунд)`}
+                    &nbsp;
+                    <FormattedMessage
+                        id='profile.PasswordResetTimeout'
+                        values={{
+                            countdown,
+                        }}
+                    />
                 </Typography.Text>
             )}
         </Button>

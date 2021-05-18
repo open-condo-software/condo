@@ -33,7 +33,9 @@ export const timer = (args: ITimerArguments) => {
 
         if (distance < 0) {
             clearInterval(update)
-            onFinish()
+            if (onFinish) {
+                onFinish()
+            }
         }
     }, step)
 }
