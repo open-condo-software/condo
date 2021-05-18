@@ -22,4 +22,5 @@ const DEFAULT_STATUS_TRANSITIONS = {
 
 module.exports = {
     DEFAULT_STATUS_TRANSITIONS,
+    STATUS_IDS
 }
