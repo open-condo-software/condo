@@ -296,13 +296,15 @@ function BaseModalForm ({ action, mutation, mutationExtraVariables, mutationExtr
 }
 
 // TODO(Dimitreee): add children type/interface
+// TODO(Dimitreee): remove any
 interface IFormWithAction {
-    action?: () => void
+    action?: (formValues) => Promise<any>
     initialValues?: Record<string, unknown>
     onChange?: (changedValues: Record<string, unknown>, allValues: Record<string, unknown>) => void
     handleSubmit?: (values) => void
     validateTrigger?: string | string[]
     resetOnComplete?: boolean
+    layout?: 'vertical' | 'horizontal'
 }
 
 const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
