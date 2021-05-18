@@ -7,7 +7,7 @@ import { useAuth } from '@core/next/auth'
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
-import { usePasswordUpdateModal } from '@condo/domains/user/hooks/usePasswordUpdateModal'
+import { UserPasswordResetButton } from './UserPasswordResetButton'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -28,7 +28,6 @@ export const UserProfileForm = () => {
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const PasswordLabel = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-    const ChangePasswordLabel = intl.formatMessage({ id: 'Change' })
     const EmailIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const PleaseInputYourEmailMessage = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
     const MinLengthError = intl.formatMessage({ id: 'field.ClientName.minLengthError' })
@@ -37,8 +36,6 @@ export const UserProfileForm = () => {
 
     const updateUserAction = User.useUpdate({}, refetch)
     const formAction = (formValues) => updateUserAction(formValues, user)
-
-    const { ModalElement, updatePassword } = usePasswordUpdateModal()
 
     const initialValues = {
         name: get(user, 'name'),
@@ -91,9 +88,7 @@ export const UserProfileForm = () => {
                                 <Input/>
                             </Form.Item>
                             <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign={'left'} label={PasswordLabel}>
-                                <Button onClick={updatePassword} type={'inlineLink'}>
-                                    {ChangePasswordLabel}
-                                </Button>
+                                <UserPasswordResetButton/>
                             </Form.Item>
                             <Space size={40} style={{ paddingTop: '36px' }}>
                                 <FormResetButton
@@ -113,7 +108,6 @@ export const UserProfileForm = () => {
                     )
                 }}
             </FormWithAction>
-            {ModalElement}
         </>
     )
 }

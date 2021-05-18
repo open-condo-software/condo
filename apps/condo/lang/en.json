@@ -292,6 +292,7 @@
   "Title": "Title",
   "profile.Update": "Editing my profile",
   "profile.ChangePasswordModalTitle": "change Password",
+  "profile.ChangePassword": "Reset password",
   "passwordChangeForm.current": "Current password",
   "passwordChangeForm.new": "New password",
   "passwordChangeForm.retry": "The password again",

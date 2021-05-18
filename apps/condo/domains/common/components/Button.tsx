@@ -81,7 +81,9 @@ const buttonLinkCss = css`
   }
 
   &:disabled, &:hover:disabled {
-    color: ${colors.lightGrey[5]};
+    color: ${green[5]};
+    opacity: 60%;
+    background-color: transparent;
   }
 `
 
