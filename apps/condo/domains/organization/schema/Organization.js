@@ -89,11 +89,11 @@ const Organization = new GQLListSchema('Organization', {
                 validateInput: (args) => {
                     return hasValidJsonStructure(args, true, 1, {})
                 },
-                access: {
-                    update: rules.canUpdateTicketStatusTransitions,
-                    create: rules.canUpdateTicketStatusTransitions,
-                    read: true,
-                },
+            },
+            access: {
+                update: rules.canUpdateTicketStatusTransitions,
+                create: rules.canUpdateTicketStatusTransitions,
+                read: true,
             },
             isRequired: true,
         },
