@@ -1,4 +1,5 @@
 import Router from 'next/router'
+import get from 'lodash/get'
 
 import { useIntl } from '@core/next/intl'
 import { Form, Input, Typography } from 'antd'
@@ -10,6 +11,7 @@ import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useMutation } from '@core/next/apollo'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION } from '@condo/domains/user/gql'
+import { useAuth } from '@core/next/auth'
 
 const INPUT_STYLE = { width: '20em' }
 
@@ -19,6 +21,7 @@ const ChangePasswordPage: AuthPage = () => {
     const initialValues = { token, password: '', confirm: '' }
     const [isLoading, setIsLoading] = useState(false)
     const [changePassword] = useMutation(CHANGE_PASSWORD_WITH_TOKEN_MUTATION)
+    const auth = useAuth()
 
     const intl = useIntl()
     const SaveMsg = intl.formatMessage({ id: 'Save' })
@@ -33,6 +36,8 @@ const ChangePasswordPage: AuthPage = () => {
     const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
     const ErrorToFormFieldMsgMapping = {}
 
+    const userId = get(auth, ['user', 'id'])
+
     const onFinish = values => {
         setIsLoading(true)
         return runMutation({
@@ -40,7 +45,11 @@ const ChangePasswordPage: AuthPage = () => {
             variables: values,
             onFinally: () => {
                 setIsLoading(false)
-                Router.push('/auth/signin')
+                if (userId) {
+                    Router.push('/organizations/')
+                } else {
+                    Router.push('/auth/signin/')
+                }
             },
             intl,
             form,
