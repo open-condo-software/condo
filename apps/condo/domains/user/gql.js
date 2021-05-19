@@ -45,6 +45,7 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
             item {
                 id
             }
+            token
         }
     }
 ` 
