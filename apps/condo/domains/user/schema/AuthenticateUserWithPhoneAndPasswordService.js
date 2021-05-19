@@ -12,7 +12,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
         },
         {
             access: true,
-            type: 'type AuthenticateUserWithPhoneAndPasswordOutput { item: User }',
+            type: 'type AuthenticateUserWithPhoneAndPasswordOutput { item: User, token: String! }',
         },
     ],
     mutations: [
@@ -21,6 +21,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
             schema: 'authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 // Todo(zuch): find a way to use several password auth strategy without breaking all tests
+                // Maybe we can modify PasswordStrategy config identityField here from email to phone
                 const { phone: inputPhone, password } = info.variableValues
                 const phone = inputPhone.replace(PHONE_CLEAR_REGEXP, '')
                 const users = await User.getAll(context, { phone })
@@ -33,17 +34,17 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 const { keystone } = await getSchemaCtx(AuthenticateUserWithPhoneAndPasswordService)  
 
                 const { auth: { User: { password: PasswordStrategy } } } = keystone
-                
+
                 const { success, message } = await PasswordStrategy.validate({ email: user.email, password })
                 
                 if (!success) {
                     throw new Error(`${WRONG_PASSWORD_ERROR}] ${message}`)
                 }
                 
-                await context.startAuthedSession({ item: users[0], list: keystone.lists['User'] })
-
+                const token = await context.startAuthedSession({ item: users[0], list: keystone.lists['User'] })
                 const result = {
                     item: user,
+                    token,
                 }
                 return result
             },

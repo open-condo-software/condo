@@ -48,7 +48,6 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
         }
     }
 ` 
-
 const START_PASSWORD_RECOVERY_MUTATION = gql`
     mutation startPasswordRecovery($email: String!){
         status: startPasswordRecovery(email: $email)
@@ -64,6 +63,6 @@ module.exports = {
     SIGNIN_MUTATION,
     CHANGE_PASSWORD_WITH_TOKEN_MUTATION,
     SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,
-    START_PASSWORD_RECOVERY_MUTATION,
+    START_PASSWORD_RECOVERY_MUTATION,    
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -32,6 +32,17 @@ export type AuthenticateUserWithFirebaseIdTokenOutput = {
   item?: Maybe<User>;
 };
 
+export type AuthenticateUserWithPhoneAndPasswordInput = {
+  phone: Scalars['String'];
+  password: Scalars['String'];
+};
+
+export type AuthenticateUserWithPhoneAndPasswordOutput = {
+  __typename?: 'AuthenticateUserWithPhoneAndPasswordOutput';
+  item?: Maybe<User>;
+  token: Scalars['String'];
+};
+
 /**  All `account` objects from `billing data source`. In close account cases, these objects should be soft deleted  */
 export type BillingAccount = {
   __typename?: 'BillingAccount';
@@ -5305,6 +5316,7 @@ export type Mutation = {
   deleteMessages?: Maybe<Array<Maybe<Message>>>;
   registerNewUser?: Maybe<User>;
   authenticateUserWithFirebaseIdToken?: Maybe<AuthenticateUserWithFirebaseIdTokenOutput>;
+  authenticateUserWithPhoneAndPassword?: Maybe<AuthenticateUserWithPhoneAndPasswordOutput>;
   startPasswordRecovery?: Maybe<Scalars['String']>;
   changePasswordWithToken?: Maybe<Scalars['String']>;
   registerNewOrganization?: Maybe<Organization>;
@@ -6598,6 +6610,11 @@ export type MutationRegisterNewUserArgs = {
 
 export type MutationAuthenticateUserWithFirebaseIdTokenArgs = {
   data: AuthenticateUserWithFirebaseIdTokenInput;
+};
+
+
+export type MutationAuthenticateUserWithPhoneAndPasswordArgs = {
+  data: AuthenticateUserWithPhoneAndPasswordInput;
 };
 
 
@@ -9831,6 +9848,7 @@ export type RegisterNewUserInput = {
   email: Scalars['String'];
   password: Scalars['String'];
   firebaseIdToken?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
 };
 
@@ -9874,7 +9892,9 @@ export type SendMessageToInput = {
 };
 
 export enum SendMessageType {
-  InviteNewEmployee = 'INVITE_NEW_EMPLOYEE'
+  InviteNewEmployee = 'INVITE_NEW_EMPLOYEE',
+  RegisterNewUser = 'REGISTER_NEW_USER',
+  ResetPassword = 'RESET_PASSWORD'
 }
 
 export enum SortBillingAccountHistoryRecordsBy {
@@ -12379,6 +12399,7 @@ export type TicketStatus = {
   organization?: Maybe<Organization>;
   /**  Ticket status. You should also increase `statusReopenedCounter` if you want to reopen ticket  */
   type?: Maybe<TicketStatusTypeType>;
+  /**  Status name  */
   name?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
