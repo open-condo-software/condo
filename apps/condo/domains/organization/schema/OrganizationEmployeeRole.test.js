@@ -149,7 +149,6 @@ describe('OrganizationEmployeeRole', () => {
             expect(objUpdated.sender).toEqual(attrs.sender)
             expect(objUpdated.v).toEqual(2)
             expect(objUpdated.name).toEqual(attrs.name)
-            expect(objUpdated.statusTransitions).toMatchObject(attrs.statusTransitions)
             expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
             expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: managerUserClient.user.id }))
             expect(objUpdated.createdAt).toMatch(DATETIME_RE)
