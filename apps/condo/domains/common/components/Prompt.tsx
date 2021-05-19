@@ -3,6 +3,7 @@ import { Modal, Typography, FormInstance } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { Button } from '@condo/domains/common/components/Button'
+import isEqual from 'lodash/isEqual'
 
 interface IPromptProps {
     title: string
@@ -13,13 +14,13 @@ interface IPromptProps {
 const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: formSubmit }) => {
     const [next, setNext] = useState(null)
     const isIgnoringPrompt = useRef(false)
+    const initialFormState = useRef({})
     const [isModalVisible, setIsModalVisible] = useState(false)
     const router = useRouter()
     const intl = useIntl()
 
     const SaveLabel = intl.formatMessage({ id: 'pages.condo.warning.modal.SaveLabel' })
     const LeaveLabel = intl.formatMessage({ id: 'pages.condo.warning.modal.LeaveLabel' })
-    
 
     const showModal = () => setIsModalVisible(true)
     const hideModal = () => setIsModalVisible(false)
@@ -37,10 +38,17 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
     }
 
     const isFormChanged = () => {
-        return form.isFieldsTouched()
+        return !isEqual(initialFormState.current, form.getFieldsValue())
     }
 
     useEffect(() => {
+        initialFormState.current = form.getFieldsValue()
+        // Todo(zuch): find a better way to turn off Prompt on form submit
+        const oldFormSubmit = form.submit 
+        form.submit = () => {
+            isIgnoringPrompt.current = true
+            oldFormSubmit.call(form)
+        }        
         const onRouteChange = url => {
             if (!isIgnoringPrompt.current) {
                 if (isFormChanged()) {
@@ -55,6 +63,7 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
         router.events.on('routeChangeStart', onRouteChange)
         return () => {
             router.events.off('routeChangeStart', onRouteChange)
+            form.submit = oldFormSubmit
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
