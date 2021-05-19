@@ -240,6 +240,16 @@ class MapView extends Map {
         return floors
     }
 
+    get possibleChoosedFloors (): number[] {
+        const allIndexes = this.map.sections
+            .filter(section => this.visibleSections.includes(section.id))
+            .map(section => section.floors
+                .map(floor => floor.index))
+            .flat()
+        const uniqueIndexes = [...new Set(allIndexes)].sort((a, b) => (b - a))
+        return uniqueIndexes
+    }
+
     get isEmpty (): boolean {
         return this.map.sections.length === 0
     }

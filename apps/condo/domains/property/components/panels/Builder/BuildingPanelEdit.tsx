@@ -1,6 +1,6 @@
 import { useIntl } from '@core/next/intl'
 import { Col, Row, Typography, Input, Select, InputNumber, Space } from 'antd'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { DeleteFilled } from '@ant-design/icons'
 import cloneDeep from 'lodash/cloneDeep'
 import {
@@ -8,7 +8,6 @@ import {
     EmptyFloor,
     BuildingAxisY,
     BuildingChooseSections,
-    useHorizontalScroll,
 } from './BuildingPanelCommon'
 import { Button } from '@condo/domains/common/components/Button'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -97,7 +96,7 @@ interface IChessBoardProps {
 
 
 const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
-    const container = useHorizontalScroll()
+    const container = useRef<HTMLElement | null>(null)
     useEffect(() => {
         if (container.current) {
             if (Builder.previewSectionId) {
@@ -105,7 +104,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
                 container.current.scrollTo(scrollWidth - clientWidth, scrollHeight - clientHeight)
             }
         }
-    }, [Builder, container])
+    }, [Builder])
     return (
         <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
             {
@@ -125,7 +124,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
                             innerRef={container}
                         >
                             {
-                                Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleFloors} /> : null
+                                Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleChoosedFloors} /> : null
                             }
                             {
                                 Builder.sections.map(section => {
@@ -137,7 +136,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
                                             refresh={refresh}
                                         >
                                             {
-                                                Builder.possibleFloors.map(floorIndex => {
+                                                Builder.possibleChoosedFloors.map(floorIndex => {
                                                     const floorInfo = section.floors.find(floor => floor.index === floorIndex)
                                                     if (floorInfo && floorInfo.units.length) {
                                                         return (
