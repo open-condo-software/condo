@@ -11,15 +11,13 @@ const access = require('@condo/domains/ticket/access/TicketChange')
 
 
 const TicketChange = new GQLListSchema('TicketChange', {
-    // TODO(codegen): write doc for the TicketChange domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Incremental changes of Ticket',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
         ticket: {
-            // TODO(codegen): write doc for TicketChange.ticket field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Related ticket, whose change is logged in this entity',
             type: Relationship,
             ref: 'Ticket',
             isRequired: true,
