@@ -45,10 +45,21 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
             item {
                 id
             }
+        }
+    }
+` 
+
+const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION_TEST = gql`
+    mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
+        obj: authenticateUserWithPhoneAndPassword(data: { phone: $phone, password: $password }) {
+            item {
+                id
+            }
             token
         }
     }
 ` 
+
 
 const START_PASSWORD_RECOVERY_MUTATION = gql`
     mutation startPasswordRecovery($email: String!){
@@ -65,6 +76,7 @@ module.exports = {
     SIGNIN_MUTATION,
     CHANGE_PASSWORD_WITH_TOKEN_MUTATION,
     SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,
-    START_PASSWORD_RECOVERY_MUTATION,
+    SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION_TEST,
+    START_PASSWORD_RECOVERY_MUTATION,    
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

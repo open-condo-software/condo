@@ -1,5 +1,5 @@
 const { makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
+const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION_TEST } = require('@condo/domains/user/gql')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 const { WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
 
@@ -10,7 +10,7 @@ describe('Auth by phone and password', () => {
         const [user, userAttrs] = await createTestUser(admin)
         const { phone, password } = userAttrs
         const client = await makeClient()
-        const res1 = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password })
+        const res1 = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION_TEST, { phone, password })
         expect(res1.errors).toEqual(undefined)
         expect(res1.data.obj.item.id).toEqual(user.id)
         expect(res1.data.obj.token).not.toHaveLength(0)
