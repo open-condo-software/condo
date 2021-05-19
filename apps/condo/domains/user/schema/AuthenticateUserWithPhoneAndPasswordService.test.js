@@ -13,6 +13,7 @@ describe('Auth by phone and password', () => {
         const res1 = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password })
         expect(res1.errors).toEqual(undefined)
         expect(res1.data.obj.item.id).toEqual(user.id)
+        expect(res1.data.obj.token.length).not.toHaveLength(0)
     })
 
     test('not valid password', async () => {
