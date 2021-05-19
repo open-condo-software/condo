@@ -34,10 +34,11 @@ interface IBuildingPanelEditProps {
 
 export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, updateMap: updateFormField }) => {
     const intl = useIntl()
-    const [Map, setMap] = useState(new MapEdit(map, updateFormField))
-    // TODO(zuch): Ask for a better solution
+    const builderFormRef = useRef<HTMLDivElement | null>(null)
+    const Builder = new MapEdit(map, updateFormField)
+    Builder.setRefToForm(builderFormRef)
+    const [Map, setMap] = useState(Builder)
     const refresh = () => setMap(cloneDeep(Map))
-
     const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
@@ -48,7 +49,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, upda
     const mode = Map.editMode
     return (
         <>
-            <Row align='middle' style={{ paddingBottom: '24px' }} gutter={[45, 10]} justify='start'>
+            <Row align='middle' style={{ paddingBottom: '24px' }} gutter={[45, 10]} ref={builderFormRef} justify='start'>
                 {
                     (mode === 'addSection' || mode === 'addUnit') ? (
                         <Col flex={0} style={{ maxWidth: '400px' }}>
