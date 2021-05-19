@@ -119,7 +119,12 @@ const Ticket = new GQLListSchema('Ticket', {
             ref: 'User',
             many: true,
         },
-
+        files: {
+            schemaDoc: 'Attached TicketFiles',
+            type: Relationship,
+            ref: 'TicketFile.ticket',
+            many: true,
+        },
         // classifierMeta
         classifier: {
             schemaDoc: 'Typification / classification / types of work',
@@ -203,6 +208,7 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Flat number / door number of an apartment building (property). You need to take from Property.map',
             type: Text,
         },
+
 
         source: {
             schemaDoc: 'Ticket source channel/system. Examples: call, email, visit, ...',
