@@ -153,6 +153,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
                     'auth/too-many-requests': FirebaseTooManyRequests,
                     'auth/missing-phone-number': FirebaseEmptyPhoneError,
                 }[error.code] || 'send sms unknown error code'
+                console.error('Firebase error: ', error)
                 setfirebaseError(msg)
             } else {
                 console.error('send sms error ', error)
