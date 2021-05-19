@@ -3,6 +3,7 @@ import { Modal, Typography, FormInstance } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { Button } from '@condo/domains/common/components/Button'
+import isEqual from 'lodash/isEqual'
 
 interface IPromptProps {
     title: string
@@ -13,13 +14,13 @@ interface IPromptProps {
 const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: formSubmit }) => {
     const [next, setNext] = useState(null)
     const isIgnoringPrompt = useRef(false)
+    const initialFormState = useRef({})
     const [isModalVisible, setIsModalVisible] = useState(false)
     const router = useRouter()
     const intl = useIntl()
 
     const SaveLabel = intl.formatMessage({ id: 'pages.condo.warning.modal.SaveLabel' })
     const LeaveLabel = intl.formatMessage({ id: 'pages.condo.warning.modal.LeaveLabel' })
-    
 
     const showModal = () => setIsModalVisible(true)
     const hideModal = () => setIsModalVisible(false)
@@ -36,8 +37,12 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
         formSubmit()
     }
 
+    useEffect(() => {
+        initialFormState.current = form.getFieldsValue()
+    }, [])
+
     const isFormChanged = () => {
-        return form.isFieldsTouched()
+        return !isEqual(initialFormState.current, form.getFieldsValue())
     }
 
     useEffect(() => {
