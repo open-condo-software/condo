@@ -51,10 +51,9 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
     }
 
     const UnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
-    const SquareTitle = intl.formatMessage({ id: 'pages.condo.property.id.Square' })
     const TicketsClosedTitle = intl.formatMessage({ id: 'pages.condo.property.id.TicketsClosed' })
     const TicketsInWorkTitle = intl.formatMessage({ id: 'pages.condo.property.id.TicketsInWork' })
-    const UnknownMessage = intl.formatMessage({ id: 'pages.condo.property.id.UnknownMessage' })
+    const UpdateTitle = intl.formatMessage({ id: 'Edit' })
 
     return <>
         <Head>
@@ -64,35 +63,18 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
             <PageContent>
                 <OrganizationRequired>
                     <Row gutter={[12, 40]} align='top'>
-                        <Col span={23}>
+                        <Col span={24}>
                             <Typography.Title level={1} style={{ margin: 0 }}>{property.address}</Typography.Title>
                             {
                                 property.name ? 
-                                    <Tag style={{ marginTop: '25px' }}>{property.name}</Tag> :
+                                    <Tag style={{ marginTop: '25px', borderColor: 'transparent', backgroundColor: colors.ultraLightGrey }}>{property.name}</Tag> :
                                     null
                             }
-                        </Col>
-                        <Col span={1} >
-                            <Link href={`/property/${property.id}/update`}>
-                                <span>
-                                    <Button
-                                        color={'green'}
-                                        type={'sberPrimary'}
-                                        secondary
-                                        icon={<EditFilled />}
-                                        style={{ lineHeight: '32px' }}
-                                    >
-                                    </Button>
-                                </span>
-                            </Link>
                         </Col>
                     </Row>       
                     <Row gutter={[47, 40]} style={{ marginTop: '40px' }} justify='start'>
                         <Col flex={0} >
                             <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} />
-                        </Col>
-                        <Col flex={0}>
-                            <PropertyInfoPanel title={SquareTitle} message={UnknownMessage} />
                         </Col>
                         <Col flex={0}>
                             <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type='success' />
@@ -104,6 +86,23 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
                     <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
                         <Col span={24}>
                             <PropertyPanels mode='view' map={property.map} />                    
+                        </Col>
+                    </Row>
+                    <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
+                        <Col span={24} style={{ paddingLeft: '6px' }}>
+                            <Link href={`/property/${property.id}/update`}>
+                                <span>
+                                    <Button
+                                        color={'green'}
+                                        type={'sberPrimary'}
+                                        secondary
+                                        icon={<EditFilled />}
+                                        size={'large'}
+                                    >
+                                        {UpdateTitle}
+                                    </Button>
+                                </span>
+                            </Link>
                         </Col>
                     </Row>
                 </OrganizationRequired>

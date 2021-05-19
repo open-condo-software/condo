@@ -85,7 +85,6 @@ const PropertyPageViewTable = (): React.FC => {
     const sortFromQuery = getSortStringFromQuery(router.query)
     const offsetFromQuery = getPaginationFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-
     const {
         refetch,
         fetchMore,
@@ -171,6 +170,7 @@ const PropertyPageViewTable = (): React.FC => {
     }
 
     const isNoProperties = !properties.length && isEmpty(filtersFromQuery)
+
 
     return (
         <>

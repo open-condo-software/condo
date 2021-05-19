@@ -10,8 +10,10 @@ import get from 'lodash/get'
 
 import { Input, Space } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
+import { isEmpty } from 'lodash'
+import { Typography } from 'antd'
 
-
+const { Text } = Typography
 
 interface IFilterContainerProps {
     clearFilters: () => void
@@ -41,7 +43,6 @@ const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
     )
 }
 
-
 interface ITableColumn {
     title: string,
     ellipsis?: boolean,
@@ -55,6 +56,24 @@ interface ITableColumn {
     filterIcon?: unknown
 }
 
+const highLightText = (text, search) => {
+    if (isEmpty(search)) {
+        return text
+    }
+    const searchRegexp = new RegExp(`(${search})`, 'ig')
+    if (text.match(searchRegexp)) {
+        const parts = text.split(searchRegexp)
+        const result = parts.map(part => {
+            if (part.match(searchRegexp)){
+                // Todo(zuch): mark - is standart search result highlighter - but can not override it's color - it is $gold[5] in antd sources
+                return (<Text style={{ backgroundColor: colors.markColor }}>{part}</Text>)
+            }
+            return part
+        })
+        return result
+    }
+    return text                    
+}
 
 
 const getFilterIcon = filtered => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
@@ -77,6 +96,13 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters): Array<I
                 key: 'address',
                 sorter: true,
                 width: '50%',
+                render: (text) => {
+                    const search = getFilteredValue(filters, 'search')
+                    if (!isEmpty(search)) {
+                        return highLightText(text, search)
+                    }
+                    return text
+                },
                 filterDropdown: function AddressFilterDropDown ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) {
                     return (
                         <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>

@@ -1,13 +1,14 @@
 import { useIntl } from '@core/next/intl'
 import { Col, Row, Typography, Input, Select, InputNumber, Space } from 'antd'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { DeleteFilled } from '@ant-design/icons'
 import cloneDeep from 'lodash/cloneDeep'
-import { 
-    EmptyBuildingBlock, 
-    EmptyFloor, 
-    BuildingAxisY, 
+import {
+    EmptyBuildingBlock,
+    EmptyFloor,
+    BuildingAxisY,
     BuildingChooseSections,
+    useHorizontalScroll,
 } from './BuildingPanelCommon'
 import { Button } from '@condo/domains/common/components/Button'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -24,6 +25,7 @@ const { Option } = Select
 
 const INPUT_STYLE = {
     width: '136px',
+    borderColor: 'transparent',
 }
 
 interface IBuildingPanelEditProps {
@@ -33,7 +35,6 @@ interface IBuildingPanelEditProps {
 
 export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, updateMap: updateFormField }) => {
     const intl = useIntl()
-
     const [Map, setMap] = useState(new MapEdit(map, updateFormField))
     // TODO(zuch): Ask for a better solution
     const refresh = () => setMap(cloneDeep(Map))
@@ -48,7 +49,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, upda
     const mode = Map.editMode
     return (
         <>
-            <Row align='middle' style={{ marginBottom: '40px' }} gutter={[45, 10]} justify='start'>
+            <Row align='middle' style={{ paddingBottom: '24px' }} gutter={[45, 10]} justify='start'>
                 {
                     (mode === 'addSection' || mode === 'addUnit') ? (
                         <Col flex={0} style={{ maxWidth: '400px' }}>
@@ -91,31 +92,38 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, upda
 
 interface IChessBoardProps {
     Builder: MapEdit
-    refresh(): void    
+    refresh(): void
 }
 
+
 const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
-    const container = useRef(null)
-    
+    const container = useHorizontalScroll()
     useEffect(() => {
         if (container.current) {
             if (Builder.previewSectionId) {
                 const { scrollWidth, clientWidth, scrollHeight, clientHeight } = container.current
-                container.current.scrollTo( scrollWidth - clientWidth, scrollHeight - clientHeight)
+                container.current.scrollTo(scrollWidth - clientWidth, scrollHeight - clientHeight)
             }
         }
-    }, [Builder])
-
+    }, [Builder, container])
     return (
         <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
             {
                 Builder.isEmpty ?
-                    <Col span={24} style={{ marginTop: '60px', marginBottom: '60px' }}>
+                    <Col span={24} style={{ paddingTop: '60px', paddingBottom: '60px' }}>
                         <EmptyBuildingBlock />
                     </Col>
                     :
-                    <Col span={24} style={{ marginTop: '60px', whiteSpace: 'nowrap' }}>
-                        <ScrollContainer className="scroll-container" innerRef={container} style={{ marginTop: '60px', maxWidth: '1200px', maxHeight: '480px' }}>
+                    <Col span={24} style={{ whiteSpace: 'nowrap' }}>
+                        <ScrollContainer
+                            className="scroll-container"
+                            style={{ paddingTop: '16px', width: '100%', overflowY: 'hidden' }}
+                            vertical={false}
+                            horizontal={true}
+                            hideScrollbars={false}
+                            nativeMobileScroll={true}
+                            innerRef={container}
+                        >
                             {
                                 Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleFloors} /> : null
                             }
@@ -212,7 +220,7 @@ const PropertyMapFloor: React.FC = ({ children }) => {
 interface IPropertyMapUnitProps {
     unit: BuildingUnit
     Builder: MapEdit
-    refresh(): void        
+    refresh(): void
 }
 
 const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ Builder, refresh, unit }) => {
@@ -233,7 +241,7 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ Builder, refresh, un
 
 interface IAddSectionFormProps {
     Builder: MapEdit
-    refresh(): void        
+    refresh(): void
 }
 
 const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) => {
@@ -265,18 +273,18 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
         }
         if (name && minFloor && maxFloor && unitsOnFloor && !maxMinError) {
             Builder.addPreviewSection({ id: '', name, minFloor, maxFloor, unitsOnFloor })
-            refresh()    
+            refresh()
         } else {
             Builder.removePreviewSection()
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [name, minFloor, maxFloor, unitsOnFloor])
 
     const handleFinish = () => {
         Builder.removePreviewSection()
         Builder.addSection({ id: '', name, minFloor, maxFloor, unitsOnFloor })
+        refresh()
         resetForm()
-        refresh()        
     }
     return (
         <>
@@ -287,21 +295,21 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
                 </Space>
             </Col>
             <Col flex={0}>
-                <Space direction={'vertical'} size={8}  className={ maxMinError ? 'ant-form-item-has-error' : ''}>
+                <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
                     <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
-                    <InputNumber value={minFloor} onChange={v => setMinFloor(v)} style={INPUT_STYLE} />
+                    <InputNumber value={minFloor} onChange={setMinFloor} style={INPUT_STYLE} />
                 </Space>
             </Col>
             <Col flex={0}>
-                <Space direction={'vertical'} size={8} className={ maxMinError ? 'ant-form-item-has-error' : ''}>
+                <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
                     <Typography.Text type={'secondary'}>{MaxFloorLabel}</Typography.Text>
-                    <InputNumber  value={maxFloor} onChange={v => setMaxFloor(v)} style={INPUT_STYLE} />
+                    <InputNumber value={maxFloor} onChange={setMaxFloor} style={INPUT_STYLE} />
                 </Space>
             </Col>
             <Col flex={0}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{UnitsOnFloorLabel}</Typography.Text>
-                    <InputNumber value={unitsOnFloor} onChange={v => setUnitsOnFloor(v)} style={INPUT_STYLE} />
+                    <InputNumber value={unitsOnFloor} onChange={setUnitsOnFloor} style={INPUT_STYLE} />
                 </Space>
             </Col>
             <Col flex={0}>
@@ -322,7 +330,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
 
 interface IUnitFormProps {
     Builder: MapEdit
-    refresh(): void        
+    refresh(): void
 }
 
 const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
@@ -363,8 +371,8 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
             setLabel(mapUnit.label)
             setSection(mapUnit.section)
             setFloor(mapUnit.floor)
-        } 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [Builder])
 
     const resetForm = () => {
@@ -376,11 +384,11 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
     useEffect(() => {
         if (label && floor && section && mode === 'addUnit') {
             Builder.addPreviewUnit({ id: '', label, floor, section })
-            refresh()    
+            refresh()
         } else {
             Builder.removePreviewUnit()
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [label, floor, section, mode])
 
 
@@ -393,7 +401,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
             Builder.addUnit({ id: '', label, floor, section })
             resetForm()
         }
-        refresh()        
+        refresh()
     }
 
     const deleteUnit = () => {
@@ -457,7 +465,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
 
 interface IEditSectionFormProps {
     Builder: MapEdit
-    refresh(): void        
+    refresh(): void
 }
 
 const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) => {

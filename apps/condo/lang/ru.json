@@ -178,7 +178,7 @@
   "pages.condo.property.floor.Name": "Этаж",
   "pages.condo.property.form.BuildingTabTitle": "Шахматка",
   "pages.condo.property.form.EmptyResidents.header": "Список жителей пока пуст",
-  "pages.condo.property.form.EmptyResidents.text": "Создайте его, загрузив Excel-реестр жителей этого дома (пример файла)",
+  "pages.condo.property.form.EmptyResidents.text": "Создайте его, загрузив Excel-реестр жителей этого дома",
   "pages.condo.property.form.field.Name": "Название дома (если есть)",
   "pages.condo.property.form.ResidentsTabTitle": "Жители",
   "pages.condo.property.id.PageTitle": "Объект",
