@@ -12,35 +12,29 @@ interface IPromptProps {
 }
 
 const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: formSubmit }) => {
-    const [next, setNext] = useState(null)
-    const isIgnoringPrompt = useRef(false)
-    const initialFormState = useRef({})
-    const [isModalVisible, setIsModalVisible] = useState(false)
-    const router = useRouter()
     const intl = useIntl()
-
     const SaveLabel = intl.formatMessage({ id: 'pages.condo.warning.modal.SaveLabel' })
     const LeaveLabel = intl.formatMessage({ id: 'pages.condo.warning.modal.LeaveLabel' })
-
+    const [next, setNext] = useState(null)
+    const [isModalVisible, setIsModalVisible] = useState(false)
+    const isIgnoringPrompt = useRef(false)
+    const initialFormState = useRef({})
+    const router = useRouter()
     const showModal = () => setIsModalVisible(true)
     const hideModal = () => setIsModalVisible(false)
-
     const handleCancel = () => {
         isIgnoringPrompt.current = true
         hideModal()
         router.push(next)
     }
-
     const handleSave = () => {
         isIgnoringPrompt.current = true
         hideModal()
         formSubmit()
     }
-
     const isFormChanged = () => {
         return !isEqual(initialFormState.current, form.getFieldsValue())
     }
-
     useEffect(() => {
         initialFormState.current = form.getFieldsValue()
         // Todo(zuch): find a better way to turn off Prompt on form submit
@@ -67,8 +61,6 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
-
     return (
         <Modal
             visible={isModalVisible}
