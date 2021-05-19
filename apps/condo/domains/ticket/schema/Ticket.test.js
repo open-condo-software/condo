@@ -39,6 +39,7 @@ describe('Ticket', () => {
         expect(obj.assignee).toEqual(null)
         expect(obj.executor).toEqual(null)
         expect(obj.watchers).toEqual([])
+        expect(obj.files).toEqual([])
     })
 
     test('anonymous: create Ticket', async () => {
