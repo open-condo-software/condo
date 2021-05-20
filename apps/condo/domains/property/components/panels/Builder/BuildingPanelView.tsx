@@ -6,7 +6,7 @@ import {
 } from './BuildingPanelCommon'
 
 import { Col, Row } from 'antd'
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
 import cloneDeep from 'lodash/cloneDeep'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import {
@@ -36,7 +36,6 @@ interface IPropertyMapViewProps {
 }
 
 export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refresh }) => {
-    const container = useRef<HTMLElement | null>(null)
     return (
         <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
             {
@@ -53,7 +52,6 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                             horizontal={true}
                             hideScrollbars={false}
                             nativeMobileScroll={true}
-                            innerRef={container}
                         >
                             {
                                 Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleChoosedFloors} /> : null
