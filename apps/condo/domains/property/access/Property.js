@@ -16,6 +16,21 @@ async function canReadProperties ({ authentication: { item: user } }) {
     }
 }
 
+async function canDeleteProperties ({ authentication: { item: user }, itemId }) {
+    if (!user) return false
+    if (user.isAdmin) return true
+    if (!itemId) {
+        return false
+    }
+    const property = await getById('Property', itemId)
+    if (!property) {
+        return false
+    }
+    const { organization: organizationId } = property
+    return await checkOrganizationPermission(user.id, organizationId, 'canManageProperties')
+}
+
+
 async function canManageProperties ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin) return true
@@ -39,8 +54,7 @@ async function canManageProperties ({ authentication: { item: user }, originalIn
         const { organization: organizationId } = property
 
         return await checkOrganizationPermission(user.id, organizationId, 'canManageProperties')
-    }
-
+    } 
     return false
 }
 
@@ -51,4 +65,5 @@ async function canManageProperties ({ authentication: { item: user }, originalIn
 module.exports = {
     canReadProperties,
     canManageProperties,
+    canDeleteProperties,
 }

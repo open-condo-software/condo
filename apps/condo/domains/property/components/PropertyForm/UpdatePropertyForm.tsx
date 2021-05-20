@@ -1,4 +1,4 @@
-import { Col, Form, Row, Typography } from 'antd'
+import { Col, Form, Row, Space, Typography } from 'antd'
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
@@ -7,6 +7,8 @@ import { Button } from '@condo/domains/common/components/Button'
 import { ErrorsContainer } from '../BasePropertyForm/ErrorsContainer'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
+import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 
 interface IUpdatePropertyForm {
     id: string
@@ -16,8 +18,10 @@ interface IUpdatePropertyForm {
 export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
 
     const intl = useIntl()
-    const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
+    const ApplyChangesLabel = intl.formatMessage({ id: 'ApplyChanges' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const DeletePropertyLabel = intl.formatMessage({ id: 'pages.condo.property.form.DeleteLabel' })
+    
     const { push } = useRouter()
     const { organization } = useOrganization()
     const { refetch, obj: property, loading, error } = Property.useObject({ where: { id } })
@@ -25,6 +29,25 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     const initialValues = Property.convertToUIFormState(property)
     const action = Property.useUpdate({}, (property) => push(`/property/${property.id}`))
     const updateAction = (value) => action(value, property)
+    const deleteAction = Property.useDelete({}, () => push('/property/'))
+
+    
+    function handleDelete ({ item, form }) {
+        return runMutation(
+            {
+                action: () => deleteAction({ id: item.id }),
+                onError: (e) => {
+                    console.log(e.friendlyDescription, form)
+                    const msg = e.friendlyDescription
+                    if (msg) {
+                        form.setFields([{ name: 'address', errors: [msg] }])
+                    }
+                    throw e
+                },
+                intl,
+            },
+        )
+    }
 
     useEffect(() => {
         refetch()
@@ -46,27 +69,48 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
             organization={organization}
             type='building'
         >
-            {({ handleSave, isLoading }) => {
+            {({ handleSave, isLoading, form }) => {
                 return (
                     <Form.Item noStyle dependencies={['address']}>
                         {
                             ({ getFieldsValue }) => {
                                 const { address } = getFieldsValue(['address'])
                                 return (
-                                    <Row gutter={[0, 24]}>
-                                        <ErrorsContainer address={address} />
-                                        <Col span={24}>
-                                            <Button
-                                                key='submit'
-                                                onClick={handleSave}
-                                                type='sberPrimary'
-                                                loading={isLoading}
-                                                disabled={!address}
-                                            >
-                                                {ApplyChangesMessage}
-                                            </Button>
-                                        </Col>
-                                    </Row>
+                                    <>
+                                        <Row gutter={[40, 24]} style={{ paddingLeft: '24px', paddingRight: '24px', justifyContent: 'space-between' }}>
+                                            <Col span={24} push={2}>
+                                                <ErrorsContainer address={address} />
+                                            </Col>
+                                            <Col flex={0}>
+                                                <Space size={40}>
+                                                    <FormResetButton
+                                                        type={'sberPrimary'}
+                                                        secondary
+                                                    />                                                
+                                                    <Button
+                                                        key='submit'
+                                                        onClick={handleSave}
+                                                        type='sberPrimary'
+                                                        loading={isLoading}
+                                                        disabled={!address}
+                                                    >
+                                                        {ApplyChangesLabel}
+                                                    </Button>                                                                                   
+                                                </Space>
+                                            </Col>
+                                            <Col flex={0}>
+                                                <Button
+                                                    key='submit'
+                                                    onClick={() => handleDelete({ item: property, form })}
+                                                    type='sberDanger'
+                                                    loading={isLoading}
+                                                    secondary
+                                                >
+                                                    {DeletePropertyLabel}
+                                                </Button>
+                                            </Col>
+                                        </Row>
+                                    </>
                                 )
                             }
                         }
