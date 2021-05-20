@@ -8,7 +8,6 @@ import uniq from 'lodash/uniq'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import MapSchemaJSON from './MapJsonSchema.json'
 import Ajv from 'ajv'
-import React from 'react'
 
 const ajv = new Ajv()
 const validator = ajv.compile(MapSchemaJSON)
@@ -388,27 +387,6 @@ class MapEdit extends MapView {
         this.mode = mode
     }
 
-    public formRef: React.MutableRefObject<HTMLDivElement | null> 
-
-    public setRefToForm (ref: React.MutableRefObject<HTMLDivElement | null>): void {
-        this.formRef = ref
-    }
-
-    private scrollToForm (): void {
-        if (this.formRef && this.formRef.current) {
-            const rect = this.formRef.current.getBoundingClientRect()
-            const isVisible =  (
-                rect.top >= 0 &&
-                rect.left >= 0 &&
-                rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-                rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-            )
-            if (!isVisible) {
-                this.formRef.current.scrollIntoView()
-            }
-        }
-    }
-
     private selectedSection: BuildingSection
 
     public setSelectedSection (section: BuildingSection): void{
@@ -418,7 +396,6 @@ class MapEdit extends MapView {
         } else {
             this.selectedSection = section
             this.editMode = 'editSection'
-            this.scrollToForm()
         }        
     }
 
@@ -439,7 +416,6 @@ class MapEdit extends MapView {
         } else {
             this.selectedUnit = unit
             this.editMode = 'editUnit'
-            this.scrollToForm()
         }        
     }
 
