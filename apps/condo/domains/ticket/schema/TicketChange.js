@@ -6,7 +6,7 @@ const { Text, Relationship, Integer, Select, Checkbox, DateTimeUtc, CalendarDay,
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketChange')
 
 
@@ -14,7 +14,6 @@ const TicketChange = new GQLListSchema('TicketChange', {
     schemaDoc: 'Incremental changes of Ticket',
     fields: {
         dv: DV_FIELD,
-        sender: SENDER_FIELD,
 
         ticket: {
             schemaDoc: 'Related ticket, whose change is logged in this entity',
