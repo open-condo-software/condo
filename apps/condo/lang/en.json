@@ -182,6 +182,8 @@
   "pages.condo.property.form.field.Name": "Property name",
   "pages.condo.property.form.ResidentsTabTitle": "Residents",
   "pages.condo.property.form.DeleteLabel": "Delete property",
+  "pages.condo.property.form.ConfirmDeleteTitle": "Delete property?",
+  "pages.condo.property.form.ConfirmDeleteMessage": "All connected to property data will be lost",
   "pages.condo.property.id.PageTitle": "Property",
   "pages.condo.property.id.Square": "Square",
   "pages.condo.property.id.TicketsClosed": "Tickets closed",
