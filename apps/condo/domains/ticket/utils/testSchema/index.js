@@ -97,13 +97,9 @@ async function updateTestTicketStatus (client, id, extraAttrs = {}) {
 async function createTestTicketChange (client, ticket, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!ticket || !ticket.id) throw new Error('no ticket.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestTicketChange logic for generate fields
 
     const attrs = {
         dv: 1,
-        sender,
         ticket: { connect: { id: ticket.id } },
         ...extraAttrs,
     }

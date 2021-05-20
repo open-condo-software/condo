@@ -9,10 +9,12 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/Ticket')
-
+const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS } = require('../constants')
+const { afterChangeHook, trackableFieldsFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { createTicketChange, displayNameResolvers, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -227,17 +229,27 @@ const Ticket = new GQLListSchema('Ticket', {
                 if (resolvedData.statusUpdatedAt) {
                     if (existingItem.statusUpdatedAt) {
                         if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.statusUpdatedAt)) {
-                            return addValidationError(`${STATUS_UPDATED_AT_ERROR}statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
+                            return addValidationError(`${ STATUS_UPDATED_AT_ERROR }statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
                         }
                     } else {
                         if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.createdAt)) {
-                            return addValidationError(`${STATUS_UPDATED_AT_ERROR}statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
+                            return addValidationError(`${ STATUS_UPDATED_AT_ERROR }statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
                         }
                     }
                 }
             } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+                return addValidationError(`${ DV_UNKNOWN_VERSION_ERROR }dv] Unknown \`dv\``)
             }
+        },
+        // `beforeChange` cannot be used, because data can be manipulated during updating process somewhere inside a ticket
+        // We need a final result after update
+        afterChange: async (...args) => {
+            await afterChangeHook(
+                fieldsToTrackInTicketForChanges,
+                createTicketChange,
+                displayNameResolvers,
+                relatedManyToManyResolvers
+            )(...args)
         },
     },
     access: {
@@ -249,6 +261,9 @@ const Ticket = new GQLListSchema('Ticket', {
     },
 })
 
+const fieldsToTrackInTicketForChanges = trackableFieldsFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS })
+
 module.exports = {
     Ticket,
+    fieldsToTrackInTicketForChanges,
 }
