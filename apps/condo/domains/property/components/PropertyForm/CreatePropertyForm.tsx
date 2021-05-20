@@ -4,7 +4,7 @@ import React from 'react'
 // @ts-ignore
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
-import { BasePropertyForm } from '../BasePropertyForm'
+import BasePropertyForm from '../BasePropertyForm'
 import { Button } from '@condo/domains/common/components/Button'
 import { ErrorsContainer } from '../BasePropertyForm/ErrorsContainer'
 import { Property } from '@condo/domains/property/utils/clientSchema'
