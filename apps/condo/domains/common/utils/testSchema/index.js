@@ -54,7 +54,7 @@ export const catchErrorFrom = async (testFunc, inspect) => {
  * @return {Promise<void>}
  */
 export const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
-    catchErrorFrom(testFunc, ({errors, data}) => {
+    await catchErrorFrom(testFunc, ({errors, data}) => {
         expect(errors[0]).toMatchObject({
             'message': 'You do not have access to this resource',
             'name': 'AccessDeniedError',
@@ -80,7 +80,7 @@ export const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
  * @return {Promise<void>}
  */
 export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
-    catchErrorFrom(testFunc, ({errors, data}) => {
+    await catchErrorFrom(testFunc, ({errors, data}) => {
         expect(errors[0]).toMatchObject({
             'message': 'You do not have access to this resource',
             'name': 'AccessDeniedError',

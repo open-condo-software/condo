@@ -1,0 +1,322 @@
+const _ = require('lodash')
+const { Text, Uuid } = require('@keystonejs/fields')
+const { Relationship } = require('@keystonejs/fields')
+const { Json } = require('@core/keystone/fields')
+
+/**
+ * Utilities to make a GQLListSchema item trackable for changes.
+ * We take a "source" schema, whose changes we want to track and
+ * store actual changes in "destination" schema.
+ *
+ * For example, to track changes of `Ticket` schema, following should be done:
+ * 1. Decide, what fields should be trackable, using `trackableFieldsFrom` function;
+ * 2. Create a "destination" schema, e.g. `TicketChange`
+ * 3. Generate fields for it using `generateChangeTrackableFieldsFrom` function
+ * 4. Write `DisplayNameResolvers` (see description below in typedef)
+ * 5. Write `RelatedManyToManyResolvers` (see description below in typedef)
+ * 6. Implement an `afterChange` hook in `Ticket` and call `afterChangeHook` inside of it.
+ *
+ * That's it!
+ * Changes of `Ticket` will be stored in `TicketChange` schema!
+ *
+ * Remember to make migrations of `TicketChange` schema!
+ *
+ * ## Terms
+ *
+ * ### Display name
+ *
+ * String representation of related entity, supposed to be displayed in UI.
+ *
+ * ### Change storage set
+ *
+ * Suppose, we are going to store a change of a field, whose name is `…`.
+ * When the field is a scalar, following fields will be generated with the same type,
+ * as type of field in question:
+ *     - `…From`
+ *     - `…To`
+ * When the field is a `Relationship` with `many: true`, four fields will be generated:
+ *     - `…IdsFrom` – old list of ids of related entities;
+ *     - `…IdsTo` – new list of ids of related entities;
+ *     - `…DisplayNamesFrom` – old list of display names of related entities;
+ *     - `…DisplayNamesTo` – new list of display names of related entities.
+ * When the field is a single `Relationship`, four fields will be generated:
+ *     - `…IdFrom` – old list of ids of related entities;
+ *     - `…IdTo` – new list of ids of related entities;
+ *     - `…DisplayNameFrom` – old list of display names of related entities;
+ *     - `…DisplayNameTo` – new list of display names of related entities.
+ *
+ * @module changeTrackable
+ */
+
+/**
+ * Options for fields generator
+ * @typedef {Object} Options
+ * @property {string[]} except - Fields, that should not take part of change tracking
+ */
+
+/**
+ * Build set of fields to track, omitting those, specified in options.
+ *
+ * It's impossible to keep fields in constant somewhere, because we have a circular dependency:
+ *     - We need a schema to build fields from
+ *     - schema needs fields in it's hook.
+ *
+ * @param schema
+ * @param {Options} options
+ * @return {*}
+ */
+const trackableFieldsFrom = (schema, options = {}) => (
+    _.omit(schema.fields, options.except || [])
+)
+
+
+/**
+ * Generates a "Change storage set" (see Terms) for each field from `fields` object.
+ * `fields` object is a set of fields from schema, that is going to be change trackable,
+ * it's a "source" schema.
+ *
+ * Omitting of fields is not implemented here because trackable fields set
+ * should be used in different places and calling this function over and over
+ * is complicated
+ *
+ * @example
+ *
+ * // Schema for tracking changes of `Ticket`
+ * const TicketChange = new GQLListSchema('TicketChange', {
+ *      fields: {
+ *          // Something custom, e.g. reference to source schema,
+ *          // whose changes we will track in this schema
+ *          ticket: {
+ *              type: Relationship,
+ *              ref: 'Ticket',
+ *              isRequired: true,
+ *          },
+ *
+ *          // And this is an actual data-fields, that will store changes
+ *          // in the "Change storage set" format
+ *          ...generateChangeTrackableFieldsFrom(trackableFields)
+ *      }
+ * })
+ *
+ * @param {Object} fields - result of `trackableFieldsFrom` function
+ * @return {Object} - Set of fields, that should be substituted into a declaration of schema, that will store changes.
+ */
+function generateChangeTrackableFieldsFrom (fields) {
+    const scalars = _.transform(_.pickBy(fields, isScalar), mapScalars, {})
+    const relationsSingle = _.transform(_.pickBy(fields, isRelationSingle), mapRelationSingle, {})
+    const relationsMany = _.transform(_.pickBy(fields, isRelationMany), mapRelationMany, {})
+    return {
+        ...scalars,
+        ...relationsSingle,
+        ...relationsMany,
+    }
+}
+
+/**
+ * Map of field names to functions, that obtains item name by its id.
+ *
+ * @example
+ * const displayNameResolvers = {
+ *   'property': async (itemId) => {
+ *       const item = await getById('Property', itemId)
+ *       return _.get(item, 'name')
+ *   },
+ *   'status': async (itemId) => {
+ *       const item = await getById('TicketStatus', itemId)
+ *       return _.get(item, 'name')
+ *   },
+ *
+ * @typedef DisplayNameResolvers
+ */
+
+
+/**
+ * Map of fields with many-to-many relations to functions,
+ * that obtains ids and display names of previous and updated list of related items.
+ *
+ * @example
+ * // Resolver for `watchers` field of a schema with type `Relationship` and `many: true` option.
+ * const relatedManyToManyResolvers = {
+ *     'watchers': async ({ context, existingItem, originalInput }) => {
+ *          // Some logic, that finally returns following:
+ *          return {
+ *              existing: { ids, displayNames },
+ *              updated: { ids, displayNames },
+ *          }
+ *      }
+ * }
+ *
+ * @typedef RelatedManyToManyResolvers
+ */
+
+/**
+ * Should be substituted into `afterChange` hook of a schema, whose changes
+ * should be trackable.
+ *
+ * @param fields
+ * @param displayNameResolvers
+ * @param relatedManyToManyResolvers
+ * @param createCallback
+ * @return {(function({operation: *, existingItem: *, context: *, originalInput: *, updatedItem: *}): Promise<void>)|*}
+ */
+const afterChangeHook = (
+    fields,
+    createCallback,
+    displayNameResolvers,
+    relatedManyToManyResolvers
+) => async ({ operation, existingItem, context, originalInput, updatedItem }) => {
+    if (operation === 'update') {
+        const fieldsChanges = await buildDataToStoreChangeFrom({
+            existingItem,
+            updatedItem,
+            context,
+            originalInput,
+            fields,
+            displayNameResolvers,
+            relatedManyToManyResolvers,
+        })
+        if (Object.keys(fieldsChanges).length > 0) {
+            createCallback(fieldsChanges, existingItem, context)
+        }
+    }
+}
+
+/**
+ * Arguments to `buildDataToStoreChangeFrom` function
+ * @typedef {Object} BuildDataToStoreChangeFromArgs
+ * @property existingItem - GQLListSchema item before update (Keystone)
+ * @property updatedItem - GQLListSchema item after update (Keystone)
+ * @property context – Apollo Context from Keystone
+ * @property {Object} fields - GQLListSchema fields object, that will be used as a guide to examine changes
+ * @property {Object} originalInput – from Keystone hook
+ * @property {DisplayNameResolvers} displayNameResolvers
+ * @property {RelatedManyToManyResolvers} relatedManyToManyResolvers
+ */
+
+/**
+ * Build changes data object, that will be passed to entity, that stores changes.
+ * Changes data object is build by comparing field-by-field `existingItem` and `updatedItem`
+ * For each field will be produced "Changes set"
+ * @param {BuildDataToStoreChangeFromArgs} args
+ */
+const buildDataToStoreChangeFrom = async (args) => {
+    const {
+        existingItem,
+        updatedItem,
+        context,
+        originalInput,
+        fields,
+        displayNameResolvers,
+        relatedManyToManyResolvers,
+    } = args
+    const data = {}
+    // Since `map` uses a series of async function calls, we need to use `Promise.all`,
+    // otherwise, final result will miss fields, calculated asynchronously.
+    // https://stackoverflow.com/questions/47065444/lodash-is-it-possible-to-use-map-with-async-functions
+    await Promise.all(Object.keys(fields).map(async (key) => {
+        const field = fields[key]
+        if (isScalar(field)) {
+            if (existingItem[key] !== updatedItem[key]) {
+                data[`${ key }From`] = existingItem[key]
+                data[`${ key }To`] = updatedItem[key]
+            }
+        } else if (isRelationSingle(field)) {
+            if (existingItem[key] !== updatedItem[key]) {
+                data[`${ key }IdFrom`] = existingItem[key]
+                data[`${ key }IdTo`] = updatedItem[key]
+                data[`${ key }DisplayNameFrom`] = await displayNameResolvers[key](existingItem[key])
+                data[`${ key }DisplayNameTo`] = await displayNameResolvers[key](updatedItem[key])
+            }
+        } else if (isRelationMany(field)) {
+            if (originalInput[key]) {
+                // Since many-to-many relation is stored in different schema, there is no
+                // direct information here about initial list of related items.
+                // As an easy solution, we can utilize `originalInput`, that have
+                // relation "Nested mutations", like `connect` and `disconnect`
+                // https://www.keystonejs.com/keystonejs/fields/src/types/relationship/#nested-mutations
+                const { existing, updated } = await relatedManyToManyResolvers[key]({
+                    context,
+                    existingItem,
+                    originalInput,
+                })
+                if (_.difference(existing.ids, updated.ids).length > 0) {
+                    data[`${ key }IdsFrom`] = existing.ids
+                    data[`${ key }IdsTo`] = updated.ids
+                    data[`${ key }DisplayNamesFrom`] = existing.displayNames
+                    data[`${ key }DisplayNamesTo`] = updated.displayNames
+                }
+
+            }
+        }
+    }))
+    return data
+}
+
+const isScalar = (field) => (
+    field.type !== Relationship
+)
+
+const isRelationSingle = (field) => (
+    field.type === Relationship && !field.many
+)
+
+const isRelationMany = (field) => (
+    field.type === Relationship && field.many
+)
+
+const mapScalars = (acc, value, key) => {
+    acc[`${key}From`] = mapScalar(value)
+    acc[`${key}To`] = mapScalar(value)
+}
+
+const mapScalar = (field) => (
+    _.pick(field, ['schemaDoc', 'type'])
+)
+
+const mapRelationSingle = (acc, value, key) => {
+    acc[`${key}IdFrom`] = {
+        schemaDoc: `Old id of related entity. ${value.schemaDoc}`,
+        type: Uuid,
+    }
+    acc[`${key}IdTo`] = {
+        schemaDoc: `New id of related entity. ${value.schemaDoc}`,
+        type: Uuid,
+    }
+    acc[`${key}DisplayNameFrom`] = {
+        schemaDoc: `Old display name of related entity. ${value.schemaDoc}`,
+        type: Text,
+    }
+    acc[`${key}DisplayNameTo`] = {
+        schemaDoc: `New display name of related entity. ${value.schemaDoc}`,
+        type: Text,
+    }
+}
+
+const mapRelationMany = (acc, value, key) => {
+    acc[`${key}IdsFrom`] = {
+        schemaDoc: `Old list of ids of related entities. ${value.schemaDoc}`,
+        type: Json,
+        defaultValue: [],
+    }
+    acc[`${key}IdsTo`] = {
+        schemaDoc: `New list of ids of related entities. ${value.schemaDoc}`,
+        type: Json,
+        defaultValue: [],
+    }
+    acc[`${key}DisplayNamesFrom`] = {
+        schemaDoc: `Old version of display names of related entities. ${value.schemaDoc}`,
+        type: Json,
+        defaultValue: [],
+    }
+    acc[`${key}DisplayNamesTo`] = {
+        schemaDoc: `New version of display names of related entities. ${value.schemaDoc}`,
+        type: Json,
+        defaultValue: [],
+    }
+}
+
+module.exports = {
+    trackableFieldsFrom,
+    afterChangeHook,
+    generateChangeTrackableFieldsFrom,
+}
