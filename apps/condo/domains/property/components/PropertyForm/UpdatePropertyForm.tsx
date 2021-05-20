@@ -29,19 +29,18 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     const initialValues = Property.convertToUIFormState(property)
     const action = Property.useUpdate({}, (property) => push(`/property/${property.id}`))
     const updateAction = (value) => action(value, property)
-    const deleteAction = Property.useDelete({}, () => push('/property/'))
+    const softDeleteAction = Property.useSoftDelete({}, () => push('/property/'))
 
     
-    function handleDelete ({ item, form }) {
+    function handleDelete ({ item }) {
         return runMutation(
             {
-                action: () => deleteAction({ id: item.id }),
+                action: () => {
+                    return softDeleteAction({}, item)
+                },
                 onError: (e) => {
-                    console.log(e.friendlyDescription, form)
-                    const msg = e.friendlyDescription
-                    if (msg) {
-                        form.setFields([{ name: 'address', errors: [msg] }])
-                    }
+                    console.log(e)
+                    console.log(e.friendlyDescription)
                     throw e
                 },
                 intl,
@@ -69,7 +68,7 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
             organization={organization}
             type='building'
         >
-            {({ handleSave, isLoading, form }) => {
+            {({ handleSave, isLoading }) => {
                 return (
                     <Form.Item noStyle dependencies={['address']}>
                         {
@@ -101,7 +100,7 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
                                             <Col flex={0}>
                                                 <Button
                                                     key='submit'
-                                                    onClick={() => handleDelete({ item: property, form })}
+                                                    onClick={() => handleDelete({ item: property })}
                                                     type='sberDanger'
                                                     loading={isLoading}
                                                     secondary
