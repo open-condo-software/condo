@@ -2,41 +2,47 @@ import React from 'react'
 import { Upload, Button, Form } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { UploadOutlined, DeleteOutlined } from '@ant-design/icons'
-import { UploadFileStatus } from 'antd/lib/upload/interface'
+import { UploadRequestOption } from 'rc-upload/lib/interface'
+import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 
-
-const MAX_FILE_SIZE = 20 * 1024 * 1024
-
+type DBFile = {
+    id: string
+    file: {
+        id: string
+        originalFilename: string
+        publicUrl: string
+    }
+}
 interface IMultipleFileUploadProps {
-    fileList: unknown
-    updateValue: (files: unknown) => void
-    saveMutation: string
+    fileList: DBFile[]
     initialCreateValues: Record<string, unknown>,
-    ticket: Record<string, unknown>,
-    Model: unknown
+    Model: {
+        useCreate: (attrs, onComplete) => (attrs) => Promise<unknown>
+        useSoftDelete: (attrs, onComplete) => (context, attrs) => Promise<unknown>
+    }
 }
 
-
-const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = ({ fileList: keystoneFileList, updateValue, initialCreateValues, Model }) => {
+const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = ({ fileList: keystoneFileList, initialCreateValues, Model }) => {
     const intl = useIntl()
-    const UploadedFilesLabel = 'Прикреплённые файлы'
-    const AddFileLabel = 'Добавить файл'
-    const FileTooBigErrorMessage = 'Файл слишком большой'
-
-    const fileList = keystoneFileList.map(({ id, file }) => {
-        return {
-            uid: file.id,
-            id,
-            name: file.originalFilename,
-            status: 'done' as UploadFileStatus,
-            url: file.publicUrl,
-        }
-    })
-
+    const UploadedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
+    const AddFileLabel = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })
+    const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' })
+    
     const createAction = Model.useCreate(initialCreateValues, () => Promise.resolve())
     const deleteAction = Model.useSoftDelete({}, () => Promise.resolve())
 
     const options = {
+        defaultFileList: keystoneFileList.map(({ id, file }) => {
+            const fileInList = {
+                uid: file.id,
+                id,
+                name: file.originalFilename,
+                status: null,
+                url: file.publicUrl,
+            }
+            fileInList.status = 'done'
+            return fileInList        
+        }),
         showUploadList: {
             showRemoveIcon: true,
             removeIcon: (file) => {
@@ -51,17 +57,17 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = ({ fileList: keys
                 )
                 return removeIcon
             },
-        },
-        customRequest: ({ onSuccess, onError, file }) => {
-            console.log('onSuccess, onError, file', onSuccess, onError, file, MAX_FILE_SIZE)
-            if (file.size < MAX_FILE_SIZE) {
+        }, 
+        customRequest: (options: UploadRequestOption) => {
+            const { onSuccess, onError, file } = options
+            if ((file as Blob).size > MAX_UPLOAD_FILE_SIZE) {
                 onError(new Error(FileTooBigErrorMessage))
                 return 
             }
             return createAction({ ...initialCreateValues, file }).catch(err => {
                 onError(err)
             }).then( () => {
-                onSuccess('Ok')
+                onSuccess('Ok', null)
             })
         },
     }
@@ -70,9 +76,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = ({ fileList: keys
             label={UploadedFilesLabel}
         >
             <Upload
-                defaultFileList={fileList}
-                customRequest={options.customRequest}
-                showUploadList={options.showUploadList}
+                { ...options }
             >
                 <Button
                     icon={<UploadOutlined />}
