@@ -1,12 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
-import styled from '@emotion/styled'
 import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
-import { colors } from '@condo/domains/common/constants/style'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { searchEmployee, searchProperty, searchTicketClassifier } from '../../utils/clientSchema/search'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
@@ -16,12 +14,12 @@ import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { useTicketValidations } from './useTicketValidations'
+import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 
 const LAYOUT = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
 }
-
 
 interface IOrganization {
     id: string
@@ -32,26 +30,6 @@ interface ITicketFormProps {
     initialValues?: ITicketFormState
     action?: (...args) => void,
 }
-
-const FrontLayerContainer = styled.div`
-  margin: 0 -24px;
-  padding: 0 24px 24px;
-  position: relative;
-  user-select: none;
-  ${(props) => props.showLayer && `
-    &:before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        background-color: ${colors.white};
-        opacity: 0.5;
-        z-index: 1;
-    }
-  `}
-`
 
 
 // TODO(Dimitreee): decompose this huge component to field groups

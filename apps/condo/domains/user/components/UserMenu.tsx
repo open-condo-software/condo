@@ -110,7 +110,7 @@ export const UserMenu = () => {
                             <UserMenuContainer>
                                 <Space size={1}>
                                     <AvatarContainer>
-                                        <UserAvatar/>
+                                        <UserAvatar iconSize={'6px'}/>
                                     </AvatarContainer>
                                     <Button
                                         type='link'

@@ -99,6 +99,14 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
                 update: userIsAdmin,
             },
         },
+        isBlocked: {
+            type: Checkbox,
+            defaultValue: false,
+        },
+        position: {
+            type: Text,
+            isRequired: false,
+        },
     },
     plugins: [versioned(), tracked(), historical()],
     access: {

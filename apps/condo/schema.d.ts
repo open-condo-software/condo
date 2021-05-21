@@ -6786,6 +6786,7 @@ export type OrganizationEmployee = {
   phone?: Maybe<Scalars['String']>;
   role?: Maybe<OrganizationEmployeeRole>;
   isAccepted?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -6805,6 +6806,7 @@ export type OrganizationEmployeeCreateInput = {
   phone?: Maybe<Scalars['String']>;
   role?: Maybe<OrganizationEmployeeRoleRelateToOneInput>;
   isAccepted?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -6834,6 +6836,7 @@ export type OrganizationEmployeeHistoryRecord = {
   phone?: Maybe<Scalars['String']>;
   role?: Maybe<Scalars['String']>;
   isAccepted?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -6857,6 +6860,7 @@ export type OrganizationEmployeeHistoryRecordCreateInput = {
   phone?: Maybe<Scalars['String']>;
   role?: Maybe<Scalars['String']>;
   isAccepted?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -6885,6 +6889,7 @@ export type OrganizationEmployeeHistoryRecordUpdateInput = {
   phone?: Maybe<Scalars['String']>;
   role?: Maybe<Scalars['String']>;
   isAccepted?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -6983,6 +6988,8 @@ export type OrganizationEmployeeHistoryRecordWhereInput = {
   role_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isAccepted_not?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
+  isBlocked_not?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   isRejected_not?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -7450,6 +7457,7 @@ export type OrganizationEmployeeUpdateInput = {
   phone?: Maybe<Scalars['String']>;
   role?: Maybe<OrganizationEmployeeRoleRelateToOneInput>;
   isAccepted?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7547,6 +7555,8 @@ export type OrganizationEmployeeWhereInput = {
   role_is_null?: Maybe<Scalars['Boolean']>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isAccepted_not?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
+  isBlocked_not?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   isRejected_not?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -10501,6 +10511,8 @@ export enum SortOrganizationEmployeeHistoryRecordsBy {
   PhoneDesc = 'phone_DESC',
   IsAcceptedAsc = 'isAccepted_ASC',
   IsAcceptedDesc = 'isAccepted_DESC',
+  IsBlockedAsc = 'isBlocked_ASC',
+  IsBlockedDesc = 'isBlocked_DESC',
   IsRejectedAsc = 'isRejected_ASC',
   IsRejectedDesc = 'isRejected_DESC',
   VAsc = 'v_ASC',
@@ -10602,6 +10614,8 @@ export enum SortOrganizationEmployeesBy {
   RoleDesc = 'role_DESC',
   IsAcceptedAsc = 'isAccepted_ASC',
   IsAcceptedDesc = 'isAccepted_DESC',
+  IsBlockedAsc = 'isBlocked_ASC',
+  IsBlockedDesc = 'isBlocked_DESC',
   IsRejectedAsc = 'isRejected_ASC',
   IsRejectedDesc = 'isRejected_DESC',
   VAsc = 'v_ASC',

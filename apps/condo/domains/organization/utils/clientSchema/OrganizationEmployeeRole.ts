@@ -48,6 +48,21 @@ function convertToGQLInput (state: IOrganizationEmployeeRoleFormState): Organiza
     return result
 }
 
+export interface IOrganizationEmployeeRoleSelectState {
+    value: string
+    label: string
+}
+
+const convertGQLItemToFormSelectState = (item: OrganizationEmployeeRole): IOrganizationEmployeeRoleSelectState | undefined => {
+    if (!item) {
+        return
+    }
+
+    const { name, id } = item
+
+    return { value: id, label: name }
+}
+
 const {
     useObject,
     useObjects,
@@ -63,4 +78,5 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    convertGQLItemToFormSelectState,
 }
