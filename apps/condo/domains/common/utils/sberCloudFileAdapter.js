@@ -10,6 +10,7 @@ class SberCloudFileAdapter {
             throw new Error('SberCloudAdapter: S3Adapter requires a bucket name.')
         }
         this.s3 = new ObsClient(sberCloudObsConfig.s3Options)
+        this.server = sberCloudObsConfig.s3Options.server
         this.folder = folder
     }
 
@@ -59,8 +60,8 @@ class SberCloudFileAdapter {
         return `${id}-${originalFilename}`
     }
 
-    publicUrl (filename) {
-        return `https://${this.bucket}.${this.s3Options.server}/${this.folder}/${filename}`
+    publicUrl ({ filename }) {
+        return `https://${this.bucket}.${this.server}/${this.folder}/${filename}`
     }
 
     uploadParams ({ id }) {
@@ -94,7 +95,7 @@ class SberCloudObs {
     async createBucket (params = {}) {
         const { CommonMsg: { Status } } = await this.obs.CreateBucket({
             Bucket: this.bucket,
-            ACL: this.obs.enums.AclPrivate,
+            ACL: this.obs.enums.AclPublicRead,
             StorageClass: this.obs.enums.StorageClassStandard,
             ...params,
         })

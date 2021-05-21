@@ -17,7 +17,6 @@ const TicketFile = new GQLListSchema('TicketFile', {
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
-
         file: {
             schemaDoc: 'File object with meta information and publicUrl',
             type: File,
@@ -29,14 +28,9 @@ const TicketFile = new GQLListSchema('TicketFile', {
             type: Relationship,
             ref: 'Ticket.files',
             many: false,
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
+            isRequired: false,
+            knexOptions: { isNotNullable: false }, // Maybe ticketFile without ticket connection on create
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
-        },
-        name: {
-            schemaDoc: 'Original file name',
-            type: Text,
-            isRequired: true,
         },
     },
     hooks: {
