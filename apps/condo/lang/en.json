@@ -96,7 +96,7 @@
   "menu.Users": "Users",
   "component.uploadlist.AttachedFilesLabel": "Files list",
   "component.uploadlist.AddFileLabel": "Add file",
-  "component.uploadlist..error.FileTooBig": "File size is too big",
+  "component.uploadlist.error.FileTooBig": "File size is too big",
   "Name": "Name",
   "NoData": "No data",
   "NotImplementedYet": "We don't know how to do this yet, but we will definitely learn",
