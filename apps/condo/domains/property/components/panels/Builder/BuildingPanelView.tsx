@@ -3,7 +3,6 @@ import {
     EmptyFloor, 
     BuildingAxisY, 
     BuildingChooseSections,
-    useHorizontalScroll,
 } from './BuildingPanelCommon'
 
 import { Col, Row } from 'antd'
@@ -37,7 +36,6 @@ interface IPropertyMapViewProps {
 }
 
 export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refresh }) => {
-    const container = useHorizontalScroll()
     return (
         <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
             {
@@ -54,10 +52,9 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                             horizontal={true}
                             hideScrollbars={false}
                             nativeMobileScroll={true}
-                            innerRef={container}
                         >
                             {
-                                Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleFloors} /> : null
+                                Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleChosenFloors} /> : null
                             }
                             {
                                 Builder.sections.map(section => {
@@ -69,7 +66,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                                 textAlign: 'center',
                                             }}
                                         >{
-                                                Builder.possibleFloors.map(floorIndex => {
+                                                Builder.possibleChosenFloors.map(floorIndex => {
                                                     const floorInfo = section.floors.find(floor => floor.index === floorIndex)
                                                     if (floorInfo && floorInfo.units.length) {
                                                         return (

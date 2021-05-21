@@ -16,6 +16,7 @@ async function canReadProperties ({ authentication: { item: user } }) {
     }
 }
 
+
 async function canManageProperties ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin) return true
@@ -39,8 +40,7 @@ async function canManageProperties ({ authentication: { item: user }, originalIn
         const { organization: organizationId } = property
 
         return await checkOrganizationPermission(user.id, organizationId, 'canManageProperties')
-    }
-
+    } 
     return false
 }
 
