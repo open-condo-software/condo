@@ -21,7 +21,8 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = ({ fileList: keys
     const intl = useIntl()
     const UploadedFilesLabel = 'Прикреплённые файлы'
     const AddFileLabel = 'Добавить файл'
-    console.log('keystoneFileList', keystoneFileList)
+    const FileTooBigErrorMessage = 'Файл слишком большой'
+
     const fileList = keystoneFileList.map(({ id, file }) => {
         return {
             uid: file.id,
@@ -33,39 +34,35 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = ({ fileList: keys
     })
 
     const createAction = Model.useCreate(initialCreateValues, () => Promise.resolve())
-    const deleteAction = Model.useUpdate({ id: '4daeeebc-9df8-4f67-a674-f3f90208fb50' }, () => Promise.resolve())
+    const deleteAction = Model.useSoftDelete({}, () => Promise.resolve())
 
     const options = {
-        onChange ({ file, fileList }) {
-            if (file.status !== 'uploading') {
-                console.log(file, fileList)
-            }
-        },
         showUploadList: {
             showRemoveIcon: true,
             removeIcon: (file) => {
-                return (
+                const removeIcon = (
                     <DeleteOutlined onClick={() => {
-                        console.log('file is file', file)
                         const { id } = file
-                        console.log(deleteAction)
-                        return deleteAction({ }, { id, deletedAt: 'true' })
+                        if (!id) {
+                            return 
+                        }
+                        return deleteAction({}, { id })
                     }} />
                 )
+                return removeIcon
             },
         },
-        action: ({ onSuccess, onError, file }) => {
+        customRequest: ({ onSuccess, onError, file }) => {
+            console.log('onSuccess, onError, file', onSuccess, onError, file, MAX_FILE_SIZE)
+            if (file.size < MAX_FILE_SIZE) {
+                onError(new Error(FileTooBigErrorMessage))
+                return 
+            }
             return createAction({ ...initialCreateValues, file }).catch(err => {
                 onError(err)
             }).then( () => {
                 onSuccess('Ok')
             })
-        },
-        beforeUpload (file) {
-            if (file.size > MAX_FILE_SIZE) {
-                console.log(`${file.name} is too big `)
-                return false
-            }
         },
     }
     return (
@@ -74,9 +71,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = ({ fileList: keys
         >
             <Upload
                 defaultFileList={fileList}
-                onChange={options.onChange}
-                beforeUpload={options.beforeUpload}
-                customRequest={options.action}
+                customRequest={options.customRequest}
                 showUploadList={options.showUploadList}
             >
                 <Button
