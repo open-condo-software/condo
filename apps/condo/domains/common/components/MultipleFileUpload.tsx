@@ -60,6 +60,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = ({ fileList: keys
         }, 
         customRequest: (options: UploadRequestOption) => {
             const { onSuccess, onError, file } = options
+            // Todo(zuch): typescript error  Rcfile extends File extends Blob - but size attribute is not visible for ts
             if ((file as Blob).size > MAX_UPLOAD_FILE_SIZE) {
                 onError(new Error(FileTooBigErrorMessage))
                 return 
