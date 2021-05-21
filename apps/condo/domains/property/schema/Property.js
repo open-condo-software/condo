@@ -149,11 +149,11 @@ const Property = new GQLListSchema('Property', {
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
+        auth: true,
+        delete: false,
         read: access.canReadProperties,
         create: access.canManageProperties,
         update: access.canManageProperties,
-        delete: false,
-        auth: true,
     },
     hooks: {
         validateInput: ({ resolvedData, existingItem, addValidationError }) => {

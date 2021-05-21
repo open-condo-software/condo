@@ -31,6 +31,7 @@ interface IHookResult<UI, UIForm, Q, TData = any, TVariables = OperationVariable
     useCreate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
     useUpdate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
     useDelete: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
+    useSoftDelete: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
 }
 
 export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convertToGQLInput, convertToUIState }: IHookConverters<GQL, GQLInput, UI, UIForm>): IHookResult<UI, UIForm, Q> {
@@ -148,6 +149,32 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         return useMemo(() => _action, [rowAction])
     }
 
+    function useSoftDelete (attrs = {}, onComplete) {
+        if (typeof attrs !== 'object' || !attrs) throw new Error('useSoftDelete(): invalid attrs argument')
+        const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION)
+
+        async function _action (state, obj) {
+            if (!obj.id) throw new Error('No obj.id argument')
+            const { data, errors } = await rowAction({
+                variables: {
+                    id: obj.id,
+                    data: convertToGQLInput({ ...state, deletedAt: 'true' }, obj),
+                },
+            })
+            if (data && data.obj) {
+                const result = convertToUIState(data.obj)
+                if (onComplete) onComplete(result)
+                return result
+            }
+            if (errors) {
+                console.warn(errors)
+                throw errors
+            }
+            throw new Error('unknown action result')
+        }
+
+        return useMemo(() => _action, [rowAction])
+    }
     return {
         gql,
         useObject,
@@ -155,5 +182,6 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         useCreate,
         useUpdate,
         useDelete,
+        useSoftDelete,
     }
 }

@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { Property as PropertyGQL } from '@condo/domains/property/gql'
-import { Property, PropertyUpdateInput, QueryAllPropertiesArgs } from '../../../../schema'
+import { Property, PropertyUpdateInput, QueryAllPropertiesArgs } from '@condo/domains/property/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'address', 'addressMeta', 'type', 'map', 'ticketsInWork', 'ticketsClosed', 'unitsCount']
 const RELATIONS = ['organization']
@@ -17,6 +17,7 @@ import { BuildingMap } from '@condo/domains/property/components/panels/Builder/M
 export interface IPropertyUIState extends Property {
     id: string
     address: string
+    name?: string
     ticketsInWork: string
     ticketsClosed: string
     unitsCount: string
@@ -78,6 +79,7 @@ const {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
 } = generateReactHooks<Property, PropertyUpdateInput, IPropertyFormState, IPropertyUIState, QueryAllPropertiesArgs>(PropertyGQL, { convertToGQLInput, convertToUIState })
 
 export {
@@ -86,6 +88,7 @@ export {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
     convertToUIFormState,
     extractAttributes,
 }

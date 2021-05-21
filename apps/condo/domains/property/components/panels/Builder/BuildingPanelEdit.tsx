@@ -1,6 +1,6 @@
 import { useIntl } from '@core/next/intl'
 import { Col, Row, Typography, Input, Select, InputNumber, Space } from 'antd'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { DeleteFilled } from '@ant-design/icons'
 import cloneDeep from 'lodash/cloneDeep'
 import {
@@ -8,7 +8,6 @@ import {
     EmptyFloor,
     BuildingAxisY,
     BuildingChooseSections,
-    useHorizontalScroll,
 } from './BuildingPanelCommon'
 import { Button } from '@condo/domains/common/components/Button'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -35,13 +34,26 @@ interface IBuildingPanelEditProps {
 
 export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, updateMap: updateFormField }) => {
     const intl = useIntl()
-    const [Map, setMap] = useState(new MapEdit(map, updateFormField))
-    // TODO(zuch): Ask for a better solution
-    const refresh = () => setMap(cloneDeep(Map))
-
     const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
+    const builderFormRef = useRef<HTMLDivElement | null>(null)
+    const [Map, setMap] = useState(new MapEdit(map, updateFormField))    
+    const scrollToForm = () => {
+        if (builderFormRef && builderFormRef.current) {
+            const rect = builderFormRef.current.getBoundingClientRect()
+            const isVisible =  (
+                rect.top >= 0 &&
+                rect.left >= 0 &&
+                rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+            )
+            if (!isVisible) {
+                builderFormRef.current.scrollIntoView()
+            }
+        }
+    }
+    const refresh = () => setMap(cloneDeep(Map))
     const changeMode = (mode) => {
         Map.editMode = mode
         refresh()
@@ -49,7 +61,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, upda
     const mode = Map.editMode
     return (
         <>
-            <Row align='middle' style={{ paddingBottom: '24px' }} gutter={[45, 10]} justify='start'>
+            <Row align='middle' style={{ paddingBottom: '24px' }} gutter={[45, 10]} ref={builderFormRef} justify='start'>
                 {
                     (mode === 'addSection' || mode === 'addUnit') ? (
                         <Col flex={0} style={{ maxWidth: '400px' }}>
@@ -83,6 +95,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, upda
                         <ChessBoard
                             Builder={Map}
                             refresh={refresh}
+                            scrollToForm={scrollToForm}
                         />
                 }
             </Row>
@@ -93,11 +106,12 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, upda
 interface IChessBoardProps {
     Builder: MapEdit
     refresh(): void
+    scrollToForm(): void
 }
 
 
-const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
-    const container = useHorizontalScroll()
+const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm }) => {
+    const container = useRef<HTMLElement | null>(null)
     useEffect(() => {
         if (container.current) {
             if (Builder.previewSectionId) {
@@ -105,7 +119,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
                 container.current.scrollTo(scrollWidth - clientWidth, scrollHeight - clientHeight)
             }
         }
-    }, [Builder, container])
+    }, [Builder])
     return (
         <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
             {
@@ -125,7 +139,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
                             innerRef={container}
                         >
                             {
-                                Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleFloors} /> : null
+                                Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleChosenFloors} /> : null
                             }
                             {
                                 Builder.sections.map(section => {
@@ -135,9 +149,10 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
                                             section={section}
                                             Builder={Builder}
                                             refresh={refresh}
+                                            scrollToForm={scrollToForm}
                                         >
                                             {
-                                                Builder.possibleFloors.map(floorIndex => {
+                                                Builder.possibleChosenFloors.map(floorIndex => {
                                                     const floorInfo = section.floors.find(floor => floor.index === floorIndex)
                                                     if (floorInfo && floorInfo.units.length) {
                                                         return (
@@ -150,6 +165,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh }) => {
                                                                                 unit={unit}
                                                                                 Builder={Builder}
                                                                                 refresh={refresh}
+                                                                                scrollToForm={scrollToForm}
                                                                             ></PropertyMapUnit>
                                                                         )
                                                                     })
@@ -181,11 +197,15 @@ interface IPropertyMapSectionProps {
     section: BuildingSection
     Builder: MapEdit
     refresh: () => void
+    scrollToForm: () => void
 }
 
-const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, Builder, refresh }) => {
+const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, Builder, refresh, scrollToForm }) => {
     const chooseSection = (section) => {
         Builder.setSelectedSection(section)
+        if (Builder.getSelectedSection()) {
+            scrollToForm()
+        }
         refresh()
     }
     return (
@@ -220,12 +240,16 @@ const PropertyMapFloor: React.FC = ({ children }) => {
 interface IPropertyMapUnitProps {
     unit: BuildingUnit
     Builder: MapEdit
-    refresh(): void
+    refresh: () => void
+    scrollToForm: () => void
 }
 
-const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ Builder, refresh, unit }) => {
+const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ Builder, refresh, unit, scrollToForm }) => {
     const selectUnit = (unit) => {
         Builder.setSelectedUnit(unit)
+        if (Builder.getSelectedUnit()) {
+            scrollToForm()
+        }
         refresh()
     }
     return (

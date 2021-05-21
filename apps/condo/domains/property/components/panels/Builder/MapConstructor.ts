@@ -22,11 +22,6 @@ export enum MapTypesList {
     Village = 'vilage',
 }
 
-/*
-Todo(zuch): Ask if need this logic to be implemented and how it will look like
-name: user set 
-label: autogenerate
- */
 export type BuildingUnit = {
     id: string
     type: MapTypesList.Unit
@@ -240,6 +235,16 @@ class MapView extends Map {
         return floors
     }
 
+    get possibleChosenFloors (): number[] {
+        const allIndexes = this.map.sections
+            .filter(section => this.visibleSections.includes(section.id))
+            .map(section => section.floors
+                .map(floor => floor.index))
+            .flat()
+        const uniqueIndexes = [...new Set(allIndexes)].sort((a, b) => (b - a))
+        return uniqueIndexes
+    }
+
     get isEmpty (): boolean {
         return this.map.sections.length === 0
     }
@@ -409,8 +414,8 @@ class MapEdit extends MapView {
             this.editMode = 'addSection'
             this.selectedUnit = null
         } else {
-            this.editMode = 'editUnit'
             this.selectedUnit = unit
+            this.editMode = 'editUnit'
         }        
     }
 
