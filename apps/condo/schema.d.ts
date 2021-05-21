@@ -10919,8 +10919,6 @@ export enum SortTicketClassifiersBy {
 export enum SortTicketFileHistoryRecordsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
-  NameAsc = 'name_ASC',
-  NameDesc = 'name_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -10942,8 +10940,6 @@ export enum SortTicketFilesBy {
   DvDesc = 'dv_DESC',
   TicketAsc = 'ticket_ASC',
   TicketDesc = 'ticket_DESC',
-  NameAsc = 'name_ASC',
-  NameDesc = 'name_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -11787,8 +11783,6 @@ export type TicketFile = {
   file?: Maybe<File>;
   /**  Link to ticket  */
   ticket?: Maybe<Ticket>;
-  /**  Original file name  */
-  name?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -11804,7 +11798,6 @@ export type TicketFileCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   file?: Maybe<Scalars['Upload']>;
   ticket?: Maybe<TicketRelateToOneInput>;
-  name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11829,7 +11822,6 @@ export type TicketFileHistoryRecord = {
   sender?: Maybe<Scalars['JSON']>;
   file?: Maybe<Scalars['JSON']>;
   ticket?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -11848,7 +11840,6 @@ export type TicketFileHistoryRecordCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   file?: Maybe<Scalars['JSON']>;
   ticket?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11872,7 +11863,6 @@ export type TicketFileHistoryRecordUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   file?: Maybe<Scalars['JSON']>;
   ticket?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11908,24 +11898,6 @@ export type TicketFileHistoryRecordWhereInput = {
   ticket_not?: Maybe<Scalars['String']>;
   ticket_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   ticket_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  name?: Maybe<Scalars['String']>;
-  name_not?: Maybe<Scalars['String']>;
-  name_contains?: Maybe<Scalars['String']>;
-  name_not_contains?: Maybe<Scalars['String']>;
-  name_starts_with?: Maybe<Scalars['String']>;
-  name_not_starts_with?: Maybe<Scalars['String']>;
-  name_ends_with?: Maybe<Scalars['String']>;
-  name_not_ends_with?: Maybe<Scalars['String']>;
-  name_i?: Maybe<Scalars['String']>;
-  name_not_i?: Maybe<Scalars['String']>;
-  name_contains_i?: Maybe<Scalars['String']>;
-  name_not_contains_i?: Maybe<Scalars['String']>;
-  name_starts_with_i?: Maybe<Scalars['String']>;
-  name_not_starts_with_i?: Maybe<Scalars['String']>;
-  name_ends_with_i?: Maybe<Scalars['String']>;
-  name_not_ends_with_i?: Maybe<Scalars['String']>;
-  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -12017,7 +11989,6 @@ export type TicketFileUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   file?: Maybe<Scalars['Upload']>;
   ticket?: Maybe<TicketRelateToOneInput>;
-  name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12048,24 +12019,6 @@ export type TicketFileWhereInput = {
   file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   ticket?: Maybe<TicketWhereInput>;
   ticket_is_null?: Maybe<Scalars['Boolean']>;
-  name?: Maybe<Scalars['String']>;
-  name_not?: Maybe<Scalars['String']>;
-  name_contains?: Maybe<Scalars['String']>;
-  name_not_contains?: Maybe<Scalars['String']>;
-  name_starts_with?: Maybe<Scalars['String']>;
-  name_not_starts_with?: Maybe<Scalars['String']>;
-  name_ends_with?: Maybe<Scalars['String']>;
-  name_not_ends_with?: Maybe<Scalars['String']>;
-  name_i?: Maybe<Scalars['String']>;
-  name_not_i?: Maybe<Scalars['String']>;
-  name_contains_i?: Maybe<Scalars['String']>;
-  name_not_contains_i?: Maybe<Scalars['String']>;
-  name_starts_with_i?: Maybe<Scalars['String']>;
-  name_not_starts_with_i?: Maybe<Scalars['String']>;
-  name_ends_with_i?: Maybe<Scalars['String']>;
-  name_not_ends_with_i?: Maybe<Scalars['String']>;
-  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
