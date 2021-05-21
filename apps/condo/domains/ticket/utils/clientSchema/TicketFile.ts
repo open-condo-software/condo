@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { TicketFile as TicketFileGQL } from '@condo/domains/ticket/gql'
 import { TicketFile, TicketFileUpdateInput, QueryAllTicketFilesArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'file', 'ticket', 'name']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'file', 'ticket']
 const RELATIONS = ['ticket']
 
 export interface ITicketFileUIState extends TicketFile {
