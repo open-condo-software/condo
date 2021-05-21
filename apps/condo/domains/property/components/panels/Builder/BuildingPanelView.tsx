@@ -54,7 +54,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                             nativeMobileScroll={true}
                         >
                             {
-                                Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleChoosedFloors} /> : null
+                                Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleChosenFloors} /> : null
                             }
                             {
                                 Builder.sections.map(section => {
@@ -66,7 +66,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                                 textAlign: 'center',
                                             }}
                                         >{
-                                                Builder.possibleChoosedFloors.map(floorIndex => {
+                                                Builder.possibleChosenFloors.map(floorIndex => {
                                                     const floorInfo = section.floors.find(floor => floor.index === floorIndex)
                                                     if (floorInfo && floorInfo.units.length) {
                                                         return (

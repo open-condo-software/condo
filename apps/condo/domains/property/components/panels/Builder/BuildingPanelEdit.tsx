@@ -139,7 +139,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm
                             innerRef={container}
                         >
                             {
-                                Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleChoosedFloors} /> : null
+                                Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleChosenFloors} /> : null
                             }
                             {
                                 Builder.sections.map(section => {
@@ -152,7 +152,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm
                                             scrollToForm={scrollToForm}
                                         >
                                             {
-                                                Builder.possibleChoosedFloors.map(floorIndex => {
+                                                Builder.possibleChosenFloors.map(floorIndex => {
                                                     const floorInfo = section.floors.find(floor => floor.index === floorIndex)
                                                     if (floorInfo && floorInfo.units.length) {
                                                         return (

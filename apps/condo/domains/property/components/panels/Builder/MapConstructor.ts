@@ -235,7 +235,7 @@ class MapView extends Map {
         return floors
     }
 
-    get possibleChoosedFloors (): number[] {
+    get possibleChosenFloors (): number[] {
         const allIndexes = this.map.sections
             .filter(section => this.visibleSections.includes(section.id))
             .map(section => section.floors
