@@ -6,15 +6,19 @@
 
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 
-const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const TICKET_FIELDS = `{ organization { id name } property { id name address } unitName entranceName floorName status { id name type organization { id } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone operator { id name } assignee { id name } executor { id name } watchers { id name } files { id name } classifier { id name organization { id } parent { id name } } details related { id details } isEmergency isPaid meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
+const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const COMMON_FILE_FIELDS = 'id file { id originalFilename publicUrl mimetype }'
+
+const TICKET_FIELDS = `{ organization { id name } property { id name address } unitName entranceName floorName status { id name type organization { id } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone operator { id name } assignee { id name } executor { id name } watchers { id name } files { ${COMMON_FILE_FIELDS} } classifier { id name organization { id } parent { id name } } details related { id details } isEmergency isPaid meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
+
+
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
 const TICKET_STATUS_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
 const TicketStatus = generateGqlQueries('TicketStatus', TICKET_STATUS_FIELDS)
 
-const TICKET_FILE_FIELDS = `{ file ticket { id } name ${COMMON_FIELDS} }`
+const TICKET_FILE_FIELDS = `{  ticket { id } ${COMMON_FIELDS} ${COMMON_FILE_FIELDS} }`
 const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
 
 const TICKET_SOURCE_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`

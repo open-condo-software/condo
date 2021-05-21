@@ -16,6 +16,9 @@ import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { useTicketValidations } from './useTicketValidations'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 
+import MultipleFileUpload from '@condo/domains/common/components/MultipleFileUpload'
+import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'
+
 const LAYOUT = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -140,9 +143,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                         <Form.Item noStyle dependencies={['property', 'unitName']}>
                             {
                                 ({ getFieldsValue }) => {
-                                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
+                                    const { property, unitName, files } = getFieldsValue(['property', 'unitName', 'files'])
                                     const disableUserInteraction = !property || !unitName
-
                                     return (
                                         <Col span={24}>
                                             <FrontLayerContainer showLayer={disableUserInteraction}>
@@ -157,9 +159,17 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     <Input.TextArea rows={3} placeholder={DescriptionPlaceholder} disabled={disableUserInteraction}/>
                                                                 </Form.Item>
                                                             </Col>
-                                                            <Col span={24}>
-                                                                AAAAAAAAAAAAA
-                                                            </Col>
+                                                            {   // Todo(zuch): Temporary only for existing tickets
+                                                                initialValues && initialValues.id ? 
+                                                                    <Col span={24}>
+                                                                        <MultipleFileUpload
+                                                                            fileList={files}
+                                                                            initialCreateValues={{ ticket: initialValues.id }}
+                                                                            Model={TicketFile}
+                                                                        >
+                                                                        </MultipleFileUpload>
+                                                                    </Col> : null
+                                                            }
                                                         </Row>
                                                     </Col>
                                                     <Col span={24}>
