@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { OrganizationEmployee as OrganizationEmployeeGQL } from '@condo/domains/organization/gql'
 import { OrganizationEmployee, OrganizationEmployeeUpdateInput, QueryAllOrganizationEmployeesArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'user', 'inviteCode', 'name', 'email', 'phone', 'role', 'isAccepted', 'isRejected']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'isBlocked', 'updatedBy', 'organization', 'user', 'inviteCode', 'name', 'email', 'phone', 'role', 'position', 'isAccepted', 'isRejected']
 const RELATIONS = ['organization', 'user', 'role']
 
 export interface IOrganizationEmployeeUIState extends OrganizationEmployee {
@@ -25,6 +25,7 @@ function convertToUIState (item: OrganizationEmployee): IOrganizationEmployeeUIS
 
 export interface IOrganizationEmployeeFormState {
     id?: undefined
+    isBlocked?: boolean
     // TODO(codegen): write IOrganizationEmployeeUIFormState or extends it from
 }
 
@@ -41,10 +42,37 @@ function convertToUIFormState (state: IOrganizationEmployeeUIState): IOrganizati
 function convertToGQLInput (state: IOrganizationEmployeeFormState): OrganizationEmployeeUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
-    for (const attr of Object.keys(state)) {
-        const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+
+    // TODO(Dimitreee): refactor client utils to add disconectFeature, think about solution
+    for (const fieldName of Object.keys(state)) {
+        if (state[fieldName] && RELATIONS.includes(fieldName)) {
+            const disconnectId = get(state, [fieldName, 'disconnectId'])
+            const id = get(state, [fieldName, 'id'])
+
+            if (disconnectId) {
+                result[fieldName] = {
+                    disconnect: {
+                        id: disconnectId,
+                    },
+                }
+            } else if (id) {
+                result[fieldName] = {
+                    connect: {
+                        id,
+                    },
+                }
+            } else {
+                result[fieldName] = {
+                    connect: {
+                        id: state[fieldName],
+                    },
+                }
+            }
+        } else {
+            result[fieldName] = state[fieldName]
+        }
     }
+
     return result
 }
 
@@ -62,5 +90,6 @@ export {
     useCreate,
     useUpdate,
     useDelete,
+    convertToGQLInput,
     convertToUIFormState,
 }

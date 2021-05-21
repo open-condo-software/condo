@@ -1,15 +1,200 @@
+import { DeleteFilled, EditFilled } from '@ant-design/icons'
+import { Button } from '@condo/domains/common/components/Button'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
+import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { canManageEmployee, canReinviteEmployee } from '@condo/domains/organization/permissions'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
+import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
+import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
+import { Alert, Button as AntButton, Col, Row, Space, Switch, Tag, Tooltip, Typography } from 'antd'
+import get from 'lodash/get'
+import Head from 'next/head'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
+import React from 'react'
 
-const Employee = () => {
-    const router = useRouter()
-    const { query: { id } } = router
-    console.log(id)
+export const EmployeeInfoPage = () => {
+    const intl = useIntl()
+    const PhoneMessage = intl.formatMessage({ id: 'Phone' })
+    const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
+    const UpdateMessage = intl.formatMessage({ id: 'Edit' })
+    const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
+    const EmployeeDidntEnteredMessage = intl.formatMessage({ id: 'employee.EmployeeDidntEntered' })
+    const BlockUserMessage = intl.formatMessage({ id: 'employee.BlockUser' })
+
+    const { query } = useRouter()
+    const { link } = useOrganization()
+
+    const employeeId = get(query, 'id')
+    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: employeeId } })
+    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
+
+    if (error) {
+        return <LoadingOrErrorPage title={'Title'} loading={loading} error={error ? 'Error' : null}/>
+    }
+
+    const isEmployeeEditable = canManageEmployee(link, employee)
+    const isEmployeeReinvitable = canReinviteEmployee(link, employee)
+    const isEmployeeBlocked = get(employee, 'isBlocked')
+
+    const name = get(employee, 'name')
+
+    const handleEmployeeBlock = (blocked) => {
+        if (!isEmployeeEditable) {
+            return
+        }
+
+        updateEmployeeAction({ isBlocked: blocked }, employee)
+    }
 
     return (
-        <div>
-            Employee
-        </div>
+        <>
+            <Head>
+                <title>{name}</title>
+            </Head>
+            <PageWrapper>
+                <PageContent>
+                    <OrganizationRequired>
+                        <Row gutter={[0, 40]}>
+                            <Col span={3}>
+                                <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked}/>
+                            </Col>
+                            <Col span={20} push={1}>
+                                <Row gutter={[0, 60]}>
+                                    <Col span={24}>
+                                        <Row gutter={[0, 40]}>
+                                            <Col span={24}>
+                                                <Typography.Title
+                                                    level={1}
+                                                    style={{ margin: 0, fontWeight: 'bold' }}
+                                                >
+                                                    {name}
+                                                </Typography.Title>
+                                                <NotDefinedField
+                                                    value={get(employee, ['position'])}
+                                                    render={(value) => (
+                                                        <Typography.Title
+                                                            level={2}
+                                                            style={{ margin: '8px 0 0', fontWeight: 400 }}
+                                                        >
+                                                            {value}
+                                                        </Typography.Title>
+                                                    )}
+                                                />
+                                            </Col>
+                                            {isEmployeeReinvitable && (
+                                                <Alert showIcon type='warning' message={
+                                                    <>
+                                                        {EmployeeDidntEnteredMessage}
+                                                        .&nbsp;
+                                                        <EmployeeInviteRetryButton employee={employee}/>
+                                                    </>
+                                                }/>
+                                            )}
+                                            {isEmployeeEditable && (
+                                                <Col span={24}>
+                                                    <Space direction={'horizontal'} size={8}>
+                                                        <Switch
+                                                            id='employeeBlock'
+                                                            onChange={handleEmployeeBlock}
+                                                            defaultChecked={isEmployeeBlocked}
+                                                        />
+                                                        <label htmlFor='employeeBlock'>
+                                                            <Typography.Text type='danger' style={{ fontSize: '16px' }}>
+                                                                {BlockUserMessage}
+                                                            </Typography.Text>
+                                                        </label>
+                                                    </Space>
+                                                </Col>
+                                            )}
+                                            <Col span={24}>
+                                                <FrontLayerContainer showLayer={isEmployeeBlocked}>
+                                                    <Row gutter={[0, 24]}>
+                                                        <Col span={3}>
+                                                            <Typography.Text type='secondary'>
+                                                                {PhoneMessage}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                        <Col span={19} push={2}>
+                                                            <NotDefinedField value={get(employee, 'phone')}/>
+                                                        </Col>
+
+                                                        <Col span={3}>
+                                                            <Typography.Text type='secondary'>
+                                                                {RoleMessage}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                        <Col span={19} push={2}>
+                                                            <NotDefinedField
+                                                                value={get(employee, ['role', 'name'])}
+                                                                render={
+                                                                    (roleName) => (
+                                                                        <Tag color='default'>{roleName}</Tag>
+                                                                    )
+                                                                }
+                                                            />
+                                                        </Col>
+
+                                                        <Col span={3}>
+                                                            <Typography.Text type='secondary'>
+                                                                {EmailMessage}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                        <Col span={19} push={2}>
+                                                            <NotDefinedField value={get(employee, 'email')}/>
+                                                        </Col>
+                                                    </Row>
+                                                </FrontLayerContainer>
+                                            </Col>
+                                            {isEmployeeEditable && (
+                                                <Col span={24}>
+                                                    <Space direction={'horizontal'} size={40}>
+                                                        <Link href={`/employee/${employeeId}/update`}>
+                                                            <Button
+                                                                color={'green'}
+                                                                type={'sberPrimary'}
+                                                                secondary
+                                                                icon={<EditFilled />}
+                                                            >
+                                                                {UpdateMessage}
+                                                            </Button>
+                                                        </Link>
+                                                        <AntButton danger>
+                                                            <DeleteFilled />
+                                                        </AntButton>
+                                                    </Space>
+                                                </Col>
+                                            )}
+                                        </Row>
+                                    </Col>
+                                </Row>
+                            </Col>
+                        </Row>
+                    </OrganizationRequired>
+                </PageContent>
+            </PageWrapper>
+        </>
     )
 }
 
-export default Employee
+const HeaderAction = () => {
+    const intl = useIntl()
+    const AccountMessage = intl.formatMessage({ id: 'Account' })
+
+    return (
+        <Space>
+            <Typography.Text style={{ fontSize: '12px' }}>
+                {AccountMessage}
+            </Typography.Text>
+        </Space>
+    )
+}
+
+EmployeeInfoPage.headerAction = <HeaderAction/>
+
+export default EmployeeInfoPage

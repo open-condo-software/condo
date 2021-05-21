@@ -29,6 +29,7 @@ function createNewGQLItem () {
     return {
         id: Math.random(),
         isUnsavedNew: true,
+        isBlocked: false,
     }
 }
 
@@ -290,7 +291,7 @@ function ViewOrEditTableBlock ({ columns, table }) {
     const onRow = (record) => {
         return {
             onClick: () => {
-                const employeeId = get(record, ['role', 'id'])
+                const employeeId = get(record, 'id')
 
                 Router.push(`/employee/${employeeId}`)
             },
