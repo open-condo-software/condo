@@ -5,8 +5,27 @@ const { Json } = require('@core/keystone/fields')
 
 /**
  * Utilities to make a GQLListSchema item trackable for changes.
+ *
+ * Implements changes tracking of a given schema items, that will be displayed
+ * in UI in a user-friendly format. This is story for a scope of end-user, not a system.
+ *
  * We take a "source" schema, whose changes we want to track and
- * store actual changes in "destination" schema.
+ * store actual changes in a "destination" schema.
+ *
+ * Suppose, we have a `Ticket` schema, following workflow will happen:
+ * 1. A `Ticket` item is created
+ * 2. The item is updated
+ * 3. First `TicketChange` item is created
+ * 4. The `Ticket` item is updated second time
+ * 5. Second `TicketChange` item is created
+ *
+ * Each `TicketChange` item contains incremental changes of related `Ticket` ("source") schema item.
+ * A full snapshot is not stored by following reasons:
+ * 1. We already have system `…HistoryRecord` schema, added via `versioned` Keystone plugin;
+ * 2. Data bloating should be avoided.
+ *
+ *
+ * ## Integration guide
  *
  * For example, to track changes of `Ticket` schema, following should be done:
  * 1. Decide, what fields should be trackable, using `trackableFieldsFrom` function;
