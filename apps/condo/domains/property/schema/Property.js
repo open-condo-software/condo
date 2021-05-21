@@ -150,7 +150,7 @@ const Property = new GQLListSchema('Property', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         auth: true,
-        delete: access.canDeleteProperties,
+        delete: false,
         read: access.canReadProperties,
         create: access.canManageProperties,
         update: access.canManageProperties,
