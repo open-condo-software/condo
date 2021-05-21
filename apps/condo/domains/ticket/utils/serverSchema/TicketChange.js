@@ -60,47 +60,80 @@ const displayNameResolvers = {
 
 const relatedManyToManyResolvers = {
     'watchers': async ({ context, existingItem, originalInput }) => {
-        /*
-            TODO(antonal): figure out how to get old list of related items in many-to-many relationship.
-            First variant is to get it from `beforeChange` hook of the Ticket,
-            but where to store it?
-            Second variant is to get previous TicketChange and get it
-            from `watchersIdsTo` field. I think, second variant is much easier to implement
-        */
-        // let oldIds = []
-        // if (originalInput && originalInput.watchers) {
-        // }
-
-        const { errors, data } = await context.executeGraphQL({
+        let updated
+        const updatedResult = await context.executeGraphQL({
             context: context.createContext({ skipAccessControl: true }),
             query: `
-                query findRelatedItems($id: ID!, $oldIds: [ID!]) {
+                query changeTrackable_findTicketWatchersForTicketChange($id: ID!) {
                     ticket: Ticket(where: { id: $id }) {
                         id
                         watchers {
-                          id
-                          name
+                            id
+                            name
                         }
-                      }
                     }
-                `,
+                }
+            `,
             variables: { id: existingItem.id },
         })
-        if (errors) {
-            console.error('Error while fetching related items in relatedManyToManyResolvers of Ticket', errors)
-            return []
+        if (updatedResult.errors) {
+            console.error('Error while fetching related items in relatedManyToManyResolvers of changeTrackable for a Ticket', updatedResult.errors)
+            return {}
         }
-        if (data.ticket) {
-            return {
-                existing: {
-                    ids: [], // TODO(antonal): figure out how to get old list of related items in many-to-many relationship.
-                    displayNames: [], // TODO(antonal): figure out how to get old list of related items in many-to-many relationship.
-                },
-                updated: {
-                    ids: _.map(data.ticket.watchers, 'id'),
-                    displayNames: _.map(data.ticket.watchers, 'name'),
-                },
+        if (updatedResult.data.ticket) {
+            updated = {
+                ids: _.map(updatedResult.data.ticket.watchers, 'id'),
+                displayNames: _.map(updatedResult.data.ticket.watchers, 'name'),
             }
+        }
+
+        /*
+            Restore previous list of related items
+            This is a tricky part, because we need to restore previous list of related items,
+            that explicitly is not presented anywhere.
+            Following solutions was considered:
+            1. Get it from `beforeChange` hook of the Ticket, but where to store it?
+            2. Get previous TicketChange and get it from `watchersIdsTo` field.
+               This solution is not suitable for handling first change,
+               because there will be no `TicketChange` item yet.
+            3. Get current `watchers` list (after update) and make a replay,
+               based on Keystone `originalInput`, which stores "Nested mutation" operations
+               for this relationship. This variant is implemented.
+        */
+        let existing = { ...updated } // make a copy
+        if (originalInput && originalInput.watchers) {
+            if (originalInput.watchers.disconnect) {
+                // Perform opposite operation
+                existing.ids = _.uniq([...existing.ids, ..._.map(originalInput.watchers.disconnect, 'id')])
+            }
+            if (originalInput.watchers.connect) {
+                // Perform opposite operation
+                existing.ids = _.difference(existing.ids, _.map(originalInput.watchers.connect, 'id'))
+            }
+        }
+        const usersResult = await context.executeGraphQL({
+            context: context.createContext({ skipAccessControl: true }),
+            query: `
+                query changeTrackable_findUsers($ids: [ID!]) {
+                    users: allUsers(where: { id_in: $ids }) {
+                        id
+                        name
+                    }
+                }
+            `,
+            variables: { ids: existing.ids },
+        })
+        if (usersResult.error) {
+            console.error('Error while fetching users in relatedManyToManyResolvers of changeTrackable for a Ticket', updatedResult.errors)
+            return {}
+        }
+        if (usersResult.data.users) {
+            existing.displayNames = _.map(usersResult.data.users, 'name')
+        }
+
+        return {
+            existing,
+            updated,
         }
     },
 }
