@@ -48,9 +48,9 @@ async function _search (client, query, variables) {
     })
 }
 
-export function searchProperty (organization) {
+export function searchProperty (organizationId) {
     return async function (client, value) {
-        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_QUERY, { value, organization })
+        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_QUERY, { value, organizationId })
         if (error) console.warn(error)
         if (data) return data.objs.map(x => ({ text: x.address, value: x.id }))
         return []
@@ -71,9 +71,9 @@ export async function searchTicketClassifier (client, value) {
     return []
 }
 
-export function searchEmployee (organization) {
+export function searchEmployee (organizationId) {
     return async function (client, value) {
-        const { data = [], error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organization })
+        const { data = [], error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
         if (error) console.warn(error)
 
         return data.objs.map(object => {
