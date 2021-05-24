@@ -12,7 +12,7 @@ import { START_PASSWORD_RECOVERY_MUTATION } from '../gql'
 export const UserPasswordResetButton = () => {
     const intl = useIntl()
     const ChangePasswordLabel = intl.formatMessage({ id: 'profile.ChangePassword' })
-    const Seconds = intl.formatMessage({ id: 'Seconds' })
+    const SecondsLabel = intl.formatMessage({ id: 'Seconds' })
 
     const { user } = useAuth()
     const [startPasswordRecovery] = useMutation(START_PASSWORD_RECOVERY_MUTATION)
@@ -44,7 +44,7 @@ export const UserPasswordResetButton = () => {
                         {isCountDownActive && (
                             <Typography.Text type={'secondary'}>
                                 &nbsp;
-                                ({ countdown } {Seconds})
+                                ({ countdown } {SecondsLabel})
                             </Typography.Text>
                         )}
                     </Button>
