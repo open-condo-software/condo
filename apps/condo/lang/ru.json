@@ -251,6 +251,8 @@
   "employee.Position": "Должность",
   "employee.Role": "Роль",
   "employee.UpdateTitle": "Редактирование сотрудника",
+  "employee.ConfirmDeleteTitle": "Удалить сотрудника?",
+  "employee.ConfirmDeleteMessage": "Все данные о нём сотрутся навсегда",
   "Paid": "Платная",
   "Password": "Пароль",
   "Phone": "Телефон",
