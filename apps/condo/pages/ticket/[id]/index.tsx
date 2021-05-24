@@ -1,5 +1,7 @@
 import { Col, Row, Space, Typography, Tag } from 'antd'
+import UploadList from 'antd/lib/upload/UploadList/index'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useMemo, useState } from 'react'
 import { ArrowLeftOutlined, EditFilled, FilePdfFilled } from '@ant-design/icons'
 import Head from 'next/head'
@@ -15,7 +17,6 @@ import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-
 import {
     getTicketCreateMessage,
     getTicketTitleMessage,
@@ -23,6 +24,8 @@ import {
 import { LETTERS_AND_NUMBERS } from '@condo/domains/common/constants/regexps'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
+import { TicketFile } from '../../../schema'
+
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
@@ -46,6 +49,33 @@ const TicketDescriptionField: React.FC<ITicketDescriptionFieldProps> = ({ title,
             <Typography.Text type={'secondary'}>{title}</Typography.Text>
             <Typography.Text {...{ type }} style={{ fontSize: '16px' }}>{value || NotDefinedMessage}</Typography.Text>
         </Space>
+    )
+}
+
+interface ITicketFileListProps {
+    files?: TicketFile[]
+}
+
+const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
+    const intl = useIntl()
+    const FilesFieldLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Files' })
+    const uploadFiles = files.map(({ file }) => {
+        const fileInList = {
+            uid: file.id,
+            name: file.originalFilename,
+            status: null,
+            url: file.publicUrl,
+        }
+        fileInList.status = 'done'
+        return fileInList        
+    })
+    const FilesFieldValue = (<UploadList locale={{}} showRemoveIcon={false} items={uploadFiles} />)
+    return (
+        <Row style={{ paddingTop: '20px' }}>
+            <Col span={24}>
+                <TicketDescriptionField title={FilesFieldLabel} value={FilesFieldValue} />
+            </Col>
+        </Row>
     )
 }
 
@@ -267,6 +297,11 @@ const TicketIdPage = () => {
                                         </Col>
                                         <Col span={24}>
                                             <Typography.Text style={{ fontSize: '24px' }}>{ticket.details}</Typography.Text>
+                                            { 
+                                                !isEmpty(ticket.files) 
+                                                    ?
+                                                    <TicketFileList files={ticket.files} /> : null
+                                            }
                                         </Col>
                                     </Row>
                                 </Row>
