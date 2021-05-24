@@ -292,6 +292,13 @@ const mapScalar = (field) => (
     _.pick(field, ['schemaDoc', 'type'])
 )
 
+/**
+ * Produces "Change storage set" of fields (see Terms) for a single relationship field
+ * Used in lodash `transform` function
+ * @param {Object} acc - final set all fields, composed using lodash `transform` function
+ * @param {Object} value - Keystone field declaration
+ * @param {String} key - key of a field being iterated
+ */
 const mapRelationSingle = (acc, value, key) => {
     acc[`${key}IdFrom`] = {
         schemaDoc: `Old id of related entity. ${value.schemaDoc}`,
@@ -311,6 +318,13 @@ const mapRelationSingle = (acc, value, key) => {
     }
 }
 
+/**
+ * Produces "Change storage set" of fields (see Terms) for a "many" relationship field
+ * Used in lodash `transform` function
+ * @param {Object} acc - final set all fields, composed using lodash `transform` function
+ * @param {Object} value - Keystone field declaration
+ * @param {String} key - key of a field being iterated
+ */
 const mapRelationMany = (acc, value, key) => {
     acc[`${key}IdsFrom`] = {
         schemaDoc: `Old list of ids of related entities. ${value.schemaDoc}`,
