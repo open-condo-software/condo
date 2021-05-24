@@ -12,11 +12,7 @@ async function canReadTickets ({ authentication: { item: user } }) {
         return {}
     }
 
-    return {
-        OR: [
-            { organization: { employees_some: { user: { id: user.id } } } },
-        ],
-    }
+    return { organization: { employees_some: { user: { id: user.id } }, isBlocked: false } }
 }
 
 async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput }) {

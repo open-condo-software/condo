@@ -37,8 +37,8 @@ export const EmployeeInfoPage = () => {
     const { query } = useRouter()
     const { link } = useOrganization()
 
-    const employeeId = get(query, 'id')
-    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: employeeId } })
+    const employeeId = get(query, 'id', '')
+    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(employeeId) } })
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
     const softDeleteAction = OrganizationEmployee.useSoftDelete({}, () => Router.push('/employee/'))
 
@@ -114,18 +114,17 @@ export const EmployeeInfoPage = () => {
                                             )}
                                             {isEmployeeEditable && (
                                                 <Col span={24}>
-                                                    <Space direction={'horizontal'} size={8}>
-                                                        <Switch
-                                                            id='employeeBlock'
-                                                            onChange={handleEmployeeBlock}
-                                                            defaultChecked={isEmployeeBlocked}
-                                                        />
-                                                        <label htmlFor='employeeBlock'>
+                                                    <label>
+                                                        <Space direction={'horizontal'} size={8}>
+                                                            <Switch
+                                                                onChange={handleEmployeeBlock}
+                                                                defaultChecked={isEmployeeBlocked}
+                                                            />
                                                             <Typography.Text type='danger' style={{ fontSize: '16px' }}>
                                                                 {BlockUserMessage}
                                                             </Typography.Text>
-                                                        </label>
-                                                    </Space>
+                                                        </Space>
+                                                    </label>
                                                 </Col>
                                             )}
                                             <Col span={24}>
