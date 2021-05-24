@@ -39,7 +39,7 @@ async function canManageOrganizationEmployeeRoles ({ authentication: { item: use
     }
     return {
         // user is inside employee list
-        organization: { employees_some: { user: { id: user.id }, role: { canManageRoles: true } }, isBlocked: false },
+        organization: { employees_some: { user: { id: user.id }, role: { canManageRoles: true }, isBlocked: false } },
     }
 }
 
