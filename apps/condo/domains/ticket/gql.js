@@ -8,7 +8,7 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const TICKET_FIELDS = `{ organization { id name } property { id name address } unitName status { id name type organization { id } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone operator { id name } assignee { id name } executor { id name } watchers { id name } classifier { id name organization { id } parent { id name } } details related { id details } isEmergency isPaid meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
+const TICKET_FIELDS = `{ organization { id name } property { id name address } unitName entranceName floorName status { id name type organization { id } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone operator { id name } assignee { id name } executor { id name } watchers { id name } classifier { id name organization { id } parent { id name } } details related { id details } isEmergency isPaid meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
 const TICKET_STATUS_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
