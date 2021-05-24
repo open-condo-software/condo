@@ -134,12 +134,12 @@ const uploadControlCss = css`
     .upload-control-wrapper a.ant-upload-list-item-name, 
     .upload-control-wrapper a.ant-upload-list-item-name:active, 
     .upload-control-wrapper a.ant-upload-list-item-name:focus {
-        color: ${colors.sberPrimary[7]};
+        color: ${colors.green[7]};
     }
     .upload-control-wrapper .ant-upload-list-item:hover a,
     .upload-control-wrapper .ant-upload-list-item:hover .ant-upload-text-icon > .anticon.anticon-paper-clip,
     .upload-control-wrapper .ant-upload-list-item:hover .ant-upload-list-item-info.ant-upload-text-icon.anticon {
-        color: ${colors.sberPrimary[5]};
+        color: ${colors.green[5]};
     }
     .upload-control-wrapper .ant-upload-list-item.ant-upload-list-item-error .ant-upload-list-item-info .ant-upload-text-icon .anticon,
     .upload-control-wrapper .ant-upload-list-item.ant-upload-list-item-error:hover .ant-upload-list-item-info .ant-upload-text-icon .anticon {

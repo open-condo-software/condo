@@ -20,8 +20,8 @@ type UploadListFile = UploadFile & {
 }
 
 type Module = {
-    useCreate: (attrs, onComplete) => (attrs) => Promise<unknown>
-    useUpdate: (attrs, onComplete) => (update, attrs) => Promise<unknown>
+    useCreate: (attrs, onComplete) => (attrs) => Promise<DBFile>
+    useUpdate: (attrs, onComplete) => (update, attrs) => Promise<DBFile>
     useSoftDelete: (attrs, onComplete) => (state, attrs) => Promise<unknown>
 }
 
@@ -78,8 +78,7 @@ export const useMultipleFileUploadHook = ({
 }: MultipleFileUploadHookArgs): [React.FC<IUploadComponentProps>, (id: string) => Promise<void>] => {    
     const [modifiedFiles, dispatch] = useReducer(reducer, { added: [], deleted: [] })
     const modifiedFilesRef = useRef(modifiedFiles)
-
-    // Todo(zuch): without ref modifiedFiles are dissapering on submit
+    // Todo(zuch): without ref modifiedFiles dissappears on submit
     useEffect(() => {
         modifiedFilesRef.current = modifiedFiles
     }, [modifiedFiles])
@@ -119,7 +118,7 @@ interface IMultipleFileUploadProps {
     fileList: DBFile[]
     initialCreateValues: Record<string, unknown>
     Model: Module
-    onFilesChange: React.Dispatch<unknown>,
+    onFilesChange: React.Dispatch<{ type: string, payload: DBFile }>,
 }
 
 const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
@@ -141,7 +140,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         setListFiles(convertedFiles)
     }, [fileList])
 
-    const createAction = Model.useCreate(initialCreateValues, () => Promise.resolve())
+    const createAction = Model.useCreate(initialCreateValues, (file: DBFile) => Promise.resolve(file))
 
     const options = {
         fileList: listFiles,
@@ -178,13 +177,13 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 setListFiles([...listFiles.filter(file => file.status !== 'uploading'), { name: file.name, uid: file.uid, id: null, status: 'error', error: error }])
                 return 
             }
-            return createAction({ ...initialCreateValues, file }).catch(err => {
-                onError(err)
-            }).then( dbFile => {
-                const [uploadFile] = convertFilesToUploadFormat([dbFile as DBFile])
+            return createAction({ ...initialCreateValues, file }).then( dbFile  => {
+                const [uploadFile] = convertFilesToUploadFormat([dbFile])
                 setListFiles([...listFiles.filter(file => file.status !== 'uploading'), uploadFile])
                 onSuccess('Ok', null)
                 onFilesChange({ type: 'add', payload: dbFile })                                
+            }).catch(err => {
+                onError(err)
             })
         },
     }

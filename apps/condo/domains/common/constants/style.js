@@ -22,6 +22,7 @@ const colors = {
     markColor,
     white,
     black,
+    green,
     ultraLightGrey,
 }
 
