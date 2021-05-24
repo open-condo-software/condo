@@ -253,6 +253,8 @@
   "employee.UpdateTitle": "Редактирование сотрудника",
   "employee.ConfirmDeleteTitle": "Удалить сотрудника?",
   "employee.ConfirmDeleteMessage": "Все данные о нём сотрутся навсегда",
+  "employee.emptyList.title": "Вы заблокированы",
+  "employee.emptyList.description": "Ваш работодатель заблокировал вас в организации",
   "Paid": "Платная",
   "Password": "Пароль",
   "Phone": "Телефон",
