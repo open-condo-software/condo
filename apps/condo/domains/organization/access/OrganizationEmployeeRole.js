@@ -25,6 +25,7 @@ async function canManageOrganizationEmployeeRoles ({ authentication: { item: use
         const employeeForUser = await getByCondition('OrganizationEmployee', {
             organization: { id: originalInput.organization.connect.id },
             user: { id: user.id },
+            deletedAt: null,
         })
 
         if (employeeForUser.isBlocked) {
