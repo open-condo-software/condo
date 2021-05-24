@@ -21,8 +21,6 @@ const TicketStatus = generateGqlQueries('TicketStatus', TICKET_STATUS_FIELDS)
     PS: not exactly by hands, pasted from debugger ;)
  */
 const TICKET_CHANGE_DATA_FIELDS = [
-    'dvFrom',
-    'dvTo',
     'statusReopenedCounterFrom',
     'statusReopenedCounterTo',
     'statusUpdatedAtFrom',

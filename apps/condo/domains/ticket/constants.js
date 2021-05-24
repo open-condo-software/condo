@@ -22,7 +22,7 @@ const TICKET_STATUS_TYPES = [
     `sender` is an internal field, that don't need to be displayed in UI.
     It's not participating in Ticket changes UI for customer.
  */
-const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['sender']
+const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['dv', 'sender']
 
 module.exports = {
     NEW_OR_REOPENED_STATUS_TYPE,
