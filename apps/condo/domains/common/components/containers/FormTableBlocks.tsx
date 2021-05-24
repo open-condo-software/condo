@@ -27,7 +27,6 @@ const _USE_TABLE_INITIAL_STATE = {
 
 function createNewGQLItem () {
     return {
-        id: Math.random(),
         isUnsavedNew: true,
         isBlocked: false,
     }

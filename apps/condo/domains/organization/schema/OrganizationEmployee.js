@@ -9,7 +9,7 @@ const { Text, Relationship, Uuid, Checkbox } = require('@keystonejs/fields')
 const { userIsAdmin } = require('@core/keystone/access')
 const access = require('@condo/domains/organization/access/OrganizationEmployee')
 const { GQLListSchema } = require('@core/keystone/schema')
-const { historical, versioned, tracked } = require('@core/keystone/plugins')
+const { historical, versioned, tracked, softDeleted } = require('@core/keystone/plugins')
 
 const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
@@ -108,7 +108,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             isRequired: false,
         },
     },
-    plugins: [versioned(), tracked(), historical()],
+    plugins: [versioned(), tracked(), historical(), softDeleted()],
     access: {
         read: access.canReadOrganizationEmployees,
         create: access.canManageOrganizationEmployees,

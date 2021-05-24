@@ -6,6 +6,7 @@ const checkEmployeeExistency = async (context, organization, email, phone, user)
     const employeesByEmail = await findOrganizationEmployee(context, {
         email,
         organization: { id: organization.id },
+        deletedAt: null,
     })
 
     if (employeesByEmail.length > 0) {
@@ -16,6 +17,7 @@ const checkEmployeeExistency = async (context, organization, email, phone, user)
     const employeesByPhone = await findOrganizationEmployee(context, {
         phone,
         organization: { id: organization.id },
+        deletedAt: null,
     })
 
     if (employeesByPhone.length > 0) {
@@ -27,6 +29,7 @@ const checkEmployeeExistency = async (context, organization, email, phone, user)
         const employeesByUser = await findOrganizationEmployee(context, {
             user: { id: user.id },
             organization: { id: organization.id },
+            deletedAt: null,
         })
 
         if (employeesByUser.length > 0) {
