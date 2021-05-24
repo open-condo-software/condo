@@ -118,7 +118,7 @@ export const EmployeeProfileForm = () => {
                     </Row>
                 )
             }}
-                </FormWithAction>
-                )
-            }
+        </FormWithAction>
+    )
+}
 
