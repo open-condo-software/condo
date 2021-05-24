@@ -84,6 +84,7 @@ describe('TicketChange', () => {
 
             expect(objs).toHaveLength(1)
             expect(objs[0].id).toBeDefined()
+            expect(objs[0].v).toEqual(1)
             expect(objs[0].dv).toEqual(1)
             expect(objs[0].sender).toEqual(updatedTicket.sender)
             expect(objs[0].detailsFrom).toEqual(ticket.details)
