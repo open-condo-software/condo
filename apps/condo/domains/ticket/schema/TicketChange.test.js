@@ -70,14 +70,13 @@ describe('TicketChange', () => {
                 classifier: { connect: { id: classifiers[1].id } },
                 source: { connect: { id: sources[1].id } },
                 related: { connect: { id: ticket3.id } },
-                // TODO(antonal): figure out how to get old list of related items in many-to-many relationship.
                 watchers: {
                     disconnect: [{ id: client2.user.id }],
                     connect: [{ id: client4.user.id }],
                 },
             }
 
-            await updateTestTicket(admin, ticket.id, payload)
+            const [updatedTicket] = await updateTestTicket(admin, ticket.id, payload)
 
             const objs = await TicketChange.getAll(admin, {
                 ticket: { id: ticket.id },
@@ -86,6 +85,7 @@ describe('TicketChange', () => {
             expect(objs).toHaveLength(1)
             expect(objs[0].id).toBeDefined()
             expect(objs[0].dv).toEqual(1)
+            expect(objs[0].sender).toEqual(updatedTicket.sender)
             expect(objs[0].detailsFrom).toEqual(ticket.details)
             expect(objs[0].detailsTo).toEqual(payload.details)
             expect(objs[0].numberFrom).toEqual(ticket.number)
