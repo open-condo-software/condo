@@ -117,7 +117,7 @@ const trackableFieldsFrom = (schema, options = {}) => (
  *      }
  * })
  *
- * @param {Object} fields - result of `trackableFieldsFrom` function
+ * @param {Object} fields - `fields` object of a Keystone schema
  * @return {Object} - Set of fields, that should be substituted into a declaration of schema, that will store changes.
  */
 function generateChangeTrackableFieldsFrom (fields) {
