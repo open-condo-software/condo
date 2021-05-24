@@ -35,6 +35,9 @@ describe('TicketChange', () => {
             const [ticket2] = await createTestTicket(client, client.organization, client.property)
             const [ticket3] = await createTestTicket(client, client.organization, client.property)
             const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                entranceName: faker.lorem.word(),
+                floorName: faker.lorem.word(),
+                unitName: faker.lorem.word(),
                 isEmergency: true,
                 isPaid: true,
                 status: { connect: { id: openedStatus.id } },
@@ -103,17 +106,12 @@ describe('TicketChange', () => {
             expect(objs[0].isEmergencyTo).toEqual(payload.isEmergency)
             expect(objs[0].isPaidFrom).toEqual(ticket.isPaid)
             expect(objs[0].isPaidTo).toEqual(payload.isPaid)
-
-            /*
-                `entranceName`, `floorName`, `unitName` are unused in Ticket yet
-            */
-            // expect(objs[0].entranceNameFrom).toEqual(ticket.entranceName)
-            // expect(objs[0].entranceNameTo).toEqual(payload.entranceName)
-            // expect(objs[0].floorNameFrom).toEqual(ticket.floorName)
-            // expect(objs[0].floorNameTo).toEqual(payload.floorName)
-            // expect(objs[0].unitNameFrom).toEqual(ticket.unitName)
-            // expect(objs[0].unitNameTo).toEqual(payload.unitName)
-
+            expect(objs[0].entranceNameFrom).toEqual(ticket.entranceName)
+            expect(objs[0].entranceNameTo).toEqual(payload.entranceName)
+            expect(objs[0].floorNameFrom).toEqual(ticket.floorName)
+            expect(objs[0].floorNameTo).toEqual(payload.floorName)
+            expect(objs[0].unitNameFrom).toEqual(ticket.unitName)
+            expect(objs[0].unitNameTo).toEqual(payload.unitName)
             expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
             expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
             expect(objs[0].createdAt).toMatch(DATETIME_RE)
