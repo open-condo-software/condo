@@ -9,7 +9,7 @@ const { trackableFieldsFrom } = require('../../common/utils/serverSchema/changeT
 const { Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { uuided, tracked } = require('@core/keystone/plugins')
-const { DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketChange')
 const { generateChangeTrackableFieldsFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 
@@ -21,6 +21,7 @@ const TicketChange = new GQLListSchema('TicketChange', {
     schemaDoc: 'Incremental changes of Ticket',
     fields: {
         dv: DV_FIELD,
+        sender: SENDER_FIELD,
 
         ticket: {
             schemaDoc: 'Related ticket, whose change is logged in this entity',

@@ -97,7 +97,7 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'watchersDisplayNamesTo',
 ].join(' ')
 
-const TICKET_CHANGE_FIELDS = `{ ticket { id } id dv createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS} }`
+const TICKET_CHANGE_FIELDS = `{ ticket { id } id dv sender createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS} }`
 
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
 

@@ -9,9 +9,10 @@ const { getById } = require('@core/keystone/schema')
 //     trackableFieldsFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS })
 // )
 
-const createTicketChange = async (fieldsChanges, existingItem, context) => {
+const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, context }) => {
     const payload = {
         dv: 1,
+        sender: updatedItem.sender,
         ticket: { connect: { id: existingItem.id } },
         ...fieldsChanges,
     }

@@ -195,7 +195,7 @@ const afterChangeHook = (
             relatedManyToManyResolvers,
         })
         if (Object.keys(fieldsChanges).length > 0) {
-            createCallback(fieldsChanges, existingItem, context)
+            createCallback(fieldsChanges, { existingItem, updatedItem, context })
         }
     }
 }
