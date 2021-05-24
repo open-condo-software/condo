@@ -1,6 +1,6 @@
-const { generateChangeTrackableFieldsFrom } = require('./generateChangeTrackableFieldsFrom')
+const { generateChangeTrackableFieldsFrom } = require('./changeTrackable')
 const { GQLListSchema } = require('@core/keystone/schema')
-const { Text, Relationship } = require('@keystonejs/fields')
+const { Text, Relationship, Uuid } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 
 const House = new GQLListSchema('House', {
@@ -39,6 +39,12 @@ const Person = new GQLListSchema('Ticket', {
                 create: false,
             },
         },
+        currentHome: {
+            schemaDoc: 'Where a person currently located',
+            type: Relationship,
+            ref: 'House',
+            many: false,
+        },
         homes: {
             schemaDoc: 'Where a person lives',
             type: Relationship,
@@ -55,9 +61,9 @@ const Person = new GQLListSchema('Ticket', {
     },
 })
 
-describe('generateChangeTrackableFieldsFrom', () => {
+describe('changeTrackable', () => {
     it('generates fields for scalars', () => {
-        const fields = generateChangeTrackableFieldsFrom(House.schema)
+        const fields = generateChangeTrackableFieldsFrom(House.schema.fields)
 
         expect(fields).toMatchObject({
             nameFrom: {
@@ -80,7 +86,7 @@ describe('generateChangeTrackableFieldsFrom', () => {
     })
 
     it('generates fields for relations', () => {
-        const fields = generateChangeTrackableFieldsFrom(Person.schema)
+        const fields = generateChangeTrackableFieldsFrom(Person.schema.fields)
 
         expect(fields).toMatchObject({
             nameFrom: {
@@ -89,6 +95,22 @@ describe('generateChangeTrackableFieldsFrom', () => {
             },
             nameTo: {
                 schemaDoc: 'Name of a person',
+                type: Text,
+            },
+            currentHomeIdFrom: {
+                schemaDoc: 'Old id of related entity. Where a person currently located',
+                type: Uuid,
+            },
+            currentHomeIdTo: {
+                schemaDoc: 'New id of related entity. Where a person currently located',
+                type: Uuid,
+            },
+            currentHomeDisplayNameFrom: {
+                schemaDoc: 'Old display name of related entity. Where a person currently located',
+                type: Text,
+            },
+            currentHomeDisplayNameTo: {
+                schemaDoc: 'New display name of related entity. Where a person currently located',
                 type: Text,
             },
             homesIdsFrom: {
