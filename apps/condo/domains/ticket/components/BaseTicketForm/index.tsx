@@ -4,7 +4,7 @@ import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
 import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
 import get from 'lodash/get'
-import React from 'react'
+import React, { useCallback, useState, useReducer, useEffect } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { colors } from '@condo/domains/common/constants/style'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -64,6 +64,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
     const TicketPurposeTitle = intl.formatMessage({ id: 'TicketPurpose' })
+    const UploadedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
 
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
@@ -82,7 +83,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
 
-    const { action, initialValues, organization } = props
+    const { action: saveAction, initialValues, organization } = props
     const validations = useTicketValidations()
 
     const formatUserFieldLabel = ({ text, value }) => (
@@ -91,9 +92,65 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         </UserNameField>
     )
 
+    const reducer = (state, action) => {
+        const { type, payload: file } = action
+        let newState
+        switch (type) {
+            case 'delete':
+                newState = {
+                    ...state,                    
+                    added: [...state.added].filter(addFile => addFile.id !== file.id),
+                    deleted: [...state.deleted, file],
+                }
+                break
+            case 'add':
+                newState = {
+                    ...state,
+                    added: [...state.added, file],
+                }
+                break
+            default:
+                throw new Error(`unknown action ${type}`)
+        }
+        return newState
+    }
+
+    const [ticketFiles, dispatch] = useReducer(reducer, { added: [], deleted: [] })
+
+    const deleteAction = TicketFile.useSoftDelete({}, () => Promise.resolve())
+    const updateAction = TicketFile.useUpdate({}, () => Promise.resolve())
+
+    const syncFiles = async (ticketId, ticketFiles) => {
+        const { added, deleted } = ticketFiles
+        for (const file of added) {
+            await updateAction(file, { ticket: { connect: ticketId } })
+        }
+        for (const file of deleted) {
+            await deleteAction({ id: file.id })
+        }
+    }
+
+    const action = async (...args) => {
+        const result = await saveAction(...args)
+        await syncFiles(result.id, ticketFiles)
+        return result
+    }
+    
+
     return (
         <>
-            <FormWithAction action={action} initialValues={initialValues} {...LAYOUT} validateTrigger={['onBlur', 'onSubmit']}>
+            <FormWithAction
+                action={action}
+                initialValues={initialValues}
+                {...LAYOUT}
+                validateTrigger={['onBlur', 'onSubmit']}
+                onMutationCompleted={(...args) => {
+                    console.log(ticketFiles)
+                    console.log('AAAAAAAAAAAA', ...args)
+                    alert()
+                    console.log(...args)
+                }}
+            >
                 {({ handleSave, isLoading, form }) => (
                     <Row gutter={[0, 40]}>
                         <Col span={24}>
@@ -142,7 +199,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 <>
                                                     <Col span={11}>
                                                         <Form.Item name={'clientName'} rules={validations.clientName} label={FullNameLabel}>
-                                                            <Input/>
+                                                            <Input />
                                                         </Form.Item>
                                                     </Col>
                                                     <Col span={11}>
@@ -152,7 +209,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             label={PhoneLabel}
                                                             validateFirst
                                                         >
-                                                            <PhoneInput/>
+                                                            <PhoneInput />
                                                         </Form.Item>
                                                     </Col>
                                                 </>
@@ -178,20 +235,22 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             </Col>
                                                             <Col span={24}>
                                                                 <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
-                                                                    <Input.TextArea rows={3} placeholder={DescriptionPlaceholder} disabled={disableUserInteraction}/>
+                                                                    <Input.TextArea rows={3} placeholder={DescriptionPlaceholder} disabled={disableUserInteraction} />
                                                                 </Form.Item>
                                                             </Col>
-                                                            {   // Todo(zuch): Temporary only for existing tickets
-                                                                initialValues && initialValues.id ? 
-                                                                    <Col span={24}>
-                                                                        <MultipleFileUpload
-                                                                            fileList={files}
-                                                                            initialCreateValues={{ ticket: initialValues.id }}
-                                                                            Model={TicketFile}
-                                                                        >
-                                                                        </MultipleFileUpload>
-                                                                    </Col> : null
-                                                            }
+                                                            <Col flex={0}>
+                                                                <Form.Item
+                                                                    label={UploadedFilesLabel}
+                                                                    shouldUpdate
+                                                                >
+                                                                    <MultipleFileUpload
+                                                                        fileList={files}
+                                                                        initialCreateValues={{ ticket: null }}
+                                                                        Model={TicketFile}
+                                                                        dispatch={dispatch}
+                                                                    />
+                                                                </Form.Item>
+                                                            </Col>
                                                         </Row>
                                                     </Col>
                                                     <Col span={24}>
@@ -230,7 +289,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 <Form.Item
                                                                     name={'executor'}
                                                                     rules={validations.executor}
-                                                                    label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel}/>}
+                                                                    label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel} />}
                                                                 >
                                                                     <GraphQlSearchInput
                                                                         formatLabel={formatUserFieldLabel}
@@ -245,7 +304,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 <Form.Item
                                                                     name={'assignee'}
                                                                     rules={validations.assignee}
-                                                                    label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
+                                                                    label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel} />}
                                                                 >
                                                                     <GraphQlSearchInput
                                                                         formatLabel={formatUserFieldLabel}
@@ -266,7 +325,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                             }
                         </Form.Item>
                         <Form.Item name={'source'} hidden>
-                            <Input/>
+                            <Input />
                         </Form.Item>
                         <Col span={24}>
                             {props.children({ handleSave, isLoading, form })}

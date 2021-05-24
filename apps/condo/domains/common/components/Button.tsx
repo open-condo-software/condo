@@ -87,8 +87,9 @@ const buttonLinkCss = css`
   }
 `
 
+
 export interface CustomButtonProps extends Omit<ButtonProps, 'type'>{
-    type: 'sberDefault' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | ButtonProps['type'],
+    type: 'sberDefault' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | 'sberGrey' | ButtonProps['type'],
     secondary?: boolean
 }
 
@@ -97,6 +98,7 @@ export const Button: React.FC<CustomButtonProps> = ({ type, secondary, ...restPr
         type !== 'sberDefault' &&
         type !== 'sberPrimary' &&
         type !== 'sberDanger' &&
+        type !== 'sberGrey' &&
         type !== 'inlineLink'
     ) {
         return <DefaultButton {...{ ...restProps, type }}/>
