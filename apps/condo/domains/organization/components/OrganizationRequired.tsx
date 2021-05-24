@@ -32,7 +32,7 @@ function RedirectToOrganizations () {
     return <Typography.Text css={css`display: block; text-align: center;`}>{RedirectingMsg}</Typography.Text>
 }
 
-function OrganizationRequiredAfterAuthRequired ({ children }) {
+function OrganizationRequiredAfterAuthRequired ({ children, withEmployeeRestrictions }) {
     const intl = useIntl()
     const SelectOrganizationRequiredMessage = intl.formatMessage({ id: 'SelectOrganizationRequired' })
     const EmployeeRestrictedTitle = intl.formatMessage({ id: 'employee.emptyList.title' })
@@ -60,7 +60,7 @@ function OrganizationRequiredAfterAuthRequired ({ children }) {
     const isEmployeeBlocked = get(link, 'isBlocked', false)
     const organizationName = get(link, ['organization', 'name'])
 
-    if (isEmployeeBlocked) {
+    if (isEmployeeBlocked && withEmployeeRestrictions) {
         return (
             <BasicEmptyListView>
                 <Typography.Title level={3}>
@@ -81,10 +81,12 @@ function OrganizationRequiredAfterAuthRequired ({ children }) {
     return children
 }
 
-export function OrganizationRequired ({ children }) {
+export function OrganizationRequired ({ children, withEmployeeRestrictions = true }) {
     return (
         <AuthRequired>
-            <OrganizationRequiredAfterAuthRequired>{children}</OrganizationRequiredAfterAuthRequired>
+            <OrganizationRequiredAfterAuthRequired withEmployeeRestrictions={withEmployeeRestrictions}>
+                {children}
+            </OrganizationRequiredAfterAuthRequired>
         </AuthRequired>
     )
 }

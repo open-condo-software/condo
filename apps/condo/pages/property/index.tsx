@@ -239,8 +239,8 @@ const PropertyPage = (): React.FC => {
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageContent>
-                    <OrganizationRequired>
+                <OrganizationRequired>
+                    <PageContent>
                         <Row gutter={[0, 40]} align={'top'} style={{ zIndex: 1, position: 'relative' }}>
                             <Col span={6} >
                                 <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>
@@ -264,8 +264,8 @@ const PropertyPage = (): React.FC => {
                                 viewMode === 'map' ? <PropertyPageViewMap /> : null
                             }
                         </>
-                    </OrganizationRequired>
-                </PageContent>
+                    </PageContent>
+                </OrganizationRequired>
             </PageWrapper>
         </>
     )

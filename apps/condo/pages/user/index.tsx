@@ -29,8 +29,8 @@ export const UserInfoPage = () => {
                 <title>{name}</title>
             </Head>
             <PageWrapper>
-                <PageContent>
-                    <OrganizationRequired>
+                <OrganizationRequired withEmployeeRestrictions={false}>
+                    <PageContent>
                         <Row gutter={[0, 40]}>
                             <Col span={3}>
                                 <UserAvatar borderRadius={24}/>
@@ -97,8 +97,8 @@ export const UserInfoPage = () => {
                                 </Row>
                             </Col>
                         </Row>
-                    </OrganizationRequired>
-                </PageContent>
+                    </PageContent>
+                </OrganizationRequired>
             </PageWrapper>
         </>
     )

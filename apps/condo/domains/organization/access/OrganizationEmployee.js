@@ -20,6 +20,7 @@ async function canManageOrganizationEmployees ({ authentication: { item: user },
         const employeeForUser = await getByCondition('OrganizationEmployee', {
             organization: { id: originalInput.organization.connect.id },
             user: { id: user.id },
+            deletedAt: null,
         })
 
         if (employeeForUser.isBlocked) {
@@ -42,6 +43,7 @@ async function canManageOrganizationEmployees ({ authentication: { item: user },
         const employeeForUser = await getByCondition('OrganizationEmployee', {
             organization: { id: employeeToEdit.organization },
             user: { id: user.id },
+            deletedAt: null,
         })
 
         if (!employeeForUser || !employeeForUser.role) {
