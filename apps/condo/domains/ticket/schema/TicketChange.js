@@ -8,7 +8,7 @@ const { trackableFieldsFrom } = require('../../common/utils/serverSchema/changeT
 
 const { Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
-const { uuided, tracked } = require('@core/keystone/plugins')
+const { versioned, uuided, tracked } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketChange')
 const { generateChangeTrackableFieldsFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
@@ -33,7 +33,7 @@ const TicketChange = new GQLListSchema('TicketChange', {
         },
         ...generateChangeTrackableFieldsFrom(trackableFieldsFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS })),
     },
-    plugins: [uuided(), tracked()],
+    plugins: [uuided(), versioned(), tracked()],
     access: {
         read: access.canReadTicketChanges,
         create: access.canManageTicketChanges,
