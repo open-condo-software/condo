@@ -173,10 +173,10 @@ function generateChangeTrackableFieldsFrom (fields) {
  * should be trackable.
  *
  * @param fields
+ * @param createCallback
  * @param displayNameResolvers
  * @param relatedManyToManyResolvers
- * @param createCallback
- * @return {(function({operation: *, existingItem: *, context: *, originalInput: *, updatedItem: *}): Promise<void>)|*}
+ * @return function, compatible with Keystone `afterChange` hook
  */
 const afterChangeHook = (
     fields,
