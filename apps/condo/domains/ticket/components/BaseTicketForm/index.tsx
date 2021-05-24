@@ -3,7 +3,7 @@
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
 import get from 'lodash/get'
-import React, { useCallback, useState, useReducer, useEffect } from 'react'
+import React from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { searchEmployee, searchProperty, searchTicketClassifier } from '../../utils/clientSchema/search'
@@ -16,7 +16,7 @@ import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { useTicketValidations } from './useTicketValidations'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 
-import MultipleFileUpload from '@condo/domains/common/components/MultipleFileUpload'
+import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 
 const LAYOUT = {
@@ -32,6 +32,7 @@ interface ITicketFormProps {
     organization: IOrganization
     initialValues?: ITicketFormState
     action?: (...args) => void,
+    afterActionCompleted?: (ticket: ITicketFormState) => void,
 }
 
 
@@ -61,59 +62,25 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
 
-    const { action: saveAction, initialValues, organization } = props
+    const { action: oldAction, initialValues, organization, afterActionCompleted } = props
     const validations = useTicketValidations()
+
+    const [UploadComponent, saveFilesToDb] = useMultipleFileUploadHook({ Model: TicketFile, relationField: 'ticket' })
+    
+    const action = async (...args) => {
+        const result = await oldAction(...args)
+        await saveFilesToDb(result.id)
+        if (afterActionCompleted) {
+            return afterActionCompleted(result)
+        }
+        return result
+    }
 
     const formatUserFieldLabel = ({ text, value }) => (
         <UserNameField user={{ name: text, id: value }}>
             {({ name, postfix }) => <>{name} {postfix}</>}
         </UserNameField>
     )
-
-    const reducer = (state, action) => {
-        const { type, payload: file } = action
-        let newState
-        switch (type) {
-            case 'delete':
-                newState = {
-                    ...state,                    
-                    added: [...state.added].filter(addFile => addFile.id !== file.id),
-                    deleted: [...state.deleted, file],
-                }
-                break
-            case 'add':
-                newState = {
-                    ...state,
-                    added: [...state.added, file],
-                }
-                break
-            default:
-                throw new Error(`unknown action ${type}`)
-        }
-        return newState
-    }
-
-    const [ticketFiles, dispatch] = useReducer(reducer, { added: [], deleted: [] })
-
-    const deleteAction = TicketFile.useSoftDelete({}, () => Promise.resolve())
-    const updateAction = TicketFile.useUpdate({}, () => Promise.resolve())
-
-    const syncFiles = async (ticketId, ticketFiles) => {
-        const { added, deleted } = ticketFiles
-        for (const file of added) {
-            await updateAction(file, { ticket: { connect: ticketId } })
-        }
-        for (const file of deleted) {
-            await deleteAction({ id: file.id })
-        }
-    }
-
-    const action = async (...args) => {
-        const result = await saveAction(...args)
-        await syncFiles(result.id, ticketFiles)
-        return result
-    }
-    
 
     return (
         <>
@@ -122,12 +89,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                 initialValues={initialValues}
                 {...LAYOUT}
                 validateTrigger={['onBlur', 'onSubmit']}
-                onMutationCompleted={(...args) => {
-                    console.log(ticketFiles)
-                    console.log('AAAAAAAAAAAA', ...args)
-                    alert()
-                    console.log(...args)
-                }}
             >
                 {({ handleSave, isLoading, form }) => (
                     <Row gutter={[0, 40]}>
@@ -202,6 +163,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 ({ getFieldsValue }) => {
                                     const { property, unitName, files } = getFieldsValue(['property', 'unitName', 'files'])
                                     const disableUserInteraction = !property || !unitName
+
                                     return (
                                         <Col span={24}>
                                             <FrontLayerContainer showLayer={disableUserInteraction}>
@@ -219,13 +181,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             <Col flex={0}>
                                                                 <Form.Item
                                                                     label={UploadedFilesLabel}
-                                                                    shouldUpdate
                                                                 >
-                                                                    <MultipleFileUpload
+                                                                    <UploadComponent
                                                                         fileList={files}
-                                                                        initialCreateValues={{ ticket: null }}
-                                                                        Model={TicketFile}
-                                                                        dispatch={dispatch}
                                                                     />
                                                                 </Form.Item>
                                                             </Col>

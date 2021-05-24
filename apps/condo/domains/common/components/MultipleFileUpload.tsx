@@ -1,14 +1,53 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useReducer, useMemo, useRef } from 'react'
 import { Upload } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { useIntl } from '@core/next/intl'
 import { UploadOutlined, DeleteFilled } from '@ant-design/icons'
-import { UploadRequestOption } from 'rc-upload/lib/interface'
+
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
+
+import { UploadRequestOption } from 'rc-upload/lib/interface'
 import { File } from '../../../schema'
 import { UploadFile } from 'antd/lib/upload/interface'
+import { isEmpty } from 'lodash'
+
+type DBFile = {
+    id: string
+    file: File
+}
+type UploadListFile = UploadFile & {
+    id: string
+}
+
+type Module = {
+    useCreate: (attrs, onComplete) => (attrs) => Promise<unknown>
+    useUpdate: (attrs, onComplete) => (update, attrs) => Promise<unknown>
+    useSoftDelete: (attrs, onComplete) => (state, attrs) => Promise<unknown>
+}
+
+const reducer = (state, action) => {
+    const { type, payload: file } = action
+    switch (type) {
+        case 'delete':
+            return {
+                ...state,                    
+                added: [...state.added].filter(addFile => addFile.id !== file.id),
+                deleted: [...state.deleted, file],
+            }
+        case 'add':
+            return {
+                ...state,
+                added: [...state.added, file],
+            }
+        default:
+            throw new Error(`unknown action ${type}`)
+    }
+}
 
 const convertFilesToUploadFormat = (files: DBFile[]): UploadListFile[] => {
+    if (isEmpty(files)) {
+        return []
+    }
     const uploadFiles = files.map(({ id, file }) => {
         const fileInList = {
             uid: file.id,
@@ -23,23 +62,64 @@ const convertFilesToUploadFormat = (files: DBFile[]): UploadListFile[] => {
     return uploadFiles
 }
 
-type DBFile = {
-    id: string
-    file: File
+interface IUploadComponentProps {
+    fileList: DBFile[]    
 }
-type UploadListFile = UploadFile & {
-    id: string
+interface MultipleFileUploadHookArgs {
+    Model: Module
+    relationField: string
+    initialCreateValues?: Record<string, unknown>
+}
+
+export const useMultipleFileUploadHook = ({ 
+    Model, 
+    relationField,
+    initialCreateValues = {},    
+}: MultipleFileUploadHookArgs): [React.FC<IUploadComponentProps>, (id: string) => Promise<void>] => {    
+    const [modifiedFiles, dispatch] = useReducer(reducer, { added: [], deleted: [] })
+    const modifiedFilesRef = useRef(modifiedFiles)
+
+    // Todo(zuch): without ref modifiedFiles are dissapering on submit
+    useEffect(() => {
+        modifiedFilesRef.current = modifiedFiles
+    }, [modifiedFiles])
+
+    const updateAction = Model.useUpdate({}, () => Promise.resolve())
+    const deleteAction = Model.useSoftDelete({}, () => Promise.resolve())
+    
+    const syncModifiedFiles = async (id: string) => {
+        const { added, deleted } = modifiedFilesRef.current
+        for (const file of added) {
+            await updateAction({ [relationField]: id }, file)
+        }
+        for (const file of deleted) {
+            await deleteAction({}, { id: file.id })
+        }
+    }
+
+    const UploadComponent: React.FC<IUploadComponentProps> = useMemo(() => {
+        const UploadWrapper = ({ fileList }) => (
+            <MultipleFileUpload
+                fileList={fileList}
+                initialCreateValues={{ ...initialCreateValues, [relationField]: null }}
+                Model={Model}
+                onFilesChange={dispatch}
+            />
+        )
+        return UploadWrapper
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+    return [
+        UploadComponent,
+        syncModifiedFiles,        
+    ]
 }
 
 interface IMultipleFileUploadProps {
     fileList: DBFile[]
     initialCreateValues: Record<string, unknown>
-    updateEditField: (files: DBFile[]) => void
-    Model: {
-        useCreate: (attrs, onComplete) => (attrs) => Promise<unknown>
-        useSoftDelete: (attrs, onComplete) => (context, attrs) => Promise<unknown>
-    }
-    dispatch: React.Dispatch<unknown>,
+    Model: Module
+    onFilesChange: React.Dispatch<unknown>,
 }
 
 const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
@@ -51,19 +131,26 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         fileList, 
         initialCreateValues, 
         Model, 
-        dispatch,
+        onFilesChange,
     } = props
 
-    const [files, setFiles] = useState<UploadListFile[]>([])
+    const [listFiles, setListFiles] = useState<UploadListFile[]>([])
+
     useEffect(() => {
         const convertedFiles = convertFilesToUploadFormat(fileList)
-        setFiles(convertedFiles)
+        setListFiles(convertedFiles)
     }, [fileList])
 
     const createAction = Model.useCreate(initialCreateValues, () => Promise.resolve())
 
     const options = {
-        fileList: files,
+        fileList: listFiles,
+        onChange: ({ file }) => {
+            if (file.status === 'uploading') {
+                // add dummy file to show upload progressbar
+                setListFiles([...listFiles, { name: file.name, uid: file.uid, id: null, status: 'uploading' }])
+            }
+        },
         showUploadList: {
             showRemoveIcon: true,
             removeIcon: (file) => {
@@ -71,15 +158,12 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                     <DeleteFilled onClick={() => {
                         const { id, uid } = file
                         if (!id) {
-                            setFiles([...files].filter(file => file.uid !== uid))
+                            // remove file that failed to upload from list
+                            setListFiles([...listFiles].filter(file => file.uid !== uid))
                             return 
                         }
-                        setFiles([...files].filter(file => file.id !== id))
-                        console.log('DISPATCH DELETE')
-                        dispatch({ type: 'delete', payload: file })
-                        // return deleteAction({}, { id }).then((deleteResult) => {
-                        //    console.log('deleteResult', deleteResult)
-                        // })
+                        setListFiles([...listFiles].filter(file => file.id !== id))
+                        onFilesChange({ type: 'delete', payload: file })
                     }} />
                 )
                 return removeIcon
@@ -91,25 +175,16 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
             if (file.size > MAX_UPLOAD_FILE_SIZE) {
                 const error = new Error(FileTooBigErrorMessage)
                 onError(error)
-                const info: UploadListFile = {
-                    id: null,
-                    uid: file.uid,
-                    name: file.name,
-                    status: 'error',
-                    error: error,
-                }
-                setFiles([...files, info])
+                setListFiles([...listFiles.filter(file => file.status !== 'uploading'), { name: file.name, uid: file.uid, id: null, status: 'error', error: error }])
                 return 
             }
             return createAction({ ...initialCreateValues, file }).catch(err => {
                 onError(err)
             }).then( dbFile => {
-                onSuccess('Ok', null)
                 const [uploadFile] = convertFilesToUploadFormat([dbFile as DBFile])
-                setFiles([...files, uploadFile])
-                console.log('DISPATCH ADD')
-                dispatch({ type: 'add', payload: dbFile })
-                // setFilesToAdd([...filesToAdd, dbFile as DBFile])
+                setListFiles([...listFiles.filter(file => file.status !== 'uploading'), uploadFile])
+                onSuccess('Ok', null)
+                onFilesChange({ type: 'add', payload: dbFile })                                
             })
         },
     }
@@ -127,4 +202,3 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
     )
 }
 
-export default MultipleFileUpload

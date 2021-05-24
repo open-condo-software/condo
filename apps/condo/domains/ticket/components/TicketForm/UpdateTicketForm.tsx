@@ -25,7 +25,9 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     // @ts-ignore
     const { organization } = useOrganization()
     const { obj, loading, refetch, error } = Ticket.useObject({ where: { id } })
-    const action = Ticket.useUpdate({}, (ticket) => push(`/ticket/${ticket.id}`))
+    
+    // no redirect after mutation as we need to wait for ticket files to save
+    const action = Ticket.useUpdate({}, () => null)
     const updateAction = (value) => action(value, obj)
 
     useEffect(() => {
@@ -46,6 +48,9 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
             action={updateAction}
             initialValues={Ticket.convertToUIFormState(obj)}
             organization={organization}
+            afterActionCompleted={(ticket) => {
+                push(`/ticket/${ticket.id}`)
+            }}
         >
             {({ handleSave, isLoading }) => {
                 return (

@@ -69,7 +69,11 @@ const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
         fileInList.status = 'done'
         return fileInList        
     })
-    const FilesFieldValue = (<UploadList locale={{}} showRemoveIcon={false} items={uploadFiles} />)
+    const FilesFieldValue = (
+        <div className={'upload-control-wrapper'}>
+            <UploadList locale={{}} showRemoveIcon={false} items={uploadFiles} />
+        </div>
+    )
     return (
         <Row style={{ paddingTop: '20px' }}>
             <Col span={24}>
