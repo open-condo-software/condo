@@ -11,7 +11,8 @@ import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
-import { Alert, Button as AntButton, Col, Row, Space, Switch, Tag, Tooltip, Typography } from 'antd'
+import { Alert, Button as AntButton, Col, Row, Space, Switch, Tag, Typography } from 'antd'
+import Router from 'next/router'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -33,6 +34,7 @@ export const EmployeeInfoPage = () => {
     const employeeId = get(query, 'id')
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: employeeId } })
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
+    const softDeleteAction = OrganizationEmployee.useSoftDelete({}, () => Router.push('/employee/'))
 
     if (error) {
         return <LoadingOrErrorPage title={'Title'} loading={loading} error={error ? 'Error' : null}/>
@@ -164,7 +166,7 @@ export const EmployeeInfoPage = () => {
                                                                 {UpdateMessage}
                                                             </Button>
                                                         </Link>
-                                                        <AntButton danger>
+                                                        <AntButton danger onClick={() => softDeleteAction({}, employee)}>
                                                             <DeleteFilled />
                                                         </AntButton>
                                                     </Space>

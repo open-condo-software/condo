@@ -82,6 +82,7 @@ const {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
 } = generateReactHooks<OrganizationEmployee, OrganizationEmployeeUpdateInput, IOrganizationEmployeeFormState, IOrganizationEmployeeUIState, QueryAllOrganizationEmployeesArgs>(OrganizationEmployeeGQL, { convertToGQLInput, convertToUIState })
 
 export {
@@ -90,6 +91,7 @@ export {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
     convertToGQLInput,
     convertToUIFormState,
 }
