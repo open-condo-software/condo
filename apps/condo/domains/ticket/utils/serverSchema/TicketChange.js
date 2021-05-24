@@ -2,6 +2,13 @@ const _ = require('lodash')
 const { TicketChange } = require('./index')
 const { getById } = require('@core/keystone/schema')
 
+/*
+    TODO(antonal): when this function will be used, strange errors occuring, like "Cannot query field "statusReopenedCounterFrom" on type "TicketChange".',"
+ */
+// const fieldsToTrackInTicketForChanges = () => (
+//     trackableFieldsFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS })
+// )
+
 const createTicketChange = async (fieldsChanges, existingItem, context) => {
     const payload = {
         dv: 1,

@@ -21,8 +21,11 @@ const TICKET_STATUS_TYPES = [
 /*
     `sender` is an internal field, that don't need to be displayed in UI.
     It's not participating in Ticket changes UI for customer.
+    Also we need to explicitly omit fields `createdAt`, `createdBy`, `updatedAt`, `updatedBy`:
+    1. We don't need to track them, — they will be presented in `TicketChange`;
+    2. It's impossible to abtain them at declaration stage in `TicketChange`.
  */
-const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['dv', 'sender']
+const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy']
 
 module.exports = {
     NEW_OR_REOPENED_STATUS_TYPE,
