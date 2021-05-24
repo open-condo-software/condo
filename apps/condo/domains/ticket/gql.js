@@ -14,6 +14,12 @@ const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 const TICKET_STATUS_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
 const TicketStatus = generateGqlQueries('TicketStatus', TICKET_STATUS_FIELDS)
 
+const TICKET_SOURCE_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
+const TicketSource = generateGqlQueries('TicketSource', TICKET_SOURCE_FIELDS)
+
+const TICKET_CLASSIFIER_FIELDS = `{ organization { id } parent { id } fullName name ${COMMON_FIELDS} }`
+const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIER_FIELDS)
+
 /*
     We cannot use generated fields from TicketChange here, because we will have circular dependency,
     by requiring something from ./schema modules, that will cause all required items to be undefined.
@@ -107,5 +113,7 @@ module.exports = {
     Ticket,
     TicketStatus,
     TicketChange,
+    TicketSource,
+    TicketClassifier,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
