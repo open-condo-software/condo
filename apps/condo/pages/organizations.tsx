@@ -101,13 +101,10 @@ function OrganizationCRUDListBlock () {
     const AreYouSureMessage = intl.formatMessage({ id: 'AreYouSure' })
     const CreateOrganizationButtonLabel = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
 
-    const { user } = useAuth()
     const { selectLink } = useOrganization()
 
     const { loading, objs, refetch } = OrganizationEmployee.useObjects({})
     const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION)
-
-    console.log(objs)
 
     function handleAcceptOrReject (item, action) {
         let data = {}
