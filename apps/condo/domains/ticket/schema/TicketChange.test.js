@@ -4,7 +4,6 @@
 
 const { catchErrorFrom } = require('../../common/utils/testSchema')
 const faker = require('faker')
-const { getById, find } = require('@core/keystone/schema')
 const { expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { updateTestTicket } = require('../utils/testSchema')
 
@@ -14,7 +13,7 @@ const { createTestTicket } = require('../utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/schema/Property.test')
 const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { TicketChange, createTestTicketChange, updateTestTicketChange } = require('@condo/domains/ticket/utils/testSchema')
+const { TicketChange, TicketStatus, TicketSource, TicketClassifier, createTestTicketChange, updateTestTicketChange } = require('@condo/domains/ticket/utils/testSchema')
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
 
@@ -22,16 +21,17 @@ describe('TicketChange', () => {
 
     describe('create', async () => {
         it('gets created when Ticket has changes in at least one field', async () => {
-            const openedStatus = await getById('TicketStatus', STATUS_IDS.OPEN)
-            const inProgressStatus = await getById('TicketStatus', STATUS_IDS.IN_PROGRESS)
-            const classifiers = await find('TicketClassifier', {})
-            const sources = await find('TicketSource', {})
-
             const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithProperty()
             const client2 = await makeClientWithProperty()
             const client3 = await makeClientWithProperty()
             const client4 = await makeClientWithProperty()
+
+            const openedStatus = (await TicketStatus.getAll(admin, { id: STATUS_IDS.OPEN }))[0]
+            const inProgressStatus = (await TicketStatus.getAll(admin, { id: STATUS_IDS.IN_PROGRESS }))[0]
+            const classifiers = await TicketClassifier.getAll(admin, {})
+            const sources = await TicketSource.getAll(admin, {})
+
             const [ticket2] = await createTestTicket(client, client.organization, client.property)
             const [ticket3] = await createTestTicket(client, client.organization, client.property)
             const [ticket] = await createTestTicket(client, client.organization, client.property, {
