@@ -48,8 +48,6 @@ async function canManageOrganizationEmployees ({ authentication: { item: user },
             return false
         }
 
-        console.log(employeeForUser)
-
         if (employeeForUser.isBlocked) {
             return false
         }

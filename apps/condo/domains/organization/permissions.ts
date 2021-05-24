@@ -4,7 +4,7 @@
 import get from 'lodash/get'
 import { Organization, OrganizationEmployee, User } from '../../schema'
 
-//TODO(Dimitreee): use from scheema.d.ts when
+//TODO(Dimitreee): use from scheema.d.ts when OrganizationToUserLink will be included
 interface OrganizationToUserLink {
     id: string
     organization: Pick<Organization, 'id' | 'name' | 'description'>
