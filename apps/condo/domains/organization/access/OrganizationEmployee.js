@@ -21,21 +21,39 @@ async function canManageOrganizationEmployees ({ authentication: { item: user },
             organization: { id: originalInput.organization.connect.id },
             user: { id: user.id },
         })
+
+        if (employeeForUser.isBlocked) {
+            return false
+        }
+
         const employeeRole = await getByCondition('OrganizationEmployeeRole', {
             id: employeeForUser.role,
             organization: { id: employeeForUser.organization },
         })
+
         return employeeRole && employeeRole.canManageEmployees
     }
     if (operation === 'update' || operation === 'delete') {
         if (!itemId) return false
         const employeeToEdit = await getById('OrganizationEmployee', itemId)
+
         if (!employeeToEdit || !employeeToEdit.organization) return false
+
         const employeeForUser = await getByCondition('OrganizationEmployee', {
             organization: { id: employeeToEdit.organization },
             user: { id: user.id },
         })
-        if (!employeeForUser || !employeeForUser.role) return false
+
+        if (!employeeForUser || !employeeForUser.role) {
+            return false
+        }
+
+        console.log(employeeForUser)
+
+        if (employeeForUser.isBlocked) {
+            return false
+        }
+
         const employeeRole = await getByCondition('OrganizationEmployeeRole', {
             id: employeeForUser.role,
             organization: { id: employeeToEdit.organization },

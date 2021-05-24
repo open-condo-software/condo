@@ -33,7 +33,7 @@ export const EmployeeProfileForm = () => {
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
 
-    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: get(query, 'id') } })
+    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
 
     if (error) {

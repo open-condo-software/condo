@@ -6,7 +6,15 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
         organization: { id: organizationId },
         user: { id: userId },
     })
-    if (!employee || !employee.role) return false
+
+    if (!employee || !employee.role) {
+        return false
+    }
+
+    if (employee.isBlocked) {
+        return false
+    }
+
     const employeeRole = await getByCondition('OrganizationEmployeeRole', {
         id: employee.role,
         organization: { id: organizationId },
