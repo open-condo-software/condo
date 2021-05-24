@@ -12,12 +12,13 @@ import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import { Alert, Button as AntButton, Col, Row, Space, Switch, Tag, Typography } from 'antd'
+import Modal from 'antd/lib/modal/Modal'
 import Router from 'next/router'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useState } from 'react'
 
 export const EmployeeInfoPage = () => {
     const intl = useIntl()
@@ -27,6 +28,11 @@ export const EmployeeInfoPage = () => {
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
     const EmployeeDidntEnteredMessage = intl.formatMessage({ id: 'employee.EmployeeDidntEntered' })
     const BlockUserMessage = intl.formatMessage({ id: 'employee.BlockUser' })
+    const DeletePropertyLabel = intl.formatMessage({ id: 'Delete' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'employee.ConfirmDeleteTitle' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'employee.ConfirmDeleteMessage' })
+
+    const [isConfirmVisible, setIsConfirmVisible] = useState(false)
 
     const { query } = useRouter()
     const { link } = useOrganization()
@@ -35,6 +41,13 @@ export const EmployeeInfoPage = () => {
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: employeeId } })
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
     const softDeleteAction = OrganizationEmployee.useSoftDelete({}, () => Router.push('/employee/'))
+
+    const showConfirm = () => setIsConfirmVisible(true)
+    const handleOk = () => {
+        setIsConfirmVisible(false)
+        softDeleteAction({}, employee)
+    }
+    const handleCancel = () => setIsConfirmVisible(false)
 
     if (error) {
         return <LoadingOrErrorPage title={'Title'} loading={loading} error={error ? 'Error' : null}/>
@@ -78,6 +91,7 @@ export const EmployeeInfoPage = () => {
                                                     {name}
                                                 </Typography.Title>
                                                 <NotDefinedField
+                                                    showMessage={false}
                                                     value={get(employee, ['position'])}
                                                     render={(value) => (
                                                         <Typography.Title
@@ -166,7 +180,7 @@ export const EmployeeInfoPage = () => {
                                                                 {UpdateMessage}
                                                             </Button>
                                                         </Link>
-                                                        <AntButton danger onClick={() => softDeleteAction({}, employee)}>
+                                                        <AntButton danger onClick={showConfirm}>
                                                             <DeleteFilled />
                                                         </AntButton>
                                                     </Space>
@@ -177,6 +191,29 @@ export const EmployeeInfoPage = () => {
                                 </Row>
                             </Col>
                         </Row>
+                        <Modal
+                            title={
+                                <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
+                                    {ConfirmDeleteTitle}
+                                </Typography.Title>
+                            }
+                            visible={isConfirmVisible}
+                            onCancel={handleCancel}
+                            footer={[
+                                <Button
+                                    key='submit'
+                                    type='sberDanger'
+                                    onClick={handleOk}
+                                    style={{ margin: '15px' }}
+                                >
+                                    {DeletePropertyLabel}
+                                </Button>,
+                            ]}
+                        >
+                            <Typography.Text>
+                                {ConfirmDeleteMessage}
+                            </Typography.Text>
+                        </Modal>
                     </OrganizationRequired>
                 </PageContent>
             </PageWrapper>
