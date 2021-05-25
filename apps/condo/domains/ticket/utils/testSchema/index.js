@@ -127,17 +127,17 @@ async function updateTestTicketChange (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestTicketFile (client, ticket, extraAttrs = {}) {
+
+async function createTestTicketFile (client, organization, ticket, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!ticket || !ticket.id) throw new Error('no ticket.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const ticketConnection = (ticket && ticket.id) ? { ticket: { connect: { id: ticket.id } } } : {}
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestTicketFile logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
-        ticket: { connect: { id: ticket.id } },
+        organization: { connect: { id: organization.id } },
+        ...ticketConnection,
         ...extraAttrs,
     }
     const obj = await TicketFile.create(client, attrs)
@@ -148,9 +148,6 @@ async function updateTestTicketFile (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestTicketFile logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -159,7 +156,6 @@ async function updateTestTicketFile (client, id, extraAttrs = {}) {
     const obj = await TicketFile.update(client, id, attrs)
     return [obj, attrs]
 }
-
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {

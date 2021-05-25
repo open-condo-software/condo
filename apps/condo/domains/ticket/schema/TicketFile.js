@@ -47,7 +47,7 @@ const TicketFile = new GQLListSchema('TicketFile', {
         read: access.canReadTicketFiles,
         create: access.canManageTicketFiles,
         update: access.canManageTicketFiles,
-        delete: access.canManageTicketFiles,
+        delete: false,
         auth: true,
     },
 })
