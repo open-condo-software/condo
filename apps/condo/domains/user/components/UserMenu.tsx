@@ -108,18 +108,18 @@ export const UserMenu = () => {
                     ? (
                         <Dropdown overlay={DropdownOverlay} placement='bottomCenter'>
                             <UserMenuContainer>
-                                <Space size={1}>
-                                    <AvatarContainer>
-                                        <UserAvatar iconSize={'6px'}/>
-                                    </AvatarContainer>
-                                    <Button
-                                        type='link'
-                                        style={{ paddingRight: 0, color: green[6], fontSize: '12px' }}
-                                        onClick={goToUserProfile}
-                                    >
+                                <Button
+                                    type='link'
+                                    style={{ paddingRight: 0, color: green[6], fontSize: '12px' }}
+                                    onClick={goToUserProfile}
+                                >
+                                    <Space size={16}>
+                                        <AvatarContainer>
+                                            <UserAvatar iconSize={'6px'}/>
+                                        </AvatarContainer>
                                         {auth.user ? formatUserName(auth.user.name) : GuestUsernameMessage}
-                                    </Button>
-                                </Space>
+                                    </Space>
+                                </Button>
                             </UserMenuContainer>
                         </Dropdown>
                     )
