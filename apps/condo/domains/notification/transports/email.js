@@ -57,9 +57,11 @@ async function send ({ to, cc, bcc, subject, text, html } = {}) {
             },
         })
     const status = result.status
+    if (status !== 200) {
+        return [false, { text: await result.text(), status }]
+    }
     const json = await result.json()
-    const isOk = status === 200
-    return [isOk, json]
+    return [true, json]
 }
 
 module.exports = {
