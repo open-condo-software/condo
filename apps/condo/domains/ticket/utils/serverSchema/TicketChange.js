@@ -118,7 +118,7 @@ const relatedManyToManyResolvers = {
                based on Keystone `originalInput`, which stores "Nested mutation" operations
                for this relationship. This variant is implemented.
         */
-        let existing = { ...updated } // make a copy
+        let existing = _.cloneDeep(updated)
         if (originalInput && originalInput.watchers) {
             if (originalInput.watchers.disconnect) {
                 // Perform opposite operation
