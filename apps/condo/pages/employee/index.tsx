@@ -1,283 +1,160 @@
-// @ts-nocheck
-import Head from 'next/head'
-import { Space } from 'antd'
-import React, { useEffect, useMemo } from 'react'
-import { useOrganization } from '@core/next/organization'
-import { useIntl } from '@core/next/intl'
-
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { emailValidator, nameValidator, phoneValidator } from '@condo/domains/common/utils/excel.utils'
-import { OrganizationEmployee, useInviteNewOrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { PHONE_WRONG_FORMAT_ERROR, ALREADY_EXISTS_ERROR } from '@condo/domains/common/constants/errors'
-import { normalizePhone } from '@condo/domains/common/utils/phone'
-
 import {
-    NewOrExportTableBlock,
-    RenderActionsColumn,
-    toGQLSortBy,
-    toGQLWhere,
-    useTable,
-    ViewOrEditTableBlock,
-} from '@condo/domains/common/components/containers/FormTableBlocks'
+    filtersToQuery,
+    getPaginationFromQuery,
+    getSortStringFromQuery,
+    EMPLOYEE_PAGE_SIZE,
+    sorterToQuery, queryToSorter,
+} from '@condo/domains/organization/utils/helpers'
+import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { IFilters } from '@condo/domains/organization/utils/helpers'
+import { useIntl } from '@core/next/intl'
 
+import { Col, Input, Row, Space, Table, Typography } from 'antd'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import qs from 'qs'
+import { pickBy, get, debounce } from 'lodash'
+import React, { useCallback } from 'react'
+import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { useOrganization } from '@core/next/organization'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
-function _useUserColumns () {
+const TicketsPage = () => {
     const intl = useIntl()
-    const NameMsg = intl.formatMessage({ id: 'Name' })
-    const EmailMsg = intl.formatMessage({ id: 'Email' })
-    const StatusMsg = intl.formatMessage({ id: 'Status' })
-    const PhoneMsg = intl.formatMessage({ id: 'Phone' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const EmailIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
-    const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
-    const StatusAcceptedMsg = intl.formatMessage({ id: 'pages.users.status.Accepted' })
-    const StatusRejectedMsg = intl.formatMessage({ id: 'pages.users.status.Rejected' })
-    const StatusWaitAcceptOrRejectMsg = intl.formatMessage({ id: 'pages.users.status.WaitAcceptOrReject' })
-    const StatusNotActiveMsg = intl.formatMessage({ id: 'pages.users.status.NotActive' })
+    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
+    const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
+    const CreateEmployee = intl.formatMessage({ id: 'AddEmployee' })
 
-    return [
-        {
-            title: NameMsg,
-            dataIndex: 'name',
-            create: true,  // include in create form (table-row form / modal form)
-            editable: true,  // include in edit form (table-row form / modal form)
-            rules: [  // edit form validation rules
-                { required: true, message: FieldIsRequiredMsg },
-            ],
-            importFromFile: true,  // include in import form (table-row import form)
-            importValidator: nameValidator,  // import form validation rules
+    const router = useRouter()
+    const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
+    const offsetFromQuery = getPaginationFromQuery(router.query)
+    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
 
-            sorter: true,  // sort by this field!
-            filters: [
-                {
-                    text: 'Joe',
-                    value: '{ "name_contains": "Joe" }',
-                },
-                {
-                    text: 'Bad',
-                    value: '{ "name_contains": "Bad" }',
-                },
-                {
-                    text: 'Submenu',
-                    value: 'Submenu',
-                    children: [
-                        {
-                            text: 'Pahaz',
-                            value: '{ "name_contains": "Pahaz" }',
-                        },
-                        {
-                            text: 'Black',
-                            value: '{ "name_contains": "Black" }',
-                        },
-                    ],
-                },
-            ],  // filter by this field! Filter menu config | object[]
-            filterMultiple: true,  // Whether multiple filters can be selected | boolean
-        },
-        {
-            title: EmailMsg,
-            dataIndex: 'email',
-            create: true,
-            editable: true,
-            rules: [
-                { type: 'email', message: EmailIsNotValidMsg },
-                { required: true, message: FieldIsRequiredMsg },
-            ],
-            importFromFile: true,
-            importValidator: emailValidator,
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-            sorter: true,
-            filters: null,
-            filterMultiple: null,
-        },
-        {
-            title: PhoneMsg,
-            dataIndex: 'phone',
-            create: true,
-            editable: true,
-            rules: [
-                {
-                    validator: (_, value) => {
-                        const v = normalizePhone(value)
-                        if (!v) return Promise.reject(PhoneIsNotValidMsg)
-                        return Promise.resolve()
-                    },
-                },
-                { required: true, message: FieldIsRequiredMsg },
-            ],
-            importFromFile: true,
-            importValidator: phoneValidator,
-
-            sorter: true,
-            filters: [
-                {
-                    text: '7 xxx',
-                    value: '{ "phone_starts_with": "7" }',
-                },
-                {
-                    text: '8 xxx',
-                    value: '{ "phone_starts_with": "8" }',
-                },
-            ],
-            filterMultiple: false,
-        },
-        {
-            title: StatusMsg,
-            dataIndex: 'status',
-            create: false,
-            editable: false,
-            rules: null,
-            importFromFile: false,
-            importValidator: null,
-
-            sorter: false,
-            filters: null,
-            filterMultiple: null,
-            render: (_, item) => {
-                const { isRejected, isAccepted } = item
-                if (item.user) {
-                    if (isRejected) return StatusRejectedMsg
-                    if (isAccepted) return StatusAcceptedMsg
-                    return StatusWaitAcceptOrRejectMsg
-                }
-                return StatusNotActiveMsg
-            },
-        },
-        {
-            title: '',
-            dataIndex: 'actions',
-            create: true,
-            render: RenderActionsColumn,
-        },
-    ]
-}
-
-function EmployeeCRUDTableBlock () {
-    const { organization } = useOrganization()
-
-    const newDataTable = useTable()
-    const table = useTable()
-    const columns = _useUserColumns()
-
-    const intl = useIntl()
-    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
-    const UserIsAlreadyInListMessage = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
-    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
-    const ErrorToFormFieldMsgMapping = {
-        [PHONE_WRONG_FORMAT_ERROR]: {
-            name: 'phone',
-            errors: [PhoneIsNotValidMessage],
-        },
-        [ALREADY_EXISTS_ERROR + 'email']: {
-            name: 'email',
-            errors: [UserIsAlreadyInListMessage],
-        },
-        [ALREADY_EXISTS_ERROR + 'phone']: {
-            name: 'phone',
-            errors: [UserIsAlreadyInListMessage],
-        },
-        [ALREADY_EXISTS_ERROR + 'user']: {
-            name: 'name',
-            errors: [UserIsAlreadyInListMessage],
-        },
-    }
-
-    // TODO(pahaz): add loading state
-    const { loading, refetch, objs, count, error } = OrganizationEmployee.useObjects({
-        first: table.state.pagination.pageSize,
-        skip: (table.state.pagination.current - 1) * table.state.pagination.pageSize,
-        sortBy: toGQLSortBy(table.state.sorter),
-        where: { ...toGQLWhere(table.state.filters), organization: { id: organization.id } },
+    const {
+        fetchMore,
+        loading,
+        count: total,
+        objs: tickets,
+    } = OrganizationEmployee.useObjects({
+        // @ts-ignore
+        sortBy: sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC', //TODO(Dimitreee):Find cleanest solution
+        where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
+        skip: (offsetFromQuery * EMPLOYEE_PAGE_SIZE) - EMPLOYEE_PAGE_SIZE,
+        first: EMPLOYEE_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
     })
-    const invite = useInviteNewOrganizationEmployee({ organization: { id: organization.id } }, refetch)
-    const update = OrganizationEmployee.useUpdate({}, refetch)
-    const del = OrganizationEmployee.useDelete({}, refetch)
 
-    function handleCreateOrUpdate ({ values, item, form }) {
-        // console.log('handleCreateOrUpdate', values, item, form)
-        if (values.email) values.email = values.email.toLowerCase()
-        const action = (item && item.isUnsavedNew) ? invite : update
-        return runMutation(
-            {
-                action: () => action(values, (item.isUnsavedNew) ? null : item),
-                intl,
-                form,
-                ErrorToFormFieldMsgMapping,
+    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery)
+
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: () => {
+                router.push(`/employee/${record.id}/`)
             },
-        )
-    }
-
-    function handleDelete ({ values, item, form }) {
-        // console.log('handleDelete', values, item, form)
-        return runMutation(
-            {
-                action: () => del(item),
-                onError: (e) => {
-                    console.log(e.friendlyDescription, form)
-                    const msg = e.friendlyDescription || ServerErrorMessage
-                    if (msg) {
-                        form.setFields([{ name: 'email', errors: [msg] }])
-                    }
-                    throw e
-                },
-                intl,
-                ErrorToFormFieldMsgMapping,
-            },
-        )
-    }
-
-    useEffect(() => {
-        if (objs) {
-            table.setData(objs)
-            table.updateFilterPaginationSort({
-                total: (count) ? count : undefined,
-            })
-            const actions = {
-                CreateOrUpdate: handleCreateOrUpdate,
-                Delete: handleDelete,
-                // SaveAll: handleSaveAll,
-            }
-            newDataTable.updateActions(actions)
-            table.updateActions(actions)
         }
-    }, [loading])
+    }, [])
 
-    const createColumns = useMemo(() => {return columns}, [])
-    const editColumns = useMemo(() => {return columns}, [])
+    const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
+        const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
 
-    if (error) {
-        return <Space direction="vertical">
-            {String(error)}
-        </Space>
-    }
+        const { current, pageSize } = nextPagination
+        const offset = current * pageSize - pageSize
+        const sort = sorterToQuery(nextSorter)
+        const filters = filtersToQuery(nextFilters)
 
-    return <Space direction="vertical">
-        <NewOrExportTableBlock columns={createColumns} table={newDataTable}/>
-        <ViewOrEditTableBlock columns={editColumns} table={table}/>
-    </Space>
-}
+        if (!loading) {
+            fetchMore({
+                // @ts-ignore
+                sortBy: sort,
+                where: filters,
+                skip: offset,
+                first: EMPLOYEE_PAGE_SIZE,
+            }).then(() => {
+                const query = qs.stringify(
+                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
+                    { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+                )
 
-const ResidentsPage = () => {
-    const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.users.PageTitle' })
+                router.push(router.route + query)
+            })
+        }
+    }, 400), [loading])
 
-    return <>
-        <Head>
-            <title>{PageTitleMsg}</title>
-        </Head>
-        <PageWrapper>
-            <PageHeader title={PageTitleMsg}/>
-            <OrganizationRequired>
+    const [search, handleSearchChange] = useSearch<IFilters>(loading)
+
+    return (
+        <>
+            <Head>
+                <title>{PageTitleMessage}</title>
+            </Head>
+            <PageWrapper>
+                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
                 <PageContent>
-                    <EmployeeCRUDTableBlock/>
+                    <OrganizationRequired>
+                        {
+                            !tickets.length && !filtersFromQuery
+                                ? <EmptyListView
+                                    label={EmptyListLabel}
+                                    message={EmptyListMessage}
+                                    createRoute='/employee/create'
+                                    createLabel={CreateEmployee} />
+                                : <Row gutter={[0, 40]} align={'middle'}>
+                                    <Col span={6}>
+                                        <Input
+                                            placeholder={SearchPlaceholder}
+                                            onChange={(e)=>{handleSearchChange(e.target.value)}}
+                                            value={search}
+                                        />
+                                    </Col>
+                                    <Col span={24}>
+                                        <Table
+                                            bordered
+                                            tableLayout={'fixed'}
+                                            loading={loading}
+                                            dataSource={tickets}
+                                            columns={tableColumns}
+                                            onRow={handleRowAction}
+                                            onChange={handleTableChange}
+                                            rowKey={record => record.id}
+                                            pagination={{
+                                                total,
+                                                current: offsetFromQuery,
+                                                pageSize: EMPLOYEE_PAGE_SIZE,
+                                                position: ['bottomLeft'],
+                                            }}
+                                        />
+                                    </Col>
+                                </Row>
+                        }
+                    </OrganizationRequired>
                 </PageContent>
-            </OrganizationRequired>
-        </PageWrapper>
-    </>
+            </PageWrapper>
+        </>
+    )
 }
 
-export default ResidentsPage
+const HeaderAction = () => {
+    const intl = useIntl()
+
+    return (
+        <Space>
+            <Typography.Text style={{ fontSize: '12px' }}>
+                {intl.formatMessage({ id: 'menu.ControlRoom' })}
+            </Typography.Text>
+        </Space>
+    )
+}
+
+TicketsPage.headerAction = <HeaderAction/>
+
+export default TicketsPage
