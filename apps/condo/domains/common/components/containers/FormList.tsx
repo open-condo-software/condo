@@ -402,7 +402,9 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
     }, [])
 
     function handleSave () {
-        form.submit()
+        if (form.isFieldsTouched()) {
+            form.submit()
+        }
     }
 
     function handleChange (changedValues, allValues) {

@@ -1,11 +1,13 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
 import { Drawer, Layout, Typography, Space } from 'antd'
+import get from 'lodash/get'
 import React, { useCallback } from 'react'
 import { useRouter } from 'next/router'
 import classnames from 'classnames'
 import Link from 'next/link'
 import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
 import {
     ItemContainer,
     MenuItem,
@@ -97,6 +99,12 @@ const TicketCreateButton = () => {
 
 export const SideMenu: React.FC<ISideMenuProps> = (props) => {
     const { onLogoClick, menuData, isMobile, isSideMenuCollapsed, toggleSideMenuCollapsed } = props
+    const organization = useOrganization()
+    const isEmployeeBlocked = get(organization, ['link', 'isBlocked'], false)
+
+    if (isEmployeeBlocked) {
+        return null
+    }
 
     const MobileSideNav = (
         <Drawer

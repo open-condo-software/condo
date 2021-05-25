@@ -8,10 +8,10 @@ import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
 import { Button } from '@condo/domains/common/components/Button'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { UserOrganizationsList } from '@condo/domains/user/components/UserOrganizationsList'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
+import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 
 export const UserInfoPage = () => {
     const intl = useIntl()
@@ -29,7 +29,7 @@ export const UserInfoPage = () => {
                 <title>{name}</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired withEmployeeRestrictions={false}>
+                <AuthRequired>
                     <PageContent>
                         <Row gutter={[0, 40]}>
                             <Col span={3}>
@@ -98,7 +98,7 @@ export const UserInfoPage = () => {
                             </Col>
                         </Row>
                     </PageContent>
-                </OrganizationRequired>
+                </AuthRequired>
             </PageWrapper>
         </>
     )

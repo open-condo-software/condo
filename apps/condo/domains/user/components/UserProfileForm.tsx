@@ -1,5 +1,7 @@
 import { Col, Form, Input, Row, Space, Typography } from 'antd'
+import { Router } from 'express'
 import get from 'lodash/get'
+import { useRouter } from 'next/router'
 import React from 'react'
 import { User } from '@condo/domains/user/utils/clientSchema'
 import { useIntl } from '@core/next/intl'
@@ -25,6 +27,7 @@ const INPUT_LAYOUT_PROPS = {
 
 export const UserProfileForm = () => {
     const intl = useIntl()
+    const router = useRouter()
     const FullNameLabel = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const PasswordLabel = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
@@ -34,8 +37,8 @@ export const UserProfileForm = () => {
     const MinLengthError = intl.formatMessage({ id: 'field.ClientName.minLengthError' })
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
 
-    const { user, refetch } = useAuth()
-    const updateUserAction = User.useUpdate({}, refetch)
+    const { user } = useAuth()
+    const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
     const formAction = (formValues) => updateUserAction(formValues, user)
 
     const initialValues = {
