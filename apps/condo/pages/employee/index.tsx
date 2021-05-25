@@ -11,7 +11,8 @@ import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/organization/utils/helpers'
 import { useIntl } from '@core/next/intl'
 
-import { Col, Input, Row, Space, Table, Typography } from 'antd'
+import { Col, Input, Row, Space, Table, Typography, Dropdown, Menu } from 'antd'
+import { EllipsisOutlined } from '@ant-design/icons'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
@@ -22,6 +23,8 @@ import { useTableColumns } from '@condo/domains/organization/hooks/useTableColum
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useOrganization } from '@core/next/organization'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { Button } from '../../domains/common/components/Button'
+const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 
 const TicketsPage = () => {
     const intl = useIntl()
@@ -92,6 +95,21 @@ const TicketsPage = () => {
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
 
+    const handleMenuClick = (e) => {
+        console.log('click', e)
+    }
+
+    const dropDownMenu = (
+        <Menu onClick={handleMenuClick}>
+            <Menu.Item key="1">
+                Черз форму
+            </Menu.Item>
+            <Menu.Item key="2">
+                Через загрузку файла
+            </Menu.Item>
+        </Menu>
+    );
+
     return (
         <>
             <Head>
@@ -106,7 +124,7 @@ const TicketsPage = () => {
                                 ? <EmptyListView
                                     label={EmptyListLabel}
                                     message={EmptyListMessage}
-                                    createRoute='/employee/create'
+                                    createRoute={ADD_EMPLOYEE_ROUTE}
                                     createLabel={CreateEmployee} />
                                 : <Row gutter={[0, 40]} align={'middle'}>
                                     <Col span={6}>
@@ -115,6 +133,29 @@ const TicketsPage = () => {
                                             onChange={(e)=>{handleSearchChange(e.target.value)}}
                                             value={search}
                                         />
+                                    </Col>
+                                    <Col span={6} push={12} align={'right'}>
+                                        <Space size={16}>
+                                            <Dropdown.Button
+                                                overlay={dropDownMenu}
+                                                buttonsRender={() => [
+                                                    <Button
+                                                        key='left'
+                                                        type={'sberPrimary'}
+                                                        style={{ borderRight: '1px solid white' }}
+                                                        onClick={() => router.push(ADD_EMPLOYEE_ROUTE)}
+                                                    >
+                                                        {CreateEmployee}
+                                                    </Button>,
+                                                    <Button
+                                                        key='right'
+                                                        type={'sberPrimary'}
+                                                        style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
+                                                        icon={<EllipsisOutlined />}
+                                                    />,
+                                                ]}
+                                            />
+                                        </Space>
                                     </Col>
                                     <Col span={24}>
                                         <Table

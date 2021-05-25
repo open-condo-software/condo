@@ -86,9 +86,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 key: 'role',
                 sorter: true,
                 width: '20%',
-                render: (role) => {
-                    return get(role, ['role', 'name'], '-')
-                },
+                render: (role) => get(role, 'name', '-'),
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     const adaptedStatuses = organizationEmployeeRoles.map(OrganizationEmployeeRole.convertGQLItemToFormSelectState).filter(identity)
 
