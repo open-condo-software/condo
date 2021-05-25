@@ -245,6 +245,11 @@ const Ticket = new GQLListSchema('Ticket', {
         // `beforeChange` cannot be used, because data can be manipulated during updating process somewhere inside a ticket
         // We need a final result after update
         afterChange: async (...args) => {
+            /**
+             * Creates a new TicketChange item.
+             * 👉 When a new "single" or "many" relation field will be added to Ticket,
+             * new resolver should be implemented in `displayNameResolvers` and `relatedManyToManyResolvers`
+             */
             await afterChangeHook(
                 trackableFieldsFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS }),
                 createTicketChange,
