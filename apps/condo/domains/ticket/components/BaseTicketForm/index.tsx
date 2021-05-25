@@ -62,13 +62,17 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
 
-    const { action: oldAction, initialValues, organization, afterActionCompleted } = props
+    const { action: _action, initialValues, organization, afterActionCompleted } = props
     const validations = useTicketValidations()
 
-    const [UploadComponent, saveFilesToDb] = useMultipleFileUploadHook({ Model: TicketFile, relationField: 'ticket' })
+    const [UploadComponent, saveFilesToDb] = useMultipleFileUploadHook({ 
+        Model: TicketFile, 
+        relationField: 'ticket', 
+        initialCreateValues: { organization: organization.id },
+    })
     
     const action = async (...args) => {
-        const result = await oldAction(...args)
+        const result = await _action(...args)
         await saveFilesToDb(result.id)
         if (afterActionCompleted) {
             return afterActionCompleted(result)
