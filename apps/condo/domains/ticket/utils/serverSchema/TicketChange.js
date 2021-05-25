@@ -22,6 +22,11 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
     )
 }
 
+/**
+ * String representation of related item in a single relationship.
+ * Will be displayed in UI in changes history block.
+ * 👉 When a new single relation field will be added to Ticket, new resolver should be implemented here
+ */
 const displayNameResolvers = {
     'property': async (itemId) => {
         const item = await getById('Property', itemId)
@@ -66,6 +71,11 @@ const displayNameResolvers = {
     },
 }
 
+/**
+ * String representation of related items in a `many: true` relationship.
+ * Will be displayed in UI in changes history block.
+ * 👉 When a new "many" relation field will be added to Ticket, new resolver should be implemented here
+ */
 const relatedManyToManyResolvers = {
     'watchers': async ({ context, existingItem, originalInput }) => {
         let updated
