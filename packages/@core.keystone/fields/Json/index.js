@@ -8,5 +8,12 @@ module.exports = {
         knex: JsonKnexFieldAdapter,
         mongoose: JsonMongooseFieldAdapter,
     },
-    views: Text.views,
+    views: {
+        // Note: You cannot currently import and extend a controller
+        // outside this monorepo.
+        Controller: require.resolve('./views/Controller'),
+        Field: Text.views.Field,
+        // Filter: Text.views.Filter,
+        Cell: Text.views.Cell,
+    },
 }
