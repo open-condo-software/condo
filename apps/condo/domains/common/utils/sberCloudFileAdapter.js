@@ -1,17 +1,14 @@
 const ObsClient = require('esdk-obs-nodejs')
-const { createReadStream } = require('fs')
-
 class SberCloudFileAdapter {
 
-    constructor (folder = '') {
-        const sberCloudObsConfig = process.env.SBERCLOUD_OBS_CONFIG ? JSON.parse(process.env.SBERCLOUD_OBS_CONFIG) : {}
-        this.bucket = sberCloudObsConfig.bucket
+    constructor (config) {
+        this.bucket = config.bucket
         if (!this.bucket) {
-            throw new Error('SberCloudAdapter: S3Adapter requires a bucket name.')
+            throw new Error('SberCloudAdapter: requires a bucket name')
         }
-        this.s3 = new ObsClient(sberCloudObsConfig.s3Options)
-        this.server = sberCloudObsConfig.s3Options.server
-        this.folder = folder
+        this.s3 = new ObsClient(config.s3Options)
+        this.server = config.s3Options.server
+        this.folder = config.folder
     }
 
     save ({ stream, filename, id, mimetype, encoding }) {
@@ -75,70 +72,7 @@ class SberCloudFileAdapter {
 
 
 
-class SberCloudObs {
-
-    constructor (config) {
-        const sberCloudObsConfig = process.env.SBERCLOUD_OBS_CONFIG ? JSON.parse(process.env.SBERCLOUD_OBS_CONFIG) : {}
-        this.bucket = config.bucket || sberCloudObsConfig.bucket
-        if (!this.bucket) {
-            throw new Error('SberCloudAdapter: S3Adapter requires a bucket name.')
-        }
-        this.obs = new ObsClient(sberCloudObsConfig.s3Options)
-        this.folder = config.folder     
-    }
-
-    async isBucketExists () {
-        const { CommonMsg: { Status } } = await this.obs.headBucket({ Bucket: this.bucket })
-        return Status < 300
-    }
-
-    async createBucket (params = {}) {
-        const { CommonMsg: { Status } } = await this.obs.CreateBucket({
-            Bucket: this.bucket,
-            ACL: this.obs.enums.AclPublicRead,
-            StorageClass: this.obs.enums.StorageClassStandard,
-            ...params,
-        })
-        return Status < 300
-    }
-
-    async deleteBucket () {
-        const { CommonMsg: { Status } } = await this.obs.deleteBucket({
-            Bucket: this.bucket,
-        })
-        return Status < 300
-    }
-
-    async listObjects () {
-        const { InterfaceResult: { Contents } } = await this.obs.listObjects({ Bucket: this.bucket })
-        return Contents
-    }
-
-    async saveToLocalPath (name, location) {
-        await this.obs.downloadFile({
-            Bucket: this.bucket,
-            Key: name,
-            DownloadFile: location,
-        })
-    }
-
-    async uploadObject (name, location) {
-        await this.obs.putObject({
-            Bucket: this.bucket,
-            Key: `${this.folder}/${name}`,
-            Body: createReadStream(location),
-        })
-    }
-
-    async deleteObject (name) {
-        await this.obs.deleteObject({
-            Bucket: this.bucket,
-            Key: `${this.folder}/${name}`,
-        })
-    }
-}
 
 module.exports = {
     SberCloudFileAdapter,
-    SberCloudObs,
 }

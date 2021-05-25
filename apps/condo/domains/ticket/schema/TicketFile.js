@@ -7,10 +7,10 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketFile')
+
 const { SberCloudFileAdapter } = require('@condo/domains/common/utils/sberCloudFileAdapter')
-
-const fileAdapter = new SberCloudFileAdapter('ticket')
-
+const S3Config = process.env.SBERCLOUD_OBS_CONFIG ? JSON.parse(process.env.SBERCLOUD_OBS_CONFIG) : {}
+const fileAdapter = new SberCloudFileAdapter({ ...S3Config, folder: 'ticket' })
 
 const TicketFile = new GQLListSchema('TicketFile', {
     schemaDoc: 'File attached to the ticket',

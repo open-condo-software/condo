@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { TicketFile as TicketFileGQL } from '@condo/domains/ticket/gql'
-import { TicketFile, TicketFileUpdateInput, QueryAllTicketFilesArgs } from '../../../../schema'
+import { Ticket, TicketFile, TicketFileUpdateInput, QueryAllTicketFilesArgs, File } from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'file', 'ticket']
 const RELATIONS = ['ticket']
@@ -25,7 +25,8 @@ function convertToUIState (item: TicketFile): ITicketFileUIState {
 
 export interface ITicketFileFormState {
     id?: undefined
-    // TODO(codegen): write ITicketFileUIFormState or extends it from
+    file?: File
+    ticket?: Ticket
 }
 
 function convertToUIFormState (state: ITicketFileUIState): ITicketFileFormState | undefined {
