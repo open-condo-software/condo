@@ -1,5 +1,6 @@
 import React from 'react'
 import { Row, Col } from 'antd'
+import _ from 'lodash'
 import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema.d'
 import { formatDate } from '../../../common/utils/helpers'
@@ -49,22 +50,13 @@ const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }
         ['assigneeDisplayName', AssigneeMessage],
     ]
 
+    // Omit what was not changed
     const changedFields = fields.filter(([f]) => (
         ticketChange[`${f}From`] !== ticketChange[`${f}To`]
     ))
 
-    const BooleanToString = {
-        isPaid: {
-            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
-            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
-        },
-        isEmergency: {
-            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
-            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
-        },
-    }
-
     const formatDiffMessage = (field, message, ticketChange) => {
+        // value will be interleaved between splitted parts
         const parts1 = message.split('{from}')
         const parts2 =  parts1[1].split('{to}')
         const valueFrom = ticketChange[`${field}From`]
@@ -83,12 +75,33 @@ const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }
     const format = (field, value) => (
         typeof value === 'boolean'
             ? BooleanToString[field][value]
-            : field === 'clientPhone'
-                ? (<PhoneLink value={value}/>)
-                : field === 'details'
-                    ? value.length > 30 ? value.slice(0, 30) + '…' : value
-                    : value
+            : formatField(field, value)
     )
+
+    const BooleanToString = {
+        isPaid: {
+            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
+            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
+        },
+        isEmergency: {
+            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
+            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
+        },
+    }
+
+    const formatField = (field, value) => {
+        const formatterFor = {
+            clientPhone: (field, value) => (
+                <PhoneLink value={value}/>
+            ),
+            details: (field, value) => (
+                value.length > 30 ? value.slice(0, 30) + '…' : value
+            ),
+        }
+        return _.has(formatterFor, field)
+            ? formatterFor[field](field, value)
+            : value
+    }
 
     return (
         <div>
