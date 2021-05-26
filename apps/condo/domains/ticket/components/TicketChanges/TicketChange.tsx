@@ -113,6 +113,12 @@ const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }
             details: (field, value) => (
                 value.length > 30 ? value.slice(0, 30) + '…' : value
             ),
+            unitName: (field, value) => (
+                // Formally, unit name (e.g. apartment) was changed, but semantically,
+                // was changed a whole address of the ticket, so, to preserve context,
+                // the change of the unit is displayed as the change of the address
+                `${ticketChange.ticket.property.address}, кв. ${value}`
+            ),
         }
         return _.has(formatterFor, field)
             ? formatterFor[field](field, value)
