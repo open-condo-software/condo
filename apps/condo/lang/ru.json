@@ -293,6 +293,8 @@
   "SignOut": "Выйти",
   "Started": "Процесс запущен",
   "StartRecovery": "Восстановить",
+  "AddItemUsingForm": "Черз форму",
+  "AddItemUsingFileUpload": "Через загрузку файла",
   "Status": "Статус",
   "Account": "Аккаунт",
   "ticket.EmptyList.header": "Список заявок пока пуст",
