@@ -60,7 +60,8 @@ const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }
         They will be safely mounted in place of `{to}` and `{from}` placeholders
      */
     const formatDiffMessage = (field, message, ticketChange) => {
-        if (message.search('{from}') !== -1) {
+        // we have both "from" and "to" parts to interpolate
+        if (message.search('{from}') !== -1 && message.search('{to}') !== -1) {
             const parts1 = message.split('{from}')
             const parts2 =  parts1[1].split('{to}')
             const valueFrom = ticketChange[`${field}From`]
@@ -74,7 +75,7 @@ const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }
                 <ins key={2}>{format(field, valueTo)}</ins>,
                 parts2[1],
             ]
-        } else {
+        } else { // only "to" part
             const parts =  message.split('{to}')
             const valueTo = ticketChange[`${field}To`]
             return [
