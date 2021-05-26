@@ -88,7 +88,7 @@ const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }
     return (
         <div>
             {changedFields.map(([field, message], i) => (
-                <Diff key={i}>
+                <Diff key={i} className={field}>
                     {formatDiffMessage(field, message, ticketChange).map(part => (
                         part
                     ))}
@@ -100,6 +100,12 @@ const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }
 
 
 const Diff = styled.p`
+    &.statusDisplayName {
+        del, ins {
+            font-weight: bold;
+            color: black;
+        }
+    }
     span, del, ins {
         color: #389E0D;
     }
