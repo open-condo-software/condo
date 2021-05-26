@@ -3,9 +3,6 @@ class SberCloudFileAdapter {
 
     constructor (config) {
         this.bucket = config.bucket
-        if (!this.bucket) {
-            throw new Error('SberCloudAdapter: requires a bucket name')
-        }
         this.s3 = new ObsClient(config.s3Options)
         this.server = config.s3Options.server
         this.folder = config.folder
