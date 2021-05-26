@@ -1,7 +1,5 @@
 const ObsClient = require('esdk-obs-nodejs')
 const FOLDER_NAME = '__jest_test_api___'
-
-
 class SberCloudObsTest {
     constructor (config) {
         this.bucket = config.bucket
@@ -31,12 +29,10 @@ class SberCloudObsTest {
 }
 
 const initApi = () => {
-    const S3Config = process.env.SBERCLOUD_OBS_CONFIG ? JSON.parse(process.env.SBERCLOUD_OBS_CONFIG) : {}
-    if (S3Config.testBucket) {
-        S3Config.bucket = S3Config.testBucket
-    }
-    S3Config.folder = FOLDER_NAME
-    const API = new SberCloudObsTest(S3Config)
+    const API = new SberCloudObsTest({
+        ...(process.env.SBERCLOUD_OBS_CONFIG ? JSON.parse(process.env.SBERCLOUD_OBS_CONFIG) : {}),
+        folder: FOLDER_NAME,
+    })
     return API
 }
 

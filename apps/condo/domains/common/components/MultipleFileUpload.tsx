@@ -8,7 +8,7 @@ import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 
 import { UploadRequestOption } from 'rc-upload/lib/interface'
 import { File } from '../../../schema'
-import { UploadFile } from 'antd/lib/upload/interface'
+import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
 import { isEmpty } from 'lodash'
 
 type DBFile = {
@@ -53,10 +53,9 @@ const convertFilesToUploadFormat = (files: DBFile[]): UploadListFile[] => {
             uid: file.id,
             id,
             name: file.originalFilename,
-            status: null,
+            status: 'done' as UploadFileStatus,
             url: file.publicUrl,
         }
-        fileInList.status = 'done'
         return fileInList        
     })
     return uploadFiles
@@ -200,4 +199,3 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         </div>
     )
 }
-

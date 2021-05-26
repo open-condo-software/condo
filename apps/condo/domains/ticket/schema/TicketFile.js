@@ -9,10 +9,10 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/ticket/access/TicketFile')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 
-const { SberCloudFileAdapter } = require('@condo/domains/common/utils/sberCloudFileAdapter')
-const S3Config = process.env.SBERCLOUD_OBS_CONFIG ? JSON.parse(process.env.SBERCLOUD_OBS_CONFIG) : {}
-const fileAdapter = new SberCloudFileAdapter({ ...S3Config, folder: 'ticket' })
+const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const Adapter = new FileAdapter('ticket')
 
+// zuch(todo): find a way to upload images in jest tests
 const TicketFile = new GQLListSchema('TicketFile', {
     schemaDoc: 'File attached to the ticket',
     fields: {
@@ -22,7 +22,7 @@ const TicketFile = new GQLListSchema('TicketFile', {
         file: {
             schemaDoc: 'File object with meta information and publicUrl',
             type: File,
-            adapter: fileAdapter,
+            adapter: Adapter,
             isRequired: false,
         },
         ticket: {
@@ -38,7 +38,7 @@ const TicketFile = new GQLListSchema('TicketFile', {
     hooks: {
         afterDelete: async ({ existingItem }) => {
             if (existingItem.file) {
-                await fileAdapter.delete(existingItem.file)
+                await Adapter.delete(existingItem.file)
             }
         },
     },

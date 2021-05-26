@@ -25,6 +25,7 @@ import { LETTERS_AND_NUMBERS } from '@condo/domains/common/constants/regexps'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { TicketFile } from '../../../schema'
+import { UploadFileStatus } from 'antd/lib/upload/interface'
 
 
 // TODO(Dimitreee):move to global defs
@@ -63,10 +64,9 @@ const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
         const fileInList = {
             uid: file.id,
             name: file.originalFilename,
-            status: null,
+            status: 'done' as UploadFileStatus,
             url: file.publicUrl,
         }
-        fileInList.status = 'done'
         return fileInList        
     })
     const FilesFieldValue = (

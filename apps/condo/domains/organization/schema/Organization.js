@@ -3,10 +3,8 @@
  */
 
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
-const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const { File, Text, Relationship, Select } = require('@keystonejs/fields')
 
-const conf = require('@core/config')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
@@ -18,10 +16,18 @@ const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 
+
+// This can be replaced with
+const conf = require('@core/config')
+const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
     src: `${conf.MEDIA_ROOT}/orgavatars`,
     path: `${conf.MEDIA_URL}/orgavatars`,
 })
+
+// const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+// const Adapter = new FileAdapter('orgavatars', 'local')
+
 
 const Organization = new GQLListSchema('Organization', {
     schemaDoc: 'B2B customer of the service, a legal entity or an association of legal entities (holding/group)',

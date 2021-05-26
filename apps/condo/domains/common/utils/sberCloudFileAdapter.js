@@ -70,9 +70,6 @@ class SberCloudFileAdapter {
     }
 }
 
-
-
-
 module.exports = {
     SberCloudFileAdapter,
 }
