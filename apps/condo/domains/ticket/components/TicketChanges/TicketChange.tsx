@@ -44,7 +44,7 @@ const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }
         ['isPaid', IsPaidMessage],
         ['isEmergency', IsEmergencyMessage],
         ['statusDisplayName', StatusDisplayNameMessage],
-        ['unitNameFrom', UnitNameMessage],
+        ['unitName', UnitNameMessage],
         ['assigneeDisplayName', AssigneeMessage],
     ]
 
