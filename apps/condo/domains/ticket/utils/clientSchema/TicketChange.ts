@@ -6,11 +6,12 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { TICKET_CHANGE_DATA_FIELDS } from '@condo/domains/ticket/gql'
 
 import { TicketChange as TicketChangeGQL } from '@condo/domains/ticket/gql'
 import { TicketChange, TicketChangeUpdateInput, QueryAllTicketChangesArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'ticket']
+const FIELDS = ['id', 'createdAt', 'createdBy', 'ticket', ...TICKET_CHANGE_DATA_FIELDS]
 const RELATIONS = ['ticket']
 
 export interface ITicketChangeUIState extends TicketChange {
