@@ -36,6 +36,7 @@ export const CreateEmployeeForm: React.FC = () => {
     const router = useRouter()
 
     const FullNameLabel = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
+    const FullNamePlaceholder = intl.formatMessage({ id: 'field.FullName' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const EmailLabel = intl.formatMessage({ id: 'Email' })
@@ -99,8 +100,13 @@ export const CreateEmployeeForm: React.FC = () => {
                             <Col span={24}>
                                 <Row gutter={[0, 24]}>
                                     <Col span={24}>
-                                        <Form.Item name={'name'} label={FullNameLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'}>
-                                            <Input/>
+                                        <Form.Item
+                                            name={'name'}
+                                            label={FullNameLabel}
+                                            {...INPUT_LAYOUT_PROPS}
+                                            labelAlign={'left'}
+                                        >
+                                            <Input placeholder={FullNamePlaceholder}/>
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
