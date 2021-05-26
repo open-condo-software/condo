@@ -85,7 +85,9 @@ const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }
             ? BooleanToString[field][value]
             : field === 'clientPhone'
                 ? (<PhoneLink value={value}/>)
-                : value
+                : field === 'details'
+                    ? value.length > 30 ? value.slice(0, 30) + '…' : value
+                    : value
     )
 
     return (
@@ -107,6 +109,11 @@ const Diff = styled.p`
         del, ins {
             font-weight: bold;
             color: black;
+        }
+    }
+    &.details {
+        del, ins {
+            color: black
         }
     }
     span, del, ins {
