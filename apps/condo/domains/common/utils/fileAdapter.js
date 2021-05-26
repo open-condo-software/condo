@@ -1,7 +1,7 @@
 const { isEmpty, get } = require('lodash')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const { SberCloudFileAdapter } = require('./sberCloudFileAdapter')
-const { S3Adapter } = require('@keystonejs/file-adapters');
+const { S3Adapter } = require('@keystonejs/file-adapters')
 const coreConfig = require('@core/config')
 
 const { DEFAULT_FILE_ADAPTER } = require('../constants/uploads')
