@@ -55,21 +55,36 @@ const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }
         ticketChange[`${f}From`] !== ticketChange[`${f}To`]
     ))
 
+    /*
+        Interpolates message string with JSX tags.
+        They will be safely mounted in place of `{to}` and `{from}` placeholders
+     */
     const formatDiffMessage = (field, message, ticketChange) => {
-        // value will be interleaved between splitted parts
-        const parts1 = message.split('{from}')
-        const parts2 =  parts1[1].split('{to}')
-        const valueFrom = ticketChange[`${field}From`]
-        const valueTo = ticketChange[`${field}To`]
-        return [
-            <span key={1}>{ticketChange.createdBy.name}</span>,
-            ' ',
-            parts1[0],
-            <del key={3}>{format(field, valueFrom)}</del>,
-            parts2[0],
-            <ins key={2}>{format(field, valueTo)}</ins>,
-            parts2[1],
-        ]
+        if (message.search('{from}') !== -1) {
+            const parts1 = message.split('{from}')
+            const parts2 =  parts1[1].split('{to}')
+            const valueFrom = ticketChange[`${field}From`]
+            const valueTo = ticketChange[`${field}To`]
+            return [
+                <span key={1}>{ticketChange.createdBy.name}</span>,
+                ' ',
+                parts1[0],
+                <del key={3}>{format(field, valueFrom)}</del>,
+                parts2[0],
+                <ins key={2}>{format(field, valueTo)}</ins>,
+                parts2[1],
+            ]
+        } else {
+            const parts =  message.split('{to}')
+            const valueTo = ticketChange[`${field}To`]
+            return [
+                <span key={1}>{ticketChange.createdBy.name}</span>,
+                ' ',
+                parts[0],
+                <ins key={2}>{format(field, valueTo)}</ins>,
+                parts[1],
+            ]
+        }
     }
 
     const format = (field, value) => (
@@ -84,8 +99,8 @@ const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }
             'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
         },
         isEmergency: {
-            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
-            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
+            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.true' }),
+            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.false' }),
         },
     }
 
