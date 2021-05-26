@@ -19,11 +19,17 @@ const TICKET_STATUS_TYPES = [
 ]
 
 /*
+    To keep everything, we have a `TicketChangeHistoryRecord`, being created by `historical` Keystone plugin for a `Ticket`.
+    `TicketChange` – is a feature for an end user and data, that makes sense for end user is kept tracked.
+    For example, `senderFrom` and `senderTo` is not needed in `TicketChange`, because `TicketChange` itself
+    has `sender` field, which gets a value of `updatedItem.sender`.
+    `createdAt` and `createdBy` will not be changed ever.
+    `updatedAt` and `updatedBy` are presented in `TicketChange` itself, — we will know, who made a change in question.
+    `v` — it seems to me, that there is no cases of using the change history of this field, it will just be incremented on every update, so, we can get final value from related `Ticket`, or just count back by number of TicketChanges. For example, when we are inspecting 5-th `TicketChange`, it will reflect state of Ticket of version 5+1.
+    `dv` – is a technical thing, not a data for business-cases.
     `sender` is an internal field, that don't need to be displayed in UI.
-    It's not participating in Ticket changes UI for customer.
-    Also we need to explicitly omit fields `createdAt`, `createdBy`, `updatedAt`, `updatedBy`:
-    1. We don't need to track them, — they will be presented in `TicketChange`;
-    2. It's impossible to abtain them at declaration stage in `TicketChange`.
+    Because of current implementation, it's impossible to obtain some fields, created by plugins,
+    at declaration stage of `TicketChange`.
  */
 const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'statusUpdatedAt']
 
