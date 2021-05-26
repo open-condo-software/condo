@@ -9,16 +9,19 @@ interface ITicketChangeProps {
     ticketChange: TicketChangeType
 }
 
-export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => (
-    <Row gutter={[12, 12]}>
-        <Col span={3}>
-            {formatDate(ticketChange.createdAt)}
-        </Col>
-        <Col span={21}>
-            <TicketChangeFields ticketChange={ticketChange}/>
-        </Col>
-    </Row>
-)
+export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => {
+    const intl = useIntl()
+    return (
+        <Row gutter={[12, 12]}>
+            <Col span={3}>
+                {formatDate(intl, ticketChange.createdAt)}
+            </Col>
+            <Col span={21}>
+                <TicketChangeFields ticketChange={ticketChange}/>
+            </Col>
+        </Row>
+    )
+}
 
 interface ITicketChangeFieldsProps {
     ticketChange: TicketChangeType
