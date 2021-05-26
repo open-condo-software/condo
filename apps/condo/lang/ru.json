@@ -253,7 +253,7 @@
   "pages.condo.ticket.TicketChanges.isEmergency.true": "аварийной",
   "pages.condo.ticket.TicketChanges.isEmergency.false": "неаварийной",
   "pages.condo.ticket.TicketChanges.statusDisplayName": "перевёл задачу из статуса «{from}», в «{to}»",
-  "pages.condo.ticket.TicketChanges.unitName": "изменил квартиру с «{from}» на «{to}»",
+  "pages.condo.ticket.TicketChanges.unitName": "изменил квартиру с {from} на {to}",
   "pages.condo.ticket.TicketChanges.assignee": "изменил ответственного. Был «{from}», а стал «{to}»",
   "pages.index.PageTitle": "CONDO",
   "pages.organizations.CreateOrganizationButtonLabel": "Создать новую организацию",
