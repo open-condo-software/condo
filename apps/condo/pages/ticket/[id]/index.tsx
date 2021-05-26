@@ -25,7 +25,8 @@ import { LETTERS_AND_NUMBERS } from '@condo/domains/common/constants/regexps'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
-
+// @ts-ignore
+import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
@@ -176,6 +177,7 @@ const TicketIdPage = () => {
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
+    const TicketChangesMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketChanges' })
 
     const router = useRouter()
     // NOTE: cast `string | string[]` to `string`
@@ -312,6 +314,18 @@ const TicketIdPage = () => {
                                 </Row>
                             </Col>
                         </FocusContainer>
+
+                        <Col span={24}>
+                            <Row gutter={[0, 24]}>
+                                <Col span={24}>
+                                    <Typography.Title level={5}>{TicketChangesMessage}</Typography.Title>
+                                </Col>
+                                <Col span={24}>
+                                    <TicketChanges ticketId={id}/>
+                                </Col>
+                            </Row>
+                        </Col>
+
                         <Col span={24}>
                             <Space size={40}>
                                 <Link href={`/ticket/${ticket.id}/update`}>

@@ -99,9 +99,9 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'watchersIdsTo',
     'watchersDisplayNamesFrom',
     'watchersDisplayNamesTo',
-].join(' ')
+]
 
-const TICKET_CHANGE_FIELDS = `{ ticket { id } id dv sender v createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS} }`
+const TICKET_CHANGE_FIELDS = `{ ticket { id } id dv sender v createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
 
 const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
@@ -117,5 +117,6 @@ module.exports = {
     TicketSource,
     TicketClassifier,
     TicketFile,
+    TICKET_CHANGE_DATA_FIELDS,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
