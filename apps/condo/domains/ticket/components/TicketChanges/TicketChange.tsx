@@ -139,7 +139,7 @@ const Diff = styled.p`
             color: black;
         }
     }
-    &.details {
+    &.details, &.isEmergency, &.isPaid {
         del, ins {
             color: black
         }
