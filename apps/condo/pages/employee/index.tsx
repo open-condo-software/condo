@@ -137,7 +137,7 @@ const TicketsPage = () => {
                                             value={search}
                                         />
                                     </Col>
-                                    <Col span={6} push={12} align={'right'}>
+                                    <Col span={5} push={13}>
                                         <Space size={16}>
                                             <Dropdown.Button
                                                 overlay={dropDownMenu}
