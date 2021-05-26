@@ -25,7 +25,7 @@ const TICKET_STATUS_TYPES = [
     1. We don't need to track them, — they will be presented in `TicketChange`;
     2. It's impossible to abtain them at declaration stage in `TicketChange`.
  */
-const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy']
+const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'statusUpdatedAt']
 
 module.exports = {
     NEW_OR_REOPENED_STATUS_TYPE,
