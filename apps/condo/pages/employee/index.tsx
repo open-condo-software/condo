@@ -28,7 +28,7 @@ const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 
 const TicketsPage = () => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
+    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
@@ -190,7 +190,7 @@ const HeaderAction = () => {
     return (
         <Space>
             <Typography.Text style={{ fontSize: '12px' }}>
-                {intl.formatMessage({ id: 'menu.ControlRoom' })}
+                {intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })}
             </Typography.Text>
         </Space>
     )

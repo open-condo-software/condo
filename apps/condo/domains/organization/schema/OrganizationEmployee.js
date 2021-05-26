@@ -79,6 +79,10 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             knexOptions: { isNotNullable: false }, // Relationship only!
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
+        position: {
+            type: Text,
+            isRequired: false,
+        },
         isAccepted: {
             type: Checkbox,
             defaultValue: false,

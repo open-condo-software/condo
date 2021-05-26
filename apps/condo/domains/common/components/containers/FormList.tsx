@@ -308,6 +308,7 @@ interface IFormWithAction {
     validateTrigger?: string | string[]
     resetOnComplete?: boolean
     layout?: 'vertical' | 'horizontal'
+    colon?: boolean
     formValuesToMutationDataPreprocessor?: (values: IFormValuesType) => IFormValuesType
 }
 
@@ -331,6 +332,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
         handleSubmit,
         resetOnComplete,
         onChange,
+        colon = true,
         layout = 'vertical',
         validateTrigger,
     } = props
@@ -419,6 +421,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
             initialValues={initialValues}
             validateTrigger={validateTrigger}
             onValuesChange={handleChange}
+            colon={colon}
             scrollToFirstError
         >
             <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input/></Form.Item>

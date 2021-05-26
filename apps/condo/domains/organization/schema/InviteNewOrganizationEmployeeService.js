@@ -12,7 +12,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
     types: [
         {
             access: true,
-            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: JSON!, organization: OrganizationWhereUniqueInput!, email: String!, phone: String, name: String }',
+            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: JSON!, organization: OrganizationWhereUniqueInput!, email: String!, phone: String, name: String, role: OrganizationEmployeeWhereUniqueInput, position: String}',
         },
     ],
     mutations: [
@@ -22,7 +22,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
             resolver: async (parent, args, context) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data } = args
-                let { organization, email, phone, name, ...restData } = data
+                let { organization, email, phone, role, position, name, ...restData } = data
                 phone = normalizePhone(phone)
                 if (!phone) throw new Error(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
 
@@ -63,6 +63,8 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const employee = await createOrganizationEmployee(context, {
                     user: { connect: { id: user.id } },
                     organization: { connect: { id: organization.id } },
+                    ...role && { role: { connect: { id: role.id } } },
+                    position,
                     email,
                     name,
                     phone,
