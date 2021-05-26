@@ -4,6 +4,7 @@ import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema.d'
 import { formatDate } from '../../../common/utils/helpers'
 import { useIntl } from '@core/next/intl'
+import { PhoneLink } from '../../../common/components/PhoneLink'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -72,17 +73,19 @@ const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }
             <span key={1}>{ticketChange.createdBy.name}</span>,
             ' ',
             parts1[0],
-            <del key={3}>{stringify(field, valueFrom)}</del>,
+            <del key={3}>{format(field, valueFrom)}</del>,
             parts2[0],
-            <ins key={2}>{stringify(field, valueTo)}</ins>,
+            <ins key={2}>{format(field, valueTo)}</ins>,
             parts2[1],
         ]
     }
 
-    const stringify = (field, value) => (
+    const format = (field, value) => (
         typeof value === 'boolean'
             ? BooleanToString[field][value]
-            : value
+            : field === 'clientPhone'
+                ? (<PhoneLink value={value}/>)
+                : value
     )
 
     return (
@@ -108,6 +111,9 @@ const Diff = styled.p`
     }
     span, del, ins {
         color: #389E0D;
+        a {
+            color: #389E0D;
+        }
     }
     del, ins {
         text-decoration: none;
