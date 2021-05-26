@@ -11,7 +11,7 @@ import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/organization/utils/helpers'
 import { useIntl } from '@core/next/intl'
 
-import { Col, Input, Row, Space, Table, Typography, Dropdown, Menu } from 'antd'
+import { Col, Input, Row, Space, Table, Typography, Dropdown, Menu, Tooltip } from 'antd'
 import { EllipsisOutlined } from '@ant-design/icons'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -33,6 +33,9 @@ const TicketsPage = () => {
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const CreateEmployee = intl.formatMessage({ id: 'AddEmployee' })
+    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
+    const AddItemUsingFormLabel = intl.formatMessage({ id: 'AddItemUsingForm' })
+    const AddItemUsingUploadLabel = intl.formatMessage({ id: 'AddItemUsingFileUpload' })
 
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
@@ -95,20 +98,20 @@ const TicketsPage = () => {
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
 
-    const handleMenuClick = (e) => {
-        console.log('click', e)
-    }
+    const handleAddEmployee = () => router.push(ADD_EMPLOYEE_ROUTE)
 
     const dropDownMenu = (
-        <Menu onClick={handleMenuClick}>
-            <Menu.Item key="1">
-                Черз форму
+        <Menu>
+            <Menu.Item key="1" onClick={handleAddEmployee}>
+                {AddItemUsingFormLabel}
             </Menu.Item>
             <Menu.Item key="2">
-                Через загрузку файла
+                <Tooltip title={NotImplementedYetMessage}>
+                    {AddItemUsingUploadLabel}
+                </Tooltip>
             </Menu.Item>
         </Menu>
-    );
+    )
 
     return (
         <>

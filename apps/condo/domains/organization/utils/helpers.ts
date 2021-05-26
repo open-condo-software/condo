@@ -15,8 +15,6 @@ export interface IFilters extends Pick<OrganizationEmployee, 'name' | 'phone' | 
     role?: Array<string>
 }
 
-
-
 export const roleToQuery = (rolesIds: Array<string>): OrganizationEmployeeRoleWhereInput => {
     if (Array.isArray(rolesIds) && rolesIds.length > 0) {
         return {

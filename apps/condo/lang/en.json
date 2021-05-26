@@ -293,6 +293,8 @@
   "SignInRequired": "Sign in required",
   "SignOut": "Sign out",
   "Started": "Started",
+  "AddItemUsingForm": "Using form input",
+  "AddItemUsingFileUpload": "Using file input",
   "StartRecovery": "Start recovery",
   "Status": "Status",
   "Account": "Account",
