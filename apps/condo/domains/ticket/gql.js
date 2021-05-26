@@ -29,8 +29,6 @@ const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIE
 const TICKET_CHANGE_DATA_FIELDS = [
     'statusReopenedCounterFrom',
     'statusReopenedCounterTo',
-    'statusUpdatedAtFrom',
-    'statusUpdatedAtTo',
     'statusReasonFrom',
     'statusReasonTo',
     'numberFrom',
