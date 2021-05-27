@@ -2,11 +2,14 @@ import { Select } from 'antd'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import React from 'react'
 import { useOrganization } from '@core/next/organization'
+import { useAuth } from '@core/next/auth'
 
 export const OrganizationSelect = () => {
+    // @ts-ignore
+    const { user } = useAuth()
     const { link, selectLink } = useOrganization()
     const { objs: userOrganizations } = OrganizationEmployee.useObjects(
-        {},
+        { where: user ? { user: { id: user.id } } : {} },
         { fetchPolicy: 'network-only' }
     )
 
