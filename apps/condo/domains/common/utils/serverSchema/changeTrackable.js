@@ -28,7 +28,7 @@ const { Json } = require('@core/keystone/fields')
  * ## Integration guide
  *
  * For example, to track changes of `Ticket` schema, following should be done:
- * 1. Decide, what fields should be trackable, using `trackableFieldsFrom` function;
+ * 1. Decide, what fields should be trackable, using `buildSetOfFieldsToTrackFrom` function;
  * 2. Create a "destination" schema, e.g. `TicketChange`
  * 3. Generate fields for it using `generateChangeTrackableFieldsFrom` function
  * 4. Write `DisplayNameResolvers` (see description below in typedef)
@@ -84,7 +84,7 @@ const { Json } = require('@core/keystone/fields')
  * @param {Options} options
  * @return {*}
  */
-const trackableFieldsFrom = (schema, options = {}) => (
+const buildSetOfFieldsToTrackFrom = (schema, options = {}) => (
     _.omit(schema.fields, options.except || [])
 )
 
@@ -349,7 +349,7 @@ const mapRelationMany = (acc, value, key) => {
 }
 
 module.exports = {
-    trackableFieldsFrom,
+    buildSetOfFieldsToTrackFrom,
     storeChangesIfUpdated,
     generateChangeTrackableFieldsFrom,
 }
