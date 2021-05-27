@@ -80,6 +80,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         position: {
+            schemaDoc: 'Free-form description of the employee\'s position',
             type: Text,
             isRequired: false,
         },
@@ -104,6 +105,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             },
         },
         isBlocked: {
+            schemaDoc: 'Employee is blocked status, used in permissions functions, isBlocked has Free-form description of the employee\'s position over all permissions',
             type: Checkbox,
             defaultValue: false,
         },

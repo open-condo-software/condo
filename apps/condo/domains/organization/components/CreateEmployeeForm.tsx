@@ -8,6 +8,7 @@ import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 import { Button } from '@condo/domains/common/components/Button'
 import { useInviteNewOrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -41,21 +42,21 @@ export const CreateEmployeeForm: React.FC = () => {
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const EmailLabel = intl.formatMessage({ id: 'Email' })
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
+    const EmailError = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
+    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
+
+    const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
 
     const validations: { [key: string]: Rule[] } = {
         phone: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'field.Phone.requiredError' }),
+                message: FieldIsRequiredMsg,
             },
             {
                 validator: (_, value) => {
-                    const phone = value.replace(/\D/g, '')
-
-                    if (phone.length !== 11) {
-                        return Promise.reject(new Error(intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })))
-                    }
-
+                    const v = normalizePhone(value)
+                    if (!v) return Promise.reject(PhoneIsNotValidMsg)
                     return Promise.resolve()
                 },
             },
@@ -63,11 +64,11 @@ export const CreateEmployeeForm: React.FC = () => {
         email: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'field.email.requiredError' }),
+                message: FieldIsRequiredMsg,
             },
             {
                 type: 'email',
-                message: intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' }),
+                message: EmailError,
             },
         ],
     }
@@ -83,6 +84,7 @@ export const CreateEmployeeForm: React.FC = () => {
             validateTrigger={['onBlur', 'onSubmit']}
             colon={false}
             formValuesToMutationDataPreprocessor={(values) => {
+                // TODO(Dimitree): delete after useInviteNewOrganizationEmployee move to OrganizationEmployee
                 const role = get(values, 'role')
 
                 if (role) {

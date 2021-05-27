@@ -47,6 +47,7 @@ function useRegisterNewOrganization (attrs = {}, onComplete) {
     return useMemo(() => _action, [rowAction])
 }
 
+// TODO(Dimitree): move to OrganizationEmployee
 function useInviteNewOrganizationEmployee (attrs = {}, onComplete) {
     if (typeof attrs !== 'object' || !attrs) throw new Error('useCreate(): invalid attrs argument')
     const [rowAction] = useMutation(INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION)
