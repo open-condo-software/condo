@@ -135,7 +135,7 @@ function generateChangeTrackableFieldsFrom (fields) {
  * Map of field names to functions, that obtains item name by its id.
  *
  * @example
- * const displayNameResolvers = {
+ * const ticketChangeDisplayNameResolversForSingleRelations = {
  *   'property': async (itemId) => {
  *       const item = await getById('Property', itemId)
  *       return _.get(item, 'name')

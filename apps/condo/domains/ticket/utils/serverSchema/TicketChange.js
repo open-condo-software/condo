@@ -27,7 +27,7 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
  * Will be displayed in UI in changes history block.
  * 👉 When a new single relation field will be added to Ticket, new resolver should be implemented here
  */
-const displayNameResolvers = {
+const ticketChangeDisplayNameResolversForSingleRelations = {
     'property': async (itemId) => {
         const item = await getById('Property', itemId)
         return _.get(item, 'name')
@@ -158,6 +158,6 @@ const relatedManyToManyResolvers = {
 
 module.exports = {
     createTicketChange,
-    displayNameResolvers,
+    ticketChangeDisplayNameResolversForSingleRelations,
     relatedManyToManyResolvers,
 }
