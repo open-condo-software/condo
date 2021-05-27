@@ -51,7 +51,7 @@ export const EmployeeInfoPage = () => {
     }
     const handleCancel = () => setIsConfirmVisible(false)
 
-    if (error) {
+    if (error || loading) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={ErrorMessage ? 'Error' : null}/>
     }
 
