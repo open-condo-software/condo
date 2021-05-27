@@ -9,7 +9,7 @@ export const OrganizationSelect = () => {
     const { user } = useAuth()
     const { link, selectLink } = useOrganization()
     const { objs: userOrganizations } = OrganizationEmployee.useObjects(
-        { where: user ? { user: { id: user.id } } : {} },
+        { where: user ? { user: { id: user.id }, isAccepted: true } : {} },
         { fetchPolicy: 'network-only' }
     )
 
