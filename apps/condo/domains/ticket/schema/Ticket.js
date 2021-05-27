@@ -15,7 +15,7 @@ const { afterChangeHook } = require('@condo/domains/common/utils/serverSchema/ch
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { createTicketChange, displayNameResolvers, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
+const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -248,12 +248,12 @@ const Ticket = new GQLListSchema('Ticket', {
             /**
              * Creates a new TicketChange item.
              * 👉 When a new "single" or "many" relation field will be added to Ticket,
-             * new resolver should be implemented in `displayNameResolvers` and `relatedManyToManyResolvers`
+             * new resolver should be implemented in `ticketChangeDisplayNameResolversForSingleRelations` and `relatedManyToManyResolvers`
              */
             await afterChangeHook(
                 trackableFieldsFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS }),
                 createTicketChange,
-                displayNameResolvers,
+                ticketChangeDisplayNameResolversForSingleRelations,
                 relatedManyToManyResolvers
             )(...args)
         },
