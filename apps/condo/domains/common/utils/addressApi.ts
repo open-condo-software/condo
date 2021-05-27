@@ -13,7 +13,7 @@ export class AddressApi implements IAddressApi {
     }
 
     // TODO(Dimitreee): remove any
-    public getSuggestions (query: string): Promise<any> {
+    public getSuggestions (query: string): Promise<Record<string, any>> {
         return fetch(this.suggestionsUrl, {
             method: 'POST',
             headers: {

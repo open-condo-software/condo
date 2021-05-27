@@ -3,10 +3,11 @@
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
 import get from 'lodash/get'
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { searchEmployee, searchProperty, searchTicketClassifier } from '../../utils/clientSchema/search'
+import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
+import { searchEmployee, searchTicketClassifier } from '../../utils/clientSchema/search'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
@@ -36,7 +37,6 @@ interface ITicketFormProps {
     afterActionCompleted?: (ticket: ITicketFormState) => void,
 }
 
-
 // TODO(Dimitreee): decompose this huge component to field groups
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const intl = useIntl()
@@ -44,8 +44,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
     const TicketPurposeTitle = intl.formatMessage({ id: 'TicketPurpose' })
-    const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
-
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
     const FullNameLabel = intl.formatMessage({ id: 'field.FullName' })
@@ -56,22 +54,21 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const ResponsibleLabel = intl.formatMessage({ id: 'field.Responsible' })
     const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
     const PaidLabel = intl.formatMessage({ id: 'Paid' })
-
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
-
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
     const { action: _action, initialValues, organization, afterActionCompleted, files } = props
     const validations = useTicketValidations()
+    const [selectedPropertyId, setSelectedPropertyId] = useState(get(initialValues, 'property'))
 
-    const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({ 
-        Model: TicketFile,  
+    const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({
+        Model: TicketFile,
         relationField: 'ticket',
-        initialFileList: files, 
+        initialFileList: files,
         initialCreateValues: { organization: organization.id },
     })
-    
+
     const action = async (...args) => {
         const result = await _action(...args)
         await syncModifiedFiles(result.id)
@@ -87,15 +84,22 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         </UserNameField>
     )
 
+    const formValuesToMutationDataPreprocessor = useCallback((values) => {
+        values.property = selectedPropertyId
+
+        return values
+    }, [])
+
     return (
         <>
             <FormWithAction
+                {...LAYOUT}
                 action={action}
                 initialValues={initialValues}
                 validateTrigger={['onBlur', 'onSubmit']}
-                {...LAYOUT}
+                formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
             >
-                
+
                 {({ handleSave, isLoading, form }) => (
                     <>
                         <Col span={13}>
@@ -106,38 +110,30 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             <Col span={24}>
                                                 <Typography.Title level={5} style={{ margin: '0' }}>{UserInfoTitle}</Typography.Title>
                                             </Col>
-                                            <Form.Item dependencies={['property']} noStyle>
-                                                {({ getFieldValue }) => {
-                                                    const propertyFieldValue = getFieldValue('property')
-
-                                                    return (
-                                                        <>
-                                                            <Col span={propertyFieldValue ? 18 : 24}>
-                                                                <Form.Item name={'property'} label={AddressLabel} rules={validations.property}>
-                                                                    <GraphQlSearchInput
-                                                                        search={searchProperty(get(organization, 'id'))}
-                                                                        onSelect={() => form.setFieldsValue({ 'unitName': null })}
-                                                                        placeholder={AddressPlaceholder}
-                                                                        showArrow={false}
-                                                                        allowClear={false}
-                                                                        autoFocus
-                                                                    />
-                                                                </Form.Item>
-                                                            </Col>
-                                                            {propertyFieldValue && (
-                                                                <Col span={4}>
-                                                                    <Form.Item name={'unitName'} label={FlatNumberLabel}>
-                                                                        <UnitNameInput
-                                                                            propertyId={propertyFieldValue}
-                                                                            allowClear={false}
-                                                                        />
-                                                                    </Form.Item>
-                                                                </Col>
-                                                            )}
-                                                        </>
-                                                    )
+                                            <Col span={selectedPropertyId ? 18 : 24}>
+                                        <Form.Item name={'property'} label={AddressLabel} rules={validations.property}>
+                                            <PropertyAddressSearchInput
+                                                onSelect={(value, option) => {
+                                                    form.setFieldsValue({ 'unitName': null })
+                                                            setSelectedPropertyId(option.key)
                                                 }}
+                                                placeholder={AddressPlaceholder}
+                                                showArrow={false}
+                                                allowClear={false}
+                                                autoFocus
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                    {selectedPropertyId && (
+                                        <Col span={4}>
+                                            <Form.Item name={'unitName'} label={FlatNumberLabel}>
+                                                <UnitNameInput
+                                                    propertyId={selectedPropertyId}
+                                                    allowClear={false}
+                                                />
                                             </Form.Item>
+                                        </Col>
+                                    )}
                                             <Form.Item shouldUpdate noStyle>
                                                 {({ getFieldValue }) => {
                                                     const propertyFieldValue = getFieldValue('property')
@@ -189,7 +185,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     <Col flex={0}>
                                                                         <Form.Item
                                                                             label={AttachedFilesLabel}
-                                                                        >   
+                                                                        >
                                                                             <UploadComponent />
                                                                         </Form.Item>
                                                                     </Col>
@@ -268,14 +264,13 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 </Form.Item>
                                 <Form.Item name={'source'} hidden>
                                     <Input />
-                                </Form.Item>                            
-                            </Row>                       
+                                </Form.Item>
+                            </Row>
                         </Col>
-                        
+
                         {props.children({ handleSave, isLoading, form })}
                     </>
                 )}
-
             </FormWithAction>
         </>
     )

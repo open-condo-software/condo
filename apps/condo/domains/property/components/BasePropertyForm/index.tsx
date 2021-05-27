@@ -5,11 +5,10 @@ import { Col, Form, Input, notification, Row, Typography } from 'antd'
 import React from 'react'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { AddressSearchInput } from '@condo/domains/common/components/AddressSearchInput'
+import { AddressSuggestionsSearchInput } from '@condo/domains/property/components/AddressSuggestionsSearchInput'
 import { AddressMetaCache } from '@condo/domains/common/utils/addressApi'
 import { PropertyPanels } from '../panels'
 import Prompt from '@condo/domains/common/components/Prompt'
-
 
 interface IOrganization {
     id: string
@@ -83,7 +82,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         label={AddressLabel}
                                         rules={[{ required: true, message: FieldIsRequiredMsg }]}
                                     >
-                                        <AddressSearchInput />
+                                        <AddressSuggestionsSearchInput />
                                     </Form.Item>
                                 </Col>
                                 <Col span={7} offset={1}>
