@@ -315,16 +315,7 @@ const TicketIdPage = () => {
                             </Col>
                         </FocusContainer>
 
-                        <Col span={24}>
-                            <Row gutter={[0, 24]}>
-                                <Col span={24}>
-                                    <Typography.Title level={5}>{TicketChangesMessage}</Typography.Title>
-                                </Col>
-                                <Col span={24}>
-                                    <TicketChanges ticketId={id}/>
-                                </Col>
-                            </Row>
-                        </Col>
+                        <TicketChanges ticketId={id}/>
 
                         <Col span={24}>
                             <Space size={40}>
