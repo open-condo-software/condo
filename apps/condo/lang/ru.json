@@ -51,6 +51,7 @@
   "errors.NotDefinedShort": "не указан",
   "errors.PdfGenerationError": "К сожалению произошла ошибка, попробуйте обновить страницу",
   "errors.PhoneShort": "тел.",
+  "errors.AddressMetaParse": "К сожалению мы не смогли корректно распознать адрес, попробуйте ввести адрес заново или обновите страницу",
   "errorsContainer.requiredErrors": "Заполните обязательные поля:",
   "example.Email": "name@example.org",
   "example.Name": "Иванов Сергей",

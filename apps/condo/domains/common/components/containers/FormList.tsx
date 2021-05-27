@@ -353,7 +353,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
         if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
         let data
         try {
-            data = (formValuesToMutationDataPreprocessor) ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext) : values
+            data = (formValuesToMutationDataPreprocessor) ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext, form) : values
         } catch (err) {
             if (err instanceof ValidationError) {
                 let errors = []

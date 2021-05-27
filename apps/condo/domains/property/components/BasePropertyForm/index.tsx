@@ -1,13 +1,13 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
-import { Col, Form, Input, Row, Typography } from 'antd'
+import { Col, Form, Input, notification, Row, Typography } from 'antd'
 import React from 'react'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { AddressSearchInput } from '@condo/domains/common/components/AddressSearchInput'
+import { AddressMetaCache } from '@condo/domains/common/utils/addressApi'
 import { PropertyPanels } from '../panels'
-import has from 'lodash/has'
 import Prompt from '@condo/domains/common/components/Prompt'
 
 
@@ -27,11 +27,34 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const AddressLabel = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const NameMsg = intl.formatMessage({ id: 'pages.condo.property.form.field.Name' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
 
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
 
     const { action, initialValues } = props
+
+    const formValuesToMutationDataPreprocessor = React.useCallback((formData, _, form) => {
+        const isAddressFieldTouched = form.isFieldsTouched(['address'])
+
+        if (isAddressFieldTouched) {
+            const addressMeta = AddressMetaCache.get(formData.address)
+
+            if (!addressMeta) {
+                notification.error({
+                    message: ServerErrorMsg,
+                    description: AddressMetaError,
+                })
+
+                throw new Error(AddressMetaError)
+            }
+
+            return { ...formData, addressMeta: { dv: 1, ...addressMeta } }
+        }
+
+        return formData
+    }, [initialValues])
 
     return (
         <>
@@ -39,21 +62,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                 action={action}
                 initialValues={initialValues}
                 validateTrigger={['onBlur', 'onSubmit']}
-                formValuesToMutationDataPreprocessor={formData => {
-                    try {
-                        const newAddress = JSON.parse(formData['address'])
-                        if (has(newAddress, 'address')) {
-                            // address is created or changed
-                            const addressMeta = { dv: 1, ...newAddress }
-                            return { ...formData, addressMeta, address: addressMeta['address'] }
-                        } else {
-                            console.warn('JSON parse failed for ', formData['address'])
-                        }
-                    } catch (err) {
-                        // address is the same
-                        return formData
-                    }
-                }}
+                formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
             >
                 {({ handleSave, isLoading, form }) => {
                     return (
