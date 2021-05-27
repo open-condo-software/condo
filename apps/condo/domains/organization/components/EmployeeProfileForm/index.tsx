@@ -26,12 +26,12 @@ const INPUT_LAYOUT_PROPS = {
 
 export const EmployeeProfileForm = () => {
     const intl = useIntl()
-    const { query } = useRouter()
-
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
+
+    const { query } = useRouter()
 
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())

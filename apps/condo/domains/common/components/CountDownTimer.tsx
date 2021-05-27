@@ -48,7 +48,7 @@ type CountDownChildrenType = (
     { countdown, runAction, loading }: { countdown: number, runAction: () => Promise<any>, loading: boolean }
 ) => JSX.Element
 
-interface ICountdownTimer {
+interface ICountDownTimer {
     // TODO(Dimitreee): remove any
     action: (...args: any[]) => Promise<any>
     id: string
@@ -56,7 +56,7 @@ interface ICountdownTimer {
     children: CountDownChildrenType
 }
 
-export const CountdownTimer: React.FC<ICountdownTimer> = (props) => {
+export const CountDownTimer: React.FC<ICountDownTimer> = (props) => {
     const { action, id, timeout = DEFAULT_TIMEOUT } = props
 
     const [loading, setLoading] = useState(false)

@@ -6,7 +6,7 @@ import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useAuth } from '@core/next/auth'
-import { CountdownTimer } from '../../common/components/CountDownTimer'
+import { CountDownTimer } from '../../common/components/CountDownTimer'
 import { START_PASSWORD_RECOVERY_MUTATION } from '../gql'
 
 export const UserPasswordResetButton = () => {
@@ -29,7 +29,7 @@ export const UserPasswordResetButton = () => {
     }
 
     return (
-        <CountdownTimer action={updatePassword} id={'RESET_PASSWORD_BY_EMAIL'}>
+        <CountDownTimer action={updatePassword} id={'RESET_PASSWORD_BY_EMAIL'}>
             {({ countdown, runAction, loading }) => {
                 const isCountDownActive = countdown > 0
 
@@ -50,6 +50,6 @@ export const UserPasswordResetButton = () => {
                     </Button>
                 )
             }}
-        </CountdownTimer>
+        </CountDownTimer>
     )
 }
