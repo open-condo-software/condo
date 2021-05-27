@@ -14,23 +14,24 @@ interface ITicketChangeProps {
 
 export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => {
     const intl = useIntl()
+    const changedFieldMessages = useChangedFieldMessagesOf(ticketChange)
     return (
         <Row gutter={[12, 12]}>
             <Col span={3}>
                 {formatDate(intl, ticketChange.createdAt)}
             </Col>
             <Col span={21}>
-                <TicketChangeFields ticketChange={ticketChange}/>
+                {changedFieldMessages.map(({ field, message }) => (
+                    <Diff key={field} className={field}>
+                        {message}
+                    </Diff>
+                ))}
             </Col>
         </Row>
     )
 }
 
-interface ITicketChangeFieldsProps {
-    ticketChange: TicketChangeType
-}
-
-const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }) => {
+const useChangedFieldMessagesOf = (ticketChange) => {
     const intl = useIntl()
     const ClientPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone' })
     const DetailsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details' })
@@ -126,19 +127,11 @@ const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }
             : value
     }
 
-    return (
-        <div>
-            {changedFields.map(([field, message], i) => (
-                <Diff key={i} className={field}>
-                    {formatDiffMessage(field, message, ticketChange).map(part => (
-                        part
-                    ))}
-                </Diff>
-            ))}
-        </div>
-    )
+    return changedFields.map(([field, message]) => ({
+        field,
+        message: formatDiffMessage(field, message, ticketChange),
+    }))
 }
-
 
 const Diff = styled.p`
     &.statusDisplayName {
