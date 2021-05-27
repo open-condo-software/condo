@@ -49,8 +49,11 @@ export const EmployeeInfoPage = () => {
     }
     const handleCancel = () => setIsConfirmVisible(false)
 
+    const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
+    const ErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
+
     if (error) {
-        return <LoadingOrErrorPage title={'Title'} loading={loading} error={error ? 'Error' : null}/>
+        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={ErrorMessage ? 'Error' : null}/>
     }
 
     const isEmployeeEditable = canManageEmployee(link, employee)
