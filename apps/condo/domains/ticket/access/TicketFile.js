@@ -13,7 +13,7 @@ async function canReadTicketFiles ({ authentication: { item: user } }) {
         return {}
     }
     return {
-        OR: [{  
+        AND: [{  
             organization: { 
                 employees_some: { 
                     user: { id: user.id },
