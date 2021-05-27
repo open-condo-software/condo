@@ -8,7 +8,7 @@ export const OrganizationSelect = () => {
     // @ts-ignore
     const { user } = useAuth()
     const { link, selectLink, isLoading } = useOrganization()
-    const { objs: userOrganizations, loading } = OrganizationEmployee.useObjects(
+    const { objs: userOrganizations, loading, refetch } = OrganizationEmployee.useObjects(
         { where: user ? { user: { id: user.id }, isAccepted: true } : {} },
         { fetchPolicy: 'network-only' }
     )
@@ -21,6 +21,7 @@ export const OrganizationSelect = () => {
 
     const handleChange = (value) => {
         selectLink({ id: value })
+        refetch()
     }
 
     return (
