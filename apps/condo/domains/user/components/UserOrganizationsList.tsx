@@ -113,19 +113,13 @@ export const UserOrganizationsList: React.FC = () => {
         { fetchPolicy: 'network-only' }
     )
 
-    console.log(userOrganizations)
-
-    const employeeOrganizationId = get(employeeOrganizationData, ['link', 'organization', 'id'])
-
-    const list = useMemo(() => {
-        return  userOrganizations.map((employee, index) => (
-            <OrganizationEmployeeItem
-                employee={employee}
-                key={index}
-                employeeOrganizationData={employeeOrganizationData}
-            />
-        ))
-    }, [loading])
+    const list = userOrganizations.map((employee, index) => (
+        <OrganizationEmployeeItem
+            employee={employee}
+            key={index}
+            employeeOrganizationData={employeeOrganizationData}
+        />
+    ))
 
     return (
         <Row gutter={[0, 60]}>
