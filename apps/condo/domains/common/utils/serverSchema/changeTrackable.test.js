@@ -25,7 +25,7 @@ const House = new GQLListSchema('House', {
     },
 })
 
-const Person = new GQLListSchema('Ticket', {
+const Person = new GQLListSchema('Person', {
     schemaDoc: 'Sample person',
     fields: {
         name: {
