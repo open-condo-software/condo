@@ -51,6 +51,7 @@
   "errors.NotDefinedShort": "not defined",
   "errors.PdfGenerationError": "Sorry, an error has occurred, please try refreshing the page",
   "errors.PhoneShort": "phone",
+  "errors.AddressMetaParse": "Unfortunately, we could not correctly recognize the address, try to enter the address again or refresh the page",
   "errorsContainer.requiredErrors": "Fill in required fields:",
   "example.Email": "name@example.org",
   "example.Name": "Jon Johnson",

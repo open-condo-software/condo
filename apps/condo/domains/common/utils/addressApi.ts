@@ -46,3 +46,12 @@ export class AddressApi implements IAddressApi {
     private suggestionsUrl: string
     private apiToken: string
 }
+
+/*
+* AddressMetaCache includes normalized addressMeta, used for getting addressMeta for address value.
+*
+* */
+type AddressValue = string
+// TODO(Dimitreee): remove any
+type AddressMeta = Record<string, any>
+export const AddressMetaCache: Map<AddressValue, AddressMeta> = new Map()
