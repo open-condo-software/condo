@@ -107,10 +107,6 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             type: Checkbox,
             defaultValue: false,
         },
-        position: {
-            type: Text,
-            isRequired: false,
-        },
     },
     plugins: [versioned(), tracked(), historical(), softDeleted()],
     access: {

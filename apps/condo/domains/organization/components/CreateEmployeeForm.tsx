@@ -86,7 +86,7 @@ export const CreateEmployeeForm: React.FC = () => {
                 const role = get(values, 'role')
 
                 if (role) {
-                    values.role = { id: role }
+                    values.role = { id: String(role) }
                 }
 
                 return values
