@@ -1,6 +1,6 @@
 import React from 'react'
 import { Row, Col } from 'antd'
-import _ from 'lodash'
+import { has } from 'lodash'
 import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema.d'
 import { formatDate } from '../../../common/utils/helpers'
@@ -120,7 +120,7 @@ const TicketChangeFields: React.FC<ITicketChangeFieldsProps> = ({ ticketChange }
                 `${ticketChange.ticket.property.address}, кв. ${value}`
             ),
         }
-        return _.has(formatterFor, field)
+        return has(formatterFor, field)
             ? formatterFor[field](field, value)
             : value
     }
