@@ -6,6 +6,7 @@ import { TicketChange as TicketChangeType } from '@app/condo/schema.d'
 import { formatDate } from '../../../common/utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { PhoneLink } from '../../../common/components/PhoneLink'
+import { colors } from '@condo/domains/common/constants/style'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -152,9 +153,8 @@ const Diff = styled.p`
         }
     }
     span, del, ins {
-        color: #389E0D;
-        a {
-            color: #389E0D;
+        &, a {
+            color: ${colors.linkColor};
         }
     }
     del, ins {
