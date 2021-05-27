@@ -223,7 +223,7 @@ type SorterColumn = {
 
 export const sorterToQuery = (sorter?: SorterColumn | Array<SorterColumn>): Array<string> => {
     if (!sorter) {
-        return
+        return []
     }
 
     if (!Array.isArray(sorter)) {

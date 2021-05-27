@@ -5,6 +5,7 @@ import {
     OrganizationEmployee,
     OrganizationEmployeeRoleWhereInput,
     OrganizationEmployeeWhereInput,
+    SortOrganizationEmployeesBy,
 } from '../../../schema'
 
 export interface IFilters extends Pick<OrganizationEmployee, 'name' | 'phone' | 'email'> {
@@ -114,9 +115,9 @@ type SorterColumn = {
     order: 'ascend' | 'descend'
 }
 
-export const sorterToQuery = (sorter?: SorterColumn | Array<SorterColumn>): Array<string> => {
+export const sorterToQuery = (sorter?: SorterColumn | Array<SorterColumn>): Array<SortOrganizationEmployeesBy> => {
     if (!sorter) {
-        return
+        return []
     }
 
     if (!Array.isArray(sorter)) {
@@ -137,7 +138,7 @@ export const sorterToQuery = (sorter?: SorterColumn | Array<SorterColumn>): Arra
             return
         }
 
-        return `${columnKey}_${sortKeys[order]}`
+        return `${columnKey}_${sortKeys[order]}` as SortOrganizationEmployeesBy
     }).filter(Boolean)
 }
 
