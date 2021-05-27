@@ -19,6 +19,7 @@ interface IFilterContainerProps {
 
 const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
     const intl = useIntl()
+    const ResetLabel = intl.formatMessage({ id: 'filters.Reset' })
 
     return (
         <div style={{ padding: 16 }}>
@@ -31,7 +32,7 @@ const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
                             onClick={() => props.clearFilters()}
                             type={'inlineLink'}
                         >
-                            {intl.formatMessage({ id: 'filters.Reset' })}
+                            {ResetLabel}
                         </Button>
                     )
                 }
