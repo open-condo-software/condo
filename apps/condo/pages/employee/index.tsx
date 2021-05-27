@@ -24,6 +24,7 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useOrganization } from '@core/next/organization'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { Button } from '../../domains/common/components/Button'
+import { SortOrganizationEmployeesBy } from '../../schema'
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 
 const TicketsPage = () => {
@@ -51,8 +52,7 @@ const TicketsPage = () => {
         count: total,
         objs: tickets,
     } = OrganizationEmployee.useObjects({
-        // @ts-ignore
-        sortBy: sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC', //TODO(Dimitreee):Find cleanest solution
+        sortBy: sortFromQuery.length > 0  ? sortFromQuery : ['createdAt_DESC'] as Array<SortOrganizationEmployeesBy>, //TODO(Dimitreee):Find cleanest solution
         where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
         skip: (offsetFromQuery * EMPLOYEE_PAGE_SIZE) - EMPLOYEE_PAGE_SIZE,
         first: EMPLOYEE_PAGE_SIZE,
