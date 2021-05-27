@@ -73,7 +73,7 @@ describe('Helpers property', () => {
             })
 
             it('should not generate query if no sort is provided', () => {
-                expect(sorterToQuery()).toStrictEqual([])
+                expect(sorterToQuery()).toBeUndefined()
             })
         })
 
