@@ -254,6 +254,7 @@
   "pages.condo.ticket.TicketChanges.statusDisplayName": "changed ticket status from «{from}», to «{to}»",
   "pages.condo.ticket.TicketChanges.unitName": "changed ticket address. It was {from}, and got {to}",
   "pages.condo.ticket.TicketChanges.assignee": "changed assignee. It was «{from}», and got «{to}»",
+  "pages.condo.ticket.TicketChanges.classifier": "changed ticket classifier. It was «{from}», and got «{to}»",
   "pages.index.PageTitle": "CONDO",
   "pages.organizations.CreateOrganizationButtonLabel": "Create new organization",
   "pages.organizations.CreateOrganizationModalTitle": "New organization form",

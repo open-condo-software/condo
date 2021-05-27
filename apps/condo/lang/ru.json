@@ -254,6 +254,7 @@
   "pages.condo.ticket.TicketChanges.statusDisplayName": "перевёл задачу из статуса «{from}», в «{to}»",
   "pages.condo.ticket.TicketChanges.unitName": "изменил адрес заявки. Был {from}, а стал {to}",
   "pages.condo.ticket.TicketChanges.assignee": "изменил ответственного. Был «{from}», а стал «{to}»",
+  "pages.condo.ticket.TicketChanges.classifier": "изменил классификатор заявки. Было «{from}», а стало «{to}»",
   "pages.index.PageTitle": "CONDO",
   "pages.organizations.CreateOrganizationButtonLabel": "Создать новую организацию",
   "pages.organizations.CreateOrganizationModalTitle": "Форма создания новой организации",
