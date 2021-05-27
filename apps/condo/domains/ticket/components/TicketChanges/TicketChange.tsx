@@ -41,6 +41,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const StatusDisplayNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.statusDisplayName' })
     const UnitNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName' })
     const AssigneeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.assignee' })
+    const ClassifierMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier' })
     const fields = [
         ['clientPhone', ClientPhoneMessage],
         ['details', DetailsMessage],
@@ -50,6 +51,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ['statusDisplayName', StatusDisplayNameMessage],
         ['unitName', UnitNameMessage],
         ['assigneeDisplayName', AssigneeMessage],
+        ['classifierDisplayName', ClassifierMessage],
     ]
 
     // Omit what was not changed
@@ -140,7 +142,7 @@ const Diff = styled.p`
             color: black;
         }
     }
-    &.details, &.isEmergency, &.isPaid {
+    &.details, &.isEmergency, &.isPaid, &.classifierDisplayName {
         del, ins {
             color: black
         }
