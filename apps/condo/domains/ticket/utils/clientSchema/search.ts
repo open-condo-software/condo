@@ -1,5 +1,15 @@
 const { gql } = require('graphql-tag')
 
+
+const GET_PROPERTY_BY_ID_QUERY = gql`
+    query GetPropertyByIdQuery ($propertyId: ID!, $organizationId: ID) {
+        objs: allProperties(where: {id: $propertyId, organization: { id: $organizationId }}) {
+            id
+            address
+        }
+    }
+`
+
 const GET_ALL_SOURCES_QUERY = gql`
     query selectSource ($value: String, $organizationId: ID) {
         objs: allTicketSources(where: {name_contains: $value, organization: { id: $organizationId }}) {
@@ -19,9 +29,9 @@ const GET_ALL_CLASSIFIERS_QUERY = gql`
     }
 `
 
-const GET_ALL_PROPERTIES_QUERY = gql`
+const GET_ALL_PROPERTIES_BY_VALUE_QUERY = gql`
     query selectProperty ($value: String, $organizationId: ID) {
-        objs: allProperties(where: {address_contains_i: $value, organization: { id: $organizationId }}) {
+        objs: allProperties(where: {address_contains_i: $value, organization: { id: $organizationId }}, first: 10) {
             id
             address
         }
@@ -50,11 +60,25 @@ async function _search (client, query, variables) {
 
 export function searchProperty (organizationId) {
     return async function (client, value) {
-        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_QUERY, { value, organizationId })
+        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { value, organizationId })
         if (error) console.warn(error)
         if (data) return data.objs.map(x => ({ text: x.address, value: x.id }))
         return []
     }
+}
+
+export async function searchSingleProperty (client, propertyId, organizationId) {
+    const { data, error } = await _search(client, GET_PROPERTY_BY_ID_QUERY, { propertyId, organizationId })
+
+    if (error) {
+        console.warn(error)
+    }
+
+    if (!data) {
+        return undefined
+    }
+
+    return data.objs[0]
 }
 
 export async function searchTicketSources (client, value) {
@@ -73,7 +97,7 @@ export async function searchTicketClassifier (client, value) {
 
 export function searchEmployee (organizationId) {
     return async function (client, value) {
-        const { data = [], error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
+        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
         if (error) console.warn(error)
 
         return data.objs.map(object => {
