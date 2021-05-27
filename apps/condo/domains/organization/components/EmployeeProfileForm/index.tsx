@@ -30,6 +30,8 @@ export const EmployeeProfileForm = () => {
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
+    const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
+    const ErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
 
     const { query } = useRouter()
 
@@ -37,7 +39,7 @@ export const EmployeeProfileForm = () => {
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
 
     if (error) {
-        return <LoadingOrErrorPage title={'Title'} loading={loading} error={error ? 'Error' : null}/>
+        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
     }
 
     const formAction = (formValues) => {
