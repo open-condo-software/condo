@@ -61,7 +61,7 @@ export const EmployeeProfileForm = () => {
                 const isRoleDeleted = !values.role && initialValues.role
 
                 if (isRoleDeleted) {
-                    values.role = { disconnectId: initialValues.role }
+                    values.role = null
                 }
 
                 return values

@@ -45,27 +45,25 @@ function convertToGQLInput (state: IOrganizationEmployeeFormState): Organization
 
     // TODO(Dimitreee): refactor client utils to add disconectFeature, think about solution
     for (const fieldName of Object.keys(state)) {
-        if (state[fieldName] && RELATIONS.includes(fieldName)) {
-            const disconnectId = get(state, [fieldName, 'disconnectId'])
-            const id = get(state, [fieldName, 'id'])
+        if (Object(state).hasOwnProperty(fieldName) && RELATIONS.includes(fieldName)) {
+            const fieldValue = get(state, fieldName)
+            const id = get(fieldValue, 'id')
 
-            if (disconnectId) {
-                result[fieldName] = {
-                    disconnect: {
-                        id: disconnectId,
-                    },
-                }
-            } else if (id) {
+            if (id) {
                 result[fieldName] = {
                     connect: {
                         id,
                     },
                 }
-            } else {
+            } else if (fieldValue) {
                 result[fieldName] = {
                     connect: {
                         id: state[fieldName],
                     },
+                }
+            } else if (fieldValue === null) {
+                result[fieldName] = {
+                    disconnectAll: true,
                 }
             }
         } else {
