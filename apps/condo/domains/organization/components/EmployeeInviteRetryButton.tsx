@@ -2,7 +2,7 @@ import { Tooltip, Typography } from 'antd'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
-import { CountdownTimer } from '@condo/domains/common/components/CountDownTimer'
+import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { useOrganization } from '@core/next/organization'
 import { OrganizationEmployee } from '../../../schema'
 import { canReinviteEmployee } from '../permissions'
@@ -16,6 +16,7 @@ export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps
     const RetryInviteMessage = intl.formatMessage({ id: 'employee.RetryInvite' })
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const Seconds = intl.formatMessage({ id: 'Seconds' })
+
     const { link } = useOrganization()
 
     const { employee } = props
@@ -26,12 +27,11 @@ export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps
             return Promise.resolve()
         }
 
-        console.log('resetEmployeeInvite')
         return Promise.resolve()
     }
 
     return isEmployeeReinvitable && (
-        <CountdownTimer action={resetEmployeeInvite} id={'RESET_EMPLOYEE_INVITE'}>
+        <CountDownTimer action={resetEmployeeInvite} id={'RESET_EMPLOYEE_INVITE'}>
             {({ countdown, runAction, loading }) => {
                 const isCountDownActive = countdown > 0
 
@@ -54,6 +54,6 @@ export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps
                     </Tooltip>
                 )
             }}
-        </CountdownTimer>
+        </CountDownTimer>
     )
 }

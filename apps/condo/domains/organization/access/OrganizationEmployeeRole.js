@@ -8,7 +8,7 @@ async function canReadOrganizationEmployeeRoles ({ authentication: { item: user 
     if (user.isAdmin) return {}
     return {
         // user is inside employee list
-        organization: { employees_some: { user: { id: user.id }, isBlocked: false } },
+        organization: { employees_some: { user: { id: user.id } } },
     }
 }
 
