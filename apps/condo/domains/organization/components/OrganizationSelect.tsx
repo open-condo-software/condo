@@ -9,7 +9,6 @@ export const OrganizationSelect = () => {
         {},
         { fetchPolicy: 'network-only' }
     )
-    console.log(userOrganizations)
 
     const options = userOrganizations.map((organization) => {
         const { value, label } = OrganizationEmployee.convertGQLItemToFormSelectState(organization)
