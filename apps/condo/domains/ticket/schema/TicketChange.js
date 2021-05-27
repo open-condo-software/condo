@@ -4,7 +4,7 @@
 
 const { Ticket } = require('./Ticket')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS } = require('../constants')
-const { trackableFieldsFrom } = require('../../common/utils/serverSchema/changeTrackable')
+const { buildSetOfFieldsToTrackFrom } = require('../../common/utils/serverSchema/changeTrackable')
 
 const { Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
@@ -31,7 +31,7 @@ const TicketChange = new GQLListSchema('TicketChange', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
-        ...generateChangeTrackableFieldsFrom(trackableFieldsFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS })),
+        ...generateChangeTrackableFieldsFrom(buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS })),
     },
     plugins: [uuided(), versioned(), tracked()],
     access: {

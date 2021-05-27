@@ -10,7 +10,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/Ticket')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS } = require('../constants')
-const { trackableFieldsFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
+const { buildSetOfFieldsToTrackFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { storeChangesIfUpdated } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
@@ -251,7 +251,7 @@ const Ticket = new GQLListSchema('Ticket', {
              * new resolver should be implemented in `ticketChangeDisplayNameResolversForSingleRelations` and `relatedManyToManyResolvers`
              */
             await storeChangesIfUpdated(
-                trackableFieldsFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS }),
+                buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS }),
                 createTicketChange,
                 ticketChangeDisplayNameResolversForSingleRelations,
                 relatedManyToManyResolvers
