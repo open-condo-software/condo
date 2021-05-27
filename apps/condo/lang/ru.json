@@ -242,7 +242,6 @@
   "pages.condo.ticket.title.TicketInfo": "Информация о заявке",
   "pages.condo.ticket.title.UserInfo": "Информация о жителе",
   "pages.condo.ticket.title.TicketChanges": "История изменений заявки",
-  "pages.condo.ticket.title.ChangesLogMessage": "История изменений заявки",
   "pages.condo.ticket.TicketChanges.details": "изменил описание проблемы. Было «{from}», а стало «{to}»",
   "pages.condo.ticket.TicketChanges.clientPhone": "изменил телефон клиента. Был {from}, а стал {to}",
   "pages.condo.ticket.TicketChanges.clientName": "изменил клиента. Был {from}, а стал {to}",
