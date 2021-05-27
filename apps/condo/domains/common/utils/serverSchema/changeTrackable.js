@@ -33,7 +33,7 @@ const { Json } = require('@core/keystone/fields')
  * 3. Generate fields for it using `generateChangeTrackableFieldsFrom` function
  * 4. Write `DisplayNameResolvers` (see description below in typedef)
  * 5. Write `RelatedManyToManyResolvers` (see description below in typedef)
- * 6. Implement an `afterChange` hook in `Ticket` and call `afterChangeHook` inside of it.
+ * 6. Implement an `afterChange` hook in `Ticket` and call `storeChangesIfUpdated` inside of it.
  *
  * That's it!
  * Changes of `Ticket` will be stored in `TicketChange` schema!
@@ -178,7 +178,7 @@ function generateChangeTrackableFieldsFrom (fields) {
  * @param relatedManyToManyResolvers
  * @return function, compatible with Keystone `afterChange` hook
  */
-const afterChangeHook = (
+const storeChangesIfUpdated = (
     fields,
     createCallback,
     displayNameResolvers,
@@ -350,6 +350,6 @@ const mapRelationMany = (acc, value, key) => {
 
 module.exports = {
     trackableFieldsFrom,
-    afterChangeHook,
+    storeChangesIfUpdated,
     generateChangeTrackableFieldsFrom,
 }
