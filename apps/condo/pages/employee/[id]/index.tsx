@@ -31,6 +31,8 @@ export const EmployeeInfoPage = () => {
     const DeletePropertyLabel = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'employee.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'employee.ConfirmDeleteMessage' })
+    const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
+    const ErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
 
     const [isConfirmVisible, setIsConfirmVisible] = useState(false)
 
@@ -48,9 +50,6 @@ export const EmployeeInfoPage = () => {
         softDeleteAction({}, employee)
     }
     const handleCancel = () => setIsConfirmVisible(false)
-
-    const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
-    const ErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
 
     if (error) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={ErrorMessage ? 'Error' : null}/>
