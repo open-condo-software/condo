@@ -7,8 +7,8 @@ import { useAuth } from '@core/next/auth'
 export const OrganizationSelect = () => {
     // @ts-ignore
     const { user } = useAuth()
-    const { link, selectLink } = useOrganization()
-    const { objs: userOrganizations } = OrganizationEmployee.useObjects(
+    const { link, selectLink, isLoading } = useOrganization()
+    const { objs: userOrganizations, loading } = OrganizationEmployee.useObjects(
         { where: user ? { user: { id: user.id }, isAccepted: true } : {} },
         { fetchPolicy: 'network-only' }
     )
@@ -24,8 +24,8 @@ export const OrganizationSelect = () => {
     }
 
     return (
-        link && (
-            <Select value={link.id} size={'middle'} onChange={handleChange} style={{ width: '100%' }}>
+        !isLoading && link && (
+            <Select value={link.id} size={'middle'} onChange={handleChange} style={{ width: '100%' }} loading={loading || isLoading}>
                 {options}
             </Select>
         )
