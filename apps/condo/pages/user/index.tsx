@@ -2,7 +2,7 @@ import { EditFilled } from '@ant-design/icons'
 import { Col, Row, Space, Typography } from 'antd'
 import Head from 'next/head'
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect } from 'react'
 import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
@@ -20,7 +20,12 @@ export const UserInfoPage = () => {
     const PasswordMessage = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
 
-    const { user } = useAuth()
+    const { user, refetch } = useAuth()
+
+    useEffect(() => {
+        refetch()
+    }, [])
+
     const name = get(user, 'name')
 
     return (
