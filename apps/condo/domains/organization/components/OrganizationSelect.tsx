@@ -7,11 +7,7 @@ export const OrganizationSelect = () => {
     const { link, selectLink } = useOrganization()
     const { objs: userOrganizations } = OrganizationEmployee.useObjects({})
 
-    const options = userOrganizations.map((organization) => {
-        const { value, label } = OrganizationEmployee.convertGQLItemToFormSelectState(organization)
-
-        return (<Select.Option key={value} value={value} title={label}>{label}</Select.Option>)
-    })
+    const options = userOrganizations.map(OrganizationEmployee.convertGQLItemToFormSelectState)
 
     const handleChange = (value) => {
         selectLink({ id: value })
@@ -20,7 +16,9 @@ export const OrganizationSelect = () => {
     return (
         link && (
             <Select value={link.id} size={'middle'} onChange={handleChange} style={{ width: '100%' }}>
-                {options}
+                {options.map(({ label, value }) => (
+                    <Select.Option key={value} value={value} title={label}>{label}</Select.Option>
+                ))}
             </Select>
         )
     )
