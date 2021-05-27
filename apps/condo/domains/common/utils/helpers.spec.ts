@@ -1,13 +1,7 @@
-import { getFiltersFromQuery, formatDate, stripPhone } from '@condo/domains/common/utils/helpers'
+import { getFiltersFromQuery, formatDate } from '@condo/domains/common/utils/helpers'
 import { RU_LOCALE, EN_LOCALE } from '@condo/domains/common/constants/locale'
 
 describe('Helpers property', () => {
-    describe('stripPhone', () => {
-        it('outputs provided phone number in format of +7123456789', () => {
-            expect(stripPhone('+7 (999) 111-22-34')).toBe('+79991112234')
-        })
-    })
-
     describe('formatDate', () => {
         describe('ru locale', () => {
             it('returns date and time without year, when provided date belongs to a current year', () => {

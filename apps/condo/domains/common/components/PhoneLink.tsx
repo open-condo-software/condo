@@ -1,13 +1,14 @@
 import React from 'react'
-import { formatPhone, stripPhone } from '../utils/helpers'
+import { formatPhone } from '../utils/helpers'
 import { PHONE_CLEAR_REGEXP } from '../constants/regexps'
+import { normalizePhone } from '@condo/domains/common/utils/phone'
 
 interface IPhoneLink {
     value: string
 }
 
 export const PhoneLink: React.FC<IPhoneLink> = ({ value }) => (
-    <a href={`tel:${stripPhone(value)}`}>
+    <a href={`tel:${normalizePhone(value)}`}>
         {formatPhone(value)}
     </a>
 )
