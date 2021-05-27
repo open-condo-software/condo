@@ -1,6 +1,5 @@
 import { ParsedUrlQuery } from 'querystring'
 import { LOCALES } from '@condo/domains/common/constants/locale'
-import { PHONE_CLEAR_REGEXP } from '@condo/domains/common/constants/regexps'
 import * as dateFns  from 'date-fns'
 
 export const formatPhone = (phone?: string): string => {
@@ -14,14 +13,6 @@ export const formatPhone = (phone?: string): string => {
         for example: 01234567890 -> 0 (123) 456-78-90
     */
 }
-
-/**
- * Produces safe phone number string with only digits and '+' sign
- */
-export const stripPhone = (phone?: string): string => (
-    phone.replace(PHONE_CLEAR_REGEXP, '').replace(' ', '')
-)
-
 
 /**
  * Formats raw timestamp string into human readable form, depending of what year it represents:
