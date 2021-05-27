@@ -8,7 +8,7 @@ const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
 const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { OrganizationEmployee, createTestOrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { OrganizationEmployee, createTestOrganizationEmployee, updateTestOrganizationEmployee, softDeleteTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 
 describe('OrganizationEmployee', () => {
     describe('user: create OrganizationEmployee', () => {
@@ -181,7 +181,7 @@ describe('OrganizationEmployee', () => {
         }
     })
 
-    describe('user: delete OrganizationEmployee', () => {
+    describe('user: softDelete OrganizationEmployee', () => {
 
         test('cannot without granted "canManageEmployees" permission', async () => {
             const { employee, admin, organization } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee()
@@ -189,9 +189,11 @@ describe('OrganizationEmployee', () => {
                 canManageEmployees: false,
             })
             const notManagerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
             await createTestOrganizationEmployee(admin, organization, notManagerUserClient.user, role)
+
             try {
-                await OrganizationEmployee.delete(notManagerUserClient, employee.id)
+                await softDeleteTestOrganizationEmployee(notManagerUserClient, employee.id)
             } catch (e) {
                 expect(e.errors[0]).toMatchObject({
                     'message': 'You do not have access to this resource',
@@ -208,12 +210,15 @@ describe('OrganizationEmployee', () => {
                 canManageEmployees: true,
             })
             const managerClient = await makeClientWithNewRegisteredAndLoggedInUser()
-            await createTestOrganizationEmployee(admin, organization, managerClient.user, role)
 
-            const obj = await OrganizationEmployee.delete(managerClient, employee.id)
+            await createTestOrganizationEmployee(admin, organization, managerClient.user, role, { isBlocked: false })
+
+            const [ obj ] = await softDeleteTestOrganizationEmployee(managerClient, employee.id)
+
             expect(obj.id).toBeDefined()
 
-            const objs = await OrganizationEmployee.getAll(admin, { id: obj.id }, { sortBy: ['updatedAt_DESC'] })
+            const objs = await OrganizationEmployee.getAll(admin, { id: obj.id })
+
             expect(objs.length).toBe(0)
         })
 

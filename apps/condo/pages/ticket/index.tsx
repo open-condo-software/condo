@@ -132,9 +132,9 @@ const TicketsPage = () => {
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
-                <PageContent>
-                    <OrganizationRequired>
+                <OrganizationRequired>
+                    <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
+                    <PageContent>
                         {
                             !tickets.length && !filtersFromQuery
                                 ? <EmptyListView
@@ -173,8 +173,8 @@ const TicketsPage = () => {
                                     </Col>
                                 </Row>
                         }
-                    </OrganizationRequired>
-                </PageContent>
+                    </PageContent>
+                </OrganizationRequired>
             </PageWrapper>
         </>
     )

@@ -6830,11 +6830,15 @@ export type OrganizationEmployee = {
   role?: Maybe<OrganizationEmployeeRole>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
+  position?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<User>;
   updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
 };
 
 export type OrganizationEmployeeCreateInput = {
@@ -6849,11 +6853,15 @@ export type OrganizationEmployeeCreateInput = {
   role?: Maybe<OrganizationEmployeeRoleRelateToOneInput>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
+  position?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
   updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
 };
 
 /**  A keystone list  */
@@ -6878,6 +6886,8 @@ export type OrganizationEmployeeHistoryRecord = {
   role?: Maybe<Scalars['String']>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
+  position?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6901,6 +6911,8 @@ export type OrganizationEmployeeHistoryRecordCreateInput = {
   role?: Maybe<Scalars['String']>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
+  position?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6929,6 +6941,8 @@ export type OrganizationEmployeeHistoryRecordUpdateInput = {
   role?: Maybe<Scalars['String']>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
+  position?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -7028,6 +7042,26 @@ export type OrganizationEmployeeHistoryRecordWhereInput = {
   isAccepted_not?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   isRejected_not?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
+  isBlocked_not?: Maybe<Scalars['Boolean']>;
+  position?: Maybe<Scalars['String']>;
+  position_not?: Maybe<Scalars['String']>;
+  position_contains?: Maybe<Scalars['String']>;
+  position_not_contains?: Maybe<Scalars['String']>;
+  position_starts_with?: Maybe<Scalars['String']>;
+  position_not_starts_with?: Maybe<Scalars['String']>;
+  position_ends_with?: Maybe<Scalars['String']>;
+  position_not_ends_with?: Maybe<Scalars['String']>;
+  position_i?: Maybe<Scalars['String']>;
+  position_not_i?: Maybe<Scalars['String']>;
+  position_contains_i?: Maybe<Scalars['String']>;
+  position_not_contains_i?: Maybe<Scalars['String']>;
+  position_starts_with_i?: Maybe<Scalars['String']>;
+  position_not_starts_with_i?: Maybe<Scalars['String']>;
+  position_ends_with_i?: Maybe<Scalars['String']>;
+  position_not_ends_with_i?: Maybe<Scalars['String']>;
+  position_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  position_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -7494,11 +7528,15 @@ export type OrganizationEmployeeUpdateInput = {
   role?: Maybe<OrganizationEmployeeRoleRelateToOneInput>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
+  position?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
   updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
 };
 
 export type OrganizationEmployeeWhereInput = {
@@ -7592,6 +7630,26 @@ export type OrganizationEmployeeWhereInput = {
   isAccepted_not?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   isRejected_not?: Maybe<Scalars['Boolean']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
+  isBlocked_not?: Maybe<Scalars['Boolean']>;
+  position?: Maybe<Scalars['String']>;
+  position_not?: Maybe<Scalars['String']>;
+  position_contains?: Maybe<Scalars['String']>;
+  position_not_contains?: Maybe<Scalars['String']>;
+  position_starts_with?: Maybe<Scalars['String']>;
+  position_not_starts_with?: Maybe<Scalars['String']>;
+  position_ends_with?: Maybe<Scalars['String']>;
+  position_not_ends_with?: Maybe<Scalars['String']>;
+  position_i?: Maybe<Scalars['String']>;
+  position_not_i?: Maybe<Scalars['String']>;
+  position_contains_i?: Maybe<Scalars['String']>;
+  position_not_contains_i?: Maybe<Scalars['String']>;
+  position_starts_with_i?: Maybe<Scalars['String']>;
+  position_not_starts_with_i?: Maybe<Scalars['String']>;
+  position_ends_with_i?: Maybe<Scalars['String']>;
+  position_not_ends_with_i?: Maybe<Scalars['String']>;
+  position_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  position_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -7620,6 +7678,18 @@ export type OrganizationEmployeeWhereInput = {
   createdBy_is_null?: Maybe<Scalars['Boolean']>;
   updatedBy?: Maybe<UserWhereInput>;
   updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 export type OrganizationEmployeeWhereUniqueInput = {
@@ -10579,6 +10649,10 @@ export enum SortOrganizationEmployeeHistoryRecordsBy {
   IsAcceptedDesc = 'isAccepted_DESC',
   IsRejectedAsc = 'isRejected_ASC',
   IsRejectedDesc = 'isRejected_DESC',
+  IsBlockedAsc = 'isBlocked_ASC',
+  IsBlockedDesc = 'isBlocked_DESC',
+  PositionAsc = 'position_ASC',
+  PositionDesc = 'position_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',
@@ -10680,6 +10754,10 @@ export enum SortOrganizationEmployeesBy {
   IsAcceptedDesc = 'isAccepted_DESC',
   IsRejectedAsc = 'isRejected_ASC',
   IsRejectedDesc = 'isRejected_DESC',
+  IsBlockedAsc = 'isBlocked_ASC',
+  IsBlockedDesc = 'isBlocked_DESC',
+  PositionAsc = 'position_ASC',
+  PositionDesc = 'position_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',
@@ -10689,7 +10767,9 @@ export enum SortOrganizationEmployeesBy {
   CreatedByAsc = 'createdBy_ASC',
   CreatedByDesc = 'createdBy_DESC',
   UpdatedByAsc = 'updatedBy_ASC',
-  UpdatedByDesc = 'updatedBy_DESC'
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
 }
 
 export enum SortOrganizationHistoryRecordsBy {

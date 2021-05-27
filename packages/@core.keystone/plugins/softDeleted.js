@@ -2,7 +2,7 @@ const { DateTimeUtc } = require('@keystonejs/fields')
 const { getType } = require('@keystonejs/utils')
 
 const { HiddenRelationship } = require('./utils')
-const { composeHook } = require('./utils')
+const { composeHook, evaluateKeystoneAccessResult } = require('./utils')
 
 const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}) => ({ fields = {}, hooks = {}, access, ...rest }, { listKey, keystone }) => {
     // TODO(pahaz):
@@ -66,36 +66,16 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     const newAccess = async (args) => {
         const { operation } = args
         if (operation === 'read') {
-            const current = await getOpAccess('read', keystone, access, args)
+            const current = await evaluateKeystoneAccessResult(access, 'read', args, keystone)
             return applySoftDeletedFilters(current, deletedAtField)
         } else if (operation === 'delete') {
             return false
         } else {
-            return await getOpAccess(operation, keystone, access, args)
+            return await evaluateKeystoneAccessResult(access, operation, args, keystone)
         }
     }
 
     return { fields, hooks, access: newAccess, ...rest }
-}
-
-async function getOpAccess (op, keystone, access, args) {
-    const type = getType(access)
-    if (type === 'Boolean') {
-        return access || false
-    } else if (type === 'Function') {
-        return access(args) || false
-    } else if (type === 'AsyncFunction') {
-        return await access(args) || false
-    } else if (type === 'Object') {
-        const opAccess = access[op]
-        if (opAccess) return await getOpAccess(op, keystone, opAccess, args)
-        return keystone.defaultAccess.list || false
-    } else if (type === 'Undefined') {
-        return keystone.defaultAccess.list || false
-    }
-    throw new Error(
-        `getOpAccess(), received ${type}.`,
-    )
 }
 
 function applySoftDeletedFilters (access, deletedAtField) {

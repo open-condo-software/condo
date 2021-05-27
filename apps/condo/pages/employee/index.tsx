@@ -271,11 +271,11 @@ const ResidentsPage = () => {
         </Head>
         <PageWrapper>
             <PageHeader title={PageTitleMsg}/>
-            <PageContent>
-                <OrganizationRequired>
+            <OrganizationRequired>
+                <PageContent>
                     <EmployeeCRUDTableBlock/>
-                </OrganizationRequired>
-            </PageContent>
+                </PageContent>
+            </OrganizationRequired>
         </PageWrapper>
     </>
 }

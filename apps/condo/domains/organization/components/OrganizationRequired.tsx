@@ -9,7 +9,9 @@ import qs from 'qs'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
+import get from 'lodash/get'
 
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { AuthRequired } from '../../common/components/containers/AuthRequired'
 import { isFunction } from '../../common/utils/ecmascript.utils'
 
@@ -30,25 +32,47 @@ function RedirectToOrganizations () {
     return <Typography.Text css={css`display: block; text-align: center;`}>{RedirectingMsg}</Typography.Text>
 }
 
-function OrganizationRequiredAfterAuthRequired ({ children }) {
+function OrganizationRequiredAfterAuthRequired ({ children, withEmployeeRestrictions }) {
     const intl = useIntl()
     const SelectOrganizationRequiredMessage = intl.formatMessage({ id: 'SelectOrganizationRequired' })
+    const EmployeeRestrictedTitle = intl.formatMessage({ id: 'employee.emptyList.title' })
+    const EmployeeRestrictedDescription = intl.formatMessage({ id: 'employee.emptyList.description' })
 
     const { isLoading: isLoadingAuth } = useAuth()
     const organization = useOrganization()
     const { isLoading, link } = organization
 
     if (isLoading || isLoadingAuth) {
-        const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin/>
-        return <Spin indicator={antIcon}/>
+        return <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin/>}/>
     }
 
-    if (!link) return <>
-        <Typography.Title css={css`display: block; text-align: center;`}>
-            {SelectOrganizationRequiredMessage}
-        </Typography.Title>
-        <RedirectToOrganizations/>
-    </>
+    if (!link) {
+        return (
+            <>
+                <Typography.Title css={css`display: block; text-align: center;`}>
+                    {SelectOrganizationRequiredMessage}
+                </Typography.Title>
+                <RedirectToOrganizations/>
+            </>
+        )
+    }
+
+    const isEmployeeBlocked = get(link, 'isBlocked', false)
+    const organizationName = get(link, ['organization', 'name'])
+
+    if (isEmployeeBlocked && withEmployeeRestrictions) {
+        return (
+            <BasicEmptyListView>
+                <Typography.Title level={3}>
+                    {EmployeeRestrictedTitle}
+                </Typography.Title>
+                <Typography.Text>
+                    {EmployeeRestrictedDescription}
+                    <Typography.Text strong> «{organizationName}».</Typography.Text>
+                </Typography.Text>
+            </BasicEmptyListView>
+        )
+    }
 
     if (isFunction(children)) {
         return children(organization)
@@ -57,8 +81,12 @@ function OrganizationRequiredAfterAuthRequired ({ children }) {
     return children
 }
 
-export function OrganizationRequired ({ children }) {
-    return <AuthRequired>
-        <OrganizationRequiredAfterAuthRequired>{children}</OrganizationRequiredAfterAuthRequired>
-    </AuthRequired>
+export function OrganizationRequired ({ children, withEmployeeRestrictions = true }) {
+    return (
+        <AuthRequired>
+            <OrganizationRequiredAfterAuthRequired withEmployeeRestrictions={withEmployeeRestrictions}>
+                {children}
+            </OrganizationRequiredAfterAuthRequired>
+        </AuthRequired>
+    )
 }

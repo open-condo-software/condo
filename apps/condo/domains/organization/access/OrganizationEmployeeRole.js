@@ -25,7 +25,13 @@ async function canManageOrganizationEmployeeRoles ({ authentication: { item: use
         const employeeForUser = await getByCondition('OrganizationEmployee', {
             organization: { id: originalInput.organization.connect.id },
             user: { id: user.id },
+            deletedAt: null,
         })
+
+        if (employeeForUser.isBlocked) {
+            return false
+        }
+
         const employeeRole = await getByCondition('OrganizationEmployeeRole', {
             id: employeeForUser.role,
         })
@@ -34,7 +40,7 @@ async function canManageOrganizationEmployeeRoles ({ authentication: { item: use
     }
     return {
         // user is inside employee list
-        organization: { employees_some: { user: { id: user.id }, role: { canManageRoles: true } } },
+        organization: { employees_some: { user: { id: user.id }, role: { canManageRoles: true }, isBlocked: false } },
     }
 }
 

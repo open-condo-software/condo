@@ -174,12 +174,13 @@ function _addExtraRowProps (columns, onRow = null) {
     }
 }
 
-function FormTable ({ columns, dataSource, pagination, onChangeFilterPaginationSort, rowContextInitialState, tableContextInitialState, RowInner, CellInner }) {
+function FormTable ({ columns, dataSource, pagination, onChangeFilterPaginationSort,
+    rowContextInitialState, tableContextInitialState, RowInner, CellInner, onRow }) {
     // Each row has RowContext and RowFormContext!
     if (!columns) throw new Error('columns prop is required')
 
     const fixedColumns = useMemo(() => _addExtraCellProps(columns), [columns])
-    const fixedOnRow = useMemo(() => _addExtraRowProps(columns), [columns])
+    const fixedOnRow = useMemo(() => _addExtraRowProps(columns, onRow), [columns])
 
     // TODO(pahaz): add CellWrapper, RowWrapper if you know any use case?!
     return <TableContext.Provider value={{ ...tableContextInitialState, rowContextInitialState, RowInner, CellInner }}>

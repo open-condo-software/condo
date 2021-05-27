@@ -8,6 +8,8 @@ import FormTable from './FormTable'
 import { useAuth } from '@core/next/auth'
 import { useImmerReducer } from 'use-immer'
 import { DeleteOutlined, QuestionCircleOutlined, SaveOutlined } from '@ant-design/icons'
+import Router from 'next/router'
+import get from 'lodash/get'
 
 const _USE_TABLE_INITIAL_STATE = {
     actions: {}, // { Create: ({values, item, form, ...}) => { ... }
@@ -25,8 +27,8 @@ const _USE_TABLE_INITIAL_STATE = {
 
 function createNewGQLItem () {
     return {
-        id: Math.random(),
         isUnsavedNew: true,
+        isBlocked: false,
     }
 }
 
@@ -284,6 +286,17 @@ function ViewOrEditTableBlock ({ columns, table }) {
     const data = table.state.data
     const pagination = table.state.pagination
     const onChangeFilterPaginationSort = table.updateFilterPaginationSort
+
+    const onRow = (record) => {
+        return {
+            onClick: () => {
+                const employeeId = get(record, 'id')
+
+                Router.push(`/employee/${employeeId}`)
+            },
+        }
+    }
+
     return <FormTable
         dataSource={data}
         columns={columns}
@@ -292,6 +305,7 @@ function ViewOrEditTableBlock ({ columns, table }) {
         tableContextInitialState={{ table }}
         onChangeFilterPaginationSort={onChangeFilterPaginationSort}
         pagination={pagination}
+        onRow={onRow}
     />
 }
 

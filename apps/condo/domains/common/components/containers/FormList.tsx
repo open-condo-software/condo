@@ -295,6 +295,9 @@ function BaseModalForm ({ action, mutation, mutationExtraVariables, mutationExtr
     </Modal>)
 }
 
+
+type IFormValuesType = Record<string, string | number | { id: string } | { disconnectId: string }>
+
 // TODO(Dimitreee): add children type/interface
 // TODO(Dimitreee): remove any
 interface IFormWithAction {
@@ -305,6 +308,7 @@ interface IFormWithAction {
     validateTrigger?: string | string[]
     resetOnComplete?: boolean
     layout?: 'vertical' | 'horizontal'
+    formValuesToMutationDataPreprocessor?: (values: IFormValuesType) => IFormValuesType
 }
 
 const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
@@ -398,7 +402,9 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
     }, [])
 
     function handleSave () {
-        form.submit()
+        if (form.isFieldsTouched()) {
+            form.submit()
+        }
     }
 
     function handleChange (changedValues, allValues) {

@@ -1,16 +1,15 @@
 import { Col, Form, Input, Row, Space, Typography } from 'antd'
-import { Router } from 'express'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React from 'react'
-import { User } from '@condo/domains/user/utils/clientSchema'
 import { useIntl } from '@core/next/intl'
-import { useAuth } from '@core/next/auth'
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
-import { UserAvatar } from './UserAvatar'
-import { UserPasswordResetButton } from './UserPasswordResetButton'
+import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { OrganizationEmployee } from '../../utils/clientSchema'
+import { EmployeeRoleSelect } from './EmployeeRoleSelect'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -25,26 +24,29 @@ const INPUT_LAYOUT_PROPS = {
     },
 }
 
-export const UserProfileForm = () => {
+export const EmployeeProfileForm = () => {
     const intl = useIntl()
-    const router = useRouter()
-    const FullNameLabel = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
-    const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
-    const PasswordLabel = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-    const EmailIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
-    const PleaseInputYourEmailMessage = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
-    const MinLengthError = intl.formatMessage({ id: 'field.ClientName.minLengthError' })
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
+    const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
+    const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
 
-    const { user } = useAuth()
-    const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
-    const formAction = (formValues) => updateUserAction(formValues, user)
+    const { query } = useRouter()
+
+    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
+    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
+
+    if (error) {
+        return <LoadingOrErrorPage title={'Title'} loading={loading} error={error ? 'Error' : null}/>
+    }
+
+    const formAction = (formValues) => {
+        return updateEmployeeAction(formValues, employee)
+    }
 
     const initialValues = {
-        name: get(user, 'name'),
-        email: get(user, 'email'),
-        avatar: get(user, 'avatar'),
+        role: get(employee, ['role', 'id']),
+        position: get(employee, 'position'),
     }
 
     return (
@@ -53,14 +55,21 @@ export const UserProfileForm = () => {
             initialValues={initialValues}
             layout={'horizontal'}
             validateTrigger={['onBlur', 'onSubmit', 'onChange']}
+            formValuesToMutationDataPreprocessor={(values) => {
+                const isRoleDeleted = !values.role && initialValues.role
+
+                if (isRoleDeleted) {
+                    values.role = { disconnectId: initialValues.role }
+                }
+
+                return values
+            }}
         >
             {({ handleSave, isLoading }) => {
                 return (
                     <Row>
                         <Col span={3}>
-                            <Form.Item name={'avatar'}>
-                                <UserAvatar borderRadius={24}/>
-                            </Form.Item>
+                            <UserAvatar borderRadius={24} isBlocked={get(employee, 'isBlocked')}/>
                         </Col>
                         <Col span={20} push={1}>
                             <Row gutter={[0, 40]}>
@@ -76,39 +85,18 @@ export const UserProfileForm = () => {
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
                                         labelAlign={'left'}
-                                        name={'name'}
-                                        label={FullNameLabel}
-                                        rules={[
-                                            {
-                                                required: true,
-                                                min: 2,
-                                                type: 'string',
-                                                message: MinLengthError,
-                                            },
-                                        ]}
+                                        name={'role'}
+                                        label={RoleLabel}
                                     >
-                                        <Input/>
+                                        <EmployeeRoleSelect employee={employee}/>
                                     </Form.Item>
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
                                         labelAlign={'left'}
-                                        name={'email'}
-                                        label={EmailLabel}
-                                        rules={[
-                                            {
-                                                type: 'email',
-                                                message: EmailIsNotValidMessage,
-                                            },
-                                            {
-                                                required: true,
-                                                message: PleaseInputYourEmailMessage,
-                                            },
-                                        ]}
+                                        name={'position'}
+                                        label={PositionLabel}
                                     >
                                         <Input/>
-                                    </Form.Item>
-                                    <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign={'left'} label={PasswordLabel}>
-                                        <UserPasswordResetButton/>
                                     </Form.Item>
                                     <Space size={40} style={{ paddingTop: '36px' }}>
                                         <FormResetButton

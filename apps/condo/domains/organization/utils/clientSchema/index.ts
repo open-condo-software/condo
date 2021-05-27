@@ -70,7 +70,7 @@ function useInviteNewOrganizationEmployee (attrs = {}, onComplete) {
     return useMemo(() => _action, [rowAction])
 }
 
-module.exports = {
+export {
     convertGQLItemToUIState, convertUIStateToGQLItem,
     useRegisterNewOrganization,
     useInviteNewOrganizationEmployee,

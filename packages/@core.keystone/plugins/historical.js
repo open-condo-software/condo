@@ -7,29 +7,19 @@ const { getType } = require('@keystonejs/utils')
 const { Json, Stars } = require('../fields')
 
 const { HiddenRelationship } = require('./utils')
-const { composeHook, isValidDate } = require('./utils')
+const { composeHook, isValidDate, evaluateKeystoneAccessResult } = require('./utils')
 
 const GQL_TYPE_SUFFIX = 'HistoryRecord'
 
 function createHistoricalList (keystone, access, historicalListKey, historicalFields) {
     let historicalAccess = access
     if (access) {
-        historicalAccess = ({ operation, ...rest }) => {
+        historicalAccess = async (args) => {
+            const { operation } = args
             if (operation === 'read') {
-                const type = getType(access)
-                switch (type) {
-                    case 'Boolean':
-                        return access
-                    case 'Function':
-                        return access({ operation, ...rest })
-                    case 'Object':
-                        return access.read || false
-                    default:
-                        throw new Error(
-                            `Shorthand access must be specified as either a boolean or a function, received ${type}.`,
-                        )
-                }
+                return await evaluateKeystoneAccessResult(access, 'read', args, keystone)
             }
+
             // only read allowed for history!
             return false
         }
