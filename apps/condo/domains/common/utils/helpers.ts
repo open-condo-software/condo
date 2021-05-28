@@ -26,8 +26,8 @@ export const formatDate = (intl, dateStr?: string): string => {
     const currentDate = new Date()
     const date = new Date(dateStr)
     const format = date.getFullYear() === currentDate.getFullYear()
-        ? 'd MMMM k:m'
-        : 'd MMMM yyyy k:m'
+        ? 'd MMMM H:mm'
+        : 'd MMMM yyyy H:mm'
     return dateFns.format(date, format, { locale: LOCALES[intl.locale] })
 }
 
