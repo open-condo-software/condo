@@ -120,8 +120,8 @@ const TicketsPage = () => {
             </Head>
             <PageWrapper>
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
-                <PageContent>
-                    <OrganizationRequired>
+                <OrganizationRequired>
+                    <PageContent>
                         {
                             !tickets.length && !filtersFromQuery
                                 ? <EmptyListView
@@ -180,8 +180,8 @@ const TicketsPage = () => {
                                     </Col>
                                 </Row>
                         }
-                    </OrganizationRequired>
-                </PageContent>
+                    </PageContent>
+                </OrganizationRequired>
             </PageWrapper>
         </>
     )
@@ -189,11 +189,12 @@ const TicketsPage = () => {
 
 const HeaderAction = () => {
     const intl = useIntl()
+    const BackButtonLabel = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
 
     return (
         <Space>
             <Typography.Text style={{ fontSize: '12px' }}>
-                {intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })}
+                {BackButtonLabel}
             </Typography.Text>
         </Space>
     )
