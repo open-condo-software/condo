@@ -8,6 +8,7 @@ import get from 'lodash/get'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
 
+// @ts-ignore
 const StyledSelect = styled<SelectProps<string>>(Select)`
   min-width: 120px;
 `
