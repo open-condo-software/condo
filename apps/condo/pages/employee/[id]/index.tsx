@@ -19,8 +19,8 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useState } from 'react'
-import { LinkWithIcon } from '../../../domains/common/components/LinkWithIcon'
-import { colors } from '../../../domains/common/constants/style'
+import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
+import { colors } from '@condo/domains/common/constants/style'
 
 export const EmployeeInfoPage = () => {
     const intl = useIntl()
