@@ -13,6 +13,7 @@ import {
 import fetch from 'isomorphic-unfetch'
 import getConfig from 'next/config'
 import { createUploadLink } from 'apollo-upload-client'
+import { concatPagination } from '@apollo/client/utilities';
 
 const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
@@ -49,7 +50,21 @@ let createApolloClient = (initialState, ctx) => {
             fetch: (isOnClientSide && window.fetch) ? window.fetch : fetch,
             headers: (ctx && ctx.req) ? ctx.req.headers : undefined,  // allow to use client cookies on server side requests
         }),
-        cache: new InMemoryCache().restore(initialState || {}),
+        cache: new InMemoryCache({
+            typePolicies: {
+                Query: {
+                    fields: {
+                        // Apollo Client keeps lists separate,
+                        // because they represent the results of queries
+                        // with different variable values.
+                        // We need Apollo Client to instead merge tickets from our fetchMore query
+                        // with the tickets from our original query
+                        // See more at https://www.apollographql.com/docs/tutorial/queries/
+                        allTicketChanges: concatPagination(),
+                    },
+                },
+            },
+        }).restore(initialState || {}),
     })
 }
 
