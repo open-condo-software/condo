@@ -59,8 +59,6 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
         return null
     }
 
-    console.log(employee)
-
     return (
         <Col span={24}>
             <Row gutter={[0, 24]}>
