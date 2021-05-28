@@ -1,5 +1,5 @@
 import React from 'react'
-import { Row, Col } from 'antd'
+import { Row, Col, Typography } from 'antd'
 import { has } from 'lodash'
 import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema.d'
@@ -18,13 +18,15 @@ export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => 
     return (
         <Row gutter={[12, 12]}>
             <Col span={3}>
-                {formatDate(intl, ticketChange.createdAt)}
+                <Typography.Text style={{ fontSize: '16px' }}>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
             </Col>
             <Col span={21}>
                 {changedFieldMessages.map(({ field, message }) => (
-                    <Diff key={field} className={field}>
-                        {message}
-                    </Diff>
+                    <Typography.Text key={field} style={{ fontSize: '16px' }}>
+                        <Diff className={field}>
+                            {message}
+                        </Diff>
+                    </Typography.Text>
                 ))}
             </Col>
         </Row>
