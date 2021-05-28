@@ -59,6 +59,8 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
         return null
     }
 
+    console.log(employee)
+
     return (
         <Col span={24}>
             <Row gutter={[0, 24]}>
@@ -86,7 +88,7 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
                     </Typography.Text>
                 </Col>
                 <Col span={19} push={2}>
-                    <NotDefinedField value={get(employee, ['role', 'position'])}/>
+                    <NotDefinedField value={get(employee, ['position'])}/>
                 </Col>
                 <Col span={3}>
                     <Typography.Text type='secondary'>
