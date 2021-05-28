@@ -65,7 +65,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const { action: _action, initialValues, organization, afterActionCompleted } = props
     const validations = useTicketValidations()
 
-    const [UploadComponent, saveFilesToDb] = useMultipleFileUploadHook({ 
+    const { UploadComponent, syncModifiedFiles: saveFilesToDb } = useMultipleFileUploadHook({ 
         Model: TicketFile, 
         relationField: 'ticket', 
         initialCreateValues: { organization: organization.id },

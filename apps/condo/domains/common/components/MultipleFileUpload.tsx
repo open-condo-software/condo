@@ -64,17 +64,21 @@ const convertFilesToUploadFormat = (files: DBFile[]): UploadListFile[] => {
 interface IUploadComponentProps {
     fileList: DBFile[]    
 }
-interface MultipleFileUploadHookArgs {
+interface IMultipleFileUploadHookArgs {
     Model: Module
     relationField: string
     initialCreateValues?: Record<string, unknown>
+}
+interface IMultipleFileUploadHookResult {
+    UploadComponent: React.FC<IUploadComponentProps>, 
+    syncModifiedFiles: (id: string) => Promise<void>
 }
 
 export const useMultipleFileUploadHook = ({ 
     Model, 
     relationField,
     initialCreateValues = {},    
-}: MultipleFileUploadHookArgs): [React.FC<IUploadComponentProps>, (id: string) => Promise<void>] => {    
+}: IMultipleFileUploadHookArgs): IMultipleFileUploadHookResult => {    
     const [modifiedFiles, dispatch] = useReducer(reducer, { added: [], deleted: [] })
     const modifiedFilesRef = useRef(modifiedFiles)
     // Todo(zuch): without ref modifiedFiles dissappears on submit
@@ -107,10 +111,10 @@ export const useMultipleFileUploadHook = ({
         return UploadWrapper
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-    return [
+    return {
         UploadComponent,
         syncModifiedFiles,        
-    ]
+    }
 }
 
 interface IMultipleFileUploadProps {
