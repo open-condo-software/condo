@@ -33,10 +33,14 @@ export const EmployeeProfileForm = () => {
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
 
-    const { query } = useRouter()
+    const { query, push } = useRouter()
 
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
-    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
+    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => {
+        refetch().then(() => {
+            push(`/employee/${get(query, 'id')}/`)
+        })
+    })
 
     if (error) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>

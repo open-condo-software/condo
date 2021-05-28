@@ -1,4 +1,4 @@
-import { DeleteFilled, EditFilled } from '@ant-design/icons'
+import { ArrowLeftOutlined, DeleteFilled, EditFilled } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -19,6 +19,8 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useState } from 'react'
+import { LinkWithIcon } from '../../../domains/common/components/LinkWithIcon'
+import { colors } from '../../../domains/common/constants/style'
 
 export const EmployeeInfoPage = () => {
     const intl = useIntl()
@@ -75,8 +77,8 @@ export const EmployeeInfoPage = () => {
                 <title>{name}</title>
             </Head>
             <PageWrapper>
-                <PageContent>
-                    <OrganizationRequired>
+                <OrganizationRequired>
+                    <PageContent>
                         <Row gutter={[0, 40]}>
                             <Col span={3}>
                                 <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked}/>
@@ -215,8 +217,8 @@ export const EmployeeInfoPage = () => {
                                 {ConfirmDeleteMessage}
                             </Typography.Text>
                         </Modal>
-                    </OrganizationRequired>
-                </PageContent>
+                    </PageContent>
+                </OrganizationRequired>
             </PageWrapper>
         </>
     )
@@ -224,14 +226,15 @@ export const EmployeeInfoPage = () => {
 
 const HeaderAction = () => {
     const intl = useIntl()
-    const AccountMessage = intl.formatMessage({ id: 'Account' })
+    const BackButtonLabel = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
 
     return (
-        <Space>
-            <Typography.Text style={{ fontSize: '12px' }}>
-                {AccountMessage}
-            </Typography.Text>
-        </Space>
+        <LinkWithIcon
+            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
+            path={'/employee/'}
+        >
+            {BackButtonLabel}
+        </LinkWithIcon>
     )
 }
 

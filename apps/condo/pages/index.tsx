@@ -19,13 +19,13 @@ const IndexPage: React.FC = () => {
         </Head>
         <PageWrapper>
             <PageHeader title={PageTitleMsg}/>
-            <PageContent>
-                <OrganizationRequired>
+            <OrganizationRequired>
+                <PageContent>
                     <Typography.Paragraph>
                         <ReactMarkdown source={WeAreStillDevelopingThisPageMsg}/>
                     </Typography.Paragraph>
-                </OrganizationRequired>
-            </PageContent>
+                </PageContent>
+            </OrganizationRequired>
         </PageWrapper>
     </>
 }
