@@ -31,7 +31,8 @@ const TICKET_STATUS_TYPES = [
     Because of current implementation, it's impossible to obtain some fields, created by plugins,
     at declaration stage of `TicketChange`.
  */
-const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'statusUpdatedAt']
+// todo(zuch) files
+const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'statusUpdatedAt', 'files']
 
 module.exports = {
     NEW_OR_REOPENED_STATUS_TYPE,

@@ -17,5 +17,6 @@ module.exports = {
     TicketClassifier,
     TicketStatus,
     TicketFile,
+    TicketChange,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
