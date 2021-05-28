@@ -160,6 +160,7 @@ const TicketIdPage = () => {
     }, [])
 
     if (error || loading || !ticket) {
+        console.log('rendering ticket page')
         return (
             <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={ServerErrorMessage}/>
         )
