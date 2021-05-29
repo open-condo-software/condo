@@ -4,10 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-
+const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
+const { makeClientWithRegisteredOrganization } = require('../../../../utils/testSchema/Organization')
 
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -52,10 +52,19 @@ async function updateTestProperty (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function makeClientWithProperty () {
+    const client = await makeClientWithRegisteredOrganization()
+    const [property] = await createTestProperty(client, client.organization, { map: buildingMapJson })
+    client.property = property
+    return client
+}
 
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    Property, createTestProperty, updateTestProperty,
+    Property, 
+    createTestProperty, 
+    updateTestProperty,
+    makeClientWithProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

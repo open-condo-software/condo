@@ -5,9 +5,8 @@
  */
 
 const faker = require('faker')
-const { makeClientWithProperty } = require('@condo/domains/property/schema/Property.test')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { TICKET_STATUS_TYPES } = require('../../constants')
-
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
@@ -159,7 +158,6 @@ async function updateTestTicketFile (client, id, extraAttrs = {}) {
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 
-
 async function makeClientWithTicket () {
     const client = await makeClientWithProperty()
     const [ticket] = await createTestTicket(client, client.organization, client.property)
@@ -177,3 +175,4 @@ module.exports = {
     makeClientWithTicket,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
+

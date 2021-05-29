@@ -10,7 +10,7 @@ const { updateTestTicket } = require('../utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 const { createTestTicket } = require('../utils/testSchema')
-const { makeClientWithProperty } = require('@condo/domains/property/schema/Property.test')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { TicketChange, TicketStatus, TicketSource, TicketClassifier, createTestTicketChange, updateTestTicketChange } = require('@condo/domains/ticket/utils/testSchema')
