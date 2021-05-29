@@ -6,7 +6,7 @@ async function canReadTicketChanges ({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
     return {
-        ticket: { organization: { employees_some: { user: { id: user.id } } } },
+        ticket: { organization: { employees_some: { user: { id: user.id }, isBlocked: false } } },
     }
 }
 

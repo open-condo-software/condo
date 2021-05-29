@@ -4,15 +4,9 @@
 const { makeClientWithProperty } = require('@condo/domains/property/schema/Property.test')
 const { makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { TicketFile, createTestTicketFile, updateTestTicketFile } = require('@condo/domains/ticket/utils/testSchema')
-const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { makeClientWithTicket } = require('@condo/domains/ticket/utils/testSchema')
 
 
-async function makeClientWithTicket () {
-    const client = await makeClientWithProperty()
-    const [ticket] = await createTestTicket(client, client.organization, client.property)
-    client.ticket = ticket
-    return client
-}
 
 
 describe('TicketFile', () => {

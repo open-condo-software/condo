@@ -12,15 +12,7 @@ async function canReadTicketFiles ({ authentication: { item: user } }) {
     if (user.isAdmin) {
         return {}
     }
-    return {
-        AND: [{  
-            organization: { 
-                employees_some: { 
-                    user: { id: user.id },
-                },
-            },
-        }],
-    }
+    return { organization: { employees_some: { user: { id: user.id }, isBlocked: false } } }
 }
 
 async function canManageTicketFiles ({ authentication: { item: user }, originalInput, operation, itemId }) {
@@ -32,9 +24,7 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
             return false
         }
         const canManageTicketFiles = await checkOrganizationPermission(user.id, organizationIdFromTicketFile, 'canManageTickets')
-        if (canManageTicketFiles) {
-            return true
-        }
+        return canManageTicketFiles
     } else if (operation === 'update') {
         const ticketFile = await getById('TicketFile', itemId)
         if (!ticketFile) {
@@ -49,9 +39,7 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
             return false
         }
         const canManageTickets = await checkOrganizationPermission(user.id, organization, 'canManageTickets')
-        if (canManageTickets) {
-            return true
-        }
+        return canManageTickets
     }
     return false
 }

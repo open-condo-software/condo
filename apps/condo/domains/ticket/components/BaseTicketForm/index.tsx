@@ -65,7 +65,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const { action: _action, initialValues, organization, afterActionCompleted } = props
     const validations = useTicketValidations()
 
-    const { UploadComponent, syncModifiedFiles: saveFilesToDb } = useMultipleFileUploadHook({ 
+    const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({ 
         Model: TicketFile, 
         relationField: 'ticket', 
         initialCreateValues: { organization: organization.id },
@@ -73,7 +73,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     
     const action = async (...args) => {
         const result = await _action(...args)
-        await saveFilesToDb(result.id)
+        await syncModifiedFiles(result.id)
         if (afterActionCompleted) {
             return afterActionCompleted(result)
         }
@@ -91,8 +91,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             <FormWithAction
                 action={action}
                 initialValues={initialValues}
-                {...LAYOUT}
                 validateTrigger={['onBlur', 'onSubmit']}
+                {...LAYOUT}
             >
                 {({ handleSave, isLoading, form }) => (
                     <Row gutter={[0, 40]}>

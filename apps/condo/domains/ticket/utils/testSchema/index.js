@@ -158,6 +158,14 @@ async function updateTestTicketFile (client, id, extraAttrs = {}) {
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 
+
+async function makeClientWithTicket () {
+    const client = await makeClientWithProperty()
+    const [ticket] = await createTestTicket(client, client.organization, client.property)
+    client.ticket = ticket
+    return client
+}
+
 module.exports = {
     Ticket, createTestTicket, updateTestTicket, ticketStatusByType,
     TicketStatus, createTestTicketStatus, updateTestTicketStatus,
@@ -165,5 +173,6 @@ module.exports = {
     TicketChange, createTestTicketChange, updateTestTicketChange,
     TicketSource,
     TicketClassifier,
+    makeClientWithTicket,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

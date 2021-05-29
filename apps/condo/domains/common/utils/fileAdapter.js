@@ -1,7 +1,6 @@
 const { isEmpty, get } = require('lodash')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const { SberCloudFileAdapter } = require('./sberCloudFileAdapter')
-const { S3Adapter } = require('@keystonejs/file-adapters')
 const coreConfig = require('@core/config')
 
 const { DEFAULT_FILE_ADAPTER } = require('../constants/uploads')
@@ -18,21 +17,10 @@ class FileAdapter {
                 break
             case 'sbercloud':
                 Adapter = this.createSbercloudFileApapter()
+                if (!Adapter) {
+                    Adapter = this.createLocalFileApapter()
+                }
                 break
-            case 'aws': 
-                Adapter = this.createAWSFileApapter()
-                break                
-            case 'minio': 
-                Adapter = this.createMinioFileApapter()
-                break                
-            case 'digitalocean': 
-                Adapter = this.createDigitalOceanFileApapter()
-                break                
-            default:
-                console.error(`FileAdapter ${type} not configured yet`)
-        }
-        if (!Adapter && this.type !== 'local') {
-            Adapter = this.createLocalFileApapter()
         }
         if (!Adapter) {
             throw new Error('File adapter is not configured')
@@ -78,47 +66,6 @@ class FileAdapter {
             return null
         }
         return new SberCloudFileAdapter({ ...config, folder: this.folder })
-    }
-
-    createAWSFileApapter () {
-        const config = this.getEnvConfig('AWS_OBS_CONFIG', [
-            'bucket',
-            's3Options.accessKeyId',
-            's3Options.secretAccessKey',
-            's3Options.region',
-        ])
-        if (!config) {
-            return null
-        }
-        return new S3Adapter({ ...config, folder: this.folder })
-    }
-    
-    createMinioFileApapter () {
-        const config = this.getEnvConfig('MINIO_OBS_CONFIG', [
-            'bucket',
-            's3Options.accessKeyId',
-            's3Options.secretAccessKey',
-            's3Options.endpoint',
-            's3Options.s3ForcePathStyle',
-            's3Options.signatureVersion',
-        ])
-        if (!config) {
-            return null
-        }
-        return new S3Adapter({ ...config, folder: this.folder })        
-    }
-
-    createDigitalOceanFileApapter () {
-        const config = this.getEnvConfig('DIGITALOCEAN_OBS_CONFIG', [
-            'bucket',
-            's3Options.accessKeyId',
-            's3Options.secretAccessKey',
-            's3Options.endpoint',
-        ])
-        if (!config) {
-            return null
-        }
-        return new S3Adapter({ ...config, folder: this.folder })        
     }
 
 }
