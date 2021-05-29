@@ -5,6 +5,7 @@
  */
 
 const faker = require('faker')
+const { makeClientWithProperty } = require('@condo/domains/property/schema/Property.test')
 const { TICKET_STATUS_TYPES } = require('../../constants')
 
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')

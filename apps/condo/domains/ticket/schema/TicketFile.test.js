@@ -3,8 +3,12 @@
  */
 const { makeClientWithProperty } = require('@condo/domains/property/schema/Property.test')
 const { makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
-const { TicketFile, createTestTicketFile, updateTestTicketFile } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { 
+    TicketFile, 
+    createTestTicketFile, 
+    updateTestTicketFile, 
+    makeClientWithTicket,
+} = require('@condo/domains/ticket/utils/testSchema')
 
 
 
