@@ -43,7 +43,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
     const TicketPurposeTitle = intl.formatMessage({ id: 'TicketPurpose' })
-    const UploadedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
+    const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
 
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
@@ -184,7 +184,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             </Col>
                                                             <Col flex={0}>
                                                                 <Form.Item
-                                                                    label={UploadedFilesLabel}
+                                                                    label={AttachedFilesLabel}
                                                                 >
                                                                     <UploadComponent
                                                                         fileList={files}

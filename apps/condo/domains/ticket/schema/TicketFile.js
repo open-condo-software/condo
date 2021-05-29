@@ -12,7 +12,7 @@ const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const Adapter = new FileAdapter('ticket')
 
-// zuch(todo): find a way to upload images in jest tests
+// TODO(zuch): find a way to upload images in jest tests
 // and make file field required
 const TicketFile = new GQLListSchema('TicketFile', {
     schemaDoc: 'File attached to the ticket',
