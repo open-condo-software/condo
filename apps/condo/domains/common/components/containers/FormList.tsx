@@ -404,9 +404,10 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
     }, [])
 
     function handleSave () {
-        if (form.isFieldsTouched()) {
-            form.submit()
-        }
+        // TODO(zuch) Possible bug: If user press save button and form not touched he will stay on edit screen with no response from system
+        // if (form.isFieldsTouched()) {
+        form.submit()
+        //}
     }
 
     function handleChange (changedValues, allValues) {
