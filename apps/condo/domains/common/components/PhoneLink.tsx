@@ -1,6 +1,5 @@
 import React from 'react'
 import { formatPhone } from '../utils/helpers'
-import { PHONE_CLEAR_REGEXP } from '../constants/regexps'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 
 interface IPhoneLink {
@@ -11,12 +10,4 @@ export const PhoneLink: React.FC<IPhoneLink> = ({ value }) => (
     <a href={`tel:${normalizePhone(value)}`}>
         {formatPhone(value)}
     </a>
-)
-
-/**
- * Produces safe phone number string to insert into `href` attribute of `<a>` tag
- * @param phone
- */
-export const normalizePhoneForHref = (phone?: string): string => (
-    phone.replace(PHONE_CLEAR_REGEXP, '').replace(' ', '')
 )
