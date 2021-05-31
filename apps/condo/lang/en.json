@@ -255,6 +255,8 @@
   "pages.condo.ticket.TicketChanges.unitName": "changed ticket address. It was {from}, and got {to}",
   "pages.condo.ticket.TicketChanges.assignee": "changed assignee. It was «{from}», and got «{to}»",
   "pages.condo.ticket.TicketChanges.classifier": "changed ticket classifier. It was «{from}», and got «{to}»",
+  "pages.condo.ticket.TicketChanges.errors.DeletedCreatedAt.title": "Unknown user",
+  "pages.condo.ticket.TicketChanges.errors.DeletedCreatedAt.description": "Oops! It seems, like a user, who's made this changes, was removed from the system",
   "pages.condo.ticket.TicketChanges.fetchMore": "Show more {count}",
   "pages.index.PageTitle": "CONDO",
   "pages.organizations.CreateOrganizationButtonLabel": "Create new organization",

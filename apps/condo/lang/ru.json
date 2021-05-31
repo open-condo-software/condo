@@ -255,6 +255,8 @@
   "pages.condo.ticket.TicketChanges.unitName": "изменил адрес заявки. Был {from}, а стал {to}",
   "pages.condo.ticket.TicketChanges.assignee": "изменил ответственного. Был «{from}», а стал «{to}»",
   "pages.condo.ticket.TicketChanges.classifier": "изменил классификатор заявки. Было «{from}», а стало «{to}»",
+  "pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title": "Неизвестный пользователь",
+  "pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description": "Упс, кажется пользователь, который внёс эти изменения, был удалён из системы",
   "pages.condo.ticket.TicketChanges.fetchMore": "Показать ещё {count}",
   "pages.index.PageTitle": "CONDO",
   "pages.organizations.CreateOrganizationButtonLabel": "Создать новую организацию",
