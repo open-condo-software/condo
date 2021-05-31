@@ -1,5 +1,5 @@
 import React from 'react'
-import { Row, Col, Typography } from 'antd'
+import { Row, Col, Typography, Tooltip } from 'antd'
 import { has } from 'lodash'
 import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema.d'
@@ -73,7 +73,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             const valueFrom = ticketChange[`${field}From`]
             const valueTo = ticketChange[`${field}To`]
             return [
-                <span key={1}>{ticketChange.createdBy.name}</span>,
+                <SafeUserMention createdBy={ticketChange.createdBy} key={1}/>,
                 ' ',
                 parts1[0],
                 <del key={3}>{format(field, valueFrom)}</del>,
@@ -85,7 +85,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             const parts =  message.split('{to}')
             const valueTo = ticketChange[`${field}To`]
             return [
-                <span key={1}>{ticketChange.createdBy.name}</span>,
+                <SafeUserMention createdBy={ticketChange.createdBy} key={1}/>,
                 ' ',
                 parts[0],
                 <ins key={2}>{format(field, valueTo)}</ins>,
@@ -135,6 +135,21 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         field,
         message: formatDiffMessage(field, message, ticketChange),
     }))
+}
+
+const SafeUserMention = ({createdBy}) => {
+    const intl = useIntl()
+    const DeletedCreatedAtNoticeTitle = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title' })
+    const DeletedCreatedAtNoticeDescription = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description' })
+    return (
+        createdBy ? (
+            createdBy.name
+        ) : (
+            <Tooltip placement="top" title={DeletedCreatedAtNoticeDescription}>
+                <span>{DeletedCreatedAtNoticeTitle}</span>
+            </Tooltip>
+        )
+    )
 }
 
 const Diff = styled.p`
