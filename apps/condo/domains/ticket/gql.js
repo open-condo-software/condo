@@ -27,7 +27,6 @@ const TICKET_FIELDS = `{
     assignee { id name } 
     executor { id name } 
     watchers { id name } 
-    files { ${COMMON_FILE_FIELDS} } 
     classifier { id name organization { id } parent { id name } } 
     details 
     related { id details } 
