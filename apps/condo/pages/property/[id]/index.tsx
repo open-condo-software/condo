@@ -29,7 +29,7 @@ const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, 
                 <Typography.Text type={'secondary'}>{title}</Typography.Text>
                 <Typography.Text {...{ type }} style={{ fontSize: '20px', fontWeight: 'bold' }}>{message}</Typography.Text>
             </Space>
-        </FocusContainer>             
+        </FocusContainer>
     )
 
 }
@@ -60,18 +60,18 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
             <title>{PageTitleMsg}</title>
         </Head>
         <PageWrapper>
-            <PageContent>
-                <OrganizationRequired>
+            <OrganizationRequired>
+                <PageContent>
                     <Row gutter={[12, 40]} align='top'>
                         <Col span={24}>
                             <Typography.Title level={1} style={{ margin: 0 }}>{property.address}</Typography.Title>
                             {
-                                property.name ? 
+                                property.name ?
                                     <Tag style={{ marginTop: '25px', borderColor: 'transparent', backgroundColor: colors.ultraLightGrey }}>{property.name}</Tag> :
                                     null
                             }
                         </Col>
-                    </Row>       
+                    </Row>
                     <Row gutter={[47, 40]} style={{ marginTop: '40px' }} justify='start'>
                         <Col flex={0} >
                             <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} />
@@ -85,7 +85,7 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
                     </Row>
                     <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
                         <Col span={24}>
-                            <PropertyPanels mode='view' map={property.map} />                    
+                            <PropertyPanels mode='view' map={property.map} />
                         </Col>
                     </Row>
                     <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
@@ -105,8 +105,8 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
                             </Link>
                         </Col>
                     </Row>
-                </OrganizationRequired>
-            </PageContent>
+                </PageContent>
+            </OrganizationRequired>
         </PageWrapper>
     </>
 }

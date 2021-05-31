@@ -13,8 +13,8 @@ export const EmployeeRoleSelect: React.FC<IEmployeeRoleSelectProps> = (props) =>
 
     const employeeOrganizationId = get(employee, ['organization', 'id'])
     const { objs: employeeRoles, loading, error } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: employeeOrganizationId } } })
-    const options = useMemo(() => employeeRoles.map((status) => {
-        const convertedOption = OrganizationEmployeeRole.convertGQLItemToFormSelectState(status)
+    const options = useMemo(() => employeeRoles.map((employeeRole) => {
+        const convertedOption = OrganizationEmployeeRole.convertGQLItemToFormSelectState(employeeRole)
 
         if (convertedOption) {
             const { value, label } = convertedOption

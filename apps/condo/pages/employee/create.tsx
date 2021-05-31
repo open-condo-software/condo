@@ -1,21 +1,22 @@
 import { Typography, Row, Col } from 'antd'
 import Head from 'next/head'
 import React from 'react'
-import { PropertyForm } from '@condo/domains/property/components/PropertyForm'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { colors } from '@condo/domains/common/constants/style'
+import { CreateEmployeeForm } from '@condo/domains/organization/components/CreateEmployeeForm'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
 
-const CreatePropertyPage: IPageWithHeaderAction = () => {
+const CreateEmployeePage: IPageWithHeaderAction = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.property.index.CreatePropertyTitle' })
+    const PageTitleMsg = intl.formatMessage({ id:'employee.AddEmployee' })
+
     return (
         <>
             <Head>
@@ -28,8 +29,8 @@ const CreatePropertyPage: IPageWithHeaderAction = () => {
                             <Col span={24}>
                                 <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                             </Col>
-                            <Col span={24}>
-                                <PropertyForm/>
+                            <Col span={10}>
+                                <CreateEmployeeForm/>
                             </Col>
                         </Row>
                     </PageContent>
@@ -41,17 +42,18 @@ const CreatePropertyPage: IPageWithHeaderAction = () => {
 
 const HeaderAction = () => {
     const intl = useIntl()
-    const AllPropertiesMessage = intl.formatMessage({ id: 'menu.AllProperties' })
+    const AllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
+
     return (
         <LinkWithIcon
             icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={'/property/'}
+            path={'/employee/'}
         >
             {AllPropertiesMessage}
         </LinkWithIcon>
     )
 }
 
-CreatePropertyPage.headerAction = <HeaderAction/>
+CreateEmployeePage.headerAction = <HeaderAction/>
 
-export default CreatePropertyPage
+export default CreateEmployeePage

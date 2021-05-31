@@ -1,10 +1,11 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import React from 'react'
-import { Spin } from 'antd'
+import { Space, Spin } from 'antd'
 import { MenuUnfoldOutlined, BellFilled } from '@ant-design/icons'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
+import { OrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { TopMenuItem, menuIconStyles } from './styles'
 
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
@@ -38,8 +39,11 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
                     </TopMenuItem>
                 )
             }
-            <BellFilled style={{ ...menuIconStyles, marginLeft: 'auto' }}/>
-            <UserMenu/>
+            <Space direction={'horizontal'} size={40} style={{ marginLeft: 'auto' }}>
+                <BellFilled style={{ ...menuIconStyles, marginLeft: 'auto' }}/>
+                <OrganizationSelect/>
+                <UserMenu/>
+            </Space>
         </>
     )
 }

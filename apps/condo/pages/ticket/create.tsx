@@ -19,8 +19,8 @@ const CreateTicketPage = () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <PageContent>
-                    <OrganizationRequired>
+                <OrganizationRequired>
+                    <PageContent>
                         <Row gutter={[12, 40]}>
                             <Col span={24}>
                                 <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
@@ -29,8 +29,8 @@ const CreateTicketPage = () => {
                                 <TicketForm/>
                             </Col>
                         </Row>
-                    </OrganizationRequired>
-                </PageContent>
+                    </PageContent>
+                </OrganizationRequired>
             </PageWrapper>
         </>
     )

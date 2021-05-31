@@ -191,7 +191,7 @@ export const topMenuCss = css`
   z-index: 9;
   background: ${colors.white};
   width: 100%;
-  padding: 40px 48px;
+  padding: 20px 48px;
   height: auto;
   display: flex;
   flex-direction: row;

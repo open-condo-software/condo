@@ -20,11 +20,11 @@ export const EmployeeUpdatePage = () => {
                 <title>{ UpdateEmployeeMessage }</title>
             </Head>
             <PageWrapper>
-                <PageContent>
-                    <OrganizationRequired>
+                <OrganizationRequired>
+                    <PageContent>
                         <EmployeeProfileForm/>
-                    </OrganizationRequired>
-                </PageContent>
+                    </PageContent>
+                </OrganizationRequired>
             </PageWrapper>
         </>
     )
