@@ -122,12 +122,6 @@ const Ticket = new GQLListSchema('Ticket', {
             ref: 'User',
             many: true,
         },
-        files: {
-            schemaDoc: 'Attached TicketFiles',
-            type: Relationship,
-            ref: 'TicketFile.ticket',
-            many: true,
-        },
         // classifierMeta
         classifier: {
             schemaDoc: 'Typification / classification / types of work',

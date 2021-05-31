@@ -11,7 +11,7 @@ import styled from '@emotion/styled'
 import { Button } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import Link from 'next/link'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
@@ -24,7 +24,6 @@ import {
 import { LETTERS_AND_NUMBERS } from '@condo/domains/common/constants/regexps'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
-import { TicketFile } from '../../../schema'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
 
 
@@ -54,7 +53,7 @@ const TicketDescriptionField: React.FC<ITicketDescriptionFieldProps> = ({ title,
 }
 
 interface ITicketFileListProps {
-    files?: TicketFile[]
+    files?: TicketFile.ITicketFileUIState[]
 }
 
 const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
@@ -183,11 +182,13 @@ const TicketIdPage = () => {
     const { query: { id } } = router as { query: { [key: string]: string } }
 
     const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
+    const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id: id } } })
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
     useEffect(() => {
         refetch()
+        refetchFiles()
     }, [])
 
     if (error || loading || !ticket) {
@@ -302,9 +303,9 @@ const TicketIdPage = () => {
                                         <Col span={24}>
                                             <Typography.Text style={{ fontSize: '24px' }}>{ticket.details}</Typography.Text>
                                             { 
-                                                !isEmpty(ticket.files) 
+                                                !isEmpty(files) 
                                                     ?
-                                                    <TicketFileList files={ticket.files} /> : null
+                                                    <TicketFileList files={files} /> : null
                                             }
                                         </Col>
                                     </Row>

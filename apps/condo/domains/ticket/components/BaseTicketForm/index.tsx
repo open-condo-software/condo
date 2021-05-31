@@ -2,6 +2,7 @@
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
+import QueueAnim from 'rc-queue-anim'
 import get from 'lodash/get'
 import React from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
@@ -17,7 +18,7 @@ import { useTicketValidations } from './useTicketValidations'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
-import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
 
 const LAYOUT = {
     labelCol: { span: 8 },
@@ -32,6 +33,7 @@ interface ITicketFormProps {
     organization: IOrganization
     initialValues?: ITicketFormState
     action?: (...args) => void,
+    files?: ITicketFileUIState[],
     afterActionCompleted?: (ticket: ITicketFormState) => void,
 }
 
@@ -61,13 +63,13 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
-
-    const { action: _action, initialValues, organization, afterActionCompleted } = props
+    const { action: _action, initialValues, organization, afterActionCompleted, files } = props
     const validations = useTicketValidations()
 
     const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({ 
-        Model: TicketFile, 
-        relationField: 'ticket', 
+        Model: TicketFile,  
+        relationField: 'ticket',
+        initialFileList: files, 
         initialCreateValues: { organization: organization.id },
     })
     
@@ -165,7 +167,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                         <Form.Item noStyle dependencies={['property', 'unitName']}>
                             {
                                 ({ getFieldsValue }) => {
-                                    const { property, unitName, files } = getFieldsValue(['property', 'unitName', 'files'])
+                                    const { property, unitName } = getFieldsValue(['property', 'unitName', 'files'])
                                     const disableUserInteraction = !property || !unitName
 
                                     return (
@@ -185,10 +187,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             <Col flex={0}>
                                                                 <Form.Item
                                                                     label={AttachedFilesLabel}
-                                                                >
-                                                                    <UploadComponent
-                                                                        fileList={files}
-                                                                    />
+                                                                >   
+                                                                    <UploadComponent />
                                                                 </Form.Item>
                                                             </Col>
                                                         </Row>

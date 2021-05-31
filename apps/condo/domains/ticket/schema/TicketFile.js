@@ -29,7 +29,6 @@ const TicketFile = new GQLListSchema('TicketFile', {
         ticket: {
             schemaDoc: 'Link to ticket',
             type: Relationship,
-            ref: 'Ticket.files',
             many: false,
             isRequired: false,
             knexOptions: { isNotNullable: false }, // ticketFile can be without ticket on create (temporary)

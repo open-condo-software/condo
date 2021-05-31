@@ -15,6 +15,9 @@ const RELATIONS = ['ticket', 'organization']
 
 export interface ITicketFileUIState extends TicketFile {
     id: string
+    file?: File
+    organization?: Organization
+    ticket?: Ticket
     // TODO(codegen): write ITicketFileUIState or extends it from
 }
 

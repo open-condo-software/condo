@@ -62,11 +62,12 @@ const convertFilesToUploadFormat = (files: DBFile[]): UploadListFile[] => {
 }
 
 interface IUploadComponentProps {
-    fileList: DBFile[]    
+    initialFileList: DBFile[]
 }
 interface IMultipleFileUploadHookArgs {
     Model: Module
     relationField: string
+    initialFileList: DBFile[]
     initialCreateValues?: Record<string, unknown>
 }
 interface IMultipleFileUploadHookResult {
@@ -77,11 +78,12 @@ interface IMultipleFileUploadHookResult {
 export const useMultipleFileUploadHook = ({ 
     Model, 
     relationField,
+    initialFileList,
     initialCreateValues = {},    
 }: IMultipleFileUploadHookArgs): IMultipleFileUploadHookResult => {    
     const [modifiedFiles, dispatch] = useReducer(reducer, { added: [], deleted: [] })
-    const modifiedFilesRef = useRef(modifiedFiles)
     // Todo(zuch): without ref modifiedFiles dissappears on submit
+    const modifiedFilesRef = useRef(modifiedFiles)
     useEffect(() => {
         modifiedFilesRef.current = modifiedFiles
     }, [modifiedFiles])
@@ -100,9 +102,9 @@ export const useMultipleFileUploadHook = ({
     }
 
     const UploadComponent: React.FC<IUploadComponentProps> = useMemo(() => {
-        const UploadWrapper = ({ fileList }) => (
+        const UploadWrapper = () => (
             <MultipleFileUpload
-                fileList={fileList}
+                fileList={initialFileList}
                 initialCreateValues={{ ...initialCreateValues, [relationField]: null }}
                 Model={Model}
                 onFilesChange={dispatch}
@@ -128,7 +130,6 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
     const intl = useIntl()
     const AddFileLabel = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })
     const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' })
-
     const { 
         fileList, 
         initialCreateValues, 

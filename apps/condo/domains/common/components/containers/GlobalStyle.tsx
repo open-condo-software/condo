@@ -130,6 +130,9 @@ export default function GlobalStyle () {
 }
 
 const uploadControlCss = css`    
+    .upload-control-wrapper .ant-upload-list-text-container {
+      transition: none;
+    }
     .upload-control-wrapper .ant-upload-list-item-info .ant-upload-text-icon .anticon,
     .upload-control-wrapper a.ant-upload-list-item-name, 
     .upload-control-wrapper a.ant-upload-list-item-name:active, 
