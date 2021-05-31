@@ -1,4 +1,5 @@
 import { Col, Row, Space, Typography, Tag } from 'antd'
+import { gql } from 'graphql-tag'
 import get from 'lodash/get'
 import React, { useEffect, useMemo, useState } from 'react'
 import { ArrowLeftOutlined, EditFilled, FilePdfFilled } from '@ant-design/icons'
@@ -9,7 +10,7 @@ import styled from '@emotion/styled'
 import { Button } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { Ticket, TicketChange as TicketChangeSchema } from '@condo/domains/ticket/utils/clientSchema'
 import Link from 'next/link'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
@@ -25,6 +26,7 @@ import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 // @ts-ignore
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
+import { TicketChange } from '../../../domains/ticket/gql'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
@@ -129,7 +131,7 @@ const EmergencyTag = styled(Tag)`
   line-height: 24px;
 `
 
-const TicketIdPage = () => {
+const TicketIdPage = React.memo(() => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
@@ -145,22 +147,37 @@ const TicketIdPage = () => {
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
-    const TicketChangesMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketChanges' })
 
     const router = useRouter()
     // NOTE: cast `string | string[]` to `string`
     const { query: { id } } = router as { query: { [key: string]: string } }
 
-    const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
+    const { objs: changes, fetchMore, result } = TicketChangeSchema.useObjects({
+        where: { ticket: { id } },
+        // @ts-ignore
+        sortBy: ['createdAt_DESC'],
+        skip: 0,
+        first: 2,
+    }, {
+        fetchPolicy: 'network-only',
+    })
+
+    const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } }, {
+        fetchPolicy: 'network-only',
+    })
+
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
-    useEffect(() => {
-        refetch()
-    }, [])
+    console.log(result)
+    const fetchMoreTicketChanges = () => fetchMore({
+        variables: {
+            first: 2,
+            skip: 2,
+        }
+    })
 
     if (error || loading || !ticket) {
-        console.log('rendering ticket page')
         return (
             <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={ServerErrorMessage}/>
         )
@@ -277,7 +294,7 @@ const TicketIdPage = () => {
                             </Col>
                         </FocusContainer>
 
-                        <TicketChanges ticketId={id}/>
+                        <TicketChanges changes={changes} fetchMore={fetchMoreTicketChanges}/>
 
                         <Col span={24}>
                             <Space size={40}>
@@ -309,7 +326,7 @@ const TicketIdPage = () => {
             </PageWrapper>
         </>
     )
-}
+})
 
 const HeaderAction = () => {
     const intl = useIntl()
