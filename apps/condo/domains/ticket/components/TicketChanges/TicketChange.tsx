@@ -140,7 +140,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     }))
 }
 
-const SafeUserMention = ({createdBy}) => {
+const SafeUserMention = ({ createdBy }) => {
     const intl = useIntl()
     const DeletedCreatedAtNoticeTitle = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title' })
     const DeletedCreatedAtNoticeDescription = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description' })
