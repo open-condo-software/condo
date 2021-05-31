@@ -253,6 +253,7 @@
   "pages.condo.ticket.TicketChanges.isEmergency.false": "It's not emergency anymore",
   "pages.condo.ticket.TicketChanges.statusDisplayName": "changed ticket status from «{from}», to «{to}»",
   "pages.condo.ticket.TicketChanges.unitName": "changed ticket address. It was {from}, and got {to}",
+  "pages.condo.ticket.TicketChanges.unitName.change": "{address}, apt. {unitName}",
   "pages.condo.ticket.TicketChanges.assignee": "changed assignee. It was «{from}», and got «{to}»",
   "pages.condo.ticket.TicketChanges.classifier": "changed ticket classifier. It was «{from}», and got «{to}»",
   "pages.condo.ticket.TicketChanges.errors.DeletedCreatedAt.title": "Unknown user",
