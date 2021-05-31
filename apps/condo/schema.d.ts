@@ -11435,8 +11435,6 @@ export enum SortTicketsBy {
   ExecutorDesc = 'executor_DESC',
   WatchersAsc = 'watchers_ASC',
   WatchersDesc = 'watchers_DESC',
-  FilesAsc = 'files_ASC',
-  FilesDesc = 'files_DESC',
   ClassifierAsc = 'classifier_ASC',
   ClassifierDesc = 'classifier_DESC',
   DetailsAsc = 'details_ASC',
@@ -11589,9 +11587,6 @@ export type Ticket = {
   /**  Staff/person who want to watch ticket changes  */
   watchers: Array<User>;
   _watchersMeta?: Maybe<_QueryMeta>;
-  /**  Attached TicketFiles  */
-  files: Array<TicketFile>;
-  _filesMeta?: Maybe<_QueryMeta>;
   /**  Typification / classification / types of work  */
   classifier?: Maybe<TicketClassifier>;
   /**  Text description of the issue. Maybe written by a user or an operator  */
@@ -11643,28 +11638,6 @@ export type Ticket_WatchersMetaArgs = {
   where?: Maybe<UserWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortUsersBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  Users request or contact with the user  */
-export type TicketFilesArgs = {
-  where?: Maybe<TicketFileWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortTicketFilesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  Users request or contact with the user  */
-export type Ticket_FilesMetaArgs = {
-  where?: Maybe<TicketFileWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortTicketFilesBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -13250,7 +13223,6 @@ export type TicketCreateInput = {
   assignee?: Maybe<UserRelateToOneInput>;
   executor?: Maybe<UserRelateToOneInput>;
   watchers?: Maybe<UserRelateToManyInput>;
-  files?: Maybe<TicketFileRelateToManyInput>;
   classifier?: Maybe<TicketClassifierRelateToOneInput>;
   details?: Maybe<Scalars['String']>;
   related?: Maybe<TicketRelateToOneInput>;
@@ -13493,13 +13465,6 @@ export type TicketFileHistoryRecordsCreateInput = {
 export type TicketFileHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<TicketFileHistoryRecordUpdateInput>;
-};
-
-export type TicketFileRelateToManyInput = {
-  create?: Maybe<Array<Maybe<TicketFileCreateInput>>>;
-  connect?: Maybe<Array<Maybe<TicketFileWhereUniqueInput>>>;
-  disconnect?: Maybe<Array<Maybe<TicketFileWhereUniqueInput>>>;
-  disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
 export type TicketFileUpdateInput = {
@@ -14832,7 +14797,6 @@ export type TicketUpdateInput = {
   assignee?: Maybe<UserRelateToOneInput>;
   executor?: Maybe<UserRelateToOneInput>;
   watchers?: Maybe<UserRelateToManyInput>;
-  files?: Maybe<TicketFileRelateToManyInput>;
   classifier?: Maybe<TicketClassifierRelateToOneInput>;
   details?: Maybe<Scalars['String']>;
   related?: Maybe<TicketRelateToOneInput>;
@@ -14983,12 +14947,6 @@ export type TicketWhereInput = {
   watchers_some?: Maybe<UserWhereInput>;
   /**  condition must be false for all nodes  */
   watchers_none?: Maybe<UserWhereInput>;
-  /**  condition must be true for all nodes  */
-  files_every?: Maybe<TicketFileWhereInput>;
-  /**  condition must be true for at least 1 node  */
-  files_some?: Maybe<TicketFileWhereInput>;
-  /**  condition must be false for all nodes  */
-  files_none?: Maybe<TicketFileWhereInput>;
   classifier?: Maybe<TicketClassifierWhereInput>;
   classifier_is_null?: Maybe<Scalars['Boolean']>;
   details?: Maybe<Scalars['String']>;
