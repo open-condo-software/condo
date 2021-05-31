@@ -86,8 +86,10 @@ async function messagesImporter (locale) {
     return { ...locale_data.default }
 }
 
+const apolloCacheConfig = {}
+
 export default (
-    withApollo({ ssr: true })(
+    withApollo({ ssr: true, apolloCacheConfig })(
         withIntl({ ssr: true, messagesImporter })(
             withAuth({ ssr: true })(
                 withOrganization({

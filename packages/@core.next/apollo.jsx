@@ -24,7 +24,7 @@ let getApolloClientConfig = () => {
     return { serverUrl, apolloGraphQLUrl }
 }
 
-let createApolloClient = (initialState, ctx) => {
+let createApolloClient = (initialState, ctx, apolloCacheConfig) => {
     const { serverUrl, apolloGraphQLUrl } = getApolloClientConfig()
     if (DEBUG_RERENDERS) console.log('WithApollo(): getApolloClientConfig()', { serverUrl, apolloGraphQLUrl })
 
@@ -49,7 +49,7 @@ let createApolloClient = (initialState, ctx) => {
             fetch: (isOnClientSide && window.fetch) ? window.fetch : fetch,
             headers: (ctx && ctx.req) ? ctx.req.headers : undefined,  // allow to use client cookies on server side requests
         }),
-        cache: new InMemoryCache().restore(initialState || {}),
+        cache: new InMemoryCache(apolloCacheConfig).restore(initialState || {}),
     })
 }
 
@@ -62,19 +62,20 @@ let globalApolloClient = null
  * Creates or reuses apollo client in the browser.
  * @param  {NormalizedCacheObject} initialState
  * @param  {NextPageContext} ctx
+ * @param  {InMemoryCacheConfig} apolloCacheConfig
  */
-const initApolloClient = (initialState, ctx) => {
+const initApolloClient = (initialState, ctx, apolloCacheConfig) => {
     // Make sure to create a new client for every server-side request so that data
     // isn't shared between connections (which would be bad)
     // It's isOnServerSide === false for expo APP
     const isOnServerSide = typeof window === 'undefined'
     if (isOnServerSide) {
-        return createApolloClient(initialState, ctx)
+        return createApolloClient(initialState, ctx, apolloCacheConfig)
     }
 
     // Reuse client on the client-side
     if (!globalApolloClient) {
-        globalApolloClient = createApolloClient(initialState, ctx)
+        globalApolloClient = createApolloClient(initialState, ctx, apolloCacheConfig)
     }
 
     return globalApolloClient
@@ -85,14 +86,15 @@ const initApolloClient = (initialState, ctx) => {
  * or NextAppContext. Useful if you want to use apolloClient
  * inside getStaticProps, getStaticPaths or getServerSideProps
  * @param {NextPageContext | NextAppContext} ctx
+ * @param {InMemoryCacheConfig} apolloCacheConfig
  */
-const initOnRestore = async (ctx) => {
+const initOnRestore = async (ctx, apolloCacheConfig) => {
     const inAppContext = Boolean(ctx.ctx)
 
     // Initialize ApolloClient if not already done
     const apolloClient =
         ctx.apolloClient ||
-        initApolloClient(ctx.apolloState || {}, inAppContext ? ctx.ctx : ctx)
+        initApolloClient(ctx.apolloState || {}, inAppContext ? ctx.ctx : ctx, apolloCacheConfig)
 
     // We send the Apollo Client as a prop to the component to avoid calling initApollo() twice in the server.
     // Otherwise, the component would have to call initApollo() again but this
@@ -123,6 +125,7 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     getApolloClientConfig = opts.getApolloClientConfig ? opts.getApolloClientConfig : getApolloClientConfig
     createApolloClient = opts.createApolloClient ? opts.createApolloClient : createApolloClient
+    const apolloCacheConfig = opts.apolloCacheConfig ? opts.apolloCacheConfig : {}
 
     const WithApollo = ({ apolloClient, apolloState, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithApollo()', apolloState)
@@ -132,7 +135,7 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
             client = apolloClient
         } else {
             // Happens on: next.js csr || expo
-            client = initApolloClient(apolloState, undefined)
+            client = initApolloClient(apolloState, undefined, apolloCacheConfig)
         }
 
         return (
@@ -155,7 +158,7 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
         WithApollo.getInitialProps = async ctx => {
             if (DEBUG_RERENDERS) console.log('WithApollo.getInitialProps()', ctx)
             const isOnServerSide = typeof window === 'undefined'
-            const { apolloClient } = await initOnRestore(ctx)
+            const { apolloClient } = await initOnRestore(ctx, apolloCacheConfig)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 
             if (isOnServerSide) {
