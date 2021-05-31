@@ -5,7 +5,7 @@ import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema.d'
 import { formatDate } from '../../../common/utils/helpers'
 import { useIntl } from '@core/next/intl'
-import { PhoneLink } from '../../../common/components/PhoneLink'
+import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { colors } from '@condo/domains/common/constants/style'
 
 interface ITicketChangeProps {
