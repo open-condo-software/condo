@@ -1,6 +1,6 @@
 import { ParsedUrlQuery } from 'querystring'
 import { LOCALES } from '@condo/domains/common/constants/locale'
-import * as dateFns  from 'date-fns'
+import { format } from 'date-fns'
 
 export const formatPhone = (phone?: string): string => {
     if (!phone) {
@@ -25,10 +25,10 @@ export const formatPhone = (phone?: string): string => {
 export const formatDate = (intl, dateStr?: string): string => {
     const currentDate = new Date()
     const date = new Date(dateStr)
-    const format = date.getFullYear() === currentDate.getFullYear()
+    const pattern = date.getFullYear() === currentDate.getFullYear()
         ? 'd MMMM H:mm'
         : 'd MMMM yyyy H:mm'
-    return dateFns.format(date, format, { locale: LOCALES[intl.locale] })
+    return format(date, pattern, { locale: LOCALES[intl.locale] })
 }
 
 export const getFiltersFromQuery = <T>(query: ParsedUrlQuery): T | Record<string, never> => {
