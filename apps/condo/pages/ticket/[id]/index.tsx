@@ -177,7 +177,6 @@ const TicketIdPage = () => {
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
-    const TicketChangesMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketChanges' })
 
     const router = useRouter()
     // NOTE: cast `string | string[]` to `string`
