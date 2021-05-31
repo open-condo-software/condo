@@ -57,10 +57,44 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ['classifierDisplayName', ClassifierMessage],
     ]
 
-    // Omit what was not changed
-    const changedFields = fields.filter(([f]) => (
-        ticketChange[`${f}From`] !== ticketChange[`${f}To`]
-    ))
+    const BooleanToString = {
+        isPaid: {
+            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
+            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
+        },
+        isEmergency: {
+            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.true' }),
+            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.false' }),
+        },
+    }
+
+    const formatField = (field, value) => {
+        const formatterFor = {
+            clientPhone: (field, value) => (
+                <PhoneLink value={value}/>
+            ),
+            details: (field, value) => (
+                value.length > 30 ? value.slice(0, 30) + '…' : value
+            ),
+            unitName: (field, value) => (
+                // Formally, unit name (e.g. apartment) was changed, but semantically,
+                // was changed a whole address of the ticket, so, to preserve context,
+                // the change of the unit is displayed as the change of the address
+                UnitNameChangedMessage
+                    .replace('{address}', ticketChange.ticket.property.address)
+                    .replace('{unitName}', value)
+            ),
+        }
+        return has(formatterFor, field)
+            ? formatterFor[field](field, value)
+            : value
+    }
+
+    const format = (field, value) => (
+        typeof value === 'boolean'
+            ? BooleanToString[field][value]
+            : formatField(field, value)
+    )
 
     /*
         Interpolates message string with JSX tags.
@@ -95,44 +129,10 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         }
     }
 
-    const format = (field, value) => (
-        typeof value === 'boolean'
-            ? BooleanToString[field][value]
-            : formatField(field, value)
-    )
-
-    const BooleanToString = {
-        isPaid: {
-            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
-            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
-        },
-        isEmergency: {
-            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.true' }),
-            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.false' }),
-        },
-    }
-
-    const formatField = (field, value) => {
-        const formatterFor = {
-            clientPhone: (field, value) => (
-                <PhoneLink value={value}/>
-            ),
-            details: (field, value) => (
-                value.length > 30 ? value.slice(0, 30) + '…' : value
-            ),
-            unitName: (field, value) => (
-                // Formally, unit name (e.g. apartment) was changed, but semantically,
-                // was changed a whole address of the ticket, so, to preserve context,
-                // the change of the unit is displayed as the change of the address
-                UnitNameChangedMessage
-                    .replace('{address}', ticketChange.ticket.property.address)
-                    .replace('{unitName}', value)
-            ),
-        }
-        return has(formatterFor, field)
-            ? formatterFor[field](field, value)
-            : value
-    }
+    // Omit what was not changed
+    const changedFields = fields.filter(([f]) => (
+        ticketChange[`${f}From`] !== ticketChange[`${f}To`]
+    ))
 
     return changedFields.map(([field, message]) => ({
         field,
