@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react'
-import { TicketChange as TicketChangeSchema } from '../../utils/clientSchema'
+import React, { useState } from 'react'
 import { TicketChange } from './TicketChange'
 import { Col, Row, Typography, Button } from 'antd'
 import { useIntl } from '@core/next/intl'

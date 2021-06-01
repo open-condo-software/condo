@@ -84,7 +84,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     id="pages.condo.ticket.TicketChanges.unitName.change"
                     values={{
                         address: ticketChange.ticket.property.address,
-                        unitName: value
+                        unitName: value,
                     }}
                 />
             ),
