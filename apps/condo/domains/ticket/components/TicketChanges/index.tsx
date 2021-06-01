@@ -7,6 +7,7 @@ import { green } from '@ant-design/colors'
 import { TicketChange as TicketChangeType } from '../../../../schema'
 // TODO(antonal): fix "Module not found: Can't resolve '@condo/schema'"
 // import { SortTicketChangesBy } from '@condo/schema'
+import { FormattedMessage } from 'react-intl'
 
 interface ITicketChangesProps {
     items: TicketChangeType[],
@@ -19,7 +20,6 @@ export const TicketChanges: React.FC<ITicketChangesProps> = ({ items, total }) =
     const intl = useIntl()
     const [displayCount, setDisplayCount] = useState(CHANGES_PER_CHUNK)
     const TicketChangesMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketChanges' })
-    const FetchMoreMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.fetchMore' })
 
     return items.length > 0 && (
         <Col span={24} style={{ marginTop: '20px' }}>
@@ -46,7 +46,13 @@ export const TicketChanges: React.FC<ITicketChangesProps> = ({ items, total }) =
                                 color: green[6],
                             }}
                         >
-                            ↓ {FetchMoreMessage.replace('{count}', Math.min(total - displayCount, CHANGES_PER_CHUNK))}
+                            ↓&nbsp;
+                            <FormattedMessage
+                                id="pages.condo.ticket.TicketChanges.fetchMore"
+                                values={{
+                                    count: Math.min(total - displayCount, CHANGES_PER_CHUNK),
+                                }}
+                            />
                         </Button>
                     )}
                 </Col>
