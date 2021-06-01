@@ -63,11 +63,11 @@ const Person = new GQLListSchema('Person', {
 })
 
 const personDisplayNameSingleRelationshipResolvers = {
-    currentHome: () => {},
+    currentHome: () => 'stub',
 }
 
 const personDisplayNameManyRelationshipResolvers = {
-    homes: () => {},
+    homes: () => 'stub',
 }
 
 describe('changeTrackable', () => {
