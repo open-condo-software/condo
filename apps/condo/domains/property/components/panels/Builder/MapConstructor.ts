@@ -269,13 +269,13 @@ class MapView extends Map {
     }
 
     public getUnitInfo (id: string): BuildingUnitArg {
-        const newUnit = { id: '', label: '', floor: '', section: '', type: MapTypesList.Unit }
+        const newUnit: BuildingUnitArg = { id: '', label: '', floor: '', section: '', type: MapTypesList.Unit }
         if (!id) {
-            return newUnit as BuildingUnitArg
+            return newUnit
         }
         const unitIndex = this.getUnitIndex(id)
         if (unitIndex.unit === -1) {
-            return newUnit as BuildingUnitArg
+            return newUnit
         }
         const { label, type } = this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit]
         return {
