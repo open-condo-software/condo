@@ -1,9 +1,5 @@
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
-
-import cloneDeep from 'lodash/cloneDeep'
-import compact from 'lodash/compact'
-import has from 'lodash/has'
-import uniq from 'lodash/uniq'
+import { cloneDeep, compact, has, uniq, get } from 'lodash'
 
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import MapSchemaJSON from './MapJsonSchema.json'
@@ -574,9 +570,10 @@ class MapEdit extends MapView {
 
 
     private removeFloor (sectionIdx: number, floorIndex: number): void {
-        if (!this.map.sections[sectionIdx] || !this.map.sections[sectionIdx].floors[floorIndex]) {
+        if (!get(this.map, `sections[${sectionIdx}].floors[${floorIndex}]`, false)){
             return
         }
+        console.log(get(this.map, `sections[${sectionIdx}].floors[${floorIndex}]`, false), `sections[${sectionIdx}].floors[${floorIndex}]`)
         const floorToRemove = this.map.sections[sectionIdx].floors[floorIndex]
         this.map.sections[sectionIdx].floors.splice(floorIndex, 1)
         this.map.sections[sectionIdx].floors.map(floor => {
