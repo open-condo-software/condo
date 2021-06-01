@@ -269,15 +269,13 @@ class MapView extends Map {
     }
 
     public getUnitInfo (id: string): BuildingUnitArg {
-        // Todo(zuch): Strange typescript validation behavior { id: '', label: '', floor: '', section: '', type: MapTypesList.Unit } - not working
-        const newUnit = { id: '', label: '', floor: '', section: '', type: null }
-        newUnit.type = MapTypesList.Unit
+        const newUnit = { id: '', label: '', floor: '', section: '', type: MapTypesList.Unit }
         if (!id) {
-            return newUnit
+            return newUnit as BuildingUnitArg
         }
         const unitIndex = this.getUnitIndex(id)
         if (unitIndex.unit === -1) {
-            return newUnit
+            return newUnit as BuildingUnitArg
         }
         const { label, type } = this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit]
         return {
@@ -568,7 +566,7 @@ class MapEdit extends MapView {
     }
 
     private getNextUnit (id: string): BuildingUnit {
-        const units = this.map.sections.map(section => [...section.floors].reverse().map(floor => floor.units)).flat(2)
+        const units = this.map.sections.map(section => section.floors.slice(0).reverse().map(floor => floor.units)).flat(2)
         const unitIndex = units.findIndex(unit => unit.id === id)
         const nextIndex = unitIndex + 1
         return units[nextIndex] || null
@@ -576,6 +574,9 @@ class MapEdit extends MapView {
 
 
     private removeFloor (sectionIdx: number, floorIndex: number): void {
+        if (!this.map.sections[sectionIdx] || !this.map.sections[sectionIdx].floors[floorIndex]) {
+            return
+        }
         const floorToRemove = this.map.sections[sectionIdx].floors[floorIndex]
         this.map.sections[sectionIdx].floors.splice(floorIndex, 1)
         this.map.sections[sectionIdx].floors.map(floor => {
