@@ -107,29 +107,29 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const formatDiffMessage = (field, message, ticketChange) => {
         // we have both "from" and "to" parts to interpolate
         if (message.search('{from}') !== -1 && message.search('{to}') !== -1) {
-            const parts1 = message.split('{from}')
-            const parts2 =  parts1[1].split('{to}')
+            const aroundFrom = message.split('{from}')
+            const aroundTo =  aroundFrom[1].split('{to}')
             const valueFrom = ticketChange[`${field}From`]
             const valueTo = ticketChange[`${field}To`]
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy}/>
-                    &nbsp;{parts1[0]}
+                    &nbsp;{aroundFrom[0]}
                     <del>{format(field, valueFrom)}</del>
-                    {parts2[0]}
+                    {aroundTo[0]}
                     <ins>{format(field, valueTo)}</ins>
-                    {parts2[1]}
+                    {aroundTo[1]}
                 </>
             )
         } else { // only "to" part
-            const parts =  message.split('{to}')
+            const aroundTo =  message.split('{to}')
             const valueTo = ticketChange[`${field}To`]
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy}/>
-                    &nbsp;{parts[0]}
+                    &nbsp;{aroundTo[0]}
                     <ins>{format(field, valueTo)}</ins>
-                    {parts[1]}
+                    {aroundTo[1]}
                 </>
             )
         }
