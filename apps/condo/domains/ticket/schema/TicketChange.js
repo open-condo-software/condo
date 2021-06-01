@@ -12,6 +12,7 @@ const { versioned, uuided, tracked } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketChange')
 const { generateChangeTrackableFieldsFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
+const { ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 
 /**
  *
@@ -31,7 +32,11 @@ const TicketChange = new GQLListSchema('TicketChange', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
-        ...generateChangeTrackableFieldsFrom(buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS })),
+        ...generateChangeTrackableFieldsFrom(
+            buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS }),
+            ticketChangeDisplayNameResolversForSingleRelations,
+            relatedManyToManyResolvers
+        ),
     },
     plugins: [uuided(), versioned(), tracked()],
     access: {
