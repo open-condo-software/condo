@@ -1,4 +1,4 @@
-const _ = require('lodash')
+const { keys, transform, pick, pickBy, omit, difference } = require('lodash')
 const { Text, Uuid } = require('@keystonejs/fields')
 const { Relationship } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
@@ -85,14 +85,14 @@ const { Json } = require('@core/keystone/fields')
  * @return {*}
  */
 const buildSetOfFieldsToTrackFrom = (schema, options = {}) => (
-    _.omit(schema.fields, options.except || [])
+    omit(schema.fields, options.except || [])
 )
 
 /**
  * Indicates, that some resolver does not have required field
  */
 class ResolversValidationError extends Error {
-    constructor(fields) {
+    constructor (fields) {
         const message = 'Missing display name resolvers for some fields'
         super(message)
         this.fields = fields
@@ -138,20 +138,20 @@ function generateChangeTrackableFieldsFrom (
     displayNameResolvers,
     relatedManyToManyResolvers
 ) {
-    const scalars = _.transform(_.pickBy(fields, isScalar), mapScalars, {})
-    const fieldsOfSingleRelations = _.pickBy(fields, isRelationSingle)
-    const fieldsOfManyRelations = _.pickBy(fields, isRelationMany)
+    const scalars = transform(pickBy(fields, isScalar), mapScalars, {})
+    const fieldsOfSingleRelations = pickBy(fields, isRelationSingle)
+    const fieldsOfManyRelations = pickBy(fields, isRelationMany)
 
     const fieldsWithoutRelationshipResolvers = [
-        ...Object.keys(fieldsOfSingleRelations).filter(key => !displayNameResolvers[key]),
-        ...Object.keys(fieldsOfManyRelations).filter(key => !relatedManyToManyResolvers[key]),
+        ...keys(fieldsOfSingleRelations).filter(key => !displayNameResolvers[key]),
+        ...keys(fieldsOfManyRelations).filter(key => !relatedManyToManyResolvers[key]),
     ]
     if (fieldsWithoutRelationshipResolvers.length > 0) {
         throw new ResolversValidationError(fieldsWithoutRelationshipResolvers)
     }
 
-    const mappedFieldsOfSingleRelationships = _.transform(fieldsOfSingleRelations, mapRelationSingle, {})
-    const mappedFieldsOfManyRelationships = _.transform(fieldsOfManyRelations, mapRelationMany, {})
+    const mappedFieldsOfSingleRelationships = transform(fieldsOfSingleRelations, mapRelationSingle, {})
+    const mappedFieldsOfManyRelationships = transform(fieldsOfManyRelations, mapRelationMany, {})
 
     return {
         ...scalars,
@@ -167,11 +167,11 @@ function generateChangeTrackableFieldsFrom (
  * const ticketChangeDisplayNameResolversForSingleRelations = {
  *   'property': async (itemId) => {
  *       const item = await getById('Property', itemId)
- *       return _.get(item, 'name')
+ *       return get(item, 'name')
  *   },
  *   'status': async (itemId) => {
  *       const item = await getById('TicketStatus', itemId)
- *       return _.get(item, 'name')
+ *       return get(item, 'name')
  *   },
  *
  * @typedef DisplayNameResolvers
@@ -223,7 +223,7 @@ const storeChangesIfUpdated = (
             displayNameResolvers,
             relatedManyToManyResolvers,
         })
-        if (Object.keys(fieldsChanges).length > 0) {
+        if (keys(fieldsChanges).length > 0) {
             createCallback(fieldsChanges, { existingItem, updatedItem, context })
         }
     }
@@ -261,7 +261,7 @@ const buildDataToStoreChangeFrom = async (args) => {
     // Since `map` uses a series of async function calls, we need to use `Promise.all`,
     // otherwise, final result will miss fields, calculated asynchronously.
     // https://stackoverflow.com/questions/47065444/lodash-is-it-possible-to-use-map-with-async-functions
-    await Promise.all(Object.keys(fields).map(async (key) => {
+    await Promise.all(keys(fields).map(async (key) => {
         const field = fields[key]
         if (isScalar(field)) {
             if (existingItem[key] !== updatedItem[key]) {
@@ -287,7 +287,7 @@ const buildDataToStoreChangeFrom = async (args) => {
                     existingItem,
                     originalInput,
                 })
-                if (_.difference(existing.ids, updated.ids).length > 0) {
+                if (difference(existing.ids, updated.ids).length > 0) {
                     data[`${ key }IdsFrom`] = existing.ids
                     data[`${ key }IdsTo`] = updated.ids
                     data[`${ key }DisplayNamesFrom`] = existing.displayNames
@@ -318,7 +318,7 @@ const mapScalars = (acc, value, key) => {
 }
 
 const mapScalar = (field) => (
-    _.pick(field, ['schemaDoc', 'type'])
+    pick(field, ['schemaDoc', 'type'])
 )
 
 /**
