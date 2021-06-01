@@ -49,7 +49,7 @@ export const OrganizationSelect = () => {
         value: selectValue,
         size: 'middle',
         onChange: handleChange,
-        lading: loading || isLoading,
+        loading: loading || isLoading,
         disabled: loading || isLoading || isOptionsEmpty,
         ...isSelectOptionsVisible && { open: isSelectOptionsVisible },
     }
