@@ -25,6 +25,7 @@ import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 // @ts-ignore
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
+import faker from 'faker'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
@@ -285,10 +286,9 @@ const TicketIdPage = () => {
                             </Col>
                         </FocusContainer>
 
-                        {!ticketChangesResult.loading && !ticketChangesResult.error && ticketChangesResult.objs && (
+                        {!ticketChangesResult.loading && !ticketChangesResult.error && ticketChangesResult.objs && ticketChangesResult.objs.length > 0 && (
                             <TicketChanges
-                                items={ticketChangesResult.objs}
-                                total={ticketChangesResult.count}
+                                items={clone(2000, ticketChangesResult.objs[0])}
                             />
                         )}
 
@@ -322,6 +322,17 @@ const TicketIdPage = () => {
             </PageWrapper>
         </>
     )
+}
+
+const clone = (n, item) => {
+    const result = []
+    for (let i = 0; i < n; i++) {
+        result.push({
+            ...item,
+            id: item.id + '--' + faker.random.alphaNumeric(8),
+        })
+    }
+    return result
 }
 
 const HeaderAction = () => {

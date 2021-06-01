@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Row, Col, Typography, Tooltip } from 'antd'
 import { has } from 'lodash'
 import styled from '@emotion/styled'
@@ -14,7 +14,28 @@ interface ITicketChangeProps {
 
 export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => {
     const intl = useIntl()
+    /*
+        It seems, like it makes no sense to use `useCallback` everywhere.
+        Below are results of a Profiler from "React Development Tools" plugin for Chrome.
+        Uncomment one of the hook to try
+     */
+
+    /*
+        Benchmarked 3 times on 2000+ items, following rendering times:
+        1: 12.6ms
+        2: 10.3ms
+        3: 10.6ms
+     */
     const changedFieldMessages = useChangedFieldMessagesOf(ticketChange)
+
+    /*
+        Benchmarked 3 times on 2000+ items, following rendering times:
+        1: 11.4ms
+        2: 10.4ms
+        3: 10.3ms
+     */
+    // const changedFieldMessages = useChangedFieldMessagesOf_useCallback(ticketChange)
+
     return (
         <Row gutter={[12, 12]}>
             <Col span={3}>
@@ -128,6 +149,113 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             ]
         }
     }
+
+    // Omit what was not changed
+    const changedFields = fields.filter(([f]) => (
+        ticketChange[`${f}From`] !== ticketChange[`${f}To`]
+    ))
+
+    return changedFields.map(([field, message]) => ({
+        field,
+        message: formatDiffMessage(field, message, ticketChange),
+    }))
+}
+
+const useChangedFieldMessagesOf_useCallback = (ticketChange) => {
+    const intl = useIntl()
+    const ClientPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone' })
+    const DetailsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details' })
+    const ClientNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientName' })
+    const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid' })
+    const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency' })
+    const StatusDisplayNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.statusDisplayName' })
+    const UnitNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName' })
+    const UnitNameChangedMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName.change' })
+    const AssigneeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.assignee' })
+    const ClassifierMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier' })
+    const fields = [
+        ['clientPhone', ClientPhoneMessage],
+        ['details', DetailsMessage],
+        ['clientName', ClientNameMessage],
+        ['isPaid', IsPaidMessage],
+        ['isEmergency', IsEmergencyMessage],
+        ['statusDisplayName', StatusDisplayNameMessage],
+        ['unitName', UnitNameMessage],
+        ['assigneeDisplayName', AssigneeMessage],
+        ['classifierDisplayName', ClassifierMessage],
+    ]
+
+    const BooleanToString = {
+        isPaid: {
+            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
+            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
+        },
+        isEmergency: {
+            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.true' }),
+            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.false' }),
+        },
+    }
+
+    const formatField = useCallback((field, value) => {
+        const formatterFor = {
+            clientPhone: (field, value) => (
+                <PhoneLink value={value}/>
+            ),
+            details: (field, value) => (
+                value.length > 30 ? value.slice(0, 30) + '…' : value
+            ),
+            unitName: (field, value) => (
+                // Formally, unit name (e.g. apartment) was changed, but semantically,
+                // was changed a whole address of the ticket, so, to preserve context,
+                // the change of the unit is displayed as the change of the address
+                UnitNameChangedMessage
+                    .replace('{address}', ticketChange.ticket.property.address)
+                    .replace('{unitName}', value)
+            ),
+        }
+        return has(formatterFor, field)
+            ? formatterFor[field](field, value)
+            : value
+    }, [ticketChange.id])
+
+    const format = useCallback((field, value) => (
+        typeof value === 'boolean'
+            ? BooleanToString[field][value]
+            : formatField(field, value)
+    ), [ticketChange.id])
+
+    /*
+        Interpolates message string with JSX tags.
+        They will be safely mounted in place of `{to}` and `{from}` placeholders
+     */
+    const formatDiffMessage = useCallback((field, message, ticketChange) => {
+        // we have both "from" and "to" parts to interpolate
+        if (message.search('{from}') !== -1 && message.search('{to}') !== -1) {
+            const parts1 = message.split('{from}')
+            const parts2 =  parts1[1].split('{to}')
+            const valueFrom = ticketChange[`${field}From`]
+            const valueTo = ticketChange[`${field}To`]
+            return [
+                <SafeUserMention createdBy={ticketChange.createdBy} key={1}/>,
+                ' ',
+                parts1[0],
+                <del key={3}>{format(field, valueFrom)}</del>,
+                parts2[0],
+                <ins key={2}>{format(field, valueTo)}</ins>,
+                parts2[1],
+            ]
+        } else { // only "to" part
+            const parts =  message.split('{to}')
+            const valueTo = ticketChange[`${field}To`]
+            return [
+                <SafeUserMention createdBy={ticketChange.createdBy} key={1}/>,
+                ' ',
+                parts[0],
+                <ins key={2}>{format(field, valueTo)}</ins>,
+                parts[1],
+            ]
+        }
+    }, [ticketChange.id])
 
     // Omit what was not changed
     const changedFields = fields.filter(([f]) => (

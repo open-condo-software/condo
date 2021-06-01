@@ -10,16 +10,13 @@ import { TicketChange as TicketChangeType } from '../../../../schema'
 
 interface ITicketChangesProps {
     items: TicketChangeType[],
-    total: number,
 }
 
 const CHANGES_PER_CHUNK = 5
 
-export const TicketChanges: React.FC<ITicketChangesProps> = ({ items, total }) => {
+export const TicketChanges: React.FC<ITicketChangesProps> = ({ items }) => {
     const intl = useIntl()
-    const [displayCount, setDisplayCount] = useState(CHANGES_PER_CHUNK)
     const TicketChangesMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketChanges' })
-    const FetchMoreMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.fetchMore' })
 
     return items.length > 0 && (
         <Col span={24} style={{ marginTop: '20px' }}>
@@ -28,27 +25,13 @@ export const TicketChanges: React.FC<ITicketChangesProps> = ({ items, total }) =
                     <Typography.Title level={5}>{TicketChangesMessage}</Typography.Title>
                 </Col>
                 <Col span={24}>
-                    {items.slice(0, displayCount).map(change => (
+                    {items.map(change => (
                         <TicketChange
                             key={change.id}
                             ticketChange={change}
                         />
                     ))}
-                    {displayCount <= total && (
-                        <Button
-                            type="text"
-                            onClick={() => {
-                                setDisplayCount(displayCount + CHANGES_PER_CHUNK)
-                            }}
-                            style={{
-                                fontSize: '16px',
-                                padding: 0,
-                                color: green[6],
-                            }}
-                        >
-                            ↓ {FetchMoreMessage.replace('{count}', Math.min(total - displayCount, CHANGES_PER_CHUNK))}
-                        </Button>
-                    )}
+
                 </Col>
             </Row>
         </Col>
