@@ -7,6 +7,7 @@ import { formatDate } from '../../utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { green } from '@ant-design/colors'
+import { FormattedMessage } from 'react-intl'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -42,7 +43,6 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency' })
     const StatusDisplayNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.statusDisplayName' })
     const UnitNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName' })
-    const UnitNameChangedMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName.change' })
     const AssigneeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.assignee' })
     const ClassifierMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier' })
     const fields = [
@@ -80,9 +80,13 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 // Formally, unit name (e.g. apartment) was changed, but semantically,
                 // was changed a whole address of the ticket, so, to preserve context,
                 // the change of the unit is displayed as the change of the address
-                UnitNameChangedMessage
-                    .replace('{address}', ticketChange.ticket.property.address)
-                    .replace('{unitName}', value)
+                <FormattedMessage
+                    id="pages.condo.ticket.TicketChanges.unitName.change"
+                    values={{
+                        address: ticketChange.ticket.property.address,
+                        unitName: value
+                    }}
+                />
             ),
         }
         return has(formatterFor, field)
