@@ -1,4 +1,4 @@
-const _ = require('lodash')
+const { get, map, cloneDeep, uniq, difference } = require('lodash')
 const { TicketChange } = require('./index')
 const { getById } = require('@core/keystone/schema')
 
@@ -30,46 +30,46 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
 const ticketChangeDisplayNameResolversForSingleRelations = {
     'organization': async (itemId) => {
         const item = await getById('Organization', itemId)
-        return _.get(item, 'name')
+        return get(item, 'name')
     },
     'property': async (itemId) => {
         const item = await getById('Property', itemId)
-        return _.get(item, 'name')
+        return get(item, 'name')
     },
     'status': async (itemId) => {
         const item = await getById('TicketStatus', itemId)
-        return _.get(item, 'name')
+        return get(item, 'name')
     },
     'client': async (itemId) => {
         const item = await getById('User', itemId)
-        return _.get(item, 'name')
+        return get(item, 'name')
     },
     'operator': async (itemId) => {
         const item = await getById('User', itemId)
-        return _.get(item, 'name')
+        return get(item, 'name')
     },
     'assignee': async (itemId) => {
         const item = await getById('User', itemId)
-        return _.get(item, 'name')
+        return get(item, 'name')
     },
     'executor': async (itemId) => {
         const item = await getById('User', itemId)
-        return _.get(item, 'name')
+        return get(item, 'name')
     },
     'classifier': async (itemId) => {
         const item = await getById('TicketClassifier', itemId)
-        return _.get(item, 'name')
+        return get(item, 'name')
     },
     'source': async (itemId) => {
         const item = await getById('TicketSource', itemId)
-        return _.get(item, 'name')
+        return get(item, 'name')
     },
     'related': async (itemId) => {
         const item = await getById('Ticket', itemId)
         if (!item) {
             return null
         } else {
-            const number = _.get(item, 'number')
+            const number = get(item, 'number')
             return number ? number.toString() : null
         }
     },
@@ -104,8 +104,8 @@ const relatedManyToManyResolvers = {
         }
         if (updatedResult.data.ticket) {
             updated = {
-                ids: _.map(updatedResult.data.ticket.watchers, 'id'),
-                displayNames: _.map(updatedResult.data.ticket.watchers, 'name'),
+                ids: map(updatedResult.data.ticket.watchers, 'id'),
+                displayNames: map(updatedResult.data.ticket.watchers, 'name'),
             }
         }
 
@@ -122,15 +122,15 @@ const relatedManyToManyResolvers = {
                based on Keystone `originalInput`, which stores "Nested mutation" operations
                for this relationship. This variant is implemented.
         */
-        let existing = _.cloneDeep(updated)
+        let existing = cloneDeep(updated)
         if (originalInput && originalInput.watchers) {
             if (originalInput.watchers.disconnect) {
                 // Perform opposite operation
-                existing.ids = _.uniq([...existing.ids, ..._.map(originalInput.watchers.disconnect, 'id')])
+                existing.ids = uniq([...existing.ids, ...map(originalInput.watchers.disconnect, 'id')])
             }
             if (originalInput.watchers.connect) {
                 // Perform opposite operation
-                existing.ids = _.difference(existing.ids, _.map(originalInput.watchers.connect, 'id'))
+                existing.ids = difference(existing.ids, map(originalInput.watchers.connect, 'id'))
             }
         }
         const usersResult = await context.executeGraphQL({
@@ -150,7 +150,7 @@ const relatedManyToManyResolvers = {
             return {}
         }
         if (usersResult.data.users) {
-            existing.displayNames = _.map(usersResult.data.users, 'name')
+            existing.displayNames = map(usersResult.data.users, 'name')
         }
 
         return {
