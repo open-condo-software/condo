@@ -573,7 +573,6 @@ class MapEdit extends MapView {
         if (!get(this.map, `sections[${sectionIdx}].floors[${floorIndex}]`, false)){
             return
         }
-        console.log(get(this.map, `sections[${sectionIdx}].floors[${floorIndex}]`, false), `sections[${sectionIdx}].floors[${floorIndex}]`)
         const floorToRemove = this.map.sections[sectionIdx].floors[floorIndex]
         this.map.sections[sectionIdx].floors.splice(floorIndex, 1)
         this.map.sections[sectionIdx].floors.map(floor => {
