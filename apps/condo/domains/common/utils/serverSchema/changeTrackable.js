@@ -131,23 +131,25 @@ class ResolversValidationError extends Error {
  * })
  *
  * @param {Object} fields - `fields` object of a Keystone schema
+ * @param {Object} singleRelationshipDisplayNameResolvers - map of field names to functions, that resolves display name of "single" relationship for that field
+ * @param {Object} manyRelationshipDisplayNameResolvers - map of field names to functions, that resolves display name of "many" relationship for that field
  * @return {Object} - Set of fields, that should be substituted into a declaration of schema, that will store changes.
  */
 function generateChangeTrackableFieldsFrom (
     fields,
-    displayNameResolvers,
-    relatedManyToManyResolvers
+    singleRelationshipDisplayNameResolvers,
+    manyRelationshipDisplayNameResolvers
 ) {
     const scalars = transform(pickBy(fields, isScalar), mapScalars, {})
     const fieldsOfSingleRelations = pickBy(fields, isRelationSingle)
     const fieldsOfManyRelations = pickBy(fields, isRelationMany)
 
-    const fieldsWithoutRelationshipResolvers = [
-        ...keys(fieldsOfSingleRelations).filter(key => !displayNameResolvers[key]),
-        ...keys(fieldsOfManyRelations).filter(key => !relatedManyToManyResolvers[key]),
+    const fieldsWithoutResolvers = [
+        ...keys(fieldsOfSingleRelations).filter(key => !singleRelationshipDisplayNameResolvers[key]),
+        ...keys(fieldsOfManyRelations).filter(key => !manyRelationshipDisplayNameResolvers[key]),
     ]
-    if (fieldsWithoutRelationshipResolvers.length > 0) {
-        throw new ResolversValidationError(fieldsWithoutRelationshipResolvers)
+    if (fieldsWithoutResolvers.length > 0) {
+        throw new ResolversValidationError(fieldsWithoutResolvers)
     }
 
     const mappedFieldsOfSingleRelationships = transform(fieldsOfSingleRelations, mapRelationSingle, {})
