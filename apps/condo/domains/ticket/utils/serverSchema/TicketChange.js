@@ -28,6 +28,10 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
  * 👉 When a new single relation field will be added to Ticket, new resolver should be implemented here
  */
 const ticketChangeDisplayNameResolversForSingleRelations = {
+    'organization': async (itemId) => {
+        const item = await getById('Organization', itemId)
+        return _.get(item, 'name')
+    },
     'property': async (itemId) => {
         const item = await getById('Property', itemId)
         return _.get(item, 'name')
