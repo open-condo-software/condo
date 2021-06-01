@@ -589,7 +589,6 @@ class MapEdit extends MapView {
 
     public removeUnit (id: string): void {
         const unitIndex = this.getUnitIndex(id)
-        // let prevUnit = this.getPreviousUnit(id)
         const nextUnit = this.getNextUnit(id)
         if (unitIndex.unit !== -1) {
             const floorUnits = this.map.sections[unitIndex.section].floors[unitIndex.floor].units
