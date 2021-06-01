@@ -6,7 +6,7 @@ import { TicketChange as TicketChangeType } from '@app/condo/schema.d'
 import { formatDate } from '../../../common/utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
-import { colors } from '@condo/domains/common/constants/style'
+import { green } from '@ant-design/colors'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -169,7 +169,7 @@ const Diff = styled.p`
     }
     span, del, ins {
         &, a {
-            color: ${colors.linkColor};
+            color: ${green[6]};
         }
     }
     del, ins {
