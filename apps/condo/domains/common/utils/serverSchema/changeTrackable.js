@@ -88,6 +88,16 @@ const buildSetOfFieldsToTrackFrom = (schema, options = {}) => (
     _.omit(schema.fields, options.except || [])
 )
 
+/**
+ * Indicates, that some resolver does not have required field
+ */
+class ResolversValidationError extends Error {
+    constructor(fields) {
+        const message = 'Missing display name resolvers for some fields'
+        super(message)
+        this.fields = fields
+    }
+}
 
 /**
  * Generates a "Change storage set" (see Terms) for each field from `fields` object.
@@ -97,6 +107,9 @@ const buildSetOfFieldsToTrackFrom = (schema, options = {}) => (
  * Omitting of fields is not implemented here because trackable fields set
  * should be used in different places and calling this function over and over
  * is complicated
+ *
+ * In provided resolvers it validates presence of props (representing resolver functions),
+ * with names, according to provided fields with relationship associations.
  *
  * @example
  *
@@ -120,14 +133,30 @@ const buildSetOfFieldsToTrackFrom = (schema, options = {}) => (
  * @param {Object} fields - `fields` object of a Keystone schema
  * @return {Object} - Set of fields, that should be substituted into a declaration of schema, that will store changes.
  */
-function generateChangeTrackableFieldsFrom (fields) {
+function generateChangeTrackableFieldsFrom (
+    fields,
+    displayNameResolvers,
+    relatedManyToManyResolvers
+) {
     const scalars = _.transform(_.pickBy(fields, isScalar), mapScalars, {})
-    const relationsSingle = _.transform(_.pickBy(fields, isRelationSingle), mapRelationSingle, {})
-    const relationsMany = _.transform(_.pickBy(fields, isRelationMany), mapRelationMany, {})
+    const fieldsOfSingleRelations = _.pickBy(fields, isRelationSingle)
+    const fieldsOfManyRelations = _.pickBy(fields, isRelationMany)
+
+    const fieldsWithoutRelationshipResolvers = [
+        ...Object.keys(fieldsOfSingleRelations).filter(key => !displayNameResolvers[key]),
+        ...Object.keys(fieldsOfManyRelations).filter(key => !relatedManyToManyResolvers[key]),
+    ]
+    if (fieldsWithoutRelationshipResolvers.length > 0) {
+        throw new ResolversValidationError(fieldsWithoutRelationshipResolvers)
+    }
+
+    const mappedFieldsOfSingleRelationships = _.transform(fieldsOfSingleRelations, mapRelationSingle, {})
+    const mappedFieldsOfManyRelationships = _.transform(fieldsOfManyRelations, mapRelationMany, {})
+
     return {
         ...scalars,
-        ...relationsSingle,
-        ...relationsMany,
+        ...mappedFieldsOfSingleRelationships,
+        ...mappedFieldsOfManyRelationships,
     }
 }
 
@@ -352,4 +381,5 @@ module.exports = {
     buildSetOfFieldsToTrackFrom,
     storeChangesIfUpdated,
     generateChangeTrackableFieldsFrom,
+    ResolversValidationError,
 }
