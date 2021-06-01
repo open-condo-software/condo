@@ -303,9 +303,9 @@ const TicketIdPage = () => {
                                         <Col span={24}>
                                             <Typography.Text style={{ fontSize: '24px' }}>{ticket.details}</Typography.Text>
                                             { 
-                                                !isEmpty(files) 
-                                                    ?
-                                                    <TicketFileList files={files} /> : null
+                                                !isEmpty(files) && (
+                                                    <TicketFileList files={files} />
+                                                )
                                             }
                                         </Col>
                                     </Row>

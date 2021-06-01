@@ -11,9 +11,10 @@ const {
 } = require('@condo/domains/ticket/utils/testSchema')
 
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+
 describe('TicketFile', () => {
-    describe('Create', () => {
-        it('User create temporary TicketFile [no ticket relation]', async () => {
+    describe('User', () => {
+        it('can create temporary TicketFile [no ticket relation]', async () => {
             const client = await makeClientWithProperty()
             const [ticketFile, attrs] = await createTestTicketFile(client, client.organization)  
             expect(ticketFile.id).toMatch(UUID_RE)
@@ -28,7 +29,7 @@ describe('TicketFile', () => {
             expect(ticketFile.updatedAt).toMatch(DATETIME_RE)
             expect(ticketFile.organization).toEqual(expect.objectContaining({ id: client.organization.id }))
         })
-        it('User create TicketFile', async () => {
+        it('can create TicketFile', async () => {
             const client = await makeClientWithTicket()
             const [ticketFile, attrs] = await createTestTicketFile(client, client.organization, client.ticket)  
             expect(ticketFile.id).toMatch(UUID_RE)
@@ -44,24 +45,7 @@ describe('TicketFile', () => {
             expect(ticketFile.organization).toEqual(expect.objectContaining({ id: client.organization.id }))
             expect(ticketFile.ticket).toEqual(expect.objectContaining({ id: client.ticket.id }))
         })
-        it('Anonymous have no access to create TicketFile', async () => {
-            const client = await makeClient()
-            const clientWithOrganization = await makeClientWithProperty()
-            try {
-                await createTestTicketFile(client, clientWithOrganization.organization) 
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
-        })
-    })
-
-    describe('Read', () => {
-        it('User can read TicketFile', async () => {
+        it('can read TicketFile', async () => {
             const client = await makeClientWithTicket()
             const [ticketFile, attrs] = await createTestTicketFile(client, client.organization, client.ticket)  
             const objs = await TicketFile.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
@@ -77,8 +61,57 @@ describe('TicketFile', () => {
             expect(objs[0].createdAt).toMatch(ticketFile.createdAt)
             expect(objs[0].updatedAt).toMatch(ticketFile.updatedAt)
         })
-    
-        it('Anonymous have no access to read TicketFile', async () => {
+        it('cannot read TicketFile from another organization', async () => {
+            const client = await makeClientWithTicket()
+            await createTestTicketFile(client, client.organization, client.ticket)  
+            const anotherClient = await makeClientWithTicket()
+            const objs = await TicketFile.getAll(anotherClient, {}, { sortBy: ['updatedAt_DESC'] })
+            expect(objs).toHaveLength(0)
+        })
+        it('can update temporary TicketFile', async () => {
+            const client = await makeClientWithTicket()
+            const [ticketFileCreated] = await createTestTicketFile(client, client.organization)  
+            const [ticketFileUpdated, attrsUpdate] = await updateTestTicketFile(client, ticketFileCreated.id, { ticket: { connect: { id: client.ticket.id } } })
+            expect(ticketFileUpdated.id).toEqual(ticketFileUpdated.id)
+            expect(ticketFileUpdated.dv).toEqual(1)
+            expect(ticketFileUpdated.sender).toEqual(attrsUpdate.sender)
+            expect(ticketFileUpdated.v).toEqual(2)
+            expect(ticketFileUpdated.organization).toEqual(expect.objectContaining({ id: client.organization.id }))
+            expect(ticketFileUpdated.ticket).toEqual(expect.objectContaining({ id: client.ticket.id }))
+        })
+        it('cannot delete TicketFile', async () => {
+            const userClient = await makeClientWithTicket()
+            const [ticketFileCreated] = await createTestTicketFile(userClient, userClient.organization, userClient.ticket)  
+            try {
+                // TODO(codegen): check 'user: delete TicketFile' test!
+                await TicketFile.delete(userClient, ticketFileCreated.id)
+            } catch (e) {
+                expect(e.errors[0]).toMatchObject({
+                    'message': 'You do not have access to this resource',
+                    'name': 'AccessDeniedError',
+                    'path': ['obj'],
+                })
+                expect(e.data).toEqual({ 'obj': null })
+            }
+        })
+    })
+
+    describe('Anonymous', () => {
+        it('cannot create TicketFile', async () => {
+            const client = await makeClient()
+            const clientWithOrganization = await makeClientWithProperty()
+            try {
+                await createTestTicketFile(client, clientWithOrganization.organization) 
+            } catch (e) {
+                expect(e.errors[0]).toMatchObject({
+                    'message': 'You do not have access to this resource',
+                    'name': 'AccessDeniedError',
+                    'path': ['obj'],
+                })
+                expect(e.data).toEqual({ 'obj': null })
+            }
+        })
+        it('cannot read TicketFile', async () => {
             const client = await makeClient()
             try {
                 await TicketFile.getAll(client)
@@ -91,31 +124,7 @@ describe('TicketFile', () => {
                 expect(e.data).toEqual({ 'objs': null })
             }
         })
-    
-        it('User have no read access to TicketFile from another organization', async () => {
-            const client = await makeClientWithTicket()
-            await createTestTicketFile(client, client.organization, client.ticket)  
-            const anotherClient = await makeClientWithTicket()
-            const objs = await TicketFile.getAll(anotherClient, {}, { sortBy: ['updatedAt_DESC'] })
-            expect(objs).toHaveLength(0)
-        })
-    
-    })
-
-    describe('Update', () => {
-        it('User can update temporary TicketFile', async () => {
-            const client = await makeClientWithTicket()
-            const [ticketFileCreated] = await createTestTicketFile(client, client.organization)  
-            const [ticketFileUpdated, attrsUpdate] = await updateTestTicketFile(client, ticketFileCreated.id, { ticket: { connect: { id: client.ticket.id } } })
-            expect(ticketFileUpdated.id).toEqual(ticketFileUpdated.id)
-            expect(ticketFileUpdated.dv).toEqual(1)
-            expect(ticketFileUpdated.sender).toEqual(attrsUpdate.sender)
-            expect(ticketFileUpdated.v).toEqual(2)
-            expect(ticketFileUpdated.organization).toEqual(expect.objectContaining({ id: client.organization.id }))
-            expect(ticketFileUpdated.ticket).toEqual(expect.objectContaining({ id: client.ticket.id }))
-        })
-    
-        test('Anonymous have no access to update TicketFile', async () => {
+        it('cannot update TicketFile', async () => {
             const userClient = await makeClientWithTicket()
             const [ticketFileCreated] = await createTestTicketFile(userClient, userClient.organization, userClient.ticket)  
             const client = await makeClient()
@@ -131,25 +140,7 @@ describe('TicketFile', () => {
                 expect(e.data).toEqual({ 'obj': null })
             }
         })
-    })
-    
-    describe('Delete', () => {
-        it('User have no access to delete TicketFile', async () => {
-            const userClient = await makeClientWithTicket()
-            const [ticketFileCreated] = await createTestTicketFile(userClient, userClient.organization, userClient.ticket)  
-            try {
-                // TODO(codegen): check 'user: delete TicketFile' test!
-                await TicketFile.delete(userClient, ticketFileCreated.id)
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
-        })
-        it('Anonymous have no access to delete TicketFile', async () => {
+        it('cannot delete TicketFile', async () => {
             const userClient = await makeClientWithTicket()
             const [ticketFileCreated] = await createTestTicketFile(userClient, userClient.organization, userClient.ticket)  
             const client = await makeClient()
@@ -165,7 +156,5 @@ describe('TicketFile', () => {
                 expect(e.data).toEqual({ 'obj': null })
             }
         })
-    })    
+    })
 })
-
-

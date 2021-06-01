@@ -7,53 +7,25 @@
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
-const COMMON_FILE_FIELDS = 'id file { id originalFilename publicUrl mimetype } organization { id } '
-const TICKET_FIELDS = `{ 
-    organization { id name } 
-    property { id name address } 
-    unitName 
-    entranceName 
-    floorName 
-    status { id name type organization { id } } 
-    statusReopenedCounter 
-    statusUpdatedAt 
-    statusReason 
-    number 
-    client { id name } 
-    clientName 
-    clientEmail 
-    clientPhone 
-    operator { id name } 
-    assignee { id name } 
-    executor { id name } 
-    watchers { id name } 
-    classifier { id name organization { id } parent { id name } } 
-    details 
-    related { id details } 
-    isEmergency 
-    isPaid 
-    meta 
-    source 
-    { id name type } 
-    sourceMeta 
-    ${COMMON_FIELDS} 
-}`
-const TICKET_STATUS_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
-const TICKET_FILE_FIELDS = `{  ticket { id } ${COMMON_FIELDS} ${COMMON_FILE_FIELDS} }`
-const TICKET_SOURCE_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
-const TICKET_CLASSIFIER_FIELDS = `{ organization { id } parent { id } fullName name ${COMMON_FIELDS} }`
 
+const TICKET_FIELDS = `{ organization { id name } property { id name address } unitName entranceName floorName status { id name type organization { id } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone operator { id name } assignee { id name } executor { id name } watchers { id name } classifier { id name organization { id } parent { id name } } details related { id details } isEmergency isPaid meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
+
+const TICKET_STATUS_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
 const TicketStatus = generateGqlQueries('TicketStatus', TICKET_STATUS_FIELDS)
+
+const TICKET_SOURCE_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
 const TicketSource = generateGqlQueries('TicketSource', TICKET_SOURCE_FIELDS)
+
+const TICKET_CLASSIFIER_FIELDS = `{ organization { id } parent { id } fullName name ${COMMON_FIELDS} }`
 const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIER_FIELDS)
-const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
+
 /*
     We cannot use generated fields from TicketChange here, because we will have circular dependency,
     by requiring something from ./schema modules, that will cause all required items to be undefined.
     So, do it by hands here.
     PS: not exactly by hands, pasted from debugger ;)
- */
+*/
 const TICKET_CHANGE_DATA_FIELDS = [
     'statusReopenedCounterFrom',
     'statusReopenedCounterTo',
@@ -75,8 +47,6 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'isEmergencyTo',
     'metaFrom',
     'metaTo',
-    // 'filesDisplayNamesFrom',    
-    // 'filesDisplayNamesTo',
     'entranceNameFrom',
     'entranceNameTo',
     'floorNameFrom',
@@ -133,6 +103,10 @@ const TICKET_CHANGE_DATA_FIELDS = [
 
 const TICKET_CHANGE_FIELDS = `{ ticket { id } id dv sender v createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
+
+const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
+const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
+
 
 /* AUTOGENERATE MARKER <CONST> */
 

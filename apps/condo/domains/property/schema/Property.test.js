@@ -119,6 +119,3 @@ describe('Property', () => {
     })
 
 })
-
-// To avoid circular dependencies
-module.exports.makeClientWithProperty = makeClientWithProperty

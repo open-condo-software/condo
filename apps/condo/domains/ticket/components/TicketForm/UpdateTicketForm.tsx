@@ -25,7 +25,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     // @ts-ignore
     const { organization } = useOrganization()
     const { obj, loading, refetch, error } = Ticket.useObject({ where: { id } })
-    const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id: id } } })
+    const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id } } })
     
     // no redirect after mutation as we need to wait for ticket files to save
     const action = Ticket.useUpdate({}, () => null)
