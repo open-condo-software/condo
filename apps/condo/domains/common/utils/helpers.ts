@@ -1,6 +1,4 @@
 import { ParsedUrlQuery } from 'querystring'
-import { LOCALES } from '@condo/domains/common/constants/locale'
-import { format } from 'date-fns'
 
 /**
  * Formats a phone, convert it from number string to string with dividers
@@ -12,23 +10,6 @@ export const formatPhone = (phone?: string): string => {
     }
 
     return phone.replace(/(\d)(\d{3})(\d{3})(\d{2})(\d{2})/, '$1 ($2) $3-$4-$5')
-}
-
-/**
- * Formats raw timestamp string into human readable form, depending of what year it represents:
- * 1. For current year it returns day and month;
- * 2. For some previous year it returns day, month and year.
- * @param intl - i18n object from Next.js, containing `locale` prop
- * @param dateStr - raw timestamp string to format
- * @return {String} human readable representation of provided timestamp
- */
-export const formatDate = (intl, dateStr?: string): string => {
-    const currentDate = new Date()
-    const date = new Date(dateStr)
-    const pattern = date.getFullYear() === currentDate.getFullYear()
-        ? 'd MMMM H:mm'
-        : 'd MMMM yyyy H:mm'
-    return format(date, pattern, { locale: LOCALES[intl.locale] })
 }
 
 export const getFiltersFromQuery = <T>(query: ParsedUrlQuery): T | Record<string, never> => {
