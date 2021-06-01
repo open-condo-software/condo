@@ -11,7 +11,7 @@ import styled from '@emotion/styled'
 import { Button } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
+import { Ticket, TicketChange, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import Link from 'next/link'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
@@ -184,6 +184,16 @@ const TicketIdPage = () => {
 
     const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
     const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id: id } } })
+    // TODO(antonal): get rid of separate GraphQL query for TicketChanges
+    const ticketChangesResult = TicketChange.useObjects({
+        where: { ticket: { id } },
+        // TODO(antonal): fix "Module not found: Can't resolve '@condo/schema'"
+        // sortBy: [SortTicketChangesBy.CreatedAtDesc],
+        // @ts-ignore
+        sortBy: ['createdAt_DESC'],
+    }, {
+        fetchPolicy: 'network-only',
+    })
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
@@ -192,7 +202,7 @@ const TicketIdPage = () => {
         refetchFiles()
     }, [])
 
-    if (error || loading || !ticket) {
+    if (!!error || loading || !ticket || !!ticketChangesResult.error || ticketChangesResult.loading || !ticketChangesResult.objs) {
         return (
             <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={ServerErrorMessage}/>
         )
@@ -314,7 +324,12 @@ const TicketIdPage = () => {
                             </Col>
                         </FocusContainer>
 
-                        <TicketChanges ticketId={id}/>
+                        {!ticketChangesResult.loading && !ticketChangesResult.error && ticketChangesResult.objs && (
+                            <TicketChanges
+                                items={ticketChangesResult.objs}
+                                total={ticketChangesResult.count}
+                            />
+                        )}
 
                         <Col span={24}>
                             <Space size={40}>
