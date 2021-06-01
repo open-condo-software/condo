@@ -107,25 +107,27 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             const parts2 =  parts1[1].split('{to}')
             const valueFrom = ticketChange[`${field}From`]
             const valueTo = ticketChange[`${field}To`]
-            return [
-                <SafeUserMention createdBy={ticketChange.createdBy} key={1}/>,
-                ' ',
-                parts1[0],
-                <del key={3}>{format(field, valueFrom)}</del>,
-                parts2[0],
-                <ins key={2}>{format(field, valueTo)}</ins>,
-                parts2[1],
-            ]
+            return (
+                <>
+                    <SafeUserMention createdBy={ticketChange.createdBy}/>
+                    &nbsp;{parts1[0]}
+                    <del>{format(field, valueFrom)}</del>
+                    {parts2[0]}
+                    <ins>{format(field, valueTo)}</ins>
+                    {parts2[1]}
+                </>
+            )
         } else { // only "to" part
             const parts =  message.split('{to}')
             const valueTo = ticketChange[`${field}To`]
-            return [
-                <SafeUserMention createdBy={ticketChange.createdBy} key={1}/>,
-                ' ',
-                parts[0],
-                <ins key={2}>{format(field, valueTo)}</ins>,
-                parts[1],
-            ]
+            return (
+                <>
+                    <SafeUserMention createdBy={ticketChange.createdBy}/>
+                    &nbsp;{parts[0]}
+                    <ins>{format(field, valueTo)}</ins>
+                    {parts[1]}
+                </>
+            )
         }
     }
 
