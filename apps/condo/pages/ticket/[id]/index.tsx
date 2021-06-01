@@ -182,7 +182,11 @@ const TicketIdPage = () => {
     // NOTE: cast `string | string[]` to `string`
     const { query: { id } } = router as { query: { [key: string]: string } }
 
-    const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
+    const { refetch, loading, obj: ticket, error } = Ticket.useObject({
+        where: { id },
+    }, {
+        fetchPolicy: 'network-only',
+    })
     const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id: id } } })
     // TODO(antonal): get rid of separate GraphQL query for TicketChanges
     const ticketChangesResult = TicketChange.useObjects({
@@ -196,11 +200,6 @@ const TicketIdPage = () => {
     })
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
-
-    useEffect(() => {
-        refetch()
-        refetchFiles()
-    }, [])
 
     if (!!error || loading || !ticket || !!ticketChangesResult.error || ticketChangesResult.loading || !ticketChangesResult.objs) {
         return (
