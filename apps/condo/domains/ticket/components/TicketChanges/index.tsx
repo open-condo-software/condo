@@ -3,7 +3,7 @@ import { TicketChange as TicketChangeSchema } from '../../utils/clientSchema'
 import { TicketChange } from './TicketChange'
 import { Col, Row, Typography, Button } from 'antd'
 import { useIntl } from '@core/next/intl'
-import { colors } from '@condo/domains/common/constants/style'
+import { green } from '@ant-design/colors'
 import { TicketChange as TicketChangeType } from '../../../../schema'
 // TODO(antonal): fix "Module not found: Can't resolve '@condo/schema'"
 // import { SortTicketChangesBy } from '@condo/schema'
@@ -43,7 +43,7 @@ export const TicketChanges: React.FC<ITicketChangesProps> = ({ items, total }) =
                             style={{
                                 fontSize: '16px',
                                 padding: 0,
-                                color: colors.linkColor,
+                                color: green[6],
                             }}
                         >
                             ↓ {FetchMoreMessage.replace('{count}', Math.min(total - displayCount, CHANGES_PER_CHUNK))}
