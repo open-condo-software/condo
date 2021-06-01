@@ -10,7 +10,6 @@ const ultraLightGrey = '#F0F0F0F0'
 const black = '#000'
 const beautifulBlue = '#eFF7FF'
 const markColor = '#B5CCFF'
-const linkColor = '#389E0D'
 
 const colors = {
     sberDefault: generate(sberBlue),
@@ -25,7 +24,6 @@ const colors = {
     black,
     green,
     ultraLightGrey,
-    linkColor,
 }
 
 // Possible customizations can be found at https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less
