@@ -318,3 +318,20 @@ export const TICKET_PAGE_SIZE = 10
 export const getPaginationFromQuery = (query: ParsedUrlQuery): number => {
     return Math.floor(Number(get(query, 'offset', 0)) / TICKET_PAGE_SIZE) + 1
 }
+
+/**
+ * Formats raw timestamp string into human readable form, depending of what year it represents:
+ * 1. For current year it returns day and month;
+ * 2. For some previous year it returns day, month and year.
+ * @param intl - i18n object from Next.js, containing `locale` prop
+ * @param dateStr - raw timestamp string to format
+ * @return {String} human readable representation of provided timestamp
+ */
+export const formatDate = (intl, dateStr?: string): string => {
+    const currentDate = new Date()
+    const date = new Date(dateStr)
+    const pattern = date.getFullYear() === currentDate.getFullYear()
+        ? 'd MMMM H:mm'
+        : 'd MMMM yyyy H:mm'
+    return format(date, pattern, { locale: LOCALES[intl.locale] })
+}

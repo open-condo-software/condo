@@ -12,7 +12,9 @@ import {
     assigneeToQuery,
     queryToSorter,
     searchToQuery,
+    formatDate,
 } from './helpers'
+import { EN_LOCALE, RU_LOCALE } from '../../common/constants/locale'
 
 describe('Helpers', () => {
     describe('queryUtils', () => {
@@ -433,6 +435,40 @@ describe('Helpers', () => {
                 it('search is not defined', () => {
                     expect(searchToQuery()).toBeUndefined()
                 })
+            })
+        })
+    })
+
+    describe('formatDate', () => {
+        describe('ru locale', () => {
+            it('returns date and time without year, when provided date belongs to a current year', () => {
+                const now = new Date()
+                const year = now.getFullYear()
+                const intl = { locale: RU_LOCALE }
+                expect(formatDate(intl, `${year}-05-26 09:03:27.058000`)).toBe('26 мая 9:03')
+            })
+
+            it('returns date and time with year, when provided date belongs to previous year', () => {
+                const now = new Date()
+                const year = now.getFullYear() - 1
+                const intl = { locale: RU_LOCALE }
+                expect(formatDate(intl, `${year}-05-26 09:03:27.058000`)).toBe(`26 мая ${year} 9:03`)
+            })
+        })
+
+        describe('en locale', () => {
+            it('returns date in format "D MMM HH:mm", when provided date belongs to a current year', () => {
+                const now = new Date()
+                const year = now.getFullYear()
+                const intl = { locale: EN_LOCALE }
+                expect(formatDate(intl, `${year}-05-26 09:03:27.058000`)).toBe('26 May 9:03')
+            })
+
+            it('returns date in format "D MMM YYYY HH:mm", when provided date belongs to previous year', () => {
+                const now = new Date()
+                const year = now.getFullYear() - 1
+                const intl = { locale: EN_LOCALE }
+                expect(formatDate(intl, `${year}-05-26 09:03:27.058000`)).toBe(`26 May ${year} 9:03`)
             })
         })
     })
