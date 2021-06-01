@@ -130,8 +130,8 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     }
 
     // Omit what was not changed
-    const changedFields = fields.filter(([f]) => (
-        ticketChange[`${f}From`] !== ticketChange[`${f}To`]
+    const changedFields = fields.filter(([field]) => (
+        ticketChange[`${field}From`] !== ticketChange[`${field}To`]
     ))
 
     return changedFields.map(([field, message]) => ({
