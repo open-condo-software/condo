@@ -315,8 +315,12 @@ export const getSortStringFromQuery = (query: ParsedUrlQuery): Array<string> => 
 
 export const TICKET_PAGE_SIZE = 10
 
+export const getPageSizeFromQuery = (query: ParsedUrlQuery): number => {
+    return Number(get(query, 'pagesize', TICKET_PAGE_SIZE))
+}
+
 export const getPaginationFromQuery = (query: ParsedUrlQuery): number => {
-    return Math.floor(Number(get(query, 'offset', 0)) / TICKET_PAGE_SIZE) + 1
+    return Math.floor(Number(get(query, 'offset', 0)) / getPageSizeFromQuery(query)) + 1
 }
 
 /**
