@@ -25,7 +25,7 @@ const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIE
     by requiring something from ./schema modules, that will cause all required items to be undefined.
     So, do it by hands here.
     PS: not exactly by hands, pasted from debugger ;)
- */
+*/
 const TICKET_CHANGE_DATA_FIELDS = [
     'statusReopenedCounterFrom',
     'statusReopenedCounterTo',
@@ -102,8 +102,11 @@ const TICKET_CHANGE_DATA_FIELDS = [
 ].join(' ')
 
 const TICKET_CHANGE_FIELDS = `{ ticket { id } id dv sender v createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS} }`
-
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
+
+const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
+const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
+
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -113,5 +116,6 @@ module.exports = {
     TicketChange,
     TicketSource,
     TicketClassifier,
+    TicketFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

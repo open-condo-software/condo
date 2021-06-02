@@ -4,18 +4,11 @@
 
 const { makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { Property, createTestProperty, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { Property, createTestProperty, updateTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
 const { makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
 const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@condo/domains/ticket/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
-
-async function makeClientWithProperty () {
-    const client = await makeClientWithRegisteredOrganization()
-    const [property] = await createTestProperty(client, client.organization, { map: buildingMapJson })
-    client.property = property
-    return client
-}
 
 describe('Property', () => {
 
@@ -126,8 +119,3 @@ describe('Property', () => {
     })
 
 })
-
-
-module.exports = {
-    makeClientWithProperty,
-}

@@ -2,6 +2,7 @@
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
+import QueueAnim from 'rc-queue-anim'
 import get from 'lodash/get'
 import React from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
@@ -16,6 +17,9 @@ import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { useTicketValidations } from './useTicketValidations'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 
+import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
+import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
+
 const LAYOUT = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -29,6 +33,8 @@ interface ITicketFormProps {
     organization: IOrganization
     initialValues?: ITicketFormState
     action?: (...args) => void,
+    files?: ITicketFileUIState[],
+    afterActionCompleted?: (ticket: ITicketFormState) => void,
 }
 
 
@@ -39,6 +45,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
     const TicketPurposeTitle = intl.formatMessage({ id: 'TicketPurpose' })
+    const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
 
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
@@ -56,9 +63,24 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
-
-    const { action, initialValues, organization } = props
+    const { action: _action, initialValues, organization, afterActionCompleted, files } = props
     const validations = useTicketValidations()
+
+    const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({ 
+        Model: TicketFile,  
+        relationField: 'ticket',
+        initialFileList: files, 
+        initialCreateValues: { organization: organization.id },
+    })
+    
+    const action = async (...args) => {
+        const result = await _action(...args)
+        await syncModifiedFiles(result.id)
+        if (afterActionCompleted) {
+            return afterActionCompleted(result)
+        }
+        return result
+    }
 
     const formatUserFieldLabel = ({ text, value }) => (
         <UserNameField user={{ name: text, id: value }}>
@@ -68,7 +90,12 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     return (
         <>
-            <FormWithAction action={action} initialValues={initialValues} {...LAYOUT} validateTrigger={['onBlur', 'onSubmit']}>
+            <FormWithAction
+                action={action}
+                initialValues={initialValues}
+                validateTrigger={['onBlur', 'onSubmit']}
+                {...LAYOUT}
+            >
                 {({ handleSave, isLoading, form }) => (
                     <Row gutter={[0, 40]}>
                         <Col span={24}>
@@ -117,7 +144,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 <>
                                                     <Col span={11}>
                                                         <Form.Item name={'clientName'} rules={validations.clientName} label={FullNameLabel}>
-                                                            <Input/>
+                                                            <Input />
                                                         </Form.Item>
                                                     </Col>
                                                     <Col span={11}>
@@ -127,7 +154,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             label={PhoneLabel}
                                                             validateFirst
                                                         >
-                                                            <PhoneInput/>
+                                                            <PhoneInput />
                                                         </Form.Item>
                                                     </Col>
                                                 </>
@@ -140,7 +167,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                         <Form.Item noStyle dependencies={['property', 'unitName']}>
                             {
                                 ({ getFieldsValue }) => {
-                                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
+                                    const { property, unitName } = getFieldsValue(['property', 'unitName', 'files'])
                                     const disableUserInteraction = !property || !unitName
 
                                     return (
@@ -154,7 +181,14 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             </Col>
                                                             <Col span={24}>
                                                                 <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
-                                                                    <Input.TextArea rows={3} placeholder={DescriptionPlaceholder} disabled={disableUserInteraction}/>
+                                                                    <Input.TextArea rows={3} placeholder={DescriptionPlaceholder} disabled={disableUserInteraction} />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col flex={0}>
+                                                                <Form.Item
+                                                                    label={AttachedFilesLabel}
+                                                                >   
+                                                                    <UploadComponent />
                                                                 </Form.Item>
                                                             </Col>
                                                         </Row>
@@ -195,7 +229,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 <Form.Item
                                                                     name={'executor'}
                                                                     rules={validations.executor}
-                                                                    label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel}/>}
+                                                                    label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel} />}
                                                                 >
                                                                     <GraphQlSearchInput
                                                                         formatLabel={formatUserFieldLabel}
@@ -210,7 +244,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 <Form.Item
                                                                     name={'assignee'}
                                                                     rules={validations.assignee}
-                                                                    label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
+                                                                    label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel} />}
                                                                 >
                                                                     <GraphQlSearchInput
                                                                         formatLabel={formatUserFieldLabel}
@@ -231,7 +265,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                             }
                         </Form.Item>
                         <Form.Item name={'source'} hidden>
-                            <Input/>
+                            <Input />
                         </Form.Item>
                         <Col span={24}>
                             {props.children({ handleSave, isLoading, form })}

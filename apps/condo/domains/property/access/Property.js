@@ -8,8 +8,7 @@ const { checkOrganizationPermission } = require('@condo/domains/organization/uti
 async function canReadProperties ({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
-
-    return { organization: { employees_some: { user: { id: user.id } } } }
+    return { organization: { employees_some: { user: { id: user.id }, isBlocked: false } } }
 }
 
 

@@ -5,6 +5,7 @@ const sberGreen = '#4CD174'
 const sberRed = '#FF4D4F'
 const white = '#fff'
 const lightGrey = '#D9D9D9'
+const sberGrey = '#999999'
 const ultraLightGrey = '#F0F0F0F0'
 const black = '#000'
 const beautifulBlue = '#eFF7FF'
@@ -14,12 +15,14 @@ const colors = {
     sberDefault: generate(sberBlue),
     sberPrimary: generate(sberGreen),
     sberDanger:  generate(sberRed),
+    sberGrey: generate(sberGrey),
     defaultWhite: generate(white),
     lightGrey: generate(lightGrey),
     beautifulBlue: generate(beautifulBlue),
     markColor,
     white,
     black,
+    green,
     ultraLightGrey,
 }
 

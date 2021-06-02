@@ -1,5 +1,7 @@
 import { Col, Row, Space, Typography, Tag } from 'antd'
+import UploadList from 'antd/lib/upload/UploadList/index'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useMemo, useState } from 'react'
 import { ArrowLeftOutlined, EditFilled, FilePdfFilled } from '@ant-design/icons'
 import Head from 'next/head'
@@ -9,13 +11,12 @@ import styled from '@emotion/styled'
 import { Button } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import Link from 'next/link'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-
 import {
     getTicketCreateMessage,
     getTicketTitleMessage,
@@ -23,6 +24,8 @@ import {
 import { LETTERS_AND_NUMBERS } from '@condo/domains/common/constants/regexps'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
+import { UploadFileStatus } from 'antd/lib/upload/interface'
+
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
@@ -46,6 +49,36 @@ const TicketDescriptionField: React.FC<ITicketDescriptionFieldProps> = ({ title,
             <Typography.Text type={'secondary'}>{title}</Typography.Text>
             <Typography.Text {...{ type }} style={{ fontSize: '16px' }}>{value || NotDefinedMessage}</Typography.Text>
         </Space>
+    )
+}
+
+interface ITicketFileListProps {
+    files?: TicketFile.ITicketFileUIState[]
+}
+
+const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
+    const intl = useIntl()
+    const FilesFieldLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Files' })
+    const uploadFiles = files.map(({ file }) => {
+        const fileInList = {
+            uid: file.id,
+            name: file.originalFilename,
+            status: 'done' as UploadFileStatus,
+            url: file.publicUrl,
+        }
+        return fileInList        
+    })
+    const FilesFieldValue = (
+        <div className={'upload-control-wrapper'}>
+            <UploadList locale={{}} showRemoveIcon={false} items={uploadFiles} />
+        </div>
+    )
+    return (
+        <Row style={{ paddingTop: '20px' }}>
+            <Col span={24}>
+                <TicketDescriptionField title={FilesFieldLabel} value={FilesFieldValue} />
+            </Col>
+        </Row>
     )
 }
 
@@ -149,11 +182,13 @@ const TicketIdPage = () => {
     const { query: { id } } = router as { query: { [key: string]: string } }
 
     const { refetch, loading, obj: ticket, error } = Ticket.useObject({ where: { id } })
+    const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id: id } } })
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
     useEffect(() => {
         refetch()
+        refetchFiles()
     }, [])
 
     if (error || loading || !ticket) {
@@ -267,6 +302,11 @@ const TicketIdPage = () => {
                                         </Col>
                                         <Col span={24}>
                                             <Typography.Text style={{ fontSize: '24px' }}>{ticket.details}</Typography.Text>
+                                            { 
+                                                !isEmpty(files) && (
+                                                    <TicketFileList files={files} />
+                                                )
+                                            }
                                         </Col>
                                     </Row>
                                 </Row>

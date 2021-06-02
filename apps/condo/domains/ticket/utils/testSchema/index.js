@@ -5,8 +5,8 @@
  */
 
 const faker = require('faker')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { TICKET_STATUS_TYPES } = require('../../constants')
-
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
@@ -14,6 +14,7 @@ const { TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
 const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
 const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
+const { TicketFile: TicketFileGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -22,6 +23,7 @@ const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
 
 const Ticket = generateGQLTestUtils(TicketGQL)
 const TicketStatus = generateGQLTestUtils(TicketStatusGQL)
+const TicketFile = generateGQLTestUtils(TicketFileGQL)
 const TicketChange = generateGQLTestUtils(TicketChangeGQL)
 const TicketSource = generateGQLTestUtils(TicketSourceGQL)
 const TicketClassifier = generateGQLTestUtils(TicketClassifierGQL)
@@ -125,13 +127,52 @@ async function updateTestTicketChange (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function createTestTicketFile (client, organization, ticket, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const ticketConnection = (ticket && ticket.id) ? { ticket: { connect: { id: ticket.id } } } : {}
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        ...ticketConnection,
+        ...extraAttrs,
+    }
+    const obj = await TicketFile.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketFile (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketFile.update(client, id, attrs)
+    return [obj, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
+
+async function makeClientWithTicket () {
+    const client = await makeClientWithProperty()
+    const [ticket] = await createTestTicket(client, client.organization, client.property)
+    client.ticket = ticket
+    return client
+}
 
 module.exports = {
     Ticket, createTestTicket, updateTestTicket, ticketStatusByType,
     TicketStatus, createTestTicketStatus, updateTestTicketStatus,
+    TicketFile, createTestTicketFile, updateTestTicketFile,
     TicketChange, createTestTicketChange, updateTestTicketChange,
     TicketSource,
     TicketClassifier,
+    makeClientWithTicket,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
+

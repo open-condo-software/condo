@@ -7,6 +7,7 @@ const { Ticket } = require('./Ticket')
 const { TicketSource } = require('./TicketSource')
 const { TicketClassifier } = require('./TicketClassifier')
 const { TicketStatus } = require('./TicketStatus')
+const { TicketFile } = require('./TicketFile')
 const { TicketChange } = require('./TicketChange')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
@@ -15,6 +16,7 @@ module.exports = {
     TicketSource,
     TicketClassifier,
     TicketStatus,
+    TicketFile,
     TicketChange,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
