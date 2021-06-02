@@ -272,6 +272,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 </Form.Item>                            
                             </Row>                       
                         </Col>
+                        
                         {props.children({ handleSave, isLoading, form })}
                     </>
                 )}
