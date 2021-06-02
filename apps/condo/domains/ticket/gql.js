@@ -5,7 +5,7 @@
  */
 
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
-
+const { gql } = require('graphql-tag')
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
 const TICKET_FIELDS = `{ organization { id name } property { id name address } unitName entranceName floorName status { id name type organization { id } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone operator { id name } assignee { id name } executor { id name } watchers { id name } classifier { id name organization { id } parent { id name } } details related { id details } isEmergency isPaid meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
@@ -109,6 +109,26 @@ const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
 
 
 /* AUTOGENERATE MARKER <CONST> */
+const XLS_EXPORT_LIMIT = 100
+// If there is no limit - error "maxTotalResults","limit":1000 - will take place 
+// TODO(zuch): Xls export on server side and make xls exports look better
+
+const GET_ALL_TICKET_FOR_XLS_EXPORT = gql`
+    query GetAllTicketsForXLS ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!]) {
+        tickets: allTickets(where: $where, sortBy: $sortBy, first: ${XLS_EXPORT_LIMIT}) {
+            number
+            status { id name }
+            details
+            property { id name }
+            assignee { id name }
+            executor { id name }
+            createdAt
+            clientName
+        }  
+  }
+`
+
+
 
 module.exports = {
     Ticket,
@@ -118,5 +138,6 @@ module.exports = {
     TicketClassifier,
     TicketFile,
     TICKET_CHANGE_DATA_FIELDS,
+    GET_ALL_TICKET_FOR_XLS_EXPORT,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

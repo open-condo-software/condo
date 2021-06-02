@@ -1,33 +1,42 @@
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { GET_ALL_TICKET_FOR_XLS_EXPORT } from '@condo/domains/ticket/gql'
 import { DatabaseFilled } from '@ant-design/icons'
 import { format } from 'date-fns'
 import {
     filtersToQuery,
     getPaginationFromQuery,
     getSortStringFromQuery,
-    TICKET_PAGE_SIZE,
     sorterToQuery, queryToSorter, getPageSizeFromQuery,
 } from '@condo/domains/ticket/utils/helpers'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
-
+import { useLazyQuery } from '@core/next/apollo'
 import { Col, Input, Row, Space, Table, Typography } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import { pickBy, get, debounce } from 'lodash'
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Button } from '@condo/domains/common/components/Button'
 import XLSX from 'xlsx'
 import { useOrganization } from '@core/next/organization'
+import { SortTicketsBy } from '../../schema'
 
-const TicketsPage = () => {
+
+
+interface IPageWithHeaderAction extends React.FC {
+    headerAction?: JSX.Element
+}
+
+
+
+const TicketsPage: IPageWithHeaderAction = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -45,9 +54,9 @@ const TicketsPage = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-
-    console.log('QUERY:', sortFromQuery, offsetFromQuery, filtersFromQuery)
-    
+    //: sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC', //TODO(Dimitreee):Find cleanest solution    
+    const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC'
+    const where = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
 
     const {
         fetchMore,
@@ -55,14 +64,52 @@ const TicketsPage = () => {
         count: total,
         objs: tickets,
     } = Ticket.useObjects({
-        // @ts-ignore
-        sortBy: sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC', //TODO(Dimitreee):Find cleanest solution
-        where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
+        sortBy: sortBy as SortTicketsBy[],
+        where,
         skip: (offsetFromQuery * pagesizeFromQuey) - pagesizeFromQuey,
         first: pagesizeFromQuey,
     }, {
         fetchPolicy: 'network-only',
     })
+    
+    const [
+        loadXlsTickets, 
+        { loading: isXlsLoading },
+    ] = useLazyQuery(
+        GET_ALL_TICKET_FOR_XLS_EXPORT,
+        {
+            onError: error => {
+                throw new Error(error)
+            },
+            onCompleted: data => {
+                return new Promise<void>((resolve, reject) => {
+                    try {
+                        const cols = [
+                            'number',
+                            'status',
+                            'details',
+                            'property',
+                            'assignee',
+                            'executor',
+                            'createdAt',
+                            'clientName',
+                        ]
+                        const wb = XLSX.utils.book_new()
+                        const ws = XLSX.utils.json_to_sheet(
+                            data.tickets.map((ticket) => Ticket.extractAttributes(ticket, cols)), { header: cols }
+                        )
+                        XLSX.utils.book_append_sheet(wb, ws, 'table')
+                        XLSX.writeFile(wb, `export_${format(new Date(), 'dd.mm.yyyy') }.xlsx`)
+                    } catch (e) {
+                        console.error('Error while fetching tickets for Xls ', e)
+                        reject(e)
+                    } finally {
+                        resolve()
+                    }
+                })
+            },
+        },
+    )
 
     const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery)
 
@@ -72,6 +119,7 @@ const TicketsPage = () => {
                 router.push(`/ticket/${record.id}/`)
             },
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
@@ -105,56 +153,6 @@ const TicketsPage = () => {
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
 
-
-    const generateExcelData = useCallback((settings) => {
-        return new Promise<void>((resolve, reject) => {
-            const { sortFromQuery, filtersFromQuery } = settings
-            fetchMore({
-                // @ts-ignore
-                sortBy: sortFromQuery,
-                where: filtersFromQuery,
-                skip: 100,
-                first: 200,
-            }).then((data) => {
-                console.log('data', data)
-
-                return resolve()
-            })
-            
-        })
-        /*
-        return new Promise<void>((resolve, reject) => {
-            fetchMore({}).then((data) => {
-                console.log('data is data', data)
-                try {
-                    const cols = [
-                        'number',
-                        'status',
-                        'details',
-                        'property',
-                        'assignee',
-                        'executor',
-                        'createdAt',
-                        'clientName',
-                    ]
-    
-                    const wb = XLSX.utils.book_new()
-                    const ws = XLSX.utils.json_to_sheet(
-                        tickets.map((ticket) => Ticket.extractAttributes(ticket, cols)), { header: cols }
-                    )
-    
-                    XLSX.utils.book_append_sheet(wb, ws, 'table')
-                    XLSX.writeFile(wb, `export_${format(new Date(), 'dd.mm.yyyy') }.xlsx`)
-                } catch (e) {
-                    reject(e)
-                } finally {
-                    resolve()
-                }
-            })
-        })
-        */
-    }, [fetchMore])
-
     return (
         <>
             <Head>
@@ -180,7 +178,14 @@ const TicketsPage = () => {
                                         />
                                     </Col>
                                     <Col span={6} push={1}>
-                                        <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={() => generateExcelData({ sortFromQuery, filtersFromQuery, total })}>{ExportAsExcel}</Button>
+                                        <Button 
+                                            type={'inlineLink'} 
+                                            icon={<DatabaseFilled />} 
+                                            loading={isXlsLoading}
+                                            onClick={
+                                                () => loadXlsTickets({ variables: { sortBy: sortBy, where: where } })
+                                            }
+                                        >{ExportAsExcel}</Button>
                                     </Col>
                                     <Col span={24}>
                                         <Table
