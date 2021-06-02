@@ -1,9 +1,5 @@
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
-
-import cloneDeep from 'lodash/cloneDeep'
-import compact from 'lodash/compact'
-import has from 'lodash/has'
-import uniq from 'lodash/uniq'
+import { cloneDeep, compact, has, uniq, get } from 'lodash'
 
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import MapSchemaJSON from './MapJsonSchema.json'
@@ -269,9 +265,7 @@ class MapView extends Map {
     }
 
     public getUnitInfo (id: string): BuildingUnitArg {
-        // Todo(zuch): Strange typescript validation behavior { id: '', label: '', floor: '', section: '', type: MapTypesList.Unit } - not working
-        const newUnit = { id: '', label: '', floor: '', section: '', type: null }
-        newUnit.type = MapTypesList.Unit
+        const newUnit: BuildingUnitArg = { id: '', label: '', floor: '', section: '', type: MapTypesList.Unit }
         if (!id) {
             return newUnit
         }
@@ -567,10 +561,42 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
+    private getNextUnit (id: string): BuildingUnit {
+        const units = this.map.sections.map(section => section.floors.slice(0).reverse().map(floor => floor.units)).flat(2)
+        const unitIndex = units.findIndex(unit => unit.id === id)
+        const nextIndex = unitIndex + 1
+        return units[nextIndex] || null
+    }
+
+
+    private removeFloor (sectionIdx: number, floorIndex: number): void {
+        if (!get(this.map, `sections[${sectionIdx}].floors[${floorIndex}]`, false)){
+            return
+        }
+        const floorToRemove = this.map.sections[sectionIdx].floors[floorIndex]
+        this.map.sections[sectionIdx].floors.splice(floorIndex, 1)
+        this.map.sections[sectionIdx].floors.map(floor => {
+            if (floorToRemove.index < floor.index){
+                floor.index--
+                floor.name = floor.index.toString()
+            }
+            return floor
+        })
+    }
+
     public removeUnit (id: string): void {
         const unitIndex = this.getUnitIndex(id)
+        const nextUnit = this.getNextUnit(id)
         if (unitIndex.unit !== -1) {
-            this.map.sections[unitIndex.section].floors[unitIndex.floor].units.splice(unitIndex.unit, 1)
+            const floorUnits = this.map.sections[unitIndex.section].floors[unitIndex.floor].units
+            const [removedUnit] = floorUnits.splice(unitIndex.unit, 1)
+            if (floorUnits.length === 0) {
+                this.removeFloor(unitIndex.section, unitIndex.floor)
+            }
+            if (nextUnit) {
+                nextUnit.label = removedUnit.label
+                this.updateUnitNumbers(nextUnit)
+            }            
         }
         this.selectedUnit = null
         this.editMode = 'addUnit'

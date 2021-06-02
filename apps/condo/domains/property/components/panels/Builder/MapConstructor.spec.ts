@@ -28,7 +28,7 @@ const createBuilding = (data): MapEdit => {
 describe('Map constructor', () => {
     describe('Service functions', () => {
         describe('Select options for sections', () => {
-            it('Should correctly generate floor list for choosed section', () => {
+            it('should correctly generate floor list for choosed section', () => {
                 const Building = createBuildingMap(5)
                 expect(Building.sections).toHaveLength(5)
                 expect(Building.getSectionFloorOptions(Building.sections[0].id)).toHaveLength(15)
@@ -62,7 +62,7 @@ describe('Map constructor', () => {
 
     describe('Unit operations', () => {
         describe('Add unit', () => {
-            it('unit should be correctly placed to map', () => {
+            it('should be correctly placed to map', () => {
                 const Building = createBuildingMap(10)
                 const jsonMap = Building.getMap()
                 const newUnit = { id: '', floor: jsonMap.sections[3].floors[3].id, section: jsonMap.sections[3].id, label: '1000' }
@@ -96,16 +96,25 @@ describe('Map constructor', () => {
                 const Building = createBuildingMap(10)
                 const jsonMap = Building.getMap()
                 const updatedUnit = jsonMap.sections[5].floors[5].units[5]
-                Building.updateUnit({ ...updatedUnit, label: 'Test label' })
+                Building.updateUnit({ ...updatedUnit, ...{
+                    floor: jsonMap.sections[5].floors[5].id,
+                    section: jsonMap.sections[5].id,
+                    label: 'Test label',
+                } })
                 const newJsonMap = Building.getMap()
                 const unitToCompare = newJsonMap.sections[5].floors[5].units[5]
-                expect(unitToCompare.label).not.toEqual(updatedUnit.label)
+                expect(unitToCompare.name).toEqual('Test label')
+                expect(unitToCompare.label).toEqual(updatedUnit.label)
             })
             it('should correctly update map if floor/section is changed', () => {
                 const Building = createBuildingMap(10)
                 const jsonMap = Building.getMap()
                 const updatedUnit = jsonMap.sections[5].floors[5].units[5]
-                Building.updateUnit({ ...updatedUnit, label: 'Test label', floor:  jsonMap.sections[2].floors[2].id, section: jsonMap.sections[2].id })
+                Building.updateUnit({ ...updatedUnit, 
+                    label: 'Test label', 
+                    floor:  jsonMap.sections[2].floors[2].id, 
+                    section: jsonMap.sections[2].id,
+                })
                 const newJsonMap = Building.getMap()
                 const info = Building.getUnitInfo(updatedUnit.id)
                 expect(info.floor).toEqual(newJsonMap.sections[2].floors[2].id)
@@ -122,12 +131,34 @@ describe('Map constructor', () => {
                 const found = Building.getUnitInfo(unitToRemove.id)
                 expect(found.floor).toBe('')
             })
+            it('should update next units labels', () => {
+                const Building = createBuildingMap(5)
+                const jsonMap = Building.getMap()
+                const unitToRemove = jsonMap.sections[1].floors[1].units[1]
+                const unitToRemoveLabel = unitToRemove.label
+                Building.removeUnit(unitToRemove.id)
+                const newJsonMap = Building.getMap()
+                const nextUnit = newJsonMap.sections[1].floors[1].units[1]
+                expect(nextUnit.id).not.toEqual(unitToRemove.id)
+                expect(nextUnit.label).toEqual(unitToRemoveLabel)
+            })
+            it('should remove floor if no units remain', () => {
+                const Building = createBuildingMap(5)
+                const jsonMap = Building.getMap()
+                const floorsBefore = jsonMap.sections[1].floors.length
+                const unitsToRemove = [...jsonMap.sections[1].floors[0].units]
+                unitsToRemove.forEach(unit => {
+                    Building.removeUnit(unit.id)
+                })
+                const newJsonMap = Building.getMap()
+                expect(newJsonMap.sections[1].floors).toHaveLength(floorsBefore - 1)
+            })
         })
     })
         
     describe('Section operations', () => {
         describe('Add section', () => {
-            it('check generated structure on section add', () => {
+            it('have valid structure on section add', () => {
                 const Building = createBuildingMap(5)
                 Building.addSection({ id: '', minFloor: -10, maxFloor: 10, unitsOnFloor: 10, name: sectionName() })
                 expect(Building.sections).toHaveLength(6)
@@ -136,7 +167,7 @@ describe('Map constructor', () => {
             })
         })
         describe('Edit section', () => {
-            it('check rename of the structure on section edit', () => {
+            it('should update structure in json on section edit', () => {
                 const Building = createBuildingMap(10)
                 const jsonMap = Building.getMap()
                 const updatedSection = jsonMap.sections[1]
@@ -149,7 +180,7 @@ describe('Map constructor', () => {
             })
         })
         describe('Delete section', () => {
-            it('check if section is gone on delete', () => {
+            it('should be removed', () => {
                 const Building = createBuildingMap(10)
                 const jsonMap = Building.getMap()
                 const removeSection = jsonMap.sections[1]
@@ -162,8 +193,8 @@ describe('Map constructor', () => {
     })       
 
     
-    describe('Checking validation ', () => {
-        it('Check that unit operations do not break structure', () => {
+    describe('Checking validation', () => {
+        it('should be valid after unit operations', () => {
             const Building = createBuildingMap(10)
             const jsonMap = Building.getMap()
             const newUnit = { id: '', floor: jsonMap.sections[3].floors[3].id, section: jsonMap.sections[3].id, label: '1000' }
@@ -177,7 +208,7 @@ describe('Map constructor', () => {
             Building.validate()
             expect(Building.isMapValid).toBe(true)
         })
-        it('Check that section operations do not break structure', () => {
+        it('should be valid after section operations', () => {
             const Building = createBuildingMap(10)
             const jsonMap = Building.getMap()
             Building.addSection({ id: '', minFloor: -10, maxFloor: 10, unitsOnFloor: 10, name: sectionName() })
@@ -193,14 +224,14 @@ describe('Map constructor', () => {
         })
 
         describe('Check that JSON schema validator is working', () => {
-            it('Check that validator react on bad structure', () => {
+            it('should react to bad structure', () => {
                 const Building = new MapEdit(null, () => null )
                 Building.map = cloneDeep(notValidBuildingMapJson)
                 const isValid = Building.validateSchema()
                 expect(isValid).toBe(false)
                 expect(Building.validationErrors).toHaveLength(1)
             })
-            it('Check that validator not react on good structure', () => {
+            it('should pass validation on good structure', () => {
                 const Building = new MapEdit(null, () => null )
                 Building.map = cloneDeep(buildingMapJson)
                 const isValid = Building.validateSchema()
@@ -293,22 +324,22 @@ const TWO_SECTION_THREE_FLOORS = {
 
 describe('Check new MapConstructor to work on old JSON data', () => {
     describe('ONE_SECTION_TWO_FLOORS', () => {
-        it('Structure shoud be auto repaired (missing type, dv)', () => {
+        it('shoud be auto repaired (missing type, dv)', () => {
             const Building = createBuilding(ONE_SECTION_TWO_FLOORS)
             expect(Building.isMapValid).toBe(true)
         })
-        it('Structure shoud contain 1 section', () => {
+        it('shoud contain 1 section', () => {
             const Building = createBuilding(ONE_SECTION_TWO_FLOORS)
             expect(Building.sections).toHaveLength(1)
         })
-        it('Structure shoud contain 2 floors', () => {
+        it('shoud contain 2 floors', () => {
             const Building = createBuilding(ONE_SECTION_TWO_FLOORS)
             const allFloors = Building.sections
                 .map( section => section.floors )
                 .flat()
             expect(allFloors).toHaveLength(2)
         })
-        it('Structure shoud contain 3 units', () => {
+        it('shoud contain 3 units', () => {
             const Building = createBuilding(ONE_SECTION_TWO_FLOORS)
             const allUnits = Building.sections
                 .map( section => section.floors
@@ -316,18 +347,17 @@ describe('Check new MapConstructor to work on old JSON data', () => {
                 .flat(2)
             expect(allUnits).toHaveLength(3)
         })
-
     })
     describe('TWO_SECTION_THREE_FLOORS: ', () => {
-        it('Structure shoud be auto repaired (missing type, dv)', () => {
+        it('shoud be auto repaired (missing type, dv)', () => {
             const Building = createBuilding(TWO_SECTION_THREE_FLOORS)
             expect(Building.isMapValid).toBe(true)
         })
-        it('Structure shoud contain 2 sections', () => {
+        it('shoud contain 2 sections', () => {
             const Building = createBuilding(TWO_SECTION_THREE_FLOORS)
             expect(Building.sections).toHaveLength(2)
         })
-        it('Structure shoud contain 4 floors', () => {
+        it('shoud contain 4 floors', () => {
             const Building = createBuilding(TWO_SECTION_THREE_FLOORS)
             const allFloors = Building.sections
                 .map( section => section.floors )
@@ -335,7 +365,7 @@ describe('Check new MapConstructor to work on old JSON data', () => {
             expect(allFloors).toHaveLength(4)
             
         })
-        it('Structure shoud contain 7 units', () => {
+        it('shoud contain 7 units', () => {
             const Building = createBuilding(TWO_SECTION_THREE_FLOORS)
             const allUnits = Building.sections
                 .map( section => section.floors
