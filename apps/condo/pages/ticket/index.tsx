@@ -40,9 +40,8 @@ const TicketsPage = () => {
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const offsetFromQuery = getPaginationFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-    const pagesizeFromQuey = getPageSizeFromQuery<IFilters>(router.query)
+    const pagesizeFromQuey: number = getPageSizeFromQuery(router.query)
 
-    const pageSizeRef = useRef<number>(pagesizeFromQuey)
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
@@ -59,8 +58,8 @@ const TicketsPage = () => {
         // @ts-ignore
         sortBy: sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC', //TODO(Dimitreee):Find cleanest solution
         where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
-        skip: (offsetFromQuery * pageSizeRef.current) - pageSizeRef.current,
-        first: pageSizeRef.current,
+        skip: (offsetFromQuery * pagesizeFromQuey) - pagesizeFromQuey,
+        first: pagesizeFromQuey,
     }, {
         fetchPolicy: 'network-only',
     })
@@ -78,10 +77,7 @@ const TicketsPage = () => {
     const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
         const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
         const { current, pageSize } = nextPagination
-        if (pageSizeRef.current !== pageSize) {
-            pageSizeRef.current = pageSize
-        }        
-        const offset = current * pageSizeRef.current - pageSizeRef.current
+        const offset = current * pageSize - pageSize
         const sort = sorterToQuery(nextSorter)
         const filters = filtersToQuery(nextFilters)
         if (!loading) {
@@ -90,15 +86,15 @@ const TicketsPage = () => {
                 sortBy: sort,
                 where: filters,
                 skip: offset,
-                first: current * pageSizeRef.current,
+                first: current * pageSize,
             }).then(() => {
                 const query = qs.stringify(
                     { 
                         ...router.query, 
-                        pagesize: pageSizeRef.current, 
+                        pagesize: pageSize, 
                         sort, 
                         offset, 
-                        filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) 
+                        filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })),
                     },
                     { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
                 )
@@ -199,7 +195,7 @@ const TicketsPage = () => {
                                             pagination={{
                                                 total,
                                                 current: offsetFromQuery,
-                                                pageSize: pageSizeRef.current,
+                                                pageSize: pagesizeFromQuey,
                                                 position: ['bottomLeft'],
                                             }}
                                         />
