@@ -50,21 +50,21 @@ export const CreateTicketForm: React.FC = () => {
         >
             {({ handleSave, isLoading }) => {
                 return (
-                    <Form.Item noStyle dependencies={['property', 'unitName']}>
+                    <Form.Item noStyle dependencies={['property']}>
                         {
                             ({ getFieldsValue }) => {
-                                const { property, unitName } = getFieldsValue(['property', 'unitName'])
+                                const { property } = getFieldsValue(['property'])
 
                                 return (
                                     <Row gutter={[0, 24]}>
-                                        <ErrorsContainer property={property} unitName={unitName}/>
+                                        <ErrorsContainer property={property} />
                                         <Col span={24}>
                                             <Button
                                                 key='submit'
                                                 onClick={handleSave}
                                                 type='sberPrimary'
                                                 loading={isLoading}
-                                                disabled={!property || !unitName}
+                                                disabled={!property}
                                             >
                                                 {CreateTicketMessage}
                                             </Button>
