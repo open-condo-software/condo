@@ -13,23 +13,21 @@ export const ErrorsWrapper = styled.div`
 
 interface IErrorsContainerProps {
     property: string
-    unitName: string
 }
 
-export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ property, unitName }) => {
+export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ property  }) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
 
-    const disableUserInteraction = !property || !unitName
+    const disableUserInteraction = !property
 
     return (
         disableUserInteraction && (
             <Col span={24}>
                 <ErrorsWrapper>
                     {ErrorsContainerTitle}&nbsp;
-                    {(!property && AddressLabel || !unitName && FlatNumberLabel).toLowerCase()}
+                    {(!property && AddressLabel).toLowerCase()}
                 </ErrorsWrapper>
             </Col>
         )

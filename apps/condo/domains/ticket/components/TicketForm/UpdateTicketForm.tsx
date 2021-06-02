@@ -58,14 +58,14 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
         >
             {({ handleSave, isLoading }) => {
                 return (
-                    <Form.Item noStyle dependencies={['property', 'unitName']}>
+                    <Form.Item noStyle dependencies={['property']}>
                         {
                             ({ getFieldsValue }) => {
-                                const { property, unitName } = getFieldsValue(['property', 'unitName'])
+                                const { property } = getFieldsValue(['property'])
 
                                 return (
                                     <Row gutter={[0, 24]}>
-                                        <ErrorsContainer property={property} unitName={unitName}/>
+                                        <ErrorsContainer property={property} />
                                         <Col span={24}>
                                             <Space size={40}>
                                                 <FormResetButton
@@ -77,7 +77,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
                                                     onClick={handleSave}
                                                     type='sberPrimary'
                                                     loading={isLoading}
-                                                    disabled={!property || !unitName}
+                                                    disabled={!property}
                                                 >
                                                     {ApplyChangesMessage}
                                                 </Button>

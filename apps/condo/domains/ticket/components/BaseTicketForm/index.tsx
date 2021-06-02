@@ -137,10 +137,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                         }}
                                     </Form.Item>
                                     <Form.Item shouldUpdate noStyle>
-                                        {({ getFieldsValue }) => {
-                                            const { unitName } = getFieldsValue(['unitName'])
+                                        {({ getFieldValue }) => {
+                                            const propertyFieldValue = getFieldValue('property')
 
-                                            return unitName && (
+                                            return propertyFieldValue && (
                                                 <>
                                                     <Col span={11}>
                                                         <Form.Item name={'clientName'} rules={validations.clientName} label={FullNameLabel}>
@@ -167,8 +167,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                         <Form.Item noStyle dependencies={['property', 'unitName']}>
                             {
                                 ({ getFieldsValue }) => {
-                                    const { property, unitName } = getFieldsValue(['property', 'unitName', 'files'])
-                                    const disableUserInteraction = !property || !unitName
+                                    const { property } = getFieldsValue(['property'])
+                                    const disableUserInteraction = !property
 
                                     return (
                                         <Col span={24}>
