@@ -68,7 +68,7 @@ export const CreateTicketForm: React.FC = () => {
                                             >
                                                 {CreateTicketMessage}
                                             </Button>
-                                            <ErrorsContainer property={property} />
+                                            <ErrorsContainer property={property}/>
                                         </Space>
                                     </ActionBar>
                                 )
