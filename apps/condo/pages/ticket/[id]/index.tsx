@@ -27,6 +27,7 @@ import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
 // @ts-ignore
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
+import ActionBar from '@condo/domains/common/components/ActionBar'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
@@ -177,7 +178,6 @@ const TicketIdPage = () => {
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
-
     const router = useRouter()
     // NOTE: cast `string | string[]` to `string`
     const { query: { id } } = router as { query: { [key: string]: string } }
@@ -330,32 +330,34 @@ const TicketIdPage = () => {
                             />
                         )}
 
-                        <Col span={24}>
-                            <Space size={40}>
-                                <Link href={`/ticket/${ticket.id}/update`}>
-                                    <Button
-                                        color={'green'}
-                                        type={'sberPrimary'}
-                                        secondary
-                                        icon={<EditFilled />}
-                                    >
-                                        {UpdateMessage}
-                                    </Button>
-                                </Link>
-                                <Button
-                                    type={'sberPrimary'}
-                                    icon={<FilePdfFilled />}
-                                    href={`/ticket/${ticket.id}/pdf`}
-                                    target={'_blank'}
-                                    loading={loading}
-                                    disabled={loading}
-                                    secondary
-                                >
-                                    {PrintMessage}
-                                </Button>
-                            </Space>
-                        </Col>
                     </Row>
+
+                    <ActionBar>
+                        <Space size={40}>
+                            <Link href={`/ticket/${ticket.id}/update`}>
+                                <Button
+                                    color={'green'}
+                                    type={'sberPrimary'}
+                                    secondary
+                                    icon={<EditFilled />}
+                                >
+                                    {UpdateMessage}
+                                </Button>
+                            </Link>
+                            <Button
+                                type={'sberPrimary'}
+                                icon={<FilePdfFilled />}
+                                href={`/ticket/${ticket.id}/pdf`}
+                                target={'_blank'}
+                                loading={loading}
+                                disabled={loading}
+                                secondary
+                            >
+                                {PrintMessage}
+                            </Button>
+                        </Space>
+                    </ActionBar>
+
                 </PageContent>
             </PageWrapper>
         </>

@@ -28,9 +28,7 @@ const TicketUpdatePage = () => {
                             <Col span={24}>
                                 <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                             </Col>
-                            <Col span={13}>
-                                <TicketForm id={query.id as string}/>
-                            </Col>
+                            <TicketForm id={query.id as string}/>
                         </Row>
                     </PageContent>
                 </OrganizationRequired>

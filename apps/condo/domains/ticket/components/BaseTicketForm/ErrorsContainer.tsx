@@ -1,6 +1,5 @@
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
-import { Col } from 'antd'
 import React from 'react'
 import { colors } from '@condo/domains/common/constants/style'
 
@@ -24,12 +23,10 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ property  }) 
 
     return (
         disableUserInteraction && (
-            <Col span={24}>
-                <ErrorsWrapper>
-                    {ErrorsContainerTitle}&nbsp;
-                    {(!property && AddressLabel).toLowerCase()}
-                </ErrorsWrapper>
-            </Col>
+            <ErrorsWrapper>
+                {ErrorsContainerTitle}&nbsp;
+                {(!property && AddressLabel).toLowerCase()}
+            </ErrorsWrapper>
         )
     )
 }

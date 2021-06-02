@@ -122,12 +122,27 @@ export default function GlobalStyle () {
             cursor: pointer;
           }
         } 
+        ${actionBar}
         ${uploadControlCss}
         ${page}
       `}
         />
     )
 }
+
+const actionBar = css`
+  .ant-affix>.floatingActionBar{
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+  }
+  .floatingActionBar{
+    padding: 24px;
+    margin: 0 -24px;
+    transition: box-shadow 0.3s ease-out;
+  }
+`
+
 
 const uploadControlCss = css`    
     .upload-control-wrapper .ant-upload-list-text-container {
