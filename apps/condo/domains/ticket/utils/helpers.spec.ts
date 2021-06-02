@@ -13,11 +13,8 @@ import {
     assigneeToQuery,
     queryToSorter,
     searchToQuery,
-<<<<<<< HEAD
     formatDate,
-=======
     TICKET_PAGE_SIZE,    
->>>>>>> a471a973... SBERDOMA-383 pagesize fix
 } from './helpers'
 import { EN_LOCALE, RU_LOCALE } from '../../common/constants/locale'
 
