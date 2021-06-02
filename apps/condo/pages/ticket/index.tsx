@@ -8,7 +8,7 @@ import {
     getPaginationFromQuery,
     getSortStringFromQuery,
     TICKET_PAGE_SIZE,
-    sorterToQuery, queryToSorter,
+    sorterToQuery, queryToSorter, getPageSizeFromQuery,
 } from '@condo/domains/ticket/utils/helpers'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
@@ -19,7 +19,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import { pickBy, get, debounce } from 'lodash'
-import React, { useCallback } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
@@ -35,14 +35,20 @@ const TicketsPage = () => {
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
-
+    
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const offsetFromQuery = getPaginationFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
+    const pagesizeFromQuey = getPageSizeFromQuery<IFilters>(router.query)
 
+    const pageSizeRef = useRef<number>(pagesizeFromQuey)
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+
+
+    console.log('QUERY:', sortFromQuery, offsetFromQuery, filtersFromQuery)
+    
 
     const {
         fetchMore,
@@ -53,8 +59,8 @@ const TicketsPage = () => {
         // @ts-ignore
         sortBy: sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC', //TODO(Dimitreee):Find cleanest solution
         where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
-        skip: (offsetFromQuery * TICKET_PAGE_SIZE) - TICKET_PAGE_SIZE,
-        first: TICKET_PAGE_SIZE,
+        skip: (offsetFromQuery * pageSizeRef.current) - pageSizeRef.current,
+        first: pageSizeRef.current,
     }, {
         fetchPolicy: 'network-only',
     })
@@ -71,25 +77,31 @@ const TicketsPage = () => {
 
     const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
         const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
-
         const { current, pageSize } = nextPagination
-        const offset = current * pageSize - pageSize
+        if (pageSizeRef.current !== pageSize) {
+            pageSizeRef.current = pageSize
+        }        
+        const offset = current * pageSizeRef.current - pageSizeRef.current
         const sort = sorterToQuery(nextSorter)
         const filters = filtersToQuery(nextFilters)
-
         if (!loading) {
             fetchMore({
                 // @ts-ignore
                 sortBy: sort,
                 where: filters,
                 skip: offset,
-                first: TICKET_PAGE_SIZE,
+                first: current * pageSizeRef.current,
             }).then(() => {
                 const query = qs.stringify(
-                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
+                    { 
+                        ...router.query, 
+                        pagesize: pageSizeRef.current, 
+                        sort, 
+                        offset, 
+                        filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) 
+                    },
                     { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
                 )
-
                 router.push(router.route + query)
             })
         }
@@ -97,34 +109,55 @@ const TicketsPage = () => {
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
 
-    const generateExcelData = useCallback(() => {
+
+    const generateExcelData = useCallback((settings) => {
         return new Promise<void>((resolve, reject) => {
-            try {
-                const cols = [
-                    'number',
-                    'status',
-                    'details',
-                    'property',
-                    'assignee',
-                    'executor',
-                    'createdAt',
-                    'clientName',
-                ]
+            const { sortFromQuery, filtersFromQuery } = settings
+            fetchMore({
+                // @ts-ignore
+                sortBy: sortFromQuery,
+                where: filtersFromQuery,
+                skip: 100,
+                first: 200,
+            }).then((data) => {
+                console.log('data', data)
 
-                const wb = XLSX.utils.book_new()
-                const ws = XLSX.utils.json_to_sheet(
-                    tickets.map((ticket) => Ticket.extractAttributes(ticket, cols)), { header: cols }
-                )
-
-                XLSX.utils.book_append_sheet(wb, ws, 'table')
-                XLSX.writeFile(wb, `export_${format(new Date(), 'dd.mm.yyyy') }.xlsx`)
-            } catch (e) {
-                reject(e)
-            } finally {
-                resolve()
-            }
+                return resolve()
+            })
+            
         })
-    }, [loading])
+        /*
+        return new Promise<void>((resolve, reject) => {
+            fetchMore({}).then((data) => {
+                console.log('data is data', data)
+                try {
+                    const cols = [
+                        'number',
+                        'status',
+                        'details',
+                        'property',
+                        'assignee',
+                        'executor',
+                        'createdAt',
+                        'clientName',
+                    ]
+    
+                    const wb = XLSX.utils.book_new()
+                    const ws = XLSX.utils.json_to_sheet(
+                        tickets.map((ticket) => Ticket.extractAttributes(ticket, cols)), { header: cols }
+                    )
+    
+                    XLSX.utils.book_append_sheet(wb, ws, 'table')
+                    XLSX.writeFile(wb, `export_${format(new Date(), 'dd.mm.yyyy') }.xlsx`)
+                } catch (e) {
+                    reject(e)
+                } finally {
+                    resolve()
+                }
+            })
+        })
+        */
+    }, [fetchMore])
 
     return (
         <>
@@ -151,7 +184,7 @@ const TicketsPage = () => {
                                         />
                                     </Col>
                                     <Col span={6} push={1}>
-                                        <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData}>{ExportAsExcel}</Button>
+                                        <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={() => generateExcelData({ sortFromQuery, filtersFromQuery, total })}>{ExportAsExcel}</Button>
                                     </Col>
                                     <Col span={24}>
                                         <Table
@@ -166,7 +199,7 @@ const TicketsPage = () => {
                                             pagination={{
                                                 total,
                                                 current: offsetFromQuery,
-                                                pageSize: TICKET_PAGE_SIZE,
+                                                pageSize: pageSizeRef.current,
                                                 position: ['bottomLeft'],
                                             }}
                                         />
