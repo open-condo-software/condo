@@ -7,12 +7,17 @@ import {
     createSorterMap,
     getSortStringFromQuery,
     getPaginationFromQuery,
+    getPageSizeFromQuery,
     propertyToQuery,
     executorToQuery,
     assigneeToQuery,
     queryToSorter,
     searchToQuery,
+<<<<<<< HEAD
     formatDate,
+=======
+    TICKET_PAGE_SIZE,    
+>>>>>>> a471a973... SBERDOMA-383 pagesize fix
 } from './helpers'
 import { EN_LOCALE, RU_LOCALE } from '../../common/constants/locale'
 
@@ -405,6 +410,19 @@ describe('Helpers', () => {
 
         })
 
+        describe('getPageSizeFromQuery', () => {
+            describe('extract page size based on pagesize string from query object if pagesize presnts or set it to default', () => {
+
+                it('is valid when setted to value not from enum', () => {
+                    expect(getPageSizeFromQuery({ pagesize: '16' })).toStrictEqual(20)
+                })
+
+                it('is valid when not defined', () => {
+                    expect(getPageSizeFromQuery({ offset: undefined })).toStrictEqual(TICKET_PAGE_SIZE)
+                })
+            })
+
+        })
         describe('searchToQuery', () => {
             describe('it should correctly generate query if', () => {
                 const search = 'search'
