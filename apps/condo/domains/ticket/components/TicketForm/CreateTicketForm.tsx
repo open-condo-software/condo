@@ -1,4 +1,4 @@
-import { Col, Form, Row } from 'antd'
+import { Space, Form } from 'antd'
 import React from 'react'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -12,6 +12,7 @@ import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import ActionBar from '@condo/domains/common/components/ActionBar'
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
@@ -56,9 +57,8 @@ export const CreateTicketForm: React.FC = () => {
                                 const { property } = getFieldsValue(['property'])
 
                                 return (
-                                    <Row gutter={[0, 24]}>
-                                        <ErrorsContainer property={property} />
-                                        <Col span={24}>
+                                    <ActionBar>
+                                        <Space size={40}>
                                             <Button
                                                 key='submit'
                                                 onClick={handleSave}
@@ -68,8 +68,9 @@ export const CreateTicketForm: React.FC = () => {
                                             >
                                                 {CreateTicketMessage}
                                             </Button>
-                                        </Col>
-                                    </Row>
+                                            <ErrorsContainer property={property}/>
+                                        </Space>
+                                    </ActionBar>
                                 )
                             }
                         }

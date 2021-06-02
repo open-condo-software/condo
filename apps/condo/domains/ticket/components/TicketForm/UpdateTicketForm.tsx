@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
 import { useOrganization } from '@core/next/organization'
-import { Col, Form, Row, Typography, Space } from 'antd'
+import { Form, Typography, Space } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { BaseTicketForm } from '../BaseTicketForm'
 import { Button } from '@condo/domains/common/components/Button'
@@ -10,7 +10,7 @@ import { FormResetButton } from '@condo/domains/common/components/FormResetButto
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
-
+import ActionBar from '@condo/domains/common/components/ActionBar'
 interface IUpdateTicketForm {
     id: string
 }
@@ -64,26 +64,24 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
                                 const { property } = getFieldsValue(['property'])
 
                                 return (
-                                    <Row gutter={[0, 24]}>
-                                        <ErrorsContainer property={property} />
-                                        <Col span={24}>
-                                            <Space size={40}>
-                                                <FormResetButton
-                                                    type='sberPrimary'
-                                                    secondary
-                                                />
-                                                <Button
-                                                    key='submit'
-                                                    onClick={handleSave}
-                                                    type='sberPrimary'
-                                                    loading={isLoading}
-                                                    disabled={!property}
-                                                >
-                                                    {ApplyChangesMessage}
-                                                </Button>
-                                            </Space>
-                                        </Col>
-                                    </Row>
+                                    <ActionBar>
+                                        <Space size={40}>
+                                            <FormResetButton
+                                                type='sberPrimary'
+                                                secondary
+                                            />
+                                            <Button
+                                                key='submit'
+                                                onClick={handleSave}
+                                                type='sberPrimary'
+                                                loading={isLoading}
+                                                disabled={!property}
+                                            >
+                                                {ApplyChangesMessage}
+                                            </Button>
+                                            <ErrorsContainer property={property}/>
+                                        </Space>
+                                    </ActionBar>
                                 )
                             }
                         }
