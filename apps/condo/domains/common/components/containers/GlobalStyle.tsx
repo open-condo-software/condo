@@ -129,8 +129,6 @@ export default function GlobalStyle () {
     )
 }
 
-
-
 const uploadControlCss = css`    
     .upload-control-wrapper .ant-upload-list-text-container {
       transition: none;
