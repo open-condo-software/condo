@@ -1,26 +1,14 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/core'
-import { css } from '@emotion/core'
 import { OptionProps } from 'antd/lib/mentions'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Select, Spin, SelectProps } from 'antd'
 import debounce from 'lodash/debounce'
-import { useIntl } from '@core/next/intl'
 import { InitialValuesGetter, useInitialValueGetter } from '../hooks/useInitialValueGetter'
 import { useSelectCareeteControls } from '../hooks/useSelectCareeteControls'
 
 const DEBOUNCE_TIMEOUT = 800
 
-export const preDashedSelectOptionsStyles = css`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  direction: rtl;
-  text-align: left;
-`
-
 interface ISearchInput<S> extends Omit<SelectProps<S>, 'onSelect'> {
-    renderOption: (dataItem) => React.ReactElement
+    renderOption: (dataItem, value) => React.ReactElement
     // TODO(Dimtireee): remove any
     search: (queryString) => Promise<Array<Record<string, any>>>
     initialValueGetter?: InitialValuesGetter
@@ -28,12 +16,12 @@ interface ISearchInput<S> extends Omit<SelectProps<S>, 'onSelect'> {
 }
 
 export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
-    const intl = useIntl()
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-
     const {
         search,
+        onBlur,
         onSelect,
+        onChange,
+        placeholder,
         renderOption,
         initialValueGetter,
         ...restSelectProps
@@ -42,7 +30,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     const [selected, setSelected] = useState('')
     const [fetching, setFetching] = useState(false)
     const [data, setData] = useState([])
-    const [searchValue, setSearchValue] = useState(LoadingMessage)
+    const [searchValue, setSearchValue] = useState('')
     const [initialOptionsLoaded, setInitialOptionsLoaded] = useState(false)
     const [initialValue, isInitialValueFetching] = useInitialValueGetter(restSelectProps.value, initialValueGetter)
     const [scrollInputCaretToEnd, setSelectRef, selectInputNode] = useSelectCareeteControls(restSelectProps.id)
@@ -72,11 +60,11 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             }
 
             if (!initialOptionsLoaded) {
-                setInitialOptionsLoaded(true)
                 debouncedSearch(searchValue)
+                setInitialOptionsLoaded(true)
             }
         },
-        [],
+        [initialOptionsLoaded],
     )
 
     const handleSelect = useCallback(
@@ -92,7 +80,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
 
     const handleClear = useCallback(
         () => {
-            setSelected('')
+            setSelected(null)
         },
         [],
     )
@@ -113,29 +101,32 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
 
     useEffect(
         () => {
-            scrollInputCaretToEnd()
+            scrollInputCaretToEnd(selectInputNode)
         },
         [selectInputNode, selected],
     )
 
     const options = useMemo(
-        () => data.map(renderOption),
-        [data, fetching],
+        () => data.map((option) => renderOption(option, restSelectProps.value)),
+        [data, fetching, restSelectProps.value],
     )
 
     return (
         <Select
-            {...restSelectProps}
             showSearch
             autoFocus
             allowClear
+            id={props.id}
             value={searchValue}
             disabled={Boolean(isInitialValueFetching)}
             onFocus={loadInitialOptions}
             onSearch={debouncedSearch}
             onSelect={handleSelect}
+            onBlur={onBlur}
+            onChange={onChange}
             onClear={handleClear}
             ref={setSelectRef}
+            placeholder={placeholder}
             notFoundContent={fetching ? <Spin size="small" /> : null}
             // TODO(Dimitreee): remove ts ignore after combobox mode will be introduced after ant update
             // @ts-ignore

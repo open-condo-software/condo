@@ -3,10 +3,11 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { Property } = require('./Property')
+const { Property, PropertyService } = require('./Property')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Property,
+    PropertyService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

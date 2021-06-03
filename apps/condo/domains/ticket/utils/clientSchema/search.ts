@@ -10,6 +10,15 @@ const GET_PROPERTY_BY_ID_QUERY = gql`
     }
 `
 
+const GET_RANKED_PROPERTIES_QUERY = gql`
+    query GetRankedProperties ($organizationId: ID!, $address: String, $rankOrder: String, $first: Int) {
+        objs: rankedProperties (organizationId: $organizationId, address: $address, rankOrder: $rankOrder, first: $first) {
+            id
+            address
+        }
+    }
+`
+
 const GET_ALL_SOURCES_QUERY = gql`
     query selectSource ($value: String, $organizationId: ID) {
         objs: allTicketSources(where: {name_contains: $value, organization: { id: $organizationId }}) {
@@ -79,6 +88,19 @@ export async function searchSingleProperty (client, propertyId, organizationId) 
     }
 
     return data.objs[0]
+}
+
+export async function rankedSearchProperties (client, organizationId, query, first = 10) {
+    const { data, error } = await _search(client, GET_RANKED_PROPERTIES_QUERY, { organizationId, rankOrder: 'ASC', first, address: query })
+    if (error) {
+        console.warn(error)
+    }
+
+    if (data) {
+        return data.objs.map(x => ({ text: x.address, value: x.id }))
+    }
+
+    return []
 }
 
 export async function searchTicketSources (client, value) {

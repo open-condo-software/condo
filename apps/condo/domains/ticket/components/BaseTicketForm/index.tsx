@@ -3,7 +3,7 @@
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
 import get from 'lodash/get'
-import React, { useCallback, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
@@ -61,6 +61,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const { action: _action, initialValues, organization, afterActionCompleted, files } = props
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState(get(initialValues, 'property'))
+    const selectPropertyIdRef = useRef(selectedPropertyId)
+
+    useEffect(() => {
+        selectPropertyIdRef.current = selectedPropertyId
+    }, [selectedPropertyId])
 
     const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({
         Model: TicketFile,
@@ -84,12 +89,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         </UserNameField>
     )
 
-    const formValuesToMutationDataPreprocessor = useCallback((values) => {
-        values.property = selectedPropertyId
-
-        return values
-    }, [])
-
     return (
         <>
             <FormWithAction
@@ -97,7 +96,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                 action={action}
                 initialValues={initialValues}
                 validateTrigger={['onBlur', 'onSubmit']}
-                formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
+                formValuesToMutationDataPreprocessor={(values) => {
+                    values.property = selectPropertyIdRef.current
+                    return values
+                }}
             >
 
                 {({ handleSave, isLoading, form }) => (
@@ -113,14 +115,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             <Col span={selectedPropertyId ? 18 : 24}>
                                         <Form.Item name={'property'} label={AddressLabel} rules={validations.property}>
                                             <PropertyAddressSearchInput
-                                                onSelect={(value, option) => {
+                                                onSelect={(_, option) => {
                                                     form.setFieldsValue({ 'unitName': null })
                                                             setSelectedPropertyId(option.key)
                                                 }}
                                                 placeholder={AddressPlaceholder}
-                                                showArrow={false}
-                                                allowClear={false}
-                                                autoFocus
                                             />
                                         </Form.Item>
                                     </Col>
