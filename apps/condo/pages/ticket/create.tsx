@@ -21,7 +21,7 @@ const CreateTicketPage = () => {
             <PageWrapper>
                 <OrganizationRequired>
                     <PageContent>
-                        <Row gutter={[12, 40]}>
+                        <Row gutter={[0, 40]}>
                             <Col span={24}>
                                 <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                             </Col>

@@ -69,16 +69,18 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
                                             type='sberPrimary'
                                             secondary
                                         />
-                                        <Button
-                                            key='submit'
-                                            onClick={handleSave}
-                                            type='sberPrimary'
-                                            loading={isLoading}
-                                            disabled={!property || !unitName}
-                                        >
-                                            {ApplyChangesMessage}
-                                        </Button>
-                                        <ErrorsContainer property={property} unitName={unitName}/>
+                                        <Space size={12}>
+                                            <Button
+                                                key='submit'
+                                                onClick={handleSave}
+                                                type='sberPrimary'
+                                                loading={isLoading}
+                                                disabled={!property || !unitName}
+                                            >
+                                                {ApplyChangesMessage}
+                                            </Button>
+                                            <ErrorsContainer property={property} unitName={unitName}/>
+                                        </Space>
                                     </ActionBar>
                                 )
                             }
