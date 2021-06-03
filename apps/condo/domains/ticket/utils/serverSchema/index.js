@@ -10,12 +10,14 @@ const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
 const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
 const { TicketFile: TicketFileGQL } = require('@condo/domains/ticket/gql')
+const { TicketContact: TicketContactGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
 const TicketStatus = generateServerUtils(TicketStatusGQL)
 const TicketChange = generateServerUtils(TicketChangeGQL)
 const TicketFile = generateServerUtils(TicketFileGQL)
+const TicketContact = generateServerUtils(TicketContactGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -23,5 +25,6 @@ module.exports = {
     TicketStatus,
     TicketChange,
     TicketFile,
+    TicketContact,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
