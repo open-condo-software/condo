@@ -205,6 +205,6 @@ export const getSortStringFromQuery = (query: ParsedUrlQuery): Array<string> => 
 
 export const EMPLOYEE_PAGE_SIZE = 10
 
-export const getPaginationFromQuery = (query: ParsedUrlQuery): number => {
+export const getPageIndexFromQuery = (query: ParsedUrlQuery): number => {
     return Math.floor(Number(get(query, 'offset', 0)) / EMPLOYEE_PAGE_SIZE) + 1
 }

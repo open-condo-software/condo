@@ -3,7 +3,7 @@ import {
     sorterToQuery,
     createSorterMap,
     getSortStringFromQuery,
-    getPaginationFromQuery,
+    getPageIndexFromQuery,
     queryToSorter,
     searchToQuery,
 } from './helpers'
@@ -244,20 +244,20 @@ describe('Helpers', () => {
             })
         })
 
-        describe('getPaginationFromQuery', () => {
+        describe('getPageIndexFromQuery', () => {
             describe('extract pagination page based on offset string from query object if offset', () => {
                 it('is valid rounded value', () => {
-                    expect(getPaginationFromQuery({ offset: '0' })).toStrictEqual(1)
-                    expect(getPaginationFromQuery({ offset: '10' })).toStrictEqual(2)
-                    expect(getPaginationFromQuery({ offset: '20' })).toStrictEqual(3)
+                    expect(getPageIndexFromQuery({ offset: '0' })).toStrictEqual(1)
+                    expect(getPageIndexFromQuery({ offset: '10' })).toStrictEqual(2)
+                    expect(getPageIndexFromQuery({ offset: '20' })).toStrictEqual(3)
                 })
 
                 it('is valid not rounded to tenths', () => {
-                    expect(getPaginationFromQuery({ offset: '29' })).toStrictEqual(3)
+                    expect(getPageIndexFromQuery({ offset: '29' })).toStrictEqual(3)
                 })
 
                 it('is valid and not defined', () => {
-                    expect(getPaginationFromQuery({ offset: undefined })).toStrictEqual(1)
+                    expect(getPageIndexFromQuery({ offset: undefined })).toStrictEqual(1)
                 })
             })
 

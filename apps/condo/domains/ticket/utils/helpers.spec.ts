@@ -6,7 +6,7 @@ import {
     sorterToQuery,
     createSorterMap,
     getSortStringFromQuery,
-    getPaginationFromQuery,
+    getPageIndexFromQuery,
     getPageSizeFromQuery,
     propertyToQuery,
     executorToQuery,
@@ -388,20 +388,20 @@ describe('Helpers', () => {
             })
         })
 
-        describe('getPaginationFromQuery', () => {
+        describe('getPageIndexFromQuery', () => {
             describe('extract pagination page based on offset string from query object if offset', () => {
                 it('is valid rounded value', () => {
-                    expect(getPaginationFromQuery({ offset: '0' })).toStrictEqual(1)
-                    expect(getPaginationFromQuery({ offset: '10' })).toStrictEqual(2)
-                    expect(getPaginationFromQuery({ offset: '20' })).toStrictEqual(3)
+                    expect(getPageIndexFromQuery({ offset: '0' })).toStrictEqual(1)
+                    expect(getPageIndexFromQuery({ offset: '10' })).toStrictEqual(2)
+                    expect(getPageIndexFromQuery({ offset: '20' })).toStrictEqual(3)
                 })
 
                 it('is valid not rounded to tenths', () => {
-                    expect(getPaginationFromQuery({ offset: '29' })).toStrictEqual(3)
+                    expect(getPageIndexFromQuery({ offset: '29' })).toStrictEqual(3)
                 })
 
                 it('is valid and not defined', () => {
-                    expect(getPaginationFromQuery({ offset: undefined })).toStrictEqual(1)
+                    expect(getPageIndexFromQuery({ offset: undefined })).toStrictEqual(1)
                 })
             })
 
@@ -410,12 +410,12 @@ describe('Helpers', () => {
         describe('getPageSizeFromQuery', () => {
             describe('extract page size based on pagesize string from query object if pagesize presnts or set it to default', () => {
 
-                it('is valid when setted to value not from enum', () => {
+                it('returns nearest value to provided `pagesize` query param, presented in enum', () => {
                     expect(getPageSizeFromQuery({ pagesize: '16' })).toStrictEqual(20)
                 })
 
-                it('is valid when not defined', () => {
-                    expect(getPageSizeFromQuery({ offset: undefined })).toStrictEqual(TICKET_PAGE_SIZE)
+                it('returns default page size if no `pagesize` query param is provided', () => {
+                    expect(getPageSizeFromQuery({ pagesize: undefined })).toStrictEqual(TICKET_PAGE_SIZE)
                 })
             })
 

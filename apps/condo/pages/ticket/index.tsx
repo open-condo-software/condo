@@ -6,7 +6,7 @@ import { DatabaseFilled } from '@ant-design/icons'
 import { format } from 'date-fns'
 import {
     filtersToQuery,
-    getPaginationFromQuery,
+    getPageIndexFromQuery,
     getSortStringFromQuery,
     sorterToQuery, queryToSorter, getPageSizeFromQuery,
 } from '@condo/domains/ticket/utils/helpers'
@@ -47,7 +47,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
     
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
-    const offsetFromQuery = getPaginationFromQuery(router.query)
+    const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
     const pagesizeFromQuey: number = getPageSizeFromQuery(router.query)
 
@@ -139,7 +139,6 @@ const TicketsPage: IPageWithHeaderAction = () => {
                 const query = qs.stringify(
                     { 
                         ...router.query, 
-                        pagesize: pageSize, 
                         sort, 
                         offset, 
                         filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })),
@@ -198,7 +197,8 @@ const TicketsPage: IPageWithHeaderAction = () => {
                                             onChange={handleTableChange}
                                             rowKey={record => record.id}
                                             pagination={{
-                                                total,
+                                                showSizeChanger: false,
+                                                total,                                                
                                                 current: offsetFromQuery,
                                                 pageSize: pagesizeFromQuey,
                                                 position: ['bottomLeft'],
