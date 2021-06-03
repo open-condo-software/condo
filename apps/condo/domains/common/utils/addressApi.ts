@@ -21,7 +21,12 @@ export class AddressApi implements IAddressApi {
                 Accept: 'application/json',
                 Authorization: `Token ${this.apiToken}`,
             },
-            body: JSON.stringify({ query }),
+            body: JSON.stringify(
+                {
+                    query,
+                    ...this.defaultSearchApiParams,
+                }
+            ),
         }).then(response => response.text())
             .then((res) => JSON.parse(res))
     }
@@ -45,6 +50,11 @@ export class AddressApi implements IAddressApi {
 
     private suggestionsUrl: string
     private apiToken: string
+    private defaultSearchApiParams = {
+        from_bound: { value: 'country' },
+        to_bound: { value: 'house' },
+        restrict_value: true,
+    }
 }
 
 /*

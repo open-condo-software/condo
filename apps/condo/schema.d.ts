@@ -9023,6 +9023,7 @@ export type Query = {
   _MessagesMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
+  rankedProperties?: Maybe<Scalars['String']>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -10131,6 +10132,12 @@ export type Query_AllMessagesMetaArgs = {
 
 export type Query_KsListsMetaArgs = {
   where?: Maybe<_KsListsMetaInput>;
+};
+
+
+export type QueryRankedPropertiesArgs = {
+  organizationId: Scalars['ID'];
+  orderBy: Scalars['String'];
 };
 
 export type RegisterNewOrganizationInput = {

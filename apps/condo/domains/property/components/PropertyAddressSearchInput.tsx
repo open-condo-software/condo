@@ -1,11 +1,17 @@
-import { Select, SelectProps } from 'antd'
+/** @jsx jsx */
+import { jsx } from '@emotion/core'
+import { Select, SelectProps, Typography } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
-import { BaseSearchInput, preDashedSelectOptionsStyles } from '@condo/domains/common/components/BaseSearchInput'
+import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { useApolloClient } from '@core/next/apollo'
 import { useOrganization } from '@core/next/organization'
-import { searchProperty, searchSingleProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+import {
+    rankedSearchProperties,
+    searchSingleProperty,
+} from '@condo/domains/ticket/utils/clientSchema/search'
 import { Property } from '../../../schema'
+import { Highliter } from '../../common/components/Highliter'
 
 type IAddressSearchInput = SelectProps<string>
 
@@ -28,20 +34,36 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
     )
 
     const searchAddress = React.useCallback(
-        (query) => searchProperty(organizationId)(client, query),
+        (query) => {
+            return rankedSearchProperties(client, organizationId, query)
+        },
         [],
     )
 
     const renderOption = React.useCallback(
-        (dataItem) => {
+        (dataItem, searchValue) => {
             return (
                 <Select.Option
-                    css={preDashedSelectOptionsStyles}
+                    style={{ direction: 'rtl', textAlign: 'left' }}
                     key={dataItem.value}
                     value={dataItem.text}
                     title={dataItem.text}
                 >
-                    {dataItem.text}
+                    {
+                        searchValue === dataItem.text
+                            ? dataItem.text
+                            : (
+                                <Highliter
+                                    text={dataItem.text}
+                                    search={searchValue}
+                                    renderPart={(part, index) => {
+                                        return (
+                                            <Typography.Text key={part + index} strong>{part}</Typography.Text>
+                                        )
+                                    }}
+                                />
+                            )
+                    }
                 </Select.Option>
             )
         },
@@ -51,6 +73,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
     return (
         <BaseSearchInput
             {...props}
+            id={'propertyAddressSearchInput'}
             search={searchAddress}
             renderOption={renderOption}
             initialValueGetter={initialValueGetter}

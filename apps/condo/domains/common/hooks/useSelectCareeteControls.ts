@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 
-export const useSelectCareeteControls = (id) => {
+export const useSelectCareeteControls = (id: string) => {
     const [selectInputNode, setSelectInputNode] = useState(null)
 
     const setSelectRef = useCallback(node => {
