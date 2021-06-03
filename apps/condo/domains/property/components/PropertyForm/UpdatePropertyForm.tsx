@@ -1,4 +1,4 @@
-import { Col, Form, Row, Space, Typography } from 'antd'
+import { Form, Space, Typography } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
@@ -10,7 +10,7 @@ import { useOrganization } from '@core/next/organization'
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import Modal from 'antd/lib/modal/Modal'
-
+import ActionBar from '@condo/domains/common/components/ActionBar'
 interface IUpdatePropertyForm {
     id: string
 }
@@ -30,7 +30,7 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     const action = Property.useUpdate({}, (property) => push(`/property/${property.id}`))
     const updateAction = (value) => action(value, property)
     const softDeleteAction = Property.useSoftDelete({}, () => push('/property/'))
-  
+
     const [isConfirmVisible, setIsConfirmVisible] = useState(false)
     const showConfirm = () => setIsConfirmVisible(true)
     const handleOk = () => {
@@ -39,7 +39,7 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     }
     const handleCancel = () => setIsConfirmVisible(false)
 
-    
+
     function handleDelete ({ item }) {
         return runMutation(
             {
@@ -68,7 +68,7 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
             </>
         )
     }
- 
+
     return (
         <BasePropertyForm
             action={updateAction}
@@ -84,63 +84,59 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
                                 const { address } = getFieldsValue(['address'])
                                 return (
                                     <>
-                                        <Row gutter={[40, 24]} style={{ paddingLeft: '24px', paddingRight: '24px', justifyContent: 'space-between' }}>
-                                            <Col span={24} push={2}>
-                                                <ErrorsContainer address={address} />
-                                            </Col>
-                                            <Col flex={0}>
-                                                <Space size={40}>
-                                                    <FormResetButton
-                                                        type={'sberPrimary'}
-                                                        secondary
-                                                    />                                                
-                                                    <Button
-                                                        key='submit'
-                                                        onClick={handleSave}
-                                                        type='sberPrimary'
-                                                        loading={isLoading}
-                                                        disabled={!address}
-                                                    >
-                                                        {ApplyChangesLabel}
-                                                    </Button>                                                                                   
-                                                </Space>
-                                            </Col>
-                                            <Col flex={0}>
-                                                <Modal 
-                                                    title={
-                                                        <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
-                                                            {ConfirmDeleteTitle}
-                                                        </Typography.Title>
-                                                    }
-                                                    visible={isConfirmVisible} 
-                                                    onCancel={handleCancel}
-                                                    footer={[
-                                                        <Button 
-                                                            key="submit" 
-                                                            type='sberDanger' 
-                                                            onClick={handleOk}
-                                                            style={{ margin: '15px' }}
-                                                        >
-                                                            {DeletePropertyLabel}
-                                                        </Button>,
-                                                    ]}                                                    
-                                                >
-                                                    <Typography.Text>
-                                                        {ConfirmDeleteMessage}
-                                                    </Typography.Text>
-                                                </Modal>
+                                        <Modal
+                                            title={
+                                                <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
+                                                    {ConfirmDeleteTitle}
+                                                </Typography.Title>
+                                            }
+                                            visible={isConfirmVisible}
+                                            onCancel={handleCancel}
+                                            footer={[
                                                 <Button
-                                                    key='submit'
-                                                    onClick={showConfirm}
+                                                    key="submit"
                                                     type='sberDanger'
-                                                    loading={isLoading}
-                                                    secondary
+                                                    onClick={handleOk}
+                                                    style={{ margin: '15px' }}
                                                 >
                                                     {DeletePropertyLabel}
+                                                </Button>,
+                                            ]}
+                                        >
+                                            <Typography.Text>
+                                                {ConfirmDeleteMessage}
+                                            </Typography.Text>
+                                        </Modal>
+                                        <ActionBar>
+                                            <FormResetButton
+                                                type={'sberPrimary'}
+                                                secondary
+                                            />
+                                            <Space size={12}>
+                                                <Button
+                                                    key='submit'
+                                                    onClick={handleSave}
+                                                    type='sberPrimary'
+                                                    loading={isLoading}
+                                                    disabled={!address}
+                                                >
+                                                    {ApplyChangesLabel}
                                                 </Button>
-                                            </Col>
-                                        </Row>
+                                                <ErrorsContainer address={address} />
+                                            </Space>
+                                            <Button
+                                                key='submit'
+                                                onClick={showConfirm}
+                                                type='sberDanger'
+                                                loading={isLoading}
+                                                secondary
+                                                style={{ position: 'absolute', right: '24px', top: '24px' }}
+                                            >
+                                                {DeletePropertyLabel}
+                                            </Button>
+                                        </ActionBar>
                                     </>
+
                                 )
                             }
                         }

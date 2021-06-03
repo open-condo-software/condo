@@ -1,4 +1,4 @@
-import { Form } from 'antd'
+import { Form, Space } from 'antd'
 import React from 'react'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -58,16 +58,18 @@ export const CreateTicketForm: React.FC = () => {
 
                                 return (
                                     <ActionBar>
-                                        <Button
-                                            key='submit'
-                                            onClick={handleSave}
-                                            type='sberPrimary'
-                                            loading={isLoading}
-                                            disabled={!property}
-                                        >
-                                            {CreateTicketMessage}
-                                        </Button>
-                                        <ErrorsContainer property={property}/>
+                                        <Space size={12}>
+                                            <Button
+                                                key='submit'
+                                                onClick={handleSave}
+                                                type='sberPrimary'
+                                                loading={isLoading}
+                                                disabled={!property}
+                                            >
+                                                {CreateTicketMessage}
+                                            </Button>
+                                            <ErrorsContainer property={property} />
+                                        </Space>
                                     </ActionBar>
                                 )
                             }

@@ -1,4 +1,4 @@
-import { Col, Form, Row } from 'antd'
+import { Space, Form } from 'antd'
 import React from 'react'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -9,6 +9,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { ErrorsContainer } from '../BasePropertyForm/ErrorsContainer'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
+import ActionBar from '@condo/domains/common/components/ActionBar'
 
 const DEFAULT_PROPERTY_TYPE = 'building'
 
@@ -17,7 +18,7 @@ export const CreatePropertyForm: React.FC = () => {
     const CreatePropertyMessage = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const router = useRouter()
     const { organization } = useOrganization()
-    const action = Property.useCreate({ 
+    const action = Property.useCreate({
         organization: organization.id,
         type: DEFAULT_PROPERTY_TYPE,
     }, () => { router.push('/property/') })
@@ -41,9 +42,8 @@ export const CreatePropertyForm: React.FC = () => {
                                 const { address } = getFieldsValue(['address'])
 
                                 return (
-                                    <Row gutter={[0, 24]}>
-                                        <ErrorsContainer address={address} />
-                                        <Col span={24}>
+                                    <ActionBar>
+                                        <Space size={12}>
                                             <Button
                                                 key='submit'
                                                 onClick={handleSave}
@@ -53,8 +53,9 @@ export const CreatePropertyForm: React.FC = () => {
                                             >
                                                 {CreatePropertyMessage}
                                             </Button>
-                                        </Col>
-                                    </Row>
+                                            <ErrorsContainer address={address} />
+                                        </Space>
+                                    </ActionBar>
                                 )
                             }
                         }
