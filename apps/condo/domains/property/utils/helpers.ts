@@ -12,7 +12,7 @@ type SorterColumn = {
     order: 'ascend' | 'descend'
 }
 
-export const getPaginationFromQuery = (query: ParsedUrlQuery): number => {
+export const getPageIndexFromQuery = (query: ParsedUrlQuery): number => {
     return Math.floor(Number(get(query, 'offset', 0)) / PROPERTY_PAGE_SIZE) + 1
 }
 

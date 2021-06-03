@@ -2,7 +2,7 @@ import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/comp
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
     filtersToQuery,
-    getPaginationFromQuery,
+    getPageIndexFromQuery,
     getSortStringFromQuery,
     EMPLOYEE_PAGE_SIZE,
     sorterToQuery, queryToSorter,
@@ -40,7 +40,7 @@ const TicketsPage = () => {
 
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
-    const offsetFromQuery = getPaginationFromQuery(router.query)
+    const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
 
     const userOrganization = useOrganization()

@@ -22,7 +22,7 @@ import XLSX from 'xlsx'
 import isEmpty from 'lodash/isEmpty'
 
 import {
-    getPaginationFromQuery,
+    getPageIndexFromQuery,
     getSortStringFromQuery,
     sorterToQuery,
     filtersToQuery,
@@ -83,7 +83,7 @@ const PropertyPageViewTable = (): React.FC => {
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const sortFromQuery = getSortStringFromQuery(router.query)
-    const offsetFromQuery = getPaginationFromQuery(router.query)
+    const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
     const {
         refetch,
