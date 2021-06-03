@@ -333,29 +333,27 @@ const TicketIdPage = () => {
                     </Row>
 
                     <ActionBar>
-                        <Space size={40}>
-                            <Link href={`/ticket/${ticket.id}/update`}>
-                                <Button
-                                    color={'green'}
-                                    type={'sberPrimary'}
-                                    secondary
-                                    icon={<EditFilled />}
-                                >
-                                    {UpdateMessage}
-                                </Button>
-                            </Link>
+                        <Link href={`/ticket/${ticket.id}/update`}>
                             <Button
+                                color={'green'}
                                 type={'sberPrimary'}
-                                icon={<FilePdfFilled />}
-                                href={`/ticket/${ticket.id}/pdf`}
-                                target={'_blank'}
-                                loading={loading}
-                                disabled={loading}
                                 secondary
+                                icon={<EditFilled />}
                             >
-                                {PrintMessage}
+                                {UpdateMessage}
                             </Button>
-                        </Space>
+                        </Link>
+                        <Button
+                            type={'sberPrimary'}
+                            icon={<FilePdfFilled />}
+                            href={`/ticket/${ticket.id}/pdf`}
+                            target={'_blank'}
+                            loading={loading}
+                            disabled={loading}
+                            secondary
+                        >
+                            {PrintMessage}
+                        </Button>
                     </ActionBar>
 
                 </PageContent>

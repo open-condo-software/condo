@@ -1,14 +1,14 @@
 /** @jsx jsx */
 
-import { Affix } from 'antd'
+import { Affix, Space } from 'antd'
 import React from 'react'
 import { css, jsx } from '@emotion/core'
 
 
 const actionBar = css`
     padding: 24px;
-    margin: 0 -24px;
-    transition: box-shadow 0.3s ease-out;
+    margin: 0 -18px;
+    transition: box-shadow 0.6s ease-in-out;
 
     .ant-affix & {
         background: rgba(255,255,255,0.9);
@@ -20,7 +20,9 @@ const ActionBar: React.FC = ({ children }) => {
     return (
         <Affix offsetBottom={24}>
             <div css={actionBar}>
-                { children }
+                <Space size={40}>
+                    { children }
+                </Space>
             </div>
         </Affix>
     )
