@@ -1,7 +1,6 @@
 import { Col, Row, Space, Typography, Tag } from 'antd'
 import UploadList from 'antd/lib/upload/UploadList/index'
-import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
+import { get, isEmpty } from 'lodash'
 import React, { useEffect, useMemo, useState } from 'react'
 import { ArrowLeftOutlined, EditFilled, FilePdfFilled } from '@ant-design/icons'
 import Head from 'next/head'
@@ -187,7 +186,11 @@ const TicketIdPage = () => {
     }, {
         fetchPolicy: 'network-only',
     })
-    const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id: id } } })
+    const { objs: files } = TicketFile.useObjects({ 
+        where: { ticket: { id: id } },
+    }, {
+        fetchPolicy: 'network-only',
+    })
     // TODO(antonal): get rid of separate GraphQL query for TicketChanges
     const ticketChangesResult = TicketChange.useObjects({
         where: { ticket: { id } },

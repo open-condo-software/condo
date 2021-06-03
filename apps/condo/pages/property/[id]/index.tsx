@@ -14,6 +14,7 @@ import Link from 'next/link'
 import { Button } from '@condo/domains/common/components/Button'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { PropertyPanels } from '@condo/domains/property/components/panels/index'
+import ActionBar from '@condo/domains/common/components/ActionBar'
 
 interface IPropertyInfoPanelProps {
     title: string
@@ -88,23 +89,21 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
                             <PropertyPanels mode='view' map={property.map} />
                         </Col>
                     </Row>
-                    <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
-                        <Col span={24} style={{ paddingLeft: '6px' }}>
-                            <Link href={`/property/${property.id}/update`}>
-                                <span>
-                                    <Button
-                                        color={'green'}
-                                        type={'sberPrimary'}
-                                        secondary
-                                        icon={<EditFilled />}
-                                        size={'large'}
-                                    >
-                                        {UpdateTitle}
-                                    </Button>
-                                </span>
-                            </Link>
-                        </Col>
-                    </Row>
+                    <ActionBar>
+                        <Link href={`/property/${property.id}/update`}>
+                            <span>
+                                <Button
+                                    color={'green'}
+                                    type={'sberPrimary'}
+                                    secondary
+                                    icon={<EditFilled />}
+                                    size={'large'}
+                                >
+                                    {UpdateTitle}
+                                </Button>
+                            </span>
+                        </Link>
+                    </ActionBar>
                 </PageContent>
             </OrganizationRequired>
         </PageWrapper>
