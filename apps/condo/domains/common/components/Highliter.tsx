@@ -4,24 +4,24 @@ import React from 'react'
 interface IHighliterProps {
     text: string
     search: string
-    renderPart: (part: string, index: number) => React.ReactNode
+    renderPart: (part: string, index: number) => React.ReactElement
 }
 
 export const Highliter: React.FC<IHighliterProps> = (props) => {
     const { text, search, renderPart } = props
 
     if (isEmpty(search)) {
-        return text
+        return <>{ text }</>
     }
 
     const searchRegexp = new RegExp(`(${search})`, 'ig')
     if (!text.match(searchRegexp)) {
-        return text
+        return <>{ text }</>
     }
 
     const parts = text.split(searchRegexp)
 
-    return parts.map((part, index) => {
+    const highlited = parts.map((part, index) => {
         if (part.match(searchRegexp)){
             // Todo(zuch): mark - is standart search result highlighter - but can not override it's color - it is $gold[5] in antd sources
             return renderPart(part, index)
@@ -29,4 +29,8 @@ export const Highliter: React.FC<IHighliterProps> = (props) => {
 
         return part
     })
+
+    return (
+        <>{highlited}</>
+    )
 }

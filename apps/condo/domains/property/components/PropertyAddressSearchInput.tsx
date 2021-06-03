@@ -1,4 +1,5 @@
 /** @jsx jsx */
+import { grey } from '@ant-design/colors'
 import { jsx } from '@emotion/core'
 import { Select, SelectProps, Typography } from 'antd'
 import get from 'lodash/get'
@@ -11,7 +12,8 @@ import {
     searchSingleProperty,
 } from '@condo/domains/ticket/utils/clientSchema/search'
 import { Property } from '../../../schema'
-import { Highliter } from '../../common/components/Highliter'
+import { Highliter } from '@condo/domains/common/components/Highliter'
+import { colors } from '@condo/domains/common/constants/style'
 
 type IAddressSearchInput = SelectProps<string>
 
@@ -44,7 +46,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
         (dataItem, searchValue) => {
             return (
                 <Select.Option
-                    style={{ direction: 'rtl', textAlign: 'left' }}
+                    style={{ direction: 'rtl', textAlign: 'left', color: grey[6] }}
                     key={dataItem.value}
                     value={dataItem.text}
                     title={dataItem.text}
@@ -58,7 +60,13 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
                                     search={searchValue}
                                     renderPart={(part, index) => {
                                         return (
-                                            <Typography.Text key={part + index} strong>{part}</Typography.Text>
+                                            <Typography.Text
+                                                strong
+                                                key={part + index}
+                                                style={{ color: colors.black }}
+                                            >
+                                                {part}
+                                            </Typography.Text>
                                         )
                                     }}
                                 />
