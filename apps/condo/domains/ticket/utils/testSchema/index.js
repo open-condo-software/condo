@@ -15,6 +15,7 @@ const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
 const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketFile: TicketFileGQL } = require('@condo/domains/ticket/gql')
+const { TicketContact: TicketContactGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -27,6 +28,7 @@ const TicketFile = generateGQLTestUtils(TicketFileGQL)
 const TicketChange = generateGQLTestUtils(TicketChangeGQL)
 const TicketSource = generateGQLTestUtils(TicketSourceGQL)
 const TicketClassifier = generateGQLTestUtils(TicketClassifierGQL)
+const TicketContact = generateGQLTestUtils(TicketContactGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -156,6 +158,39 @@ async function updateTestTicketFile (client, id, extraAttrs = {}) {
     const obj = await TicketFile.update(client, id, attrs)
     return [obj, attrs]
 }
+async function createTestTicketContact (client, property, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!property || !property.id) throw new Error('no property.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestTicketContact logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        property: { connect: { id: property.id } },
+        ...extraAttrs,
+    }
+    const obj = await TicketContact.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketContact (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestTicketContact logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketContact.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -182,6 +217,7 @@ module.exports = {
     createTestTicketChange,
     updateTestTicketChange,
     makeClientWithTicket,
+    TicketContact, createTestTicketContact, updateTestTicketContact,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
