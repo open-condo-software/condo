@@ -8,6 +8,8 @@ import { AddressApi, AddressMetaCache } from '@condo/domains/common/utils/addres
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { useIntl } from '@core/next/intl'
 import { Highliter } from '../../common/components/Highliter'
+import { grey } from '@ant-design/colors'
+import { colors } from '@condo/domains/common/constants/style'
 
 type IAddressSearchInput = SelectProps<string>
 
@@ -48,7 +50,7 @@ export const AddressSuggestionsSearchInput: React.FC<IAddressSearchInput> = (pro
         (dataItem, searchValue) => {
             return (
                 <Select.Option
-                    style={{ direction: 'rtl', textAlign: 'left' }}
+                    style={{ direction: 'rtl', textAlign: 'left', color: grey[6] }}
                     key={dataItem.value}
                     value={dataItem.text}
                     title={dataItem.text}
@@ -62,7 +64,13 @@ export const AddressSuggestionsSearchInput: React.FC<IAddressSearchInput> = (pro
                                     search={searchValue}
                                     renderPart={(part, index) => {
                                         return (
-                                            <Typography.Text key={part + index} strong>{part}</Typography.Text>
+                                            <Typography.Text
+                                                strong
+                                                key={part + index}
+                                                style={{ color: colors.black }}
+                                            >
+                                                {part}
+                                            </Typography.Text>
                                         )
                                     }}
                                 />
