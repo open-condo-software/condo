@@ -1,7 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { STATUS_SELECT_COLORS } from '@condo/domains/ticket/constants/style'
 import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import {
     getTicketFormattedLastStatusUpdate,
@@ -34,8 +33,8 @@ export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {
     }), [ticket])
 
     const options = useMemo(() => sortStatusesByType(statuses).map((status) => {
-        const { value, label, type } = TicketStatus.convertGQLItemToFormSelectState(status)
-        const { color } = STATUS_SELECT_COLORS[type]
+        const { value, label } = TicketStatus.convertGQLItemToFormSelectState(status)
+        const { primary: color } = status.colors
 
         return (<Select.Option key={value} value={value} title={label} style={{ color }}>{label}</Select.Option>)
     }), [statuses, ticket])
@@ -44,7 +43,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {
         updateTicketStatus({ status: value, statusUpdatedAt: new Date() })
     }, [ticket])
 
-    const { color, backgroundColor } = STATUS_SELECT_COLORS[ticket.status.type]
+    const { primary: color, secondary: backgroundColor } = ticket.status.colors
     const selectValue = { value: ticket.status.id, label: getTicketLabel(intl, ticket) }
 
     return (
