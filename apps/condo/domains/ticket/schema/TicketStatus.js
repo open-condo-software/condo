@@ -55,26 +55,17 @@ const TicketStatus = new GQLListSchema('TicketStatus', {
             graphQLReturnType: 'JSON',
             resolver: async (item) => {
                 if (!get(item, 'type')) {
-                    const error = 'Error while trying to find ticket status color'
-                    console.error(error)
-
-                    throw new Error(error)
+                    throw new Error('Error while trying to find ticket status color')
                 }
 
                 const statusColors = STATUS_SELECT_COLORS[item.type]
 
                 if (!statusColors) {
-                    const error = 'Error while trying to find ticket status color: no ticketStatus colors found'
-                    console.error(error)
-
-                    throw new Error(error)
+                    throw new Error('Error while trying to find ticket status color: no ticketStatus colors found')
                 }
 
                 if (!ticketStatusColorsJsonValidator(statusColors)){
-                    const error = `${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure`
-                    console.error(error)
-
-                    throw new Error(error)
+                    throw new Error(`${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure`)
                 }
 
                 return statusColors
