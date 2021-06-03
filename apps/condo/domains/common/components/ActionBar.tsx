@@ -8,7 +8,7 @@ import { css, jsx } from '@emotion/core'
 const actionBar = css`
     padding: 24px;
     margin: 0 -24px;
-    transition: box-shadow 0.6s ease-in-out;
+    transition: box-shadow 0.6s ease-out;
 
     .ant-affix & {
         background: rgba(255,255,255,0.9);
