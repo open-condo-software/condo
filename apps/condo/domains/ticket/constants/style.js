@@ -1,31 +1,35 @@
 const { CANCELED, COMPLETED, DEFERRED, NEW_OR_REOPEND, PROCESSING, CLOSED } = require('./statusTypes')
-const { grey, green, orange, red, yellow  } = require('@ant-design/colors')
-const { colors } = require('@condo/domains/common/constants/style')
 
 const STATUS_SELECT_COLORS = {
     [NEW_OR_REOPEND]: {
-        color: yellow[9],
-        backgroundColor: yellow[2],
+        primary: '#FA8C16',
+        secondary: '#FFFB8F',
+        additional: '#FFF566',
     },
     [PROCESSING]: {
-        color: orange[8],
-        backgroundColor: orange[4],
-    },
-    [CANCELED]: {
-        color: grey[9],
-        backgroundColor: colors.lightGrey[5],
+        primary: '#AD6800',
+        secondary: '#FFD591',
+        additional: '#FFC069',
     },
     [COMPLETED]: {
-        color: green[8],
-        backgroundColor: green[3],
-    },
-    [DEFERRED]: {
-        color: red[6],
-        backgroundColor: red[2],
+        primary: '#237804',
+        secondary: '#B7EB8F',
+        additional: '#95DE64',
     },
     [CLOSED]: {
-        color: grey[6],
-        backgroundColor: colors.lightGrey[6],
+        primary: '##000000',
+        secondary: '#D9D9D9',
+        additional: '#BFBFBF',
+    },
+    [DEFERRED]: {
+        primary: ' #D4380D',
+        secondary: '#FFCCC7',
+        additional: '#FFA39E',
+    },
+    [CANCELED]: {
+        primary: '#595959',
+        secondary: '#D9D9D9',
+        additional: '#BFBFBF',
     },
 }
 

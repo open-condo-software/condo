@@ -8,7 +8,6 @@ import { useIntl } from '@core/next/intl'
 import moment from 'moment'
 import React, { useMemo } from 'react'
 import { FilterFilled } from '@ant-design/icons'
-import { STATUS_SELECT_COLORS } from '@condo/domains/ticket/constants/style'
 import { colors } from '@condo/domains/common/constants/style'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
@@ -128,7 +127,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 sortOrder: get(sorterMap, 'status'),
                 filteredValue: getFilteredValue(filters, 'status'),
                 render: (status) => {
-                    const { color, backgroundColor } = STATUS_SELECT_COLORS[status.type]
+                    const { primary: color, secondary: backgroundColor } = status.colors
 
                     return (
                         <Tag color={backgroundColor} style={{ color }}>

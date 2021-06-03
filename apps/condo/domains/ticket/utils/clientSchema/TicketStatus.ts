@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { TicketStatus as TicketStatusGQL } from '@condo/domains/ticket/gql'
 import { TicketStatus, TicketStatusUpdateInput, QueryAllTicketStatusesArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'type', 'name']
+const FIELDS = ['id', 'type', 'name', 'colors']
 const RELATIONS = []
 
 export interface ITicketStatusUIState extends TicketStatus {
