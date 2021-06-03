@@ -130,7 +130,7 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
                                                 type='sberDanger'
                                                 loading={isLoading}
                                                 secondary
-                                                style={{ position: 'absolute', right: '24px', top: '24px' }}
+                                                style={{ position: 'absolute', right: '0px', top: '24px' }}
                                             >
                                                 {DeletePropertyLabel}
                                             </Button>
