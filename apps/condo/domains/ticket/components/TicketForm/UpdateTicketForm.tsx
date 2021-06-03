@@ -65,22 +65,20 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
 
                                 return (
                                     <ActionBar>
-                                        <Space size={40}>
-                                            <FormResetButton
-                                                type='sberPrimary'
-                                                secondary
-                                            />
-                                            <Button
-                                                key='submit'
-                                                onClick={handleSave}
-                                                type='sberPrimary'
-                                                loading={isLoading}
-                                                disabled={!property || !unitName}
-                                            >
-                                                {ApplyChangesMessage}
-                                            </Button>
-                                            <ErrorsContainer property={property} unitName={unitName}/>
-                                        </Space>
+                                        <FormResetButton
+                                            type='sberPrimary'
+                                            secondary
+                                        />
+                                        <Button
+                                            key='submit'
+                                            onClick={handleSave}
+                                            type='sberPrimary'
+                                            loading={isLoading}
+                                            disabled={!property || !unitName}
+                                        >
+                                            {ApplyChangesMessage}
+                                        </Button>
+                                        <ErrorsContainer property={property} unitName={unitName}/>
                                     </ActionBar>
                                 )
                             }
