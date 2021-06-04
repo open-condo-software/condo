@@ -14421,6 +14421,8 @@ export type TicketStatus = {
   type?: Maybe<TicketStatusTypeType>;
   /**  Status name  */
   name?: Maybe<Scalars['String']>;
+  /**  Status colors, includes primary (font color), secondary (background color), additional (border color), all colors presented in HEX  */
+  colors?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -14429,6 +14431,13 @@ export type TicketStatus = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+};
+
+export type TicketStatusColor = {
+  __typename?: 'TicketStatusColor';
+  primary?: Maybe<Scalars['String']>;
+  secondary?: Maybe<Scalars['String']>;
+  additional?: Maybe<Scalars['String']>;
 };
 
 export type TicketStatusCreateInput = {
@@ -14462,6 +14471,7 @@ export type TicketStatusHistoryRecord = {
   organization?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  colors?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -14481,6 +14491,7 @@ export type TicketStatusHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  colors?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -14505,6 +14516,7 @@ export type TicketStatusHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  colors?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -14572,6 +14584,10 @@ export type TicketStatusHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  colors?: Maybe<Scalars['JSON']>;
+  colors_not?: Maybe<Scalars['JSON']>;
+  colors_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  colors_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
