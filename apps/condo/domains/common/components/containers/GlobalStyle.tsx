@@ -64,11 +64,11 @@ export default function GlobalStyle () {
               .react-tel-input .ant-input {
                 background-color: ${colors.ultraLightGrey} !important;
               }
-              
+
               .ant-input-affix-wrapper input {
                 box-shadow: none !important;
               }
-              
+
               .ant-input-affix-wrapper > input.ant-input, .ant-form-item-has-error .ant-input-affix-wrapper > input.ant-input {
                 -webkit-box-shadow: none !important;
                 box-shadow: none !important;
@@ -151,6 +151,19 @@ export default function GlobalStyle () {
                 &:hover {
                   cursor: pointer;
                 }
+              }
+
+              div.scroll-container {
+                paddingTop: 16px,
+                width: 100%;
+                overflow-y: hidden;
+              }
+
+              .scroll-container {
+                overflow-y: hidden;
+              }
+              :fullscreen div.scroll-container {
+                overflow: initial;
               }
               ${uploadControlCss}
               ${page}

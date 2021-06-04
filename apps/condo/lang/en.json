@@ -80,6 +80,8 @@
   "filters.Reset": "ResetFilters",
   "filters.UserName": "Full Name",
   "From": "from",
+  "FullscreenExit": "Exit Fullscreen",
+  "FullscreenRequest": "Fullscreen",
   "GoToLogin": "GoToLogin",
   "GoToSignIn": "GoToSignIn",
   "Hide": "Hide",

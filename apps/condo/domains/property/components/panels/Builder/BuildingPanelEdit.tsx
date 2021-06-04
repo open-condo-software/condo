@@ -8,6 +8,7 @@ import {
     EmptyFloor,
     BuildingAxisY,
     BuildingChooseSections,
+    FullscreenHeader,
 } from './BuildingPanelCommon'
 import { Button } from '@condo/domains/common/components/Button'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -17,6 +18,8 @@ import {
     BuildingUnit,
     BuildingSection,
 } from './MapConstructor'
+import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
+import { useRouter } from 'next/router'
 
 import ScrollContainer from 'react-indiana-drag-scroll'
 
@@ -26,18 +29,25 @@ const INPUT_STYLE = {
     width: '136px',
 }
 
+
 interface IBuildingPanelEditProps {
     map: BuildingMap
     updateMap: (map: BuildingMap) => void
+    handleSave(): void
+    maximizableElement: React.RefObject<HTMLElement | null>
 }
 
-export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, updateMap: updateFormField }) => {
+export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, updateMap: updateFormField, maximizableElement, handleSave }) => {
+    const { query: { id } } = useRouter()
+    const { obj: property } = useObject({ where: { id: id as string } })
+
     const intl = useIntl()
+    const SaveLabel = intl.formatMessage({ id: 'Save' })
     const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
     const builderFormRef = useRef<HTMLDivElement | null>(null)
-    const [Map, setMap] = useState(new MapEdit(map, updateFormField))    
+    const [Map, setMap] = useState(new MapEdit(map, updateFormField))
     const scrollToForm = () => {
         if (builderFormRef && builderFormRef.current) {
             const rect = builderFormRef.current.getBoundingClientRect()
@@ -60,29 +70,45 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, upda
     const mode = Map.editMode
     return (
         <>
-            <Row align='middle' style={{ paddingBottom: '24px' }} gutter={[45, 10]} ref={builderFormRef} justify='start'>
-                {
-                    (mode === 'addSection' || mode === 'addUnit') ? (
-                        <Col flex={0} style={{ maxWidth: '400px' }}>
-                            <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
-                                <Typography.Text type={'secondary'} >{AddLabel}</Typography.Text>
-                                <Select value={mode} onChange={value => changeMode(value)} style={INPUT_STYLE}>
-                                    <Option value='addSection'>{AddSection}</Option>
-                                    <Option value='addUnit'>{AddUnit}</Option>
-                                </Select>
-                            </Space>
-                        </Col>
-                    ) : null
-                }
-                {
+            <FullscreenHeader edit={true}>
+                <Row style={{ paddingBottom: '39px', marginRight: '36px' }}>
+                    {property && <Col flex={0} style={{ marginTop: '10px' }}><b>{property.address}</b></Col>}
+                    <Col style={{ marginLeft: 'auto' }}>
+                        <Button
+                            key='submit'
+                            onClick={handleSave}
+                            type='sberPrimary'
+                            // loading={isLoading}
+                            // disabled={!address}
+                        >
+                            {SaveLabel}
+                        </Button>
+                    </Col>
+                </Row>
+                <Row align='middle' style={{ paddingBottom: '24px' }} gutter={[45, 10]} ref={builderFormRef} justify='start'>
                     {
-                        addSection: <AddSectionForm Builder={Map} refresh={refresh}></AddSectionForm>,
-                        addUnit: <UnitForm Builder={Map} refresh={refresh}></UnitForm>,
-                        editSection: <EditSectionForm Builder={Map} refresh={refresh}></EditSectionForm>,
-                        editUnit: <UnitForm Builder={Map} refresh={refresh}></UnitForm>,
-                    }[mode] || null
-                }
-            </Row>
+                        (mode === 'addSection' || mode === 'addUnit') ? (
+                            <Col flex={0} style={{ maxWidth: '400px' }}>
+                                <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
+                                    <Typography.Text type={'secondary'} >{AddLabel}</Typography.Text>
+                                    <Select value={mode} onChange={value => changeMode(value)} style={INPUT_STYLE}>
+                                        <Option value='addSection'>{AddSection}</Option>
+                                        <Option value='addUnit'>{AddUnit}</Option>
+                                    </Select>
+                                </Space>
+                            </Col>
+                        ) : null
+                    }
+                    {
+                        {
+                            addSection: <AddSectionForm Builder={Map} refresh={refresh}></AddSectionForm>,
+                            addUnit: <UnitForm Builder={Map} refresh={refresh}></UnitForm>,
+                            editSection: <EditSectionForm Builder={Map} refresh={refresh}></EditSectionForm>,
+                            editUnit: <UnitForm Builder={Map} refresh={refresh}></UnitForm>,
+                        }[mode] || null
+                    }
+                </Row>
+            </FullscreenHeader>
             <Row>
                 {
                     Map.isEmpty
@@ -95,6 +121,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, upda
                             Builder={Map}
                             refresh={refresh}
                             scrollToForm={scrollToForm}
+                            maximizableElement={maximizableElement}
                         />
                 }
             </Row>
@@ -106,10 +133,11 @@ interface IChessBoardProps {
     Builder: MapEdit
     refresh(): void
     scrollToForm(): void
+    maximizableElement: React.RefObject<HTMLElement | null>
 }
 
 
-const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm }) => {
+const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm, maximizableElement }) => {
     const container = useRef<HTMLElement | null>(null)
     useEffect(() => {
         if (container.current) {
@@ -119,6 +147,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm
             }
         }
     }, [Builder])
+
     return (
         <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
             {
@@ -127,10 +156,9 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm
                         <EmptyBuildingBlock />
                     </Col>
                     :
-                    <Col span={24} style={{ whiteSpace: 'nowrap' }}>
+                    <Col span={24} style={{ whiteSpace: 'nowrap', position: 'static' }}>
                         <ScrollContainer
                             className="scroll-container"
-                            style={{ paddingTop: '16px', width: '100%', overflowY: 'hidden' }}
                             vertical={false}
                             horizontal={true}
                             hideScrollbars={false}
@@ -184,7 +212,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm
                             }
                         </ScrollContainer>
                         {
-                            <BuildingChooseSections Builder={Builder} refresh={refresh}></BuildingChooseSections>
+                            <BuildingChooseSections  maximizableElement={maximizableElement} Builder={Builder} refresh={refresh}></BuildingChooseSections>
                         }
                     </Col>
             }

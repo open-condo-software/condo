@@ -80,6 +80,8 @@
   "filters.Reset": "Сбросить фильтр",
   "filters.UserName": "Фамилия Имя Отчество",
   "From": "с",
+  "FullscreenExit": "Свернуть",
+  "FullscreenRequest": "На весь экран",
   "GoToLogin": "Перейти на страницу входа",
   "GoToSignIn": "Перейти на страницу входа",
   "Hide": "Скрыть",
