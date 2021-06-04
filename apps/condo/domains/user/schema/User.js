@@ -3,22 +3,15 @@
  */
 
 const { Text, Checkbox, Password, File } = require('@keystonejs/fields')
-const { LocalFileAdapter } = require('@keystonejs/file-adapters')
-
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
-const conf = require('@core/config')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/user/access/User')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
-
-// TODO(pahaz): we should change it to Remote S3 like storage! #scalability
-const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
-    src: `${conf.MEDIA_ROOT}/avatars`,
-    path: `${conf.MEDIA_URL}/avatars`,
-})
+const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 
 const User = new GQLListSchema('User', {
     schemaDoc: 'Individual / person / service account / impersonal company account',
