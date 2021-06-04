@@ -1,4 +1,4 @@
-import { Form, Space, Typography } from 'antd'
+import { Form, Space, Typography, Col, Row } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
@@ -84,6 +84,28 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
                                 const { address } = getFieldsValue(['address'])
                                 return (
                                     <>
+                                        <Row gutter={[40, 24]} style={{ paddingLeft: '24px', paddingRight: '24px', justifyContent: 'space-between' }}>
+                                            <Col span={24} push={2}>
+                                                <ErrorsContainer address={address} />
+                                            </Col>
+                                            <Col flex={0}>
+                                                <Space size={40}>
+                                                    <FormResetButton
+                                                        type={'sberPrimary'}
+                                                        secondary
+                                                    />
+                                                    <Button
+                                                        key='submit'
+                                                        type='sberPrimary'
+                                                        loading={isLoading}
+                                                        disabled={!address}
+                                                    >
+                                                        {ApplyChangesLabel}
+                                                    </Button>
+                                                </Space>
+                                            </Col>
+                                            <Col flex={0}></Col>
+                                        </Row>
                                         <Modal
                                             title={
                                                 <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>

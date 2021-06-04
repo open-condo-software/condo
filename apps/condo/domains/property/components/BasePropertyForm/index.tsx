@@ -104,7 +104,12 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                             ({ getFieldsValue, setFieldsValue }) => {
                                                 const { map } = getFieldsValue(['map'])
                                                 return (
-                                                    <PropertyPanels mode='edit' map={map} updateMap={ map =>  setFieldsValue({ map })} />
+                                                    <PropertyPanels
+                                                        mode='edit'
+                                                        map={map}
+                                                        handleSave={handleSave}
+                                                        updateMap={ map =>  setFieldsValue({ map })}
+                                                    />
                                                 )
                                             }
                                         }
