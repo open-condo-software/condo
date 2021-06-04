@@ -16,17 +16,8 @@ const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 
-
-// This can be replaced with
-const conf = require('@core/config')
-const { LocalFileAdapter } = require('@keystonejs/file-adapters')
-const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
-    src: `${conf.MEDIA_ROOT}/orgavatars`,
-    path: `${conf.MEDIA_URL}/orgavatars`,
-})
-
-// const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-// const Adapter = new FileAdapter('orgavatars', 'local')
+const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const AVATAR_FILE_ADAPTER = new FileAdapter('orgavatars')
 
 
 const Organization = new GQLListSchema('Organization', {
