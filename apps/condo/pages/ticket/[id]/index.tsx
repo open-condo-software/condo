@@ -325,14 +325,6 @@ const TicketIdPage = () => {
                                 </Row>
                             </Col>
                         </FocusContainer>
-
-                        {!ticketChangesResult.loading && !ticketChangesResult.error && ticketChangesResult.objs && (
-                            <TicketChanges
-                                items={ticketChangesResult.objs}
-                                total={ticketChangesResult.count}
-                            />
-                        )}
-
                     </Row>
 
                     <ActionBar>
@@ -359,6 +351,12 @@ const TicketIdPage = () => {
                         </Button>
                     </ActionBar>
 
+                    {!ticketChangesResult.loading && !ticketChangesResult.error && ticketChangesResult.objs && (
+                        <TicketChanges
+                            items={ticketChangesResult.objs}
+                            total={ticketChangesResult.count}
+                        />
+                    )}
                 </PageContent>
             </PageWrapper>
         </>
