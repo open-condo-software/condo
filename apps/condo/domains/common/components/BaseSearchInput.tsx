@@ -85,12 +85,12 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         [],
     )
 
-    useEffect(
-        () => {
-            setSearchValue(restSelectProps.value)
-        },
-        [restSelectProps.value]
-    )
+    // useEffect(
+    //     () => {
+    //         setSearchValue(restSelectProps.value)
+    //     },
+    //     [restSelectProps.value]
+    // )
 
     useEffect(
         () => {
@@ -117,7 +117,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             autoFocus
             allowClear
             id={props.id}
-            value={searchValue}
+            value={restSelectProps.value}
             disabled={Boolean(isInitialValueFetching)}
             onFocus={loadInitialOptions}
             onSearch={debouncedSearch}
