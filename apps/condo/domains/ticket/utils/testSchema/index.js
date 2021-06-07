@@ -5,6 +5,8 @@
  */
 
 const faker = require('faker')
+const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
+const { createTestEmail } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { TICKET_STATUS_TYPES } = require('../../constants')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
@@ -169,6 +171,10 @@ async function createTestTicketContact (client, property, extraAttrs = {}) {
         dv: 1,
         sender,
         property: { connect: { id: property.id } },
+        unitName: faker.random.alphaNumeric(3),
+        name: faker.name.firstName(),
+        email: createTestEmail(),
+        phone: createTestPhone(),
         ...extraAttrs,
     }
     const obj = await TicketContact.create(client, attrs)
@@ -185,6 +191,9 @@ async function updateTestTicketContact (client, id, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
+        name: faker.name.firstName(),
+        email: createTestEmail(),
+        phone: createTestPhone(),
         ...extraAttrs,
     }
     const obj = await TicketContact.update(client, id, attrs)
