@@ -13,7 +13,12 @@ const { EmptyApp } = require('@core/keystone/test.utils')
 const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 
-if (conf.NODE_ENV === 'production') {
+const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
+const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
+// should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
+const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
+
+if (IS_ENABLE_DD_TRACE) {
     require('dd-trace').init({
         logInjection: true,
     })
@@ -91,11 +96,16 @@ const authStrategy = keystone.createAuthStrategy({
     },
 })
 
-
 module.exports = {
     keystone,
     apps: [
-        new GraphQLApp({ apollo: { debug: conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test' } }),
+        new GraphQLApp({
+            apollo: {
+                debug: IS_ENABLE_APOLLO_DEBUG,
+                introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+                playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+            },
+        }),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({
             adminPath: '/admin',
