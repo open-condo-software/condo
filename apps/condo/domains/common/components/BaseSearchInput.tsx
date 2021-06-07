@@ -8,6 +8,7 @@ import { useSelectCareeteControls } from '../hooks/useSelectCareeteControls'
 const DEBOUNCE_TIMEOUT = 800
 
 interface ISearchInput<S> extends Omit<SelectProps<S>, 'onSelect'> {
+    loadOptionsOnFocus?: boolean
     renderOption: (dataItem, value) => React.ReactElement
     // TODO(Dimtireee): remove any
     search: (queryString) => Promise<Array<Record<string, any>>>
@@ -24,6 +25,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         placeholder,
         renderOption,
         initialValueGetter,
+        loadOptionsOnFocus = true,
         ...restSelectProps
     } = props
 
@@ -59,7 +61,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
                 props.onFocus(e)
             }
 
-            if (!initialOptionsLoaded) {
+            if (loadOptionsOnFocus && !initialOptionsLoaded) {
                 debouncedSearch(searchValue)
                 setInitialOptionsLoaded(true)
             }
@@ -85,12 +87,12 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         [],
     )
 
-    // useEffect(
-    //     () => {
-    //         setSearchValue(restSelectProps.value)
-    //     },
-    //     [restSelectProps.value]
-    // )
+    useEffect(
+        () => {
+            setSearchValue(restSelectProps.value)
+        },
+        [restSelectProps.value]
+    )
 
     useEffect(
         () => {

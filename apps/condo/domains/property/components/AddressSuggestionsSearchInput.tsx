@@ -100,6 +100,7 @@ export const AddressSuggestionsSearchInput: React.FC<IAddressSearchInput> = (pro
     return (
         <BaseSearchInput
             {...props}
+            loadOptionsOnFocus={false}
             search={searchAddress}
             renderOption={renderOption}
             onSelect={handleOptionSelect}
