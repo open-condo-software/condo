@@ -1,18 +1,10 @@
+const { GET_RANKED_PROPERTIES_QUERY } = require('@condo/domains/property/gql')
 const { gql } = require('graphql-tag')
 
 
 const GET_PROPERTY_BY_ID_QUERY = gql`
     query GetPropertyByIdQuery ($propertyId: ID!, $organizationId: ID) {
         objs: allProperties(where: {id: $propertyId, organization: { id: $organizationId }}) {
-            id
-            address
-        }
-    }
-`
-
-const GET_RANKED_PROPERTIES_QUERY = gql`
-    query GetRankedProperties ($organizationId: ID!, $address: String, $rankOrder: String, $first: Int) {
-        objs: rankedProperties (organizationId: $organizationId, address: $address, rankOrder: $rankOrder, first: $first) {
             id
             address
         }

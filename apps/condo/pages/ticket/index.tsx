@@ -28,13 +28,9 @@ import XLSX from 'xlsx'
 import { useOrganization } from '@core/next/organization'
 import { SortTicketsBy } from '../../schema'
 
-
-
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
-
-
 
 const TicketsPage: IPageWithHeaderAction = () => {
     const intl = useIntl()
@@ -54,8 +50,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    //: sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC', //TODO(Dimitreee):Find cleanest solution    
-    const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC'
+    const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC' //TODO(Dimitreee):Find cleanest solution
     const where = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
 
     const {
@@ -119,7 +114,6 @@ const TicketsPage: IPageWithHeaderAction = () => {
                 router.push(`/ticket/${record.id}/`)
             },
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
