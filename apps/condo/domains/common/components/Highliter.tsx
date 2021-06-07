@@ -31,6 +31,6 @@ export const Highliter: React.FC<IHighliterProps> = (props) => {
     })
 
     return (
-        <>{highlited}</>
+        <>{ highlited }</>
     )
 }

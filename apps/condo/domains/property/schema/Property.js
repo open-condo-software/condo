@@ -210,7 +210,7 @@ const PropertyService = new GQLCustomSchema('PropertyService', {
 
                 const objectFromQuery = get(data, 'objs')
                 const totalObjects = get(data, ['meta', 'count'])
-                const isAscendSort = rankOrder === ['ASC']
+                const isAscendSort = rankOrder === 'ASC'
 
                 quickSort(
                     objectFromQuery,

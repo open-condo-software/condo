@@ -44,6 +44,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
     const TicketPurposeTitle = intl.formatMessage({ id: 'TicketPurpose' })
+    const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
     const FullNameLabel = intl.formatMessage({ id: 'field.FullName' })
@@ -58,7 +59,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
-    const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
 
     const { action: _action, initialValues, organization, afterActionCompleted, files } = props
     const validations = useTicketValidations()
@@ -103,7 +103,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                     return values
                 }}
             >
-
                 {({ handleSave, isLoading, form }) => (
                     <>
                         <Col span={13}>
@@ -115,31 +114,31 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 <Typography.Title level={5} style={{ margin: '0' }}>{UserInfoTitle}</Typography.Title>
                                             </Col>
                                             <Col span={selectedPropertyId ? 18 : 24}>
-                                        <Form.Item name={'property'} label={AddressLabel} rules={validations.property}>
-                                            <PropertyAddressSearchInput
-                                                onSelect={(_, option) => {
-                                                    form.setFieldsValue({ 'unitName': null })
+                                                <Form.Item name={'property'} label={AddressLabel} rules={validations.property}>
+                                                    <PropertyAddressSearchInput
+                                                        onSelect={(_, option) => {
+                                                            form.setFieldsValue({ 'unitName': null })
                                                             setSelectedPropertyId(option.key)
-                                                }}
-                                                placeholder={AddressPlaceholder}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    {selectedPropertyId && (
-                                        <Col span={4}>
-                                            <Form.Item name={'unitName'} label={FlatNumberLabel}>
-                                                <UnitNameInput
-                                                    propertyId={selectedPropertyId}
-                                                    allowClear={false}
-                                                />
-                                            </Form.Item>
-                                        </Col>
-                                    )}
+                                                        }}
+                                                        placeholder={AddressPlaceholder}
+                                                    />
+                                                </Form.Item>
+                                            </Col>
+                                            {selectedPropertyId && (
+                                                <Col span={4}>
+                                                    <Form.Item name={'unitName'} label={FlatNumberLabel}>
+                                                        <UnitNameInput
+                                                            propertyId={selectedPropertyId}
+                                                            allowClear={false}
+                                                        />
+                                                    </Form.Item>
+                                                </Col>
+                                            )}
                                             <Form.Item shouldUpdate noStyle>
-                                                {({ getFieldValue }) => {
-                                                    const propertyFieldValue = getFieldValue('property')
+                                                {({ getFieldsValue }) => {
+                                                    const { unitName } = getFieldsValue(['unitName'])
 
-                                                    return propertyFieldValue && (
+                                                    return unitName && (
                                                         <>
                                                             <Col span={11}>
                                                                 <Form.Item name={'clientName'} rules={validations.clientName} label={FullNameLabel}>
@@ -268,108 +267,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 </Form.Item>
                             </Row>
                         </Col>
-
                         {props.children({ handleSave, isLoading, form })}
                     </>
-                                    return (
-                                        <Col span={24}>
-                                            <FrontLayerContainer showLayer={disableUserInteraction}>
-                                                <Row gutter={[0, 40]}>
-                                                    <Col span={24}>
-                                                        <Row gutter={[0, 24]}>
-                                                            <Col span={24}>
-                                                                <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
-                                                            </Col>
-                                                            <Col span={24}>
-                                                                <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
-                                                                    <Input.TextArea rows={3} placeholder={DescriptionPlaceholder} disabled={disableUserInteraction} />
-                                                                </Form.Item>
-                                                            </Col>
-                                                            <Col flex={0}>
-                                                                <Form.Item label={AttachedFilesLabel}>
-                                                                    <UploadComponent />
-                                                                </Form.Item>
-                                                            </Col>
-                                                        </Row>
-                                                    </Col>
-                                                    <Col span={24}>
-                                                        <Row align={'top'} >
-                                                            <Col span={11}>
-                                                                <Form.Item name={'classifier'} rules={validations.classifier} label={ClassifierLabel} >
-                                                                    <GraphQlSearchInput
-                                                                        search={searchTicketClassifier}
-                                                                        allowClear={false}
-                                                                        disabled={disableUserInteraction}
-                                                                    />
-                                                                </Form.Item>
-                                                            </Col>
-                                                            <Col push={2} span={11}>
-                                                                <Row>
-                                                                    <Col span={12}>
-                                                                        <Form.Item name={'isEmergency'} label={' '} valuePropName='checked'>
-                                                                            <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                    <Col span={12}>
-                                                                        <Form.Item name={'isPaid'} label={' '} valuePropName='checked'>
-                                                                            <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                </Row>
-                                                            </Col>
-                                                        </Row>
-                                                    </Col>
-                                                    <Col span={24}>
-                                                        <Row justify={'space-between'} gutter={[0, 24]}>
-                                                            <Col span={24}>
-                                                                <Typography.Title level={5} style={{ margin: '0' }}>{TicketPurposeTitle}</Typography.Title>
-                                                            </Col>
-                                                            <Col span={11}>
-                                                                <Form.Item
-                                                                    name={'executor'}
-                                                                    rules={validations.executor}
-                                                                    label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel} />}
-                                                                >
-                                                                    <GraphQlSearchInput
-                                                                        formatLabel={formatUserFieldLabel}
-                                                                        search={searchEmployee(get(organization, 'id'))}
-                                                                        allowClear={false}
-                                                                        showArrow={false}
-                                                                        disabled={disableUserInteraction}
-                                                                    />
-                                                                </Form.Item>
-                                                            </Col>
-                                                            <Col span={11}>
-                                                                <Form.Item
-                                                                    name={'assignee'}
-                                                                    rules={validations.assignee}
-                                                                    label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel} />}
-                                                                >
-                                                                    <GraphQlSearchInput
-                                                                        formatLabel={formatUserFieldLabel}
-                                                                        search={searchEmployee(get(organization, 'id'))}
-                                                                        allowClear={false}
-                                                                        showArrow={false}
-                                                                        disabled={disableUserInteraction}
-                                                                    />
-                                                                </Form.Item>
-                                                            </Col>
-                                                        </Row>
-                                                    </Col>
-                                                </Row>
-                                            </FrontLayerContainer>
-                                        </Col>
-                                    )
-                                }
-                            }
-                        </Form.Item>
-                        <Form.Item name={'source'} hidden>
-                            <Input />
-                        </Form.Item>
-                        <Col span={24}>
-                            {props.children({ handleSave, isLoading, form })}
-                        </Col>
-                    </Row>
                 )}
             </FormWithAction>
         </>

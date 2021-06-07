@@ -18,8 +18,6 @@ const TicketChange = generateServerUtils(TicketChangeGQL)
 const TicketFile = generateServerUtils(TicketFileGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-
-
 module.exports = {
     Ticket,
     TicketStatus,

@@ -4,9 +4,11 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const get = require('lodash/get')
+const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-const { Property: PropertyGQL } = require('@condo/domains/property/gql')
+const { Property: PropertyGQL, GET_RANKED_PROPERTIES_QUERY } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('../../../../utils/testSchema/Organization')
 
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -59,12 +61,30 @@ async function makeClientWithProperty () {
     return client
 }
 
+async function getRankedTestPropertyList (client, extraAttributes = {}) {
+    if (!client) throw new Error('no client')
+
+    const queryParams = {
+        first: 100,
+        address: '',
+        rankOrder: 'DESC',
+        organizationId: get(client, ['organization', 'id']),
+        ...extraAttributes
+    }
+
+    const { data, errors } = await client.query(GET_RANKED_PROPERTIES_QUERY, queryParams)
+    throwIfError(data, errors)
+
+    return data.objs
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    Property, 
-    createTestProperty, 
+    Property,
+    createTestProperty,
     updateTestProperty,
     makeClientWithProperty,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    getRankedTestPropertyList,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

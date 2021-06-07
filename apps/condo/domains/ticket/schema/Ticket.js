@@ -16,6 +16,7 @@ const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
+const { Property } = require('@condo/domains/property/gql')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -245,6 +246,46 @@ const Ticket = new GQLListSchema('Ticket', {
         // `beforeChange` cannot be used, because data can be manipulated during updating process somewhere inside a ticket
         // We need a final result after update
         afterChange: async (...args) => {
+            const [operationArguments] = args
+            const { operation, updatedItem, context } = operationArguments
+
+            if (operation === 'create') {
+                const { property: propertyId } = updatedItem
+                const { data, errors: getPropertyErrors } = await context.executeGraphQL({
+                    query: Property.GET_ALL_OBJS_QUERY,
+                    variables: {
+                        where: {
+                            id: propertyId,
+                        },
+                    },
+                })
+
+                if (Array.isArray(getPropertyErrors) && getPropertyErrors.length) {
+                    throw new Error('[error]: Unable to increment rankIndicator while ticket is created.')
+                }
+
+                if (!Array.isArray(data.objs) && !data.objs.length) {
+                    throw new Error('[error]: Error while trying to get property query item.')
+                }
+
+                const [property] = data.objs
+                const { rankIndicator, dv, sender } = property
+
+                const { errors: updatePropertyErrors } = await context.executeGraphQL({
+                    query: Property.UPDATE_OBJ_MUTATION,
+                    variables: {
+                        id: property.id,
+                        data: {
+                            ...{ sender, dv },
+                            rankIndicator: rankIndicator + 1,
+                        },
+                    },
+                })
+
+                if (Array.isArray(updatePropertyErrors) && updatePropertyErrors.length) {
+                    throw new Error('[error]: Unable to increment rankIndicator while ticket is created.')
+                }
+            }
             /**
              * Creates a new TicketChange item.
              * 👉 When a new "single" or "many" relation field will be added to Ticket,
