@@ -8,7 +8,7 @@ import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInpu
 import { useApolloClient } from '@core/next/apollo'
 import { useOrganization } from '@core/next/organization'
 import {
-    rankedSearchProperties,
+    rankedSearchProperties, searchProperty,
     searchSingleProperty,
 } from '@condo/domains/ticket/utils/clientSchema/search'
 import { Property } from '../../../schema'
@@ -37,7 +37,12 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
 
     const searchAddress = React.useCallback(
         (query) => {
-            return rankedSearchProperties(client, organizationId, query)
+            const where = {
+                address_contains_i: query,
+                organization: { id: organizationId },
+            }
+
+            return searchProperty(client, where, 'unitsCount_DESC')
         },
         [],
     )

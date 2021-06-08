@@ -15,8 +15,6 @@ export const useInitialValueGetter: UseInitialValueGetter = (value, getter) => {
                 return
             }
 
-            setLoading(true)
-
             try {
                 const initialValue = await getter(value)
 
@@ -32,7 +30,9 @@ export const useInitialValueGetter: UseInitialValueGetter = (value, getter) => {
 
     useEffect(
         () => {
-            if (getter && value) {
+            if (value) {
+                setLoading(true)
+
                 fetchInitialValue().then(() => {
                     setLoading(false)
                 })

@@ -8,6 +8,7 @@ import { useOrganization } from '@core/next/organization'
 import { useAuth } from '@core/next/auth'
 import { useApolloClient } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
+import { useAddressApi } from '../../common/components/AddressApi'
 import { Button } from '../../common/components/Button'
 import { DataImporter } from '../../common/components/DataImporter'
 import { searchProperty } from '../../ticket/utils/clientSchema/search'
@@ -20,9 +21,11 @@ const useImporter = (onFinish, onError) => {
     const [error, setError] = useState(null)
     const [isImported, setIsImported] = useState(false)
     const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const client = useApolloClient()
     const importer = useRef(null)
+    const { addressApi } = useAddressApi()
+
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const createProperty = Property.useCreate(
         {
@@ -31,10 +34,17 @@ const useImporter = (onFinish, onError) => {
         () => Promise.resolve()
     )
 
-    const validateProperty = (address) => searchProperty(userOrganizationId)(client, address)
-        .then((res) => {
-            return res.length === 0
-        })
+    const validateProperty = (address) => {
+        const where = {
+            address_contains_i: address,
+            organization: { id: userOrganizationId },
+        }
+
+        return searchProperty(client, where)
+            .then((res) => {
+                return res.length === 0
+            })
+    }
 
     const importData = useCallback((data) => {
         importer.current = null
@@ -43,7 +53,7 @@ const useImporter = (onFinish, onError) => {
         setError(null)
         setProgress(0)
 
-        importer.current = new PropertyImporter(createProperty, validateProperty)
+        importer.current = new PropertyImporter(createProperty, validateProperty, addressApi)
         importer.current.onProgressUpdate(setProgress)
         importer.current.onError((e) => {
             importer.current = null

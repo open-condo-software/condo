@@ -100,20 +100,10 @@ class GQLListSchema {
 
 class GQLCustomSchema {
     constructor (name, schema) {
-        if (schema.hasOwnProperty('mutations')) {
-            ow(schema, ow.object.partialShape({
-                mutations: ow.array.valueOf(
-                    ow.object.valuesOfType(ow.object.hasKeys(['access', 'schema', 'resolver']))),
-            }))
-        }
-
-        if (schema.hasOwnProperty('queries')) {
-            ow(schema, ow.object.partialShape({
-                queries: ow.array.valueOf(
-                    ow.object.valuesOfType(ow.object.hasKeys(['access', 'schema', 'resolver']))),
-            }))
-        }
-
+        ow(schema, ow.object.partialShape({
+            mutations: ow.array.valueOf(
+                ow.object.valuesOfType(ow.object.hasKeys(['access', 'schema', 'resolver']))),
+        }))
         if (!name.endsWith('Service')) console.warn(`GQLCustomSchema name=${name} is not ends with 'Service'`)
         this.name = name
         this.schema = schema

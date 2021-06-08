@@ -2,8 +2,9 @@ import { OptionProps } from 'antd/lib/mentions'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Select, Spin, SelectProps } from 'antd'
 import debounce from 'lodash/debounce'
-import { InitialValuesGetter, useInitialValueGetter } from '../hooks/useInitialValueGetter'
-import { useSelectCareeteControls } from '../hooks/useSelectCareeteControls'
+import { useIntl } from '@core/next/intl'
+import { InitialValuesGetter, useInitialValueGetter } from './useInitialValueGetter'
+import { useSelectCareeteControls } from './useSelectCareeteControls'
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -17,6 +18,9 @@ interface ISearchInput<S> extends Omit<SelectProps<S>, 'onSelect'> {
 }
 
 export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
+    const intl = useIntl()
+    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+
     const {
         search,
         onBlur,
@@ -119,7 +123,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             autoFocus
             allowClear
             id={props.id}
-            value={restSelectProps.value}
+            value={isInitialValueFetching ? LoadingMessage : searchValue}
             disabled={Boolean(isInitialValueFetching)}
             onFocus={loadInitialOptions}
             onSearch={debouncedSearch}

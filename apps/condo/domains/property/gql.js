@@ -9,7 +9,7 @@ const { gql } = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender v deletedAt organization { id name} newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const PROPERTY_FIELDS = `{ name address addressMeta type ticketsInWork ticketsClosed unitsCount map ${COMMON_FIELDS} rankIndicator }`
+const PROPERTY_FIELDS = `{ name address addressMeta type ticketsInWork ticketsClosed unitsCount map ${COMMON_FIELDS} }`
 const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
 
 const GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY = gql`
@@ -32,7 +32,6 @@ const GET_RANKED_PROPERTIES_QUERY = gql`
         objs: rankedProperties (organizationId: $organizationId, address: $address, rankOrder: $rankOrder, first: $first) {
             id
             address
-            rankIndicator
         }
     }
 `
