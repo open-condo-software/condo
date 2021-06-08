@@ -5,7 +5,7 @@ import Head from 'next/head'
 import React from 'react'
 
 function introspectionProvider (query) {
-    return fetch(window.location.origin + '/admin/api', {
+    return fetch('/admin/api', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: query }),
