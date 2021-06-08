@@ -3,14 +3,11 @@ import { grey } from '@ant-design/colors'
 import { jsx } from '@emotion/core'
 import { Select, SelectProps, Typography } from 'antd'
 import get from 'lodash/get'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { useApolloClient } from '@core/next/apollo'
 import { useOrganization } from '@core/next/organization'
-import {
-    rankedSearchProperties, searchProperty,
-    searchSingleProperty,
-} from '@condo/domains/ticket/utils/clientSchema/search'
+import { searchProperty, searchSingleProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { Property } from '../../../schema'
 import { Highliter } from '@condo/domains/common/components/Highliter'
 import { colors } from '@condo/domains/common/constants/style'
@@ -24,7 +21,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
     const client = useApolloClient()
     const organizationId = get(organization, 'id')
 
-    const initialValueGetter = React.useCallback(
+    const initialValueGetter = useCallback(
         (value) => {
             return searchSingleProperty(client, value, organizationId).then((property: Property) => {
                 if (property) {
@@ -35,7 +32,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
         [],
     )
 
-    const searchAddress = React.useCallback(
+    const searchAddress = useCallback(
         (query) => {
             const where = {
                 address_contains_i: query,
@@ -47,7 +44,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
         [],
     )
 
-    const renderOption = React.useCallback(
+    const renderOption = useCallback(
         (dataItem, searchValue) => {
             return (
                 <Select.Option

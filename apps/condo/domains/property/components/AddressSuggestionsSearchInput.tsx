@@ -19,7 +19,7 @@ export const AddressSuggestionsSearchInput: React.FC<IAddressSearchInput> = (pro
 
     const { addressApi } = useAddressApi()
 
-    const searchAddress = React.useCallback(
+    const searchAddress = useCallback(
         async (query: string) => {
             try {
                 const { suggestions } = await addressApi.getSuggestions(query)

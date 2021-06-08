@@ -1,6 +1,4 @@
-const { GET_RANKED_PROPERTIES_QUERY } = require('@condo/domains/property/gql')
 const { gql } = require('graphql-tag')
-
 
 const GET_PROPERTY_BY_ID_QUERY = gql`
     query GetPropertyByIdQuery ($propertyId: ID!, $organizationId: ID) {
@@ -78,19 +76,6 @@ export async function searchSingleProperty (client, propertyId, organizationId) 
     }
 
     return data.objs[0]
-}
-
-export async function rankedSearchProperties (client, organizationId, query, first = 10) {
-    const { data, error } = await _search(client, GET_RANKED_PROPERTIES_QUERY, { organizationId, rankOrder: 'ASC', first, address: query })
-    if (error) {
-        console.warn(error)
-    }
-
-    if (data) {
-        return data.objs.map(x => ({ text: x.address, value: x.id }))
-    }
-
-    return []
 }
 
 export async function searchTicketSources (client, value) {

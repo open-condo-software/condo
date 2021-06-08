@@ -44,20 +44,6 @@ describe('Ticket', () => {
         expect(obj.watchers).toEqual([])
     })
 
-    test('user: update property rankIndicator while ticket is created', async () => {
-        const client = await makeClientWithRegisteredOrganization()
-        const [property] = await createTestProperty(client, client.organization)
-
-        expect(property.rankIndicator).toEqual(0)
-
-        await createTestTicketsForProperty(client, property, 2)
-
-        const properties = await Property.getAll(client)
-        const updatedProperty = properties.find((item) => item.id === property.id)
-
-        expect(updatedProperty.rankIndicator).toEqual(2)
-    })
-
     test('anonymous: create Ticket', async () => {
         const client1 = await makeClientWithProperty()
         const client = await makeClient()

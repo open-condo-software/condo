@@ -6,7 +6,7 @@
 const faker = require('faker')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-const { Property: PropertyGQL, GET_RANKED_PROPERTIES_QUERY } = require('@condo/domains/property/gql')
+const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('../../../../utils/testSchema/Organization')
 
 /* AUTOGENERATE MARKER <IMPORT> */
