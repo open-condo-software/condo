@@ -25,9 +25,9 @@ const TicketContact = new GQLListSchema('TicketContact', {
         },
 
         unitName: {
-            schemaDoc: 'Property unit, on which issue(s) had been reported in ticket(s) by this person. It may be considered as a living place of this person in the future.',
+            schemaDoc: 'Property unit, on which issue(s) had been reported in ticket(s) by this person. It may be considered as a living place of this person in the future. A person can not report it\'s accommodation, so, this field is not required',
             type: Text,
-            isRequired: true,
+            isRequired: false,
         },
 
         email: {
