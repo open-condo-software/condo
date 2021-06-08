@@ -13,6 +13,30 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 const { TicketContact, createTestTicketContact, updateTestTicketContact } = require('@condo/domains/ticket/utils/testSchema')
 
 describe('TicketContact', () => {
+    test('required fields', async () => {
+        const userClient = await makeClientWithProperty()
+        const adminClient = await makeLoggedInAdminClient()
+        const emptyFields = {
+            email: null,
+        }
+        const [obj, attrs] = await createTestTicketContact(adminClient, userClient.property, emptyFields)
+        expect(obj.id).toMatch(UUID_RE)
+        expect(obj.dv).toEqual(1)
+        expect(obj.sender).toEqual(attrs.sender)
+        expect(obj.unitName).toMatch(attrs.unitName)
+        expect(obj.name).toMatch(attrs.name)
+        expect(obj.phone).toMatch(attrs.phone)
+        expect(obj.property.id).toMatch(userClient.property.id)
+        expect(obj.v).toEqual(1)
+        expect(obj.newId).toEqual(null)
+        expect(obj.deletedAt).toEqual(null)
+        expect(obj.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+        expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+        expect(obj.createdAt).toMatch(DATETIME_RE)
+        expect(obj.updatedAt).toMatch(DATETIME_RE)
+        expect(obj.email).toEqual(emptyFields.email)
+    })
+
     describe('Create', () => {
         it('can be created by admin', async () => {
             const userClient = await makeClientWithProperty()
