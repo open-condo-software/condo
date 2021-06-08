@@ -14,10 +14,9 @@ const { rules } = require('../../../access')
 const access = require('@condo/domains/organization/access/Organization')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const {Virtual} = require("@keystonejs/fields");
+const { Virtual } = require('@keystonejs/fields')
 const AVATAR_FILE_ADAPTER = new FileAdapter('orgavatars')
 
 
