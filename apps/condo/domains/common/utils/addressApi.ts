@@ -1,5 +1,5 @@
-import { notification } from 'antd'
 import getConfig from 'next/config'
+import get from 'lodash/get'
 
 type SuggestionsResponse = Promise<{ suggestions: Array<AddressMeta> }>
 
@@ -38,7 +38,8 @@ export class AddressApi implements IAddressApi {
         const {
             publicRuntimeConfig: { addressSuggestionsConfig },
         } = getConfig()
-        const { apiUrl, apiToken } = addressSuggestionsConfig
+        const apiUrl = get(addressSuggestionsConfig, 'apiUrl', '')
+        const apiToken = get(addressSuggestionsConfig, 'apiToken', '')
         if (!apiToken || !apiUrl) console.error('Wrong AddressSuggestionsConfig! no apiUrl/apiToken')
 
         this.apiToken = apiToken
