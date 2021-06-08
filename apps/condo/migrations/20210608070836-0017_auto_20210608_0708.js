@@ -8,6 +8,36 @@ exports.up = async (knex) => {
 -- Add field unitsCount to property
 --
 ALTER TABLE "Property" ADD COLUMN "unitsCount" integer DEFAULT 0 NOT NULL;
+CREATE FUNCTION calc_property_units_count(property_id uuid)
+RETURNS integer
+LANGUAGE plpgsql SECURITY DEFINER
+AS $$
+    declare
+        result integer;
+    begin
+        with sections as (
+            select array_agg(p.map->'sections')
+            from "Property" as p
+            where p.id = calc_property_units_count.property_id
+        ), floors as (
+            select to_json(s)->'array_agg'->0->0->'floors' from sections as s
+        ), floor_units as (
+            select f.units::json from json_to_recordset((select * from floors)) as f(id text, type text, index integer, units text)
+        ), units as (
+            -- Expands a JSON array to a set of JSON values
+            select json_array_elements(f.units) as unit
+            from floor_units as f
+        )
+        select count(*) into result
+        from units;
+
+        return result;
+   end;
+$$;
+
+
+update "Property" as p
+set "unitsCount" = calc_property_units_count(p.id);
 ALTER TABLE "Property" ALTER COLUMN "unitsCount" DROP DEFAULT;
 --
 -- Alter field unitsCount on propertyhistoryrecord
@@ -29,6 +59,7 @@ ALTER TABLE "PropertyHistoryRecord" ALTER COLUMN "unitsCount" TYPE jsonb USING "
 -- Add field unitsCount to property
 --
 ALTER TABLE "Property" DROP COLUMN "unitsCount" CASCADE;
+DROP FUNCTION calc_property_units_count;
 COMMIT;
 
     `)
