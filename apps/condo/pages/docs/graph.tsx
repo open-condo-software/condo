@@ -2,7 +2,10 @@
 import fetch from 'isomorphic-fetch'
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
+import getConfig from 'next/config'
 import React from 'react'
+
+import { useIntl } from '@core/next/intl'
 
 function introspectionProvider (query) {
     return fetch('/admin/api', {
@@ -20,6 +23,16 @@ const DynamicVoyager = dynamic(
 )
 
 const DocsGraphPage: React.FC = () => {
+    const intl = useIntl()
+    const AccessError = intl.formatMessage({ id: 'AccessError' })
+
+    const { publicRuntimeConfig } = getConfig()
+    const { docsConfig }  = publicRuntimeConfig
+
+    if (!docsConfig.isGraphqlPlaygroundEnabled) {
+        return <h1>{AccessError}</h1>
+    }
+
     // TODO(pahaz): remove cdn.jsdelivr.net dependency!
     return <>
         <Head>
