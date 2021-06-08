@@ -5,73 +5,82 @@ import { green } from '@ant-design/colors'
 import { Button as DefaultButton, ButtonProps } from 'antd'
 import { colors } from '../constants/style'
 
-const buttonCss = (color) => css`
-  background-color: ${color[5]};
-  border: 2px solid ${color[6]};
-  color: ${colors.defaultWhite[5]};
-  box-shadow: none;
-  font-weight: 700;
+const buttonCss = (color) => {
+    const primary = color[5]
+    const secondary = color[6]
 
-  &:hover, &:focus {
-    background-color: ${color[6]};
-    border-color: ${color[6]};
-    color: ${colors.defaultWhite[5]};
-  }
+    return css`
+      background-color: ${primary};
+      border: 2px solid ${secondary};
+      color: ${colors.defaultWhite[5]};
+      box-shadow: none;
+      font-weight: 700;
 
-  &:active {
-    background-color: ${color[6]};
-    color: ${colors.defaultWhite[5]};
-    border: none;
-    opacity: 70%;
-  }
+      &:hover, &:focus {
+        background-color: ${secondary};
+        border-color: ${secondary};
+        color: ${colors.defaultWhite[5]};
+      }
 
-  &:disabled, &:hover:disabled {
-    background-color: ${color[5]};
-    border-color: ${color[6]};
-    color: ${colors.lightGrey[1]};
-    opacity: 70%;
+      &:active {
+        background-color: ${secondary};
+        color: ${colors.defaultWhite[5]};
+        border: none;
+        opacity: 70%;
+      }
 
-    & span {
-      opacity: 70%;
-    }
-  }
-`
+      &:disabled, &:hover:disabled {
+        background-color: ${primary};
+        border-color: ${secondary};
+        color: ${colors.lightGrey[1]};
+        opacity: 70%;
 
-const buttonSecondaryCss = (color) => css`
-  background-color: ${colors.white};
-  border: 2px solid ${colors.sberGrey[0]};
-  color: ${color[6]};
-  box-shadow: none;
-  font-weight: 700;
+        & span {
+          opacity: 70%;
+        }
+      }
+    `
+}
 
-  &:hover, &:focus {
-    background-color: ${colors.sberGrey[0]};
-    border-color: ${colors.sberGrey[0]};
-    color: ${color[6]};
-  }
+const buttonSecondaryCss = (color) => {
+    const primary = color[6]
 
-  &:active {
-    border-color: ${colors.sberGrey[0]};
-    background-color: ${colors.sberGrey[0]};
-    color: ${color[6]};
-    opacity: 70%;
+    return css`
+      background-color: ${colors.white};
+      border: 2px solid ${colors.sberGrey[0]};
+      color: ${primary};
+      box-shadow: none;
+      font-weight: 700;
 
-    & span {
-      opacity: 100%;
-    }
-  }
+      &:hover, &:focus {
+        background-color: ${colors.sberGrey[0]};
+        border-color: ${colors.sberGrey[0]};
+        color: ${primary};
+      }
 
-  &:disabled, &:hover:disabled {
-    border-color: ${colors.sberGrey[0]};
-    opacity: 70%;
-    color: ${color[6]};
-    background-color: ${colors.white};
+      &:active {
+        border-color: ${colors.sberGrey[0]};
+        background-color: ${colors.sberGrey[0]};
+        color: ${primary};
+        opacity: 70%;
 
-    & span {
-      opacity: 70%;
-    }
-  }
-`
+        & span {
+          opacity: 100%;
+        }
+      }
+
+      &:disabled, &:hover:disabled {
+        border-color: ${colors.sberGrey[0]};
+        opacity: 70%;
+        color: ${primary};
+        background-color: ${colors.white};
+
+        & span {
+          opacity: 70%;
+        }
+      }
+    `
+}
 
 const buttonLinkCss = css`
   display: inline-block;
