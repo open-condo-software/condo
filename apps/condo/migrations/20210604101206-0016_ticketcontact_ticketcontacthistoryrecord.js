@@ -11,7 +11,7 @@ CREATE TABLE "TicketContactHistoryRecord" ("dv" integer NULL, "sender" jsonb NUL
 --
 -- Create model ticketcontact
 --
-CREATE TABLE "TicketContact" ("dv" integer NOT NULL, "sender" jsonb NOT NULL, "unitName" text NOT NULL, "email" text, "phone" text NOT NULL, "name" text NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "createdBy" uuid NULL, "property" uuid NOT NULL, "updatedBy" uuid NULL);
+CREATE TABLE "TicketContact" ("dv" integer NOT NULL, "sender" jsonb NOT NULL, "unitName" text, "email" text, "phone" text NOT NULL, "name" text NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "createdBy" uuid NULL, "property" uuid NOT NULL, "updatedBy" uuid NULL);
 CREATE INDEX "TicketContactHistoryRecord_history_id_66035e29" ON "TicketContactHistoryRecord" ("history_id");
 ALTER TABLE "TicketContact" ADD CONSTRAINT "TicketContact_createdBy_0fbd06d2_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE "TicketContact" ADD CONSTRAINT "TicketContact_property_457de452_fk_Property_id" FOREIGN KEY ("property") REFERENCES "Property" ("id") DEFERRABLE INITIALLY DEFERRED;
