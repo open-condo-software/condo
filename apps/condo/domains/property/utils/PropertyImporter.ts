@@ -39,7 +39,7 @@ export class PropertyImporter implements IPropertyImporter {
         // TODO(Dimitreee): remove any
         private propertyCreator: (...args: any) => Promise<any>,
         private propertyValidator: (address: string) => Promise<boolean>,
-        private addressApi: IAddressApi = new AddressApi(),
+        private addressApi: IAddressApi,
     ) {}
 
     // TODO(Dimitreee): remove any

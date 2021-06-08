@@ -8,18 +8,15 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/property/access/Property')
+const get = require('lodash/get')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR, JSON_SCHEMA_VALIDATION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
-const { GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY, Property: PropertQueryUtils } = require('../gql')
-const { Ticket } = require('@condo/domains/ticket/gql')
+const { GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 const Ajv = require('ajv')
-const { GQLCustomSchema } = require('@core/keystone/schema')
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
-const get = require('lodash/get')
-const { quickSort } = require('@condo/domains/common/utils/sort')
 
 // ORGANIZATION_OWNED_FIELD
 const Property = new GQLListSchema('Property', {
@@ -95,22 +92,45 @@ const Property = new GQLListSchema('Property', {
         },
         unitsCount: {
             schemaDoc: 'A number of parts in the property. The number of flats for property.type = house. The number of garden houses for property.type = village.',
-            type: Virtual,
-            resolver: async (item) => {
-                let count = 0
-                if (item.map) {
-                    try {
-                        count = item.map.sections
-                            .map(section => section.floors
-                                .map(floor => floor.units.length))
+            type: Integer,
+            isRequired: true,
+            defaultValue: 0,
+            hooks: {
+                resolveInput: async ({ operation, existingItem, resolvedData }) => {
+                    const getTotalUnitsCount = (map) => {
+                        return get(map, 'sections', [])
+                            .map((section) => get(section, 'floors', [])
+                                .map(floor => get(floor, 'units', []).length))
                             .flat()
-                            .reduce((acc, current) => acc + current, 0)
-                    } catch (e) {
-                        // TODO(zuch): Rewrite to PropertyUnit count
-                        console.error('Error while fetching virtual field unitsCount', e)
+                            .reduce((total, unitsOnFloor) => total + unitsOnFloor, 0)
+
                     }
-                }
-                return count
+
+                    let unitsCount = 0
+
+                    if (operation === 'create') {
+                        const map = get(resolvedData, 'map')
+
+                        if (map) {
+                            unitsCount = getTotalUnitsCount(map)
+                        }
+                    }
+
+                    if (operation === 'update') {
+                        const existingMap = get(existingItem, 'map')
+                        const updatedMap = get(resolvedData, 'map')
+
+                        const isMapDeleted = existingMap && !updatedMap
+
+                        if (isMapDeleted) {
+                            unitsCount = 0
+                        } else if (updatedMap) {
+                            unitsCount = getTotalUnitsCount(updatedMap)
+                        }
+                    }
+
+                    return unitsCount
+                },
             },
         },
 
@@ -149,13 +169,6 @@ const Property = new GQLListSchema('Property', {
                 return data.inwork.count
             },
         },
-
-        rankIndicator: {
-            schemaDoc: 'Property rankIndicator, used for rankedProperties query, has a 1:1 ratio with total tickets which associated with single property',
-            type: Integer,
-            required: false,
-            defaultValue: 0,
-        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
@@ -178,56 +191,6 @@ const Property = new GQLListSchema('Property', {
     },
 })
 
-const PropertyService = new GQLCustomSchema('PropertyService', {
-    queries: [
-        {
-            access: access.canReadProperties,
-            schema: 'rankedProperties (organizationId: ID!, address: String, rankOrder: String, first: Int): [Property]',
-            resolver: async (parent, args, context = {}) => {
-                const validRankOrders = ['ASC', 'DESC']
-
-                const { organizationId, rankOrder, address } = args
-
-                if (!validRankOrders.includes(rankOrder)) {
-                    throw new Error('[error] Invalid rankOrder')
-                }
-
-                const { data, errors } = await context.executeGraphQL({
-                    query: PropertQueryUtils.GET_ALL_OBJS_WITH_COUNT_QUERY,
-                    variables: {
-                        where: {
-                            organization: {
-                                id: organizationId,
-                            },
-                            address_contains_i: address,
-                        },
-                    },
-                })
-
-                if (errors) {
-                    throw new Error('Error while executing ordered properties')
-                }
-
-                const objectFromQuery = get(data, 'objs')
-                const totalObjects = get(data, ['meta', 'count'])
-                const isAscendSort = rankOrder === 'ASC'
-
-                quickSort(
-                    objectFromQuery,
-                    0,
-                    totalObjects - 1,
-                    totalObjects,
-                    isAscendSort,
-                    (property) => property.rankIndicator
-                )
-
-                return get(data, 'objs', [])
-            },
-        },
-    ],
-})
-
 module.exports = {
     Property,
-    PropertyService,
 }

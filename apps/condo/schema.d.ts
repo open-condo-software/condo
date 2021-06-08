@@ -8228,13 +8228,11 @@ export type Property = {
   /**  Property map/schema  */
   map?: Maybe<Scalars['JSON']>;
   /**  A number of parts in the property. The number of flats for property.type = house. The number of garden houses for property.type = village.  */
-  unitsCount?: Maybe<Scalars['String']>;
+  unitsCount?: Maybe<Scalars['Int']>;
   /**  Counter for closed tickets  */
   ticketsClosed?: Maybe<Scalars['String']>;
   /**  Counter for not closed tickets  */
   ticketsInWork?: Maybe<Scalars['String']>;
-  /**  Property rankIndicator, used for rankedProperties query, has a 1:1 ratio with total tickets which associated with single property  */
-  rankIndicator?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -8254,7 +8252,7 @@ export type PropertyCreateInput = {
   addressMeta?: Maybe<Scalars['JSON']>;
   type?: Maybe<PropertyTypeType>;
   map?: Maybe<Scalars['JSON']>;
-  rankIndicator?: Maybe<Scalars['Int']>;
+  unitsCount?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8283,10 +8281,9 @@ export type PropertyHistoryRecord = {
   addressMeta?: Maybe<Scalars['JSON']>;
   type?: Maybe<Scalars['String']>;
   map?: Maybe<Scalars['JSON']>;
-  unitsCount?: Maybe<Scalars['JSON']>;
+  unitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
-  rankIndicator?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -8309,10 +8306,9 @@ export type PropertyHistoryRecordCreateInput = {
   addressMeta?: Maybe<Scalars['JSON']>;
   type?: Maybe<Scalars['String']>;
   map?: Maybe<Scalars['JSON']>;
-  unitsCount?: Maybe<Scalars['JSON']>;
+  unitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
-  rankIndicator?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8340,10 +8336,9 @@ export type PropertyHistoryRecordUpdateInput = {
   addressMeta?: Maybe<Scalars['JSON']>;
   type?: Maybe<Scalars['String']>;
   map?: Maybe<Scalars['JSON']>;
-  unitsCount?: Maybe<Scalars['JSON']>;
+  unitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
-  rankIndicator?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8437,10 +8432,14 @@ export type PropertyHistoryRecordWhereInput = {
   map_not?: Maybe<Scalars['JSON']>;
   map_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   map_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  unitsCount?: Maybe<Scalars['JSON']>;
-  unitsCount_not?: Maybe<Scalars['JSON']>;
-  unitsCount_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  unitsCount_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  unitsCount?: Maybe<Scalars['Int']>;
+  unitsCount_not?: Maybe<Scalars['Int']>;
+  unitsCount_lt?: Maybe<Scalars['Int']>;
+  unitsCount_lte?: Maybe<Scalars['Int']>;
+  unitsCount_gt?: Maybe<Scalars['Int']>;
+  unitsCount_gte?: Maybe<Scalars['Int']>;
+  unitsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  unitsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsClosed_not?: Maybe<Scalars['JSON']>;
   ticketsClosed_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -8449,14 +8448,6 @@ export type PropertyHistoryRecordWhereInput = {
   ticketsInWork_not?: Maybe<Scalars['JSON']>;
   ticketsInWork_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   ticketsInWork_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  rankIndicator?: Maybe<Scalars['Int']>;
-  rankIndicator_not?: Maybe<Scalars['Int']>;
-  rankIndicator_lt?: Maybe<Scalars['Int']>;
-  rankIndicator_lte?: Maybe<Scalars['Int']>;
-  rankIndicator_gt?: Maybe<Scalars['Int']>;
-  rankIndicator_gte?: Maybe<Scalars['Int']>;
-  rankIndicator_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  rankIndicator_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -8557,7 +8548,7 @@ export type PropertyUpdateInput = {
   addressMeta?: Maybe<Scalars['JSON']>;
   type?: Maybe<PropertyTypeType>;
   map?: Maybe<Scalars['JSON']>;
-  rankIndicator?: Maybe<Scalars['Int']>;
+  unitsCount?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8632,14 +8623,14 @@ export type PropertyWhereInput = {
   map_not?: Maybe<Scalars['JSON']>;
   map_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   map_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  rankIndicator?: Maybe<Scalars['Int']>;
-  rankIndicator_not?: Maybe<Scalars['Int']>;
-  rankIndicator_lt?: Maybe<Scalars['Int']>;
-  rankIndicator_lte?: Maybe<Scalars['Int']>;
-  rankIndicator_gt?: Maybe<Scalars['Int']>;
-  rankIndicator_gte?: Maybe<Scalars['Int']>;
-  rankIndicator_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  rankIndicator_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  unitsCount?: Maybe<Scalars['Int']>;
+  unitsCount_not?: Maybe<Scalars['Int']>;
+  unitsCount_lt?: Maybe<Scalars['Int']>;
+  unitsCount_lte?: Maybe<Scalars['Int']>;
+  unitsCount_gt?: Maybe<Scalars['Int']>;
+  unitsCount_gte?: Maybe<Scalars['Int']>;
+  unitsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  unitsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -9046,7 +9037,6 @@ export type Query = {
   _MessagesMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
-  rankedProperties?: Maybe<Array<Maybe<Property>>>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -10157,14 +10147,6 @@ export type Query_KsListsMetaArgs = {
   where?: Maybe<_KsListsMetaInput>;
 };
 
-
-export type QueryRankedPropertiesArgs = {
-  organizationId: Scalars['ID'];
-  address?: Maybe<Scalars['String']>;
-  rankOrder?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-};
-
 export type RegisterNewOrganizationInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -11021,8 +11003,8 @@ export enum SortPropertiesBy {
   AddressDesc = 'address_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
-  RankIndicatorAsc = 'rankIndicator_ASC',
-  RankIndicatorDesc = 'rankIndicator_DESC',
+  UnitsCountAsc = 'unitsCount_ASC',
+  UnitsCountDesc = 'unitsCount_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -11048,8 +11030,8 @@ export enum SortPropertyHistoryRecordsBy {
   AddressDesc = 'address_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
-  RankIndicatorAsc = 'rankIndicator_ASC',
-  RankIndicatorDesc = 'rankIndicator_DESC',
+  UnitsCountAsc = 'unitsCount_ASC',
+  UnitsCountDesc = 'unitsCount_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

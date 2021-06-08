@@ -6,7 +6,7 @@ import React from 'react'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { AddressSuggestionsSearchInput } from '@condo/domains/property/components/AddressSuggestionsSearchInput'
-import { AddressMetaCache } from '@condo/domains/common/utils/addressApi'
+import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { PropertyPanels } from '../panels'
 import Prompt from '@condo/domains/common/components/Prompt'
 
@@ -28,9 +28,10 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const NameMsg = intl.formatMessage({ id: 'pages.condo.property.form.field.Name' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
-
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
+
+    const { addressApi } = useAddressApi()
 
     const { action, initialValues } = props
 
@@ -38,18 +39,19 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         const isAddressFieldTouched = form.isFieldsTouched(['address'])
 
         if (isAddressFieldTouched) {
-            const addressMeta = AddressMetaCache.get(formData.address)
+            try {
+                const addressMeta = addressApi.getAddressMeta(formData.address)
 
-            if (!addressMeta) {
+                return { ...formData, addressMeta: { dv: 1, ...addressMeta } }
+            } catch (e) {
                 notification.error({
                     message: ServerErrorMsg,
                     description: AddressMetaError,
                 })
 
-                throw new Error(AddressMetaError)
+                console.error(e)
+                return
             }
-
-            return { ...formData, addressMeta: { dv: 1, ...addressMeta } }
         }
 
         return formData

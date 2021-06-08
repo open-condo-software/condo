@@ -3,13 +3,12 @@ import { OptionProps } from 'antd/lib/mentions'
 import React, { useCallback } from 'react'
 import identity from 'lodash/identity'
 import pickBy from 'lodash/pickBy'
-import { useMemo } from 'react'
-import { AddressApi, AddressMetaCache } from '@condo/domains/common/utils/addressApi'
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { useIntl } from '@core/next/intl'
-import { Highliter } from '../../common/components/Highliter'
+import { Highliter } from '@condo/domains/common/components/Highliter'
 import { grey } from '@ant-design/colors'
 import { colors } from '@condo/domains/common/constants/style'
+import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 
 type IAddressSearchInput = SelectProps<string>
 
@@ -18,17 +17,12 @@ export const AddressSuggestionsSearchInput: React.FC<IAddressSearchInput> = (pro
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
 
-    const api = useMemo(
-        () => {
-            return new AddressApi()
-        },
-        [],
-    )
+    const { addressApi } = useAddressApi()
 
     const searchAddress = React.useCallback(
         async (query: string) => {
             try {
-                const { suggestions } = await api.getSuggestions(query)
+                const { suggestions } = await addressApi.getSuggestions(query)
 
                 return suggestions.map(suggestion => {
                     const cleanedSuggestion = pickBy(suggestion, identity)
@@ -40,7 +34,7 @@ export const AddressSuggestionsSearchInput: React.FC<IAddressSearchInput> = (pro
                 })
             } catch (e) {
                 console.warn('Error while trying to fetch suggestions: ', e)
-                return  []
+                return []
             }
         },
         [],
@@ -85,8 +79,7 @@ export const AddressSuggestionsSearchInput: React.FC<IAddressSearchInput> = (pro
     const handleOptionSelect = useCallback(
         (value: string, option: OptionProps) => {
             try {
-                const parsedAddressMeta = JSON.parse(option.key)
-                AddressMetaCache.set(value, parsedAddressMeta)
+                addressApi.cacheAddressMeta(value, JSON.parse(option.key))
             } catch (e) {
                 notification.error({
                     message: ServerErrorMsg,

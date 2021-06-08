@@ -31,8 +31,8 @@ const GET_ALL_CLASSIFIERS_QUERY = gql`
 `
 
 const GET_ALL_PROPERTIES_BY_VALUE_QUERY = gql`
-    query selectProperty ($value: String, $organizationId: ID) {
-        objs: allProperties(where: {address_contains_i: $value, organization: { id: $organizationId }}, first: 10) {
+    query selectProperty ($where: PropertyWhereInput, $orderBy: String) {
+        objs: allProperties(where: $where, orderBy: $orderBy, first: 10) {
             id
             address
         }
@@ -59,13 +59,11 @@ async function _search (client, query, variables) {
     })
 }
 
-export function searchProperty (organizationId) {
-    return async function (client, value) {
-        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { value, organizationId })
-        if (error) console.warn(error)
-        if (data) return data.objs.map(x => ({ text: x.address, value: x.id }))
-        return []
-    }
+export async function searchProperty (client, where, orderBy) {
+    const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy })
+    if (error) console.warn(error)
+    if (data) return data.objs.map(x => ({ text: x.address, value: x.id }))
+    return []
 }
 
 export async function searchSingleProperty (client, propertyId, organizationId) {

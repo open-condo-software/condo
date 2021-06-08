@@ -165,17 +165,6 @@ async function makeClientWithTicket () {
     return client
 }
 
-const createTestTicketsForProperty = async (client, property, count) => {
-    const tickets = []
-
-    for (let i = 0; i < count; i++) {
-        const [ticket] = await createTestTicket(client, client.organization, property)
-        tickets.push(ticket)
-    }
-
-    return tickets
-}
-
 module.exports = {
     Ticket,
     TicketFile,
@@ -193,7 +182,6 @@ module.exports = {
     createTestTicketChange,
     updateTestTicketChange,
     makeClientWithTicket,
-    createTestTicketsForProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

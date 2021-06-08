@@ -18,7 +18,7 @@ You should follow the next style for all react components:
 const ComponentName: React.FC = (props) => {
     // 1. Translations: we want to keep the layout clean! You should extract all translations as veriables with Message/Label suffix!
     const intl = useIntl()
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' }) // <CamalCase>Message
+    const LoadingMessage = intl.formatMessage({ id: 'Loading' }) // <CamelCase>Message
     const ButtonLabel = intl.formatMessage({ id: 'containers.FormTableExcelImport.ButtonLabel' }) // <CamalCase>Label
 
     // 2. Hook calls
