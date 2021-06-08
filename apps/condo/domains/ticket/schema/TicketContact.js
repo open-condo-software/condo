@@ -33,7 +33,7 @@ const TicketContact = new GQLListSchema('TicketContact', {
         email: {
             schemaDoc: 'Contact email of this person',
             type: Text,
-            isRequired: true,
+            isRequired: false,
         },
 
         phone: {
