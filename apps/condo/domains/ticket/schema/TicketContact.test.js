@@ -18,12 +18,12 @@ describe('TicketContact', () => {
         const adminClient = await makeLoggedInAdminClient()
         const emptyFields = {
             email: null,
+            unitName: null,
         }
         const [obj, attrs] = await createTestTicketContact(adminClient, userClient.property, emptyFields)
         expect(obj.id).toMatch(UUID_RE)
         expect(obj.dv).toEqual(1)
         expect(obj.sender).toEqual(attrs.sender)
-        expect(obj.unitName).toMatch(attrs.unitName)
         expect(obj.name).toMatch(attrs.name)
         expect(obj.phone).toMatch(attrs.phone)
         expect(obj.property.id).toMatch(userClient.property.id)
@@ -35,6 +35,7 @@ describe('TicketContact', () => {
         expect(obj.createdAt).toMatch(DATETIME_RE)
         expect(obj.updatedAt).toMatch(DATETIME_RE)
         expect(obj.email).toEqual(emptyFields.email)
+        expect(obj.unitName).toEqual(emptyFields.unitName)
     })
 
     describe('Create', () => {
