@@ -7,6 +7,7 @@ import { colors } from '../constants/style'
 
 const buttonCss = (color) => {
     // Ant returns an array of hue-separated colors, check them out here
+    // refs: https://ant.design/docs/spec/colors
     // We name some of the colors that we use
     const primary = color[5]
     const secondary = color[6]
@@ -45,7 +46,8 @@ const buttonCss = (color) => {
 }
 
 const buttonSecondaryCss = (color) => {
-    // Ant returns an array of hue-separated colors, check them out here
+    // Ant returns an array of hue-separated colors, check them out here:
+    // refs: https://ant.design/docs/spec/colors
     // We name some of the colors that we use
     const primary = color[6]
 
