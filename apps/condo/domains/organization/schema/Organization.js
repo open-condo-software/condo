@@ -17,6 +17,7 @@ const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const {Virtual} = require("@keystonejs/fields");
 const AVATAR_FILE_ADAPTER = new FileAdapter('orgavatars')
 
 
@@ -63,36 +64,30 @@ const Organization = new GQLListSchema('Organization', {
         statusTransitions: {
             schemaDoc: 'Graph of possible transitions for statuses. If there is no transition in this graph, ' +
                 'it is impossible to change status if the user in the role has the right to do so.',
-            type: Json,
-            defaultValue: DEFAULT_STATUS_TRANSITIONS,
-            hooks: {
-                validateInput: (args) => {
-                    return hasValidJsonStructure(args, true, 1, {})
-                },
+            type: Virtual,
+            graphQLReturnType: 'JSON',
+            resolver: () => {
+                return DEFAULT_STATUS_TRANSITIONS
             },
             access: {
                 update: rules.canUpdateTicketStatusTransitions,
                 create: rules.canUpdateTicketStatusTransitions,
                 read: true,
             },
-            isRequired: true,
         },
         defaultEmployeeRoleStatusTransitions: {
             schemaDoc: 'Default employee role status transitions map which will be used as fallback for status transition validation' +
                 'if user dont have OrganizationEmployeeRole',
-            type: Json,
-            defaultValue: DEFAULT_STATUS_TRANSITIONS,
-            hooks: {
-                validateInput: (args) => {
-                    return hasValidJsonStructure(args, true, 1, {})
-                },
+            type: Virtual,
+            graphQLReturnType: 'JSON',
+            resolver: () => {
+                return DEFAULT_STATUS_TRANSITIONS
             },
             access: {
                 update: rules.canUpdateTicketStatusTransitions,
                 create: rules.canUpdateTicketStatusTransitions,
                 read: true,
             },
-            isRequired: true,
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
