@@ -27,20 +27,10 @@ const GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY = gql`
   }
 `
 
-const GET_RANKED_PROPERTIES_QUERY = gql`
-    query GetRankedProperties ($organizationId: ID!, $address: String, $rankOrder: String, $first: Int) {
-        objs: rankedProperties (organizationId: $organizationId, address: $address, rankOrder: $rankOrder, first: $first) {
-            id
-            address
-        }
-    }
-`
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Property,
-    GET_RANKED_PROPERTIES_QUERY,
     GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
     GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */

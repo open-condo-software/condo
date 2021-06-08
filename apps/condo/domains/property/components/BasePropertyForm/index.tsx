@@ -2,7 +2,7 @@
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
 import { Col, Form, Input, notification, Row, Typography } from 'antd'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { AddressSuggestionsSearchInput } from '@condo/domains/property/components/AddressSuggestionsSearchInput'
@@ -35,7 +35,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
 
     const { action, initialValues } = props
 
-    const formValuesToMutationDataPreprocessor = React.useCallback((formData, _, form) => {
+    const formValuesToMutationDataPreprocessor = useCallback((formData, _, form) => {
         const isAddressFieldTouched = form.isFieldsTouched(['address'])
 
         if (isAddressFieldTouched) {
