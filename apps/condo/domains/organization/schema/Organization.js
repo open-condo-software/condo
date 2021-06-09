@@ -8,17 +8,15 @@ const { File, Text, Relationship, Select } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-
 const { SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
 const { rules } = require('../../../access')
 const access = require('@condo/domains/organization/access/Organization')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
-const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
-
+const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { Virtual } = require('@keystonejs/fields')
 const AVATAR_FILE_ADAPTER = new FileAdapter('orgavatars')
-
+const get = require('lodash/get')
 
 const Organization = new GQLListSchema('Organization', {
     schemaDoc: 'B2B customer of the service, a legal entity or an association of legal entities (holding/group)',
@@ -65,8 +63,10 @@ const Organization = new GQLListSchema('Organization', {
                 'it is impossible to change status if the user in the role has the right to do so.',
             type: Virtual,
             graphQLReturnType: 'JSON',
-            resolver: () => {
-                return DEFAULT_STATUS_TRANSITIONS
+            resolver: (organization) => {
+                const organizationCountry = get(organization, 'country', 'en')
+
+                return COUNTRY_RELATED_STATUS_TRANSITIONS[organizationCountry]
             },
             access: {
                 update: rules.canUpdateTicketStatusTransitions,
@@ -79,8 +79,10 @@ const Organization = new GQLListSchema('Organization', {
                 'if user dont have OrganizationEmployeeRole',
             type: Virtual,
             graphQLReturnType: 'JSON',
-            resolver: () => {
-                return DEFAULT_STATUS_TRANSITIONS
+            resolver: (organization) => {
+                const organizationCountry = get(organization, 'country', 'en')
+
+                return COUNTRY_RELATED_STATUS_TRANSITIONS[organizationCountry]
             },
             access: {
                 update: rules.canUpdateTicketStatusTransitions,
