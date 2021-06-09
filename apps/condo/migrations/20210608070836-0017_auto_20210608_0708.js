@@ -39,6 +39,7 @@ $$;
 update "Property" as p
 set "unitsCount" = calc_property_units_count(p.id);
 ALTER TABLE "Property" ALTER COLUMN "unitsCount" DROP DEFAULT;
+DROP FUNCTION calc_property_units_count;
 --
 -- Alter field unitsCount on propertyhistoryrecord
 --
@@ -59,7 +60,6 @@ ALTER TABLE "PropertyHistoryRecord" ALTER COLUMN "unitsCount" TYPE jsonb USING "
 -- Add field unitsCount to property
 --
 ALTER TABLE "Property" DROP COLUMN "unitsCount" CASCADE;
-DROP FUNCTION calc_property_units_count;
 COMMIT;
 
     `)
