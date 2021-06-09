@@ -48,6 +48,16 @@ describe('TicketContact', () => {
             const [obj] = await createTestTicketContact(adminClient, userClient.property, fields)
             expect(obj.phone).toEqual('+79991112233')
         })
+
+        it('converts email to lowercase format', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const fields = {
+                email: 'Test@Example.com',
+            }
+            const [obj] = await createTestTicketContact(adminClient, userClient.property, fields)
+            expect(obj.email).toEqual('test@example.com')
+        })
     })
 
     describe('Create', () => {
