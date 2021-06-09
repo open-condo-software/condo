@@ -8,5 +8,4 @@ export * as TicketStatus from './TicketStatus'
 export * as TicketChange from './TicketChange'
 export * as TicketFile from './TicketFile'
 
-export * as TicketContact from './TicketContact'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
