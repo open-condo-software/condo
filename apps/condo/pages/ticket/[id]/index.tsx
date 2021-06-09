@@ -22,7 +22,6 @@ import {
 } from '@condo/domains/ticket/utils/helpers'
 import { LETTERS_AND_NUMBERS } from '@condo/domains/common/constants/regexps'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
-import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
 // @ts-ignore
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
@@ -99,13 +98,13 @@ const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
 
     const [userInfo, setUserInfo] = useState({
         name: get(props, ['user', 'name']),
-        phone: formatPhone(get(props, ['user', 'phone'])),
+        phone: get(props, ['user', 'phone']),
     })
     const [hidden, setHidden] = useState(props.hidePersonalData)
 
     useEffect(() => {
         let nextUserName = get(props, ['user', 'name'], '')
-        let nextUserPhone = formatPhone(get(props, ['user', 'phone'], ''))
+        let nextUserPhone = get(props, ['user', 'phone'], '')
 
         if (hidden) {
             nextUserName = nextUserName ? nextUserName.replace(LETTERS_AND_NUMBERS, '*') : ''

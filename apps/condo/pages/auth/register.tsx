@@ -8,8 +8,6 @@ import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/c
 import React, { createContext, useEffect, useState, useRef, useContext } from 'react'
 import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
-import { formatPhone } from '@condo/domains/common/utils/helpers'
-import MaskedInput from 'antd-mask-input'
 import { AUTH as firebaseAuth, initRecaptcha, resetRecaptcha, IS_FIREBASE_CONFIG_VALID } from '@condo/domains/common/utils/firebase.front.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { useAuth } from '@core/next/auth'
@@ -18,6 +16,7 @@ import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { ALREADY_REGISTERED, MIN_PASSWORD_LENGTH_ERROR, EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
 
 import { colors } from '@condo/domains/common/constants/style'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 
 const POLICY_LOCATION = '/policy.pdf'
 const SMS_CODE_LENGTH = 6
@@ -162,6 +161,11 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
             resetRecaptcha()
         }
     }
+
+    useEffect(() => {
+        setfirebaseError(null)
+    }, [phone])
+
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     return (
         <>
@@ -197,7 +201,11 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
                         }),
                     ]}              
                 >
-                    <MaskedInput mask='+1 (111) 111-11-11' value={phone} placeholder={ExamplePhoneMsg} onChange={() => setfirebaseError(null)} style={{ ...INPUT_STYLE }} />
+                    <PhoneInput
+                        style={INPUT_STYLE}
+                        value={phone}
+                        placeholder={ExamplePhoneMsg}
+                    />
                 </Form.Item>
 
                 <Typography.Paragraph style={{ textAlign: 'left', fontSize: '12px', marginTop: '40px', lineHeight: '20px' }}>
@@ -245,10 +253,9 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
     const [showPhone, setShowPhone] = useState(phone)
     useEffect(() => {
         if (isPhoneVisible) {
-            setShowPhone(formatPhone(phone))
+            setShowPhone(phone)
         } else {
-            const unHidden = formatPhone(phone)
-            setShowPhone(`${unHidden.substring(0, 9)}***${unHidden.substring(12)}`)
+            setShowPhone(`${phone.substring(0, 9)}***${phone.substring(12)}`)
         }
     }, [isPhoneVisible, phone, setShowPhone])
 
@@ -427,7 +434,11 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     labelCol={{ flex: 1 }} 
                     rules={[{ required: true }]}
                 >
-                    <MaskedInput disabled={true} mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
+                    <PhoneInput
+                        disabled={true}
+                        style={INPUT_STYLE}
+                        placeholder={ExamplePhoneMsg}
+                    />
                 </Form.Item>
                 <Form.Item
                     name="name"

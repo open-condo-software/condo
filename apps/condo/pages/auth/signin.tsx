@@ -6,7 +6,6 @@ import { useAuth } from '@core/next/auth'
 import { Form, Input, Typography } from 'antd'
 import Head from 'next/head'
 import { Button } from '@condo/domains/common/components/Button'
-import MaskedInput from 'antd-mask-input'
 import { colors } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
 import { FormattedMessage } from 'react-intl'
@@ -14,6 +13,7 @@ import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useMutation } from '@core/next/apollo'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 import { WRONG_PHONE_ERROR, WRONG_PASSWORD_ERROR } from '@condo/domains/user/constants/errors'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 
 const LINK_STYLE = { color: colors.sberPrimary[7] }
 const INPUT_STYLE = { width: '20em' }
@@ -99,7 +99,7 @@ const SignInForm = (): React.ReactElement => {
                 labelCol={{ flex: 1 }}
                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
             >
-                <MaskedInput mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={INPUT_STYLE} />
+                <PhoneInput placeholder={ExamplePhoneMsg} style={INPUT_STYLE}/>
             </Form.Item>
 
             <Form.Item

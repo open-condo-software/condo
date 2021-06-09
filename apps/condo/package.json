@@ -77,6 +77,7 @@
     "react-fittext": "^1.0.0",
     "react-indiana-drag-scroll": "^2.0.1",
     "react-markdown": "^4.3.1",
+    "react-phone-input-2": "^2.14.0",
     "react-responsive": "^8.1.0",
     "react-test-renderer": "^16.13.1",
     "use-immer": "^0.4.1",

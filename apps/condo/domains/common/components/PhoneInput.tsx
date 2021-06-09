@@ -1,17 +1,33 @@
-import { Input, InputProps } from 'antd'
-import React from 'react'
-import { PHONE } from '../constants/regexps'
+import { InputProps } from 'antd'
+import React, { useCallback } from 'react'
+import ReactPhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/style.css'
+import { useOrganization } from '@core/next/organization'
+import get from 'lodash/get'
 
-export const PhoneInput: React.FC<InputProps> = (props) => {
-    const onChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target
+interface IPhoneInputProps extends InputProps {
+    autoFormat?: boolean
+}
 
-        if ((!isNaN(Number(value)) && PHONE.test(value)) || value === '' || value === '+') {
-            props.onChange(e)
-        }
+export const PhoneInput: React.FC<IPhoneInputProps> = (props) => {
+    const { value, placeholder, style, disabled } = props
+    const { organization } = useOrganization()
+
+    const userOrganizationCountry = get(organization, 'country', 'ru')
+
+    const onChange = useCallback((value) => {
+        props.onChange(value ? '+' + value : value)
     }, [])
 
     return (
-        <Input {...props} onChange={onChange}/>
+        <ReactPhoneInput
+            inputClass={'ant-input'}
+            value={String(value)}
+            country={userOrganizationCountry}
+            onChange={onChange}
+            disabled={disabled}
+            inputStyle={style}
+            placeholder={placeholder}
+        />
     )
 }
