@@ -8,7 +8,7 @@ const { historical, versioned, uuided, tracked } = require('@core/keystone/plugi
 const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
 const { rules } = require('../../../access')
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRole')
-const { Virtual } = require('@core/keystone/fields')
+const { Virtual } = require('@keystonejs/fields')
 
 const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
     schemaDoc: 'Employee role name and access permissions',
