@@ -3,7 +3,8 @@
  */
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
-const { getById } = require('@core/keystone/schema')
+const { TicketContact } = require('../utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 async function canReadTicketContacts ({ authentication: { item: user } }) {
     if (!user) return false
@@ -13,28 +14,28 @@ async function canReadTicketContacts ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageTicketContacts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageTicketContacts ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
         const propertyId = get(originalInput, ['property', 'connect', 'id'])
-        const property = await getById('Property', propertyId)
+        const [property] = await Property.getAll(context, { id: propertyId })
         if (!property) {
-            return false
+            throw new Error('Cannot determine access right, because related property is not found')
         }
-        const organizationIdFromProperty = get(property, 'organization')
-        const canManageTicketContacts = await checkOrganizationPermission(user.id, organizationIdFromProperty, 'canManageTicketContacts')
-        return  canManageTicketContacts
+        const organization = get(property, 'organization')
+        const canManageTicketContacts = await checkOrganizationPermission(user.id, organization.id, 'canManageTicketContacts')
+        return canManageTicketContacts
     } else if (operation === 'update') {
-        const ticketContact = await getById('TicketContact', itemId)
+        const [ticketContact] = await TicketContact.getAll(context, { id: itemId })
         if (!ticketContact) {
             return false
         }
-        const property = await getById('Property', ticketContact.property)
+        const [property] = await Property.getAll(context, { id: ticketContact.property.id })
         if (!property) {
-            return false
+            throw new Error('Cannot determine access right, because related property is not found')
         }
-        const canManageTicketContacts = await checkOrganizationPermission(user.id, property.organization, 'canManageTicketContacts')
+        const canManageTicketContacts = await checkOrganizationPermission(user.id, property.organization.id, 'canManageTicketContacts')
         return canManageTicketContacts
     }
     return false
