@@ -28,7 +28,6 @@ const buttonCss = (color) => {
       &:active {
         background-color: ${secondary};
         color: ${colors.defaultWhite[5]};
-        border: none;
         opacity: 70%;
       }
 
