@@ -8,8 +8,7 @@ const { historical, versioned, uuided, tracked } = require('@core/keystone/plugi
 const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
 const { rules } = require('../../../access')
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRole')
-const { Json } = require('@core/keystone/fields')
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { Virtual } = require('@core/keystone/fields')
 
 const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
     schemaDoc: 'Employee role name and access permissions',
@@ -29,13 +28,10 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
 
         statusTransitions: {
             schemaDoc: 'Employee status transitions map',
-            type: Json,
-            required: true,
-            defaultValue: DEFAULT_STATUS_TRANSITIONS,
-            hooks: {
-                validateInput: (args) => {
-                    return hasValidJsonStructure(args, true, 1, {})
-                },
+            type: Virtual,
+            graphQLReturnType: 'JSON',
+            resolver: () => {
+                return DEFAULT_STATUS_TRANSITIONS
             },
             access: {
                 update: rules.canUpdateTicketStatusTransitions,
