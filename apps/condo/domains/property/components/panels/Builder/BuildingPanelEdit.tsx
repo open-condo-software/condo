@@ -24,7 +24,6 @@ const { Option } = Select
 
 const INPUT_STYLE = {
     width: '136px',
-    borderColor: 'transparent',
 }
 
 interface IBuildingPanelEditProps {

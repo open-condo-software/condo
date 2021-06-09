@@ -58,9 +58,13 @@ export default function GlobalStyle () {
               .ant-input{
                 &:focus, &:active, &:focus:hover, &:active:hover {
                   background-color: ${colors.ultraLightGrey} !important;
-                  -webkit-box-shadow: none;
                 }
               }
+              
+              .ant-input-affix-wrapper input {
+                box-shadow: none;
+              }
+              
               .ant-input-affix-wrapper > input.ant-input, .ant-form-item-has-error .ant-input-affix-wrapper > input.ant-input {
                 -webkit-box-shadow: none;
                 box-shadow: none;
