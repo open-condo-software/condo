@@ -7,7 +7,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketContact')
-
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const TicketContact = new GQLListSchema('TicketContact', {
     schemaDoc: 'Contact information of a person, who is initiator of ticket(s)',
@@ -37,9 +37,14 @@ const TicketContact = new GQLListSchema('TicketContact', {
         },
 
         phone: {
-            schemaDoc: 'Contact phone of this person',
+            schemaDoc: 'Contact phone of this person in E.164 format without spaces',
             type: Text,
             isRequired: true,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => (
+                    normalizePhone(resolvedData['phone'])
+                ),
+            },
         },
 
         name: {
