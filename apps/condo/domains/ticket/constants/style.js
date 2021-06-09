@@ -17,12 +17,12 @@ const STATUS_SELECT_COLORS = {
         additional: '#95DE64',
     },
     [CLOSED]: {
-        primary: '##000000',
+        primary: '#000000',
         secondary: '#D9D9D9',
         additional: '#BFBFBF',
     },
     [DEFERRED]: {
-        primary: ' #D4380D',
+        primary: '#D4380D',
         secondary: '#FFCCC7',
         additional: '#FFA39E',
     },
