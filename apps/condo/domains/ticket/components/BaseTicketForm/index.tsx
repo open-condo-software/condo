@@ -152,7 +152,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     label={PhoneLabel}
                                                                     validateFirst
                                                                 >
-                                                                    <PhoneInput />
+                                                                    <PhoneInput/>
                                                                 </Form.Item>
                                                             </Col>
                                                         </>

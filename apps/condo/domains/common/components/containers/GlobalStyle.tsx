@@ -60,6 +60,10 @@ export default function GlobalStyle () {
                   background-color: ${colors.ultraLightGrey} !important;
                 }
               }
+
+              .react-tel-input .ant-input {
+                background-color: ${colors.ultraLightGrey} !important;
+              }
               
               .ant-input-affix-wrapper input {
                 box-shadow: none !important;
