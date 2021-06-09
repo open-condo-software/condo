@@ -62,17 +62,17 @@ export default function GlobalStyle () {
               }
               
               .ant-input-affix-wrapper input {
-                box-shadow: none;
+                box-shadow: none !important;
               }
               
               .ant-input-affix-wrapper > input.ant-input, .ant-form-item-has-error .ant-input-affix-wrapper > input.ant-input {
-                -webkit-box-shadow: none;
-                box-shadow: none;
+                -webkit-box-shadow: none !important;
+                box-shadow: none !important;
               }
 
               .ant-form-item-has-error .ant-input-affix-wrapper > input.ant-input:focus, .ant-input-affix-wrapper > input.ant-input:focus {
-                -webkit-box-shadow: none;
-                box-shadow: none;
+                -webkit-box-shadow: none !important;
+                box-shadow: none !important;
               }
 
               .ant-input-affix-wrapper, .ant-input-affix-wrapper-focused {

@@ -13,6 +13,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { useInviteNewOrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ErrorsContainer } from '@condo/domains/organization/components/ErrorsContainer'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { EmployeeRoleSelect } from './EmployeeRoleSelect'
 
 const INPUT_LAYOUT_PROPS = {
@@ -44,7 +45,7 @@ export const CreateEmployeeForm: React.FC = () => {
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
     const EmailError = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-
+    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
 
     const validations: { [key: string]: Rule[] } = {
@@ -126,7 +127,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                             rules={validations.phone}
                                             {...INPUT_LAYOUT_PROPS}
                                         >
-                                            <MaskedInput mask='+1 (111) 111-11-11'/>
+                                            <PhoneInput placeholder={ExamplePhoneMsg}/>
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
