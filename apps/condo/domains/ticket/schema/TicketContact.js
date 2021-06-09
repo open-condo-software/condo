@@ -34,6 +34,11 @@ const TicketContact = new GQLListSchema('TicketContact', {
             schemaDoc: 'Contact email of this person',
             type: Text,
             isRequired: false,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    return resolvedData['email'] && resolvedData['email'].toLowerCase()
+                },
+            },
         },
 
         phone: {
