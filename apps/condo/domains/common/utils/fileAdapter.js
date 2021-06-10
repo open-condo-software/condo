@@ -17,8 +17,11 @@ class FileAdapter {
                 break
             case 'sbercloud':
                 Adapter = this.createSbercloudFileApapter()
-                if (!Adapter && coreConfig.NODE_ENV !== 'production') {
-                    Adapter = this.createLocalFileApapter()
+                if (!Adapter) {
+                    // no fallback for production 
+                    if (coreConfig.NODE_ENV !== 'production') {
+                        Adapter = this.createLocalFileApapter()
+                    }
                 }
                 break
         }
