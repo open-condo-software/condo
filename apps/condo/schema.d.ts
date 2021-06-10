@@ -3900,6 +3900,10 @@ export type ForgotPasswordAction = {
    *  4. As an alias to the 'id' field on the ForgotPasswordAction List.
    */
   _label_?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<Scalars['JSON']>;
   /**  Ref to the user. The object will be deleted if the user ceases to exist  */
   user?: Maybe<User>;
   token?: Maybe<Scalars['String']>;
@@ -3917,6 +3921,8 @@ export type ForgotPasswordAction = {
 };
 
 export type ForgotPasswordActionCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   user?: Maybe<UserRelateToOneInput>;
   token?: Maybe<Scalars['String']>;
   requestedAt?: Maybe<Scalars['String']>;
@@ -3942,6 +3948,8 @@ export type ForgotPasswordActionHistoryRecord = {
    *  4. As an alias to the 'id' field on the ForgotPasswordActionHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   requestedAt?: Maybe<Scalars['String']>;
@@ -3961,6 +3969,8 @@ export type ForgotPasswordActionHistoryRecord = {
 };
 
 export type ForgotPasswordActionHistoryRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   requestedAt?: Maybe<Scalars['String']>;
@@ -3985,6 +3995,8 @@ export enum ForgotPasswordActionHistoryRecordHistoryActionType {
 }
 
 export type ForgotPasswordActionHistoryRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   requestedAt?: Maybe<Scalars['String']>;
@@ -4005,6 +4017,18 @@ export type ForgotPasswordActionHistoryRecordUpdateInput = {
 export type ForgotPasswordActionHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   user?: Maybe<Scalars['String']>;
   user_not?: Maybe<Scalars['String']>;
   user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -4131,6 +4155,8 @@ export type ForgotPasswordActionHistoryRecordsUpdateInput = {
 };
 
 export type ForgotPasswordActionUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   user?: Maybe<UserRelateToOneInput>;
   token?: Maybe<Scalars['String']>;
   requestedAt?: Maybe<Scalars['String']>;
@@ -4148,6 +4174,18 @@ export type ForgotPasswordActionUpdateInput = {
 export type ForgotPasswordActionWhereInput = {
   AND?: Maybe<Array<Maybe<ForgotPasswordActionWhereInput>>>;
   OR?: Maybe<Array<Maybe<ForgotPasswordActionWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   user?: Maybe<UserWhereInput>;
   user_is_null?: Maybe<Scalars['Boolean']>;
   token?: Maybe<Scalars['String']>;
@@ -6751,6 +6789,8 @@ export type MutationAuthenticateUserWithPhoneAndPasswordArgs = {
 
 export type MutationStartPasswordRecoveryArgs = {
   email: Scalars['String'];
+  sender: Scalars['JSON'];
+  dv: Scalars['Int'];
 };
 
 
@@ -6879,8 +6919,6 @@ export type OrganizationCreateInput = {
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
   employees?: Maybe<OrganizationEmployeeRelateToManyInput>;
-  statusTransitions?: Maybe<Scalars['JSON']>;
-  defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -7265,7 +7303,6 @@ export type OrganizationEmployeeRoleCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
-  statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
@@ -7494,7 +7531,6 @@ export type OrganizationEmployeeRoleUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
-  statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
@@ -7543,10 +7579,6 @@ export type OrganizationEmployeeRoleWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  statusTransitions?: Maybe<Scalars['JSON']>;
-  statusTransitions_not?: Maybe<Scalars['JSON']>;
-  statusTransitions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  statusTransitions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
   canManageOrganization_not?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
@@ -8044,8 +8076,6 @@ export type OrganizationUpdateInput = {
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
   employees?: Maybe<OrganizationEmployeeRelateToManyInput>;
-  statusTransitions?: Maybe<Scalars['JSON']>;
-  defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8124,14 +8154,6 @@ export type OrganizationWhereInput = {
   employees_some?: Maybe<OrganizationEmployeeWhereInput>;
   /**  condition must be false for all nodes  */
   employees_none?: Maybe<OrganizationEmployeeWhereInput>;
-  statusTransitions?: Maybe<Scalars['JSON']>;
-  statusTransitions_not?: Maybe<Scalars['JSON']>;
-  statusTransitions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  statusTransitions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
-  defaultEmployeeRoleStatusTransitions_not?: Maybe<Scalars['JSON']>;
-  defaultEmployeeRoleStatusTransitions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  defaultEmployeeRoleStatusTransitions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -10687,6 +10709,8 @@ export enum SortBillingReceiptsBy {
 }
 
 export enum SortForgotPasswordActionHistoryRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
   TokenAsc = 'token_ASC',
   TokenDesc = 'token_DESC',
   RequestedAtAsc = 'requestedAt_ASC',
@@ -10712,6 +10736,8 @@ export enum SortForgotPasswordActionHistoryRecordsBy {
 }
 
 export enum SortForgotPasswordActionsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
   UserAsc = 'user_ASC',
   UserDesc = 'user_DESC',
   TokenAsc = 'token_ASC',
