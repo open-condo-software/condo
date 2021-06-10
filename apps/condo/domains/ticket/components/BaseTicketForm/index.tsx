@@ -136,9 +136,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             )}
                                             <Form.Item shouldUpdate noStyle>
                                                 {({ getFieldsValue }) => {
-                                                    const { unitName } = getFieldsValue(['unitName'])
+                                                    const { property } = getFieldsValue(['property'])
 
-                                                    return unitName && (
+                                                    return property && (
                                                         <>
                                                             <Col span={11}>
                                                                 <Form.Item name={'clientName'} rules={validations.clientName} label={FullNameLabel}>
