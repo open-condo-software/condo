@@ -130,15 +130,15 @@ const TicketsPage = () => {
                                     createRoute={ADD_EMPLOYEE_ROUTE}
                                     createLabel={CreateEmployee} />
                                 : <Row gutter={[0, 40]} align={'middle'}>
-                                    <Col span={6}>
-                                        <Input
-                                            placeholder={SearchPlaceholder}
-                                            onChange={(e)=>{handleSearchChange(e.target.value)}}
-                                            value={search}
-                                        />
-                                    </Col>
-                                    <Col span={5} push={13}>
-                                        <Space size={16}>
+                                    <Col span={24}>
+                                        <Row justify={'space-between'}>
+                                            <Col span={6}>
+                                                <Input
+                                                    placeholder={SearchPlaceholder}
+                                                    onChange={(e)=>{handleSearchChange(e.target.value)}}
+                                                    value={search}
+                                                />
+                                            </Col>
                                             <Dropdown.Button
                                                 overlay={dropDownMenu}
                                                 buttonsRender={() => [
@@ -158,7 +158,7 @@ const TicketsPage = () => {
                                                     />,
                                                 ]}
                                             />
-                                        </Space>
+                                        </Row>
                                     </Col>
                                     <Col span={24}>
                                         <Table
