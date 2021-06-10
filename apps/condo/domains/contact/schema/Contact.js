@@ -48,9 +48,9 @@ const Contact = new GQLListSchema('Contact', {
             type: Text,
             isRequired: true,
             hooks: {
-                resolveInput: async ({ resolvedData }) => (
-                    normalizePhone(resolvedData['phone'])
-                ),
+                resolveInput: async ({ resolvedData }) => {
+                    return normalizePhone(resolvedData['phone'])
+                },
             },
         },
 
