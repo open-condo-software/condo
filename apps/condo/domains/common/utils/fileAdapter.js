@@ -19,9 +19,9 @@ class FileAdapter {
                 Adapter = this.createSbercloudFileApapter()
                 if (!Adapter) {
                     // no fallback for production 
-                    if (coreConfig.NODE_ENV !== 'production') {
-                        Adapter = this.createLocalFileApapter()
-                    }
+                    // if (coreConfig.NODE_ENV !== 'production') {
+                    Adapter = this.createLocalFileApapter()
+                    //}
                 }
                 break
         }
