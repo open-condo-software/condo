@@ -3,10 +3,10 @@
  */
 
 const { Text, Relationship } = require('@keystonejs/fields')
-const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const access = require('@condo/domains/contact/access/Contact')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
@@ -17,13 +17,14 @@ const Contact = new GQLListSchema('Contact', {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
+        organization: ORGANIZATION_OWNED_FIELD,
+
         property: {
             schemaDoc: 'Property, that is a subject of an issue, reported by this person in first ticket. Meaning of this field will be revised in the future',
             type: Relationship,
             ref: 'Property',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         unitName: {
