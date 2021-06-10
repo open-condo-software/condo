@@ -5,13 +5,12 @@
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
 const { Contact } = require('../utils/serverSchema')
-const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 async function canReadContacts ({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
     return {
-        property: { organization: { employees_some: { user: { id: user.id }, isBlocked: false } } },
+        organization: { employees_some: { user: { id: user.id }, isBlocked: false } },
     }
 }
 
@@ -19,24 +18,15 @@ async function canManageContacts ({ authentication: { item: user }, originalInpu
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
-        const propertyId = get(originalInput, ['property', 'connect', 'id'])
-        const [property] = await Property.getAll(context, { id: propertyId })
-        if (!property) {
-            throw new Error('Cannot determine access right, because related property is not found')
-        }
-        const organization = get(property, 'organization')
-        const canManageContacts = await checkOrganizationPermission(user.id, organization.id, 'canManageContacts')
+        const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+        const canManageContacts = await checkOrganizationPermission(user.id, organizationId, 'canManageContacts')
         return canManageContacts
     } else if (operation === 'update') {
         const [contact] = await Contact.getAll(context, { id: itemId })
         if (!contact) {
             return false
         }
-        const [property] = await Property.getAll(context, { id: contact.property.id })
-        if (!property) {
-            throw new Error('Cannot determine access right, because related property is not found')
-        }
-        const canManageContacts = await checkOrganizationPermission(user.id, property.organization.id, 'canManageContacts')
+        const canManageContacts = await checkOrganizationPermission(user.id, contact.organization.id, 'canManageContacts')
         return canManageContacts
     }
     return false
