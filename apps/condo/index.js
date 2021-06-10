@@ -5,6 +5,7 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { StaticApp } = require('@keystonejs/app-static')
 const { NextApp } = require('@keystonejs/app-next')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
+const { obsRouterHandler } = require('@condo/domains/common/utils/sberCloudFileAdapter')
 
 const conf = require('@core/config')
 const access = require('@core/keystone/access')
@@ -12,6 +13,7 @@ const { registerTasks } = require('@core/keystone/tasks')
 const { EmptyApp } = require('@core/keystone/test.utils')
 const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
+const express = require('express')
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
@@ -97,6 +99,15 @@ const authStrategy = keystone.createAuthStrategy({
     },
 })
 
+class OBSFilesMiddleware {
+    prepareMiddleware ({ keystone, dev, distDir }) {
+        const app = express()
+        app.use('/api/files/:file(*)', obsRouterHandler(keystone))
+        return app
+    }
+}
+
+
 module.exports = {
     keystone,
     apps: [
@@ -107,12 +118,13 @@ module.exports = {
                 playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
             },
         }),
+        new OBSFilesMiddleware(),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({
             adminPath: '/admin',
             isAccessAllowed: access.userIsAdmin,
             authStrategy,
         }),
-        conf.NODE_ENV === 'test' ? new EmptyApp() : new NextApp({ dir: '.' }),
+        conf.NODE_ENV === 'test' ? new EmptyApp() : new NextApp({ dir: '.' }),        
     ],
 }
