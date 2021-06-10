@@ -183,9 +183,12 @@ export const EmployeeInfoPage = () => {
                                                                 {UpdateMessage}
                                                             </Button>
                                                         </Link>
-                                                        <AntButton danger onClick={showConfirm}>
+                                                        <Button
+                                                            type='sberDanger'
+                                                            secondary
+                                                            onClick={showConfirm}>
                                                             <DeleteFilled />
-                                                        </AntButton>
+                                                        </Button>
                                                     </Space>
                                                 </Col>
                                             )}
@@ -206,6 +209,7 @@ export const EmployeeInfoPage = () => {
                                 <Button
                                     key='submit'
                                     type='sberDanger'
+                                    secondary
                                     onClick={handleOk}
                                     style={{ margin: '15px' }}
                                 >
