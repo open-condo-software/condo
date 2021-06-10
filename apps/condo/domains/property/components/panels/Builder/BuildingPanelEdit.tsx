@@ -63,14 +63,16 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, upda
     }
     const mode = Map.editMode
 
-    const [isFullscreen, setFullscreen] = useState(
-        (typeof window !== 'undefined') && localStorage.getItem('isFullscreen') === 'true'
-    )
+    const [isFullscreen, setFullscreen] = useState(false)
 
     const toggleFullscreen = () => {
-        typeof window !== 'undefined' && localStorage.setItem('isFullscreen', String(!isFullscreen))
+        localStorage && localStorage.setItem('isFullscreen', String(!isFullscreen))
         setFullscreen(!isFullscreen)
     }
+
+    useEffect(() => {
+        setFullscreen(address && localStorage && localStorage.getItem('isFullscreen') === 'true')
+    }, [])
 
     return (
         <FullscreenWrapper mode={'edit'} className={isFullscreen ? 'fullscreen' : ''}>

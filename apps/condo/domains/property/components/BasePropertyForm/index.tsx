@@ -19,6 +19,7 @@ interface IPropertyFormProps {
     initialValues?: IPropertyFormState
     action?: (...args) => void
     type: string
+    address?: string
 }
 
 const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
@@ -109,6 +110,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                                         map={map}
                                                         handleSave={handleSave}
                                                         updateMap={map => setFieldsValue({ map })}
+                                                        address={props.address}
                                                     />
                                                 )
                                             }
