@@ -40,11 +40,6 @@ class SMSAdapter {
         return result
     }
 
-    async sendTestSMS ({ phone, message }) {
-        const result = await this.adapter.sendTestSMS({ phone, message })
-        return result
-    }
-
     isPhoneSupported (phone) {
         return this.adapter.isPhoneSupported(phone)
     }
@@ -68,15 +63,17 @@ class SmsRu {
     isConfigured = false
 
     constructor () {
+        let config = conf['SMSRU_API_CONFIG'] ?  JSON.parse(conf['SMSRU_API_CONFIG']) : {}
         //TODO(zuch): Remove old env record
-        const config = conf['SMSRU_API_CONFIG'] ?  JSON.parse(conf['SMSRU_API_CONFIG']) : 
-            conf['SMS_API_CONFIG'] ? JSON.parse(conf['SMS_API_CONFIG']) : 
-                {}
+        if (isEmpty(config)) {
+            config = conf['SMS_API_CONFIG'] ? JSON.parse(conf['SMS_API_CONFIG']) : {}
+        }            
         this.isConfigured = validateConfig(config, [
+            'api_url',
             'token',
             'from',
         ])
-        this.api_url = 'https://sms.ru'
+        this.api_url = config.api_url
         this.token = config.token
         this.from = config.from
     }
@@ -100,11 +97,6 @@ class SmsRu {
         return isOk
     }
 
-    async sendTestSMS ({ phone, message }) {
-        const result = await this.send({ phone, message }, { test: 1 })
-        return result
-    }
-
     async send ({ phone, message }, extendedParams = {}) {
         const body = {
             api_id: this.token,
@@ -119,7 +111,7 @@ class SmsRu {
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body:  Object.entries(body)
+                body: Object.entries(body)
                     .map(([name, value]) => `${name}=${encodeURI(value)}`)
                     .join('&'),
             }
@@ -138,11 +130,12 @@ class SmsCRu {
     constructor () {
         const config = conf['SMSCRU_API_CONFIG'] ? JSON.parse(conf['SMSCRU_API_CONFIG']) : {}
         this.isConfigured = validateConfig(config, [
+            'api_url',
             'login',
             'password',
             'sender',
         ])
-        this.api_url = 'https://smsс.ru'
+        this.api_url = config.api_url
         this.login = config.login
         this.password = config.password
         this.flash = config.flash || 0 // sms that appears on screen and is not saved to history
@@ -173,13 +166,6 @@ class SmsCRu {
         const { error_code } = json
         const isOk = !error_code
         return isOk
-    }
-
-    async sendTestSMS ({ phone, message }) {
-        // There is no sms send emulation for this provider. It's possible to turn on test mode for account on web page settings
-        // Though using hlr will reduce cost of test sms to minimum as it only checks provider information for the phone
-        const result = await this.send({ phone, message }, { hlr: 1 }) 
-        return result
     }
 
     async send ({ phone, message }, extendedParams = {}) {        

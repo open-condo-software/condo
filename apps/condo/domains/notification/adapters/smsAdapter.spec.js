@@ -28,7 +28,7 @@ describe('SMS adapters', () => {
         it('should send sms', async () => {
             const Adapter = new SMSAdapter('SMS')
             if (Adapter.isConfigured) {
-                const [isOk] = await Adapter.sendTestSMS({ phone: TEST_PHONE_NUMBER, message: '1' })
+                const [isOk] = await Adapter.send({ phone: TEST_PHONE_NUMBER, message: '1' }, { test: 1 })
                 expect(isOk).toBe(true)
             }
         })
@@ -57,7 +57,9 @@ describe('SMS adapters', () => {
         it('should send sms', async () => {
             const Adapter = new SMSAdapter('SMSC')
             if (Adapter.isConfigured) {
-                const [isOk] = await Adapter.sendTestSMS({ phone: TEST_PHONE_NUMBER, message: '1' })
+                // There is no sms send emulation for this provider. It's possible to turn on test mode for account on web page settings
+                // Though using hlr will reduce cost of test sms to minimum as it only checks provider information for the phone
+                const [isOk] = await Adapter.send({ phone: TEST_PHONE_NUMBER, message: '1' }, { hlr: 1 })
                 expect(isOk).toBe(true)
             }
         })
