@@ -75,6 +75,7 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
             initialValues={initialValues}
             organization={organization}
             type='building'
+            address={property.address}
         >
             {({ handleSave, isLoading }) => {
                 return (
@@ -84,28 +85,6 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
                                 const { address } = getFieldsValue(['address'])
                                 return (
                                     <>
-                                        <Row gutter={[40, 24]} style={{ paddingLeft: '24px', paddingRight: '24px', justifyContent: 'space-between' }}>
-                                            <Col span={24} push={2}>
-                                                <ErrorsContainer address={address} />
-                                            </Col>
-                                            <Col flex={0}>
-                                                <Space size={40}>
-                                                    <FormResetButton
-                                                        type={'sberPrimary'}
-                                                        secondary
-                                                    />
-                                                    <Button
-                                                        key='submit'
-                                                        type='sberPrimary'
-                                                        loading={isLoading}
-                                                        disabled={!address}
-                                                    >
-                                                        {ApplyChangesLabel}
-                                                    </Button>
-                                                </Space>
-                                            </Col>
-                                            <Col flex={0}></Col>
-                                        </Row>
                                         <Modal
                                             title={
                                                 <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
@@ -158,7 +137,6 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
                                             </Button>
                                         </ActionBar>
                                     </>
-
                                 )
                             }
                         }

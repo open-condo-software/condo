@@ -22,7 +22,7 @@ export const FullscreenHeader = styled.div<{
     edit?: boolean
 }>`
     margin: -24px -24px 0;
-    padding: 16px 24px 16px 62px;
+    padding: 16px 24px 16px 24px;
     ${({ edit }) => (!edit ? `
         display: none;
         width: 100%;
@@ -38,6 +38,7 @@ export const FullscreenHeader = styled.div<{
         z-index: 2;
         margin: 0;
         display: block;
+        padding-left: 62px;
     }
 
     ${({ edit }) => (edit ? `

@@ -69,7 +69,6 @@ interface IBuildingChooseSectionsProps {
     Builder: MapEdit | MapView
     refresh(): void
     toggleFullscreen?(): void
-
     isFullscreen?: boolean
 }
 export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
