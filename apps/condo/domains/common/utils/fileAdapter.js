@@ -18,6 +18,7 @@ class FileAdapter {
             case 'sbercloud':
                 Adapter = this.createSbercloudFileApapter()
                 if (!Adapter) {
+                    console.warn('coreConfig.NODE_ENV', coreConfig.NODE_ENV)
                     // no fallback for production 
                     if (coreConfig.NODE_ENV !== 'production') {
                         Adapter = this.createLocalFileApapter()
