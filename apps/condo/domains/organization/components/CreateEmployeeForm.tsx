@@ -127,7 +127,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                             rules={validations.phone}
                                             {...INPUT_LAYOUT_PROPS}
                                         >
-                                            <PhoneInput placeholder={ExamplePhoneMsg}/>
+                                            <PhoneInput placeholder={ExamplePhoneMsg} style={{ width: '100%' }}/>
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
