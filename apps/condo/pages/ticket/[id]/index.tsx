@@ -180,7 +180,7 @@ const TicketIdPage = () => {
     // NOTE: cast `string | string[]` to `string`
     const { query: { id } } = router as { query: { [key: string]: string } }
 
-    const { refetch, loading, obj: ticket, error } = Ticket.useObject({
+    const { refetch: refetchTicket, loading, obj: ticket, error } = Ticket.useObject({
         where: { id },
     }, {
         fetchPolicy: 'network-only',
@@ -211,6 +211,11 @@ const TicketIdPage = () => {
 
     const ticketAddress = get(ticket, ['property', 'address']) + (ticket.unitName && (', ' + ticket.unitName))
     const isEmergency = get(ticket, 'isEmergency')
+
+    const handleTicketStatusChanged = () => {
+        refetchTicket()
+        ticketChangesResult.refetch()
+    }
 
     return (
         <>
@@ -245,7 +250,7 @@ const TicketIdPage = () => {
                                 </Col>
                                 <Col span={12}>
                                     <Row justify={'end'}>
-                                        <TicketStatusSelect ticket={ticket} onUpdate={refetch} loading={loading}/>
+                                        <TicketStatusSelect ticket={ticket} onUpdate={handleTicketStatusChanged} loading={loading}/>
                                     </Row>
                                 </Col>
                             </Row>
