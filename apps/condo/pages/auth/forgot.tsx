@@ -63,7 +63,6 @@ const ResetPage: AuthPage = () => {
 
     const forgotAction = async () => {
         setIsLoading(true)
-        setIsLoading(true)
         const sender = getClientSideSenderInfo()
         const dv = 1
         const values = { ...form.getFieldsValue(['email']), dv, sender }
