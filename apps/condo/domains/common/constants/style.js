@@ -23,6 +23,7 @@ const inputBorderGrey = '#BFBFBF'
 const black = '#000'
 const beautifulBlue = '#eFF7FF'
 const markColor = '#B5CCFF'
+const whiteTranslucent = 'rgba(255, 255, 255, 0.9)'
 
 const colors = {
     sberDefault: generateCustomColorPalette(sberBlue, sberSecondaryBlue),
@@ -41,6 +42,7 @@ const colors = {
     green,
     ultraLightGrey,
     inputBorderGrey,
+    whiteTranslucent,
 }
 
 // Possible customizations can be found at https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less
@@ -69,7 +71,7 @@ const antGlobalVariables = {
     '@table-header-bg': ultraLightGrey,
     '@tabs-highlight-color': '@black',
     '@tabs-hover-color': '@black',
-    '@tabs-active-color': '@black',    
+    '@tabs-active-color': '@black',
     '@tabs-ink-bar-color': '@black',
     '@switch-color': sberGreen,
     '@alert-error-border-color': '@red-2',

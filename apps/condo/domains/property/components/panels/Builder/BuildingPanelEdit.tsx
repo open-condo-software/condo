@@ -8,7 +8,6 @@ import {
     EmptyFloor,
     BuildingAxisY,
     BuildingChooseSections,
-    FullscreenHeader,
 } from './BuildingPanelCommon'
 import { Button } from '@condo/domains/common/components/Button'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -18,8 +17,7 @@ import {
     BuildingUnit,
     BuildingSection,
 } from './MapConstructor'
-import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
-import { useRouter } from 'next/router'
+import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 
 import ScrollContainer from 'react-indiana-drag-scroll'
 
@@ -29,18 +27,14 @@ const INPUT_STYLE = {
     width: '136px',
 }
 
-
 interface IBuildingPanelEditProps {
     map: BuildingMap
     updateMap: (map: BuildingMap) => void
     handleSave(): void
-    maximizableElement: React.RefObject<HTMLElement | null>
+    address?: string;
 }
 
-export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, updateMap: updateFormField, maximizableElement, handleSave }) => {
-    const { query: { id } } = useRouter()
-    const { obj: property } = useObject({ where: { id: id as string } })
-
+export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, updateMap: updateFormField, handleSave, address }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
@@ -68,18 +62,27 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, upda
         refresh()
     }
     const mode = Map.editMode
+
+    const [isFullscreen, setFullscreen] = useState(
+        (typeof window !== 'undefined') && localStorage.getItem('isFullscreen') === 'true'
+    )
+
+    const toggleFullscreen = () => {
+        typeof window !== 'undefined' && localStorage.setItem('isFullscreen', String(!isFullscreen))
+        setFullscreen(!isFullscreen)
+    }
+
     return (
-        <>
+        <FullscreenWrapper mode={'edit'} className={isFullscreen ? 'fullscreen' : ''}>
             <FullscreenHeader edit={true}>
                 <Row style={{ paddingBottom: '39px', marginRight: '36px' }}>
-                    {property && <Col flex={0} style={{ marginTop: '10px' }}><b>{property.address}</b></Col>}
+                    {address && <Col flex={0} style={{ marginTop: '10px' }}><b>{address}</b></Col>}
                     <Col style={{ marginLeft: 'auto' }}>
                         <Button
                             key='submit'
                             onClick={handleSave}
                             type='sberPrimary'
-                            // loading={isLoading}
-                            // disabled={!address}
+                            disabled={!address}
                         >
                             {SaveLabel}
                         </Button>
@@ -121,11 +124,12 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, upda
                             Builder={Map}
                             refresh={refresh}
                             scrollToForm={scrollToForm}
-                            maximizableElement={maximizableElement}
+                            toggleFullscreen={toggleFullscreen}
+                            isFullscreen={isFullscreen}
                         />
                 }
             </Row>
-        </>
+        </FullscreenWrapper>
     )
 }
 
@@ -133,11 +137,12 @@ interface IChessBoardProps {
     Builder: MapEdit
     refresh(): void
     scrollToForm(): void
-    maximizableElement: React.RefObject<HTMLElement | null>
+    toggleFullscreen?(): void
+    isFullscreen?: boolean
 }
 
 
-const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm, maximizableElement }) => {
+const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm, toggleFullscreen, isFullscreen }) => {
     const container = useRef<HTMLElement | null>(null)
     useEffect(() => {
         if (container.current) {
@@ -212,7 +217,12 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm
                             }
                         </ScrollContainer>
                         {
-                            <BuildingChooseSections  maximizableElement={maximizableElement} Builder={Builder} refresh={refresh}></BuildingChooseSections>
+                            <BuildingChooseSections
+                                isFullscreen={isFullscreen}
+                                toggleFullscreen={toggleFullscreen}
+                                Builder={Builder}
+                                refresh={refresh}
+                            />
                         }
                     </Col>
             }
