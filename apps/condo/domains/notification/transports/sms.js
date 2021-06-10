@@ -1,7 +1,7 @@
 const { SMS_TRANSPORT } = require('../constants')
 const { renderTemplate } = require('../templates')
 
-const { SMSAdapter } = require('@condo/domains/common/utils/smsAdapter')
+const { SMSAdapter } = require('@condo/domains/notification/adapters/smsAdapter')
 
 async function prepareMessageToSend (message) {
     const phone = message.phone || (message.user && message.user.phone) || null
