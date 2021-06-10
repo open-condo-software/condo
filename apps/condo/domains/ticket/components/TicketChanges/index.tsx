@@ -33,7 +33,7 @@ export const TicketChanges: React.FC<ITicketChangesProps> = ({ items, total }) =
                             ticketChange={change}
                         />
                     ))}
-                    {displayCount <= total && (
+                    {displayCount < total && (
                         <Button
                             type="text"
                             onClick={() => {
