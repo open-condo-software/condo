@@ -50,8 +50,8 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
     }
 ` 
 const START_PASSWORD_RECOVERY_MUTATION = gql`
-    mutation startPasswordRecovery($email: String!){
-        status: startPasswordRecovery(email: $email)
+    mutation startPasswordRecovery($email: String!, $dv: Int!, $sender: JSON!){
+        status: startPasswordRecovery(email: $email, dv: $dv, sender: $sender)
     }
 `
 /* AUTOGENERATE MARKER <CONST> */
