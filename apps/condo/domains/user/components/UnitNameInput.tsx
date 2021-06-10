@@ -28,7 +28,7 @@ const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
 
         return flattenUnits.map(
             (unit) => (
-                <Select.Option key={unit.id} value={unit.id} title={String(unit.label)}>{unit.label}</Select.Option>
+                <Select.Option key={unit.label} value={unit.label} title={String(unit.label)}>{unit.label}</Select.Option>
             )
         )
 
