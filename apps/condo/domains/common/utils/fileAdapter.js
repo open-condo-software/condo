@@ -17,7 +17,7 @@ class FileAdapter {
                 break
             case 'sbercloud':
                 Adapter = this.createSbercloudFileApapter()
-                if (!Adapter) {
+                if (!Adapter && coreConfig.NODE_ENV !== 'production') {
                     Adapter = this.createLocalFileApapter()
                 }
                 break

@@ -193,7 +193,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
     }
     return (
         <div className={'upload-control-wrapper'}>
-            <Upload { ...options } >
+            <Upload { ...options } disabled={true} >
                 <Button
                     type={'sberGrey'}
                     secondary
