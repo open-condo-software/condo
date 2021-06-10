@@ -1,47 +1,14 @@
-
+/** @jsx jsx */
+import { jsx } from '@emotion/core'
 import { useIntl } from '@core/next/intl'
-import styled from '@emotion/styled'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Col, Row, Typography, Checkbox } from 'antd'
 import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
-import React, { useRef, useEffect, useLayoutEffect, useState } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MapEdit, MapView } from './MapConstructor'
-
-export const FullscreenHeader = styled.div<{
-    edit?: boolean
-}>`
-    margin: -24px -24px 0;
-    padding: 12px 24px;
-    ${({ edit }) => (!edit ? `
-        display: none;
-        width: 100%;
-    ` : '')}
-
-
-    div:fullscreen & {
-        border-bottom: 1px solid #D9D9D9;
-        background: rgba(255,255,255, 0.9);
-        position: fixed;
-        left: 0;
-        right: 0;
-        top: 0;
-        z-index: 2;
-        margin: 0;
-        display: block;
-    }
-
-    ${({ edit }) => (edit ? `
-        &>div:first-child {
-            display: none;
-        }
-
-        div:fullscreen>&>div:first-child {
-            display: flex;
-        }
-    ` : '')}
-`
+import { FullscreenFooter } from './Fullscreen'
 
 export const PropertyMapFloor: React.FC = ({ children }) => {
     return (
@@ -101,51 +68,19 @@ export const BuildingAxisY: React.FC<IBuildingAxisYProps> = ({ floors }) => {
 interface IBuildingChooseSectionsProps {
     Builder: MapEdit | MapView
     refresh(): void
-    maximizableElement?: React.RefObject<HTMLElement | null>
+    toggleFullscreen?(): void
+
+    isFullscreen?: boolean
 }
-
-
-const fullcreen = {
-    left: '0',
-    right: '0',
-    bottom: '0',
-    padding: '12px 61px 12px 45px',
-    background: 'rgba(255, 255, 255, 0.9)',
-    ZIndex: '1',
-    Position: 'fixed',
-    borderTop: '1px solid #D9D9D9',
-    marginRight: '-21px',
-}
-
-const normalscreen = {
-    margin: '0 -21px 0 -24px',
-    padding: '12px 0px 12px 4px',
-}
-
-
 export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
     Builder,
     refresh,
-    maximizableElement,
+    toggleFullscreen,
+    isFullscreen,
 }) => {
     const intl = useIntl()
     const RequestFullscreenMessage = intl.formatMessage({ id: 'FullscreenRequest' })
     const ExitFullscreenMessage = intl.formatMessage({ id: 'FullscreenExit' })
-
-    let isFullscreen
-    let setIsFullscreen
-
-    try {
-        [isFullscreen, setIsFullscreen] = useFullscreenStatus(maximizableElement)
-    } catch (e) {
-        isFullscreen = false
-        setIsFullscreen = undefined
-    }
-
-    const handleExitFullscreen = () => document.exitFullscreen() //?
-    const handleFullscreen = () => {
-        isFullscreen ? handleExitFullscreen() : setIsFullscreen()
-    }
 
     const updateVisibleSections = (value) => {
         Builder.setVisibleSections(value)
@@ -158,7 +93,7 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
             style={{ width: '100%', marginTop: '36px' }} >
 
             <Row
-                style={isFullscreen ? fullcreen : normalscreen}
+                css={FullscreenFooter}
                 gutter={[40, 40]}
             >
                 {
@@ -177,7 +112,7 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
                             secondary
                             icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
                             size={'large'}
-                            onClick={handleFullscreen}
+                            onClick={toggleFullscreen}
                         >
                             {isFullscreen
                                 ? ExitFullscreenMessage
@@ -207,58 +142,4 @@ export function useHorizontalScroll (): React.RefObject<HTMLElement>{
         }
     }, [])
     return elementRef
-}
-
-
-const getBrowserFullscreen = (): string | null => {
-    let result
-
-    if (typeof document.fullscreenElement !== 'undefined') {
-        result = 'fullscreenElement'
-    } else if (typeof document['mozFullScreenElement'] !== 'undefined') {
-        result = 'mozFullScreenElement'
-    } else if (typeof document['webkitFullscreenElement'] !== 'undefined') {
-        result = 'webkitFullscreenElement'
-    } else {
-        throw new Error('This browser not supports fullscreenElement')
-    }
-    return result
-}
-
-const requestFullscreen = async (elem): Promise<void> => {
-    if (elem.requestFullscreen) {
-        await elem.requestFullscreen()
-    } else if (elem.mozRequestFullScreen) {
-        await elem.mozRequestFullScreen()
-    } else if (elem.webkitRequestFullScreen) {
-        await elem.webkitRequestFullScreen()
-    }
-}
-
-export const useFullscreenStatus = (elRef: React.RefObject<HTMLElement | null>): [boolean, () => Promise<void>] => {
-    const browserFullscreen = getBrowserFullscreen()
-
-    const [isFullscreen, setIsFullscreen] = useState(
-        document[browserFullscreen] != null
-    )
-
-    const setFullscreen = async () => {
-        if (elRef.current == null) return
-
-        try {
-            await requestFullscreen(elRef.current)
-            setIsFullscreen(document[browserFullscreen] != null)
-        } catch (e) {
-            setIsFullscreen(false)
-        }
-    }
-
-    useLayoutEffect(() => {
-        document.onfullscreenchange = () =>
-            setIsFullscreen(document[browserFullscreen] != null)
-
-        return () => (document.onfullscreenchange = undefined)
-    })
-
-    return [isFullscreen, setFullscreen]
 }

@@ -86,7 +86,7 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
                     </Row>
                     <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
                         <Col span={24}>
-                            <PropertyPanels mode='view' map={property.map} />
+                            <PropertyPanels mode='view' map={property.map} address={property.address} />
                         </Col>
                     </Row>
                     <ActionBar>

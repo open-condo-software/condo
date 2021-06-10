@@ -3,7 +3,6 @@ import {
     EmptyFloor,
     BuildingAxisY,
     BuildingChooseSections,
-    FullscreenHeader,
 } from './BuildingPanelCommon'
 import { Col, Row } from 'antd'
 import React, { useState } from 'react'
@@ -19,33 +18,42 @@ import { EditFilled } from '@ant-design/icons'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import Link from 'next/link'
 import { Button } from '@condo/domains/common/components/Button'
+import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 
 interface IBuildingPanelViewProps {
     map: BuildingMap
-    maximizableElement?: React.RefObject<HTMLElement | null>
 }
 
-export const BuildingPanelView: React.FC<IBuildingPanelViewProps> = ({ map, maximizableElement }) => {
+export const BuildingPanelView: React.FC<IBuildingPanelViewProps> = ({ map }) => {
     const mapView = new MapView(map)
     const [Map, setMap] = useState(mapView)
     // TODO(zuch): Ask for a better solution
     const refresh = () => setMap(cloneDeep(Map))
     return (
-        <PropertyMapView Builder={Map} refresh={refresh} maximizableElement={maximizableElement}></PropertyMapView>
+        <PropertyMapView Builder={Map} refresh={refresh} />
     )
 }
 
 interface IPropertyMapViewProps {
     Builder: MapView
     refresh(): void
-    maximizableElement?: React.RefObject<HTMLElement | null>
 }
 
-export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refresh, maximizableElement }) => {
+export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refresh }) => {
     const { query: { id } } = useRouter()
     const { obj: property } = useObject({ where: { id: id as string } })
+
+    const [isFullscreen, setFullscreen] = useState(
+        (typeof window !== 'undefined') && localStorage.getItem('isFullscreen') === 'true',
+    )
+
+    const toggleFullscreen = () => {
+        typeof window !== 'undefined' && localStorage.setItem('isFullscreen', String(!isFullscreen))
+        setFullscreen(!isFullscreen)
+    }
+
     return (
-        <>
+        <FullscreenWrapper mode={'view'} className={isFullscreen ? 'fullscreen' : '' }>
             <FullscreenHeader edit={false}>
                 <Row>
                     <Col flex={0} style={{ marginTop: '10px' }}><b>{property.address}</b></Col>
@@ -128,11 +136,16 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                 }
                             </ScrollContainer>
                             {
-                                <BuildingChooseSections Builder={Builder} refresh={refresh} maximizableElement={maximizableElement}></BuildingChooseSections>
+                                <BuildingChooseSections
+                                    Builder={Builder}
+                                    refresh={refresh}
+                                    toggleFullscreen={toggleFullscreen}
+                                    isFullscreen={isFullscreen}
+                                />
                             }
                         </Col>
                 }
             </Row>
-        </>
+        </FullscreenWrapper>
     )
 }

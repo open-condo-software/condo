@@ -108,7 +108,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                                         mode='edit'
                                                         map={map}
                                                         handleSave={handleSave}
-                                                        updateMap={ map =>  setFieldsValue({ map })}
+                                                        updateMap={map => setFieldsValue({ map })}
                                                     />
                                                 )
                                             }
