@@ -5,7 +5,7 @@ import {
     BuildingChooseSections,
 } from './BuildingPanelCommon'
 import { Col, Row } from 'antd'
-import React, { useEffect, useState, useLayoutEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import cloneDeep from 'lodash/cloneDeep'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import {
