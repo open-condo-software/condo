@@ -141,6 +141,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             filterOption={false}
             autoClearSearchValue={false}
             defaultActiveFirstOption={false}
+            {...restSelectProps}
         >
             {options}
         </Select>
