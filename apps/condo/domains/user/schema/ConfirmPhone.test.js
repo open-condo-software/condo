@@ -103,7 +103,7 @@ describe('ConfirmPhoneAction Service', () => {
         const { data: { token } }  = await client.mutate(START_CONFIRM_PHONE_MUTATION, { phone, dv: 1, sender: { dv: 1, fingerprint: 'tests' } })
         const admin = await makeLoggedInAdminClient()
         const { data: { confirmPhoneActions: [actionBefore] } } = await admin.query(GET_CONFIRM_PHONE_BY_TOKEN, { token })
-        await admin.mutate(GET_CONFIRM_PHONE_BY_TOKEN, { id: actionBefore.id, data: { smsCodeExpiresAt: actionBefore.smsCodeRequestedAt } })
+        await admin.mutate(UPDATE_CONFIRM_PHONE_ACTION, { id: actionBefore.id, data: { smsCodeExpiresAt: actionBefore.smsCodeRequestedAt } })
         const res = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { token, smsCode: actionBefore.smsCode })
         expect(JSON.stringify(res.errors)).toContain(CONFIRM_PHONE_SMS_CODE_EXPIRED)
     })
