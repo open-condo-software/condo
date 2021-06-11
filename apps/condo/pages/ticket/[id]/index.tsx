@@ -203,7 +203,7 @@ const TicketIdPage = () => {
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
-    if (!!error || loading || !ticket || !!ticketChangesResult.error || ticketChangesResult.loading || !ticketChangesResult.objs) {
+    if (!ticket) {
         return (
             <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={ServerErrorMessage}/>
         )
@@ -347,20 +347,16 @@ const TicketIdPage = () => {
                             icon={<FilePdfFilled />}
                             href={`/ticket/${ticket.id}/pdf`}
                             target={'_blank'}
-                            loading={loading}
-                            disabled={loading}
                             secondary
                         >
                             {PrintMessage}
                         </Button>
                     </ActionBar>
 
-                    {!ticketChangesResult.loading && !ticketChangesResult.error && ticketChangesResult.objs && (
-                        <TicketChanges
-                            items={ticketChangesResult.objs}
-                            total={ticketChangesResult.count}
-                        />
-                    )}
+                    <TicketChanges
+                        items={ticketChangesResult.objs}
+                        total={ticketChangesResult.count}
+                    />
                 </PageContent>
             </PageWrapper>
         </>
