@@ -354,6 +354,7 @@ const TicketIdPage = () => {
                     </ActionBar>
 
                     <TicketChanges
+                        loading={ticketChangesResult.loading}
                         items={ticketChangesResult.objs}
                         total={ticketChangesResult.count}
                     />
