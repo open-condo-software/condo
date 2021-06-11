@@ -11,6 +11,13 @@ const ALREADY_REGISTERED = '[unique:phone:multipleFound'
 const RESET_TOKEN_NOT_FOUND = '[resetPassword:token:notFound'
 const PASSWORD_TOO_SHORT = '[password:min:length'
 
+
+const CONFIRM_PHONE_EXPIRED = '[confirm:phone:experied' 
+const CONFIRM_PHONE_SMS_CODE_EXPIRED = '[confirm:phone:smscode:expired'
+const CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED = '[confirm:phone:smscode:verify:failed'
+const CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED = '[confirm:phone:smscode:tooManyRequests'
+
+
 module.exports = {
     WRONG_PASSWORD_ERROR,
     EMPTY_PASSWORD_ERROR,
@@ -23,4 +30,8 @@ module.exports = {
     EMAIL_ALREADY_REGISTERED_ERROR,
     RESET_TOKEN_NOT_FOUND,
     MIN_PASSWORD_LENGTH_ERROR,
+    CONFIRM_PHONE_EXPIRED,
+    CONFIRM_PHONE_SMS_CODE_EXPIRED,
+    CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED,
+    CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED,
 }

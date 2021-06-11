@@ -3878,6 +3878,450 @@ export enum CacheControlScope {
   Private = 'PRIVATE'
 }
 
+/**  A keystone list  */
+export type ConfirmPhoneAction = {
+  __typename?: 'ConfirmPhoneAction';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the ConfirmPhoneAction List config, or
+   *  2. As an alias to the field set on 'labelField' in the ConfirmPhoneAction List config, or
+   *  3. As an alias to a 'name' field on the ConfirmPhoneAction List (if one exists), or
+   *  4. As an alias to the 'id' field on the ConfirmPhoneAction List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<Scalars['JSON']>;
+  /**  Phone. In international E.164 format without spaces  */
+  phone?: Maybe<Scalars['String']>;
+  /**  Unique token to complete registration  */
+  token?: Maybe<Scalars['String']>;
+  /**  Last sms code sent to user  */
+  smsCode?: Maybe<Scalars['Int']>;
+  /**  Time when sms code was requested  */
+  smsCodeRequestedAt?: Maybe<Scalars['String']>;
+  /**  Time when sms code becomes not valid  */
+  smsCodeExpiresAt?: Maybe<Scalars['String']>;
+  /**  Number of times sms code input from user failed  */
+  retries?: Maybe<Scalars['Int']>;
+  /**  Phone verification flag. User verify phone by access to secret sms message  */
+  isPhoneVerified?: Maybe<Scalars['Boolean']>;
+  requestedAt?: Maybe<Scalars['String']>;
+  expiresAt?: Maybe<Scalars['String']>;
+  completedAt?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type ConfirmPhoneActionCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  phone?: Maybe<Scalars['String']>;
+  token?: Maybe<Scalars['String']>;
+  smsCode?: Maybe<Scalars['Int']>;
+  smsCodeRequestedAt?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt?: Maybe<Scalars['String']>;
+  retries?: Maybe<Scalars['Int']>;
+  isPhoneVerified?: Maybe<Scalars['Boolean']>;
+  requestedAt?: Maybe<Scalars['String']>;
+  expiresAt?: Maybe<Scalars['String']>;
+  completedAt?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+/**  A keystone list  */
+export type ConfirmPhoneActionHistoryRecord = {
+  __typename?: 'ConfirmPhoneActionHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the ConfirmPhoneActionHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the ConfirmPhoneActionHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the ConfirmPhoneActionHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the ConfirmPhoneActionHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  phone?: Maybe<Scalars['String']>;
+  token?: Maybe<Scalars['String']>;
+  smsCode?: Maybe<Scalars['Int']>;
+  smsCodeRequestedAt?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt?: Maybe<Scalars['String']>;
+  retries?: Maybe<Scalars['Int']>;
+  isPhoneVerified?: Maybe<Scalars['Boolean']>;
+  requestedAt?: Maybe<Scalars['String']>;
+  expiresAt?: Maybe<Scalars['String']>;
+  completedAt?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<ConfirmPhoneActionHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type ConfirmPhoneActionHistoryRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  phone?: Maybe<Scalars['String']>;
+  token?: Maybe<Scalars['String']>;
+  smsCode?: Maybe<Scalars['Int']>;
+  smsCodeRequestedAt?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt?: Maybe<Scalars['String']>;
+  retries?: Maybe<Scalars['Int']>;
+  isPhoneVerified?: Maybe<Scalars['Boolean']>;
+  requestedAt?: Maybe<Scalars['String']>;
+  expiresAt?: Maybe<Scalars['String']>;
+  completedAt?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<ConfirmPhoneActionHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum ConfirmPhoneActionHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type ConfirmPhoneActionHistoryRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  phone?: Maybe<Scalars['String']>;
+  token?: Maybe<Scalars['String']>;
+  smsCode?: Maybe<Scalars['Int']>;
+  smsCodeRequestedAt?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt?: Maybe<Scalars['String']>;
+  retries?: Maybe<Scalars['Int']>;
+  isPhoneVerified?: Maybe<Scalars['Boolean']>;
+  requestedAt?: Maybe<Scalars['String']>;
+  expiresAt?: Maybe<Scalars['String']>;
+  completedAt?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<ConfirmPhoneActionHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type ConfirmPhoneActionHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  phone?: Maybe<Scalars['String']>;
+  phone_not?: Maybe<Scalars['String']>;
+  phone_contains?: Maybe<Scalars['String']>;
+  phone_not_contains?: Maybe<Scalars['String']>;
+  phone_starts_with?: Maybe<Scalars['String']>;
+  phone_not_starts_with?: Maybe<Scalars['String']>;
+  phone_ends_with?: Maybe<Scalars['String']>;
+  phone_not_ends_with?: Maybe<Scalars['String']>;
+  phone_i?: Maybe<Scalars['String']>;
+  phone_not_i?: Maybe<Scalars['String']>;
+  phone_contains_i?: Maybe<Scalars['String']>;
+  phone_not_contains_i?: Maybe<Scalars['String']>;
+  phone_starts_with_i?: Maybe<Scalars['String']>;
+  phone_not_starts_with_i?: Maybe<Scalars['String']>;
+  phone_ends_with_i?: Maybe<Scalars['String']>;
+  phone_not_ends_with_i?: Maybe<Scalars['String']>;
+  phone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  token?: Maybe<Scalars['String']>;
+  token_not?: Maybe<Scalars['String']>;
+  token_contains?: Maybe<Scalars['String']>;
+  token_not_contains?: Maybe<Scalars['String']>;
+  token_starts_with?: Maybe<Scalars['String']>;
+  token_not_starts_with?: Maybe<Scalars['String']>;
+  token_ends_with?: Maybe<Scalars['String']>;
+  token_not_ends_with?: Maybe<Scalars['String']>;
+  token_i?: Maybe<Scalars['String']>;
+  token_not_i?: Maybe<Scalars['String']>;
+  token_contains_i?: Maybe<Scalars['String']>;
+  token_not_contains_i?: Maybe<Scalars['String']>;
+  token_starts_with_i?: Maybe<Scalars['String']>;
+  token_not_starts_with_i?: Maybe<Scalars['String']>;
+  token_ends_with_i?: Maybe<Scalars['String']>;
+  token_not_ends_with_i?: Maybe<Scalars['String']>;
+  token_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  token_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  smsCode?: Maybe<Scalars['Int']>;
+  smsCode_not?: Maybe<Scalars['Int']>;
+  smsCode_lt?: Maybe<Scalars['Int']>;
+  smsCode_lte?: Maybe<Scalars['Int']>;
+  smsCode_gt?: Maybe<Scalars['Int']>;
+  smsCode_gte?: Maybe<Scalars['Int']>;
+  smsCode_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  smsCode_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  smsCodeRequestedAt?: Maybe<Scalars['String']>;
+  smsCodeRequestedAt_not?: Maybe<Scalars['String']>;
+  smsCodeRequestedAt_lt?: Maybe<Scalars['String']>;
+  smsCodeRequestedAt_lte?: Maybe<Scalars['String']>;
+  smsCodeRequestedAt_gt?: Maybe<Scalars['String']>;
+  smsCodeRequestedAt_gte?: Maybe<Scalars['String']>;
+  smsCodeRequestedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  smsCodeRequestedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  smsCodeExpiresAt?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt_not?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt_lt?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt_lte?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt_gt?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt_gte?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  smsCodeExpiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  retries?: Maybe<Scalars['Int']>;
+  retries_not?: Maybe<Scalars['Int']>;
+  retries_lt?: Maybe<Scalars['Int']>;
+  retries_lte?: Maybe<Scalars['Int']>;
+  retries_gt?: Maybe<Scalars['Int']>;
+  retries_gte?: Maybe<Scalars['Int']>;
+  retries_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  retries_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  isPhoneVerified?: Maybe<Scalars['Boolean']>;
+  isPhoneVerified_not?: Maybe<Scalars['Boolean']>;
+  requestedAt?: Maybe<Scalars['String']>;
+  requestedAt_not?: Maybe<Scalars['String']>;
+  requestedAt_lt?: Maybe<Scalars['String']>;
+  requestedAt_lte?: Maybe<Scalars['String']>;
+  requestedAt_gt?: Maybe<Scalars['String']>;
+  requestedAt_gte?: Maybe<Scalars['String']>;
+  requestedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  requestedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  expiresAt?: Maybe<Scalars['String']>;
+  expiresAt_not?: Maybe<Scalars['String']>;
+  expiresAt_lt?: Maybe<Scalars['String']>;
+  expiresAt_lte?: Maybe<Scalars['String']>;
+  expiresAt_gt?: Maybe<Scalars['String']>;
+  expiresAt_gte?: Maybe<Scalars['String']>;
+  expiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  expiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  completedAt?: Maybe<Scalars['String']>;
+  completedAt_not?: Maybe<Scalars['String']>;
+  completedAt_lt?: Maybe<Scalars['String']>;
+  completedAt_lte?: Maybe<Scalars['String']>;
+  completedAt_gt?: Maybe<Scalars['String']>;
+  completedAt_gte?: Maybe<Scalars['String']>;
+  completedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  completedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<ConfirmPhoneActionHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<ConfirmPhoneActionHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type ConfirmPhoneActionHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type ConfirmPhoneActionHistoryRecordsCreateInput = {
+  data?: Maybe<ConfirmPhoneActionHistoryRecordCreateInput>;
+};
+
+export type ConfirmPhoneActionHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<ConfirmPhoneActionHistoryRecordUpdateInput>;
+};
+
+export type ConfirmPhoneActionUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  phone?: Maybe<Scalars['String']>;
+  token?: Maybe<Scalars['String']>;
+  smsCode?: Maybe<Scalars['Int']>;
+  smsCodeRequestedAt?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt?: Maybe<Scalars['String']>;
+  retries?: Maybe<Scalars['Int']>;
+  isPhoneVerified?: Maybe<Scalars['Boolean']>;
+  requestedAt?: Maybe<Scalars['String']>;
+  expiresAt?: Maybe<Scalars['String']>;
+  completedAt?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type ConfirmPhoneActionWhereInput = {
+  AND?: Maybe<Array<Maybe<ConfirmPhoneActionWhereInput>>>;
+  OR?: Maybe<Array<Maybe<ConfirmPhoneActionWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  phone?: Maybe<Scalars['String']>;
+  phone_not?: Maybe<Scalars['String']>;
+  phone_contains?: Maybe<Scalars['String']>;
+  phone_not_contains?: Maybe<Scalars['String']>;
+  phone_starts_with?: Maybe<Scalars['String']>;
+  phone_not_starts_with?: Maybe<Scalars['String']>;
+  phone_ends_with?: Maybe<Scalars['String']>;
+  phone_not_ends_with?: Maybe<Scalars['String']>;
+  phone_i?: Maybe<Scalars['String']>;
+  phone_not_i?: Maybe<Scalars['String']>;
+  phone_contains_i?: Maybe<Scalars['String']>;
+  phone_not_contains_i?: Maybe<Scalars['String']>;
+  phone_starts_with_i?: Maybe<Scalars['String']>;
+  phone_not_starts_with_i?: Maybe<Scalars['String']>;
+  phone_ends_with_i?: Maybe<Scalars['String']>;
+  phone_not_ends_with_i?: Maybe<Scalars['String']>;
+  phone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  token?: Maybe<Scalars['String']>;
+  token_not?: Maybe<Scalars['String']>;
+  token_contains?: Maybe<Scalars['String']>;
+  token_not_contains?: Maybe<Scalars['String']>;
+  token_starts_with?: Maybe<Scalars['String']>;
+  token_not_starts_with?: Maybe<Scalars['String']>;
+  token_ends_with?: Maybe<Scalars['String']>;
+  token_not_ends_with?: Maybe<Scalars['String']>;
+  token_i?: Maybe<Scalars['String']>;
+  token_not_i?: Maybe<Scalars['String']>;
+  token_contains_i?: Maybe<Scalars['String']>;
+  token_not_contains_i?: Maybe<Scalars['String']>;
+  token_starts_with_i?: Maybe<Scalars['String']>;
+  token_not_starts_with_i?: Maybe<Scalars['String']>;
+  token_ends_with_i?: Maybe<Scalars['String']>;
+  token_not_ends_with_i?: Maybe<Scalars['String']>;
+  token_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  token_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  smsCode?: Maybe<Scalars['Int']>;
+  smsCode_not?: Maybe<Scalars['Int']>;
+  smsCode_lt?: Maybe<Scalars['Int']>;
+  smsCode_lte?: Maybe<Scalars['Int']>;
+  smsCode_gt?: Maybe<Scalars['Int']>;
+  smsCode_gte?: Maybe<Scalars['Int']>;
+  smsCode_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  smsCode_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  smsCodeRequestedAt?: Maybe<Scalars['String']>;
+  smsCodeRequestedAt_not?: Maybe<Scalars['String']>;
+  smsCodeRequestedAt_lt?: Maybe<Scalars['String']>;
+  smsCodeRequestedAt_lte?: Maybe<Scalars['String']>;
+  smsCodeRequestedAt_gt?: Maybe<Scalars['String']>;
+  smsCodeRequestedAt_gte?: Maybe<Scalars['String']>;
+  smsCodeRequestedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  smsCodeRequestedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  smsCodeExpiresAt?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt_not?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt_lt?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt_lte?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt_gt?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt_gte?: Maybe<Scalars['String']>;
+  smsCodeExpiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  smsCodeExpiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  retries?: Maybe<Scalars['Int']>;
+  retries_not?: Maybe<Scalars['Int']>;
+  retries_lt?: Maybe<Scalars['Int']>;
+  retries_lte?: Maybe<Scalars['Int']>;
+  retries_gt?: Maybe<Scalars['Int']>;
+  retries_gte?: Maybe<Scalars['Int']>;
+  retries_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  retries_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  isPhoneVerified?: Maybe<Scalars['Boolean']>;
+  isPhoneVerified_not?: Maybe<Scalars['Boolean']>;
+  requestedAt?: Maybe<Scalars['String']>;
+  requestedAt_not?: Maybe<Scalars['String']>;
+  requestedAt_lt?: Maybe<Scalars['String']>;
+  requestedAt_lte?: Maybe<Scalars['String']>;
+  requestedAt_gt?: Maybe<Scalars['String']>;
+  requestedAt_gte?: Maybe<Scalars['String']>;
+  requestedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  requestedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  expiresAt?: Maybe<Scalars['String']>;
+  expiresAt_not?: Maybe<Scalars['String']>;
+  expiresAt_lt?: Maybe<Scalars['String']>;
+  expiresAt_lte?: Maybe<Scalars['String']>;
+  expiresAt_gt?: Maybe<Scalars['String']>;
+  expiresAt_gte?: Maybe<Scalars['String']>;
+  expiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  expiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  completedAt?: Maybe<Scalars['String']>;
+  completedAt_not?: Maybe<Scalars['String']>;
+  completedAt_lt?: Maybe<Scalars['String']>;
+  completedAt_lte?: Maybe<Scalars['String']>;
+  completedAt_gt?: Maybe<Scalars['String']>;
+  completedAt_gte?: Maybe<Scalars['String']>;
+  completedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  completedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type ConfirmPhoneActionWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type ConfirmPhoneActionsCreateInput = {
+  data?: Maybe<ConfirmPhoneActionCreateInput>;
+};
+
+export type ConfirmPhoneActionsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<ConfirmPhoneActionUpdateInput>;
+};
+
 export type File = {
   __typename?: 'File';
   id?: Maybe<Scalars['ID']>;
@@ -4910,6 +5354,30 @@ export type Mutation = {
   deleteForgotPasswordAction?: Maybe<ForgotPasswordAction>;
   /**  Delete multiple ForgotPasswordAction items by ID.  */
   deleteForgotPasswordActions?: Maybe<Array<Maybe<ForgotPasswordAction>>>;
+  /**  Create a single ConfirmPhoneActionHistoryRecord item.  */
+  createConfirmPhoneActionHistoryRecord?: Maybe<ConfirmPhoneActionHistoryRecord>;
+  /**  Create multiple ConfirmPhoneActionHistoryRecord items.  */
+  createConfirmPhoneActionHistoryRecords?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecord>>>;
+  /**  Update a single ConfirmPhoneActionHistoryRecord item by ID.  */
+  updateConfirmPhoneActionHistoryRecord?: Maybe<ConfirmPhoneActionHistoryRecord>;
+  /**  Update multiple ConfirmPhoneActionHistoryRecord items by ID.  */
+  updateConfirmPhoneActionHistoryRecords?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecord>>>;
+  /**  Delete a single ConfirmPhoneActionHistoryRecord item by ID.  */
+  deleteConfirmPhoneActionHistoryRecord?: Maybe<ConfirmPhoneActionHistoryRecord>;
+  /**  Delete multiple ConfirmPhoneActionHistoryRecord items by ID.  */
+  deleteConfirmPhoneActionHistoryRecords?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecord>>>;
+  /**  Create a single ConfirmPhoneAction item.  */
+  createConfirmPhoneAction?: Maybe<ConfirmPhoneAction>;
+  /**  Create multiple ConfirmPhoneAction items.  */
+  createConfirmPhoneActions?: Maybe<Array<Maybe<ConfirmPhoneAction>>>;
+  /**  Update a single ConfirmPhoneAction item by ID.  */
+  updateConfirmPhoneAction?: Maybe<ConfirmPhoneAction>;
+  /**  Update multiple ConfirmPhoneAction items by ID.  */
+  updateConfirmPhoneActions?: Maybe<Array<Maybe<ConfirmPhoneAction>>>;
+  /**  Delete a single ConfirmPhoneAction item by ID.  */
+  deleteConfirmPhoneAction?: Maybe<ConfirmPhoneAction>;
+  /**  Delete multiple ConfirmPhoneAction items by ID.  */
+  deleteConfirmPhoneActions?: Maybe<Array<Maybe<ConfirmPhoneAction>>>;
   /**  Create a single OrganizationHistoryRecord item.  */
   createOrganizationHistoryRecord?: Maybe<OrganizationHistoryRecord>;
   /**  Create multiple OrganizationHistoryRecord items.  */
@@ -5395,6 +5863,9 @@ export type Mutation = {
   authenticateUserWithPhoneAndPassword?: Maybe<AuthenticateUserWithPhoneAndPasswordOutput>;
   startPasswordRecovery?: Maybe<Scalars['String']>;
   changePasswordWithToken?: Maybe<Scalars['String']>;
+  startConfirmPhoneAction?: Maybe<Scalars['String']>;
+  confirmPhoneResendSms?: Maybe<Scalars['String']>;
+  confirmPhoneComplete?: Maybe<Scalars['String']>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
@@ -5528,6 +5999,68 @@ export type MutationDeleteForgotPasswordActionArgs = {
 
 
 export type MutationDeleteForgotPasswordActionsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateConfirmPhoneActionHistoryRecordArgs = {
+  data?: Maybe<ConfirmPhoneActionHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateConfirmPhoneActionHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateConfirmPhoneActionHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<ConfirmPhoneActionHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateConfirmPhoneActionHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteConfirmPhoneActionHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteConfirmPhoneActionHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateConfirmPhoneActionArgs = {
+  data?: Maybe<ConfirmPhoneActionCreateInput>;
+};
+
+
+export type MutationCreateConfirmPhoneActionsArgs = {
+  data?: Maybe<Array<Maybe<ConfirmPhoneActionsCreateInput>>>;
+};
+
+
+export type MutationUpdateConfirmPhoneActionArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<ConfirmPhoneActionUpdateInput>;
+};
+
+
+export type MutationUpdateConfirmPhoneActionsArgs = {
+  data?: Maybe<Array<Maybe<ConfirmPhoneActionsUpdateInput>>>;
+};
+
+
+export type MutationDeleteConfirmPhoneActionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteConfirmPhoneActionsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -6797,6 +7330,25 @@ export type MutationStartPasswordRecoveryArgs = {
 export type MutationChangePasswordWithTokenArgs = {
   token: Scalars['String'];
   password: Scalars['String'];
+};
+
+
+export type MutationStartConfirmPhoneActionArgs = {
+  phone: Scalars['String'];
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+};
+
+
+export type MutationConfirmPhoneResendSmsArgs = {
+  token: Scalars['String'];
+  sender: Scalars['JSON'];
+};
+
+
+export type MutationConfirmPhoneCompleteArgs = {
+  token: Scalars['String'];
+  smsCode: Scalars['Int'];
 };
 
 
@@ -8737,6 +9289,22 @@ export type Query = {
   _allForgotPasswordActionsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the ForgotPasswordAction list.  */
   _ForgotPasswordActionsMeta?: Maybe<_ListMeta>;
+  /**  Search for all ConfirmPhoneActionHistoryRecord items which match the where clause.  */
+  allConfirmPhoneActionHistoryRecords?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecord>>>;
+  /**  Search for the ConfirmPhoneActionHistoryRecord item with the matching ID.  */
+  ConfirmPhoneActionHistoryRecord?: Maybe<ConfirmPhoneActionHistoryRecord>;
+  /**  Perform a meta-query on all ConfirmPhoneActionHistoryRecord items which match the where clause.  */
+  _allConfirmPhoneActionHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the ConfirmPhoneActionHistoryRecord list.  */
+  _ConfirmPhoneActionHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all ConfirmPhoneAction items which match the where clause.  */
+  allConfirmPhoneActions?: Maybe<Array<Maybe<ConfirmPhoneAction>>>;
+  /**  Search for the ConfirmPhoneAction item with the matching ID.  */
+  ConfirmPhoneAction?: Maybe<ConfirmPhoneAction>;
+  /**  Perform a meta-query on all ConfirmPhoneAction items which match the where clause.  */
+  _allConfirmPhoneActionsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the ConfirmPhoneAction list.  */
+  _ConfirmPhoneActionsMeta?: Maybe<_ListMeta>;
   /**  Search for all OrganizationHistoryRecord items which match the where clause.  */
   allOrganizationHistoryRecords?: Maybe<Array<Maybe<OrganizationHistoryRecord>>>;
   /**  Search for the OrganizationHistoryRecord item with the matching ID.  */
@@ -9059,6 +9627,7 @@ export type Query = {
   _MessagesMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
+  getPhoneByConfirmActionToken?: Maybe<Scalars['String']>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -9159,6 +9728,56 @@ export type Query_AllForgotPasswordActionsMetaArgs = {
   where?: Maybe<ForgotPasswordActionWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortForgotPasswordActionsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllConfirmPhoneActionHistoryRecordsArgs = {
+  where?: Maybe<ConfirmPhoneActionHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortConfirmPhoneActionHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryConfirmPhoneActionHistoryRecordArgs = {
+  where: ConfirmPhoneActionHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllConfirmPhoneActionHistoryRecordsMetaArgs = {
+  where?: Maybe<ConfirmPhoneActionHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortConfirmPhoneActionHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllConfirmPhoneActionsArgs = {
+  where?: Maybe<ConfirmPhoneActionWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortConfirmPhoneActionsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryConfirmPhoneActionArgs = {
+  where: ConfirmPhoneActionWhereUniqueInput;
+};
+
+
+export type Query_AllConfirmPhoneActionsMetaArgs = {
+  where?: Maybe<ConfirmPhoneActionWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortConfirmPhoneActionsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -10169,6 +10788,11 @@ export type Query_KsListsMetaArgs = {
   where?: Maybe<_KsListsMetaInput>;
 };
 
+
+export type QueryGetPhoneByConfirmActionTokenArgs = {
+  token: Scalars['String'];
+};
+
 export type RegisterNewOrganizationInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -10704,6 +11328,68 @@ export enum SortBillingReceiptsBy {
   CreatedByDesc = 'createdBy_DESC',
   UpdatedByAsc = 'updatedBy_ASC',
   UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
+}
+
+export enum SortConfirmPhoneActionHistoryRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  PhoneAsc = 'phone_ASC',
+  PhoneDesc = 'phone_DESC',
+  TokenAsc = 'token_ASC',
+  TokenDesc = 'token_DESC',
+  SmsCodeAsc = 'smsCode_ASC',
+  SmsCodeDesc = 'smsCode_DESC',
+  SmsCodeRequestedAtAsc = 'smsCodeRequestedAt_ASC',
+  SmsCodeRequestedAtDesc = 'smsCodeRequestedAt_DESC',
+  SmsCodeExpiresAtAsc = 'smsCodeExpiresAt_ASC',
+  SmsCodeExpiresAtDesc = 'smsCodeExpiresAt_DESC',
+  RetriesAsc = 'retries_ASC',
+  RetriesDesc = 'retries_DESC',
+  IsPhoneVerifiedAsc = 'isPhoneVerified_ASC',
+  IsPhoneVerifiedDesc = 'isPhoneVerified_DESC',
+  RequestedAtAsc = 'requestedAt_ASC',
+  RequestedAtDesc = 'requestedAt_DESC',
+  ExpiresAtAsc = 'expiresAt_ASC',
+  ExpiresAtDesc = 'expiresAt_DESC',
+  CompletedAtAsc = 'completedAt_ASC',
+  CompletedAtDesc = 'completedAt_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortConfirmPhoneActionsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  PhoneAsc = 'phone_ASC',
+  PhoneDesc = 'phone_DESC',
+  TokenAsc = 'token_ASC',
+  TokenDesc = 'token_DESC',
+  SmsCodeAsc = 'smsCode_ASC',
+  SmsCodeDesc = 'smsCode_DESC',
+  SmsCodeRequestedAtAsc = 'smsCodeRequestedAt_ASC',
+  SmsCodeRequestedAtDesc = 'smsCodeRequestedAt_DESC',
+  SmsCodeExpiresAtAsc = 'smsCodeExpiresAt_ASC',
+  SmsCodeExpiresAtDesc = 'smsCodeExpiresAt_DESC',
+  RetriesAsc = 'retries_ASC',
+  RetriesDesc = 'retries_DESC',
+  IsPhoneVerifiedAsc = 'isPhoneVerified_ASC',
+  IsPhoneVerifiedDesc = 'isPhoneVerified_DESC',
+  RequestedAtAsc = 'requestedAt_ASC',
+  RequestedAtDesc = 'requestedAt_DESC',
+  ExpiresAtAsc = 'expiresAt_ASC',
+  ExpiresAtDesc = 'expiresAt_DESC',
+  CompletedAtAsc = 'completedAt_ASC',
+  CompletedAtDesc = 'completedAt_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC'
 }
