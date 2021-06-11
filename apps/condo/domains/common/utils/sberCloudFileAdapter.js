@@ -123,17 +123,18 @@ const obsRouterHandler = ({ keystone }) => {
 
     return async function (req, res, next) {
         if (!req.user) {
+            // TODO(zuch): Ask where  error pages are located in keystone - 403 is probably missing
             res.sendStatus(403)
             return res.end()
         }
         const meta = await Acl.getMeta(req.params.file)
         if (isEmpty(meta)) {
-            res.sendStatus(404)
+            res.status(404)
             return next()
         }
         const { id: itemId, listkey: listKey } = meta
         if (isEmpty(itemId) || isEmpty(listKey)) {
-            res.sendStatus(404)
+            res.status(404)
             return next()
         }
         const { id: userId } = req.user
