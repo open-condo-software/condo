@@ -40,7 +40,7 @@ interface ITicketFormProps {
 // TODO(Dimitreee): decompose this huge component to field groups
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const intl = useIntl()
-    const [selectedContact, setSelectedContact] = useState()
+    const [contact, setContact] = useState()
     const [shouldCreateContact, setShouldCreateContact] = useState(false)
 
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
@@ -79,14 +79,14 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const action = async (...args) => {
         const result = await _action({
             ...args,
-            clientPhone: selectedContact.clientPhone,
-            clientEmail: selectedContact.clientEmail,
+            clientPhone: contact.clientPhone,
+            clientEmail: contact.clientEmail,
         })
         await syncModifiedFiles(result.id)
         if (shouldCreateContact) {
             await createContact({
-                phone: selectedContact.phone,
-                email: selectedContact.email,
+                phone: contact.phone,
+                email: contact.email,
             })
         }
         if (afterActionCompleted) {
@@ -95,8 +95,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         return result
     }
 
-    const handleContactSelected = (contact, isNew) => {
-        setSelectedContact(contact)
+    const handleChangeContact = (contact, isNew) => {
+        setContact(contact)
         if (isNew) {
             setShouldCreateContact(true)
         }
@@ -159,7 +159,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                         <ContactSelector
                                                             property={property}
                                                             unitName={unitName}
-                                                            onSelect={handleContactSelected}
+                                                            onChange={handleChangeContact}
+                                                            contacts={SAMPLE_CONTACTS}
                                                         />
                                                     )
                                                 }}
@@ -279,3 +280,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         </>
     )
 }
+
+const SAMPLE_CONTACTS =  [
+    { id: '1', name: 'Anton', phone: '+79991112233' },
+    { id: '2', name: 'Andrey', phone: '+79992223344' },
+    { id: '3', name: 'Alexey', phone: '+79993334455' },
+]
