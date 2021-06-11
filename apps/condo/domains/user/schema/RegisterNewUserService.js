@@ -73,8 +73,10 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     userData.phone = phone
                     userData.isPhoneVerified = isPhoneVerified
                 }
+                // TODO(zuch): Ask if we allow users without phone or/and email to register
                 await ensureNotExists(context, 'User', 'Users', 'phone', userData.phone)
                 await ensureNotExists(context, 'User', 'Users', 'email', userData.email)
+
                 if (userData.password.length < MIN_PASSWORD_LENGTH) {
                     throw new Error(`${MIN_PASSWORD_LENGTH_ERROR}] Password length less then ${MIN_PASSWORD_LENGTH} character`)
                 }
