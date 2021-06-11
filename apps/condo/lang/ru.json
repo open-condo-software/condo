@@ -355,5 +355,9 @@
   "VerificationCodeHasBeenSentToYourPhone": "Код подтверждения был отправлен на телефон",
   "WeAreStillDevelopingThisPage": "Мы еще **разрабатываем** эту страницу, она пока недоступна",
   "Welcome": "Привет, {name}!",
-  "You": "вы"
+  "You": "вы",
+  "contact.Contact.ContactSelector.AddNewContact": "Новый контакт",
+  "contact.Contact.ContactSelector.Phone": "Телефон",
+  "contact.Contact.ContactSelector.Name": "ФИО",
+  "contact.Contact.ContactSelector.AnotherContact": "Другой контакт"
 }
