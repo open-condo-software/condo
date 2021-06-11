@@ -53,6 +53,12 @@ const INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION = gql`
     }
 `
 
+const REINVITE_ORGANIZATION_EMPLOYEE_MUTATION = gql`
+    mutation reInviteOrganizationEmployee($data: ReInviteOrganizationEmployeeInput!) {
+        obj: reInviteOrganizationEmployee(data: $data) ${ORGANIZATION_EMPLOYEE_FIELDS}
+    }
+`
+
 const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION = gql`
     mutation acceptOrRejectOrganizationInviteById($id: ID!, $data: AcceptOrRejectOrganizationInviteInput!){
         obj: acceptOrRejectOrganizationInviteById(id: $id, data: $data) ${ORGANIZATION_EMPLOYEE_FIELDS}
@@ -74,6 +80,7 @@ module.exports = {
     UPDATE_ORGANIZATION_BY_ID_MUTATION,
     GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY,
     REGISTER_NEW_ORGANIZATION_MUTATION,
+    REINVITE_ORGANIZATION_EMPLOYEE_MUTATION,
     INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION,

@@ -1,93 +1,178 @@
-const { inviteNewOrganizationEmployee, makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
+const {
+    inviteNewOrganizationEmployee,
+    reInviteNewOrganizationEmployee,
+    makeClientWithRegisteredOrganization,
+    acceptOrRejectOrganizationInviteById,
+} = require('../../../utils/testSchema/Organization')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
 const faker = require('faker')
 
 describe('InviteNewOrganizationEmployeeService', () => {
-    test('owner: invite new user', async () => {
-        const userAttrs = {
-            name: faker.name.firstName(),
-            email: createTestEmail(),
-            phone: createTestPhone(),
-        }
-        const client = await makeClientWithRegisteredOrganization()
-        const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
-        expect(employee.email).toEqual(userAttrs.email)
-        expect(employee.phone).toEqual(userAttrs.phone)
-        expect(employee.name).toEqual(userAttrs.name)
-    })
+    describe('owner', () => {
+        describe('without error', () => {
+            describe('employee by new user', () => {
+                test('invite', async () => {
+                    const userAttrs = {
+                        name: faker.name.firstName(),
+                        email: createTestEmail(),
+                        phone: createTestPhone(),
+                    }
+                    const client = await makeClientWithRegisteredOrganization()
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
 
-    test('owner: try to invite already registered User by Phone', async () => {
-        const client = await makeClientWithRegisteredOrganization()
-        const admin = await makeLoggedInAdminClient()
-        const [obj, userAttrs] = await createTestUser(admin)
-        const employeeUserAttrs = {
-            ...userAttrs,
-            email: createTestEmail(),
-        }
+                    expect(employee.email).toEqual(userAttrs.email)
+                    expect(employee.phone).toEqual(userAttrs.phone)
+                    expect(employee.name).toEqual(userAttrs.name)
+                })
 
-        const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs)
+                test('reinvite', async () => {
+                    const userAttrs = {
+                        name: faker.name.firstName(),
+                        email: createTestEmail(),
+                        phone: createTestPhone(),
+                    }
+                    const client = await makeClientWithRegisteredOrganization()
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+                    const [reInvitedEmployee] = await reInviteNewOrganizationEmployee(client, client.organization, userAttrs)
 
-        expect(employee.email).toEqual(employeeUserAttrs.email)
-        expect(employee.user.id).toEqual(obj.id)
-        expect(employee.phone).toEqual(employeeUserAttrs.phone)
-        expect(employee.name).toEqual(employeeUserAttrs.name)
-    })
+                    expect(reInvitedEmployee.id).toStrictEqual(employee.id)
+                })
+            })
 
-    test('owner: try to invite already registered User by Email', async () => {
-        const client = await makeClientWithRegisteredOrganization()
-        const admin = await makeLoggedInAdminClient()
-        const [obj, userAttrs] = await createTestUser(admin)
-        const employeeUserAttrs = {
-            ...userAttrs,
-            phone: createTestPhone(),
-        }
+            describe('employee already registered User by Phone', () => {
+                test('invite', async () => {
+                    const client = await makeClientWithRegisteredOrganization()
+                    const admin = await makeLoggedInAdminClient()
+                    const [obj, userAttrs] = await createTestUser(admin)
+                    const employeeUserAttrs = {
+                        ...userAttrs,
+                        email: createTestEmail(),
+                    }
 
-        const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs)
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs)
 
-        expect(employee.email).toEqual(employeeUserAttrs.email)
-        expect(employee.user.id).toEqual(obj.id)
-        expect(employee.phone).toEqual(employeeUserAttrs.phone)
-        expect(employee.name).toEqual(employeeUserAttrs.name)
-    })
+                    expect(employee.email).toEqual(employeeUserAttrs.email)
+                    expect(employee.user.id).toEqual(obj.id)
+                    expect(employee.phone).toEqual(employeeUserAttrs.phone)
+                    expect(employee.name).toEqual(employeeUserAttrs.name)
+                })
 
-    test('owner: try to invite Employee with duplicate Phone', async () => {
-        const client = await makeClientWithRegisteredOrganization()
-        const userAttrs = {
-            name: faker.name.firstName(),
-            email: createTestEmail(),
-            phone: createTestPhone(),
-        }
+                test('reinvite', async () => {
+                    const client = await makeClientWithRegisteredOrganization()
+                    const admin = await makeLoggedInAdminClient()
+                    const [, userAttrs] = await createTestUser(admin)
+                    const employeeUserAttrs = {
+                        ...userAttrs,
+                        email: createTestEmail(),
+                    }
 
-        await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
-        const secondUserAttrs = {
-            ...userAttrs,
-            email: createTestEmail(),
-        }
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs)
+                    const [reInvitedEmployee] = await reInviteNewOrganizationEmployee(client, client.organization, userAttrs)
 
-        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {}, { raw: true })
+                    expect(reInvitedEmployee.id).toStrictEqual(employee.id)
+                })
+            })
 
-        expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
-    })
+            describe('employee already registered User by email', () => {
+                test('invite', async () => {
+                    const client = await makeClientWithRegisteredOrganization()
+                    const admin = await makeLoggedInAdminClient()
+                    const [obj, userAttrs] = await createTestUser(admin)
+                    const employeeUserAttrs = {
+                        ...userAttrs,
+                        phone: createTestPhone(),
+                    }
 
-    test('owner: try to invite Employee with duplicate Email', async () => {
-        const client = await makeClientWithRegisteredOrganization()
-        const userAttrs = {
-            name: faker.name.firstName(),
-            email: createTestEmail(),
-            phone: createTestPhone(),
-        }
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs)
 
-        await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
-        const secondUserAttrs = {
-            ...userAttrs,
-            phone: createTestPhone(),
-        }
+                    expect(employee.email).toEqual(employeeUserAttrs.email)
+                    expect(employee.user.id).toEqual(obj.id)
+                    expect(employee.phone).toEqual(employeeUserAttrs.phone)
+                    expect(employee.name).toEqual(employeeUserAttrs.name)
+                })
 
-        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {}, { raw: true })
+                test('reinvite', async () => {
+                    const client = await makeClientWithRegisteredOrganization()
+                    const admin = await makeLoggedInAdminClient()
+                    const [, userAttrs] = await createTestUser(admin)
+                    const employeeUserAttrs = {
+                        ...userAttrs,
+                        phone: createTestPhone(),
+                    }
 
-        expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs)
+                    const [reInvitedEmployee] = await reInviteNewOrganizationEmployee(client, client.organization, userAttrs)
+
+                    expect(reInvitedEmployee.id).toStrictEqual(employee.id)
+                })
+            })
+        })
+
+        describe('with error', () => {
+            describe('ALREADY_EXISTS_ERROR', () => {
+                describe('invite', () => {
+                    test('Employee with duplicate Phone', async () => {
+                        const client = await makeClientWithRegisteredOrganization()
+                        const userAttrs = {
+                            name: faker.name.firstName(),
+                            email: createTestEmail(),
+                            phone: createTestPhone(),
+                        }
+
+                        await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+                        const secondUserAttrs = {
+                            ...userAttrs,
+                            email: createTestEmail(),
+                        }
+
+                        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {}, { raw: true })
+
+                        expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+                    })
+
+                    test('Employee with duplicate Email', async () => {
+                        const client = await makeClientWithRegisteredOrganization()
+                        const userAttrs = {
+                            name: faker.name.firstName(),
+                            email: createTestEmail(),
+                            phone: createTestPhone(),
+                        }
+
+                        await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+                        const secondUserAttrs = {
+                            ...userAttrs,
+                            phone: createTestPhone(),
+                        }
+
+                        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {}, { raw: true })
+
+                        expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+                    })
+                })
+
+                describe('reinvite', () => {
+                    test('Employee with accepted invitation', async () => {
+                        const client1 = await makeClientWithRegisteredOrganization()
+                        const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                        const [employee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+                        const [acceptedInvite] = await acceptOrRejectOrganizationInviteById(client2, employee)
+
+                        expect(acceptedInvite).toEqual(expect.objectContaining({
+                            isAccepted: true,
+                            isRejected: false,
+                        }))
+
+                        const { errors } = await reInviteNewOrganizationEmployee(client1, client1.organization, employee, {}, { raw: true })
+
+                        expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+                    })
+                })
+            })
+        })
     })
 })
 

@@ -11,7 +11,7 @@ import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
-import { Alert, Button as AntButton, Col, Row, Space, Switch, Tag, Typography } from 'antd'
+import { Alert, Col, Row, Space, Switch, Tag, Typography } from 'antd'
 import Modal from 'antd/lib/modal/Modal'
 import Router from 'next/router'
 import get from 'lodash/get'
@@ -42,7 +42,14 @@ export const EmployeeInfoPage = () => {
     const { link } = useOrganization()
 
     const employeeId = get(query, 'id', '')
-    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(employeeId) } })
+    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
+        {
+            where: {
+                id: String(employeeId),
+                isRejected: false,
+            },
+        }
+    )
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
     const softDeleteAction = OrganizationEmployee.useSoftDelete({}, () => Router.push('/employee/'))
 

@@ -13,6 +13,7 @@ const DV_UNKNOWN_VERSION_ERROR = '[dv:unknownDataVersion:'
 const STATUS_UPDATED_AT_ERROR = '[dv:incorrectStatusUpdatedAt:'
 
 const ALREADY_EXISTS_ERROR = '[constrain:alreadyExists:'
+const NOT_FOUND_ERROR = '[constrain:notFound:'
 
 const WRONG_TEXT_FORMAT = '[text:wrongFormat:'
 
@@ -28,6 +29,7 @@ module.exports = {
     REQUIRED_NO_VALUE_ERROR,
     DV_UNKNOWN_VERSION_ERROR,
     ALREADY_EXISTS_ERROR,
+    NOT_FOUND_ERROR,
     STATUS_UPDATED_AT_ERROR,
     WRONG_TEXT_FORMAT,
 }

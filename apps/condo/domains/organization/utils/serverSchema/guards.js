@@ -1,4 +1,3 @@
-const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { findOrganizationEmployee } = require('../../../../utils/serverSchema/Organization')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
@@ -7,22 +6,22 @@ const checkEmployeeExistency = async (context, organization, email, phone, user)
         email,
         organization: { id: organization.id },
         deletedAt: null,
+        isRejected: false,
     })
 
     if (employeesByEmail.length > 0) {
-        const msg = `${ALREADY_EXISTS_ERROR}email] User is already invited in the organization`
-        throw new Error(msg)
+        return employeesByEmail[0]
     }
 
     const employeesByPhone = await findOrganizationEmployee(context, {
         phone,
         organization: { id: organization.id },
         deletedAt: null,
+        isRejected: false,
     })
 
     if (employeesByPhone.length > 0) {
-        const msg = `${ALREADY_EXISTS_ERROR}phone] User is already invited in the organization`
-        throw new Error(msg)
+        return employeesByPhone[0]
     }
 
     if (user && user.id) {
@@ -30,11 +29,11 @@ const checkEmployeeExistency = async (context, organization, email, phone, user)
             user: { id: user.id },
             organization: { id: organization.id },
             deletedAt: null,
+            isRejected: false,
         })
 
         if (employeesByUser.length > 0) {
-            const msg = `${ALREADY_EXISTS_ERROR}user] User is already invited in the organization`
-            throw new Error(msg)
+            return employeesByEmail[0]
         }
     }
 }
