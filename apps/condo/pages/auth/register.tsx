@@ -5,11 +5,13 @@ import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
 import React, { createContext, useEffect, useState, useContext } from 'react'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { 
     START_CONFIRM_PHONE_MUTATION,
     RESEND_CONFIRM_PHONE_SMS_MUTATION,
     COMPLETE_CONFIRM_PHONE_MUTATION,
     GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY,
+    REGISTER_NEW_USER_MUTATION,
 } from '@condo/domains/user/gql'
 import { useLazyQuery } from '@core/next/apollo'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
@@ -23,7 +25,7 @@ import {
     EMAIL_ALREADY_REGISTERED_ERROR,
     CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED,
     CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED,
-    CONFIRM_PHONE_EXPIRED,
+    CONFIRM_PHONE_ACTION_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_EXPIRED,
 } from '@condo/domains/user/constants/errors'
 import { SMS_CODE_LENGTH } from '@condo/domains/user/constants/common'
@@ -38,28 +40,37 @@ const POLICY_LOCATION = '/policy.pdf'
 const LINK_STYLE = { color: colors.sberPrimary[7] }
 const INPUT_STYLE = { width: '20em' }
 interface IRegisterContext {
-    setconfirmPhoneToken: (token: string) => void,
+    setconfirmPhoneActionToken: (token: string) => void,
     setPhone: (phone: string) => void,
-    confirmPhoneToken: string,
+    confirmPhoneActionToken: string,
     phone: string,
+    tokenError: Error,
 }
 
 const RegisterContext = createContext<IRegisterContext>({
-    setconfirmPhoneToken: (token) => null,
+    setconfirmPhoneActionToken: (token) => null,
     setPhone: (phone) => null,
-    confirmPhoneToken: '',
+    confirmPhoneActionToken: '',
     phone: '',
+    tokenError: null,
 })
 
 const Register = ({ children }): React.ReactElement => {
     const { query: { token } } = useRouter()
-    const [confirmPhoneToken, setconfirmPhoneToken] = useState(token as string)
+    const [confirmPhoneActionToken, setconfirmPhoneActionToken] = useState(token as string)
     const [phone, setPhone] = useState('')
+    const [tokenError, setTokenError] = useState<Error | null>(null)
+    useEffect(() => {
+        if (!confirmPhoneActionToken) {
+            setTokenError(null)
+        }        
+    }, [confirmPhoneActionToken])
+
     const [loadPhoneByToken] = useLazyQuery(
         GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY,
         {
             onError: error => {
-                throw new Error(error)
+                setTokenError(error)
             },
             onCompleted: ({ phone }) => {
                 setPhone(phone)
@@ -67,20 +78,21 @@ const Register = ({ children }): React.ReactElement => {
         })
 
     useEffect(() => {
-        if (!isEmpty(confirmPhoneToken)) {
-            loadPhoneByToken({ variables: { token: confirmPhoneToken } })
+        if (!isEmpty(confirmPhoneActionToken)) {
+            loadPhoneByToken({ variables: { token: confirmPhoneActionToken } })
         } else {
             setPhone('')
         }
-    }, [loadPhoneByToken, confirmPhoneToken])
+    }, [loadPhoneByToken, confirmPhoneActionToken])
 
     return (
         <RegisterContext.Provider
             value={{
-                confirmPhoneToken,
-                setconfirmPhoneToken,
+                confirmPhoneActionToken,
+                setconfirmPhoneActionToken,
                 setPhone,
                 phone,
+                tokenError,
             }}
         >
             {children}
@@ -89,8 +101,38 @@ const Register = ({ children }): React.ReactElement => {
 }
 
 const RegisterSteps = (): React.ReactElement => {
-    const { confirmPhoneToken } = useContext(RegisterContext)
-    const [state, setState] = useState(isEmpty(confirmPhoneToken) ? 'inputPhone' : 'validatePhone')
+    const intl = useIntl()
+    const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
+    const PhoneConfirmTokenErrorLabel = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorLabel' })
+    const PhoneConfirmTokenErrorMessage = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorMessage' })
+    const RestartPhoneConfirmLabel = intl.formatMessage({ id: 'pages.auth.register.RestartPhoneConfirmLabel' })
+
+    const { confirmPhoneActionToken, tokenError, setconfirmPhoneActionToken } = useContext(RegisterContext)
+    const [state, setState] = useState(isEmpty(confirmPhoneActionToken) ? 'inputPhone' : 'validatePhone')
+
+    if (tokenError && confirmPhoneActionToken) {
+        return (
+            <BasicEmptyListView>
+                <Typography.Title level={3}>
+                    {PhoneConfirmTokenErrorLabel}
+                </Typography.Title>
+                <Typography.Text style={{ fontSize: '16px' }}>
+                    {PhoneConfirmTokenErrorMessage}
+                </Typography.Text>
+                <Button
+                    type='sberPrimary'
+                    style={{ marginTop: '16px' }}
+                    onClick={() => {
+                        setconfirmPhoneActionToken(null)
+                        setState('inputPhone')
+                        Router.push('/auth/register')
+                    }}
+                >
+                    {RestartPhoneConfirmLabel}
+                </Button>
+            </BasicEmptyListView>
+        )
+    }
     const steps = {
         inputPhone: <InputPhoneForm onFinish={() => setState('validatePhone')} />,
         validatePhone: <ValidatePhoneForm onFinish={() => setState('register')} onReset={() => {
@@ -98,17 +140,19 @@ const RegisterSteps = (): React.ReactElement => {
             Router.push('/auth/register')
         }} />,
         register: <RegisterForm onFinish={() => null} />,
-    }
-    return steps[state]
+    }    
+    return (
+        <>
+            <Typography.Title style={{ textAlign: 'left' }}>{RegistrationTitleMsg}</Typography.Title>
+            {steps[state]}
+        </>
+    )
 }
 
 const RegisterPage: AuthPage = () => {
-    const intl = useIntl()
-    const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
     return (
         <Register>
             <div style={{ textAlign: 'center' }}>
-                <Typography.Title style={{ textAlign: 'left' }}>{RegistrationTitleMsg}</Typography.Title>
                 <RegisterSteps />
             </div>
         </Register>
@@ -128,7 +172,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
     const UserAgreementFileName = intl.formatMessage({ id: 'pages.auth.register.info.UserAgreementFileName' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const { setconfirmPhoneToken, setPhone } = useContext(RegisterContext)
+    const { setconfirmPhoneActionToken, setPhone } = useContext(RegisterContext)
     const [smsSendError, setSmsSendError] = useState(null)
     const [isloading, setIsLoading] = useState(false)
     const ErrorToFormFieldMsgMapping = {}
@@ -148,7 +192,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
             variables,
             onCompleted: (data) => {
                 const { data: { token } } = data
-                setconfirmPhoneToken(token)
+                setconfirmPhoneActionToken(token)
                 Router.push(`/auth/register?token=${token}`)
                 onFinish()
             },
@@ -235,19 +279,19 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const SmsCodeTitle = intl.formatMessage({ id: 'pages.auth.register.field.SmsCode' })
     const ResendSmsLabel = intl.formatMessage({ id: 'pages.auth.register.ResendSmsLabel' })
-    
-    const SMSCodeMismatchError = 'СМС код не совпадает'
-    const SMSExpiredError = 'Время действия СМС-кода истекло (30 секунд). Нажмите на кнопку «Отправить СМС-код ещё раз»'
-    const ConfirmActionExpiredError = 'Телефон не подтвержден. Начните регистрацию сначала'
-    const SMSMaxRetriesReachedError = 'Максимальное количестово попыток закончено. Начните сначала'
-    const SMSBadFormat = 'Неправильный формат для СМС кода'
+
+    const SMSCodeMismatchError = intl.formatMessage({ id: 'pages.auth.register.SMSCodeMismatchError' })
+    const SMSExpiredError = intl.formatMessage({ id: 'pages.auth.register.SMSExpiredError' })
+    const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
+    const SMSMaxRetriesReachedError = intl.formatMessage({ id: 'pages.auth.register.SMSMaxRetriesReachedError' })
+    const SMSBadFormat = intl.formatMessage({ id: 'pages.auth.register.SMSBadFormat' })
 
     const ErrorToFormFieldMsgMapping = {
         [CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED]: {
             name: 'smsCode',
             errors: [SMSCodeMismatchError],
         },
-        [CONFIRM_PHONE_EXPIRED]: {
+        [CONFIRM_PHONE_ACTION_EXPIRED]: {
             name: 'smsCode',
             errors: [ConfirmActionExpiredError],
         },
@@ -263,7 +307,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
 
     const [isPhoneVisible, setisPhoneVisible] = useState(false)
     const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'Hide' }) : intl.formatMessage({ id: 'Show' })
-    const { confirmPhoneToken, phone, setPhone } = useContext(RegisterContext)
+    const { confirmPhoneActionToken, phone } = useContext(RegisterContext)
     const [showPhone, setShowPhone] = useState(phone)
     useEffect(() => {
         if (isPhoneVisible) {
@@ -277,7 +321,8 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
     
     const [resendSmsMutation] = useMutation(RESEND_CONFIRM_PHONE_SMS_MUTATION)
     const resendSms = async () => {
-        const variables = { token: confirmPhoneToken }
+        const sender = getClientSideSenderInfo()
+        const variables = { token: confirmPhoneActionToken, sender }        
         return runMutation({
             mutation: resendSmsMutation,
             variables,
@@ -294,15 +339,13 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
         if (isNaN(smsCode)) {
             throw new Error(SMSBadFormat)
         }
-        const variables = { token: confirmPhoneToken, smsCode }
+        const variables = { token: confirmPhoneActionToken, smsCode }
         return runMutation({
             mutation: completeConfirmPhoneMutation,
             variables,
             intl,
             form,
             ErrorToFormFieldMsgMapping,
-        }).catch(error => {
-            console.error(error)
         })
     }    
 
@@ -312,14 +355,8 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
         if (smsCode.toString().length < SMS_CODE_LENGTH) {
             return
         }
-        try {
-            const { data: { phone } } = await confirmPhone()
-            setPhone(phone)
-            onFinish()
-        } catch (error) {
-            setPhoneValidateError(error)
-            form.validateFields()
-        }
+        await confirmPhone()
+        onFinish()
     }
 
     return (
@@ -393,8 +430,9 @@ interface IRegisterFormProps {
 
 const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
     const [form] = Form.useForm()
-    const { phone, confirmPhoneToken } = useContext(RegisterContext)
+    const { phone, confirmPhoneActionToken } = useContext(RegisterContext)
     const [isLoading, setIsLoading] = useState(false)
+    const { signInByPhone } = useContext(AuthLayoutContext)
     const initialValues = { phone }
     const intl = useIntl()
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
@@ -440,13 +478,13 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
         }
         const { name, email: inputEmail, password } = form.getFieldsValue(['name', 'email', 'password'])
         const email = inputEmail.toLowerCase().trim()
-        const data = { name, email, password, ...registerExtraData, confirmPhoneToken }
+        const data = { name, email, password, ...registerExtraData, confirmPhoneActionToken }
         setIsLoading(true)
         return runMutation({
             mutation: registerMutation,
             variables: { data },
             onCompleted: () => {
-                // signInByPhone(form.getFieldsValue(['phone', 'password'])).then(() => { Router.push('/') }, console.error)
+                signInByPhone(form.getFieldsValue(['phone', 'password'])).then(() => { Router.push('/') }, console.error)
             },
             onFinally: () => {
                 setIsLoading(false)
@@ -479,7 +517,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     labelCol={{ flex: 1 }}
                     rules={[{ required: true }]}
                 >
-                    <MaskedInput disabled={true} mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
+                    <PhoneInput disabled={true} placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
                 </Form.Item>
                 <Form.Item
                     name='name'
@@ -542,7 +580,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                             message: PleaseConfirmYourPasswordMsg,
                         },
                         ({ getFieldValue }) => ({
-                            validator (rule, value) {
+                            validator (_, value) {
                                 if (!value || getFieldValue('password') === value) {
                                     return Promise.resolve()
                                 }

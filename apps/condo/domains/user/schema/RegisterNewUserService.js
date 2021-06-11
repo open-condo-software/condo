@@ -3,9 +3,9 @@ const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { admin } = require('@condo/domains/common/utils/firebase.back.utils')
-const { MIN_PASSWORD_LENGTH_ERROR, EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/user/constants/errors')
+const { MIN_PASSWORD_LENGTH_ERROR } = require('@condo/domains/user/constants/errors')
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
+const isEmpty = require('lodash/isEmpty')
 
 async function ensureNotExists (context, model, models, field, value) {
     const { errors, data } = await context.executeGraphQL({
@@ -34,7 +34,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
     types: [
         {
             access: true,
-            type: 'input RegisterNewUserInput { dv: Int!, sender: JSON!, name: String!, email: String!, password: String!, firebaseIdToken: String, phone: String, meta: JSON }',
+            type: 'input RegisterNewUserInput { dv: Int!, sender: JSON!, name: String!, email: String!, password: String!, confirmPhoneActionToken: String, phone: String, meta: JSON }',
         },
     ],
     mutations: [
@@ -43,51 +43,41 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
             schema: 'registerNewUser(data: RegisterNewUserInput!): User',
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { firebaseIdToken, ...restUserData } = data
+                const { confirmPhoneActionToken, ...restUserData } = data
                 const userData = {
                     ...restUserData,
                     isPhoneVerified: false,
                 }
-
-                if (firebaseIdToken) {
-                    const { uid, phone_number } = await admin.auth().verifyIdToken(firebaseIdToken)
-
-                    await ensureNotExists(context, 'User', 'Users', 'phone', phone_number)
-                    await ensureNotExists(context, 'User', 'Users', 'importId', uid)
-
-                    userData.phone = phone_number
-                    userData.isPhoneVerified = true
-                    userData.importId = uid
+                if (confirmPhoneActionToken) {
+                    const { errors: findConfirmPhoneActionErrors, data: confirmActions } = await context.executeGraphQL({
+                        context: context.createContext({ skipAccessControl: true }),
+                        query: `
+                                query findConfirmPhoneActionsByToken($token: String!) {
+                                  actions: allConfirmPhoneActions(where: { token: $token }) {
+                                    phone
+                                    isPhoneVerified
+                                  }
+                                }
+                            `,
+                        variables: { token: confirmPhoneActionToken },
+                    })
+                    if (findConfirmPhoneActionErrors || !confirmActions || isEmpty(confirmActions.actions)) {
+                        const msg = '[error] Unable to find confirm phone action'
+                        throw new Error(msg)    
+                    }
+                    const { phone, isPhoneVerified } = confirmActions.actions[0]
+                    if (!isPhoneVerified) {
+                        const msg = '[error] Phone is not verified'
+                        throw new Error(msg)    
+                    }
+                    userData.phone = phone
+                    userData.isPhoneVerified = isPhoneVerified
                 }
-
-                // TODO(Dimitreee): use ensureNotExists
-                const { errors: findErrors, data: findData } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
-                            query findUserByEmail($email: String!) {
-                              users: allUsers(where: { email: $email }) {
-                                id
-                              }
-                            }
-                        `,
-                    variables: { email: userData.email },
-                })
-
-                // TODO(Dimitreee): add usage of guards
-
-                if (findErrors) {
-                    const msg = '[error] Unable to call find service'
-                    throw new Error(msg)
-                }
-
-                if (findData.users.length !== 0) {
-                    throw new Error(`${EMAIL_ALREADY_REGISTERED_ERROR}] User with this email is already registered`)
-                }
-
+                await ensureNotExists(context, 'User', 'Users', 'phone', userData.phone)
+                await ensureNotExists(context, 'User', 'Users', 'email', userData.email)
                 if (userData.password.length < MIN_PASSWORD_LENGTH) {
                     throw new Error(`${MIN_PASSWORD_LENGTH_ERROR}] Password length less then ${MIN_PASSWORD_LENGTH} character`)
                 }
-
                 const { data: createData, errors: createErrors } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
@@ -103,12 +93,10 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     `,
                     variables: { data: userData },
                 })
-
                 if (createErrors) {
                     const msg = '[error] Unable to create user'
                     throw new Error(msg)
                 }
-
                 // TODO(Dimitreee): use locale from .env
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
                 await sendMessage(context, {
@@ -126,7 +114,6 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     },
                     sender: data.sender,
                 })
-
                 return createData.user
             },
         },

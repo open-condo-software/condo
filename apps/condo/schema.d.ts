@@ -5864,8 +5864,8 @@ export type Mutation = {
   startPasswordRecovery?: Maybe<Scalars['String']>;
   changePasswordWithToken?: Maybe<Scalars['String']>;
   startConfirmPhoneAction?: Maybe<Scalars['String']>;
-  confirmPhoneResendSms?: Maybe<Scalars['String']>;
-  confirmPhoneComplete?: Maybe<Scalars['String']>;
+  confirmPhoneActionResendSms?: Maybe<Scalars['String']>;
+  confirmPhoneActionComplete?: Maybe<Scalars['String']>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
@@ -7340,13 +7340,13 @@ export type MutationStartConfirmPhoneActionArgs = {
 };
 
 
-export type MutationConfirmPhoneResendSmsArgs = {
+export type MutationConfirmPhoneActionResendSmsArgs = {
   token: Scalars['String'];
   sender: Scalars['JSON'];
 };
 
 
-export type MutationConfirmPhoneCompleteArgs = {
+export type MutationConfirmPhoneActionCompleteArgs = {
   token: Scalars['String'];
   smsCode: Scalars['Int'];
 };
@@ -9627,7 +9627,7 @@ export type Query = {
   _MessagesMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
-  getPhoneByConfirmActionToken?: Maybe<Scalars['String']>;
+  getPhoneByConfirmPhoneActionToken?: Maybe<Scalars['String']>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -10789,7 +10789,7 @@ export type Query_KsListsMetaArgs = {
 };
 
 
-export type QueryGetPhoneByConfirmActionTokenArgs = {
+export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
   token: Scalars['String'];
 };
 
@@ -10809,7 +10809,7 @@ export type RegisterNewUserInput = {
   name: Scalars['String'];
   email: Scalars['String'];
   password: Scalars['String'];
-  firebaseIdToken?: Maybe<Scalars['String']>;
+  confirmPhoneActionToken?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
 };
@@ -10856,7 +10856,8 @@ export type SendMessageToInput = {
 export enum SendMessageType {
   InviteNewEmployee = 'INVITE_NEW_EMPLOYEE',
   RegisterNewUser = 'REGISTER_NEW_USER',
-  ResetPassword = 'RESET_PASSWORD'
+  ResetPassword = 'RESET_PASSWORD',
+  SmsVerify = 'SMS_VERIFY'
 }
 
 export enum SortBillingAccountHistoryRecordsBy {

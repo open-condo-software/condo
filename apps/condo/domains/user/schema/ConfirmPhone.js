@@ -11,7 +11,7 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const { has, isEmpty } = require('lodash')
 
 const { 
-    CONFIRM_PHONE_EXPIRED,
+    CONFIRM_PHONE_ACTION_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED, 
     CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED, 
@@ -23,7 +23,7 @@ const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/co
 const { 
     SMS_CODE_LENGTH, 
     SMS_CODE_TTL, 
-    CONFIRM_PHONE_TOKEN_EXPIRY, 
+    CONFIRM_PHONE_ACTION_EXPIRY, 
     CONFIRM_PHONE_SMS_MAX_RETRIES,
 } = require('@condo/domains/user/constants/common')
 
@@ -116,9 +116,9 @@ const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
 
 const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService', {
     queries: [
-        {
+        { 
             access: true,
-            schema: 'getPhoneByConfirmActionToken(token: String!): String',
+            schema: 'getPhoneByConfirmPhoneActionToken(token: String!): String',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { token } = args
                 const now = extra.extraNow || Date.now()
@@ -139,7 +139,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new Error('[error]: error while executing find confirm phone action')
                 }
                 if (isEmpty(data.confirmPhoneActions)) {
-                    throw new Error(`${CONFIRM_PHONE_EXPIRED}]: Unable to find confirm phone action by token`)
+                    throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}]: Unable to find confirm phone action by token`)
                 }
                 const { phone } = data.confirmPhoneActions[0]
                 return phone
@@ -154,7 +154,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 const { phone: inputPhone, sender, dv } = args
                 const phone = normalizePhone(inputPhone)
                 const token = uuid()
-                const tokenExpiration = extra.extraTokenExpiration || parseInt(CONFIRM_PHONE_TOKEN_EXPIRY)
+                const tokenExpiration = extra.extraTokenExpiration || parseInt(CONFIRM_PHONE_ACTION_EXPIRY)
                 const now = extra.extraNow || Date.now()
                 const requestedAt = new Date(now).toISOString()
                 const expiresAt = new Date(now + tokenExpiration).toISOString()
@@ -224,7 +224,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         },
         {
             access: true,
-            schema: 'confirmPhoneResendSms(token: String!, sender: JSON!): String',
+            schema: 'confirmPhoneActionResendSms(token: String!, sender: JSON!): String',
             resolver: async (parent, args, context, info, extra) => {
                 const { token, sender } = args
                 const now = extra.extraNow || Date.now()
@@ -286,7 +286,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         },
         {
             access: true,
-            schema: 'confirmPhoneComplete(token: String!, smsCode: Int!): String',
+            schema: 'confirmPhoneActionComplete(token: String!, smsCode: Int!): String',
             resolver: async (parent, args, context, info, extra) => {
                 const { token, smsCode } = args
                 const now = extra.extraNow || Date.now()                        
@@ -300,6 +300,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                             token
                             phone
                             retries
+                            smsCodeRequestedAt
                             smsCodeExpiresAt
                           }
                         }
@@ -308,9 +309,13 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 })
 
                 if (findErrors || isEmpty(data.confirmPhoneActions)) {
-                    throw new Error(`${CONFIRM_PHONE_EXPIRED}] Unable to find confirm phone action`)
+                    throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] Unable to find confirm phone action`)
                 }
-                const { id, smsCode: actionSmsCode, phone, retries } = data.confirmPhoneActions[0]
+                const { id, smsCode: actionSmsCode, retries, smsCodeRequestedAt, smsCodeExpiresAt } = data.confirmPhoneActions[0]
+                const timePassed = Math.floor((new Date(smsCodeExpiresAt) - new Date(smsCodeRequestedAt)) / 1000)
+                if (timePassed > SMS_CODE_TTL) {
+                    throw new Error(`${CONFIRM_PHONE_SMS_CODE_EXPIRED}] SMS code expired - time passed ${timePassed} seconds`)
+                }
                 if (actionSmsCode !== smsCode) {
                     const { errors: incrementRetriesError } = await context.executeGraphQL({
                         context: context.createContext({ skipAccessControl: true }),
@@ -353,8 +358,8 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 const { errors: confirmPhoneCompleteErrors } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
-                        mutation confirmPhoneComplete($id: ID!, $now: String!) {
-                          updateConfirmPhoneAction(id: $id, data: {completedAt: $now, isPhoneVerified: true }) {
+                        mutation confirmPhoneActionComplete($id: ID!, $now: String!) {
+                          updateConfirmPhoneAction(id: $id, data: { isPhoneVerified: true }) {
                             id
                             token
                           }
@@ -369,7 +374,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     console.error(confirmPhoneCompleteErrors)
                     throw new Error('[error]: Unable to set phone is confirmed')   
                 }
-                return phone
+                return 'ok'
             },
         },
     ],
