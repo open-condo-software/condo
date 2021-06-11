@@ -10,8 +10,8 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { WRONG_EMAIL_ERROR, MULTIPLE_ACCOUNTS_MATCHES, RESET_TOKEN_NOT_FOUND, PASSWORD_TOO_SHORT } = require('@condo/domains/user/constants/errors')
-const has = require('lodash/has')
-const { BOT_EMAIL } = require('@condo/domains/common/constants/requisites')
+const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+
 
 const USER_OWNED_FIELD = {
     schemaDoc: 'Ref to the user. The object will be deleted if the user ceases to exist',
@@ -30,6 +30,8 @@ const USER_OWNED_FIELD = {
 
 const ForgotPasswordAction = new GQLListSchema('ForgotPasswordAction', {
     fields: {
+        dv: DV_FIELD,
+        sender: SENDER_FIELD,        
         user: USER_OWNED_FIELD,
         token: {
             type: Text,
@@ -69,10 +71,9 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
     mutations: [
         {
             access: true,
-            schema: 'startPasswordRecovery(email: String!): String',
+            schema: 'startPasswordRecovery(email: String!, sender: JSON!, dv:Int!): String',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { email } = args
-                const sender = has(args, 'sender') ? args.sender : BOT_EMAIL
+                const { email, sender, dv } = args
                 const extraToken = extra.extraToken || uuid()
                 const extraTokenExpiration = extra.extraTokenExpiration || parseInt(RESET_PASSWORD_TOKEN_EXPIRY)
                 const extraNowTimestamp = extra.extraNowTimestamp || Date.now()
@@ -102,6 +103,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const userId = userData.allUsers[0].id
 
                 const variables = {
+                    dv,
+                    sender,
                     userId,
                     token: extraToken,
                     requestedAt,
@@ -112,12 +115,16 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
                         mutation createForgotPasswordAction(
+                          $dv: Int,
+                          $sender: JSON,
                           $userId: ID!,
                           $token: String,
                           $requestedAt: String,
                           $expiresAt: String,
                         ) {
                           createForgotPasswordAction(data: {
+                            dv: $dv,
+                            sender: $sender,
                             user: { connect: { id: $userId }},
                             token: $token,
                             requestedAt: $requestedAt,

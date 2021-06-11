@@ -18,12 +18,15 @@ class FileAdapter {
             case 'sbercloud':
                 Adapter = this.createSbercloudFileApapter()
                 if (!Adapter) {
+                    // no fallback for production 
+                    // if (coreConfig.NODE_ENV !== 'production') {
                     Adapter = this.createLocalFileApapter()
+                    //}
                 }
                 break
         }
         if (!Adapter) {
-            throw new Error('File adapter is not configured')
+            console.error('File adapter is not configured')
         }
         return Adapter
     }

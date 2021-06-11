@@ -18,8 +18,8 @@ describe('FORGOT_RECOVERY_CHANGE_PASSWORD', () => {
     `
 
     const START_PASSWORD_RECOVERY_MUTATION = gql`
-        mutation startPasswordRecovery($email: String!){
-            status: startPasswordRecovery(email: $email)
+        mutation startPasswordRecovery($email: String!, $dv: Int!, $sender: JSON!){
+            status: startPasswordRecovery(email: $email, dv: $dv, sender: $sender)
         }
     `
 
@@ -70,8 +70,10 @@ describe('FORGOT_RECOVERY_CHANGE_PASSWORD', () => {
     test('reset forgotten password', async () => {
         const admin = await makeLoggedInAdminClient()
         const [user, userAttrs] = await createTestUser(admin)
-        const client = await makeClient()        
-        const res1 = await client.mutate(START_PASSWORD_RECOVERY_MUTATION, { email: userAttrs.email })
+        const client = await makeClient()       
+        const dv = 1
+        const sender = { dv: 1, fingerprint: 'tests' }
+        const res1 = await client.mutate(START_PASSWORD_RECOVERY_MUTATION, { email: userAttrs.email, dv, sender })
         expect(res1.errors).toEqual(undefined)
         expect(res1.data).toEqual({ status: 'ok' })
         // get created token
@@ -91,15 +93,19 @@ describe('FORGOT_RECOVERY_CHANGE_PASSWORD', () => {
 
     test('start recovery for unknown email', async () => {
         const client = await makeClient()
-        const res1 = await client.mutate(START_PASSWORD_RECOVERY_MUTATION, { email: `r${Math.random()}@example.com` })
+        const dv = 1
+        const sender = { dv: 1, fingerprint: 'tests' }
+        const res1 = await client.mutate(START_PASSWORD_RECOVERY_MUTATION, { email: `r${Math.random()}@example.com`, dv, sender })
         expect(JSON.stringify(res1.errors)).toContain(WRONG_EMAIL_ERROR)
     })
 
     test('change password to empty', async () => {
         const admin = await makeLoggedInAdminClient()
         const [, userAttrs] = await createTestUser(admin)
-        const client = await makeClient()        
-        await client.mutate(START_PASSWORD_RECOVERY_MUTATION, { email: userAttrs.email })
+        const client = await makeClient()      
+        const dv = 1
+        const sender = { dv: 1, fingerprint: 'tests' }
+        await client.mutate(START_PASSWORD_RECOVERY_MUTATION, { email: userAttrs.email, dv, sender })
         const { data: { passwordTokens } } = await admin.query(ALL_TOKENS_FOR_USER_QUERY, { email: userAttrs.email })
         expect(passwordTokens).toHaveLength(1)
         const token = passwordTokens[0].token
