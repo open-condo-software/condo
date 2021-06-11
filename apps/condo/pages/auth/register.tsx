@@ -1,105 +1,103 @@
 import { useIntl } from '@core/next/intl'
 import { FormattedMessage } from 'react-intl'
-import Router from 'next/router'
-
+import Router, { useRouter } from 'next/router'
 import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
-import React, { createContext, useEffect, useState, useRef, useContext } from 'react'
-import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
+import React, { createContext, useEffect, useState, useContext } from 'react'
+import { 
+    START_CONFIRM_PHONE_MUTATION,
+    RESEND_CONFIRM_PHONE_SMS_MUTATION,
+    COMPLETE_CONFIRM_PHONE_MUTATION,
+    GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY,
+} from '@condo/domains/user/gql'
+import { useLazyQuery } from '@core/next/apollo'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
-import { AUTH as firebaseAuth, initRecaptcha, resetRecaptcha, IS_FIREBASE_CONFIG_VALID } from '@condo/domains/common/utils/firebase.front.utils'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { useAuth } from '@core/next/auth'
+import { formatPhone } from '@condo/domains/common/utils/helpers'
+import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { useMutation } from '@core/next/apollo'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { ALREADY_REGISTERED, MIN_PASSWORD_LENGTH_ERROR, EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
-
+import { 
+    PHONE_ALREADY_REGISTERED_ERROR, 
+    MIN_PASSWORD_LENGTH_ERROR, 
+    EMAIL_ALREADY_REGISTERED_ERROR,
+    CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED,
+    CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED,
+    CONFIRM_PHONE_EXPIRED,
+    CONFIRM_PHONE_SMS_CODE_EXPIRED,
+} from '@condo/domains/user/constants/errors'
+import { SMS_CODE_LENGTH } from '@condo/domains/user/constants/common'
 import { colors } from '@condo/domains/common/constants/style'
+import { SMS_CODE_TTL } from '@condo/domains/user/constants/common'
+import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { isEmpty } from 'lodash'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 
 const POLICY_LOCATION = '/policy.pdf'
-const SMS_CODE_LENGTH = 6
-
 const LINK_STYLE = { color: colors.sberPrimary[7] }
 const INPUT_STYLE = { width: '20em' }
-
-const AuthContext = createContext({
-    isAuthenticated: false,
-    user: null,
-    sendCode: async (phone: string) => null,
-    verifyCode: async (code: string) => null,
-    signout: () => null,
-    phone: '',
-})
-declare global {
-    interface Window {
-        recaptchaVerifier: unknown
-    }
+interface IRegisterContext {
+    setconfirmPhoneToken: (token: string) => void,
+    setPhone: (phone: string) => void,
+    confirmPhoneToken: string,
+    phone: string,
 }
 
-const Auth = ({ children }): React.ReactElement => {
-    const [user, setUser] = useState(null)
-    const intl = useIntl()
-    const ClientSideErrorMsg = intl.formatMessage({ id: 'ClientSideError' })
-    const recaptchaVerifier = useRef(null)
-    const [, setCaptcha] = useState('')
-    const [confirmationResult, setConfirmationResult] = useState(null)
+const RegisterContext = createContext<IRegisterContext>({
+    setconfirmPhoneToken: (token) => null,
+    setPhone: (phone) => null,
+    confirmPhoneToken: '',
+    phone: '',
+})
+
+const Register = ({ children }): React.ReactElement => {
+    const { query: { token } } = useRouter()
+    const [confirmPhoneToken, setconfirmPhoneToken] = useState(token as string)
     const [phone, setPhone] = useState('')
+    const [loadPhoneByToken] = useLazyQuery(
+        GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY,
+        {
+            onError: error => {
+                throw new Error(error)
+            },
+            onCompleted: ({ phone }) => {
+                setPhone(phone)
+            },
+        })
 
     useEffect(() => {
-        if (!IS_FIREBASE_CONFIG_VALID) {
-            throw new Error(ClientSideErrorMsg)
+        if (!isEmpty(confirmPhoneToken)) {
+            loadPhoneByToken({ variables: { token: confirmPhoneToken } })
+        } else {
+            setPhone('')
         }
-        recaptchaVerifier.current = initRecaptcha(setCaptcha, setCaptcha)
-        if (typeof window !== 'undefined') {
-            window.recaptchaVerifier = recaptchaVerifier.current
-        }
-        return () => {
-            recaptchaVerifier.current.clear()
-            setCaptcha(null)
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    async function sendCode (phoneNumber) {
-        setPhone(phoneNumber)
-        const confirmation = await firebaseAuth().signInWithPhoneNumber(phoneNumber, recaptchaVerifier.current)
-        setConfirmationResult(confirmation)
-    }
-
-    async function verifyCode (verificationCode) {
-        const result = await confirmationResult.confirm(verificationCode)
-        result.user.token = await result.user.getIdToken(true)
-        setUser(result.user)
-    }
-
-    async function signout () {
-        return await firebaseAuth().signOut()
-    }
+    }, [loadPhoneByToken, confirmPhoneToken])
 
     return (
-        <AuthContext.Provider
+        <RegisterContext.Provider
             value={{
-                isAuthenticated: Boolean(user),
-                user,
-                sendCode,
-                verifyCode,
-                signout,
+                confirmPhoneToken,
+                setconfirmPhoneToken,
+                setPhone,
                 phone,
             }}
         >
             {children}
-        </AuthContext.Provider>
+        </RegisterContext.Provider>
     )
 }
 
 const RegisterSteps = (): React.ReactElement => {
-    const [state, setState] = useState('inputPhone')
+    const { confirmPhoneToken } = useContext(RegisterContext)
+    const [state, setState] = useState(isEmpty(confirmPhoneToken) ? 'inputPhone' : 'validatePhone')
     const steps = {
-        inputPhone: <InputPhoneForm onFinish={() => setState('validatePhone')}/>,
-        validatePhone: <ValidatePhoneForm onFinish={() => setState('register')} onReset={() => setState('inputPhone')}/>,
-        register: <RegisterForm onFinish={() => null}/>,
+        inputPhone: <InputPhoneForm onFinish={() => setState('validatePhone')} />,
+        validatePhone: <ValidatePhoneForm onFinish={() => setState('register')} onReset={() => {
+            setState('inputPhone')
+            Router.push('/auth/register')
+        }} />,
+        register: <RegisterForm onFinish={() => null} />,
     }
     return steps[state]
 }
@@ -108,12 +106,12 @@ const RegisterPage: AuthPage = () => {
     const intl = useIntl()
     const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
     return (
-        <Auth>
+        <Register>
             <div style={{ textAlign: 'center' }}>
                 <Typography.Title style={{ textAlign: 'left' }}>{RegistrationTitleMsg}</Typography.Title>
-                <RegisterSteps/>
+                <RegisterSteps />
             </div>
-        </Auth>
+        </Register>
     )
 }
 
@@ -130,62 +128,59 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
     const UserAgreementFileName = intl.formatMessage({ id: 'pages.auth.register.info.UserAgreementFileName' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    
-    const FirebaseEmptyPhoneError = intl.formatMessage({ id: 'auth.firebase.EmptyPhoneNumber' })
-    const FirebaseValidatePhoneError = intl.formatMessage({ id: 'auth.firebase.InvalidPhoneNumber' })
-    const FirebaseTooManyRequests = intl.formatMessage({ id: 'auth.firebase.TooManyRequests' })
-
-    const { phone, sendCode } = useContext(AuthContext)
-
-    const [firebaseError, setfirebaseError] = useState(null)
-
-    async function handleSendCode () {
-        setfirebaseError(null)
-        const { phone } = await form.validateFields(['phone'])
-        try {
-            await sendCode(phone)
-            onFinish()
-        } catch (error) {
-            if (error.code) {
-                const msg = {
-                    'auth/invalid-phone-number': FirebaseValidatePhoneError,
-                    'auth/too-many-requests': FirebaseTooManyRequests,
-                    'auth/missing-phone-number': FirebaseEmptyPhoneError,
-                }[error.code] || 'send sms unknown error code'
-                console.error('Firebase error: ', error)
-                setfirebaseError(msg)
-            } else {
-                console.error('send sms error ', error)
-            }            
-            form.validateFields()
-            resetRecaptcha()
+    const { setconfirmPhoneToken, setPhone } = useContext(RegisterContext)
+    const [smsSendError, setSmsSendError] = useState(null)
+    const [isloading, setIsLoading] = useState(false)
+    const ErrorToFormFieldMsgMapping = {}
+    const [startPhoneVerify] = useMutation(START_CONFIRM_PHONE_MUTATION)
+    const startConfirmPhone = async () => {
+        const registerExtraData = {
+            dv: 1,
+            sender: getClientSideSenderInfo(),
         }
+        const { phone: inputPhone } = form.getFieldsValue(['phone'])
+        const phone = normalizePhone(inputPhone)
+        setPhone(phone)
+        const variables = { ...registerExtraData, phone }
+        setIsLoading(true)
+        return runMutation({
+            mutation: startPhoneVerify,
+            variables,
+            onCompleted: (data) => {
+                const { data: { token } } = data
+                setconfirmPhoneToken(token)
+                Router.push(`/auth/register?token=${token}`)
+                onFinish()
+            },
+            onFinally: () => {
+                setIsLoading(false)
+            },
+            intl,
+            form,
+            ErrorToFormFieldMsgMapping,
+        }).catch(error => {
+            setIsLoading(false)
+        })
     }
-
-    useEffect(() => {
-        setfirebaseError(null)
-    }, [phone])
-
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     return (
         <>
             <Typography.Paragraph style={{ textAlign: 'left', fontSize: '16px' }}>{RegisterHelpMessage}</Typography.Paragraph>
             <Form
                 form={form}
-                name="register-input-phone"
-                onFinish={handleSendCode}
+                name='register-input-phone'
+                onFinish={startConfirmPhone}
                 colon={false}
                 style={{ marginTop: '40px' }}
-                initialValues={{ phone }}
-                requiredMark={false}                
+                requiredMark={false}
             >
-                
+
                 <Form.Item
-                    name="phone"
+                    name='phone'
                     label={PhoneMsg}
                     labelAlign='left'
                     style={{ marginTop: '40px', textAlign: 'left' }}
-                    labelCol={{ flex: 1 }} 
+                    labelCol={{ flex: 1 }}
                     rules={[
                         {
                             required: true,
@@ -193,35 +188,30 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
                         },
                         () => ({
                             validator () {
-                                if (!firebaseError) {
+                                if (!smsSendError) {
                                     return Promise.resolve()
                                 }
-                                return Promise.reject(firebaseError)
+                                return Promise.reject(smsSendError)
                             },
                         }),
-                    ]}              
+                    ]}
                 >
-                    <PhoneInput
-                        style={INPUT_STYLE}
-                        value={phone}
-                        placeholder={ExamplePhoneMsg}
-                    />
+                    <PhoneInput placeholder={ExamplePhoneMsg} onChange={() => setSmsSendError(null)} style={{ ...INPUT_STYLE }} />
                 </Form.Item>
-
                 <Typography.Paragraph style={{ textAlign: 'left', fontSize: '12px', marginTop: '40px', lineHeight: '20px' }}>
                     <FormattedMessage
                         id='pages.auth.register.info.UserAgreement'
                         values={{
-                            link: <a style={LINK_STYLE} target='_blank' href={POLICY_LOCATION} rel="noreferrer">{UserAgreementFileName}</a>,
+                            link: <a style={LINK_STYLE} target='_blank' href={POLICY_LOCATION} rel='noreferrer'>{UserAgreementFileName}</a>,
                         }}
                     />
                 </Typography.Paragraph>
-
                 <Form.Item style={{ textAlign: 'left', marginTop: '24px' }}>
                     <Button
                         key='submit'
                         type='sberPrimary'
                         htmlType='submit'
+                        loading={isloading}
                         style={{ marginTop: '40px' }}
                     >
                         {RegisterMsg}
@@ -239,56 +229,97 @@ interface IValidatePhoneFormProps {
 
 const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidatePhoneFormProps> => {
     const [form] = Form.useForm()
-    const initialValues = { smscode: '' }
+    const initialValues = { smsCode: '' }
     const intl = useIntl()
     const ChangePhoneNumberLabel = intl.formatMessage({ id: 'pages.auth.register.ChangePhoneNumber' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const SmsCodeTitle = intl.formatMessage({ id: 'pages.auth.register.field.SmsCode' })
-    const FirebaseValidateCodeError = intl.formatMessage({ id: 'auth.firebase.WrongValidationCode' })
-    const FirebaseEmptyCodeError = intl.formatMessage({ id: 'auth.firebase.EmptyValidationCode' })
+    const ResendSmsLabel = intl.formatMessage({ id: 'pages.auth.register.ResendSmsLabel' })
+    
+    const SMSCodeMismatchError = 'СМС код не совпадает'
+    const SMSExpiredError = 'Время действия СМС-кода истекло (30 секунд). Нажмите на кнопку «Отправить СМС-код ещё раз»'
+    const ConfirmActionExpiredError = 'Телефон не подтвержден. Начните регистрацию сначала'
+    const SMSMaxRetriesReachedError = 'Максимальное количестово попыток закончено. Начните сначала'
+    const SMSBadFormat = 'Неправильный формат для СМС кода'
+
+    const ErrorToFormFieldMsgMapping = {
+        [CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED]: {
+            name: 'smsCode',
+            errors: [SMSCodeMismatchError],
+        },
+        [CONFIRM_PHONE_EXPIRED]: {
+            name: 'smsCode',
+            errors: [ConfirmActionExpiredError],
+        },
+        [CONFIRM_PHONE_SMS_CODE_EXPIRED]: {
+            name: 'smsCode',
+            errors: [SMSExpiredError],
+        },
+        [CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED]: {
+            name: 'smsCode',
+            errors: [SMSMaxRetriesReachedError],
+        },                
+    }
 
     const [isPhoneVisible, setisPhoneVisible] = useState(false)
     const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'Hide' }) : intl.formatMessage({ id: 'Show' })
-    const { verifyCode, signout, phone } = useContext(AuthContext)
+    const { confirmPhoneToken, phone, setPhone } = useContext(RegisterContext)
     const [showPhone, setShowPhone] = useState(phone)
     useEffect(() => {
         if (isPhoneVisible) {
-            setShowPhone(phone)
+            setShowPhone(formatPhone(phone))
         } else {
-            setShowPhone(`${phone.substring(0, 9)}***${phone.substring(12)}`)
+            const unHidden = formatPhone(phone)
+            setShowPhone(`${unHidden.substring(0, 9)}***${unHidden.substring(12)}`)
         }
     }, [isPhoneVisible, phone, setShowPhone])
-
-    const [firebaseError, setfirebaseError] = useState(null)
+    const [phoneValidateError, setPhoneValidateError] = useState(null)
+    
+    const [resendSmsMutation] = useMutation(RESEND_CONFIRM_PHONE_SMS_MUTATION)
+    const resendSms = async () => {
+        const variables = { token: confirmPhoneToken }
+        return runMutation({
+            mutation: resendSmsMutation,
+            variables,
+            intl,
+            form,
+            ErrorToFormFieldMsgMapping,
+        }).catch(error => {
+            console.error(error)
+        })
+    }
+    const [completeConfirmPhoneMutation] = useMutation(COMPLETE_CONFIRM_PHONE_MUTATION)
+    const confirmPhone = async () => {
+        const smsCode = Number(form.getFieldValue('smsCode'))
+        if (isNaN(smsCode)) {
+            throw new Error(SMSBadFormat)
+        }
+        const variables = { token: confirmPhoneToken, smsCode }
+        return runMutation({
+            mutation: completeConfirmPhoneMutation,
+            variables,
+            intl,
+            form,
+            ErrorToFormFieldMsgMapping,
+        }).catch(error => {
+            console.error(error)
+        })
+    }    
 
     async function handleVerifyCode () {
-        setfirebaseError(null)
-        const { smscode } = await form.validateFields(['smscode'])
-        if (smscode.toString().length < SMS_CODE_LENGTH) {
+        setPhoneValidateError(null)
+        const smsCode = form.getFieldValue('smsCode') || ''
+        if (smsCode.toString().length < SMS_CODE_LENGTH) {
             return
         }
         try {
-            await verifyCode(smscode)
+            const { data: { phone } } = await confirmPhone()
+            setPhone(phone)
             onFinish()
         } catch (error) {
-            if (error.code) {
-                const msg = {
-                    'auth/invalid-verification-code': FirebaseValidateCodeError,
-                    'auth/missing-verification-code': FirebaseEmptyCodeError,
-                }[error.code] || `validate code unknown error code: ${error.code}`
-                setfirebaseError(msg)
-            } else {
-                console.error('send sms error ', error)
-            }            
-            form.validateFields()            
-            resetRecaptcha()
+            setPhoneValidateError(error)
+            form.validateFields()
         }
-    }
-
-    async function resetPhone () {
-        await signout()
-        resetRecaptcha()
-        onReset()
     }
 
     return (
@@ -303,18 +334,22 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
             </Typography.Paragraph>
             <Form
                 form={form}
-                name="register-verify-code"
+                name='register-verify-code'
                 initialValues={initialValues}
                 colon={false}
                 style={{ marginTop: '40px' }}
-                requiredMark={false}                
+                requiredMark={false}
             >
+                <Typography.Paragraph style={{ textAlign: 'left', marginTop: '32px' }}>
+                    <a style={{ ...LINK_STYLE, fontSize: '12px', lineHeight: '20px' }} onClick={onReset}>{ChangePhoneNumberLabel}</a>
+                </Typography.Paragraph>
+
                 <Form.Item
-                    name="smscode"
+                    name='smsCode'
                     label={SmsCodeTitle}
                     labelAlign='left'
                     style={{ marginTop: '40px', textAlign: 'left' }}
-                    labelCol={{ flex: 1 }} 
+                    labelCol={{ flex: 1 }}
                     rules={[
                         {
                             required: true,
@@ -322,20 +357,32 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
                         },
                         () => ({
                             validator () {
-                                if (!firebaseError) {
+                                if (!phoneValidateError) {
                                     return Promise.resolve()
                                 }
-                                return Promise.reject(firebaseError)
+                                return Promise.reject(phoneValidateError)
                             },
                         }),
                     ]}
                 >
                     <Input onChange={handleVerifyCode} style={INPUT_STYLE} />
                 </Form.Item>
-                <Typography.Paragraph style={{ textAlign: 'left', marginTop: '32px' }}>
-                    <a style={{ ...LINK_STYLE, fontSize: '12px', lineHeight: '20px' }} onClick={resetPhone}>{ChangePhoneNumberLabel}</a>
-                </Typography.Paragraph>
             </Form>
+            <CountDownTimer action={resendSms} id={'RESEND_SMS'} timeout={SMS_CODE_TTL}>
+                {({ countdown, runAction }) => {
+                    const isCountDownActive = countdown > 0
+                    return (
+                        <Typography.Paragraph style={{ textAlign: 'left', marginTop: '60px' }}>
+                            <a style={{ color: isCountDownActive ? colors.sberGrey[5] : colors.sberPrimary[7] }} onClick={runAction}>{ResendSmsLabel}</a>
+                            {isCountDownActive && (
+                                <Typography.Text  type='secondary' style={{ marginLeft: '10px' }}>
+                                    { `${new Date(countdown * 1000).toISOString().substr(14, 5)}` }
+                                </Typography.Text>
+                            )}
+                        </Typography.Paragraph>
+                    )
+                }}
+            </CountDownTimer>
         </>
     )
 }
@@ -346,10 +393,9 @@ interface IRegisterFormProps {
 
 const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
     const [form] = Form.useForm()
-    const { user } = useContext(AuthContext)
+    const { phone, confirmPhoneToken } = useContext(RegisterContext)
     const [isLoading, setIsLoading] = useState(false)
-    const { signin } = useAuth()
-    const initialValues = { phone: user.phoneNumber, firebaseIdToken: user.token }
+    const initialValues = { phone }
     const intl = useIntl()
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
@@ -372,7 +418,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
 
     const ErrorToFormFieldMsgMapping = {
-        [ALREADY_REGISTERED]: {
+        [PHONE_ALREADY_REGISTERED_ERROR]: {
             name: 'phone',
             errors: [PhoneIsAlreadyRegisteredMsg],
         },
@@ -386,23 +432,21 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
         },
 
     }
-    const [register] = useMutation(REGISTER_NEW_USER_MUTATION)
-    const registerComplete = values => {
+    const [registerMutation] = useMutation(REGISTER_NEW_USER_MUTATION)
+    const registerComplete = async () => {
         const registerExtraData = {
             dv: 1,
             sender: getClientSideSenderInfo(),
         }
-        if (values.email) {
-            values.email = values.email.toLowerCase().trim()
-        }
-        const { name, email, password, firebaseIdToken } = values
-        const data = { name, email, password, firebaseIdToken, ...registerExtraData }
+        const { name, email: inputEmail, password } = form.getFieldsValue(['name', 'email', 'password'])
+        const email = inputEmail.toLowerCase().trim()
+        const data = { name, email, password, ...registerExtraData, confirmPhoneToken }
         setIsLoading(true)
         return runMutation({
-            mutation: register,
-            variables: { data: data },
+            mutation: registerMutation,
+            variables: { data },
             onCompleted: () => {
-                signin({ variables: form.getFieldsValue() }).then(() => { Router.push('/') }, console.error)
+                // signInByPhone(form.getFieldsValue(['phone', 'password'])).then(() => { Router.push('/') }, console.error)
             },
             onFinally: () => {
                 setIsLoading(false)
@@ -419,43 +463,40 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
             <Typography.Paragraph style={{ textAlign: 'left', fontSize: '12px' }} >{AllFieldsAreRequired}</Typography.Paragraph>
             <Form
                 form={form}
-                name="register"
+                name='register'
                 onFinish={registerComplete}
                 initialValues={initialValues}
                 colon={false}
                 style={{ marginTop: '40px' }}
                 requiredMark={false}
+                validateTrigger={['onBlur', 'onSubmit']}
             >
                 <Form.Item
                     name="phone"
                     label={PhoneMsg}
                     labelAlign='left'
                     style={{ marginTop: '24px', textAlign: 'left' }}
-                    labelCol={{ flex: 1 }} 
+                    labelCol={{ flex: 1 }}
                     rules={[{ required: true }]}
                 >
-                    <PhoneInput
-                        disabled={true}
-                        style={INPUT_STYLE}
-                        placeholder={ExamplePhoneMsg}
-                    />
+                    <MaskedInput disabled={true} mask='+1 (111) 111-11-11' placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
                 </Form.Item>
                 <Form.Item
-                    name="name"
+                    name='name'
                     label={NameMsg}
                     labelAlign='left'
                     style={{ marginTop: '24px', textAlign: 'left' }}
-                    labelCol={{ flex: 1 }} 
+                    labelCol={{ flex: 1 }}
                     rules={[{ required: true, message: PleaseInputYourNameMsg, whitespace: true }]}
                 >
                     <Input placeholder={ExampleNameMsg} style={INPUT_STYLE} />
                 </Form.Item>
                 <Form.Item
-                    name="email"
+                    name='email'
                     label={EmailMsg}
                     labelAlign='left'
                     style={{ marginTop: '24px', textAlign: 'left' }}
-                    labelCol={{ flex: 1 }} 
+                    labelCol={{ flex: 1 }}
                     rules={[
                         {
                             type: 'email',
@@ -470,11 +511,11 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     <Input autoComplete='chrome-off' placeholder={EmailPlaceholder} style={INPUT_STYLE} />
                 </Form.Item>
                 <Form.Item
-                    name="password"
+                    name='password'
                     label={PasswordMsg}
                     labelAlign='left'
                     style={{ marginTop: '24px', textAlign: 'left' }}
-                    labelCol={{ flex: 1 }} 
+                    labelCol={{ flex: 1 }}
                     rules={[
                         {
                             required: true,
@@ -489,11 +530,11 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     <Input.Password autoComplete='new-password' style={INPUT_STYLE} />
                 </Form.Item>
                 <Form.Item
-                    name="confirm"
+                    name='confirm'
                     label={ConfirmPasswordMsg}
                     labelAlign='left'
                     style={{ marginTop: '24px', textAlign: 'left' }}
-                    labelCol={{ flex: 1 }} 
+                    labelCol={{ flex: 1 }}
                     dependencies={['password']}
                     rules={[
                         {
@@ -510,13 +551,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                         }),
                     ]}
                 >
-                    <Input.Password style={INPUT_STYLE}/>
-                </Form.Item>
-                <Form.Item
-                    name="firebaseIdToken"
-                    noStyle={true}
-                >
-                    <Input disabled={true} hidden={true}/>
+                    <Input.Password style={INPUT_STYLE} />
                 </Form.Item>
                 <Form.Item style={{ textAlign: 'left', marginTop: '36px' }}>
                     <Button
@@ -552,7 +587,7 @@ const HeaderAction = (): React.ReactElement => {
     )
 }
 
-RegisterPage.headerAction = <HeaderAction/>
+RegisterPage.headerAction = <HeaderAction />
 
 RegisterPage.container = AuthLayout
 

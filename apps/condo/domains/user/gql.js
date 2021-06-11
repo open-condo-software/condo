@@ -54,6 +54,28 @@ const START_PASSWORD_RECOVERY_MUTATION = gql`
         status: startPasswordRecovery(email: $email, dv: $dv, sender: $sender)
     }
 `
+
+const START_CONFIRM_PHONE_MUTATION = gql`
+    mutation startConfirmPhoneAction($phone: String!, $dv: Int!, $sender: JSON!) {
+        token: startConfirmPhoneAction(phone: $phone, dv: $dv, sender: $sender)
+    }
+`
+const RESEND_CONFIRM_PHONE_SMS_MUTATION = gql`
+    mutation confirmPhoneActionResendSms($token: String!) {
+        status: confirmPhoneResendSms(token: $token)
+    }
+`
+const COMPLETE_CONFIRM_PHONE_MUTATION = gql`
+    mutation confirmPhoneActionComplete($token: String!, $smsCode: Int!) {
+        phone: confirmPhoneActionComplete(token: $token, smsCode: $smsCode)
+    }
+`
+const GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY = gql`
+    query getPhoneByConfirmPhoneActionToken($token: String!) {
+        phone: getPhoneByConfirmPhoneActionToken(token: $token)
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -65,5 +87,9 @@ module.exports = {
     CHANGE_PASSWORD_WITH_TOKEN_MUTATION,
     SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,
     START_PASSWORD_RECOVERY_MUTATION,    
+    START_CONFIRM_PHONE_MUTATION,
+    RESEND_CONFIRM_PHONE_SMS_MUTATION,
+    COMPLETE_CONFIRM_PHONE_MUTATION,
+    GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
