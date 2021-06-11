@@ -20,19 +20,19 @@ async function renderTemplate (transport, message) {
     const serverUrl = conf.SERVER_URL
 
     if (message.type === INVITE_NEW_EMPLOYEE_MESSAGE_TYPE) {
-        const { organizationName, inviteCode } = message.meta
+        const { organizationName } = message.meta
 
         if (message.lang === EN_LOCALE) {
             return {
                 subject: 'You are invited to join organization as employee',
                 text: `Organization "${organizationName}" invited you as employee.\n` +
-                    `Click to the link to join: ${serverUrl}/auth/invite/${inviteCode}`,
+                    `Click to the link to join: ${serverUrl}/auth/auth/signin`,
             }
         } else if (message.lang === RU_LOCALE) {
             return {
                 subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
                 text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
-                    `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/invite/${inviteCode}`,
+                    `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/auth/signin`,
             }
         }
     }

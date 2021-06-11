@@ -1,6 +1,12 @@
 const faker = require('faker')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { OrganizationEmployee, REGISTER_NEW_ORGANIZATION_MUTATION, ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } = require('@condo/domains/organization/gql')
+const {
+    OrganizationEmployee,
+    REGISTER_NEW_ORGANIZATION_MUTATION,
+    ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
+    INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION,
+    REINVITE_ORGANIZATION_EMPLOYEE_MUTATION,
+} = require('@condo/domains/organization/gql')
 
 async function createOrganizationEmployee (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -69,6 +75,30 @@ async function inviteNewOrganizationEmployee (client, organization, user, extraA
     return [data.obj, attrs]
 }
 
+async function reInviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}, { raw = false } = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization) throw new Error('no organization')
+    if (!user) throw new Error('no user')
+    if (!user.email) throw new Error('no user.email')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        email: user.email,
+        phone: user.phone,
+        organization: { id: organization.id },
+        ...extraAttrs,
+    }
+
+    const { data, errors } = await client.mutate(REINVITE_ORGANIZATION_EMPLOYEE_MUTATION, {
+        data: { ...attrs },
+    })
+    if (raw) return { data, errors }
+    expect(errors).toEqual(undefined)
+    return [data.obj, attrs]
+}
+
 async function acceptOrRejectOrganizationInviteById (client, invite, extraAttrs = {}, { raw = false } = {}) {
     if (!client) throw new Error('no client')
     if (!invite || !invite.id) throw new Error('no invite.id')
@@ -101,6 +131,7 @@ module.exports = {
     registerNewOrganization,
     createOrganizationEmployee,
     inviteNewOrganizationEmployee,
+    reInviteNewOrganizationEmployee,
     acceptOrRejectOrganizationInviteById,
     makeClientWithRegisteredOrganization,
 }

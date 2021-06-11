@@ -22,10 +22,6 @@ const MESSAGE_TYPES = [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, REGISTER_NEW_USER_MESSA
 const MESSAGE_META = {
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
-        inviteCode: { defaultValue: '', required: true },
-        userName: { defaultValue: 'USERNAME', required: false },
-        userEmail: { defaultValue: '', required: false },
-        userPhone: { defaultValue: '', required: false },
         organizationName: { defaultValue: 'ORGANIZATION', required: false },
     },
     [REGISTER_NEW_USER_MESSAGE_TYPE]: {
