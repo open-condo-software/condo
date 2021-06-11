@@ -3,7 +3,13 @@ import React, { createContext } from 'react'
 import Router from 'next/router'
 import { FormattedMessage } from 'react-intl'
 import { ConfigProvider, Layout } from 'antd'
-
+import { 
+    SIGNIN_MUTATION,
+    SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,
+} from '@condo/domains/user/gql'
+import { useMutation } from '@core/next/apollo'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { useAuth } from '@core/next/auth'
 const { Footer, Content } = Layout
 import { Logo } from '@condo/domains/common/components/Logo'
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from '@condo/domains/common/constants/requisites'
@@ -58,18 +64,58 @@ const PageFooter: React.FC = () => {
 interface IAuthLayoutProps {
     headerAction: React.ReactElement
 }
+interface IAuthLayoutContext {
+    isMobile: boolean
+    signInByEmail: ({ email, password }) => Promise<unknown>,
+    signInByPhone: ({ phone, password }) => Promise<unknown>,
+}
 
-export const AuthLayoutContext = createContext({
+
+export const AuthLayoutContext = createContext<IAuthLayoutContext>({
     isMobile: false,
+    signInByEmail: async ({ email, password }) => null,
+    signInByPhone: async ({ phone, password }) => null,    
 })
 
 const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
     const intl = useIntl()
     const colSize = useAntdMediaQuery()
+    const { refetch } = useAuth()
     const isMobile = (colSize === 'xs')
+    const [signinByPhoneMutation] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
+    const signInByPhone = async ({ phone, password }) => {
+        return runMutation({
+            mutation: signinByPhoneMutation,
+            variables: { phone, password },
+            onCompleted: () => {
+                refetch()
+            },
+            intl,
+        }).catch(error => {
+            console.error(error)
+        })
+    }
+    // TODO(zuch): remove after making email optional
+    const [signinByEmailMutation] = useMutation(SIGNIN_MUTATION)
+    const signInByEmail = async ({ email, password }) => {
+        return runMutation({
+            mutation: signinByEmailMutation,
+            variables: { email, password },
+            onCompleted: () => {
+                refetch()
+            },
+            intl,
+        }).catch(error => {
+            console.error(error)
+        })
+    }    
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE}>
-            <AuthLayoutContext.Provider value={{ isMobile }}>
+            <AuthLayoutContext.Provider value={{ 
+                isMobile,
+                signInByEmail,
+                signInByPhone,
+            }}>
                 <Global styles={formInputFixCss}></Global>
                 <Layout style={{ background: colors.white, height: '100vh' }}>
                     <AntPageHeader

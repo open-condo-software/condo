@@ -48,7 +48,8 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
             }
         }
     }
-` 
+`
+
 const START_PASSWORD_RECOVERY_MUTATION = gql`
     mutation startPasswordRecovery($email: String!, $dv: Int!, $sender: JSON!){
         status: startPasswordRecovery(email: $email, dv: $dv, sender: $sender)
@@ -61,13 +62,13 @@ const START_CONFIRM_PHONE_MUTATION = gql`
     }
 `
 const RESEND_CONFIRM_PHONE_SMS_MUTATION = gql`
-    mutation confirmPhoneActionResendSms($token: String!) {
-        status: confirmPhoneResendSms(token: $token)
+    mutation confirmPhoneActionResendSms($token: String!, $sender: JSON!) {
+        status: confirmPhoneActionResendSms(token: $token, sender: $sender)
     }
 `
 const COMPLETE_CONFIRM_PHONE_MUTATION = gql`
     mutation confirmPhoneActionComplete($token: String!, $smsCode: Int!) {
-        phone: confirmPhoneActionComplete(token: $token, smsCode: $smsCode)
+        status: confirmPhoneActionComplete(token: $token, smsCode: $smsCode)
     }
 `
 const GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY = gql`
