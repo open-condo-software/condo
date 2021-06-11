@@ -11,7 +11,6 @@ import { searchEmployee, searchTicketClassifier } from '../../utils/clientSchema
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { useTicketValidations } from './useTicketValidations'
@@ -19,6 +18,7 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
+import { ContactSelector } from '@condo/domains/contact/components/ContactSelector'
 
 const LAYOUT = {
     labelCol: { span: 8 },
@@ -40,6 +40,8 @@ interface ITicketFormProps {
 // TODO(Dimitreee): decompose this huge component to field groups
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const intl = useIntl()
+    const [selectedContact, setSelectedContact] = useState()
+    const [shouldCreateContact, setShouldCreateContact] = useState(false)
 
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
@@ -47,8 +49,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
-    const FullNameLabel = intl.formatMessage({ id: 'field.FullName' })
-    const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const DescriptionLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
     const ClassifierLabel = intl.formatMessage({ id: 'Classifier' })
     const ExecutorLabel = intl.formatMessage({ id: 'field.Executor' })
@@ -77,12 +77,29 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     })
 
     const action = async (...args) => {
-        const result = await _action(...args)
+        const result = await _action({
+            ...args,
+            clientPhone: selectedContact.clientPhone,
+            clientEmail: selectedContact.clientEmail,
+        })
         await syncModifiedFiles(result.id)
+        if (shouldCreateContact) {
+            await createContact({
+                phone: selectedContact.phone,
+                email: selectedContact.email,
+            })
+        }
         if (afterActionCompleted) {
             return afterActionCompleted(result)
         }
         return result
+    }
+
+    const handleContactSelected = (contact, isNew) => {
+        setSelectedContact(contact)
+        if (isNew) {
+            setShouldCreateContact(true)
+        }
     }
 
     const formatUserFieldLabel = ({ text, value }) => (
@@ -136,26 +153,14 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             )}
                                             <Form.Item shouldUpdate noStyle>
                                                 {({ getFieldsValue }) => {
-                                                    const { property } = getFieldsValue(['property'])
+                                                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
 
                                                     return property && (
-                                                        <>
-                                                            <Col span={11}>
-                                                                <Form.Item name={'clientName'} rules={validations.clientName} label={FullNameLabel}>
-                                                                    <Input />
-                                                                </Form.Item>
-                                                            </Col>
-                                                            <Col span={11}>
-                                                                <Form.Item
-                                                                    name={'clientPhone'}
-                                                                    rules={validations.clientPhone}
-                                                                    label={PhoneLabel}
-                                                                    validateFirst
-                                                                >
-                                                                    <PhoneInput style={{ width: '100%', height: '40px' }}/>
-                                                                </Form.Item>
-                                                            </Col>
-                                                        </>
+                                                        <ContactSelector
+                                                            property={property}
+                                                            unitName={unitName}
+                                                            onSelect={handleContactSelected}
+                                                        />
                                                     )
                                                 }}
                                             </Form.Item>
