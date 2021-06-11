@@ -1,10 +1,8 @@
 const ObsClient = require('esdk-obs-nodejs')
 const path = require('path')
-const { SERVER_URL } = require('@core/config')
+const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@core/config')
 const { getItem } = require('@keystonejs/server-side-graphql-client')
 const { isEmpty } = require('lodash')
-
-const conf = require('@core/config')
 class SberCloudObsAcl {
 
     constructor (config) {
@@ -118,7 +116,7 @@ class SberCloudFileAdapter {
 
 const obsRouterHandler = ({ keystone }) => {
 
-    const obsConfig = conf.SBERCLOUD_OBS_CONFIG ? JSON.parse(conf.SBERCLOUD_OBS_CONFIG) : {}
+    const obsConfig = SBERCLOUD_OBS_CONFIG ? JSON.parse(SBERCLOUD_OBS_CONFIG) : {}
     const Acl = new SberCloudObsAcl(obsConfig)
 
     return async function (req, res, next) {
