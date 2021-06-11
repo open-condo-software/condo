@@ -10,7 +10,9 @@ const access = require('@condo/domains/ticket/access/TicketFile')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const Adapter = new FileAdapter('ticket')
+
+const TICKET_FILE_FOLDER_NAME = 'ticket'
+const Adapter = new FileAdapter(TICKET_FILE_FOLDER_NAME)
 
 // TODO(zuch): find a way to upload images in jest tests
 // and make file field required
@@ -37,6 +39,22 @@ const TicketFile = new GQLListSchema('TicketFile', {
         },
     },
     hooks: {
+        afterChange: async ({ updatedItem, listKey }) => {
+            if (updatedItem) {
+                const { id, file: { filename } } = updatedItem
+                const key = `${TICKET_FILE_FOLDER_NAME}/${filename}`
+                // OBS will lowercase all keys from meta
+                const metaToSet = {
+                    listkey: listKey,                    
+                    id,
+                }
+                try {
+                    await Adapter.acl.setMeta(key, metaToSet)
+                } catch (error) {
+                    console.error('OBS set meta for file', error)
+                }
+            }
+        },
         afterDelete: async ({ existingItem }) => {
             if (existingItem.file) {
                 await Adapter.delete(existingItem.file)
