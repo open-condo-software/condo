@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
-import { Checkbox, Col, Form, Input, Row, Typography, Tooltip } from 'antd'
+import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
 import get from 'lodash/get'
 import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
@@ -59,7 +59,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
-    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
 
     const { action: _action, initialValues, organization, afterActionCompleted, files } = props
     const validations = useTicketValidations()
@@ -184,13 +183,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                         </Form.Item>
                                                                     </Col>
                                                                     <Col flex={0}>
-                                                                        <Tooltip  title={NotImplementedYetMessage} style={{ pointerEvents: 'none' }}>
-                                                                            <Form.Item 
-                                                                                label={AttachedFilesLabel}
-                                                                            >   
-                                                                                <UploadComponent />                                                                                
-                                                                            </Form.Item>
-                                                                        </Tooltip>
+                                                                        <Form.Item 
+                                                                            label={AttachedFilesLabel}
+                                                                        >   
+                                                                            <UploadComponent />                                                                                
+                                                                        </Form.Item>
                                                                     </Col>
                                                                 </Row>
                                                             </Col>
