@@ -154,13 +154,12 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 const { phone: inputPhone, sender, dv } = args
                 const phone = normalizePhone(inputPhone)
                 const token = uuid()
-                const tokenExpiration = extra.extraTokenExpiration || parseInt(CONFIRM_PHONE_ACTION_EXPIRY)
                 const now = extra.extraNow || Date.now()
                 const requestedAt = new Date(now).toISOString()
-                const expiresAt = new Date(now + tokenExpiration).toISOString()
+                const expiresAt = new Date(now + CONFIRM_PHONE_ACTION_EXPIRY * 1000).toISOString()
                 const smsCode = generateSmsCode(phone)
-                const smsCodeExpiresAt = new Date(now + SMS_CODE_TTL).toISOString()
                 const smsCodeRequestedAt = new Date(now).toISOString()
+                const smsCodeExpiresAt = new Date(now + SMS_CODE_TTL * 1000).toISOString()
                 const variables = { 
                     dv,
                     sender,
@@ -311,10 +310,30 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 if (findErrors || isEmpty(data.confirmPhoneActions)) {
                     throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] Unable to find confirm phone action`)
                 }
-                const { id, smsCode: actionSmsCode, retries, smsCodeRequestedAt, smsCodeExpiresAt } = data.confirmPhoneActions[0]
-                const timePassed = Math.floor((new Date(smsCodeExpiresAt) - new Date(smsCodeRequestedAt)) / 1000)
-                if (timePassed > SMS_CODE_TTL) {
-                    throw new Error(`${CONFIRM_PHONE_SMS_CODE_EXPIRED}] SMS code expired - time passed ${timePassed} seconds`)
+                const { id, smsCode: actionSmsCode, retries, smsCodeExpiresAt } = data.confirmPhoneActions[0]
+                const isExpired = (new Date(smsCodeExpiresAt) < new Date(now))
+                if (isExpired) {
+                    throw new Error(`${CONFIRM_PHONE_SMS_CODE_EXPIRED}] SMS code expired `)
+                }
+                if (retries >= CONFIRM_PHONE_SMS_MAX_RETRIES) {
+                    const { errors: markAsFailedError } = await context.executeGraphQL({
+                        context: context.createContext({ skipAccessControl: true }),
+                        query: `
+                            mutation markConfirmPhoneActionAsClosed($id: ID!, $now: String!) {
+                              updateConfirmPhoneAction(id: $id, data: {completedAt: $now}) {
+                                id
+                                completedAt
+                              }
+                            }           
+                        `,
+                        variables: { id, now: new Date(now).toISOString() },
+                    })
+                    if (markAsFailedError) {
+                        console.error(markAsFailedError)
+                        throw new Error('[error]: Unable to mark confirm phone action as failed')   
+                    } else {
+                        throw new Error(`${CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED}] Retries limit is excided try to confirm from start`)
+                    }                    
                 }
                 if (actionSmsCode !== smsCode) {
                     const { errors: incrementRetriesError } = await context.executeGraphQL({
@@ -332,26 +351,6 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                         console.error(incrementRetriesError)
                         throw new Error('[error]: Unable to increment retries on confirm phone action')   
                     }
-                    if ((retries + 1) >= CONFIRM_PHONE_SMS_MAX_RETRIES) {
-                        const { errors: markAsFailedError } = await context.executeGraphQL({
-                            context: context.createContext({ skipAccessControl: true }),
-                            query: `
-                                mutation markConfirmPhoneActionAsClosed($id: ID!, $now: String!) {
-                                  updateConfirmPhoneAction(id: $id, data: {completedAt: $now}) {
-                                    id
-                                    completedAt
-                                  }
-                                }           
-                            `,
-                            variables: { id, now: new Date(now).toISOString() },
-                        })
-                        if (markAsFailedError) {
-                            console.error(markAsFailedError)
-                            throw new Error('[error]: Unable to mark confirm phone action as failed')   
-                        } else {
-                            throw new Error(`${CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED}] Retries limit is excided try to confirm from start`)
-                        }                    
-                    }                    
                     throw new Error(`${CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED}]: SMSCode mismatch`)   
                 }
                 

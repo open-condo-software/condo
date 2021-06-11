@@ -13,7 +13,7 @@ const PASSWORD_TOO_SHORT = '[password:min:length'
 const EMAIL_ALREADY_REGISTERED_ERROR = '[unique:email:multipleFound'
 const PHONE_ALREADY_REGISTERED_ERROR = '[unique:phone:multipleFound'
 
-const CONFIRM_PHONE_ACTION_EXPIRED = '[confirm:phone:experied' 
+const CONFIRM_PHONE_ACTION_EXPIRED = '[confirm:phone:expired' 
 const CONFIRM_PHONE_SMS_CODE_EXPIRED = '[confirm:phone:smscode:expired'
 const CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED = '[confirm:phone:smscode:verify:failed'
 const CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED = '[confirm:phone:smscode:tooManyRequests'
