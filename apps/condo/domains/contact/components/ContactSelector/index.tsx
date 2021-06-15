@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { Contact } from '../../../../schema'
-import { AutoComplete, Input, Row, Col, Select, Typography, Radio, SelectProps } from 'antd'
+import { Input, Row, Col, Select, Typography, Radio } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { BaseSearchInput } from '../../../common/components/BaseSearchInput'
@@ -9,10 +9,11 @@ import { OptionProps } from 'antd/lib/mentions'
 import { useIntl } from '@core/next/intl'
 import { PlusCircleFilled } from '@ant-design/icons'
 
-const ILabelsProps = {
+interface ILabelsProps {
     left: React.ReactNode,
-    right: React.ReactNode,
+    right?: React.ReactNode,
 }
+
 const Labels: React.FC<ILabelsProps> = ({ left, right }) => (
     <>
         <Col span={10}>
@@ -53,12 +54,12 @@ export const ContactSelector: React.FC<IContactSelector> = (props) => {
         setDisplayNewContactFields(true)
     }
 
-    const handleChangeNewContact = (contact) => {
-        props.onChange && props.onChange(contact, true)
-    }
-
     const handleSelectContact = (contact) => {
         props.onChange && props.onChange(contact, false)
+    }
+
+    const handleChangeNewContact = (contact) => {
+        props.onChange && props.onChange(contact, true)
     }
 
     return (
@@ -72,9 +73,9 @@ export const ContactSelector: React.FC<IContactSelector> = (props) => {
             ) : (
                 <>
                     {props.contacts.map(contact => (
-                        <ContactSelectFields
+                        <ContactOption
                             key={contact.id}
-                            value={contact}
+                            contact={contact}
                             onSelect={handleSelectContact}
                         />
                     ))}
@@ -121,8 +122,8 @@ const SAMPLE_CONTACTS =  [
  *
  * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
  */
-function escapeRegex(string) {
-    return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+function escapeRegex (string) {
+    return string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
 interface IContactSelectFieldsProps {
@@ -131,15 +132,27 @@ interface IContactSelectFieldsProps {
     onSelect?: (contact: ContactFields) => void,
 }
 
+/**
+ * Synchronized pair of "Phone" and "Name" fields.
+ * When a phone will be selected, "Name" field should reflect appropriate value for selected contact
+ * And vise-versa.
+ * When values in fields are typed, not selected, `onChange` callback will be fired.
+ *
+ * @param value
+ * @param onChange
+ * @param onSelect
+ * @constructor
+ */
 const ContactSelectFields: React.FC<IContactSelectFieldsProps> = ({ value, onChange, onSelect }) => {
-    const [contact, setContact] = useState(value && {})
+    const [selectedContact, setSelectedContact] = useState(value && {})
+    const [fieldValues, setFieldValues] = useState(value && {})
 
     const searchContactByPhone = useCallback((query) => {
         return SAMPLE_CONTACTS.filter(c => c.phone.match(escapeRegex(query)))
     }, [])
 
     const handleSelectContactByPhone = (value: string, option: OptionProps) => {
-        setContact(option.data)
+        setSelectedContact(option.data)
     }
 
     const renderContactPhoneOption = useCallback(
@@ -158,7 +171,7 @@ const ContactSelectFields: React.FC<IContactSelectFieldsProps> = ({ value, onCha
         }, [])
 
     const handleClearContactByPhone = () => {
-        setContact(null)
+        setSelectedContact(null)
     }
 
     const searchContactByName = useCallback((query) => {
@@ -166,7 +179,7 @@ const ContactSelectFields: React.FC<IContactSelectFieldsProps> = ({ value, onCha
     }, [])
 
     const handleContactByNameSelect = (value: string, option: OptionProps) => {
-        setContact(option.data)
+        setSelectedContact(option.data)
     }
 
     const renderContactNameOption = useCallback(
@@ -185,62 +198,46 @@ const ContactSelectFields: React.FC<IContactSelectFieldsProps> = ({ value, onCha
         }, [])
 
     const handleClearContactByName = () => {
-        setContact(null)
-    }
-
-    const handleChangeContact = (field) => (value) => {
-        const newContact = {
-            ...contact,
-            [field]: value,
-        }
-        setContact(newContact)
-        onChange && onChange(newContact)
+        setSelectedContact(null)
     }
 
     const handleSelectContact = () => {
         onSelect && onSelect(value)
     }
 
+    const handleChange = (field, value) => {
+        const newValues = {
+            ...fieldValues,
+            [field]: value,
+        }
+        setFieldValues(newValues)
+        onChange(newValues)
+    }
+
     return (
         <>
             <Col span={10}>
-                {value ? (
-                    <PhoneInput
-                        disabled
-                        value={value.phone}
-                        style={{ width: '100%' }}
-                        onChange={handleChangeContact('phone')}
-                    />
-                ) : (
-                    <BaseSearchInput
-                        value={contact && contact.phone}
-                        loadOptionsOnFocus={false}
-                        search={searchContactByPhone}
-                        renderOption={renderContactPhoneOption}
-                        onSelect={handleSelectContactByPhone}
-                        onClear={handleClearContactByPhone}
-                        style={{ width: '100%' }}
-                    />
-                )}
+                <BaseSearchInput
+                    value={selectedContact ? selectedContact.phone : undefined}
+                    loadOptionsOnFocus={false}
+                    search={searchContactByPhone}
+                    renderOption={renderContactPhoneOption}
+                    onSelect={handleSelectContactByPhone}
+                    onChange={handleChange}
+                    onClear={handleClearContactByPhone}
+                    style={{ width: '100%' }}
+                />
             </Col>
             <Col span={10}>
-                {value ? (
-                    <Input
-                        disabled
-                        value={value.name}
-                        onChange={handleChangeContact('name')}
-                    />
-                ) : (
-                    <BaseSearchInput
-                        value={contact && contact.name}
-                        loadOptionsOnFocus={false}
-                        search={searchContactByName}
-                        renderOption={renderContactNameOption}
-                        onSelect={handleContactByNameSelect}
-                        onClear={handleClearContactByName}
-                        style={{ width: '100%' }}
-                    />
-                )}
+                <BaseSearchInput
+                    value={selectedContact ? selectedContact.name : undefined}
+                    loadOptionsOnFocus={false}
+                    search={searchContactByName}
+                    renderOption={renderContactNameOption}
+                    onSelect={handleContactByNameSelect}
+                    onClear={handleClearContactByName}
+                    style={{ width: '100%' }}
+                />
             </Col>
             <Col span={2}>
                 <Radio onClick={handleSelectContact}/>
@@ -251,68 +248,36 @@ const ContactSelectFields: React.FC<IContactSelectFieldsProps> = ({ value, onCha
     )
 }
 
-const ContactFieldsWithAutoComplete = () => {
-    const [contact, setContact] = useState()
-    const [contactsByPhone, setContactsByPhone] = useState([])
-    const [contactsByName, setContactsByName] = useState([])
+interface IContactFieldsDisplayProps {
+    contact: Contact,
+    onSelect: (contact: Contact) => void,
+}
 
-    const searchContactByPhone = useCallback((query) => {
-        setContactsByPhone(SAMPLE_CONTACTS.filter(c => c.phone.match(escapeRegex(query))))
-    }, [])
-
-    const handleSelectContactByPhone = (value: string, option: OptionProps) => {
-        setContact(option.item)
+const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, onSelect }) => {
+    const handleSelect = () => {
+        onSelect(contact)
     }
-
-    const handleClearContactByPhone = () => {
-        setContact(null)
-    }
-
-    const searchContactByName = useCallback((query) => {
-        setContactsByName(SAMPLE_CONTACTS.filter(c => c.name.match(escapeRegex(query))))
-    }, [])
-
-    const handleSelectContactByName = (value: string, option: OptionProps) => {
-        setContact(option.item)
-    }
-
-    const handleClearContactByName = () => {
-        setContact(null)
-    }
-
-    const renderOptionsBy = useCallback((prop, items) =>
-        items.map(item => ({
-            value: item[prop],
-            item,
-        }))
-    , [])
 
     return (
-        <Row gutter={[0, 40]}>
-            <Col span={11}>
-                <AutoComplete
-                    allowClear
-                    value={contact ? contact.phone : undefined}
-                    options={renderOptionsBy('phone', contactsByPhone)}
-                    onSelect={handleSelectContactByPhone}
-                    onSearch={searchContactByPhone}
-                    onClear={handleClearContactByPhone}
-                    placeholder="Phone"
+        <>
+            <Col span={10}>
+                <PhoneInput
+                    disabled
+                    value={contact.phone}
                     style={{ width: '100%' }}
                 />
             </Col>
-            <Col span={11}>
-                <AutoComplete
-                    allowClear
-                    value={contact ? contact.name : undefined}
-                    options={renderOptionsBy('name', contactsByName)}
-                    onSelect={handleSelectContactByName}
-                    onSearch={searchContactByName}
-                    onClear={handleClearContactByName}
-                    placeholder="Name"
-                    style={{ width: '100%' }}
+            <Col span={10}>
+                <Input
+                    disabled
+                    value={contact.name}
                 />
             </Col>
-        </Row>
+            <Col span={2}>
+                <Radio onClick={handleSelect}/>
+            </Col>
+            <Col span={2}>
+            </Col>
+        </>
     )
 }
