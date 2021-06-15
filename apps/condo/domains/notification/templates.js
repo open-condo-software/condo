@@ -26,13 +26,13 @@ async function renderTemplate (transport, message) {
             return {
                 subject: 'You are invited to join organization as employee',
                 text: `Organization "${organizationName}" invited you as employee.\n` +
-                    `Click to the link to join: ${serverUrl}/auth/auth/signin`,
+                    `Click to the link to join: ${serverUrl}/auth/signin`,
             }
         } else if (message.lang === RU_LOCALE) {
             return {
                 subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
                 text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
-                    `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/auth/signin`,
+                    `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/signin`,
             }
         }
     }

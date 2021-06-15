@@ -4,7 +4,7 @@ const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
-const { Organization, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
 const { createOrganizationEmployee } = require('../../../utils/serverSchema/Organization')
 const { rules } = require('../../../access')
@@ -36,9 +36,9 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 if (!phone) throw new Error(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
 
                 // TODO(pahaz): normalize email!
-
+                const [userOrganization] = await Organization.getAll(context, { id: organization.id })
                 let user = await guards.checkUserExistency(context, email, phone)
-                const existedEmployee = await guards.checkEmployeeExistency(context, organization, email, phone, user)
+                const existedEmployee = await guards.checkEmployeeExistency(context, userOrganization, email, phone, user)
 
                 if (existedEmployee) {
                     const msg = `${ALREADY_EXISTS_ERROR}employee unique] User is already invited in the organization`
@@ -76,7 +76,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
 
                 const employee = await createOrganizationEmployee(context, {
                     user: { connect: { id: user.id } },
-                    organization: { connect: { id: organization.id } },
+                    organization: { connect: { id: userOrganization.id } },
                     ...role && { role: { connect: { id: role.id } } },
                     position,
                     email,
@@ -85,8 +85,8 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     ...restData,
                 })
 
-                const organizationCountry = get(organization, 'country', 'en')
-                const organizationName = get(organization, 'name')
+                const organizationCountry = get(userOrganization, 'country', 'en')
+                const organizationName = get(userOrganization, 'name')
 
                 await sendMessage(context, {
                     lang: organizationCountry,
