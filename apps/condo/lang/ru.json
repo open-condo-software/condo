@@ -356,8 +356,8 @@
   "WeAreStillDevelopingThisPage": "Мы еще **разрабатываем** эту страницу, она пока недоступна",
   "Welcome": "Привет, {name}!",
   "You": "вы",
-  "contact.Contact.ContactSelector.AddNewContact": "Новый контакт",
-  "contact.Contact.ContactSelector.Phone": "Телефон",
-  "contact.Contact.ContactSelector.Name": "ФИО",
-  "contact.Contact.ContactSelector.AnotherContact": "Другой контакт"
+  "contact.Contact.ContactsEditor.AddNewContact": "Новый контакт",
+  "contact.Contact.ContactsEditor.Phone": "Телефон",
+  "contact.Contact.ContactsEditor.Name": "ФИО",
+  "contact.Contact.ContactsEditor.AnotherContact": "Другой контакт"
 }
