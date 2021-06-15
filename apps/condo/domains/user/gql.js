@@ -77,6 +77,9 @@ const GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY = gql`
     }
 `
 
+const CONFIRM_PHONE_ACTION_FIELDS = `{ phone token smsCode smsCodeRequestedAt smsCodeExpiresAt retries isPhoneVerified requestedAt expiresAt completedAt ${COMMON_FIELDS} }`
+const ConfirmPhoneAction = generateGqlQueries('ConfirmPhoneAction', CONFIRM_PHONE_ACTION_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -92,5 +95,6 @@ module.exports = {
     RESEND_CONFIRM_PHONE_SMS_MUTATION,
     COMPLETE_CONFIRM_PHONE_MUTATION,
     GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY,
+    ConfirmPhoneAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

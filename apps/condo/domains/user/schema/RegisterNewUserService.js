@@ -9,7 +9,7 @@ const isEmpty = require('lodash/isEmpty')
 
 async function ensureNotExists (context, model, models, field, value) {
     if (isEmpty(value)) {
-        throw new Error(`[error] Unable to check field ${field} uniques as passed value is empty`)
+        throw new Error(`[error] Unable to check field ${field} uniques because the passed value is empty`)
     }
     const { errors, data } = await context.executeGraphQL({
         context: context.createContext({ skipAccessControl: true }),
