@@ -118,7 +118,8 @@ module.exports = {
             },
         }),
         new OBSFilesMiddleware(),
-        new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
+        // TODO(zuch) - ask if we can remove it - looks like it's only servs local adapter files
+        // new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({
             adminPath: '/admin',
             isAccessAllowed: access.userIsAdmin,
