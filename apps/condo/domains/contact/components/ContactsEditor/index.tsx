@@ -42,14 +42,14 @@ interface IContactSelector {
     contacts: Contact[],
 }
 
-export const ContactSelector: React.FC<IContactSelector> = (props) => {
+export const ContactsEditor: React.FC<IContactSelector> = (props) => {
     const [selectedContact, setSelectedContact] = useState(null)
     const [displayNewContactFields, setDisplayNewContactFields] = useState(false)
     const intl = useIntl()
-    const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactSelector.Name' })
-    const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactSelector.Phone' })
-    const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactSelector.AddNewContact' })
-    const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactSelector.AnotherContact' })
+    const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
+    const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
+    const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
+    const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
 
     const handleClickOnPlusButton = () => {
         setDisplayNewContactFields(true)
@@ -216,7 +216,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSelectFieldsProps> = ({ 
         onChecked && onChecked(value)
     }
 
-    const handleChange = (field, value) => {
+    const handleChange = (field) => (value) => {
         const newValues = {
             ...fieldValues,
             [field]: value,
@@ -234,7 +234,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSelectFieldsProps> = ({ 
                     search={searchContactByPhone}
                     renderOption={renderContactPhoneOption}
                     onSelect={handleSelectContactByPhone}
-                    onChange={handleChange}
+                    onChange={handleChange('phone')}
                     onClear={handleClearContactByPhone}
                     style={{ width: '100%' }}
                 />
@@ -246,6 +246,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSelectFieldsProps> = ({ 
                     search={searchContactByName}
                     renderOption={renderContactNameOption}
                     onSelect={handleContactByNameSelect}
+                    onChange={handleChange('email')}
                     onClear={handleClearContactByName}
                     style={{ width: '100%' }}
                 />
