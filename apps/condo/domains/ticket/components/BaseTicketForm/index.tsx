@@ -1,8 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
-import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
-import get from 'lodash/get'
+import { Checkbox, Col, Form, Input, Row, Typography, Tooltip } from 'antd'
+import { get, pick } from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -19,6 +19,7 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
 import { ContactsEditor } from '@condo/domains/contact/components/ContactsEditor'
+import { Contact } from '@condo/domains/contact/utils/clientSchema'
 
 const LAYOUT = {
     labelCol: { span: 8 },
@@ -40,8 +41,6 @@ interface ITicketFormProps {
 // TODO(Dimitreee): decompose this huge component to field groups
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const intl = useIntl()
-    const [contact, setContact] = useState()
-    const [shouldCreateContact, setShouldCreateContact] = useState(false)
 
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
@@ -59,11 +58,18 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
+    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
 
     const { action: _action, initialValues, organization, afterActionCompleted, files } = props
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState(get(initialValues, 'property'))
+    const [contact, setContact] = useState(pick(initialValues, ['clientName', 'clientPhone']))
+    const [shouldCreateContact, setShouldCreateContact] = useState(false)
     const selectPropertyIdRef = useRef(selectedPropertyId)
+
+    const createContact = Contact.useCreate({
+        organization: organization.id,
+    })
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
@@ -77,6 +83,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     })
 
     const action = async (...args) => {
+        // TODO(antonal): Why actual `contact` state is not reflected here after setting in `handleChangeContact`?
         const result = await _action({
             ...args,
             clientPhone: contact.clientPhone,
@@ -95,8 +102,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         return result
     }
 
-    const handleChangeContact = (contact, isNew) => {
-        setContact(contact)
+    const handleChangeContact = (values, isNew) => {
+        console.debug('handleChangeContact', values)
+        setContact(values)
         if (isNew) {
             setShouldCreateContact(true)
         }
@@ -107,6 +115,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             {({ name, postfix }) => <>{name} {postfix}</>}
         </UserNameField>
     )
+
+    console.debug('contact', contact)
 
     return (
         <>
@@ -189,11 +199,13 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                         </Form.Item>
                                                                     </Col>
                                                                     <Col flex={0}>
-                                                                        <Form.Item 
-                                                                            label={AttachedFilesLabel}
-                                                                        >   
-                                                                            <UploadComponent />                                                                                
-                                                                        </Form.Item>
+                                                                        <Tooltip  title={NotImplementedYetMessage} style={{ pointerEvents: 'none' }}>
+                                                                            <Form.Item 
+                                                                                label={AttachedFilesLabel}
+                                                                            >   
+                                                                                <UploadComponent />                                                                                
+                                                                            </Form.Item>
+                                                                        </Tooltip>
                                                                     </Col>
                                                                 </Row>
                                                             </Col>
