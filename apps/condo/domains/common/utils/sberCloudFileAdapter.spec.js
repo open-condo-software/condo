@@ -43,6 +43,29 @@ class SberCloudObsTest {
         })
         return serverAnswer
     }
+
+    async getMeta (filename) {
+        const result  = await this.s3.getObjectMetadata({
+            Bucket: this.bucket,
+            Key: filename,
+        })
+        if (result.CommonMsg.Status < 300) {
+            return result.InterfaceResult.Metadata
+        } else {
+            return {}
+        }
+    }
+
+    async setMeta (filename, newMeta = {} ) {
+        const result = await this.s3.setObjectMetadata({
+            Bucket: this.bucket,
+            Key: filename,
+            Metadata: newMeta,
+            MetadataDirective: 'REPLACE_NEW',
+        })
+        const  { CommonMsg: { Status } } = result 
+        return Status < 300
+    }    
     
     static async initApi () {
         const S3Config = {
@@ -69,7 +92,7 @@ describe('Sbercloud', () => {
         it('can add file to s3', async () => {
             const Api = await SberCloudObsTest.initApi()
             if (Api) {
-                const name = `testFile_${Math.random}.txt`
+                const name = `testFile_${Math.random()}.txt`
                 const { CommonMsg: { Status: createStatus } } = await Api.uploadObject(name, `Random text ${Math.random()}`)
                 expect(createStatus).toBe(200)
                 const { CommonMsg: { Status: checkStatus } } = await Api.checkObjectExists(name)
@@ -78,10 +101,23 @@ describe('Sbercloud', () => {
                 expect(deleteStatus).toBe(204)
             }
         })
+        it('can set meta to a file', async () => {
+            const Api = await SberCloudObsTest.initApi()
+            if (Api) {
+                const name = `testFile_${Math.random()}.txt`
+                await Api.uploadObject(name, `Random text ${Math.random()}`)
+                const setMetaResult = await Api.setMeta(name, { listkey: 'Some listkey', id: name })
+                expect(setMetaResult).toBe(true)
+                const meta = await Api.getMeta(name)
+                expect(meta.listkey).toBe('Some listkey')
+                expect(meta.id).toBe(name)
+                await Api.deleteObject(name)
+            }
+        })
         it('can delete file from s3', async () => {
             const Api = await SberCloudObsTest.initApi()
             if (Api) {
-                const name = `testFile_${Math.random}.txt`
+                const name = `testFile_${Math.random()}.txt`
                 const { CommonMsg: { Status: createStatus } } = await Api.uploadObject(name, `Random text ${Math.random()}`)
                 expect(createStatus).toBe(200)
                 const { CommonMsg: { Status: deleteStatus } } = await Api.deleteObject(name)

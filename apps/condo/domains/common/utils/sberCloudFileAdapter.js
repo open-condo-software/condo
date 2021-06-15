@@ -6,9 +6,13 @@ const { isEmpty } = require('lodash')
 class SberCloudObsAcl {
 
     constructor (config) {
-        this.bucket = config.bucket
-        this.s3 = new ObsClient(config.s3Options)
-        this.server = config.s3Options.server
+        if (!isEmpty(config.bucket)) {
+            this.bucket = config.bucket
+            this.s3 = new ObsClient(config.s3Options)
+            this.server = config.s3Options.server
+        } else {
+            console.error('[error] OBS is not configured')
+        }
     }
 
     async getMeta (filename) {

@@ -102,7 +102,6 @@ const authStrategy = keystone.createAuthStrategy({
 class OBSFilesMiddleware {
     prepareMiddleware ({ keystone, dev, distDir }) {
         const app = express()
-        // TODO(zuch): Ask if this path is ok
         app.use('/api/files/:file(*)', obsRouterHandler({ keystone }))
         return app
     }
