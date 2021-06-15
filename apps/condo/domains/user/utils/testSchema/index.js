@@ -134,7 +134,7 @@ async function updateTestConfirmPhoneAction (client, id, extraAttrs = {}) {
 
 module.exports = {
     User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient,
-    makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, createTestEmail, createTestPhone
+    makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, createTestEmail, createTestPhone,
     ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
