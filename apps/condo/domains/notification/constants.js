@@ -13,14 +13,23 @@ const PUSH_TRANSPORT = 'push'
 const MESSAGE_TRANSPORTS = [SMS_TRANSPORT, EMAIL_TRANSPORT, TELEGRAM_TRANSPORT, PUSH_TRANSPORT]
 
 const INVITE_NEW_EMPLOYEE_MESSAGE_TYPE = 'INVITE_NEW_EMPLOYEE'
+const DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE = 'DIRTY_INVITE_NEW_EMPLOYEE'
 const REGISTER_NEW_USER_MESSAGE_TYPE = 'REGISTER_NEW_USER'
 const RESET_PASSWORD_MESSAGE_TYPE = 'RESET_PASSWORD'
 const SMS_VERIFY_CODE_MESSAGE_TYPE = 'SMS_VERIFY'
-const MESSAGE_TYPES = [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, REGISTER_NEW_USER_MESSAGE_TYPE, RESET_PASSWORD_MESSAGE_TYPE, SMS_VERIFY_CODE_MESSAGE_TYPE]
+const MESSAGE_TYPES = [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, REGISTER_NEW_USER_MESSAGE_TYPE, RESET_PASSWORD_MESSAGE_TYPE, SMS_VERIFY_CODE_MESSAGE_TYPE]
 
 
 const MESSAGE_META = {
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        inviteCode: { defaultValue: '', required: true },
+        userName: { defaultValue: 'USERNAME', required: false },
+        userEmail: { defaultValue: '', required: false },
+        userPhone: { defaultValue: '', required: false },
+        organizationName: { defaultValue: 'ORGANIZATION', required: false },
+    },
+    [DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
         organizationName: { defaultValue: 'ORGANIZATION', required: false },
     },
