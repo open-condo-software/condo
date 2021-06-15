@@ -5,6 +5,26 @@ const coreConfig = require('@core/config')
 
 const { DEFAULT_FILE_ADAPTER } = require('../constants/uploads')
 
+class NoFileAdapter {
+
+    get error () {
+        return new Error('[error] NoFileAdapter configured. Add env record for s3 storage')
+    }
+
+    save () {
+        return Promise.reject(this.error) 
+    }
+
+    getFilename () {
+        throw this.error
+    }
+
+    publicUrl () {
+        throw this.error
+    }
+
+}
+
 class FileAdapter {
 
     constructor (folder, type = DEFAULT_FILE_ADAPTER) {
@@ -18,7 +38,8 @@ class FileAdapter {
             case 'sbercloud':
                 Adapter = this.createSbercloudFileApapter()
                 if (!Adapter) {
-                    Adapter = this.createLocalFileApapter()
+                    // No fallback to local file adapter
+                    Adapter = new NoFileAdapter()
                 }
                 break
         }
@@ -39,7 +60,7 @@ class FileAdapter {
     }
 
     getEnvConfig (name, required) {
-        const config = process.env[name] ? JSON.parse(process.env[name]) : {}
+        const config = coreConfig[name] ? JSON.parse(coreConfig[name]) : {}
         if (!this.isConfigValid(config, required)) {
             return null
         }

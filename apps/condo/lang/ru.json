@@ -100,6 +100,7 @@
   "component.uploadlist.AttachedFilesLabel": "Прикреплённые файлы",
   "component.uploadlist.AddFileLabel": "Добавить файл",
   "component.uploadlist.error.FileTooBig": "Файл слишком большой",
+  "component.uploadlist.error.UploadFailedErrorMessage": "Ошибка загрузки файла на сервер",
   "Name": "Имя",
   "NoData": "Нет данных",
   "NotImplementedYet": "Пока что не умеем, но обязательно научимся",

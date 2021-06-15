@@ -3,6 +3,7 @@ const path = require('path')
 const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@core/config')
 const { getItem } = require('@keystonejs/server-side-graphql-client')
 const { isEmpty } = require('lodash')
+
 class SberCloudObsAcl {
 
     constructor (config) {
@@ -107,7 +108,13 @@ class SberCloudFileAdapter {
     }
 
     publicUrl ({ filename }) {
-        // https://${this.bucket}.${this.server}
+        // It is possible to sign public URL here and to return the signed URL with access token without using middleware.
+        // We are using middleware on the following reasons
+        // 1. we want file urls to point to our server
+        // 2. if we give access token to file here - then the user can face such scenario:
+        //    user opens ticket page
+        //    then after 5 minutes, he decides to download the file and click on the URL
+        //    the token is expired - user needs to reload the page to generate a new access token
         return `${SERVER_URL}/api/files/${this.folder}/${filename}`
     }
 

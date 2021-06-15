@@ -130,6 +130,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
     const intl = useIntl()
     const AddFileLabel = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })
     const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' })
+    const UploadFailedErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.UploadFailedErrorMessage' })    
     const { 
         fileList, 
         initialCreateValues, 
@@ -187,7 +188,9 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 onSuccess('Ok', null)
                 onFilesChange({ type: 'add', payload: dbFile })                                
             }).catch(err => {
-                onError(err)
+                const error = new Error(UploadFailedErrorMessage)
+                setListFiles([...listFiles.filter(file => file.status !== 'uploading'), { name: file.name, uid: file.uid, id: null, status: 'error', error: error }])
+                onError(error)
             })
         },
     }
