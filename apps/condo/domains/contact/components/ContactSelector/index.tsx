@@ -43,6 +43,7 @@ interface IContactSelector {
 }
 
 export const ContactSelector: React.FC<IContactSelector> = (props) => {
+    const [selectedContact, setSelectedContact] = useState(null)
     const [displayNewContactFields, setDisplayNewContactFields] = useState(false)
     const intl = useIntl()
     const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactSelector.Name' })
@@ -52,14 +53,20 @@ export const ContactSelector: React.FC<IContactSelector> = (props) => {
 
     const handleClickOnPlusButton = () => {
         setDisplayNewContactFields(true)
+        setSelectedContact(null)
     }
 
     const handleSelectContact = (contact) => {
+        setSelectedContact(contact)
         props.onChange && props.onChange(contact, false)
     }
 
     const handleChangeNewContact = (contact) => {
         props.onChange && props.onChange(contact, true)
+    }
+
+    const handleSyncedFieldsChecked = (contact) => {
+        setSelectedContact(null)
     }
 
     return (
@@ -72,11 +79,12 @@ export const ContactSelector: React.FC<IContactSelector> = (props) => {
                 <ContactSelectFields/>
             ) : (
                 <>
-                    {props.contacts.map(contact => (
+                    {props.contacts.map((contact, i) => (
                         <ContactOption
                             key={contact.id}
                             contact={contact}
                             onSelect={handleSelectContact}
+                            selected={selectedContact ? selectedContact.id === contact.id : !displayNewContactFields && i === 0 }
                         />
                     ))}
                     <>
@@ -87,6 +95,8 @@ export const ContactSelector: React.FC<IContactSelector> = (props) => {
                                 />
                                 <ContactSelectFields
                                     onChange={handleChangeNewContact}
+                                    onChecked={handleSyncedFieldsChecked}
+                                    checked={!selectedContact}
                                 />
                             </>
                         ) : (
@@ -129,7 +139,8 @@ function escapeRegex (string) {
 interface IContactSelectFieldsProps {
     value?: Contact,
     onChange?: (contact: ContactFields) => void,
-    onSelect?: (contact: ContactFields) => void,
+    onChecked?: (contact: ContactFields) => void,
+    checked: boolean,
 }
 
 /**
@@ -143,7 +154,7 @@ interface IContactSelectFieldsProps {
  * @param onSelect
  * @constructor
  */
-const ContactSelectFields: React.FC<IContactSelectFieldsProps> = ({ value, onChange, onSelect }) => {
+const ContactSelectFields: React.FC<IContactSelectFieldsProps> = ({value, onChange, onChecked, checked }) => {
     const [selectedContact, setSelectedContact] = useState(value && {})
     const [fieldValues, setFieldValues] = useState(value && {})
 
@@ -201,8 +212,8 @@ const ContactSelectFields: React.FC<IContactSelectFieldsProps> = ({ value, onCha
         setSelectedContact(null)
     }
 
-    const handleSelectContact = () => {
-        onSelect && onSelect(value)
+    const handleChecked = () => {
+        onChecked && onChecked(value)
     }
 
     const handleChange = (field, value) => {
@@ -240,7 +251,10 @@ const ContactSelectFields: React.FC<IContactSelectFieldsProps> = ({ value, onCha
                 />
             </Col>
             <Col span={2}>
-                <Radio onClick={handleSelectContact}/>
+                <Radio
+                    onClick={handleChecked}
+                    checked={checked}
+                />
             </Col>
             <Col span={2}>
             </Col>
@@ -251,9 +265,10 @@ const ContactSelectFields: React.FC<IContactSelectFieldsProps> = ({ value, onCha
 interface IContactFieldsDisplayProps {
     contact: Contact,
     onSelect: (contact: Contact) => void,
+    selected: boolean,
 }
 
-const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, onSelect }) => {
+const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, onSelect, selected }) => {
     const handleSelect = () => {
         onSelect(contact)
     }
@@ -274,7 +289,10 @@ const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, onSelect
                 />
             </Col>
             <Col span={2}>
-                <Radio onClick={handleSelect}/>
+                <Radio
+                    onClick={handleSelect}
+                    checked={selected}
+                />
             </Col>
             <Col span={2}>
             </Col>
