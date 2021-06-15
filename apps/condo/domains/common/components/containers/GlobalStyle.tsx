@@ -153,31 +153,6 @@ export default function GlobalStyle () {
                 }
               }
 
-              div.scroll-container {
-                paddingTop: 16px,
-                width: 100%;
-                overflow-y: hidden;
-              }
-
-              .scroll-container {
-                overflow-y: hidden;
-              }
-
-              .fullscreen {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100wv;
-                height: 100hv;
-                right: 0;
-                bottom: 0;
-                padding: 12px 61px 12px 45px;
-                z-index: 20;
-              }
-
-              .fullscreen div.scroll-container {
-                overflow: initial;
-              }
               ${uploadControlCss}
               ${page}
             `}

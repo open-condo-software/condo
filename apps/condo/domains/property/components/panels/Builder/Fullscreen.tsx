@@ -12,9 +12,22 @@ export const FullscreenWrapper = styled.div<{
   background: ${colors.white};
 
   &.fullscreen {
-    ${({ mode }) => `padding: ${mode === 'view' ? '104px 24px 12px' : '256px 24px 12px'};`}
+    ${({ mode }) => `padding: ${mode === 'view' ? '104px 24px 124px' : '256px 24px 124px'};`}
     box-sizing: padding-box;
     overflow: auto;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100wv;
+    height: 100hv;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+  }
+
+  &.fullscreen .scroll-container {
+    overflow: initial !important;
   }
 `
 

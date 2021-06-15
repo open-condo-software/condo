@@ -168,6 +168,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm
                             className="scroll-container"
                             vertical={false}
                             horizontal={true}
+                            style={{ paddingTop: '16px', width: '100%', overflowY: 'hidden' }}
                             hideScrollbars={false}
                             nativeMobileScroll={true}
                             innerRef={container}
