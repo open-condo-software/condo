@@ -140,7 +140,7 @@ interface IContactSelectFieldsProps {
     value?: Contact,
     onChange?: (contact: ContactFields) => void,
     onChecked?: (contact: ContactFields) => void,
-    checked: boolean,
+    checked?: boolean,
 }
 
 /**
@@ -154,11 +154,11 @@ interface IContactSelectFieldsProps {
  * @param onSelect
  * @constructor
  */
-const ContactSyncedAutocompleteFields: React.FC<IContactSelectFieldsProps> = ({value, onChange, onChecked, checked }) => {
-    const [selectedContact, setSelectedContact] = useState(value && {})
+const ContactSyncedAutocompleteFields: React.FC<IContactSelectFieldsProps> = ({ value, onChange, onChecked, checked }) => {
+    const [selectedContact, setSelectedContact] = useState(value)
     const [fieldValues, setFieldValues] = useState(value && {})
 
-    const searchContactByPhone = useCallback((query) => {
+    const searchContactByPhone = useCallback(async (query) => {
         return SAMPLE_CONTACTS.filter(c => c.phone.match(escapeRegex(query)))
     }, [])
 
@@ -185,7 +185,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSelectFieldsProps> = ({v
         setSelectedContact(null)
     }
 
-    const searchContactByName = useCallback((query) => {
+    const searchContactByName = useCallback(async (query) => {
         return SAMPLE_CONTACTS.filter(c => c.name.match(escapeRegex(query)))
     }, [])
 
@@ -251,10 +251,12 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSelectFieldsProps> = ({v
                 />
             </Col>
             <Col span={2}>
-                <Radio
-                    onClick={handleChecked}
-                    checked={checked}
-                />
+                {onChecked && (
+                    <Radio
+                        onClick={handleChecked}
+                        checked={checked}
+                    />
+                )}
             </Col>
             <Col span={2}>
             </Col>
