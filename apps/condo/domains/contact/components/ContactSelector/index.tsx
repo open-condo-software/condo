@@ -76,7 +76,7 @@ export const ContactSelector: React.FC<IContactSelector> = (props) => {
                 right={FullNameLabel}
             />
             {props.contacts.length === 0 ? (
-                <ContactSelectFields/>
+                <ContactSyncedAutocompleteFields/>
             ) : (
                 <>
                     {props.contacts.map((contact, i) => (
@@ -93,7 +93,7 @@ export const ContactSelector: React.FC<IContactSelector> = (props) => {
                                 <Labels
                                     left={AnotherContactLabel}
                                 />
-                                <ContactSelectFields
+                                <ContactSyncedAutocompleteFields
                                     onChange={handleChangeNewContact}
                                     onChecked={handleSyncedFieldsChecked}
                                     checked={!selectedContact}
@@ -154,7 +154,7 @@ interface IContactSelectFieldsProps {
  * @param onSelect
  * @constructor
  */
-const ContactSelectFields: React.FC<IContactSelectFieldsProps> = ({value, onChange, onChecked, checked }) => {
+const ContactSyncedAutocompleteFields: React.FC<IContactSelectFieldsProps> = ({value, onChange, onChecked, checked }) => {
     const [selectedContact, setSelectedContact] = useState(value && {})
     const [fieldValues, setFieldValues] = useState(value && {})
 
