@@ -51,7 +51,6 @@ export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps
 
                 return (
                     <Button
-                        // onClick={runAction}
                         type={'inlineLink'}
                         loading={loading}
                         disabled={isCountDownActive}
