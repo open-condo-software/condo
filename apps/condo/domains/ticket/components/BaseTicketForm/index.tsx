@@ -18,7 +18,7 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
-import { ContactSelector } from '@condo/domains/contact/components/ContactSelector'
+import { ContactsEditor } from '@condo/domains/contact/components/ContactsEditor'
 
 const LAYOUT = {
     labelCol: { span: 8 },
@@ -156,7 +156,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                     const { property, unitName } = getFieldsValue(['property', 'unitName'])
 
                                                     return property && (
-                                                        <ContactSelector
+                                                        <ContactsEditor
                                                             property={property}
                                                             unitName={unitName}
                                                             onChange={handleChangeContact}
