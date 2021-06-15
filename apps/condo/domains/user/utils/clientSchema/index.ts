@@ -4,4 +4,5 @@
  */
 
 export * as User from './User'
+export * as ConfirmPhoneAction from './ConfirmPhoneAction'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

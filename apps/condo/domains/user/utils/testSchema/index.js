@@ -9,6 +9,7 @@ const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { User: UserGQL, UserAdmin: UserAdminGQL, REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
+const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -95,12 +96,45 @@ async function addAdminAccess (user) {
     await User.update(admin, user.id, { isAdmin: true })
 }
 
+const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 /* AUTOGENERATE MARKER <CONST> */
+
+async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestConfirmPhoneAction logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ConfirmPhoneAction.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestConfirmPhoneAction (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestConfirmPhoneAction logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ConfirmPhoneAction.update(client, id, attrs)
+    return [obj, attrs]
+}
 
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient,
     makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, createTestEmail, createTestPhone
+    ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
