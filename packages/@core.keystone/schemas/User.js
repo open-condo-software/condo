@@ -1,17 +1,13 @@
 const faker = require('faker')
 const { Text, Checkbox, Password, CalendarDay, File } = require('@keystonejs/fields')
-const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const getYear = require('date-fns/getYear')
 const { byTracking, atTracking } = require('@keystonejs/list-plugins')
 
-const { GQLListSchema, GQLCustomSchema } = require('@core/keystone/schema')
+const { GQLListSchema } = require('@core/keystone/schema')
 const access = require('@core/keystone/access')
-const conf = require('@core/config')
 
-const AVATAR_FILE_ADAPTER = new LocalFileAdapter({
-    src: `${conf.MEDIA_ROOT}/avatars`,
-    path: `${conf.MEDIA_URL}/avatars`,
-})
+const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 
 const User = new GQLListSchema('User', {
     // labelResolver: item => `${item.name}`,
