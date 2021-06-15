@@ -5,7 +5,7 @@ const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
+const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
 const { createOrganizationEmployee } = require('../../../utils/serverSchema/Organization')
 const { rules } = require('../../../access')
 const guards = require('../utils/serverSchema/guards')
@@ -95,7 +95,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                             id: user.id,
                         },
                     },
-                    type: INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                    type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
                     meta: {
                         organizationName,
                         dv: 1,
@@ -154,7 +154,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                             id: existedUser.id,
                         },
                     },
-                    type: INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                    type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
                     meta: {
                         organizationName,
                         dv: 1,
