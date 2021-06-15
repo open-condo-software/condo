@@ -18,9 +18,10 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { colors } from '@condo/domains/common/constants/style'
+
 
 export const EmployeeInfoPage = () => {
     const intl = useIntl()

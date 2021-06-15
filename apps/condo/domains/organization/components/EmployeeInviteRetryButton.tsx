@@ -1,12 +1,16 @@
-import { Tooltip, Typography } from 'antd'
-import React from 'react'
+import { Typography } from 'antd'
+import get from 'lodash/get'
+import React, { useCallback } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { useOrganization } from '@core/next/organization'
 import { OrganizationEmployee } from '../../../schema'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { canReinviteEmployee } from '../permissions'
-
+import { useMutation } from '@core/next/apollo'
+import { REINVITE_ORGANIZATION_EMPLOYEE_MUTATION } from '@condo/domains/organization/gql'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 interface IEmployeeInviteRetryButtonProps {
     employee: OrganizationEmployee
 }
@@ -14,44 +18,53 @@ interface IEmployeeInviteRetryButtonProps {
 export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps> = (props) => {
     const intl = useIntl()
     const RetryInviteMessage = intl.formatMessage({ id: 'employee.RetryInvite' })
-    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const Seconds = intl.formatMessage({ id: 'Seconds' })
 
-    const { link } = useOrganization()
+    const { link, organization } = useOrganization()
 
     const { employee } = props
+
     const isEmployeeReinvitable = canReinviteEmployee(link, employee)
-
-    const resetEmployeeInvite = () => {
-        if (!isEmployeeReinvitable) {
-            return Promise.resolve()
-        }
-
-        return Promise.resolve()
-    }
+    const [reInviteEmployeeMutation] = useMutation(REINVITE_ORGANIZATION_EMPLOYEE_MUTATION)
+    const reInviteEmployee = useCallback(() => {
+        const sender = getClientSideSenderInfo()
+        const meta = { dv: 1, sender }
+        // @ts-ignore TODO(Dimitreee): remove after runMutation typo
+        return runMutation({
+            mutation: reInviteEmployeeMutation,
+            variables: {
+                data: {
+                    email: get(employee, 'email'),
+                    phone: get(employee, 'phone'),
+                    organization: { id: organization.id },
+                    ...meta,
+                },
+            },
+            intl,
+        })
+    }, [employee, organization])
 
     return isEmployeeReinvitable && (
-        <CountDownTimer action={resetEmployeeInvite} id={'RESET_EMPLOYEE_INVITE'}>
+        <CountDownTimer action={reInviteEmployee} id={'RESET_EMPLOYEE_INVITE'}>
             {({ countdown, runAction, loading }) => {
                 const isCountDownActive = countdown > 0
 
                 return (
-                    <Tooltip title={NotImplementedYetMessage}>
-                        <Button
-                            // onClick={runAction}
-                            type={'inlineLink'}
-                            loading={loading}
-                            disabled={isCountDownActive}
-                        >
-                            {RetryInviteMessage}
-                            {isCountDownActive && (
-                                <Typography.Text type={'secondary'}>
-                                    &nbsp;
-                                    ({ countdown } {Seconds})
-                                </Typography.Text>
-                            )}
-                        </Button>
-                    </Tooltip>
+                    <Button
+                        // onClick={runAction}
+                        type={'inlineLink'}
+                        loading={loading}
+                        disabled={isCountDownActive}
+                        onClick={runAction}
+                    >
+                        {RetryInviteMessage}
+                        {isCountDownActive && (
+                            <Typography.Text type={'secondary'}>
+                                &nbsp;
+                                ({ countdown } {Seconds})
+                            </Typography.Text>
+                        )}
+                    </Button>
                 )
             }}
         </CountDownTimer>
