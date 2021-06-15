@@ -73,8 +73,8 @@ interface IAuthLayoutContext {
 
 export const AuthLayoutContext = createContext<IAuthLayoutContext>({
     isMobile: false,
-    signInByEmail: async ({ email, password }) => null,
-    signInByPhone: async ({ phone, password }) => null,    
+    signInByEmail: ({ email, password }) => null,
+    signInByPhone: ({ phone, password }) => null,    
 })
 
 const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
@@ -83,7 +83,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
     const { refetch } = useAuth()
     const isMobile = (colSize === 'xs')
     const [signinByPhoneMutation] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
-    const signInByPhone = async ({ phone, password }) => {
+    const signInByPhone = ({ phone, password }) => {
         return runMutation({
             mutation: signinByPhoneMutation,
             variables: { phone, password },
@@ -97,7 +97,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
     }
     // TODO(zuch): remove after making email optional
     const [signinByEmailMutation] = useMutation(SIGNIN_MUTATION)
-    const signInByEmail = async ({ email, password }) => {
+    const signInByEmail = ({ email, password }) => {
         return runMutation({
             mutation: signinByEmailMutation,
             variables: { email, password },
@@ -128,7 +128,6 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                         {children}
                     </PageContent>
                     <PageFooter />
-                    <div id={'recaptcha-container'}/>
                 </Layout>
             </AuthLayoutContext.Provider>
         </ConfigProvider>

@@ -8,6 +8,9 @@ const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const isEmpty = require('lodash/isEmpty')
 
 async function ensureNotExists (context, model, models, field, value) {
+    if (isEmpty(value)) {
+        throw new Error(`[error] Unable to check field ${field} uniques as passed value is empty`)
+    }
     const { errors, data } = await context.executeGraphQL({
         context: context.createContext({ skipAccessControl: true }),
         query: `
@@ -21,8 +24,7 @@ async function ensureNotExists (context, model, models, field, value) {
     })
 
     if (errors) {
-        const msg = `[error] Unable to check field ${field} uniques`
-        throw new Error(msg)
+        throw new Error(`[error] Unable to check field ${field} uniques`)
     }
 
     if (data.objs.length !== 0) {
