@@ -41,17 +41,20 @@ const TicketFile = new GQLListSchema('TicketFile', {
     hooks: {
         afterChange: async ({ updatedItem, listKey }) => {
             if (updatedItem) {
-                const { id, file: { filename } } = updatedItem
-                const key = `${TICKET_FILE_FOLDER_NAME}/${filename}`
-                // OBS will lowercase all keys from meta
-                const metaToSet = {
-                    listkey: listKey,                    
-                    id,
-                }
-                try {
-                    await Adapter.acl.setMeta(key, metaToSet)
-                } catch (error) {
-                    console.error('OBS set meta for file', error)
+                const { id, file } = updatedItem
+                if (file) {
+                    const { filename } = file
+                    const key = `${TICKET_FILE_FOLDER_NAME}/${filename}`
+                    // OBS will lowercase all keys from meta
+                    const metaToSet = {
+                        listkey: listKey,                    
+                        id,
+                    }
+                    try {
+                        await Adapter.acl.setMeta(key, metaToSet)
+                    } catch (error) {
+                        console.error('OBS set meta for file', error)
+                    }
                 }
             }
         },
