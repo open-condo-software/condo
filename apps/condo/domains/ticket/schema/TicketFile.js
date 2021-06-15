@@ -50,11 +50,7 @@ const TicketFile = new GQLListSchema('TicketFile', {
                         listkey: listKey,                    
                         id,
                     }
-                    try {
-                        await Adapter.acl.setMeta(key, metaToSet)
-                    } catch (error) {
-                        console.error('OBS set meta for file', error)
-                    }
+                    await Adapter.acl.setMeta(key, metaToSet)
                 }
             }
         },
