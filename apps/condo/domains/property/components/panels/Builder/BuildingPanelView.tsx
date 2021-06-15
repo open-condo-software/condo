@@ -84,7 +84,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                         <Col span={24} style={{ whiteSpace: 'nowrap', position: 'static' }}>
                             <ScrollContainer
                                 className="scroll-container"
-                                style={{ paddingTop: '16px', width: '100%' }}
+                                style={{ paddingTop: '16px', width: '100%', overflowY: 'hidden' }}
                                 vertical={false}
                                 horizontal={true}
                                 hideScrollbars={false}
