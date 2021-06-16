@@ -5,6 +5,7 @@ const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { MIN_PASSWORD_LENGTH_ERROR } = require('@condo/domains/user/constants/errors')
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
+const { ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 
 async function ensureNotExists (context, model, models, field, value) {
@@ -51,31 +52,20 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     isPhoneVerified: false,
                 }
                 if (confirmPhoneActionToken) {
-                    const { errors: findConfirmPhoneActionErrors, data: confirmActions } = await context.executeGraphQL({
-                        context: context.createContext({ skipAccessControl: true }),
-                        query: `
-                                query findConfirmPhoneActionsByToken($token: String!) {
-                                  actions: allConfirmPhoneActions(where: { token: $token }) {
-                                    phone
-                                    isPhoneVerified
-                                  }
-                                }
-                            `,
-                        variables: { token: confirmPhoneActionToken },
-                    })
-                    if (findConfirmPhoneActionErrors || !confirmActions || isEmpty(confirmActions.actions)) {
-                        const msg = '[error] Unable to find confirm phone action'
-                        throw new Error(msg)    
+                    const [action] = await ConfirmPhoneAction.getAll(context.createContext({ skipAccessControl: true }), 
+                        { token: confirmPhoneActionToken }
+                    )
+                    if (!action) {
+                        throw new Error('[error] Unable to find confirm phone action')    
                     }
-                    const { phone, isPhoneVerified } = confirmActions.actions[0]
+                    const { phone, isPhoneVerified } = action
                     if (!isPhoneVerified) {
-                        const msg = '[error] Phone is not verified'
-                        throw new Error(msg)    
+                        throw new Error('[error] Phone is not verified')    
                     }
                     userData.phone = phone
                     userData.isPhoneVerified = isPhoneVerified
                 }
-                // TODO(zuch): Ask if we allow users without phone or/and email to register
+              
                 await ensureNotExists(context, 'User', 'Users', 'phone', userData.phone)
                 await ensureNotExists(context, 'User', 'Users', 'email', userData.email)
 

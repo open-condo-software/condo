@@ -150,7 +150,7 @@
   "pages.auth.register.PhoneConfirmTokenErrorMessage": "Вы можете инициировать подтверждение телефона ещё раз",
   "pages.auth.register.RestartPhoneConfirmLabel": "Начать сначала",
   "pages.auth.register.SMSCodeMismatchError": "СМС код не совпадает",
-  "pages.auth.register.SMSExpiredError": "Время действия СМС-кода истекло (30 секунд). Нажмите на кнопку «Отправить СМС-код ещё раз»",
+  "pages.auth.register.SMSExpiredError": "Время действия СМС-кода истекло (1 минута). Нажмите на кнопку «Отправить СМС-код ещё раз»",
   "pages.auth.register.ConfirmActionExpiredError": "Телефон не подтвержден. Начните регистрацию сначала",
   "pages.auth.register.SMSMaxRetriesReachedError": "Максимальное количестово попыток закончено. Начните сначала",
   "pages.auth.register.SMSBadFormat": "Неправильный формат для СМС кода",
