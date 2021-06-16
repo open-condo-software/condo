@@ -1,6 +1,7 @@
-import React, { useCallback, useState } from 'react'
-import { Contact } from '../../../../schema'
-import { Input, Row, Col, Select, Typography, Radio } from 'antd'
+import React, { useCallback, useState, useMemo, useRef, useEffect } from 'react'
+import { Contact } from '@condo/domains/contact/utils/clientSchema'
+import { Contact as TContact } from '../../../../schema'
+import { Input, Row, Col, Select, Typography, Radio, Form, FormInstance } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { BaseSearchInput } from '../../../common/components/BaseSearchInput'
@@ -8,6 +9,13 @@ import { green, grey } from '@ant-design/colors'
 import { OptionProps } from 'antd/lib/mentions'
 import { useIntl } from '@core/next/intl'
 import { PlusCircleFilled } from '@ant-design/icons'
+
+
+const SAMPLE_CONTACTS =  [
+    { id: '1', name: 'Anton', phone: '+79991112233' },
+    { id: '2', name: 'Andrey', phone: '+79992223344' },
+    { id: '3', name: 'Alexey', phone: '+79993334455' },
+]
 
 interface ILabelsProps {
     left: React.ReactNode,
@@ -33,23 +41,101 @@ const Labels: React.FC<ILabelsProps> = ({ left, right }) => (
     </>
 )
 
-type ContactFields = Pick<Contact, 'phone' | 'name'>
-
-interface IContactSelector {
-    property: string,
-    unitName?: string,
-    onChange: (contact: ContactFields, isNew: boolean) => void,
-    contacts: Contact[],
+type ContactFields = {
+    name: string,
+    phone: string,
 }
 
-export const ContactsEditor: React.FC<IContactSelector> = (props) => {
+interface IContactEditorProps {
+    form: FormInstance<any>,
+    // Field, that should be set in a Form, where editor component will be mounted
+    formFields: {
+        phone: string,
+        name: string,
+    },
+    onChange: (contact: ContactFields, isNew: boolean) => void,
+    contacts: TContact[],
+}
+
+interface IContactsEditorHookArgs {
+    // Organization scope for contacts autocomplete and new contact, that can be created
+    organization: string,
+    // Property scope for contacts autocomplete and new contact, that can be created
+    property: string,
+    // Unit scope for contacts autocomplete and new contact, that can be created
+    unitName?: string,
+    formFieldsInitialValue: ContactFields,
+}
+
+interface IContactsEditorHookResult {
+    createContact: () => Promise<void>,
+    ContactsEditorComponent: React.FC<IContactEditorProps>,
+}
+
+export const useContactsEditorHook = ({ organization, formFieldsInitialValue }: IContactsEditorHookArgs): IContactsEditorHookResult => {
+    const [contactFields, setContactFields] = useState(formFieldsInitialValue)
+    const [shouldCreateContact, setShouldCreateContact] = useState(false)
+
+    // Closure of `createContact` will be broken, when it will be assigned to another constant outside of this hook
+    // Refs are used to keep it
+
+    const contactFieldsRef = useRef(contactFields)
+    useEffect(() => {
+        contactFieldsRef.current = contactFields
+    }, [contactFields])
+
+    const shouldCreateContactRef = useRef(shouldCreateContact)
+    useEffect(() => {
+        shouldCreateContactRef.current = shouldCreateContact
+    }, [shouldCreateContact])
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-function @ts-ignore
+    const createContactAction = Contact.useCreate({ }, () => {})
+
+    const handleChangeContact = (values, isNew) => {
+        setContactFields(values)
+        if (isNew) {
+            setShouldCreateContact(true)
+        }
+    }
+
+    const createContact = async () => {
+        if (shouldCreateContactRef.current) {
+            await createContactAction({
+                ...contactFieldsRef.current,
+                organization,
+            })
+        }
+    }
+
+    const ContactsEditorComponent: React.FC<IContactEditorProps> = useMemo(() => {
+        const ContactsEditorWrapper = (props) => (
+            <ContactsEditor
+                {...props}
+                contacts={SAMPLE_CONTACTS}
+                onChange={handleChangeContact}
+            />
+        )
+        return ContactsEditorWrapper
+    }, [])
+
+    return {
+        createContact,
+        ContactsEditorComponent,
+    }
+}
+
+export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const [selectedContact, setSelectedContact] = useState(null)
+    const [contactFields, setContactFields] = useState()
     const [displayNewContactFields, setDisplayNewContactFields] = useState(false)
     const intl = useIntl()
     const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
     const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
     const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
     const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
+
+    const { form, formFields, onChange, contacts } = props
 
     const handleClickOnPlusButton = () => {
         setDisplayNewContactFields(true)
@@ -58,69 +144,84 @@ export const ContactsEditor: React.FC<IContactSelector> = (props) => {
 
     const handleSelectContact = (contact) => {
         setSelectedContact(contact)
-        props.onChange && props.onChange(contact, false)
+        triggerOnChange(contact, false)
     }
 
     const handleChangeNewContact = (contact) => {
-        props.onChange && props.onChange(contact, true)
+        triggerOnChange(contact, true)
     }
 
-    const handleSyncedFieldsChecked = (contact) => {
+    const handleSyncedFieldsChecked = () => {
         setSelectedContact(null)
     }
 
+    const triggerOnChange = (contact, isNew) => {
+        form.setFieldsValue({
+            clientName: contact.name,
+            clientPhone: contact.phone,
+        })
+        setContactFields(contact)
+        onChange && onChange(contact, isNew)
+    }
+
     return (
-        <Row gutter={[40, 25]}>
-            <Labels
-                left={PhoneLabel}
-                right={FullNameLabel}
-            />
-            {props.contacts.length === 0 ? (
-                <ContactSyncedAutocompleteFields/>
-            ) : (
-                <>
-                    {props.contacts.map((contact, i) => (
-                        <ContactOption
-                            key={contact.id}
-                            contact={contact}
-                            onSelect={handleSelectContact}
-                            selected={selectedContact ? selectedContact.id === contact.id : !displayNewContactFields && i === 0 }
-                        />
-                    ))}
+        <>
+            <Row gutter={[40, 25]}>
+                <Labels
+                    left={PhoneLabel}
+                    right={FullNameLabel}
+                />
+                {contacts.length === 0 ? (
+                    <ContactSyncedAutocompleteFields/>
+                ) : (
                     <>
-                        {displayNewContactFields ? (
-                            <>
-                                <Labels
-                                    left={AnotherContactLabel}
-                                />
-                                <ContactSyncedAutocompleteFields
-                                    onChange={handleChangeNewContact}
-                                    onChecked={handleSyncedFieldsChecked}
-                                    checked={!selectedContact}
-                                />
-                            </>
-                        ) : (
-                            <Button
-                                type="link"
-                                style={{ color: green[6] }}
-                                onClick={handleClickOnPlusButton}
-                                icon={<PlusCircleFilled style={{ color: green[6], fontSize: 21 }}/>}
-                            >
-                                {AddNewContactLabel}
-                            </Button>
-                        )}
+                        {contacts.map((contact, i) => (
+                            <ContactOption
+                                key={contact.id}
+                                contact={contact}
+                                onSelect={handleSelectContact}
+                                selected={selectedContact ? selectedContact.id === contact.id : !displayNewContactFields && i === 0 }
+                            />
+                        ))}
+                        <>
+                            {displayNewContactFields ? (
+                                <>
+                                    <Labels
+                                        left={AnotherContactLabel}
+                                    />
+                                    <ContactSyncedAutocompleteFields
+                                        onChange={handleChangeNewContact}
+                                        onChecked={handleSyncedFieldsChecked}
+                                        checked={!selectedContact}
+                                    />
+                                </>
+                            ) : (
+                                <Button
+                                    type="link"
+                                    style={{ color: green[6] }}
+                                    onClick={handleClickOnPlusButton}
+                                    icon={<PlusCircleFilled style={{ color: green[6], fontSize: 21 }}/>}
+                                >
+                                    {AddNewContactLabel}
+                                </Button>
+                            )}
+                        </>
                     </>
+                )}
+            </Row>
+            {contactFields && (
+                <>
+                    <Form.Item name={formFields.name} hidden>
+                        <Input value={contactFields.name}/>
+                    </Form.Item>
+                    <Form.Item name={formFields.phone} hidden>
+                        <Input value={contactFields.phone}/>
+                    </Form.Item>
                 </>
             )}
-        </Row>
+        </>
     )
 }
-
-const SAMPLE_CONTACTS =  [
-    { id: '1', name: 'Anton', phone: '+79991112233' },
-    { id: '2', name: 'Andrey', phone: '+79992223344' },
-    { id: '3', name: 'Alexey', phone: '+79993334455' },
-]
 
 /**
  * Prevent crash of `String.match`, when providing a regular expression string value,
@@ -136,10 +237,10 @@ function escapeRegex (string) {
     return string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
-interface IContactSelectFieldsProps {
-    value?: Contact,
+interface IContactSyncedAutocompleteFieldsProps {
+    initialValue?: TContact,
     onChange?: (contact: ContactFields) => void,
-    onChecked?: (contact: ContactFields) => void,
+    onChecked?: () => void,
     checked?: boolean,
 }
 
@@ -148,15 +249,10 @@ interface IContactSelectFieldsProps {
  * When a phone will be selected, "Name" field should reflect appropriate value for selected contact
  * And vise-versa.
  * When values in fields are typed, not selected, `onChange` callback will be fired.
- *
- * @param value
- * @param onChange
- * @param onSelect
- * @constructor
  */
-const ContactSyncedAutocompleteFields: React.FC<IContactSelectFieldsProps> = ({ value, onChange, onChecked, checked }) => {
-    const [selectedContact, setSelectedContact] = useState(value)
-    const [fieldValues, setFieldValues] = useState(value && {})
+const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({ initialValue, onChange, onChecked, checked }) => {
+    const [selectedContact, setSelectedContact] = useState(initialValue)
+    const [fieldValues, setFieldValues] = useState(initialValue && {})
 
     const searchContactByPhone = useCallback(async (query) => {
         return SAMPLE_CONTACTS.filter(c => c.phone.match(escapeRegex(query)))
@@ -213,7 +309,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSelectFieldsProps> = ({ 
     }
 
     const handleChecked = () => {
-        onChecked && onChecked(value)
+        onChecked && onChecked()
     }
 
     const handleChange = (field) => (value) => {
@@ -246,7 +342,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSelectFieldsProps> = ({ 
                     search={searchContactByName}
                     renderOption={renderContactNameOption}
                     onSelect={handleContactByNameSelect}
-                    onChange={handleChange('email')}
+                    onChange={handleChange('name')}
                     onClear={handleClearContactByName}
                     style={{ width: '100%' }}
                 />
@@ -266,8 +362,8 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSelectFieldsProps> = ({ 
 }
 
 interface IContactFieldsDisplayProps {
-    contact: Contact,
-    onSelect: (contact: Contact) => void,
+    contact: TContact,
+    onSelect: (contact: TContact) => void,
     selected: boolean,
 }
 

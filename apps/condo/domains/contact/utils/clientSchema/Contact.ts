@@ -11,7 +11,7 @@ import { Contact as ContactGQL } from '@condo/domains/contact/gql'
 import { Contact, ContactUpdateInput, QueryAllContactsArgs } from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'property', 'name', 'phone', 'unitName', 'email']
-const RELATIONS = ['property']
+const RELATIONS = ['organization', 'property']
 
 export interface IContactUIState extends Contact {
     id: string
@@ -24,8 +24,10 @@ function convertToUIState (item: Contact): IContactUIState {
 }
 
 export interface IContactFormState {
-    id?: undefined
-    // TODO(codegen): write IContactUIFormState or extends it from
+    id?: undefined,
+    organization: string,
+    phone: string,
+    name: string,
 }
 
 function convertToUIFormState (state: IContactUIState): IContactFormState | undefined {
