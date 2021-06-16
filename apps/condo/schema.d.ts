@@ -12216,6 +12216,8 @@ export enum SortUserHistoryRecordsBy {
   IsActiveDesc = 'isActive_DESC',
   IsAdminAsc = 'isAdmin_ASC',
   IsAdminDesc = 'isAdmin_DESC',
+  IsSupportAsc = 'isSupport_ASC',
+  IsSupportDesc = 'isSupport_DESC',
   EmailAsc = 'email_ASC',
   EmailDesc = 'email_DESC',
   IsEmailVerifiedAsc = 'isEmailVerified_ASC',
@@ -12251,6 +12253,8 @@ export enum SortUsersBy {
   IsActiveDesc = 'isActive_DESC',
   IsAdminAsc = 'isAdmin_ASC',
   IsAdminDesc = 'isAdmin_DESC',
+  IsSupportAsc = 'isSupport_ASC',
+  IsSupportDesc = 'isSupport_DESC',
   EmailAsc = 'email_ASC',
   EmailDesc = 'email_DESC',
   IsEmailVerifiedAsc = 'isEmailVerified_ASC',
@@ -15870,8 +15874,10 @@ export type User = {
   password_is_set?: Maybe<Scalars['Boolean']>;
   /**  Can logged in?  */
   isActive?: Maybe<Scalars['Boolean']>;
-  /**  Can access to "/admin/" panel?  */
+  /**  Superuser access to service data  */
   isAdmin?: Maybe<Scalars['Boolean']>;
+  /**  Can access to "/admin/" panel. And do support tasks  */
+  isSupport?: Maybe<Scalars['Boolean']>;
   /**  Email. Transformed to lower case  */
   email?: Maybe<Scalars['String']>;
   /**  Email verification flag. User verify email by access to secret link  */
@@ -15903,6 +15909,7 @@ export type UserCreateInput = {
   password?: Maybe<Scalars['String']>;
   isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
+  isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   isEmailVerified?: Maybe<Scalars['Boolean']>;
   phone?: Maybe<Scalars['String']>;
@@ -15936,6 +15943,7 @@ export type UserHistoryRecord = {
   password?: Maybe<Scalars['String']>;
   isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
+  isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   isEmailVerified?: Maybe<Scalars['Boolean']>;
   phone?: Maybe<Scalars['String']>;
@@ -15963,6 +15971,7 @@ export type UserHistoryRecordCreateInput = {
   password?: Maybe<Scalars['String']>;
   isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
+  isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   isEmailVerified?: Maybe<Scalars['Boolean']>;
   phone?: Maybe<Scalars['String']>;
@@ -15995,6 +16004,7 @@ export type UserHistoryRecordUpdateInput = {
   password?: Maybe<Scalars['String']>;
   isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
+  isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   isEmailVerified?: Maybe<Scalars['Boolean']>;
   phone?: Maybe<Scalars['String']>;
@@ -16069,6 +16079,8 @@ export type UserHistoryRecordWhereInput = {
   isActive_not?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isAdmin_not?: Maybe<Scalars['Boolean']>;
+  isSupport?: Maybe<Scalars['Boolean']>;
+  isSupport_not?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   email_not?: Maybe<Scalars['String']>;
   email_contains?: Maybe<Scalars['String']>;
@@ -16235,6 +16247,7 @@ export type UserUpdateInput = {
   password?: Maybe<Scalars['String']>;
   isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
+  isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   isEmailVerified?: Maybe<Scalars['Boolean']>;
   phone?: Maybe<Scalars['String']>;
@@ -16289,6 +16302,8 @@ export type UserWhereInput = {
   isActive_not?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isAdmin_not?: Maybe<Scalars['Boolean']>;
+  isSupport?: Maybe<Scalars['Boolean']>;
+  isSupport_not?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   email_not?: Maybe<Scalars['String']>;
   email_contains?: Maybe<Scalars['String']>;
