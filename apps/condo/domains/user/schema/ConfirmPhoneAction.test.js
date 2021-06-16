@@ -3,9 +3,13 @@
  */
 
 const { makeClient, makeLoggedInAdminClient, makeLoggedInClient } = require('@core/keystone/test.utils')
-const { createTestPhone, createTestUser } = require('@condo/domains/user/utils/testSchema')
-const { gql } = require('graphql-tag')
-
+const { 
+    createTestPhone,
+    createTestUser,
+    ConfirmPhoneAction, 
+    createTestConfirmPhoneAction, 
+    updateTestConfirmPhoneAction,
+} = require('@condo/domains/user/utils/testSchema')
 const { 
     CONFIRM_PHONE_ACTION_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_EXPIRED,
@@ -23,32 +27,6 @@ const {
     COMPLETE_CONFIRM_PHONE_MUTATION, 
     GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY,
 } = require('@condo/domains/user/gql')
-
-const GET_CONFIRM_PHONE_BY_TOKEN = gql`
-    query findConfirmPhoneFromToken($token: String!) {
-        confirmPhoneActions: allConfirmPhoneActions(where: { token: $token }) {
-            id
-            phone
-            smsCode
-            isPhoneVerified
-            smsCodeRequestedAt
-            smsCodeExpiresAt
-            requestedAt
-            expiresAt
-            retries
-        }
-    }
-`
-
-const UPDATE_CONFIRM_PHONE_ACTION = gql`
-    mutation updateConfirmPhoneAction ($id: ID!, $data: ConfirmPhoneActionUpdateInput) {
-        result: updateConfirmPhoneAction(id: $id, data: $data) {
-            id            
-        }
-    }
-`
-
-const { ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction } = require('@condo/domains/user/utils/testSchema')
 
 describe('ConfirmPhoneAction', () => {
     describe('User', () => {
@@ -201,7 +179,7 @@ describe('ConfirmPhoneAction Service', () => {
         const wrongLengthSmsCode = 11111
         await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { token, smsCode: wrongLengthSmsCode })
         const admin = await makeLoggedInAdminClient()
-        const { data: { confirmPhoneActions: [actionAfter] } } = await admin.query(GET_CONFIRM_PHONE_BY_TOKEN, { token })
+        const [actionAfter] = await ConfirmPhoneAction.getAll(admin, { token })
         expect(actionAfter.retries).toBe(1)        
     })
 
@@ -210,10 +188,10 @@ describe('ConfirmPhoneAction Service', () => {
         const admin = await makeLoggedInAdminClient()        
         const phone = createTestPhone()
         const { data: { token } }  = await client.mutate(START_CONFIRM_PHONE_MUTATION, { phone, dv: 1, sender: { dv: 1, fingerprint: 'tests' } })
-        const { data: { confirmPhoneActions: [actionBefore] } } = await admin.query(GET_CONFIRM_PHONE_BY_TOKEN, { token })
+        const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
         const { data: { status } } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { token, smsCode: actionBefore.smsCode })
         expect(status).toBe('ok')
-        const { data: { confirmPhoneActions: [actionAfter] } }  = await admin.query(GET_CONFIRM_PHONE_BY_TOKEN, { token })
+        const [actionAfter] = await ConfirmPhoneAction.getAll(admin, { token })
         expect(actionAfter.isPhoneVerified).toBe(true)
     })
 
@@ -222,8 +200,8 @@ describe('ConfirmPhoneAction Service', () => {
         const phone = createTestPhone()
         const { data: { token } }  = await client.mutate(START_CONFIRM_PHONE_MUTATION, { phone, dv: 1, sender: { dv: 1, fingerprint: 'tests' } })
         const admin = await makeLoggedInAdminClient()
-        const { data: { confirmPhoneActions: [actionBefore] } } = await admin.query(GET_CONFIRM_PHONE_BY_TOKEN, { token })
-        await admin.mutate(UPDATE_CONFIRM_PHONE_ACTION, { id: actionBefore.id, data: { retries: CONFIRM_PHONE_SMS_MAX_RETRIES + 1 } })
+        const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
+        await ConfirmPhoneAction.update(admin, actionBefore.id, { retries: CONFIRM_PHONE_SMS_MAX_RETRIES + 1 })
         const res = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { token, smsCode: actionBefore.smsCode })
         expect(JSON.stringify(res.errors)).toContain(CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED)
     })
@@ -233,8 +211,8 @@ describe('ConfirmPhoneAction Service', () => {
         const phone = createTestPhone()
         const { data: { token } }  = await client.mutate(START_CONFIRM_PHONE_MUTATION, { phone, dv: 1, sender: { dv: 1, fingerprint: 'tests' } })
         const admin = await makeLoggedInAdminClient()
-        const { data: { confirmPhoneActions: [actionBefore] } } = await admin.query(GET_CONFIRM_PHONE_BY_TOKEN, { token })
-        await admin.mutate(UPDATE_CONFIRM_PHONE_ACTION, { id: actionBefore.id, data: { smsCodeExpiresAt: actionBefore.smsCodeRequestedAt } })
+        const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
+        await ConfirmPhoneAction.update(admin, actionBefore.id, {  smsCodeExpiresAt: actionBefore.smsCodeRequestedAt })
         const res = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { token, smsCode: actionBefore.smsCode })
         expect(JSON.stringify(res.errors)).toContain(CONFIRM_PHONE_SMS_CODE_EXPIRED)
     })
@@ -244,8 +222,8 @@ describe('ConfirmPhoneAction Service', () => {
         const phone = createTestPhone()
         const { data: { token } }  = await client.mutate(START_CONFIRM_PHONE_MUTATION, { phone, dv: 1, sender: { dv: 1, fingerprint: 'tests' } })
         const admin = await makeLoggedInAdminClient()
-        const { data: { confirmPhoneActions: [actionBefore] } } = await admin.query(GET_CONFIRM_PHONE_BY_TOKEN, { token })
-        await admin.mutate(UPDATE_CONFIRM_PHONE_ACTION, { id: actionBefore.id, data: { expiresAt: actionBefore.requestedAt } })
+        const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
+        await ConfirmPhoneAction.update(admin, actionBefore.id, { expiresAt: actionBefore.requestedAt })
         const res = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { token, smsCode: actionBefore.smsCode })
         expect(JSON.stringify(res.errors)).toContain(CONFIRM_PHONE_ACTION_EXPIRED)
     })
@@ -263,10 +241,10 @@ describe('ConfirmPhoneAction Service', () => {
         const phone = createTestPhone()
         const { data: { token } }  = await client.mutate(START_CONFIRM_PHONE_MUTATION, { phone, dv: 1, sender: { dv: 1, fingerprint: 'tests' } })
         const admin = await makeLoggedInAdminClient()
-        const { data: { confirmPhoneActions: [actionBefore] } } = await admin.query(GET_CONFIRM_PHONE_BY_TOKEN, { token })
+        const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
         expect(actionBefore.smsCode).toBeGreaterThan(0)
         await client.mutate(RESEND_CONFIRM_PHONE_SMS_MUTATION, { token, sender: { dv: 1, fingerprint: 'tests' } })
-        const { data: { confirmPhoneActions: [actionAfter] } } = await admin.query(GET_CONFIRM_PHONE_BY_TOKEN, { token })
+        const [actionAfter] = await ConfirmPhoneAction.getAll(admin, { token })
         expect(actionAfter.smsCode).toBeGreaterThan(0)
         expect(actionAfter.smsCode).not.toEqual(actionBefore.smsCode)        
     })

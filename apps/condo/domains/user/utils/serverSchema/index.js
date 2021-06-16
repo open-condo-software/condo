@@ -4,6 +4,13 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const has = require('lodash/has')
+const faker = require('faker')
+const { 
+    SMS_CODE_LENGTH, 
+} = require('@condo/domains/user/constants/common')
+
+
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { User: UserGQL } = require('@condo/domains/user/gql')
@@ -14,8 +21,24 @@ const User = generateServerUtils(UserGQL)
 const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
+const conf = require('@core/config')
+const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
+
+
+const generateSmsCode = (phone) => {
+    if (has(whiteList, phone)) { // Emulate firebase white list for development - no real send sms
+        return Number(whiteList[phone])
+    }
+    return faker.datatype.number({ 
+        min: Math.pow(10, SMS_CODE_LENGTH - 1), // example 6 symbols:  min = 10^(6-1) = 100000
+        max: Math.pow(10, SMS_CODE_LENGTH) - 1, // max = 10^6-1 = 999999
+    })
+}
+
+
 module.exports = {
     User,
     ConfirmPhoneAction,
+    generateSmsCode,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

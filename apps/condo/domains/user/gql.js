@@ -77,7 +77,7 @@ const GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY = gql`
     }
 `
 
-const CONFIRM_PHONE_ACTION_FIELDS = `{ phone token smsCode smsCodeRequestedAt smsCodeExpiresAt retries isPhoneVerified requestedAt expiresAt completedAt ${COMMON_FIELDS} }`
+const CONFIRM_PHONE_ACTION_FIELDS = '{ id dv sender deletedAt phone token smsCode smsCodeRequestedAt smsCodeExpiresAt retries isPhoneVerified requestedAt expiresAt completedAt }'
 const ConfirmPhoneAction = generateGqlQueries('ConfirmPhoneAction', CONFIRM_PHONE_ACTION_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
