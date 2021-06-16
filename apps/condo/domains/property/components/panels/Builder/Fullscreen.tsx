@@ -12,7 +12,7 @@ export const FullscreenWrapper = styled.div<{
   background: ${colors.white};
 
   &.fullscreen {
-    ${({ mode }) => `padding: ${mode === 'view' ? '104px 24px 124px' : '256px 24px 124px'};`}
+    ${({ mode }) => `padding: ${mode === 'view' ? '96px 24px 84px' : '218px 24px 84px'};`}
     box-sizing: padding-box;
     overflow: auto;
 
@@ -35,10 +35,11 @@ export const FullscreenHeader = styled.div<{
     edit?: boolean
 }>`
     margin: -24px -24px 0;
-    padding: 16px 24px 16px 24px;
+    padding: 12px 24px 0px 24px;
     ${({ edit }) => (!edit ? `
         display: none;
         width: 100%;
+        padding-bottom: 12px;
     ` : '')}
 
     div.fullscreen & {
@@ -51,7 +52,8 @@ export const FullscreenHeader = styled.div<{
         z-index: 2;
         margin: 0;
         display: block;
-        padding-left: 62px;
+        padding-left: 47px;
+        padding-right: 11px;
     }
 
     ${({ edit }) => (edit ? `
@@ -73,7 +75,7 @@ export const FullscreenFooter = css`
         left: 0;
         right: 0;
         bottom: 0;
-        padding: 16px 60px 16px 62px;
+        padding: 12px 47px 12px 47px;
         background: ${colors.whiteTranslucent};
         z-index: 1;
         position: fixed;
