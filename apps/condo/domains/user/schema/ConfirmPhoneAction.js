@@ -11,13 +11,22 @@ const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const isEmpty = require('lodash/isEmpty')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL, generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
+const { redis } = require('../../../index')
+
+
 
 const { 
     CONFIRM_PHONE_ACTION_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED, 
-    CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED, 
+    CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED,
+    TOO_MANY_REQUESTS,
+    CAPTCHA_CHECK_FAILED,
+    SMS_FOR_IP_PER_DAY_LIMIT_REACHED,
+    SMS_FOR_PHONE_PER_DAY_LIMIT_REACHED,
 } = require('@condo/domains/user/constants/errors')
+
+
 
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
