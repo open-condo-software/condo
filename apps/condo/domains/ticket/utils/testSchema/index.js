@@ -15,6 +15,7 @@ const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
 const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketFile: TicketFileGQL } = require('@condo/domains/ticket/gql')
+const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -159,6 +160,37 @@ async function updateTestTicketFile (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestTicketClassifier (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestTicketClassifier logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketClassifier.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketClassifier (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestTicketClassifier logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketClassifier.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 async function createTestTicketComment (client, ticket, user, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!ticket || !ticket.id) throw new Error('no ticket.id')
@@ -209,7 +241,6 @@ module.exports = {
     TicketChange,
     TicketStatus,
     TicketSource,
-    TicketClassifier,
     createTestTicket,
     updateTestTicket,
     ticketStatusByType,
@@ -220,7 +251,7 @@ module.exports = {
     createTestTicketChange,
     updateTestTicketChange,
     makeClientWithTicket,
+    TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier,
     TicketComment, createTestTicketComment, updateTestTicketComment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
-

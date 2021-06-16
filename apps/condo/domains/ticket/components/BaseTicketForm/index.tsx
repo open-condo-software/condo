@@ -15,6 +15,7 @@ import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { useTicketValidations } from './useTicketValidations'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
+import { TicketClassifierSelect } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
@@ -160,6 +161,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             >
                 {({ handleSave, isLoading, form }) => (
                     <>
+                        <TicketClassifierSelect>
+                        </TicketClassifierSelect>
+
                         <Col span={13}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
@@ -290,16 +294,17 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             </Col>
                                                             <Col span={24}>
                                                                 <Row align={'top'} >
-                                                                    <Col span={11}>
+                                                                    <Col span={24}>
                                                                         <Form.Item name={'classifier'} rules={validations.classifier} label={ClassifierLabel} >
-                                                                            <GraphQlSearchInput
+                                                                            <TicketClassifierSelect
                                                                                 search={searchTicketClassifier}
                                                                                 allowClear={false}
                                                                                 disabled={disableUserInteraction}
-                                                                            />
+                                                                            >
+                                                                            </TicketClassifierSelect>
                                                                         </Form.Item>
                                                                     </Col>
-                                                                    <Col push={2} span={11}>
+                                                                    <Col span={12}>
                                                                         <Row>
                                                                             <Col span={12}>
                                                                                 <Form.Item name={'isEmergency'} label={' '} valuePropName='checked'>
