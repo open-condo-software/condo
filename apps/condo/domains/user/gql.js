@@ -67,8 +67,8 @@ const RESEND_CONFIRM_PHONE_SMS_MUTATION = gql`
     }
 `
 const COMPLETE_CONFIRM_PHONE_MUTATION = gql`
-    mutation confirmPhoneActionComplete($token: String!, $smsCode: Int!) {
-        status: confirmPhoneActionComplete(token: $token, smsCode: $smsCode)
+    mutation completeConfirmPhoneAction($token: String!, $smsCode: Int!) {
+        status: completeConfirmPhoneAction(token: $token, smsCode: $smsCode)
     }
 `
 const GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY = gql`
