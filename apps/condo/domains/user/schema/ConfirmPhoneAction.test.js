@@ -66,9 +66,12 @@ describe('ConfirmPhoneAction', () => {
             const [, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
             const payload = { phone: createTestPhone() }
+            console.log('UPDATE', objCreated.id, payload)
+
             try {
                 await updateTestConfirmPhoneAction(client, objCreated.id, payload)
             } catch (e) {
+                console.log('e is e', e)
                 expect(e.errors[0]).toMatchObject({
                     'message': 'You do not have access to this resource',
                     'name': 'AccessDeniedError',
