@@ -182,7 +182,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 const newSmsCode = generateSmsCode(phone)
                 await ConfirmPhoneActionGQL.update(context.createContext({ skipAccessControl: true }), id, { 
                     smsCode: newSmsCode,
-                    smsCodeExpiresAt:  new Date(now + SMS_CODE_TTL).toISOString(),
+                    smsCodeExpiresAt:  new Date(now + SMS_CODE_TTL * 1000).toISOString(),
                     smsCodeRequestedAt: new Date(now).toISOString(),
                 })
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale        
