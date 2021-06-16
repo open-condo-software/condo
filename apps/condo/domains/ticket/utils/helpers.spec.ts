@@ -14,7 +14,7 @@ import {
     queryToSorter,
     searchToQuery,
     formatDate,
-    TICKET_PAGE_SIZE,    
+    TICKET_PAGE_SIZE,
 } from './helpers'
 import { EN_LOCALE, RU_LOCALE } from '../../common/constants/locale'
 
@@ -160,6 +160,7 @@ describe('Helpers', () => {
                                 { executor: { AND: [{ name_contains_i: 'search' }] } },
                                 { assignee: { AND: [{ name_contains_i: 'search' }] } },
                                 { property: { AND: [{ address_contains_i: 'search' }] } },
+                                { status: { AND: [{ name_contains_i: 'search' }] } },
                             ] },
                         ],
                     })
@@ -264,6 +265,7 @@ describe('Helpers', () => {
                                     { executor: { AND: [{ name_contains_i: 'search' }] } },
                                     { assignee: { AND: [{ name_contains_i: 'search' }] } },
                                     { property: { AND: [{ address_contains_i: 'search' }] } },
+                                    { status: { AND: [{ name_contains_i: 'search' }] } },
                                 ] },
                             ],
                         })
@@ -420,6 +422,7 @@ describe('Helpers', () => {
             })
 
         })
+
         describe('searchToQuery', () => {
             describe('it should correctly generate query if', () => {
                 const search = 'search'
@@ -431,6 +434,7 @@ describe('Helpers', () => {
                         { executor: { AND: [{ name_contains_i: search }] } },
                         { assignee: { AND: [{ name_contains_i: search }] } },
                         { property: { AND: [{ address_contains_i: search }] } },
+                        { status: { AND: [{ name_contains_i: search }] } },
                     ])
                 })
 
@@ -444,6 +448,7 @@ describe('Helpers', () => {
                         { assignee: { AND: [{ name_contains_i: search2 }] } },
                         { number: 10 },
                         { property: { AND: [{ address_contains_i: search2 }] } },
+                        { status: { AND: [{ name_contains_i: search2 }] } },
                     ])
                 })
 

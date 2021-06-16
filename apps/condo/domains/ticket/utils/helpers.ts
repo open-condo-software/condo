@@ -159,6 +159,16 @@ export const assigneeToQuery = (assignee?: string) => {
     }
 }
 
+export const statusToQueryByName = (statusName?: string) => {
+    if (!statusName) {
+        return
+    }
+
+    return {
+        AND: [{ name_contains_i: statusName }],
+    }
+}
+
 export const searchToQuery = (search?: string): TicketWhereInput[] => {
     if (!search) {
         return
@@ -167,6 +177,7 @@ export const searchToQuery = (search?: string): TicketWhereInput[] => {
     const executorQuery = executorToQuery(search)
     const assigneeQuery = assigneeToQuery(search)
     const propertyQuery = propertyToQuery(search)
+    const statusQuery = statusToQueryByName(search)
 
     return [
         { clientName_contains_i: search },
@@ -175,6 +186,7 @@ export const searchToQuery = (search?: string): TicketWhereInput[] => {
         { assignee: assigneeQuery },
         Number(search) && { number: Number(search) },
         { property: propertyQuery },
+        { status: statusQuery },
     ].filter(Boolean)
 }
 
@@ -316,7 +328,7 @@ export const getSortStringFromQuery = (query: ParsedUrlQuery): Array<string> => 
 export const TICKET_PAGE_SIZE = 10
 const POSSIBLE_PAGE_SIZE = [10, 20, 50, 100]
 
-export const getPageSizeFromQuery = (query: ParsedUrlQuery): number => {    
+export const getPageSizeFromQuery = (query: ParsedUrlQuery): number => {
     const queryValue = Number(get(query, 'pagesize', TICKET_PAGE_SIZE))
     if (POSSIBLE_PAGE_SIZE.indexOf(queryValue) !== -1) {
         return queryValue
