@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const { v4: uuid } = require('uuid') 
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
@@ -108,8 +109,9 @@ const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const now = extra.extraNow || Date.now()
+    const now = Date.now()
     const attributes = {
+        token: uuid(),
         phone: createTestPhone(),
         smsCode: generateSmsCode(),
         smsCodeRequestedAt: new Date(now).toISOString(),
