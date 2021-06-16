@@ -2,7 +2,7 @@
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography, Tooltip } from 'antd'
-import { get, pick } from 'lodash'
+import { get } from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -15,11 +15,9 @@ import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { useTicketValidations } from './useTicketValidations'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
-
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
-import { ContactsEditor } from '@condo/domains/contact/components/ContactsEditor'
-import { Contact } from '@condo/domains/contact/utils/clientSchema'
+import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor'
 
 const LAYOUT = {
     labelCol: { span: 8 },
@@ -63,13 +61,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const { action: _action, initialValues, organization, afterActionCompleted, files } = props
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState(get(initialValues, 'property'))
-    const [contact, setContact] = useState(pick(initialValues, ['clientName', 'clientPhone']))
-    const [shouldCreateContact, setShouldCreateContact] = useState(false)
     const selectPropertyIdRef = useRef(selectedPropertyId)
-
-    const createContact = Contact.useCreate({
-        organization: organization.id,
-    })
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
@@ -82,32 +74,22 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         initialCreateValues: { organization: organization.id },
     })
 
+    const { createContact, ContactsEditorComponent } = useContactsEditorHook({
+        organization: organization.id,
+        formFieldsInitialValue: {
+            name: initialValues.clientName,
+            phone: initialValues.clientPhone,
+        },
+    })
+
     const action = async (...args) => {
-        // TODO(antonal): Why actual `contact` state is not reflected here after setting in `handleChangeContact`?
-        const result = await _action({
-            ...args,
-            clientPhone: contact.clientPhone,
-            clientEmail: contact.clientEmail,
-        })
+        const result = await _action(...args)
+        await createContact()
         await syncModifiedFiles(result.id)
-        if (shouldCreateContact) {
-            await createContact({
-                phone: contact.phone,
-                email: contact.email,
-            })
-        }
         if (afterActionCompleted) {
             return afterActionCompleted(result)
         }
         return result
-    }
-
-    const handleChangeContact = (values, isNew) => {
-        console.debug('handleChangeContact', values)
-        setContact(values)
-        if (isNew) {
-            setShouldCreateContact(true)
-        }
     }
 
     const formatUserFieldLabel = ({ text, value }) => (
@@ -115,8 +97,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             {({ name, postfix }) => <>{name} {postfix}</>}
         </UserNameField>
     )
-
-    console.debug('contact', contact)
 
     return (
         <>
@@ -166,11 +146,12 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                     const { property, unitName } = getFieldsValue(['property', 'unitName'])
 
                                                     return property && (
-                                                        <ContactsEditor
-                                                            property={property}
-                                                            unitName={unitName}
-                                                            onChange={handleChangeContact}
-                                                            contacts={SAMPLE_CONTACTS}
+                                                        <ContactsEditorComponent
+                                                            form={form}
+                                                            formFields={{
+                                                                phone: 'clientPhone',
+                                                                name: 'clientName',
+                                                            }}
                                                         />
                                                     )
                                                 }}
@@ -292,9 +273,3 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         </>
     )
 }
-
-const SAMPLE_CONTACTS =  [
-    { id: '1', name: 'Anton', phone: '+79991112233' },
-    { id: '2', name: 'Andrey', phone: '+79992223344' },
-    { id: '3', name: 'Alexey', phone: '+79993334455' },
-]
