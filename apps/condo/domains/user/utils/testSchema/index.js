@@ -5,11 +5,11 @@
  */
 const faker = require('faker')
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { User: UserGQL, UserAdmin: UserAdminGQL, REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
+const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -17,6 +17,12 @@ const UserAdmin = generateGQLTestUtils(UserAdminGQL)
 
 const createTestEmail = () => ('test.' + getRandomString() + '@example.com').toLowerCase()
 const createTestPhone = () => '+18170' + String(Math.random()).slice(2).slice(-6)
+
+
+const { 
+    SMS_CODE_TTL, 
+    CONFIRM_PHONE_ACTION_EXPIRY, 
+} = require('@condo/domains/user/constants/common')
 
 async function createTestUser (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -102,12 +108,19 @@ const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestConfirmPhoneAction logic for generate fields
-
+    const now = extra.extraNow || Date.now()
+    const attributes = {
+        phone: createTestPhone(),
+        smsCode: generateSmsCode(),
+        smsCodeRequestedAt: new Date(now).toISOString(),
+        smsCodeExpiresAt: new Date(now + SMS_CODE_TTL * 1000).toISOString(),
+        requestedAt: new Date(now).toISOString(),
+        expiresAt: new Date(now + CONFIRM_PHONE_ACTION_EXPIRY * 1000).toISOString(),
+    }
     const attrs = {
         dv: 1,
         sender,
+        ...attributes,
         ...extraAttrs,
     }
     const obj = await ConfirmPhoneAction.create(client, attrs)
@@ -118,9 +131,6 @@ async function updateTestConfirmPhoneAction (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestConfirmPhoneAction logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
