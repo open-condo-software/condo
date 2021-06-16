@@ -8,7 +8,6 @@ const { createItems } = require('@keystonejs/server-side-graphql-client')
 const { obsRouterHandler } = require('@condo/domains/common/utils/sberCloudFileAdapter')
 
 const conf = require('@core/config')
-const access = require('@core/keystone/access')
 const { registerTasks } = require('@core/keystone/tasks')
 const { EmptyApp } = require('@core/keystone/test.utils')
 const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
@@ -122,7 +121,7 @@ module.exports = {
         // new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({
             adminPath: '/admin',
-            isAccessAllowed: access.userIsAdmin,
+            isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
             authStrategy,
         }),
         conf.NODE_ENV === 'test' ? new EmptyApp() : new NextApp({ dir: '.' }),        
