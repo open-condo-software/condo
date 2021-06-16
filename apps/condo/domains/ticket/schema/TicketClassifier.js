@@ -6,10 +6,11 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
 
+// TODO(pahaz): regenerate it with createschema util
 const READ_ONLY_ACCESS = {
     read: true,
-    create: false,
-    update: false,
+    create: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
+    update: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
     delete: false,
     auth: false,
 }
