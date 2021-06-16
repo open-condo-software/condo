@@ -3,7 +3,7 @@ import { Tag, Typography, Input, Space, DatePicker, Checkbox } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { FilterValue } from 'antd/es/table/interface'
 import { format } from 'date-fns'
-import get from 'lodash/get'
+import { get, isEmpty } from 'lodash'
 import { useIntl } from '@core/next/intl'
 import moment from 'moment'
 import React, { useMemo } from 'react'
@@ -13,6 +13,7 @@ import { LOCALES } from '@condo/domains/common/constants/locale'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { TicketStatus } from '../utils/clientSchema'
+import { Highliter } from '@condo/domains/common/components/Highliter'
 
 const getFilterIcon = filtered => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 
@@ -69,6 +70,24 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 key: 'number',
                 sorter: true,
                 width: '10%',
+                render: (num) => {
+                    const text = String(num)
+                    const search = getFilteredValue(filters, 'search')
+                    if (!isEmpty(search)) {
+                        return (
+                            <Highliter
+                                text={text}
+                                search={String(search)}
+                                renderPart={(part) => (
+                                    <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                        {part}
+                                    </Typography.Text>
+                                )}
+                            />
+                        )
+                    }
+                    return text
+                },
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
                         <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
@@ -128,10 +147,23 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 filteredValue: getFilteredValue(filters, 'status'),
                 render: (status) => {
                     const { primary: color, secondary: backgroundColor } = status.colors
-
+                    const search = getFilteredValue(filters, 'search')
                     return (
                         <Tag color={backgroundColor} style={{ color }}>
-                            <Typography.Text strong>{status.name}</Typography.Text>
+                            <Typography.Text strong>{
+                                isEmpty(status.name)
+                                    ? status.name
+                                    : (
+                                        <Highliter
+                                            text={status.name}
+                                            search={String(search)}
+                                            renderPart={(part) => (
+                                                <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                                    {part}
+                                                </Typography.Text>
+                                            )}
+                                        />
+                                    )}</Typography.Text>
                         </Tag>
                     )
                 },
@@ -169,6 +201,23 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 filteredValue: getFilteredValue(filters, 'details'),
                 key: 'details',
                 width: '22%',
+                render: (text) => {
+                    const search = getFilteredValue(filters, 'search')
+                    if (!isEmpty(search)) {
+                        return (
+                            <Highliter
+                                text={text}
+                                search={String(search)}
+                                renderPart={(part) => (
+                                    <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                        {part}
+                                    </Typography.Text>
+                                )}
+                            />
+                        )
+                    }
+                    return text
+                },
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
                         <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
@@ -194,7 +243,28 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 key: 'property',
                 sorter: true,
                 width: '12%',
-                render: (property) => (`${get(property, 'address')} ${get(property, 'name')}`),
+                render: (property) => {
+                    const text = get(property, 'address')
+                    const search = getFilteredValue(filters, 'search')
+
+                    if (!isEmpty(search)) {
+                        return (
+                            <>
+                                <Highliter
+                                    text={text}
+                                    search={String(search)}
+                                    renderPart={(part) => (
+                                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                            {part}
+                                        </Typography.Text>
+                                    )}
+                                />
+                                { ` ${get(property, 'name')}` }
+                            </>
+                        )
+                    }
+                    return `${text} ${get(property, 'name')}`
+                },
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
                         <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
@@ -234,6 +304,23 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                         </FilterContainer>
                     )
                 },
+                render: (text) => {
+                    const search = getFilteredValue(filters, 'search')
+                    if (!isEmpty(search)) {
+                        return (
+                            <Highliter
+                                text={text}
+                                search={String(search)}
+                                renderPart={(part) => (
+                                    <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                        {part}
+                                    </Typography.Text>
+                                )}
+                            />
+                        )
+                    }
+                    return text
+                },
                 filterIcon: getFilterIcon,
             },
             {
@@ -245,7 +332,24 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 key: 'executor',
                 sorter: true,
                 width: '12%',
-                render: (executor) => (get(executor, ['name'])),
+                render: (executor) => {
+                    const text = get(executor, ['name'])
+                    const search = getFilteredValue(filters, 'search')
+                    if (!isEmpty(search)) {
+                        return (
+                            <Highliter
+                                text={text}
+                                search={String(search)}
+                                renderPart={(part) => (
+                                    <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                        {part}
+                                    </Typography.Text>
+                                )}
+                            />
+                        )
+                    }
+                    return text
+                },
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
                         <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
@@ -271,7 +375,24 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 key: 'assignee',
                 sorter: true,
                 width: '12%',
-                render: (assignee) => (get(assignee, ['name'])),
+                render: (executor) => {
+                    const text = get(executor, ['name'])
+                    const search = getFilteredValue(filters, 'search')
+                    if (!isEmpty(search)) {
+                        return (
+                            <Highliter
+                                text={text}
+                                search={String(search)}
+                                renderPart={(part) => (
+                                    <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                        {part}
+                                    </Typography.Text>
+                                )}
+                            />
+                        )
+                    }
+                    return text
+                },
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
                         <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
