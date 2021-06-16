@@ -18,6 +18,11 @@ const CONFIRM_PHONE_SMS_CODE_EXPIRED = '[confirm:phone:smscode:expired'
 const CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED = '[confirm:phone:smscode:verify:failed'
 const CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED = '[confirm:phone:smscode:tooManyRequests'
 
+const TOO_MANY_REQUESTS = '[security:tooManyRequests'
+const CAPTCHA_CHECK_FAILED = '[security:captcha:failed'
+const SMS_FOR_IP_PER_DAY_LIMIT_REACHED = '[security:sms:per:ip:day:limit'
+const SMS_FOR_PHONE_PER_DAY_LIMIT_REACHED = '[security:sms:per:phone:day:limit'
+
 
 module.exports = {
     WRONG_PASSWORD_ERROR,
@@ -35,4 +40,8 @@ module.exports = {
     CONFIRM_PHONE_SMS_CODE_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED,
     CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED,
+    TOO_MANY_REQUESTS,
+    CAPTCHA_CHECK_FAILED,
+    SMS_FOR_IP_PER_DAY_LIMIT_REACHED,
+    SMS_FOR_PHONE_PER_DAY_LIMIT_REACHED,
 }

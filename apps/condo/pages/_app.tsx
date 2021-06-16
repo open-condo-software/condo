@@ -12,15 +12,12 @@ import { withApollo } from '@core/next/apollo'
 import { withAuth } from '@core/next/auth'
 import { withIntl } from '@core/next/intl'
 import { withOrganization } from '@core/next/organization'
-import { initFirebase } from '@condo/domains/common/utils/firebase.front.utils'
 
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleAnalytics'
 import BehaviorRecorder from '@condo/domains/common/components/containers/BehaviorRecorder'
 import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
-
-initFirebase()
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 

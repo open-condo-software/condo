@@ -26,7 +26,7 @@ const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
 
 
 const generateSmsCode = (phone) => {
-    if (has(whiteList, phone)) { // Emulate firebase white list for development - no real send sms
+    if (has(whiteList, phone)) { // Emulate fire base white list for development - no real send sms
         return Number(whiteList[phone])
     }
     return faker.datatype.number({ 

@@ -3,22 +3,26 @@ const { Keystone } = require('@keystonejs/keystone')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
-const { StaticApp } = require('@keystonejs/app-static')
+// const { StaticApp } = require('@keystonejs/app-static')
 const { NextApp } = require('@keystonejs/app-next')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 const { obsRouterHandler } = require('@condo/domains/common/utils/sberCloudFileAdapter')
-
 const conf = require('@core/config')
+const IORedis = require('ioredis')
+const WORKER_REDIS_URL = conf['WORKER_REDIS_URL']
+const access = require('@core/keystone/access')
 const { registerTasks } = require('@core/keystone/tasks')
 const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const express = require('express')
+const { utc } = require('moment')
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
+
 
 if (IS_ENABLE_DD_TRACE) {
     require('dd-trace').init({
@@ -106,8 +110,52 @@ class OBSFilesMiddleware {
     }
 }
 
+
+class Redis {
+
+    constructor () {
+        this.db = new IORedis(WORKER_REDIS_URL)
+        this.lockPrefix = 'LOCK_'
+        this.counterPrefix = 'COUNTER_BY_DAY_'
+    }
+
+    // Counter wich will reset at the start of a day
+    // Example usage = only 100 attempts to confirm phone from single IP
+    async incrementCounterByDay (variable) {
+        // if variable not exists - it will be set to 1
+        const afterIncrement = await this.db.incr(`${this.counterPrefix}${variable}`)
+        if (afterIncrement === 1) {
+            await this.db.expireat(`${this.counterPrefix}${variable}`, Number(utc().endOf('day')) / 1000)
+        }
+        return afterIncrement
+    }
+
+    // Lock
+    // 1. Set variable to reddis with TTL
+    // 2. Check if lock exists
+    // 3. Get lock remain time
+    // Example usage after failed attempt to confirm phone - lock phoneNumber for some time
+    async lockTimeRemain (variable, action = '') {
+        const time = await this.db.ttl(`${this.lockPrefix}${action}${variable}`)
+        // -1: no ttl on variable, -2: key not exists
+        return Math.max(time, 0)
+    }
+
+    async isLocked (variable, action = '') {
+        const value = await this.db.exists(`${this.lockPrefix}${action}${variable}`)
+        return !!value
+    }
+
+    async lock (variable, action = '', ttl = 300) { // ttl - seconds
+        await this.db.set(`${this.lockPrefix}${action}${variable}`, '1')
+        await this.db.expire(`${this.lockPrefix}${action}${variable}`, ttl)
+    }
+
+}
+
 module.exports = {
     keystone,
+    redis: new Redis(),
     apps: [
         new GraphQLApp({
             apollo: {
