@@ -3878,7 +3878,7 @@ export enum CacheControlScope {
   Private = 'PRIVATE'
 }
 
-/**  A keystone list  */
+/**  User confirm phone actions is used before registration starts  */
 export type ConfirmPhoneAction = {
   __typename?: 'ConfirmPhoneAction';
   /**
@@ -3895,7 +3895,7 @@ export type ConfirmPhoneAction = {
   sender?: Maybe<Scalars['JSON']>;
   /**  Phone. In international E.164 format without spaces  */
   phone?: Maybe<Scalars['String']>;
-  /**  Unique token to complete registration  */
+  /**  Unique token to complete confirmation  */
   token?: Maybe<Scalars['String']>;
   /**  Last sms code sent to user  */
   smsCode?: Maybe<Scalars['Int']>;
@@ -3907,8 +3907,11 @@ export type ConfirmPhoneAction = {
   retries?: Maybe<Scalars['Int']>;
   /**  Phone verification flag. User verify phone by access to secret sms message  */
   isPhoneVerified?: Maybe<Scalars['Boolean']>;
+  /**  DateTime when confirm phone action was started  */
   requestedAt?: Maybe<Scalars['String']>;
+  /**  When confirm phone action becomes invalid  */
   expiresAt?: Maybe<Scalars['String']>;
+  /**  When confirm phone action was completed  */
   completedAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   deletedAt?: Maybe<Scalars['String']>;
