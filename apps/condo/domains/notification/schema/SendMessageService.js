@@ -70,6 +70,8 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                 await checkSendMessageMeta(type, meta)
 
                 const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang }
+
+                // TODO(pahaz): add email/phone validation
                 if (to.email) messageAttrs.email = to.email
                 if (to.phone) messageAttrs.phone = to.phone
                 if (to.user) messageAttrs.user = { connect: to.user }
