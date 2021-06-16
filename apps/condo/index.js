@@ -1,3 +1,4 @@
+const { identity } = require('lodash')
 const { Keystone } = require('@keystonejs/keystone')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
@@ -9,7 +10,6 @@ const { obsRouterHandler } = require('@condo/domains/common/utils/sberCloudFileA
 
 const conf = require('@core/config')
 const { registerTasks } = require('@core/keystone/tasks')
-const { EmptyApp } = require('@core/keystone/test.utils')
 const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const express = require('express')
@@ -124,6 +124,6 @@ module.exports = {
             isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
             authStrategy,
         }),
-        conf.NODE_ENV === 'test' ? new EmptyApp() : new NextApp({ dir: '.' }),        
-    ],
+        conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' }),
+    ].filter(identity),
 }
