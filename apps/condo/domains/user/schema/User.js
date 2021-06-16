@@ -39,7 +39,14 @@ const User = new GQLListSchema('User', {
         },
 
         isAdmin: {
-            schemaDoc: 'Can access to "/admin/" panel?',
+            schemaDoc: 'Superuser access to service data',
+            type: Checkbox,
+            defaultValue: false,
+            access: access.canAccessToIsAdminField,
+        },
+
+        isSupport: {
+            schemaDoc: 'Can access to "/admin/" panel. And do support tasks',
             type: Checkbox,
             defaultValue: false,
             access: access.canAccessToIsAdminField,
