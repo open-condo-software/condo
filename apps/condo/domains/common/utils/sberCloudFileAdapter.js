@@ -125,6 +125,11 @@ class SberCloudFileAdapter {
     }
 }
 
+// Express middleware router to accept links to files
+// 1. Checks permissions -  or /403
+// 2. Checks that file exists - or /404
+// 3. Generates time-limited token to the obs file
+// 4. Redirects to obs file with the access token
 const obsRouterHandler = ({ keystone }) => {
 
     const obsConfig = SBERCLOUD_OBS_CONFIG ? JSON.parse(SBERCLOUD_OBS_CONFIG) : {}
