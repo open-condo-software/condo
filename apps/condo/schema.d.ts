@@ -5868,7 +5868,7 @@ export type Mutation = {
   changePasswordWithToken?: Maybe<Scalars['String']>;
   startConfirmPhoneAction?: Maybe<Scalars['String']>;
   confirmPhoneActionResendSms?: Maybe<Scalars['String']>;
-  confirmPhoneActionComplete?: Maybe<Scalars['String']>;
+  completeConfirmPhoneAction?: Maybe<Scalars['String']>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
@@ -7349,7 +7349,7 @@ export type MutationConfirmPhoneActionResendSmsArgs = {
 };
 
 
-export type MutationConfirmPhoneActionCompleteArgs = {
+export type MutationCompleteConfirmPhoneActionArgs = {
   token: Scalars['String'];
   smsCode: Scalars['Int'];
 };

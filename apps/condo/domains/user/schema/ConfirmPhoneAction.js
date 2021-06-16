@@ -201,7 +201,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         },
         {
             access: true,
-            schema: 'confirmPhoneActionComplete(token: String!, smsCode: Int!): String',
+            schema: 'completeConfirmPhoneAction(token: String!, smsCode: Int!): String',
             resolver: async (parent, args, context, info, extra) => {
                 const { token, smsCode } = args
                 const now = extra.extraNow || Date.now()       
