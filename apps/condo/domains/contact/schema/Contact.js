@@ -10,7 +10,10 @@ const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const access = require('@condo/domains/contact/access/Contact')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
-
+/**
+ * Composite unique constraint with name `Contact_uniq` is declared in a database-level on following set of columns:
+ * ("property", "unitName", "name", "phone")
+ */
 const Contact = new GQLListSchema('Contact', {
     schemaDoc: 'Contact information of a person. Currently it will be related to a ticket, but in the future, it will be associated with more things',
     fields: {
