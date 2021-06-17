@@ -99,12 +99,24 @@ export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs)
 
     const createContact = async (organization, property, unitName) => {
         if (shouldCreateContactRef.current) {
+            try {
             await createContactAction({
                 ...contactFieldsRef.current,
                 organization,
                 property,
                 unitName,
             })
+            } catch (e) {
+                // Duplicated contacts should be figured out on the client,
+                // and "create" action should not be performed.
+                // In case of violation of unique constraint on `Contact` table,
+                // be silent for a user, but make a record in log.
+                if (e.message.match('Contact_uniq')) {
+                    console.error(e)
+                } else {
+                    throw (e)
+                }
+            }
         }
     }
 
