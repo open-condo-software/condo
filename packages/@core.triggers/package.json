@@ -1,0 +1,8 @@
+{
+  "name": "@core/triggers",
+  "version": "1.0.0",
+  "dependencies": {
+    "json-rules-engine": "^6.1.2"
+  },
+  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/packages/@core.triggers"
+}
