@@ -177,7 +177,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }
 
     return (
-        <>
+        <Col span={24}>
             <Row gutter={[40, 25]}>
                 <Labels
                     left={PhoneLabel}
@@ -232,7 +232,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                     </Form.Item>
                 </>
             )}
-        </>
+        </Col>
     )
 }
 
