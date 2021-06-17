@@ -11,22 +11,19 @@ const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const isEmpty = require('lodash/isEmpty')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL, generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
-const { redis } = require('../../../index')
+const { RedisGuard } = require('@condo/domains/common/utils/redisGuard')
 const { captchaCheck } = require('@condo/domains/common/utils/googleRecaptcha3')
-
+const redisGuard = new RedisGuard()
 
 const { 
     CONFIRM_PHONE_ACTION_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED, 
     CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED,
-    TOO_MANY_REQUESTS,
     CAPTCHA_CHECK_FAILED,
-    SMS_FOR_IP_PER_DAY_LIMIT_REACHED,
-    SMS_FOR_PHONE_PER_DAY_LIMIT_REACHED,
+    SMS_FOR_IP_DAY_LIMIT_REACHED,
+    SMS_FOR_PHONE_DAY_LIMIT_REACHED,
 } = require('@condo/domains/user/constants/errors')
-
-
 
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
@@ -36,7 +33,25 @@ const {
     SMS_CODE_TTL, 
     CONFIRM_PHONE_ACTION_EXPIRY, 
     CONFIRM_PHONE_SMS_MAX_RETRIES,
+    MAX_SMS_FOR_IP_BY_DAY,
+    MAX_SMS_FOR_PHONE_BY_DAY,
 } = require('@condo/domains/user/constants/common')
+
+const conf = require('@core/config')
+const phoneWhiteList = Object.keys(conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {})
+const ipWhiteList = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
+
+const checkDayLimitCounters = (phone, ip) => {
+    const byPhoneCounter = redisGuard.incrementDayCounter(phone)
+    if (byPhoneCounter > MAX_SMS_FOR_PHONE_BY_DAY && !phoneWhiteList.includes(phone)) {
+        throw new Error(`${SMS_FOR_PHONE_DAY_LIMIT_REACHED}] too many sms requests for this phone number. Try again tomorrow `)
+    }
+    const byIpCounter = redisGuard.incrementDayCounter(ip)
+    if (byIpCounter > MAX_SMS_FOR_IP_BY_DAY && !ipWhiteList.includes(ip)) {
+        throw new Error(`${SMS_FOR_IP_DAY_LIMIT_REACHED}] too many sms requests from this ip address. Try again tomorrow`)
+    }
+}
+
 
 const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
     schemaDoc: 'User confirm phone actions is used before registration starts',
@@ -49,11 +64,13 @@ const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
             kmigratorOptions: { null: true, unique: false },
             hooks: {
                 resolveInput: ({ resolvedData }) => {
-                    const normalizedPhone = normalizePhone(resolvedData['phone'])
-                    if (!normalizedPhone){
-                        throw new Error('[error]: no phone number provided')
+                    if (resolvedData['phone']) {
+                        const normalizedPhone = normalizePhone(resolvedData['phone'])
+                        if (!normalizedPhone){
+                            throw new Error('[error]: no phone number provided')
+                        }
+                        return normalizedPhone
                     }
-                    return normalizedPhone
                 },
             },
         },
@@ -115,16 +132,14 @@ const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
     },
 })
 
-
 const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService', {
-    queries: [
+    queries: [ 
         { 
             access: true,
             schema: 'getPhoneByConfirmPhoneActionToken(token: String!, captcha: String!): String',
             resolver: async (parent, args, context, info, extra = {}) => {
-                console.log('context is context', context)
                 const { token, captcha } = args
-                const { error } = await captchaCheck(captcha)
+                const { error } = await captchaCheck(captcha, 'get_confirm_phone_token_info')
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
                 } 
@@ -148,7 +163,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             schema: 'startConfirmPhoneAction(phone: String!, dv:Int!, sender: JSON!, captcha: String!): String',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { phone: inputPhone, sender, dv, captcha } = args
-                const { error } = await captchaCheck(captcha)
+                const { error } = await captchaCheck(captcha, 'start_confirm_phone')
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
                 } 
@@ -156,6 +171,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 if (!phone) {
                     throw new Error('[error]: no phone number provided')
                 }
+                checkDayLimitCounters(phone, context.req.ip)
                 const token = uuid()
                 const now = extra.extraNow || Date.now()
                 const requestedAt = new Date(now).toISOString()
@@ -194,7 +210,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             schema: 'confirmPhoneActionResendSms(token: String!, sender: JSON!, captcha: String!): String',
             resolver: async (parent, args, context, info, extra) => {
                 const { token, sender, captcha } = args
-                const { error } = await captchaCheck(captcha)
+                const { error } = await captchaCheck(captcha, 'resend_sms')
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
                 } 
@@ -208,6 +224,10 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new Error('[error]: Unable to find confirm phone action by token')
                 }
                 const { id, phone } = actions[0]
+                const byPhoneCounter = redisGuard.incrementDayCounter(phone)
+                if (byPhoneCounter > MAX_SMS_FOR_PHONE_BY_DAY && !phoneWhiteList.includes(phone)) {
+                    throw new Error(`${SMS_FOR_PHONE_DAY_LIMIT_REACHED}] too many sms requests for this phone number. Try again tomorrow `)
+                }
                 const newSmsCode = generateSmsCode(phone)
                 await ConfirmPhoneActionGQL.update(context.createContext({ skipAccessControl: true }), id, { 
                     smsCode: newSmsCode,
@@ -233,7 +253,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             schema: 'completeConfirmPhoneAction(token: String!, smsCode: Int!, captcha: String!): String',
             resolver: async (parent, args, context, info, extra) => {
                 const { token, smsCode, captcha } = args
-                const { error } = await captchaCheck(captcha)
+                const { error } = await captchaCheck(captcha, 'complete_verify_phone')
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
                 } 
