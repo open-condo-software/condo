@@ -26,6 +26,8 @@ function convertToUIState (item: Contact): IContactUIState {
 export interface IContactFormState {
     id?: undefined,
     organization: string,
+    property?: string,
+    unitName?: string,
     phone: string,
     name: string,
 }

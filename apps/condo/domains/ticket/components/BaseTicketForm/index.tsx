@@ -63,6 +63,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const [selectedPropertyId, setSelectedPropertyId] = useState(get(initialValues, 'property'))
     const selectPropertyIdRef = useRef(selectedPropertyId)
 
+    const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
+    const selectedUnitNameRef = useRef(selectedUnitName)
+
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
     }, [selectedPropertyId])
@@ -76,6 +79,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const { createContact, ContactsEditorComponent } = useContactsEditorHook({
         organization: organization.id,
+        property: selectPropertyIdRef.current,
+        unitName: selectedUnitNameRef.current,
     })
 
     const action = async (...args) => {
@@ -133,6 +138,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                         <UnitNameInput
                                                             propertyId={selectedPropertyId}
                                                             allowClear={false}
+                                                            onSelect={(_, option) => {
+                                                                setSelectedUnitName(option.key)
+                                                            }}
                                                         />
                                                     </Form.Item>
                                                 </Col>
@@ -152,6 +160,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 name: initialValues.clientName,
                                                                 phone: initialValues.clientPhone,
                                                             }}
+                                                            // Local `property` cannot be used here, because `PropertyAddressSearchInput`
+                                                            // sets `Property.address` as its value, but we need `Property.id` here
+                                                            property={selectedPropertyId}
+                                                            unitName={unitName}
                                                         />
                                                     )
                                                 }}

@@ -1,10 +1,10 @@
-import { Select, Input } from 'antd'
+import { Select, Input, SelectProps } from 'antd'
 import React, { useMemo } from 'react'
 import get from 'lodash/get'
 import flattenDeep from 'lodash/flattenDeep'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 
-interface IUnitNameInputProps {
+interface IUnitNameInputProps extends Pick<SelectProps<string>, 'onSelect'> {
     propertyId: string
     placeholder?: string
     allowClear?: false
@@ -50,11 +50,11 @@ const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
 }
 
 export const UnitNameInput = (props: IUnitNameInputProps) => {
-    const { propertyId, ...restInputProps } = props
+    const { propertyId, onSelect, ...baseInputProps } = props
 
     if (!propertyId) {
-        return <Input {...restInputProps} disabled value={null}/>
+        return <Input {...baseInputProps} disabled value={null}/>
     }
 
-    return <BaseUnitNameInput {...props}/>
+    return <BaseUnitNameInput {...props} onSelect={onSelect}/>
 }
