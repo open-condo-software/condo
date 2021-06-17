@@ -49,7 +49,7 @@ interface IContactEditorProps {
         phone: string,
         name: string,
     },
-    value: ContactFields,
+    value?: ContactFields,
     onChange: (contact: ContactFields, isNew: boolean) => void,
     // Contacts for autocomplete will be fetched for specified organization
     organization?: string,
@@ -129,15 +129,6 @@ export const useContactsEditorHook = ({ organization, property, unitName }: ICon
 export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const { form, fields, value: initialValue, onChange, organization, property, unitName } = props
 
-    const [selectedContact, setSelectedContact] = useState(null)
-    const [value, setValue] = useState(initialValue)
-    const [displayEditableContactFields, setDisplayEditableContactFields] = useState(!!value)
-    const intl = useIntl()
-    const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
-    const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
-    const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
-    const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
-
     const { objs: contacts, loading, error } = Contact.useObjects({
         where: {
             organization: { id: organization },
@@ -148,27 +139,54 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         fetchPolicy: 'network-only',
     })
 
+    const [selectedContact, setSelectedContact] = useState(null)
+    const [value, setValue] = useState(initialValue)
+    const [editableFieldsChecked, setEditableFieldsChecked] = useState(false)
+    // We need this to keep manually typed information preserved between rerenders
+    // with different set of prefetched contacts. For example, when a different unitName is selected,
+    // manually typed information should not be lost.
+    const [manuallyTypedContact, setManuallyTypedContact] = useState()
+    const [displayEditableContactFields, setDisplayEditableContactFields] = useState(!!initialValue)
+    const intl = useIntl()
+    const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
+    const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
+    const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
+    const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
+
+
     // It's not enough to have `value` props of `Input` set.
     useEffect(() => {
-        form.setFieldsValue({
-            [fields.name]: initialValue.name,
-            [fields.phone]: initialValue.phone,
-        })
+        if (initialValue) {
+            form.setFieldsValue({
+                [fields.name]: initialValue.name,
+                [fields.phone]: initialValue.phone,
+            })
+        }
     }, [])
+
+    // When `unitName` was changed from outside, selection is not relevant anymore
+    useEffect(() => {
+        setSelectedContact(null)
+    }, [unitName])
 
     const handleClickOnPlusButton = () => {
         setDisplayEditableContactFields(true)
         setSelectedContact(null)
+        setEditableFieldsChecked(true)
     }
 
     const handleSelectContact = (contact) => {
         setSelectedContact(contact)
+        setEditableFieldsChecked(false)
         triggerOnChange(contact, false)
     }
 
     const handleChangeContact = (contact) => {
-        const isNew = contact.name !== initialValue.name || contact.phone !== initialValue.phone
+        const isNew = !initialValue || contact.name !== initialValue.name || contact.phone !== initialValue.phone
         triggerOnChange(contact, isNew)
+        setManuallyTypedContact(contact)
+        setEditableFieldsChecked(true)
+        setSelectedContact(null)
     }
 
     const handleSyncedFieldsChecked = () => {
@@ -196,8 +214,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         throw error
     }
 
-    console.debug('contacts', contacts)
-
     return (
         <Col span={24}>
             <Row gutter={[40, 25]}>
@@ -205,9 +221,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                     left={PhoneLabel}
                     right={FullNameLabel}
                 />
-                {contacts.length === 0 ? (
+                {contacts.length === 0 || !unitName ? (
                     <ContactSyncedAutocompleteFields
-                        initialValue={initialValue}
+                        initialValue={initialValue || manuallyTypedContact}
                         onChange={handleChangeContact}
                         contacts={contacts}
                     />
@@ -218,7 +234,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 key={contact.id}
                                 contact={contact}
                                 onSelect={handleSelectContact}
-                                selected={selectedContact ? selectedContact.id === contact.id : !displayEditableContactFields && i === 0 }
+                                selected={selectedContact ? selectedContact.id === contact.id : !editableFieldsChecked && i === 0 }
                             />
                         ))}
                         <>
@@ -228,10 +244,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                         left={AnotherContactLabel}
                                     />
                                     <ContactSyncedAutocompleteFields
-                                        initialValue={initialValue}
+                                        initialValue={initialValue || manuallyTypedContact}
                                         onChange={handleChangeContact}
                                         onChecked={handleSyncedFieldsChecked}
-                                        checked={!selectedContact}
+                                        checked={editableFieldsChecked}
                                         contacts={contacts}
                                     />
                                 </>

@@ -149,6 +149,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 {({ getFieldsValue }) => {
                                                     const { property, unitName } = getFieldsValue(['property', 'unitName'])
 
+                                                    const value = initialValues.clientName && initialValues.clientPhone ? {
+                                                        name: initialValues.clientName,
+                                                        phone: initialValues.clientPhone,
+                                                    } : null
+
                                                     return property && (
                                                         <ContactsEditorComponent
                                                             form={form}
@@ -156,10 +161,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 phone: 'clientPhone',
                                                                 name: 'clientName',
                                                             }}
-                                                            value={{
-                                                                name: initialValues.clientName,
-                                                                phone: initialValues.clientPhone,
-                                                            }}
+                                                            value={value}
                                                             // Local `property` cannot be used here, because `PropertyAddressSearchInput`
                                                             // sets `Property.address` as its value, but we need `Property.id` here
                                                             property={selectedPropertyId}
