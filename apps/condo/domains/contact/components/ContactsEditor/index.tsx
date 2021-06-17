@@ -48,11 +48,15 @@ type ContactFields = {
 
 interface IContactEditorProps {
     form: FormInstance<any>,
-    // Field, that should be set in a Form, where editor component will be mounted
-    formFields: {
+    // Customizeable field names of the provided `form`, where editor component will be mounted
+    // Fields `clientName` and `clientPhone` are not hardcoded to make this component
+    // usable in any form, where contact information fields may be different.
+    // Also, this makes usage of the component explicitly, — it's clear, what fields will be set.
+    fields: {
         phone: string,
         name: string,
     },
+    value: ContactFields,
     onChange: (contact: ContactFields, isNew: boolean) => void,
     contacts: TContact[],
 }
@@ -64,7 +68,6 @@ interface IContactsEditorHookArgs {
     property: string,
     // Unit scope for contacts autocomplete and new contact, that can be created
     unitName?: string,
-    formFieldsInitialValue: ContactFields,
 }
 
 interface IContactsEditorHookResult {
@@ -72,8 +75,10 @@ interface IContactsEditorHookResult {
     ContactsEditorComponent: React.FC<IContactEditorProps>,
 }
 
-export const useContactsEditorHook = ({ organization, formFieldsInitialValue }: IContactsEditorHookArgs): IContactsEditorHookResult => {
-    const [contactFields, setContactFields] = useState(formFieldsInitialValue)
+export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs): IContactsEditorHookResult => {
+    // Field value will be initialized only on user interaction.
+    // In case of no interaction, no create action will be performed
+    const [contactFields, setContactFields] = useState({})
     const [shouldCreateContact, setShouldCreateContact] = useState(false)
 
     // Closure of `createContact` will be broken, when it will be assigned to another constant outside of this hook
@@ -126,16 +131,17 @@ export const useContactsEditorHook = ({ organization, formFieldsInitialValue }: 
 }
 
 export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
+    const { form, fields, value: initialValue, onChange, contacts } = props
+
     const [selectedContact, setSelectedContact] = useState(null)
-    const [contactFields, setContactFields] = useState()
-    const [displayNewContactFields, setDisplayNewContactFields] = useState(false)
+    const [value, setValue] = useState(initialValue)
+    const [displayNewContactFields, setDisplayNewContactFields] = useState(!!value)
     const intl = useIntl()
     const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
     const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
     const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
     const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
 
-    const { form, formFields, onChange, contacts } = props
 
     const handleClickOnPlusButton = () => {
         setDisplayNewContactFields(true)
@@ -160,7 +166,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
             clientName: contact.name,
             clientPhone: contact.phone,
         })
-        setContactFields(contact)
+        setValue(contact)
         onChange && onChange(contact, isNew)
     }
 
@@ -209,13 +215,13 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                     </>
                 )}
             </Row>
-            {contactFields && (
+            {value && (
                 <>
-                    <Form.Item name={formFields.name} hidden>
-                        <Input value={contactFields.name}/>
+                    <Form.Item name={fields.name} hidden>
+                        <Input value={value.name}/>
                     </Form.Item>
-                    <Form.Item name={formFields.phone} hidden>
-                        <Input value={contactFields.phone}/>
+                    <Form.Item name={fields.phone} hidden>
+                        <Input value={value.phone}/>
                     </Form.Item>
                 </>
             )}
@@ -248,7 +254,7 @@ interface IContactSyncedAutocompleteFieldsProps {
  * Synchronized pair of "Phone" and "Name" fields.
  * When a phone will be selected, "Name" field should reflect appropriate value for selected contact
  * And vise-versa.
- * When values in fields are typed, not selected, `onChange` callback will be fired.
+ * When value in fields are typed, not selected, `onChange` callback will be fired.
  */
 const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({ initialValue, onChange, onChecked, checked }) => {
     const [selectedContact, setSelectedContact] = useState(initialValue)
