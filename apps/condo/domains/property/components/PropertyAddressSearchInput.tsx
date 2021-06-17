@@ -50,6 +50,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
                 <Select.Option
                     style={{ direction: 'rtl', textAlign: 'left', color: grey[6] }}
                     key={dataItem.value}
+                    // TODO(Dimitreee): select-like input should return id of selected entity, not it's string representation
                     value={dataItem.text}
                     title={dataItem.text}
                 >
