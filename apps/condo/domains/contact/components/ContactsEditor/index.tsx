@@ -9,12 +9,23 @@ import { green, grey } from '@ant-design/colors'
 import { OptionProps } from 'antd/lib/mentions'
 import { useIntl } from '@core/next/intl'
 import { PlusCircleFilled } from '@ant-design/icons'
-import { find } from 'lodash'
+import { find, get } from 'lodash'
+import { useTicketValidations } from '../../../ticket/components/BaseTicketForm/useTicketValidations'
+import styled from '@emotion/styled'
 
 interface ILabelsProps {
     left: React.ReactNode,
     right?: React.ReactNode,
 }
+
+/**
+ * Displays validation error, but hides form input
+ */
+const ErrorContainerOfHiddenControl = styled.div`
+  .ant-form-item-control-input {
+    display: none;
+  }
+`
 
 const Labels: React.FC<ILabelsProps> = ({ left, right }) => (
     <>
@@ -163,6 +174,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
     const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
 
+    const validations = useTicketValidations()
+
 
     // It's not enough to have `value` props of `Input` set.
     useEffect(() => {
@@ -276,16 +289,35 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                     </>
                 )}
             </Row>
-            {value && (
-                <>
-                    <Form.Item name={fields.name} hidden>
-                        <Input value={value.name}/>
-                    </Form.Item>
-                    <Form.Item name={fields.phone} hidden>
-                        <Input value={value.phone}/>
-                    </Form.Item>
-                </>
-            )}
+            {/*
+                This is a place for items of external form, this component is embedded into.
+                Why not to use them in place of actual inputs?
+                Because we have many inputs ;)
+                1. Input pairs, imitating radio group for select
+                2. Text inputs for manual typing
+                Logic of displaying `Form.Item`, depending on what is currently selected:
+                radio-like pair, or manual input pair, — will be complex.
+                The simplest solution, i currently know, — is to keep it in one place.
+                So, we use hidden inputs here, but reveal validation errors.
+            */}
+            <Row gutter={[40, 25]}>
+                <Col span={10}>
+                    <ErrorContainerOfHiddenControl>
+                        <Form.Item name={fields.name} rules={validations.clientName}>
+                            <Input value={get(value, 'name')}/>
+                        </Form.Item>
+                    </ErrorContainerOfHiddenControl>
+                </Col>
+                <Col span={10}>
+                    <ErrorContainerOfHiddenControl>
+                        <Form.Item name={fields.phone} rules={validations.clientPhone}>
+                            <Input value={get(value, 'phone')}/>
+                        </Form.Item>
+                    </ErrorContainerOfHiddenControl>
+                </Col>
+                <Col span={2}></Col>
+                <Col span={2}></Col>
+            </Row>
         </Col>
     )
 }
