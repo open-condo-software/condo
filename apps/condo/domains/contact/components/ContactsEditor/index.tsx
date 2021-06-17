@@ -62,16 +62,14 @@ interface IContactEditorProps {
 interface IContactsEditorHookArgs {
     // Organization scope for contacts autocomplete and new contact, that can be created
     organization: string,
-    property: string,
-    unitName: string,
 }
 
 interface IContactsEditorHookResult {
-    createContact: () => Promise<void>,
+    createContact: (organization: string, property: string, unitName: string) => Promise<void>,
     ContactsEditorComponent: React.FC<IContactEditorProps>,
 }
 
-export const useContactsEditorHook = ({ organization, property, unitName }: IContactsEditorHookArgs): IContactsEditorHookResult => {
+export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs): IContactsEditorHookResult => {
     // Field value will be initialized only on user interaction.
     // In case of no interaction, no create action will be performed
     const [contactFields, setContactFields] = useState({})
@@ -98,7 +96,7 @@ export const useContactsEditorHook = ({ organization, property, unitName }: ICon
         setShouldCreateContact(isNew)
     }
 
-    const createContact = async () => {
+    const createContact = async (organization, property, unitName) => {
         if (shouldCreateContactRef.current) {
             await createContactAction({
                 ...contactFieldsRef.current,
