@@ -4,6 +4,7 @@ const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
+const { registerTriggers } = require('@core/triggers')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 const { obsRouterHandler } = require('@condo/domains/common/utils/sberCloudFileAdapter')
 const conf = require('@core/config')
@@ -61,6 +62,10 @@ registerSchemas(keystone, [
 
 registerTasks([
     require('@condo/domains/notification/tasks'),
+])
+
+registerTriggers([
+    require('@condo/domains/ticket/triggers'),
 ])
 
 function verifySchema (keystone) {
