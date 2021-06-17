@@ -4351,6 +4351,8 @@ export type Contact = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
   /**  Property, that is a subject of an issue, reported by this person in first ticket. Meaning of this field will be revised in the future  */
   property?: Maybe<Property>;
   /**  Property unit, that is a subject of an issue, reported by this person in first ticket. Meaning of this field will be revised in the future  */
@@ -4374,6 +4376,7 @@ export type Contact = {
 export type ContactCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   unitName?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
@@ -4401,6 +4404,7 @@ export type ContactHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
@@ -4422,6 +4426,7 @@ export type ContactHistoryRecord = {
 export type ContactHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
@@ -4448,6 +4453,7 @@ export enum ContactHistoryRecordHistoryActionType {
 export type ContactHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
@@ -4480,6 +4486,10 @@ export type ContactHistoryRecordWhereInput = {
   sender_not?: Maybe<Scalars['JSON']>;
   sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   property?: Maybe<Scalars['String']>;
   property_not?: Maybe<Scalars['String']>;
   property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -4638,6 +4648,7 @@ export type ContactHistoryRecordsUpdateInput = {
 export type ContactUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   unitName?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
@@ -4667,6 +4678,8 @@ export type ContactWhereInput = {
   sender_not?: Maybe<Scalars['JSON']>;
   sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
   property?: Maybe<PropertyWhereInput>;
   property_is_null?: Maybe<Scalars['Boolean']>;
   unitName?: Maybe<Scalars['String']>;
@@ -12116,6 +12129,8 @@ export enum SortContactHistoryRecordsBy {
 export enum SortContactsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
   PropertyAsc = 'property_ASC',
   PropertyDesc = 'property_DESC',
   UnitNameAsc = 'unitName_ASC',
