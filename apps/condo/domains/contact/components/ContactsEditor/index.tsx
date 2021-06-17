@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useMemo, useRef, useEffect } from 'react'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { Contact as TContact } from '../../../../schema'
-import { Input, Row, Col, Select, Typography, Radio, Form, FormInstance } from 'antd'
+import { Input, Row, Col, Select, Typography, Radio, Form, FormInstance, Skeleton } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { BaseSearchInput } from '../../../common/components/BaseSearchInput'
@@ -9,13 +9,6 @@ import { green, grey } from '@ant-design/colors'
 import { OptionProps } from 'antd/lib/mentions'
 import { useIntl } from '@core/next/intl'
 import { PlusCircleFilled } from '@ant-design/icons'
-
-
-const SAMPLE_CONTACTS =  [
-    { id: '1', name: 'Anton', phone: '+79991112233' },
-    { id: '2', name: 'Andrey', phone: '+79992223344' },
-    { id: '3', name: 'Alexey', phone: '+79993334455' },
-]
 
 interface ILabelsProps {
     left: React.ReactNode,
@@ -58,16 +51,19 @@ interface IContactEditorProps {
     },
     value: ContactFields,
     onChange: (contact: ContactFields, isNew: boolean) => void,
-    contacts: TContact[],
+    // Contacts for autocomplete will be fetched for specified organization
+    organization?: string,
+    // Contacts for autocomplete will be fetched for specified property
+    property?: string,
+    // Contacts for autocomplete will be fetched for specified unit of the property
+    unitName?: string,
 }
 
 interface IContactsEditorHookArgs {
     // Organization scope for contacts autocomplete and new contact, that can be created
     organization: string,
-    // Property scope for contacts autocomplete and new contact, that can be created
     property: string,
-    // Unit scope for contacts autocomplete and new contact, that can be created
-    unitName?: string,
+    unitName: string,
 }
 
 interface IContactsEditorHookResult {
@@ -75,7 +71,7 @@ interface IContactsEditorHookResult {
     ContactsEditorComponent: React.FC<IContactEditorProps>,
 }
 
-export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs): IContactsEditorHookResult => {
+export const useContactsEditorHook = ({ organization, property, unitName }: IContactsEditorHookArgs): IContactsEditorHookResult => {
     // Field value will be initialized only on user interaction.
     // In case of no interaction, no create action will be performed
     const [contactFields, setContactFields] = useState({})
@@ -107,6 +103,8 @@ export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs)
             await createContactAction({
                 ...contactFieldsRef.current,
                 organization,
+                property,
+                unitName,
             })
         }
     }
@@ -115,7 +113,7 @@ export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs)
         const ContactsEditorWrapper = (props) => (
             <ContactsEditor
                 {...props}
-                contacts={SAMPLE_CONTACTS}
+                organization={organization}
                 onChange={handleChangeContact}
             />
         )
@@ -129,16 +127,26 @@ export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs)
 }
 
 export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
-    const { form, fields, value: initialValue, onChange, contacts } = props
+    const { form, fields, value: initialValue, onChange, organization, property, unitName } = props
 
     const [selectedContact, setSelectedContact] = useState(null)
     const [value, setValue] = useState(initialValue)
-    const [displayNewContactFields, setDisplayNewContactFields] = useState(!!value)
+    const [displayEditableContactFields, setDisplayEditableContactFields] = useState(!!value)
     const intl = useIntl()
     const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
     const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
     const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
     const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
+
+    const { objs: contacts, loading, error } = Contact.useObjects({
+        where: {
+            organization: { id: organization },
+            property: property ? { id: property } : undefined,
+            unitName: unitName || undefined,
+        },
+    }, {
+        fetchPolicy: 'network-only',
+    })
 
     // It's not enough to have `value` props of `Input` set.
     useEffect(() => {
@@ -149,7 +157,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }, [])
 
     const handleClickOnPlusButton = () => {
-        setDisplayNewContactFields(true)
+        setDisplayEditableContactFields(true)
         setSelectedContact(null)
     }
 
@@ -158,7 +166,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         triggerOnChange(contact, false)
     }
 
-    const handleChangeNewContact = (contact) => {
+    const handleChangeContact = (contact) => {
         const isNew = contact.name !== initialValue.name || contact.phone !== initialValue.phone
         triggerOnChange(contact, isNew)
     }
@@ -176,6 +184,20 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         onChange && onChange(contact, isNew)
     }
 
+    if (loading) {
+        console.log('loading')
+        return (
+            <Skeleton/>
+        )
+    }
+
+    if (error) {
+        console.warn(error)
+        throw error
+    }
+
+    console.debug('contacts', contacts)
+
     return (
         <Col span={24}>
             <Row gutter={[40, 25]}>
@@ -184,7 +206,11 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                     right={FullNameLabel}
                 />
                 {contacts.length === 0 ? (
-                    <ContactSyncedAutocompleteFields/>
+                    <ContactSyncedAutocompleteFields
+                        initialValue={initialValue}
+                        onChange={handleChangeContact}
+                        contacts={contacts}
+                    />
                 ) : (
                     <>
                         {contacts.map((contact, i) => (
@@ -192,20 +218,21 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 key={contact.id}
                                 contact={contact}
                                 onSelect={handleSelectContact}
-                                selected={selectedContact ? selectedContact.id === contact.id : !displayNewContactFields && i === 0 }
+                                selected={selectedContact ? selectedContact.id === contact.id : !displayEditableContactFields && i === 0 }
                             />
                         ))}
                         <>
-                            {displayNewContactFields ? (
+                            {displayEditableContactFields ? (
                                 <>
                                     <Labels
                                         left={AnotherContactLabel}
                                     />
                                     <ContactSyncedAutocompleteFields
                                         initialValue={initialValue}
-                                        onChange={handleChangeNewContact}
+                                        onChange={handleChangeContact}
                                         onChecked={handleSyncedFieldsChecked}
                                         checked={!selectedContact}
+                                        contacts={contacts}
                                     />
                                 </>
                             ) : (
@@ -252,9 +279,11 @@ function escapeRegex (string) {
 
 interface IContactSyncedAutocompleteFieldsProps {
     initialValue?: TContact,
-    onChange?: (contact: ContactFields) => void,
+    onChange: (contact: ContactFields) => void,
     onChecked?: () => void,
     checked?: boolean,
+    // Used for autocomplete
+    contacts: TContact[],
 }
 
 /**
@@ -263,11 +292,11 @@ interface IContactSyncedAutocompleteFieldsProps {
  * And vise-versa.
  * When value in fields are typed, not selected, `onChange` callback will be fired.
  */
-const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({ initialValue, onChange, onChecked, checked }) => {
+const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({ initialValue, onChange, onChecked, checked, contacts }) => {
     const [value, setValue] = useState(initialValue)
 
     const searchContactByPhone = useCallback(async (query) => {
-        return SAMPLE_CONTACTS.filter(c => c.phone.match(escapeRegex(query)))
+        return contacts.filter(c => c.phone.match(escapeRegex(query)))
     }, [])
 
     const handleSelectContact = (value: string, option: OptionProps) => {
@@ -303,7 +332,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
     }
 
     const searchContactByName = useCallback(async (query) => {
-        return SAMPLE_CONTACTS.filter(c => c.name.match(escapeRegex(query)))
+        return contacts.filter(c => c.name.match(escapeRegex(query)))
     }, [])
 
     const renderContactNameOption = useCallback(
