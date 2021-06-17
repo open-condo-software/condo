@@ -9,6 +9,7 @@ import { green, grey } from '@ant-design/colors'
 import { OptionProps } from 'antd/lib/mentions'
 import { useIntl } from '@core/next/intl'
 import { PlusCircleFilled } from '@ant-design/icons'
+import { find } from 'lodash'
 
 interface ILabelsProps {
     left: React.ReactNode,
@@ -180,7 +181,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }
 
     const handleChangeContact = (contact) => {
-        const isNew = !initialValue || contact.name !== initialValue.name || contact.phone !== initialValue.phone
+        const isPresentedInFetched = contacts && contact.name && contact.phone && find(contacts, contact)
+        const differsFromInitial = !initialValue || contact.name !== initialValue.name || contact.phone !== initialValue.phone
+        const isNew = differsFromInitial && !isPresentedInFetched
         triggerOnChange(contact, isNew)
         setManuallyTypedContact(contact)
         setEditableFieldsChecked(true)
