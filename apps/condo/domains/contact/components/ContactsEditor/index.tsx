@@ -89,8 +89,7 @@ export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs)
         shouldCreateContactRef.current = shouldCreateContact
     }, [shouldCreateContact])
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function @ts-ignore
-    const createContactAction = Contact.useCreate({ }, () => {})
+    const createContactAction = Contact.useCreate({ }, () => Promise.resolve())
 
     const handleChangeContact = (values, isNew) => {
         setContactFields(values)
@@ -100,12 +99,12 @@ export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs)
     const createContact = async (organization, property, unitName) => {
         if (shouldCreateContactRef.current) {
             try {
-            await createContactAction({
-                ...contactFieldsRef.current,
-                organization,
-                property,
-                unitName,
-            })
+                await createContactAction({
+                    ...contactFieldsRef.current,
+                    organization,
+                    property,
+                    unitName,
+                })
             } catch (e) {
                 // Duplicated contacts should be figured out on the client,
                 // and "create" action should not be performed.
@@ -216,7 +215,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }
 
     if (loading) {
-        console.log('loading')
         return (
             <Skeleton/>
         )
