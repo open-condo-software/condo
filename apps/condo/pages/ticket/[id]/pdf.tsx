@@ -16,6 +16,7 @@ import { useRouter } from 'next/router'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageContent } from '@condo/domains/common/components/containers/BaseLayout'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 interface ITicketDescriptionFieldProps {
     title?: string
@@ -218,9 +219,11 @@ const DynamicPdfView = dynamic(() => Promise.resolve(PdfView), {
 
 function TicketPdfPage () {
     return (
-        <PageContent>
-            <DynamicPdfView/>
-        </PageContent>
+        <OrganizationRequired>
+            <PageContent>
+                <DynamicPdfView/>
+            </PageContent>
+        </OrganizationRequired>
     )
 }
 

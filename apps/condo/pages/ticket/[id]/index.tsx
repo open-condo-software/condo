@@ -26,6 +26,7 @@ import { UploadFileStatus } from 'antd/lib/upload/interface'
 // @ts-ignore
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 import ActionBar from '@condo/domains/common/components/ActionBar'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
@@ -66,7 +67,7 @@ const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
             status: 'done' as UploadFileStatus,
             url: file.publicUrl,
         }
-        return fileInList        
+        return fileInList
     })
     const FilesFieldValue = (
         <div className={'upload-control-wrapper'}>
@@ -185,7 +186,7 @@ const TicketIdPage = () => {
     }, {
         fetchPolicy: 'network-only',
     })
-    const { objs: files } = TicketFile.useObjects({ 
+    const { objs: files } = TicketFile.useObjects({
         where: { ticket: { id: id } },
     }, {
         fetchPolicy: 'network-only',
@@ -223,7 +224,8 @@ const TicketIdPage = () => {
                 <title>{TicketTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageContent>
+                <OrganizationRequired>
+                    <PageContent>
                     <Row gutter={[0, 40]}>
                         <Col span={24}>
                             <Row>
@@ -319,7 +321,7 @@ const TicketIdPage = () => {
                                         </Col>
                                         <Col span={24}>
                                             <Typography.Text style={{ fontSize: '24px' }}>{ticket.details}</Typography.Text>
-                                            { 
+                                            {
                                                 !isEmpty(files) && (
                                                     <TicketFileList files={files} />
                                                 )
@@ -359,6 +361,7 @@ const TicketIdPage = () => {
                         total={ticketChangesResult.count}
                     />
                 </PageContent>
+                </OrganizationRequired>
             </PageWrapper>
         </>
     )
