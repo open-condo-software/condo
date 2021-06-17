@@ -76,10 +76,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const { createContact, ContactsEditorComponent } = useContactsEditorHook({
         organization: organization.id,
-        formFieldsInitialValue: {
-            name: initialValues.clientName,
-            phone: initialValues.clientPhone,
-        },
     })
 
     const action = async (...args) => {
@@ -148,9 +144,13 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                     return property && (
                                                         <ContactsEditorComponent
                                                             form={form}
-                                                            formFields={{
+                                                            fields={{
                                                                 phone: 'clientPhone',
                                                                 name: 'clientName',
+                                                            }}
+                                                            value={{
+                                                                name: initialValues.clientName,
+                                                                phone: initialValues.clientPhone,
                                                             }}
                                                         />
                                                     )
