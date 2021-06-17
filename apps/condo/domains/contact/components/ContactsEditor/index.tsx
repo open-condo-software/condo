@@ -167,7 +167,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     // with different set of prefetched contacts. For example, when a different unitName is selected,
     // manually typed information should not be lost.
     const [manuallyTypedContact, setManuallyTypedContact] = useState()
-    const [displayEditableContactFields, setDisplayEditableContactFields] = useState(!!initialValue)
+    const [displayEditableContactFields, setDisplayEditableContactFields] = useState()
     const intl = useIntl()
     const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
     const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
@@ -216,6 +216,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
     const handleSyncedFieldsChecked = () => {
         setSelectedContact(null)
+        setEditableFieldsChecked(true)
     }
 
     const triggerOnChange = (contact, isNew) => {
@@ -238,6 +239,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         throw error
     }
 
+    const initialValueIsPresentedInFetchedContacts = contacts && initialValue && initialValue.name && initialValue.phone && find(contacts, initialValue)
+
     return (
         <Col span={24}>
             <Row gutter={[40, 25]}>
@@ -258,11 +261,17 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 key={contact.id}
                                 contact={contact}
                                 onSelect={handleSelectContact}
-                                selected={selectedContact ? selectedContact.id === contact.id : !editableFieldsChecked && i === 0 }
+                                selected={
+                                    selectedContact
+                                        ? selectedContact.id === contact.id
+                                        : initialValue
+                                            ? !editableFieldsChecked && (initialValue.name === contact.name && initialValue.phone === contact.phone)
+                                            : !editableFieldsChecked && i === 0
+                                }
                             />
                         ))}
                         <>
-                            {displayEditableContactFields ? (
+                            {(displayEditableContactFields || (initialValue && !initialValueIsPresentedInFetchedContacts)) ? (
                                 <>
                                     <Labels
                                         left={AnotherContactLabel}
