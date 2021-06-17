@@ -70,6 +70,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         selectPropertyIdRef.current = selectedPropertyId
     }, [selectedPropertyId])
 
+    useEffect(() => {
+        selectedUnitNameRef.current = selectedUnitName
+    }, [selectedUnitName])
+
     const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({
         Model: TicketFile,
         relationField: 'ticket',
@@ -79,13 +83,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const { createContact, ContactsEditorComponent } = useContactsEditorHook({
         organization: organization.id,
-        property: selectPropertyIdRef.current,
-        unitName: selectedUnitNameRef.current,
     })
 
     const action = async (...args) => {
         const result = await _action(...args)
-        await createContact()
+        await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
         await syncModifiedFiles(result.id)
         if (afterActionCompleted) {
             return afterActionCompleted(result)
