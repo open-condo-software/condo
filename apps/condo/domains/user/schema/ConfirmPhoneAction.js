@@ -12,7 +12,7 @@ const isEmpty = require('lodash/isEmpty')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL, generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
 const { redis } = require('../../../index')
-
+const { captchaCheck } = require('@condo/domains/common/utils/googleRecaptcha3')
 
 
 const { 
@@ -49,7 +49,11 @@ const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
             kmigratorOptions: { null: true, unique: false },
             hooks: {
                 resolveInput: ({ resolvedData }) => {
-                    return normalizePhone(resolvedData['phone'])
+                    const normalizedPhone = normalizePhone(resolvedData['phone'])
+                    if (!normalizedPhone){
+                        throw new Error('[error]: no phone number provided')
+                    }
+                    return normalizedPhone
                 },
             },
         },
@@ -116,9 +120,14 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
     queries: [
         { 
             access: true,
-            schema: 'getPhoneByConfirmPhoneActionToken(token: String!): String',
+            schema: 'getPhoneByConfirmPhoneActionToken(token: String!, captcha: String!): String',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { token } = args
+                console.log('context is context', context)
+                const { token, captcha } = args
+                const { error } = await captchaCheck(captcha)
+                if (error) {
+                    throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
+                } 
                 const now = extra.extraNow || Date.now()
                 const actions = await ConfirmPhoneActionGQL.getAll(context.createContext({ skipAccessControl: true }), { 
                     token,
@@ -136,10 +145,17 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
     mutations: [
         {
             access: true,
-            schema: 'startConfirmPhoneAction(phone: String!, dv:Int!, sender: JSON!): String',
+            schema: 'startConfirmPhoneAction(phone: String!, dv:Int!, sender: JSON!, captcha: String!): String',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { phone: inputPhone, sender, dv } = args
+                const { phone: inputPhone, sender, dv, captcha } = args
+                const { error } = await captchaCheck(captcha)
+                if (error) {
+                    throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
+                } 
                 const phone = normalizePhone(inputPhone)
+                if (!phone) {
+                    throw new Error('[error]: no phone number provided')
+                }
                 const token = uuid()
                 const now = extra.extraNow || Date.now()
                 const requestedAt = new Date(now).toISOString()
@@ -175,9 +191,13 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         },
         {
             access: true,
-            schema: 'confirmPhoneActionResendSms(token: String!, sender: JSON!): String',
+            schema: 'confirmPhoneActionResendSms(token: String!, sender: JSON!, captcha: String!): String',
             resolver: async (parent, args, context, info, extra) => {
-                const { token, sender } = args
+                const { token, sender, captcha } = args
+                const { error } = await captchaCheck(captcha)
+                if (error) {
+                    throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
+                } 
                 const now = extra.extraNow || Date.now()
                 const actions = await ConfirmPhoneActionGQL.getAll(context.createContext({ skipAccessControl: true }), { 
                     token,
@@ -210,9 +230,13 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         },
         {
             access: true,
-            schema: 'completeConfirmPhoneAction(token: String!, smsCode: Int!): String',
+            schema: 'completeConfirmPhoneAction(token: String!, smsCode: Int!, captcha: String!): String',
             resolver: async (parent, args, context, info, extra) => {
-                const { token, smsCode } = args
+                const { token, smsCode, captcha } = args
+                const { error } = await captchaCheck(captcha)
+                if (error) {
+                    throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
+                } 
                 const now = extra.extraNow || Date.now()       
                 const actions = await ConfirmPhoneActionGQL.getAll(context.createContext({ skipAccessControl: true }), { 
                     token,

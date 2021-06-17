@@ -3,7 +3,7 @@ const conf = require('@core/config')
 const captchaConfig = conf.GOOGLE_RECAPTCHA_CONFIG ? JSON.parse(conf.GOOGLE_RECAPTCHA_CONFIG) : {}
 const CAPTCHA_SCORE_URL = captchaConfig.CAPTCHA_SCORE_URL ? captchaConfig.CAPTCHA_SCORE_URL : 'https://www.google.com/recaptcha/api/siteverify'
 const SERVER_KEY = captchaConfig.SERVER_KEY
-const { SAFE_CAPTCHA_SCORE } = require('@condo/domains/user/constants/common')
+const { SAFE_CAPTCHA_SCORE, ONLY_DEBUG_LOW_CAPTCHA_SCORE } = require('@condo/domains/user/constants/common')
 
 if (isEmpty(SERVER_KEY)) {
     console.error('Google reCaptcha not configured')
@@ -30,10 +30,10 @@ const captchaCheck = async (response) => {
     if (serverAnswer.ok) {
         const result = await serverAnswer.json()
         onCaptchaCheck(result)
-        return { ...result, isScorePassed: result.score > SAFE_CAPTCHA_SCORE }
+        const error = (!ONLY_DEBUG_LOW_CAPTCHA_SCORE && result.score < SAFE_CAPTCHA_SCORE) ? `Low captcha score ${result.score}` : null
+        return { error }
     } else {
-        console.error('BAD Server response: ', serverAnswer)
-        return {  score: 0, isScorePassed: false }
+        return { error: 'Captcha check failed' }
     }
 }
 

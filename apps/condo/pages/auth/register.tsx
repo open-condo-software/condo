@@ -173,6 +173,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const { setconfirmPhoneActionToken, setPhone } = useContext(RegisterContext)
+    const { handleReCaptchaVerify } = useContext(AuthLayoutContext)
     const [smsSendError, setSmsSendError] = useState(null)
     const [isloading, setIsLoading] = useState(false)
     const ErrorToFormFieldMsgMapping = {}
@@ -185,7 +186,8 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
         const { phone: inputPhone } = form.getFieldsValue(['phone'])
         const phone = normalizePhone(inputPhone)
         setPhone(phone)
-        const variables = { ...registerExtraData, phone }
+        const captcha = await handleReCaptchaVerify('start-confirm-phone')
+        const variables = { ...registerExtraData, phone, captcha }
         setIsLoading(true)
         return runMutation({
             mutation: startPhoneVerify,
@@ -285,7 +287,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
     const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
     const SMSMaxRetriesReachedError = intl.formatMessage({ id: 'pages.auth.register.SMSMaxRetriesReachedError' })
     const SMSBadFormat = intl.formatMessage({ id: 'pages.auth.register.SMSBadFormat' })
-
+    
     const ErrorToFormFieldMsgMapping = {
         [CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED]: {
             name: 'smsCode',
@@ -308,6 +310,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
     const [isPhoneVisible, setisPhoneVisible] = useState(false)
     const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'Hide' }) : intl.formatMessage({ id: 'Show' })
     const { confirmPhoneActionToken, phone } = useContext(RegisterContext)
+    const { handleReCaptchaVerify } = useContext(AuthLayoutContext)
     const [showPhone, setShowPhone] = useState(phone)
     useEffect(() => {
         if (isPhoneVisible) {
@@ -322,7 +325,8 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
     const [resendSmsMutation] = useMutation(RESEND_CONFIRM_PHONE_SMS_MUTATION)
     const resendSms = async () => {
         const sender = getClientSideSenderInfo()
-        const variables = { token: confirmPhoneActionToken, sender }        
+        const captcha = await handleReCaptchaVerify('resend-sms')
+        const variables = { token: confirmPhoneActionToken, sender, captcha }
         return runMutation({
             mutation: resendSmsMutation,
             variables,
@@ -339,7 +343,8 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
         if (isNaN(smsCode)) {
             throw new Error(SMSBadFormat)
         }
-        const variables = { token: confirmPhoneActionToken, smsCode }
+        const captcha = await handleReCaptchaVerify('complete-verify-phone')
+        const variables = { token: confirmPhoneActionToken, smsCode, captcha }
         return runMutation({
             mutation: completeConfirmPhoneMutation,
             variables,

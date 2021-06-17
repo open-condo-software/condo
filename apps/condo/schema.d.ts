@@ -23,15 +23,6 @@ export type AcceptOrRejectOrganizationInviteInput = {
   isAccepted?: Maybe<Scalars['Boolean']>;
 };
 
-export type AuthenticateUserWithFirebaseIdTokenInput = {
-  firebaseIdToken: Scalars['String'];
-};
-
-export type AuthenticateUserWithFirebaseIdTokenOutput = {
-  __typename?: 'AuthenticateUserWithFirebaseIdTokenOutput';
-  item?: Maybe<User>;
-};
-
 export type AuthenticateUserWithPhoneAndPasswordInput = {
   phone: Scalars['String'];
   password: Scalars['String'];
@@ -5862,7 +5853,6 @@ export type Mutation = {
   /**  Delete multiple Message items by ID.  */
   deleteMessages?: Maybe<Array<Maybe<Message>>>;
   registerNewUser?: Maybe<User>;
-  authenticateUserWithFirebaseIdToken?: Maybe<AuthenticateUserWithFirebaseIdTokenOutput>;
   authenticateUserWithPhoneAndPassword?: Maybe<AuthenticateUserWithPhoneAndPasswordOutput>;
   startPasswordRecovery?: Maybe<Scalars['String']>;
   changePasswordWithToken?: Maybe<Scalars['String']>;
@@ -7313,11 +7303,6 @@ export type MutationRegisterNewUserArgs = {
 };
 
 
-export type MutationAuthenticateUserWithFirebaseIdTokenArgs = {
-  data: AuthenticateUserWithFirebaseIdTokenInput;
-};
-
-
 export type MutationAuthenticateUserWithPhoneAndPasswordArgs = {
   data: AuthenticateUserWithPhoneAndPasswordInput;
 };
@@ -7340,18 +7325,21 @@ export type MutationStartConfirmPhoneActionArgs = {
   phone: Scalars['String'];
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
+  captcha: Scalars['String'];
 };
 
 
 export type MutationConfirmPhoneActionResendSmsArgs = {
   token: Scalars['String'];
   sender: Scalars['JSON'];
+  captcha: Scalars['String'];
 };
 
 
 export type MutationCompleteConfirmPhoneActionArgs = {
   token: Scalars['String'];
   smsCode: Scalars['Int'];
+  captcha: Scalars['String'];
 };
 
 
@@ -10794,6 +10782,7 @@ export type Query_KsListsMetaArgs = {
 
 export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
   token: Scalars['String'];
+  captcha: Scalars['String'];
 };
 
 export type RegisterNewOrganizationInput = {
