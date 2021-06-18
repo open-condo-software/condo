@@ -56,25 +56,24 @@ const START_PASSWORD_RECOVERY_MUTATION = gql`
 `
 
 
-// With captcha
 const START_CONFIRM_PHONE_MUTATION = gql`
-    mutation startConfirmPhoneAction($phone: String!, $dv: Int!, $sender: JSON!, $captcha: String!) {
-        token: startConfirmPhoneAction(phone: $phone, dv: $dv, sender: $sender, captcha: $captcha)
+    mutation startConfirmPhoneAction($data: StartConfirmPhoneActionInput!) {
+        result: startConfirmPhoneAction(data: $data) { token }
     }
 `
 const RESEND_CONFIRM_PHONE_SMS_MUTATION = gql`
-    mutation confirmPhoneActionResendSms($token: String!, $sender: JSON!, $captcha: String!) {
-        status: confirmPhoneActionResendSms(token: $token, sender: $sender, captcha: $captcha)
+    mutation confirmPhoneActionResendSms($data: ConfirmPhoneActionResendSmsInput!) {
+        result: confirmPhoneActionResendSms(data: $data) { status }
     }
 `
 const COMPLETE_CONFIRM_PHONE_MUTATION = gql`
-    mutation completeConfirmPhoneAction($token: String!, $smsCode: Int!, $captcha: String!) {
-        status: completeConfirmPhoneAction(token: $token, smsCode: $smsCode, captcha: $captcha)
+    mutation completeConfirmPhoneAction($data: CompleteConfirmPhoneActionInput!) {
+        result: completeConfirmPhoneAction(data: $data) { status }
     }
 `
 const GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY = gql`
-    query getPhoneByConfirmPhoneActionToken($token: String!, $captcha: String!) {
-        phone: getPhoneByConfirmPhoneActionToken(token: $token, captcha: $captcha)
+    query getPhoneByConfirmPhoneActionToken($data: GetPhoneByConfirmPhoneActionTokenInput!) {
+        result: getPhoneByConfirmPhoneActionToken(data: $data) { phone }
     }
 `
 
