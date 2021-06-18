@@ -89,7 +89,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         const createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
         const result = await _action({
             ...variables,
-            contact: get(createdContact, 'id'),
+            contact: get(createdContact, 'id') || variables.contact,
         }, ...args)
         await syncModifiedFiles(result.id)
         if (afterActionCompleted) {
@@ -155,6 +155,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                     const { property, unitName } = getFieldsValue(['property', 'unitName'])
 
                                                     const value = initialValues.clientName && initialValues.clientPhone ? {
+                                                        id: get(initialValues.contact, 'id'),
                                                         name: initialValues.clientName,
                                                         phone: initialValues.clientPhone,
                                                     } : null
@@ -163,6 +164,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                         <ContactsEditorComponent
                                                             form={form}
                                                             fields={{
+                                                                id: 'contact',
                                                                 phone: 'clientPhone',
                                                                 name: 'clientName',
                                                             }}

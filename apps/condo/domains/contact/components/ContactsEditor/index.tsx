@@ -51,6 +51,10 @@ type ContactFields = {
     phone: string,
 }
 
+type ContactValue = ContactFields & {
+    id?: string,
+}
+
 interface IContactEditorProps {
     form: FormInstance<any>,
     // Customizeable field names of the provided `form`, where editor component will be mounted
@@ -58,10 +62,11 @@ interface IContactEditorProps {
     // usable in any form, where contact information fields may be different.
     // Also, this makes usage of the component explicitly, — it's clear, what fields will be set.
     fields: {
+        id: string,
         phone: string,
         name: string,
     },
-    value?: ContactFields,
+    value?: ContactValue,
     onChange: (contact: ContactFields, isNew: boolean) => void,
     // Contacts for autocomplete will be fetched for specified organization
     organization?: string,
@@ -181,6 +186,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     useEffect(() => {
         if (initialValue) {
             form.setFieldsValue({
+                [fields.id]: initialValue.id,
                 [fields.name]: initialValue.name,
                 [fields.phone]: initialValue.phone,
             })
@@ -219,8 +225,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         setEditableFieldsChecked(true)
     }
 
-    const triggerOnChange = (contact, isNew) => {
+    const triggerOnChange = (contact: ContactValue, isNew: boolean) => {
         form.setFieldsValue({
+            [fields.id]: contact.id,
             [fields.name]: contact.name,
             [fields.phone]: contact.phone,
         })
@@ -311,6 +318,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
             */}
             <Row gutter={[40, 25]}>
                 <Col span={10}>
+                    <Form.Item name={fields.id} hidden>
+                        <Input value={get(value, 'id')}/>
+                    </Form.Item>
                     <ErrorContainerOfHiddenControl>
                         <Form.Item name={fields.phone} rules={validations.clientPhone}>
                             <Input value={get(value, 'phone')}/>
@@ -347,7 +357,7 @@ function escapeRegex (string) {
 
 interface IContactSyncedAutocompleteFieldsProps {
     initialValue?: TContact,
-    onChange: (contact: ContactFields) => void,
+    onChange: (contact: ContactValue) => void,
     onChecked?: () => void,
     checked?: boolean,
     // Used for autocomplete
@@ -394,7 +404,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
                 key={item.id}
                 value={item[field]}
                 title={item[field]}
-                data={pick(item, ['name', 'phone'])}
+                data={pick(item, ['id', 'name', 'phone'])}
             >
                 {item[field]}
             </Select.Option>
