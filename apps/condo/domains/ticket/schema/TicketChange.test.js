@@ -4,6 +4,7 @@
 
 const { catchErrorFrom } = require('../../common/utils/testSchema')
 const faker = require('faker')
+const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { updateTestTicket } = require('../utils/testSchema')
 
@@ -31,6 +32,8 @@ describe('TicketChange', () => {
             const inProgressStatus = (await TicketStatus.getAll(admin, { id: STATUS_IDS.IN_PROGRESS }))[0]
             const classifiers = await TicketClassifier.getAll(admin, {})
             const sources = await TicketSource.getAll(admin, {})
+            const [contact] = await createTestContact(client, client.organization)
+            const [contact2] = await createTestContact(client, client.organization)
 
             const [ticket2] = await createTestTicket(client, client.organization, client.property)
             const [ticket3] = await createTestTicket(client, client.organization, client.property)
@@ -42,6 +45,7 @@ describe('TicketChange', () => {
                 isPaid: true,
                 status: { connect: { id: openedStatus.id } },
                 client: { connect: { id: client.user.id } },
+                contact: { connect: { id: contact.id } },
                 operator: { connect: { id: client.user.id } },
                 assignee: { connect: { id: client.user.id } },
                 executor: { connect: { id: client.user.id } },
@@ -67,6 +71,7 @@ describe('TicketChange', () => {
                 property: { connect: { id: client2.property.id } },
                 status: { connect: { id: inProgressStatus.id } },
                 client: { connect: { id: client2.user.id } },
+                contact: { connect: { id: contact2.id } },
                 operator: { connect: { id: client2.user.id } },
                 assignee: { connect: { id: client2.user.id } },
                 executor: { connect: { id: client2.user.id } },
@@ -131,6 +136,11 @@ describe('TicketChange', () => {
             expect(objs[0].clientIdTo).toEqual(payload.client.connect.id)
             expect(objs[0].clientDisplayNameFrom).toEqual(client.user.name)
             expect(objs[0].clientDisplayNameTo).toEqual(client2.user.name)
+
+            expect(objs[0].contactIdFrom).toEqual(ticket.contact.id)
+            expect(objs[0].contactIdTo).toEqual(payload.contact.connect.id)
+            expect(objs[0].contactDisplayNameFrom).toEqual(contact.name)
+            expect(objs[0].contactDisplayNameTo).toEqual(contact2.name)
 
             expect(objs[0].operatorIdFrom).toEqual(ticket.operator.id)
             expect(objs[0].operatorIdTo).toEqual(payload.operator.connect.id)
