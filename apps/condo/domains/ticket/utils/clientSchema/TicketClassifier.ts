@@ -18,6 +18,7 @@ export interface ITicketClassifierUIState extends TicketClassifier {
     // TODO(codegen): write ITicketClassifierUIState or extends it from
 }
 
+
 function convertToUIState (item: TicketClassifier): ITicketClassifierUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as ITicketClassifierUIState
