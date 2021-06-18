@@ -1,4 +1,4 @@
-const setInitialStatusTrigger = {
+const responsibleStatusTrigger = {
     rule: {
         conditions: {
             all: [
@@ -21,7 +21,7 @@ const setInitialStatusTrigger = {
             ],
         },
         event: {
-            type: 'setInitialStatus',
+            type: 'responsibleStatusTrigger',
         },
     },
     action: ({ data: { resolvedData } }) => {
@@ -33,5 +33,5 @@ const setInitialStatusTrigger = {
 }
 
 module.exports = {
-    setInitialStatusTrigger,
+    responsibleStatusTrigger,
 }
