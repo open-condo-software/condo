@@ -9,7 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/Ticket')
-const {triggersManager} = require("@core/triggers");
+const { triggersManager } = require('@core/triggers')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS } = require('../constants')
 const { buildSetOfFieldsToTrackFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { storeChangesIfUpdated } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
@@ -231,12 +231,12 @@ const Ticket = new GQLListSchema('Ticket', {
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
-        resolveInput: async ({ operation, listKey, context, resolvedData }) => {
-            await triggersManager.executeTrigger({ operation, data: resolvedData, listKey }, context)
+        resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
+            await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey }, context)
 
             return resolvedData
         },
-        validateInput: ({ resolvedData, existingItem, addValidationError }) => {
+        validateInput: ({ resolvedData, existingItem, addValidationError, operation }) => {
             if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'source', 'status', 'classifier', 'details'], resolvedData, existingItem, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
