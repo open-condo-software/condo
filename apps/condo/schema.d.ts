@@ -3869,6 +3869,17 @@ export enum CacheControlScope {
   Private = 'PRIVATE'
 }
 
+export type CompleteConfirmPhoneActionInput = {
+  token: Scalars['String'];
+  smsCode: Scalars['Int'];
+  captcha: Scalars['String'];
+};
+
+export type CompleteConfirmPhoneActionOutput = {
+  __typename?: 'CompleteConfirmPhoneActionOutput';
+  status: Scalars['String'];
+};
+
 /**  User confirm phone actions is used before registration starts  */
 export type ConfirmPhoneAction = {
   __typename?: 'ConfirmPhoneAction';
@@ -4157,6 +4168,17 @@ export type ConfirmPhoneActionHistoryRecordsCreateInput = {
 export type ConfirmPhoneActionHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<ConfirmPhoneActionHistoryRecordUpdateInput>;
+};
+
+export type ConfirmPhoneActionResendSmsInput = {
+  token: Scalars['String'];
+  sender: Scalars['JSON'];
+  captcha: Scalars['String'];
+};
+
+export type ConfirmPhoneActionResendSmsOutput = {
+  __typename?: 'ConfirmPhoneActionResendSmsOutput';
+  status: Scalars['String'];
 };
 
 export type ConfirmPhoneActionUpdateInput = {
@@ -4725,6 +4747,16 @@ export type ForgotPasswordActionsCreateInput = {
 export type ForgotPasswordActionsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<ForgotPasswordActionUpdateInput>;
+};
+
+export type GetPhoneByConfirmPhoneActionTokenInput = {
+  token: Scalars['String'];
+  captcha: Scalars['String'];
+};
+
+export type GetPhoneByConfirmPhoneActionTokenOutput = {
+  __typename?: 'GetPhoneByConfirmPhoneActionTokenOutput';
+  phone: Scalars['String'];
 };
 
 export type InviteNewOrganizationEmployeeInput = {
@@ -5856,9 +5888,9 @@ export type Mutation = {
   authenticateUserWithPhoneAndPassword?: Maybe<AuthenticateUserWithPhoneAndPasswordOutput>;
   startPasswordRecovery?: Maybe<Scalars['String']>;
   changePasswordWithToken?: Maybe<Scalars['String']>;
-  startConfirmPhoneAction?: Maybe<Scalars['String']>;
-  confirmPhoneActionResendSms?: Maybe<Scalars['String']>;
-  completeConfirmPhoneAction?: Maybe<Scalars['String']>;
+  startConfirmPhoneAction?: Maybe<StartConfirmPhoneActionOutput>;
+  confirmPhoneActionResendSms?: Maybe<ConfirmPhoneActionResendSmsOutput>;
+  completeConfirmPhoneAction?: Maybe<CompleteConfirmPhoneActionOutput>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
@@ -7322,24 +7354,17 @@ export type MutationChangePasswordWithTokenArgs = {
 
 
 export type MutationStartConfirmPhoneActionArgs = {
-  phone: Scalars['String'];
-  dv: Scalars['Int'];
-  sender: Scalars['JSON'];
-  captcha: Scalars['String'];
+  data: StartConfirmPhoneActionInput;
 };
 
 
 export type MutationConfirmPhoneActionResendSmsArgs = {
-  token: Scalars['String'];
-  sender: Scalars['JSON'];
-  captcha: Scalars['String'];
+  data: ConfirmPhoneActionResendSmsInput;
 };
 
 
 export type MutationCompleteConfirmPhoneActionArgs = {
-  token: Scalars['String'];
-  smsCode: Scalars['Int'];
-  captcha: Scalars['String'];
+  data: CompleteConfirmPhoneActionInput;
 };
 
 
@@ -9618,7 +9643,7 @@ export type Query = {
   _MessagesMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
-  getPhoneByConfirmPhoneActionToken?: Maybe<Scalars['String']>;
+  getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -10781,8 +10806,7 @@ export type Query_KsListsMetaArgs = {
 
 
 export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
-  token: Scalars['String'];
-  captcha: Scalars['String'];
+  data: GetPhoneByConfirmPhoneActionTokenInput;
 };
 
 export type RegisterNewOrganizationInput = {
@@ -12269,6 +12293,18 @@ export enum SortUsersBy {
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC'
 }
+
+export type StartConfirmPhoneActionInput = {
+  phone: Scalars['String'];
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  captcha: Scalars['String'];
+};
+
+export type StartConfirmPhoneActionOutput = {
+  __typename?: 'StartConfirmPhoneActionOutput';
+  token: Scalars['String'];
+};
 
 /**  Users request or contact with the user  */
 export type Ticket = {

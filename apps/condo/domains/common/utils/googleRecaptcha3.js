@@ -20,6 +20,9 @@ const onCaptchaCheck = ({ success, challenge_ts, hostname, score, action }) => {
 } 
 
 const captchaCheck = async (response, action = '') => {
+    if (conf.NODE_ENV === 'test') {
+        return { error: null }
+    }
     const serverAnswer = await fetch(CAPTCHA_SCORE_URL, {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -27,6 +30,7 @@ const captchaCheck = async (response, action = '') => {
         method: 'POST',
         body: `secret=${SERVER_KEY}&response=${response}`,
     })
+
     if (serverAnswer.ok) {
         const result = await serverAnswer.json()
         if (result.action !== action) {
