@@ -44,6 +44,10 @@ const ticketChangeDisplayNameResolversForSingleRelations = {
         const item = await getById('User', itemId)
         return get(item, 'name')
     },
+    'contact': async (itemId) => {
+        const item = await getById('Contact', itemId)
+        return get(item, 'name')
+    },
     'operator': async (itemId) => {
         const item = await getById('User', itemId)
         return get(item, 'name')

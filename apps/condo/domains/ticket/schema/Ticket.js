@@ -72,6 +72,15 @@ const Ticket = new GQLListSchema('Ticket', {
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
+
+        contact: {
+            schemaDoc: 'Contact, that reported issue, described in this ticket',
+            type: Relationship,
+            ref: 'Contact',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
         clientName: {
             schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
             type: Text,
