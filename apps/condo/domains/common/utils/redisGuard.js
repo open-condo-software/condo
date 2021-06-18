@@ -18,7 +18,7 @@ class RedisGuard {
         let afterIncrement = await this.db.incr(`${this.counterPrefix}${variable}`)
         afterIncrement = Number(afterIncrement)
         if (afterIncrement === 1) {
-            await this.db.expireat(`${this.counterPrefix}${variable}`, Number(utc().endOf('day')) / 1000)
+            await this.db.expireat(`${this.counterPrefix}${variable}`, parseInt(utc().endOf('day') / 1000) )
         }
         return afterIncrement
     }
@@ -41,7 +41,7 @@ class RedisGuard {
 
     async lock (variable, action = '', ttl = 300) { // ttl - seconds
         await this.db.set(`${this.lockPrefix}${action}${variable}`, '1')
-        await this.db.expire(`${this.lockPrefix}${action}${variable}`, ttl)
+        await this.db.expire(`${this.lockPrefix}${action}${variable}`, ttl )
     }
 
 }

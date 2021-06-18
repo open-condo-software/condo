@@ -42,19 +42,20 @@ const conf = require('@core/config')
 const phoneWhiteList = Object.keys(conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {})
 const ipWhiteList = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
 
-const checkDayLimitCounters = (phone, ip) => {
-    const byPhoneCounter = redisGuard.incrementDayCounter(phone)
+const checkDayLimitCounters = async (phone, rawIp) => {
+    const ip = rawIp.split(':').pop()
+    const byPhoneCounter = await redisGuard.incrementDayCounter(phone)
     if (byPhoneCounter > MAX_SMS_FOR_PHONE_BY_DAY && !phoneWhiteList.includes(phone)) {
         throw new Error(`${SMS_FOR_PHONE_DAY_LIMIT_REACHED}] too many sms requests for this phone number. Try again tomorrow `)
     }
-    const byIpCounter = redisGuard.incrementDayCounter(ip)
+    const byIpCounter = await redisGuard.incrementDayCounter(ip)
     if (byIpCounter > MAX_SMS_FOR_IP_BY_DAY && !ipWhiteList.includes(ip)) {
         throw new Error(`${SMS_FOR_IP_DAY_LIMIT_REACHED}] too many sms requests from this ip address. Try again tomorrow`)
     }
 }
 
-const checkLock = (phone) => {
-    const isLocked = redisGuard.isLocked(phone)
+const checkLock = async (phone, action) => {
+    const isLocked = await redisGuard.isLocked(phone, action)
     if (isLocked) {
         throw new Error(`${TOO_MANY_REQUESTS}] resend timeout not expired`)
     }
@@ -178,7 +179,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             access: true,
             schema: 'getPhoneByConfirmPhoneActionToken(data: GetPhoneByConfirmPhoneActionTokenInput!): GetPhoneByConfirmPhoneActionTokenOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { token, captcha } = args
+                const { token, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'get_confirm_phone_token_info')
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
@@ -193,7 +194,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}]: Unable to find confirm phone action by token`)
                 }
                 const { phone } = actions[0]
-                return phone
+                return { phone }
             },
         },
     ],    
@@ -202,7 +203,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             access: true,
             schema: 'startConfirmPhoneAction(data: StartConfirmPhoneActionInput!): StartConfirmPhoneActionOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { phone: inputPhone, sender, dv, captcha } = args
+                const { phone: inputPhone, sender, dv, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'start_confirm_phone')
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
@@ -211,9 +212,9 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 if (!phone) {
                     throw new Error('[error]: no phone number provided')
                 }
-                checkDayLimitCounters(phone, context.req.ip)
-                checkLock(phone)
-                redisGuard.lock(phone, SMS_CODE_TTL)
+                await checkDayLimitCounters(phone, context.req.ip)
+                await checkLock(phone, 'startConfirmPhoneAction')
+                await redisGuard.lock(phone, 'startConfirmPhoneAction', SMS_CODE_TTL)
                 const token = uuid()
                 const now = extra.extraNow || Date.now()
                 const requestedAt = new Date(now).toISOString()
@@ -244,14 +245,14 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     },
                     sender: sender,
                 })
-                return token
+                return { token }
             },
         },
         {
             access: true,
             schema: 'confirmPhoneActionResendSms(data: ConfirmPhoneActionResendSmsInput!): ConfirmPhoneActionResendSmsOutput',
             resolver: async (parent, args, context, info, extra) => {
-                const { token, sender, captcha } = args
+                const { token, sender, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'resend_sms')
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
@@ -266,9 +267,9 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new Error('[error]: Unable to find confirm phone action by token')
                 }
                 const { id, phone } = actions[0]
-                checkDayLimitCounters(phone, context.req.ip)
-                checkLock(phone)
-                redisGuard.lock(phone, SMS_CODE_TTL)
+                await checkDayLimitCounters(phone, context.req.ip)
+                await checkLock(phone, 'confirmPhoneActionResendSms')
+                await redisGuard.lock(phone, 'confirmPhoneActionResendSms', SMS_CODE_TTL)
                 const newSmsCode = generateSmsCode(phone)
                 await ConfirmPhoneActionGQL.update(context.createContext({ skipAccessControl: true }), id, { 
                     smsCode: newSmsCode,
@@ -293,7 +294,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             access: true,
             schema: 'completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput',
             resolver: async (parent, args, context, info, extra) => {
-                const { token, smsCode, captcha } = args
+                const { token, smsCode, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'complete_verify_phone')
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
