@@ -85,9 +85,12 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         organization: organization.id,
     })
 
-    const action = async (...args) => {
-        const result = await _action(...args)
-        await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
+    const action = async (variables, ...args) => {
+        const createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
+        const result = await _action({
+            ...variables,
+            contact: get(createdContact, 'id'),
+        }, ...args)
         await syncModifiedFiles(result.id)
         if (afterActionCompleted) {
             return afterActionCompleted(result)
