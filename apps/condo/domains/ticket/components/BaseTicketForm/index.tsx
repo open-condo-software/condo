@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { searchEmployee, searchTicketClassifier } from '../../utils/clientSchema/search'
+import { searchEmployee } from '../../utils/clientSchema/search'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
@@ -161,9 +161,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             >
                 {({ handleSave, isLoading, form }) => (
                     <>
-                        <TicketClassifierSelect>
-                        </TicketClassifierSelect>
-
                         <Col span={13}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
@@ -276,8 +273,16 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             <Col span={24}>
                                                                 <Row gutter={[0, 24]}>
                                                                     <Col span={24}>
-                                                                        <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
+                                                                        <Typography.Title level={5} style={{ margin: '0' }}>{ClassifierLabel}</Typography.Title>
                                                                     </Col>
+                                                                    <Col span={24}>
+                                                                        <TicketClassifierSelect
+                                                                            rules={validations.classifier}
+                                                                            disabled={disableUserInteraction}
+                                                                        >
+                                                                        </TicketClassifierSelect>
+                                                                    </Col>
+
                                                                     <Col span={24}>
                                                                         <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
                                                                             <Input.TextArea rows={3} placeholder={DescriptionPlaceholder} disabled={disableUserInteraction} />
@@ -294,16 +299,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             </Col>
                                                             <Col span={24}>
                                                                 <Row align={'top'} >
-                                                                    <Col span={24}>
-                                                                        <Form.Item name={'classifier'} rules={validations.classifier} label={ClassifierLabel} >
-                                                                            <TicketClassifierSelect
-                                                                                search={searchTicketClassifier}
-                                                                                allowClear={false}
-                                                                                disabled={disableUserInteraction}
-                                                                            >
-                                                                            </TicketClassifierSelect>
-                                                                        </Form.Item>
-                                                                    </Col>
                                                                     <Col span={12}>
                                                                         <Row>
                                                                             <Col span={12}>
@@ -317,6 +312,17 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                 </Form.Item>
                                                                             </Col>
                                                                         </Row>
+                                                                    </Col>
+                                                                </Row>
+                                                            </Col>
+                                                            <Col span={24}>
+                                                                <Row gutter={[0, 24]}>
+                                                                    <Col  span={24}>
+                                                                        <Form.Item
+                                                                            label={AttachedFilesLabel}
+                                                                        >
+                                                                            <UploadComponent />
+                                                                        </Form.Item>
                                                                     </Col>
                                                                 </Row>
                                                             </Col>

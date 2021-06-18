@@ -1,110 +1,105 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Select, Row, Col } from 'antd'
+import { Rule } from 'rc-field-form/lib/interface'
+import { Select, Row, Col, Typography, Space, Form } from 'antd'
 import { TicketClassifier as TicketClassifierGQL } from '@condo/domains/ticket/gql'
 import { TicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
 import { ITicketClassifierUIState } from '@condo/domains/ticket/utils/clientSchema/TicketClassifier'
+import { useIntl } from '@core/next/intl'
 
-
-import { has, isEmpty, isEqual } from 'lodash'
+import { has, isEmpty, isEqual, sortBy } from 'lodash'
 import { useLazyQuery } from '@core/next/apollo'
 import { useRef } from 'react'
-import { useCallback } from 'react'
-
-
 interface ITicketClassifierSelect {
     onSelect?: (...args: Array<unknown>) => void
     disabled?: boolean
     initialValue?: string
+    rules?: Rule[]
 }
 
 interface ISelectState {
-    all: ITicketClassifierUIState[],
-    filtered?: ITicketClassifierUIState[], 
-    groupped?: Record<string, ITicketClassifierUIState>, 
+    objects: ITicketClassifierUIState[],
     choosed?: string | null
     parent?: string | null
+    isShown?: boolean
+}
+
+const selectStyle = {
+    width: '264px',
+    marginRight: '44px',
 }
 
 export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props) => {
-    
-    const [places, setPlaces] = useState<ISelectState>({ all: [], filtered: [], choosed: null })
-    const [categories, setCategories] = useState<ISelectState>({ all: [], filtered: [], groupped: {}, choosed: null })
-    const [subjects, setSubjects] = useState<ISelectState>({ all: [],  choosed: null, parent: null })
+    const { rules } = props
+    const intl = useIntl()
+    const PlacesLabel = 'Где проблема *'
+    const CategoriesLabel = 'Категория *'
+    const SubjectsLabel = 'Суть проблемы *'
+
+    const [places, setPlaces] = useState<ISelectState>({ objects: [], choosed: null })
+    const [categories, setCategories] = useState<ISelectState>({ objects: [], choosed: null, isShown: false })
+    const [subjects, setSubjects] = useState<ISelectState>({ objects: [], choosed: null, parent: null, isShown: false })
+
     const placesRef = useRef(null)
     const categoriesRef = useRef(null)
     const subjectsRef = useRef(null)
-    const setState = (type, update = {}) => {
-        switch (type) {
-            case 'places':
-                setPlaces({ ...places, ...update })
-                break
-            case 'categories':
-                setCategories({ ...categories, ...update })
-                break
-            case 'subjects':
-                setSubjects({ ...subjects, ...update })
-                break
+
+    const setState = (type, update: Partial<ISelectState> = {}) => {
+        if (type === 'subjects') {
+            const newState = { ...subjects, ...update }
+            setSubjects(newState)
+        }
+        if (type === 'places') {
+            setPlaces({ ...places, ...update })
+        }
+        if (type === 'categories') {
+            const newState = { ...categories, ...update }
+            setCategories(newState)
         }
     }
-
-    const { objs: twoLevelClassifiers, loading: isLoading } = TicketClassifier.useObjects(
-        { 
-            where: { parent: { parent: { id: null } } },
-            sortBy: ['name_ASC'],
-        }
-    )
-    useEffect(() => {
-        const allPlaces = twoLevelClassifiers.filter(classifier => !classifier.parent).map(({ id, name, parent }) => ({ id, name, parent }))
-        const allCategories = twoLevelClassifiers.filter(classifier => classifier.parent).map(({ id, name, parent }) => ({ id, name, parent }))
-        const grouppedCategories = {}
-        allCategories.forEach(({ id, name, parent }) => {
-            if (!has(grouppedCategories, name)){
-                grouppedCategories[name] = { name, id, parent: parent.id }
-            } else {
-                grouppedCategories[name].id += `_${id}`
-                grouppedCategories[name].parent += `_${parent.id}`
-            }
-        })
-        setState('places', { all: allPlaces, filtered: allPlaces })
-        setState('categories', { groupped: grouppedCategories, all: allCategories, filtered: Object.values(grouppedCategories) })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    const [ loadClassifiers, { loading: isSubjectsLoading } ] = useLazyQuery(TicketClassifierGQL.GET_ALL_OBJS_QUERY, {
-        onError: error => {
-            throw new Error(error)
-        },
+    const { objs: rootClassifiers, loading: isPlacesLoading } = TicketClassifier.useObjects({ where: { parent_is_null: true } })
+    const [loadSubjects, { loading: isSubjectsLoading }] = useLazyQuery(TicketClassifierGQL.GET_ALL_OBJS_QUERY, {
         onCompleted: data => {
             const loadedSubjects = data.objs.map(({ id, name, parent }) => ({ id, name, parent }))
-            setState('subjects', { all: loadedSubjects })
+            setState('subjects', { objects: loadedSubjects, choosed: null })
+            subjectsRef.current.focus()
         },
-        fetchPolicy: 'network-only',
     })
+    const [loadCategories, { loading: isCategoriesLoading }] = useLazyQuery(TicketClassifierGQL.GET_ALL_OBJS_QUERY, {
+        onCompleted: data => {
+            const loadedCategories = data.objs.map(({ id, name, parent }) => ({ id, name, parent }))
+            setState('categories', { objects: loadedCategories, choosed: null })
+            categoriesRef.current.focus()
+        },
+    })
+
+    useEffect(() => {
+        const allPlaces = sortBy(rootClassifiers, 'name').map(({ id, name, parent }) => ({ id, name, parent }))
+        setState('places', { objects: allPlaces })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const choosePlace = (id = null) => {
         setState('places', { choosed: id })
-        if (!id) {
-            setState('categories', { choosed: null, filtered: Object.values(categories.groupped) })
-        } else {
-            setState('categories', { choosed: null, filtered: categories.all.filter(category => category.parent.id === id ) })
+        setState('categories', { choosed: null, objects: [], isShown: false })
+        setState('subjects', { objects: [], choosed: null, isShown: false })                
+        if (id) {
+            setState('categories', { isShown: true })
+            loadCategories({ variables: { sortBy: 'name_ASC', where: { parent: { id } } } })
+            if (categoriesRef.current) {
+                categoriesRef.current.focus()
+            }
         }
-        setState('subjects', { all: [], choosed: null })
     }
 
     const chooseCategory = (id = null) => {
         setState('categories', { choosed: id })
+        setState('subjects', { objects: [], choosed: null, isShown: false })
         if (id) {
-            const isGroupped = id.indexOf('_') !== -1
-            if (isGroupped) {
-                console.log(id.split('_'))
-            } else {
-                if (places.choosed) {
-                    setState('subjects', { parent: id })
-                    loadClassifiers({ variables: { sortBy: 'name_ASC', where: { parent: { id } } } })
-                }
+            setState('subjects', { isShown: true })
+            loadSubjects({ variables: { sortBy: 'name_ASC', where: { parent: { id } } } })
+            if (subjectsRef.current) {
+                subjectsRef.current.focus()
             }
-        } else {
-            setState('subjects', { all: [], choosed: null })
         }
     }
 
@@ -112,67 +107,76 @@ export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props)
         setState('subjects', { choosed: id })
     }
 
-
     return (
-        <Row style={{ paddingBottom: '200px' }}>
-            <Col span={7}  style={{ paddingRight: '20px' }}>
+        <div style={{ whiteSpace: 'nowrap' }}>
+            <Space direction={'vertical'} size={8}>
+                <Typography.Text type={'secondary'}>{PlacesLabel}</Typography.Text>
                 <Select
-                    style={{ width: '100%' }}
+                    style={selectStyle}
                     allowClear={true}
                     onSelect={choosePlace}
                     onClear={choosePlace}
                     optionFilterProp={'title'}
-                    value={places.choosed}      
-                    loading={isLoading}
+                    value={places.choosed}
+                    loading={isPlacesLoading}
                     ref={placesRef}
                 >
                     {
-                        places.filtered.map(place => (
+                        places.objects.map(place => (
                             <Select.Option value={place.id} key={place.id} title={place.name}>{place.name}</Select.Option>
                         ))
                     }
                 </Select>
-            </Col>      
-            <Col span={7} style={{ paddingRight: '20px' }}>
-                <Select
-                    style={{ width: '100%' }}
-                    allowClear={true}
-                    onSelect={chooseCategory}
-                    onClear={chooseCategory}
-                    optionFilterProp={'title'}
-                    value={categories.choosed}
-                    loading={isLoading}
-                    ref={categoriesRef}
-                >
-                    {
-                        categories.filtered.map(category => (
-                            <Select.Option value={category.id} key={category.id} title={category.name}>{category.name}</Select.Option>
-                        ))
-                    }
-                </Select>
-            </Col>     
-            <Col span={7}  style={{ paddingRight: '20px' }}>
-                {
-                    ( !isEmpty(subjects.all) &&  
+            </Space>
+            {
+                categories.isShown &&
+                <Space direction={'vertical'} size={8}>
+                    <Typography.Text type={'secondary'}>{CategoriesLabel}</Typography.Text>
+                    <Select
+                        style={selectStyle}
+                        allowClear={true}
+                        onSelect={chooseCategory}
+                        onClear={chooseCategory}
+                        optionFilterProp={'title'}
+                        value={categories.choosed}
+                        loading={isCategoriesLoading}
+                        ref={categoriesRef}
+                        showAction={['focus', 'click']}
+                    >
+                        {
+                            categories.objects.map(category => (
+                                <Select.Option value={category.id} key={category.id} title={category.name}>{category.name}</Select.Option>
+                            ))
+                        }
+                    </Select>
+                </Space>
+            }
+            {
+                subjects.isShown &&
+                <Space direction={'vertical'} size={8}>
+                    <Typography.Text type={'secondary'}>{SubjectsLabel}</Typography.Text>
+                    <Form.Item rules={rules} name={'classifier'}>
                         <Select
-                            style={{ width: '100%' }}
                             loading={isSubjectsLoading}
                             allowClear={true}
                             onSelect={chooseSubject}
                             onClear={chooseSubject}
-                            optionFilterProp={'title'}                    
+                            optionFilterProp={'title'}
                             ref={subjectsRef}
+                            value={subjects.choosed}
+                            showAction={['focus', 'click']}
+                            style={selectStyle}
                         >
                             {
-                                subjects.all.map(subject => (
+                                subjects.objects.map(subject => (
                                     <Select.Option value={subject.id} key={subject.id} title={subject.name}>{subject.name}</Select.Option>
                                 ))
                             }
                         </Select>
-                    )
-                }
-            </Col>
-        </Row>
+                    </Form.Item>
+                </Space>
+            }
+        </div>
     )
 }
 
@@ -195,163 +199,3 @@ export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props)
 
 
 
-
-export const TicketClassifier1Select: React.FC<ITicketClassifierSelect> = (props) => {
-    const firstLevelRef = useRef([])
-    const grouppedSecondLevelRef = useRef([])
-    const secondLevelRef = useRef([])
-    const thirdLevelRef = useRef([])
-    const selected = useRef({
-        first: null,
-        second: null,
-        third: null,
-    })
-    const [places, setPlaces] = useState([])
-    const [categories, setCategories] = useState([])
-    const [subjects, setSubjects] = useState([])
-
-    const [ loadClassifiers, { loading: isLoading } ] = useLazyQuery(TicketClassifierGQL.GET_ALL_OBJS_QUERY, {
-        onError: error => {
-            throw new Error(error)
-        },
-        onCompleted: data => {
-            setSubjects(data.objs.map(({ id, name, parent }) => ({ id, name, parent })))
-        },
-    })
-    const {
-        objs: twoLevelClassifiers,
-    } = TicketClassifier.useObjects({
-        where: { parent: { parent: { id: null } } },
-        sortBy: 'name_ASC',
-    })
-
-    const rebuildOptions = useCallback(() => {
-        let { first, second } = selected.current
-        if (!first) {
-            setCategories(grouppedSecondLevelRef.current)
-        }
-        // if (selected.current.third && !first && !second) {
-        // 
-        // }
-        if (!first && second) {
-            const choosedCategory = grouppedSecondLevelRef.current.find(item => isEqual(item.id, second))
-            const filteredPlaces = firstLevelRef.current.filter(place => choosedCategory.parent.includes(place.id))
-            if (filteredPlaces.length === 1) {
-                first = filteredPlaces[0]
-                second = choosedCategory.id[0]
-            } else {
-                setPlaces(places)
-            }
-        }
-        if (!first && !second) {
-            setPlaces(firstLevelRef.current)
-        }
-        if (first && !second) {
-            setCategories(secondLevelRef.current.filter(item => item.parent.id === first))
-        }
-        if (first && second) {
-            if (Array.isArray(second)) {
-                const filteredCategories = secondLevelRef.current.find(item => second.includes(item.id) && item.parent.id === first)
-                second = filteredCategories.id
-            }
-            loadClassifiers({ variables: { parent: second } })
-        }
-    }, [selected, loadClassifiers])
-  
-    useEffect(() => {
-        firstLevelRef.current = twoLevelClassifiers.filter(classifier => !classifier.parent).map(({ id, name, parent }) => ({ id, name, parent }))
-        secondLevelRef.current = twoLevelClassifiers.filter(classifier => classifier.parent).map(({ id, name, parent }) => ({ id, name, parent }))
-        const secondLevelGroupped = {}
-        secondLevelRef.current.forEach(({ id, name, parent }) => {
-            if (!has(secondLevelGroupped, name)){
-                secondLevelGroupped[name] = { name, id: [], parent: [] }
-            }
-            secondLevelGroupped[name].id.push(id)
-            secondLevelGroupped[name].parent.push(parent.id)
-        })
-        grouppedSecondLevelRef.current = Object.values(secondLevelGroupped)
-        if (isEmpty(places)) {
-            rebuildOptions()
-        }        
-    }, [twoLevelClassifiers, places, rebuildOptions])
-
-
-
-
-
-    const placeOptions = useMemo(() => (
-        <>
-            {
-                places.map(place => (
-                    <Select.Option value={place.id} key={place.id} title={place.name}>{place.name}</Select.Option>
-                ))
-            }
-        </>)
-    , [places])
-
-    const categoryOptions = useMemo(() => (
-        <>
-            {
-                categories.map(place => (
-                    <Select.Option value={place.id} key={place.id} title={place.name}>{place.name}</Select.Option>
-                ))
-            }
-        </>)
-    , [categories])
-
-    const subjectOptions = useMemo(() => (
-        <>
-            {
-                subjects.map(place => (
-                    <Select.Option value={place.id} key={place.id} title={place.name}>{place.name}</Select.Option>
-                ))
-            }
-        </>)
-    , [subjects])
-
-    const onSelectChange = (update) => {
-        selected.current = { ...selected.current, ...update }
-        rebuildOptions()
-    }
-
-
-    return (
-        <Row style={{ paddingBottom: '200px' }}>
-            <Col span={7}  style={{ paddingRight: '20px' }}>
-                <Select
-                    style={{ width: '100%' }}
-                    loading={isLoading}
-                    allowClear={true}
-                    onSelect={(id) => onSelectChange({ first: id })}
-                    onClear={() => onSelectChange({ first: null })}
-                >
-                    {placeOptions}
-                </Select>
-            </Col>      
-            <Col span={7} style={{ paddingRight: '20px' }}>
-                <Select
-                    style={{ width: '100%' }}
-                    loading={isLoading}
-                    allowClear={true}
-                    onSelect={(id) => onSelectChange({ second: id })}
-                    onClear={() => onSelectChange({ second: null })}
-                    optionFilterProp={'title'}                    
-                >
-                    {categoryOptions}
-                </Select>
-            </Col>     
-            <Col span={7}  style={{ paddingRight: '20px' }}>
-                {
-                    ( !isEmpty(thirdLevelRef.current) &&  
-                        <Select
-                            style={{ width: '100%' }}
-                            loading={isLoading}
-                        >
-                            {subjectOptions}
-                        </Select>
-                    )
-                }
-            </Col>
-        </Row>
-    )
-}
