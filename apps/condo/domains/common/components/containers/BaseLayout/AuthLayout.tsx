@@ -1,5 +1,5 @@
 import { PageHeader as AntPageHeader } from 'antd'
-import React, { createContext, useCallback } from 'react'
+import React, { createContext } from 'react'
 import Router from 'next/router'
 import { FormattedMessage } from 'react-intl'
 import { ConfigProvider, Layout } from 'antd'
@@ -16,7 +16,7 @@ import { SUPPORT_EMAIL, SUPPORT_PHONE } from '@condo/domains/common/constants/re
 import { colors } from '@condo/domains/common/constants/style'
 import { formInputFixCss } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import { Global } from '@emotion/core'
-import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3'
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
 import { useIntl } from '@core/next/intl'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
@@ -70,7 +70,6 @@ interface IAuthLayoutContext {
     isMobile: boolean
     signInByEmail: ({ email, password }) => Promise<unknown>,
     signInByPhone: ({ phone, password }) => Promise<unknown>,
-    handleReCaptchaVerify: (action: string) => Promise<string>,
 }
 
 
@@ -78,19 +77,12 @@ export const AuthLayoutContext = createContext<IAuthLayoutContext>({
     isMobile: false,
     signInByEmail: ({ email, password }) => null,
     signInByPhone: ({ phone, password }) => null,
-    handleReCaptchaVerify: (action: string) => null,
 })
 
 const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
     const intl = useIntl()
     const colSize = useAntdMediaQuery()
     const { refetch } = useAuth()
-    const { executeRecaptcha } = useGoogleReCaptcha()
-    const handleReCaptchaVerify = useCallback(async (action) => {
-        const userToken = await executeRecaptcha(action)
-        return userToken
-    }, [executeRecaptcha])
-
     const isMobile = (colSize === 'xs')
     const [signinByPhoneMutation] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
     const signInByPhone = ({ phone, password }) => {
@@ -134,7 +126,6 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                     isMobile,
                     signInByEmail,
                     signInByPhone,
-                    handleReCaptchaVerify,
                 }}>
                     <Global styles={formInputFixCss}></Global>
                     <Layout style={{ background: colors.white, height: '100vh' }}>
