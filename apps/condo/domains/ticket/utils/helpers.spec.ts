@@ -254,6 +254,16 @@ describe('Helpers', () => {
                         })
                     })
 
+                    it('isEmergency is true', () => {
+                        const isEmergency = true
+
+                        expect(filtersToQuery({ isEmergency })).toStrictEqual({
+                            AND: [
+                                { isEmergency: true },
+                            ],
+                        })
+                    })
+
                     it('search is defined', () => {
                         const search = 'search'
 

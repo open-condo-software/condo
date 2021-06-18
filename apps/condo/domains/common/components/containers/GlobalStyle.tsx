@@ -153,6 +153,10 @@ export default function GlobalStyle () {
                 }
               }
 
+              .ticket-table tbody.ant-table-tbody {
+                vertical-align: baseline;
+              }
+
               ${uploadControlCss}
               ${page}
             `}

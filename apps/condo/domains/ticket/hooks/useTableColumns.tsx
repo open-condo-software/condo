@@ -49,6 +49,7 @@ const getFilteredValue = (filters: IFilters, key: string | Array<string>): Filte
 
 export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
     const intl = useIntl()
+    const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const DateMessage = intl.formatMessage({ id: 'Date' })
     const StatusMessage =  intl.formatMessage({ id: 'Status' })
@@ -146,25 +147,31 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 title: StatusMessage,
                 sortOrder: get(sorterMap, 'status'),
                 filteredValue: getFilteredValue(filters, 'status'),
-                render: (status) => {
+                render: (status, record) => {
                     const { primary: color, secondary: backgroundColor } = status.colors
                     return (
-                        <Tag color={backgroundColor} style={{ color }}>
-                            <Typography.Text strong>{
-                                isEmpty(status.name)
-                                    ? status.name
-                                    : (
-                                        <Highliter
-                                            text={status.name}
-                                            search={String(search)}
-                                            renderPart={(part) => (
-                                                <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                                                    {part}
-                                                </Typography.Text>
-                                            )}
-                                        />
-                                    )}</Typography.Text>
-                        </Tag>
+                        <span style={{ lineHeight: '30px' }}>
+                            <Tag color={backgroundColor} style={{ color }}>
+                                <Typography.Text strong>{
+                                    isEmpty(status.name)
+                                        ? status.name
+                                        : (
+                                            <Highliter
+                                                text={status.name}
+                                                search={String(search)}
+                                                renderPart={(part) => (
+                                                    <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                                        {part}
+                                                    </Typography.Text>
+                                                )}
+                                            />
+                                        )}</Typography.Text>
+                            </Tag>
+                            { record.isEmergency &&
+                            <Tag color={ '#FFCCC7' }>
+                                <Typography.Text style={{ color: '#F5222D' }}>{ EmergencyMessage }</Typography.Text>
+                            </Tag> }
+                        </span>
                     )
                 },
                 dataIndex: 'status',

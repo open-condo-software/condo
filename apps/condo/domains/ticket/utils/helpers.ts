@@ -90,7 +90,7 @@ export const sortStatusesByType = (statuses: Array<TicketStatus>) => {
     })
 }
 
-export interface IFilters extends Pick<Ticket, 'clientName' | 'createdAt' | 'details' | 'number'> {
+export interface IFilters extends Pick<Ticket, 'clientName' | 'createdAt' | 'details' | 'number' | 'isEmergency'> {
     status?: Array<string>
     assignee?: string
     executor?: string
@@ -200,6 +200,7 @@ export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
     const executor = get(filters, 'executor')
     const assignee = get(filters, 'assignee')
     const search = get(filters, 'search')
+    const isEmergency = get(filters, 'isEmergency')
 
     const executorQuery = executorToQuery(executor)
     const assigneeQuery = assigneeToQuery(assignee)
@@ -218,6 +219,7 @@ export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
         assignee && { assignee: assigneeQuery },
         number && Number(number) && { number: Number(number) },
         property && { property: propertyQuery },
+        isEmergency && { isEmergency: true },
         searchQuery && { OR: searchQuery },
     ].filter(Boolean)
 

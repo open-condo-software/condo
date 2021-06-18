@@ -14,7 +14,7 @@ import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { useLazyQuery } from '@core/next/apollo'
-import { Col, Input, Row, Space, Table, Typography } from 'antd'
+import { Col, Input, Row, Space, Table, Typography, Checkbox } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
@@ -22,6 +22,7 @@ import { pickBy, get, debounce } from 'lodash'
 import React, { useCallback } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
+import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Button } from '@condo/domains/common/components/Button'
 import XLSX from 'xlsx'
@@ -40,7 +41,8 @@ const TicketsPage: IPageWithHeaderAction = () => {
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
-    
+    const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
+
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const offsetFromQuery = getPageIndexFromQuery(router.query)
@@ -66,9 +68,9 @@ const TicketsPage: IPageWithHeaderAction = () => {
     }, {
         fetchPolicy: 'network-only',
     })
-    
+
     const [
-        loadXlsTickets, 
+        loadXlsTickets,
         { loading: isXlsLoading },
     ] = useLazyQuery(
         GET_ALL_TICKET_FOR_XLS_EXPORT,
@@ -131,10 +133,10 @@ const TicketsPage: IPageWithHeaderAction = () => {
                 first: current * pageSize,
             }).then(() => {
                 const query = qs.stringify(
-                    { 
-                        ...router.query, 
-                        sort, 
-                        offset, 
+                    {
+                        ...router.query,
+                        sort,
+                        offset,
                         filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })),
                     },
                     { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
@@ -145,6 +147,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
     }, 400), [loading])
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
+    const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
 
     return (
         <>
@@ -170,10 +173,18 @@ const TicketsPage: IPageWithHeaderAction = () => {
                                             value={search}
                                         />
                                     </Col>
+                                    <Col span={1}></Col>
+                                    <Col span={4}>
+                                        <Checkbox
+                                            onChange={handleEmergencyChange}
+                                            checked={emergency}
+                                            style={{ paddingLeft: '0px', fontSize: '16px' }}
+                                        >{EmergencyLabel}</Checkbox>
+                                    </Col>
                                     <Col span={6} push={1}>
-                                        <Button 
-                                            type={'inlineLink'} 
-                                            icon={<DatabaseFilled />} 
+                                        <Button
+                                            type={'inlineLink'}
+                                            icon={<DatabaseFilled />}
                                             loading={isXlsLoading}
                                             onClick={
                                                 () => loadXlsTickets({ variables: { sortBy: sortBy, where: where } })
@@ -183,6 +194,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
                                     <Col span={24}>
                                         <Table
                                             bordered
+                                            className='ticket-table'
                                             tableLayout={'fixed'}
                                             loading={loading}
                                             dataSource={tickets}
@@ -192,7 +204,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
                                             rowKey={record => record.id}
                                             pagination={{
                                                 showSizeChanger: false,
-                                                total,                                                
+                                                total,
                                                 current: offsetFromQuery,
                                                 pageSize: pagesizeFromQuey,
                                                 position: ['bottomLeft'],
