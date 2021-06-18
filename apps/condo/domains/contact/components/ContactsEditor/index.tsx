@@ -110,7 +110,7 @@ export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs)
     const createContact = async (organization, property, unitName) => {
         if (shouldCreateContactRef.current) {
             try {
-                await createContactAction({
+                return await createContactAction({
                     ...contactFieldsRef.current,
                     organization,
                     property,
