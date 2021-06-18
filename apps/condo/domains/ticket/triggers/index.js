@@ -1,3 +1,3 @@
-const { ticketCreateTrigger } = require('./ticketCreateTrigger')
+const { setInitialStatusTrigger } = require('./setInitialStatusTrigger')
 
-module.exports = { ticketCreateTrigger }
+module.exports = { setInitialStatusTrigger }

@@ -1,68 +1,91 @@
 /*
-*
-* Register triggers,
-* manage triggers,
-* execute triggers.
+* Triggers manager.
+* - add triggers
+* - drop triggers
+* - execute triggers validation triggers conditions using *json-rules-engine* and similar rules language
 *
 * */
 
+const Q = require('q')
 const { Engine, Rule } = require('json-rules-engine')
+const get = require('lodash/get')
 
 class TriggersManager {
-    registerTrigger (trigger) {
-        const { rule: ruleDefs, action } = trigger
-        if (this.triggers.has(ruleDefs.name)) {
-            throw new Error(`Trigger ${ruleDefs.name} is already registered`)
+    constructor (triggersMap) {
+        this.engine = new Engine()
+        this.triggers = triggersMap || new Map()
+    }
+
+    addTrigger (trigger) {
+        const { rule, action } = trigger
+        const triggerName = get(rule, ['event', 'type'])
+
+        if (!triggerName) {
+            throw new Error('Trigger event type was not provided')
         }
 
-        const rule = new Rule(ruleDefs)
+        if (this.triggers.has(triggerName)) {
+            throw new Error(`Trigger ${triggerName} is already registered`)
+        }
 
-        this.triggers.set(ruleDefs.name, { rule, action })
-        this.engine.addRule(rule)
+        const engineRule = new Rule(rule)
+
+        this.triggers.set(triggerName, { rule: engineRule, action })
+        this.engine.addRule(engineRule)
     }
 
     dropTrigger (trigger) {
-        const { name, rule } = trigger
+        const { rule } = trigger
+        const triggerName = get(rule, ['event', 'type'])
 
-        if (!this.triggers.has(name)) {
-            throw new Error(`There is no Trigger with name: ${name} found, unable to drop`)
+        if (!this.triggers.has(triggerName)) {
+            throw new Error(`There is no Trigger with name: ${triggerName} found, unable to drop`)
         }
 
-        this.triggers.delete(name)
+        this.triggers.delete(triggerName)
         this.engine.removeRule(rule)
     }
 
-    executeTrigger (data, context) {
-        if (this.triggers.size === 0) {
-            throw new Error('No triggers registered')
-        }
+    flushTriggers () {
+        this.triggers.forEach(( triggerName, { rule }) => {
+            this.engine.removeRule(rule)
+        })
 
-        return this.engine.run(data)
-            .then(({ events }) => {
-                const actions = events.map((event) => {
-                    const trigger = this.triggers.get(event.params.name)
-
-                    if (!trigger) {
-                        throw new Error(`Trigger with name ${event.params.name} is not found`)
-                    }
-
-                    const { action } = trigger
-
-                    if (!action) {
-                        throw new Error(`Trigger action from ${event.params.name} is not found`)
-                    }
-
-                    return action(data, context)
-                })
-
-                if (actions.length) {
-                    return Promise.all(actions)
-                }
-            })
+        this.triggers.clear()
     }
 
-    triggers = new Map()
-    engine = new Engine()
+    executeTrigger (data, context) {
+        if (this.triggers.size > 0) {
+            return this.engine.run(data)
+                .then(({ events }) => {
+                    const actions = events.map((event) => {
+                        const trigger = this.triggers.get(event.type)
+
+                        if (!trigger) {
+                            throw new Error(`Trigger with name ${event.params.name} is not found`)
+                        }
+
+                        const { action } = trigger
+
+                        if (!action) {
+                            throw new Error(`Trigger action from ${event.params.name} is not found`)
+                        }
+
+                        return action(data, context)
+                    })
+
+                    if (actions.length) {
+                        // return chained version of triggers action using q:
+                        return actions.reduce(Q.when, Q())
+                    }
+
+                    return Promise.resolve()
+                })
+        }
+
+        return Promise.resolve()
+
+    }
 }
 
 const triggersManager = new TriggersManager()
@@ -72,12 +95,14 @@ const registerTriggers = (modulesList) => {
     modulesList.forEach(
         (module) => {
             Object.values(module).forEach((trigger) => {
-                triggersManager.registerTrigger(trigger)
+
+                triggersManager.addTrigger(trigger)
             })
         })
 }
 
 module.exports = {
+    TriggersManager,
     triggersManager,
     registerTriggers,
 }
