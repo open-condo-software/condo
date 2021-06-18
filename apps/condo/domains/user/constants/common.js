@@ -4,14 +4,10 @@ const SMS_CODE_LENGTH = 6
 const SMS_CODE_TTL = 60 // seconds
 const CONFIRM_PHONE_ACTION_EXPIRY = 3600 // 1 hour
 const CONFIRM_PHONE_SMS_MAX_RETRIES = 10
-
 const SAFE_CAPTCHA_SCORE = 0.5
 const TROW_ERRORS_ON_LOW_CAPTCHA_SCORE = false
-
 const MAX_SMS_FOR_IP_BY_DAY = 100
 const MAX_SMS_FOR_PHONE_BY_DAY = 20
-
-
 
 module.exports = {
     MIN_PASSWORD_LENGTH,

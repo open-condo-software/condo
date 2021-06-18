@@ -25,10 +25,8 @@ const {
     SMS_FOR_PHONE_DAY_LIMIT_REACHED,
     TOO_MANY_REQUESTS,
 } = require('@condo/domains/user/constants/errors')
-
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
-
 const { 
     SMS_CODE_LENGTH, 
     SMS_CODE_TTL, 
@@ -53,14 +51,12 @@ const checkDayLimitCounters = async (phone, rawIp) => {
         throw new Error(`${SMS_FOR_IP_DAY_LIMIT_REACHED}] too many sms requests from this ip address. Try again tomorrow`)
     }
 }
-
 const checkLock = async (phone, action) => {
     const isLocked = await redisGuard.isLocked(phone, action)
     if (isLocked) {
         throw new Error(`${TOO_MANY_REQUESTS}] resend timeout not expired`)
     }
 }
-
 
 const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
     schemaDoc: 'User confirm phone actions is used before registration starts',

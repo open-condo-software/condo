@@ -27,7 +27,7 @@ async function checkSendMessageMeta (type, meta) {
 }
 
 const SendMessageService = new GQLCustomSchema('SendMessageService', {
-    types: [ 
+    types: [
         {
             access: true,
             type: `enum SendMessageLang { ${Object.keys(LOCALES).join(' ')} }`,
