@@ -83,22 +83,19 @@ const Register = ({ children }): React.ReactElement => {
             onError: error => {
                 setTokenError(error)
             },
-            onCompleted: ({ phone }) => {
+            onCompleted: ({ result: { phone } }) => {
                 setPhone(phone)
             },
         })
-
     useEffect(() => {
         if (!isEmpty(confirmPhoneActionToken)) {
             handleReCaptchaVerify('get_confirm_phone_token_info').then(captcha => {
-                loadPhoneByToken({ variables: { token: confirmPhoneActionToken, captcha } })
-            })
-            
+                loadPhoneByToken({ variables: { data: { token: confirmPhoneActionToken, captcha } } })
+            })            
         } else {
             setPhone('')
         }
     }, [loadPhoneByToken, confirmPhoneActionToken, handleReCaptchaVerify])
-
     return (
         <RegisterContext.Provider
             value={{
@@ -159,7 +156,7 @@ const RegisterSteps = (): React.ReactElement => {
     return (
         <>
             <Typography.Title style={{ textAlign: 'left' }}>{RegistrationTitleMsg}</Typography.Title>
-            {steps[state]}
+            { steps[state] }
         </>
     )
 }
@@ -173,7 +170,6 @@ const RegisterPage: AuthPage = () => {
         </Register>
     )
 }
-
 
 interface IInputPhoneFormProps {
     onFinish: () => void
@@ -203,13 +199,13 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
         const phone = normalizePhone(inputPhone)
         setPhone(phone)
         const captcha = await handleReCaptchaVerify('start_confirm_phone')
-        const variables = { ...registerExtraData, phone, captcha }
+        const variables = { data: { ...registerExtraData, phone, captcha } }
         setIsLoading(true)
         return runMutation({
             mutation: startPhoneVerify,
             variables,
             onCompleted: (data) => {
-                const { data: { token } } = data
+                const { data: { result: { token } } } = data
                 setconfirmPhoneActionToken(token)
                 Router.push(`/auth/register?token=${token}`)
                 onFinish()
@@ -341,7 +337,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
     const resendSms = async () => {
         const sender = getClientSideSenderInfo()
         const captcha = await handleReCaptchaVerify('resend_sms')
-        const variables = { token: confirmPhoneActionToken, sender, captcha }
+        const variables = { data: { token: confirmPhoneActionToken, sender, captcha } }
         return runMutation({
             mutation: resendSmsMutation,
             variables,
@@ -359,7 +355,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
             throw new Error(SMSBadFormat)
         }
         const captcha = await handleReCaptchaVerify('complete_verify_phone')
-        const variables = { token: confirmPhoneActionToken, smsCode, captcha }
+        const variables = { data: { token: confirmPhoneActionToken, smsCode, captcha } }
         return runMutation({
             mutation: completeConfirmPhoneMutation,
             variables,
@@ -627,7 +623,6 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
     )
 }
 
-
 const HeaderAction = (): React.ReactElement => {
     const intl = useIntl()
     const AllreadyRegisteredTitle = intl.formatMessage({ id: 'pages.auth.AlreadyRegistered' })
@@ -646,7 +641,6 @@ const HeaderAction = (): React.ReactElement => {
 }
 
 RegisterPage.headerAction = <HeaderAction />
-
 RegisterPage.container = AuthLayout
 
 export default RegisterPage
