@@ -4645,6 +4645,13 @@ export type ContactHistoryRecordsUpdateInput = {
   data?: Maybe<ContactHistoryRecordUpdateInput>;
 };
 
+export type ContactRelateToOneInput = {
+  create?: Maybe<ContactCreateInput>;
+  connect?: Maybe<ContactWhereUniqueInput>;
+  disconnect?: Maybe<ContactWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
 export type ContactUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
@@ -12604,6 +12611,14 @@ export enum SortTicketChangesBy {
   ClientDisplayNameFromDesc = 'clientDisplayNameFrom_DESC',
   ClientDisplayNameToAsc = 'clientDisplayNameTo_ASC',
   ClientDisplayNameToDesc = 'clientDisplayNameTo_DESC',
+  ContactIdFromAsc = 'contactIdFrom_ASC',
+  ContactIdFromDesc = 'contactIdFrom_DESC',
+  ContactIdToAsc = 'contactIdTo_ASC',
+  ContactIdToDesc = 'contactIdTo_DESC',
+  ContactDisplayNameFromAsc = 'contactDisplayNameFrom_ASC',
+  ContactDisplayNameFromDesc = 'contactDisplayNameFrom_DESC',
+  ContactDisplayNameToAsc = 'contactDisplayNameTo_ASC',
+  ContactDisplayNameToDesc = 'contactDisplayNameTo_DESC',
   OperatorIdFromAsc = 'operatorIdFrom_ASC',
   OperatorIdFromDesc = 'operatorIdFrom_DESC',
   OperatorIdToAsc = 'operatorIdTo_ASC',
@@ -12918,6 +12933,8 @@ export enum SortTicketsBy {
   NumberDesc = 'number_DESC',
   ClientAsc = 'client_ASC',
   ClientDesc = 'client_DESC',
+  ContactAsc = 'contact_ASC',
+  ContactDesc = 'contact_DESC',
   ClientNameAsc = 'clientName_ASC',
   ClientNameDesc = 'clientName_DESC',
   ClientEmailAsc = 'clientEmail_ASC',
@@ -13085,6 +13102,8 @@ export type Ticket = {
   number?: Maybe<Scalars['Int']>;
   /**  Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client  */
   client?: Maybe<User>;
+  /**  Contact, that reported issue, described in this ticket  */
+  contact?: Maybe<Contact>;
   /**  Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it  */
   clientName?: Maybe<Scalars['String']>;
   /**  Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it  */
@@ -13253,6 +13272,14 @@ export type TicketChange = {
   clientDisplayNameFrom?: Maybe<Scalars['String']>;
   /**  New display name of related entity. Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client  */
   clientDisplayNameTo?: Maybe<Scalars['String']>;
+  /**  Old id of related entity. Contact, that reported issue, described in this ticket  */
+  contactIdFrom?: Maybe<Scalars['ID']>;
+  /**  New id of related entity. Contact, that reported issue, described in this ticket  */
+  contactIdTo?: Maybe<Scalars['ID']>;
+  /**  Old display name of related entity. Contact, that reported issue, described in this ticket  */
+  contactDisplayNameFrom?: Maybe<Scalars['String']>;
+  /**  New display name of related entity. Contact, that reported issue, described in this ticket  */
+  contactDisplayNameTo?: Maybe<Scalars['String']>;
   /**  Old id of related entity. Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him  */
   operatorIdFrom?: Maybe<Scalars['ID']>;
   /**  New id of related entity. Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him  */
@@ -13369,6 +13396,10 @@ export type TicketChangeCreateInput = {
   clientIdTo?: Maybe<Scalars['ID']>;
   clientDisplayNameFrom?: Maybe<Scalars['String']>;
   clientDisplayNameTo?: Maybe<Scalars['String']>;
+  contactIdFrom?: Maybe<Scalars['ID']>;
+  contactIdTo?: Maybe<Scalars['ID']>;
+  contactDisplayNameFrom?: Maybe<Scalars['String']>;
+  contactDisplayNameTo?: Maybe<Scalars['String']>;
   operatorIdFrom?: Maybe<Scalars['ID']>;
   operatorIdTo?: Maybe<Scalars['ID']>;
   operatorDisplayNameFrom?: Maybe<Scalars['String']>;
@@ -13452,6 +13483,10 @@ export type TicketChangeUpdateInput = {
   clientIdTo?: Maybe<Scalars['ID']>;
   clientDisplayNameFrom?: Maybe<Scalars['String']>;
   clientDisplayNameTo?: Maybe<Scalars['String']>;
+  contactIdFrom?: Maybe<Scalars['ID']>;
+  contactIdTo?: Maybe<Scalars['ID']>;
+  contactDisplayNameFrom?: Maybe<Scalars['String']>;
+  contactDisplayNameTo?: Maybe<Scalars['String']>;
   operatorIdFrom?: Maybe<Scalars['ID']>;
   operatorIdTo?: Maybe<Scalars['ID']>;
   operatorDisplayNameFrom?: Maybe<Scalars['String']>;
@@ -13984,6 +14019,50 @@ export type TicketChangeWhereInput = {
   clientDisplayNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
   clientDisplayNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   clientDisplayNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contactIdFrom?: Maybe<Scalars['ID']>;
+  contactIdFrom_not?: Maybe<Scalars['ID']>;
+  contactIdFrom_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  contactIdFrom_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  contactIdTo?: Maybe<Scalars['ID']>;
+  contactIdTo_not?: Maybe<Scalars['ID']>;
+  contactIdTo_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  contactIdTo_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  contactDisplayNameFrom?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_not?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_contains?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_not_contains?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_starts_with?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_not_starts_with?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_ends_with?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_not_ends_with?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_i?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_not_i?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_contains_i?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_not_contains_i?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_starts_with_i?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_not_starts_with_i?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_ends_with_i?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_not_ends_with_i?: Maybe<Scalars['String']>;
+  contactDisplayNameFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contactDisplayNameFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contactDisplayNameTo?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_not?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_contains?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_not_contains?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_starts_with?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_not_starts_with?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_ends_with?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_not_ends_with?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_i?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_not_i?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_contains_i?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_not_contains_i?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_starts_with_i?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_not_starts_with_i?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_ends_with_i?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
+  contactDisplayNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contactDisplayNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   operatorIdFrom?: Maybe<Scalars['ID']>;
   operatorIdFrom_not?: Maybe<Scalars['ID']>;
   operatorIdFrom_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -14729,6 +14808,7 @@ export type TicketCreateInput = {
   status?: Maybe<TicketStatusRelateToOneInput>;
   number?: Maybe<Scalars['Int']>;
   client?: Maybe<UserRelateToOneInput>;
+  contact?: Maybe<ContactRelateToOneInput>;
   clientName?: Maybe<Scalars['String']>;
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
@@ -15097,6 +15177,7 @@ export type TicketHistoryRecord = {
   status?: Maybe<Scalars['String']>;
   number?: Maybe<Scalars['JSON']>;
   client?: Maybe<Scalars['String']>;
+  contact?: Maybe<Scalars['String']>;
   clientName?: Maybe<Scalars['String']>;
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
@@ -15138,6 +15219,7 @@ export type TicketHistoryRecordCreateInput = {
   status?: Maybe<Scalars['String']>;
   number?: Maybe<Scalars['JSON']>;
   client?: Maybe<Scalars['String']>;
+  contact?: Maybe<Scalars['String']>;
   clientName?: Maybe<Scalars['String']>;
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
@@ -15184,6 +15266,7 @@ export type TicketHistoryRecordUpdateInput = {
   status?: Maybe<Scalars['String']>;
   number?: Maybe<Scalars['JSON']>;
   client?: Maybe<Scalars['String']>;
+  contact?: Maybe<Scalars['String']>;
   clientName?: Maybe<Scalars['String']>;
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
@@ -15279,6 +15362,10 @@ export type TicketHistoryRecordWhereInput = {
   client_not?: Maybe<Scalars['String']>;
   client_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   client_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contact?: Maybe<Scalars['String']>;
+  contact_not?: Maybe<Scalars['String']>;
+  contact_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contact_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   clientName?: Maybe<Scalars['String']>;
   clientName_not?: Maybe<Scalars['String']>;
   clientName_contains?: Maybe<Scalars['String']>;
@@ -16319,6 +16406,7 @@ export type TicketUpdateInput = {
   status?: Maybe<TicketStatusRelateToOneInput>;
   number?: Maybe<Scalars['Int']>;
   client?: Maybe<UserRelateToOneInput>;
+  contact?: Maybe<ContactRelateToOneInput>;
   clientName?: Maybe<Scalars['String']>;
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
@@ -16410,6 +16498,8 @@ export type TicketWhereInput = {
   number_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   client?: Maybe<UserWhereInput>;
   client_is_null?: Maybe<Scalars['Boolean']>;
+  contact?: Maybe<ContactWhereInput>;
+  contact_is_null?: Maybe<Scalars['Boolean']>;
   clientName?: Maybe<Scalars['String']>;
   clientName_not?: Maybe<Scalars['String']>;
   clientName_contains?: Maybe<Scalars['String']>;
