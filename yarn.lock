@@ -4746,6 +4746,11 @@
     "@zeit/next-css" "1.0.1"
     less-loader "4.1.0"
 
+Q@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/Q/-/Q-1.0.0.tgz#c857afc928c9bea146202dd5c37fa1b1b63d9e28"
+  integrity sha512-Mhs82rUB2yT2gTvioha4UlG/TRvaFL+tboSqXKT7leimAbEfdqMdrvFdtZyhmCCkpzqz+JqehSGWgLSXbZ8qAg==
+
 a-sync-waterfall@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/a-sync-waterfall/-/a-sync-waterfall-1.0.1.tgz#75b6b6aa72598b497a125e7a2770f14f4c8a1fa7"
