@@ -9,7 +9,7 @@ import { green, grey } from '@ant-design/colors'
 import { OptionProps } from 'antd/lib/mentions'
 import { useIntl } from '@core/next/intl'
 import { PlusCircleFilled } from '@ant-design/icons'
-import { find, get } from 'lodash'
+import { find, get, pick } from 'lodash'
 import { useTicketValidations } from '../../../ticket/components/BaseTicketForm/useTicketValidations'
 import styled from '@emotion/styled'
 
@@ -371,7 +371,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
     )
 
     const handleSelectContact = (value: string, option: OptionProps) => {
-        setValue(option.data)
+        setValueAndTriggerOnChange(option.data)
     }
 
     const handleChangeContact = (field) => (fieldValue) => {
@@ -379,24 +379,27 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
             ...value,
             [field]: fieldValue,
         }
-        setValue(newValue)
-        onChange(newValue)
+        setValueAndTriggerOnChange(newValue)
     }
 
-    const renderOption = useCallback(
-        (field) => (item) => {
-            return (
-                <Select.Option
-                    style={{textAlign: 'left', color: grey[6]}}
-                    key={item.id}
-                    value={item[field]}
-                    title={item[field]}
-                    data={item}
-                >
-                    {item[field]}
-                </Select.Option>
-            )
-        }, [])
+    const setValueAndTriggerOnChange = (contact) => {
+        setValue(contact)
+        onChange(contact)
+    }
+
+    const renderOption = (field) => (item) => {
+        return (
+            <Select.Option
+                style={{textAlign: 'left', color: grey[6]}}
+                key={item.id}
+                value={item[field]}
+                title={item[field]}
+                data={pick(item, ['name', 'phone'])}
+            >
+                {item[field]}
+            </Select.Option>
+        )
+    }
 
     const handleClearContact = () => {
         setValue(null)
