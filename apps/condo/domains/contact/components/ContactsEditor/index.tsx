@@ -9,7 +9,7 @@ import { green, grey } from '@ant-design/colors'
 import { OptionProps } from 'antd/lib/mentions'
 import { useIntl } from '@core/next/intl'
 import { PlusCircleFilled } from '@ant-design/icons'
-import { find, get, pick } from 'lodash'
+import { find, get, pick, has } from 'lodash'
 import { useTicketValidations } from '../../../ticket/components/BaseTicketForm/useTicketValidations'
 import styled from '@emotion/styled'
 
@@ -207,14 +207,15 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const handleSelectContact = (contact) => {
         setSelectedContact(contact)
         setEditableFieldsChecked(false)
-        triggerOnChange(contact, false)
+        triggerOnChange(contact)
     }
 
     const handleChangeContact = (contact) => {
-        const isPresentedInFetched = contacts && contact.name && contact.phone && find(contacts, contact)
-        const differsFromInitial = !initialValue || contact.name !== initialValue.name || contact.phone !== initialValue.phone
-        const isNew = differsFromInitial && !isPresentedInFetched
-        triggerOnChange(contact, isNew)
+        // User can manually type phone and name, that will match already existing contact,
+        // so, it should be connected with ticket
+        const contactFromFetched = find(contacts, { ...contact, unitName })
+        const contactToSet = contactFromFetched || contact
+        triggerOnChange(contactToSet)
         setManuallyTypedContact(contact)
         setEditableFieldsChecked(true)
         setSelectedContact(null)
@@ -225,13 +226,14 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         setEditableFieldsChecked(true)
     }
 
-    const triggerOnChange = (contact: ContactValue, isNew: boolean) => {
+    const triggerOnChange = (contact: ContactValue) => {
         form.setFieldsValue({
             [fields.id]: contact.id,
             [fields.name]: contact.name,
             [fields.phone]: contact.phone,
         })
         setValue(contact)
+        const isNew = !has(contact, 'id')
         onChange && onChange(contact, isNew)
     }
 
