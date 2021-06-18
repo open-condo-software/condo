@@ -23,6 +23,7 @@ const {
     CAPTCHA_CHECK_FAILED,
     SMS_FOR_IP_DAY_LIMIT_REACHED,
     SMS_FOR_PHONE_DAY_LIMIT_REACHED,
+    TOO_MANY_REQUESTS,
 } = require('@condo/domains/user/constants/errors')
 
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
@@ -52,6 +53,13 @@ const checkDayLimitCounters = (phone, ip) => {
     }
 }
 
+const checkLock = (phone) => {
+    const isLocked = redisGuard.isLocked(phone)
+    if (isLocked) {
+        throw new Error(`${TOO_MANY_REQUESTS}] resend timeout not expired`)
+    }
+}
+
 
 const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
     schemaDoc: 'User confirm phone actions is used before registration starts',
@@ -61,14 +69,12 @@ const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
         phone: {
             schemaDoc: 'Phone. In international E.164 format without spaces',
             type: Text,
-            kmigratorOptions: { null: true, unique: false },
+            kmigratorOptions: { null: false, unique: false },
+            isRequired: true,
             hooks: {
                 resolveInput: ({ resolvedData }) => {
                     if (resolvedData['phone']) {
                         const normalizedPhone = normalizePhone(resolvedData['phone'])
-                        if (!normalizedPhone){
-                            throw new Error('[error]: no phone number provided')
-                        }
                         return normalizedPhone
                     }
                 },
@@ -133,10 +139,44 @@ const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
 })
 
 const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService', {
+    types: [ 
+        {
+            access: true,
+            type: 'input GetPhoneByConfirmPhoneActionTokenInput { token: String!, captcha: String! }',
+        },
+        {
+            access: true,
+            type: 'type GetPhoneByConfirmPhoneActionTokenOutput { phone: String! }',
+        },
+        { 
+            access: true,
+            type: 'input StartConfirmPhoneActionInput { phone: String!, dv:Int!, sender: JSON!, captcha: String! }',
+        },
+        {
+            access: true,
+            type: 'type StartConfirmPhoneActionOutput { token: String! }',
+        },    
+        { 
+            access: true,
+            type: 'input ConfirmPhoneActionResendSmsInput { token: String!, sender: JSON!, captcha: String! }',
+        },
+        {
+            access: true,
+            type: 'type ConfirmPhoneActionResendSmsOutput { status: String! }',
+        },   
+        { 
+            access: true,
+            type: 'input CompleteConfirmPhoneActionInput { token: String!, smsCode: Int!, captcha: String! }',
+        },
+        {
+            access: true,
+            type: 'type CompleteConfirmPhoneActionOutput { status: String! }',
+        },                   
+    ],    
     queries: [ 
         { 
             access: true,
-            schema: 'getPhoneByConfirmPhoneActionToken(token: String!, captcha: String!): String',
+            schema: 'getPhoneByConfirmPhoneActionToken(data: GetPhoneByConfirmPhoneActionTokenInput!): GetPhoneByConfirmPhoneActionTokenOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { token, captcha } = args
                 const { error } = await captchaCheck(captcha, 'get_confirm_phone_token_info')
@@ -160,7 +200,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
     mutations: [
         {
             access: true,
-            schema: 'startConfirmPhoneAction(phone: String!, dv:Int!, sender: JSON!, captcha: String!): String',
+            schema: 'startConfirmPhoneAction(data: StartConfirmPhoneActionInput!): StartConfirmPhoneActionOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { phone: inputPhone, sender, dv, captcha } = args
                 const { error } = await captchaCheck(captcha, 'start_confirm_phone')
@@ -172,6 +212,8 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new Error('[error]: no phone number provided')
                 }
                 checkDayLimitCounters(phone, context.req.ip)
+                checkLock(phone)
+                redisGuard.lock(phone, SMS_CODE_TTL)
                 const token = uuid()
                 const now = extra.extraNow || Date.now()
                 const requestedAt = new Date(now).toISOString()
@@ -207,7 +249,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         },
         {
             access: true,
-            schema: 'confirmPhoneActionResendSms(token: String!, sender: JSON!, captcha: String!): String',
+            schema: 'confirmPhoneActionResendSms(data: ConfirmPhoneActionResendSmsInput!): ConfirmPhoneActionResendSmsOutput',
             resolver: async (parent, args, context, info, extra) => {
                 const { token, sender, captcha } = args
                 const { error } = await captchaCheck(captcha, 'resend_sms')
@@ -224,10 +266,9 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new Error('[error]: Unable to find confirm phone action by token')
                 }
                 const { id, phone } = actions[0]
-                const byPhoneCounter = redisGuard.incrementDayCounter(phone)
-                if (byPhoneCounter > MAX_SMS_FOR_PHONE_BY_DAY && !phoneWhiteList.includes(phone)) {
-                    throw new Error(`${SMS_FOR_PHONE_DAY_LIMIT_REACHED}] too many sms requests for this phone number. Try again tomorrow `)
-                }
+                checkDayLimitCounters(phone, context.req.ip)
+                checkLock(phone)
+                redisGuard.lock(phone, SMS_CODE_TTL)
                 const newSmsCode = generateSmsCode(phone)
                 await ConfirmPhoneActionGQL.update(context.createContext({ skipAccessControl: true }), id, { 
                     smsCode: newSmsCode,
@@ -245,12 +286,12 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     },
                     sender: sender,
                 })
-                return 'ok'
+                return { status: 'ok' }
             },
         },
         {
             access: true,
-            schema: 'completeConfirmPhoneAction(token: String!, smsCode: Int!, captcha: String!): String',
+            schema: 'completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput',
             resolver: async (parent, args, context, info, extra) => {
                 const { token, smsCode, captcha } = args
                 const { error } = await captchaCheck(captcha, 'complete_verify_phone')
@@ -286,7 +327,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 await ConfirmPhoneActionGQL.update(context.createContext({ skipAccessControl: true }), id, { 
                     isPhoneVerified: true,
                 })
-                return 'ok'
+                return { status: 'ok' }
             },
         },
     ],
