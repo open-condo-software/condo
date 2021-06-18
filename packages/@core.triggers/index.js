@@ -25,7 +25,7 @@ class TriggersManager {
         }
 
         if (this.triggers.has(triggerName)) {
-            throw new Error(`Trigger ${triggerName} is already registered`)
+            throw new Error(`Trigger ${triggerName} is already registered. Rule event type should be unique`)
         }
 
         const engineRule = new Rule(rule)
@@ -95,7 +95,6 @@ const registerTriggers = (modulesList) => {
     modulesList.forEach(
         (module) => {
             Object.values(module).forEach((trigger) => {
-
                 triggersManager.addTrigger(trigger)
             })
         })
