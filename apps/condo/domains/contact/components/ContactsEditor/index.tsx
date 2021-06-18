@@ -363,9 +363,12 @@ interface IContactSyncedAutocompleteFieldsProps {
 const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({ initialValue, onChange, onChecked, checked, contacts }) => {
     const [value, setValue] = useState(initialValue)
 
-    const searchContactByPhone = useCallback(async (query) => {
-        return contacts.filter(c => c.phone.match(escapeRegex(query)))
-    }, [])
+    const searchContactBy = useCallback(
+        (field) => async (query) => {
+            return contacts.filter(c => c[field].match(escapeRegex(query)))
+        },
+        []
+    )
 
     const handleSelectContact = (value: string, option: OptionProps) => {
         setValue(option.data)
@@ -380,45 +383,22 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
         onChange(newValue)
     }
 
-    const renderContactPhoneOption = useCallback(
-        (item) => {
+    const renderOption = useCallback(
+        (field) => (item) => {
             return (
                 <Select.Option
-                    style={{ textAlign: 'left', color: grey[6] }}
+                    style={{textAlign: 'left', color: grey[6]}}
                     key={item.id}
-                    value={item.phone}
-                    title={item.phone}
+                    value={item[field]}
+                    title={item[field]}
                     data={item}
                 >
-                    {item.phone}
+                    {item[field]}
                 </Select.Option>
             )
         }, [])
 
-    const handleClearContactByPhone = () => {
-        setValue(null)
-    }
-
-    const searchContactByName = useCallback(async (query) => {
-        return contacts.filter(c => c.name.match(escapeRegex(query)))
-    }, [])
-
-    const renderContactNameOption = useCallback(
-        (item) => {
-            return (
-                <Select.Option
-                    style={{ textAlign: 'left', color: grey[6] }}
-                    key={item.id}
-                    value={item.name}
-                    title={item.name}
-                    data={item}
-                >
-                    {item.name}
-                </Select.Option>
-            )
-        }, [])
-
-    const handleClearContactByName = () => {
+    const handleClearContact = () => {
         setValue(null)
     }
 
@@ -430,25 +410,25 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
         <>
             <Col span={10}>
                 <BaseSearchInput
-                    value={value ? value.phone : undefined}
+                    value={get(value, 'phone')}
                     loadOptionsOnFocus={false}
-                    search={searchContactByPhone}
-                    renderOption={renderContactPhoneOption}
+                    search={searchContactBy('phone')}
+                    renderOption={renderOption('phone')}
                     onSelect={handleSelectContact}
                     onChange={handleChangeContact('phone')}
-                    onClear={handleClearContactByPhone}
+                    onClear={handleClearContact}
                     style={{ width: '100%' }}
                 />
             </Col>
             <Col span={10}>
                 <BaseSearchInput
-                    value={value ? value.name : undefined}
+                    value={get(value, 'name')}
                     loadOptionsOnFocus={false}
-                    search={searchContactByName}
-                    renderOption={renderContactNameOption}
+                    search={searchContactBy('name')}
+                    renderOption={renderOption('name')}
                     onSelect={handleSelectContact}
                     onChange={handleChangeContact('name')}
-                    onClear={handleClearContactByName}
+                    onClear={handleClearContact}
                     style={{ width: '100%' }}
                 />
             </Col>
