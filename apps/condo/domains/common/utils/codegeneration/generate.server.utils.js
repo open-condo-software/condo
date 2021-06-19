@@ -1,5 +1,9 @@
 const { pickBy } = require('lodash')
 
+const conf = require('@core/config')
+
+const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
+
 const isNotUndefined = (x) => typeof x !== 'undefined'
 
 async function execGqlWithoutAccess (context, { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj' }) {
@@ -16,9 +20,9 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
 
     if (errors) {
         if (errors.some(e => e.originalError && e.originalError.data)) {
-            console.warn(errors.map((err) => (err.originalError && err.originalError.data)))
+            if (IS_DEBUG) console.warn(errors.map((err) => (err.originalError && err.originalError.data)))
         }
-        console.error(errors)
+        if (IS_DEBUG) console.error(errors)
         const error = new Error(errorMessage)
         error.errors = errors
         throw error
