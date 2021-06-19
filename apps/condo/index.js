@@ -13,6 +13,8 @@ const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const express = require('express')
 
+const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
@@ -113,6 +115,7 @@ module.exports = {
     apps: [
         new GraphQLApp({
             apollo: {
+                formatError,
                 debug: IS_ENABLE_APOLLO_DEBUG,
                 introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                 playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
