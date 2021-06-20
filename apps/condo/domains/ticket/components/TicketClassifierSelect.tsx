@@ -80,8 +80,8 @@ const useTicketClassifierSelectHook = ({
                     showAction={showAction}
                 >
                     {
-                        classifiers.map(place => (
-                            <Select.Option value={place.id} key={place.id} title={place.name}>{place.name}</Select.Option>
+                        classifiers.map(location => (
+                            <Select.Option value={location.id} key={location.id} title={location.name}>{location.name}</Select.Option>
                         ))
                     }
                 </Select>
@@ -107,7 +107,7 @@ interface ITicketClassifierSelect {
 export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props) => {
     const { onSelect, disabled, initialValue } = props
     const intl = useIntl()
-    const PlacesLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlacesLabel' })
+    const LocationsLabel = intl.formatMessage({ id: 'component.ticketclassifier.LocationsLabel' })
     const CategoriesLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoriesLabel' })
     const SubjectsLabel = intl.formatMessage({ id: 'component.ticketclassifier.SubjectsLabel' })
     const client = useApolloClient()
@@ -138,7 +138,7 @@ export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props)
         setSelected: setCategory,
         ref: categoryRef,
     } = useTicketClassifierSelectHook({ label: CategoriesLabel, onChange: onCategoryChange })
-    const onPlaceChange = (id) => {
+    const onLocationChange = (id) => {
         resetSubjects()
         resetCategories()
         if (id) {
@@ -149,22 +149,22 @@ export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props)
     }
 
     const {
-        load: loadPlaces,
-        SelectComponent: PlaceSelect,
-        setSelected: setPlace,
-    } = useTicketClassifierSelectHook({ label: PlacesLabel, allowClear: false, showAction: ['click'], onChange: onPlaceChange })
+        load: loadLocations,
+        SelectComponent: LocationSelect,
+        setSelected: setLocation,
+    } = useTicketClassifierSelectHook({ label: LocationsLabel, allowClear: false, showAction: ['click'], onChange: onLocationChange })
 
     useEffect(() => {
-        loadPlaces({ parent_is_null: true })
+        loadLocations({ parent_is_null: true })
         if (initialValue){
             loadClassifiers(client, { id: initialValue }).then(data => {
                 const [loadedClassifier] = data
-                const { id: subject, parent: { id: category, parent: { id: place } } } = loadedClassifier
+                const { id: subject, parent: { id: category, parent: { id: location } } } = loadedClassifier
                 Promise.all([
-                    loadCategories({ parent: { id: place } }),
+                    loadCategories({ parent: { id: location } }),
                     loadSubjects({ parent: { id: category } }),
                 ]).then(_ => {
-                    setPlace(place)
+                    setLocation(location)
                     setCategory(category)
                     setSubject(subject)
                 })
@@ -175,7 +175,7 @@ export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props)
 
     return (
         <div style={{ whiteSpace: 'nowrap' }}>
-            <PlaceSelect disabled={disabled} />
+            <LocationSelect disabled={disabled} />
             <CategorySelect disabled={disabled} />
             <SubjectSelect  disabled={disabled} />
         </div>
