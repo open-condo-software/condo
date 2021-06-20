@@ -186,14 +186,14 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                             </TicketClassifierSelect>
                                                                         </Form.Item>
                                                                     </Col>
-                                  
+
                                                                     <Col span={24}>
                                                                         <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
                                                                             <Input.TextArea rows={3} placeholder={DescriptionPlaceholder} disabled={disableUserInteraction} />
                                                                         </Form.Item>
                                                                     </Col>
                                                                 </Row>
-                                                            </Col>                                                            
+                                                            </Col>
                                                             <Col span={24}>
                                                                 <Row align={'top'} >
                                                                     <Col span={12}>
@@ -215,10 +215,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             <Col span={24}>
                                                                 <Row gutter={[0, 24]}>
                                                                     <Col  span={24}>
-                                                                        <Form.Item 
+                                                                        <Form.Item
                                                                             label={AttachedFilesLabel}
-                                                                        >   
-                                                                            <UploadComponent />                                                                                
+                                                                        >
+                                                                            <UploadComponent />
                                                                         </Form.Item>
                                                                     </Col>
                                                                 </Row>
