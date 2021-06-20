@@ -103,7 +103,7 @@
   "component.uploadlist.AddFileLabel": "Add file",
   "component.uploadlist.error.FileTooBig": "File size is too big",
   "component.uploadlist.error.UploadFailedErrorMessage": "Upload to server failed",
-  "component.ticketclassifier.PlacesLabel": "Location *",
+  "component.ticketclassifier.LocationsLabel": "Location *",
   "component.ticketclassifier.CategoriesLabel": "Category *",
   "component.ticketclassifier.SubjectsLabel": "Subject *",
   "Name": "Name",

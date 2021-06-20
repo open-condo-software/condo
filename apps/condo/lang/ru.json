@@ -103,7 +103,7 @@
   "component.uploadlist.AddFileLabel": "Добавить файл",
   "component.uploadlist.error.FileTooBig": "Файл слишком большой",
   "component.uploadlist.error.UploadFailedErrorMessage": "Ошибка загрузки файла на сервер",
-  "component.ticketclassifier.PlacesLabel": "Где проблема *",
+  "component.ticketclassifier.LocationsLabel": "Где проблема *",
   "component.ticketclassifier.CategoriesLabel": "Категория *",
   "component.ticketclassifier.SubjectsLabel": "Суть проблемы *",
   "Name": "Имя",
