@@ -7,18 +7,14 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketClassifier')
+const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 
 const TicketClassifier = new GQLListSchema('TicketClassifier', {
     schemaDoc: 'Ticket typification/classification. We have a organization specific classification. We check the ticket attrs differently depending on the classifier',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
-        organization: {
-            schemaDoc: 'Multi level classification support',
-            type: Relationship,
-            ref: 'Organization',
-            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
-        },
+        organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
         // TODO(zuch): `${item.parent.parent.name} - ${item.parent.name} - ${item.name}`
         fullName: {
             schemaDoc: 'Multi level name',
