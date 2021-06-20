@@ -10,15 +10,23 @@ async function canReadTicketClassifiers ({ authentication: { item: user } }) {
     }
 }
 
+// TODO(pahaz): regenerate it with createschema util
+/*
+const READ_ONLY_ACCESS = {
+    read: true,
+    create: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
+    update: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
+    delete: false,
+    auth: false,
+}
+*/
 async function canManageTicketClassifiers ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
-        // TODO(codegen): write canManageTicketClassifiers create logic!
-        return true
+        return user.isSupport
     } else if (operation === 'update') {
-        // TODO(codegen): write canManageTicketClassifiers update logic!
-        return true
+        return user.isSupport
     }
     return false
 }

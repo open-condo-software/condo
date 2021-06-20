@@ -8,15 +8,6 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketClassifier')
 
-// TODO(pahaz): regenerate it with createschema util
-const READ_ONLY_ACCESS = {
-    read: true,
-    create: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
-    update: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
-    delete: false,
-    auth: false,
-}
-
 const TicketClassifier = new GQLListSchema('TicketClassifier', {
     schemaDoc: 'Ticket typification/classification. We have a organization specific classification. We check the ticket attrs differently depending on the classifier',
     fields: {
@@ -28,6 +19,7 @@ const TicketClassifier = new GQLListSchema('TicketClassifier', {
             ref: 'Organization',
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
+        // TODO(zuch): `${item.parent.parent.name} - ${item.parent.name} - ${item.name}`
         fullName: {
             schemaDoc: 'Multi level name',
             type: Virtual,
@@ -48,11 +40,11 @@ const TicketClassifier = new GQLListSchema('TicketClassifier', {
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
-        read: access.canReadTicketClassifiers,
+        read: true,
         create: access.canManageTicketClassifiers,
         update: access.canManageTicketClassifiers,
         delete: false,
-        auth: true,
+        auth: false,
     },
 })
 
