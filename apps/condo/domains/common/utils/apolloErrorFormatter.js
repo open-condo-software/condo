@@ -67,9 +67,8 @@ const safeFormatError = (error, hideInternals = false) => {
         }
         if (error.extensions) {
             result.extensions = _(error.extensions).toJSON()
-            if (!hideInternals && error.extensions.exception) {
-                result.extensions.exception = safeFormatError(error.extensions.exception, hideInternals)
-            }
+            // we already have more details inside originalError object and don't need this
+            if (result.extensions.exception) delete result.extensions.exception
         }
     }
 
@@ -77,16 +76,23 @@ const safeFormatError = (error, hideInternals = false) => {
         result.originalError = safeFormatError(error.originalError, hideInternals)
     }
 
-    // NOTE(pahaz): Take path from originalError (taken from KeystoneJS). Probably useless?
-    if (error.originalError && error.originalError.path && !result.path) {
-        result.path = error.originalError.path
+    // KeystoneJS hotfixes! Taken from KeystoneJS sources. Probably useless in a future but we already have a tests for that!
+    if (error.originalError) {
+        if (error.originalError.path && !result.path) {
+            result.path = error.originalError.path
+        }
+        if (isKeystoneErrorInstance(error.originalError)) {
+            result.name = result.originalError.name
+            result.data = result.originalError.data
+        }
     }
 
+    // save error uid
     if (error.uid) {
         result.uid = toString(error.uid)
     }
 
-    // nested error!
+    // nested errors support
     if (error.errors) {
         const nestedErrors = toArray(error.errors).map((err) => safeFormatError(err, hideInternals))
         if (nestedErrors.length) result.errors = nestedErrors
