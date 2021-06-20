@@ -20,7 +20,7 @@ const GET_ALL_SOURCES_QUERY = gql`
 
 // TODO(pahaz): add organization relation to existing classifiers
 const GET_ALL_CLASSIFIERS_QUERY = gql`
-    query selectSource ($value: String) {
+    query selectClassifiers ($value: String) {
         objs: allTicketClassifiers(where: {name_contains_i: $value, organization_is_null: true, parent_is_null: true}) {
             id
             name

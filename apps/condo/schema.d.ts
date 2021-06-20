@@ -12886,10 +12886,10 @@ export enum SortTicketClassifiersBy {
   DvDesc = 'dv_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
-  ParentAsc = 'parent_ASC',
-  ParentDesc = 'parent_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  ParentAsc = 'parent_ASC',
+  ParentDesc = 'parent_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -14677,14 +14677,14 @@ export type TicketClassifier = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
-  /**  Ref to the organization. If this ref is null the object is common for all organizations  */
-  organization?: Maybe<Organization>;
   /**  Multi level classification support  */
-  parent?: Maybe<TicketClassifier>;
+  organization?: Maybe<Organization>;
   /**  Multi level name  */
   fullName?: Maybe<Scalars['String']>;
   /**  This level name  */
   name?: Maybe<Scalars['String']>;
+  /**  Multi level classification support  */
+  parent?: Maybe<TicketClassifier>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -14699,8 +14699,8 @@ export type TicketClassifierCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
-  parent?: Maybe<TicketClassifierRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
+  parent?: Maybe<TicketClassifierRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -14724,9 +14724,9 @@ export type TicketClassifierHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
-  parent?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  parent?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -14744,9 +14744,9 @@ export type TicketClassifierHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
-  parent?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  parent?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -14769,9 +14769,9 @@ export type TicketClassifierHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
-  parent?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  parent?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -14803,10 +14803,6 @@ export type TicketClassifierHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  parent?: Maybe<Scalars['String']>;
-  parent_not?: Maybe<Scalars['String']>;
-  parent_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  parent_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   fullName?: Maybe<Scalars['JSON']>;
   fullName_not?: Maybe<Scalars['JSON']>;
   fullName_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -14829,6 +14825,10 @@ export type TicketClassifierHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  parent?: Maybe<Scalars['String']>;
+  parent_not?: Maybe<Scalars['String']>;
+  parent_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  parent_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -14919,8 +14919,8 @@ export type TicketClassifierUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
-  parent?: Maybe<TicketClassifierRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
+  parent?: Maybe<TicketClassifierRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -14947,8 +14947,6 @@ export type TicketClassifierWhereInput = {
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
-  parent?: Maybe<TicketClassifierWhereInput>;
-  parent_is_null?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
   name_not?: Maybe<Scalars['String']>;
   name_contains?: Maybe<Scalars['String']>;
@@ -14967,6 +14965,8 @@ export type TicketClassifierWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  parent?: Maybe<TicketClassifierWhereInput>;
+  parent_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
