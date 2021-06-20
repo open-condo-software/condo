@@ -205,18 +205,39 @@ describe('safeFormatError', () => {
             ],
         })
     })
-    test('safeFormatError(new GraphQLError) with original error', () => {
+    test('safeFormatError(new GraphQLError) based on keystone error', () => {
         const original = new Error('original')
-        const error = new GraphQLError('msg4', null, null, null, null, original)
+        const error = new GraphQLError('msg5', null, null, null, null, original)
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'message': 'msg4',
+            'message': 'msg5',
             'name': 'GraphQLError',
             'stack': expect.stringMatching(/^Error: original/),
             'originalError': {
                 'message': 'original',
                 'name': 'Error',
                 'stack': expect.stringMatching(/^Error: original/),
+            },
+        })
+    })
+    test('safeFormatError(new GraphQLError) with original error', () => {
+        const original = new NestedError({ message: 'Hello', internalData: { foo: [2] }, data: { bar: '33' } })
+        const error = new GraphQLError('msg4', null, null, null, null, original)
+        const result = safeFormatError(error)
+        expect(result).toEqual({
+            'data': {  // keystone specific
+                'bar': '33',
+            },
+            'message': 'msg4',
+            'name': 'NestedError',  // keystone specific
+            'stack': expect.stringMatching(/^NestedError: Hello/),
+            'originalError': {
+                'message': 'Hello',
+                'name': 'NestedError',
+                'stack': expect.stringMatching(/^NestedError: Hello/),
+                'internalData': { foo: [2] },
+                'data': { bar: '33' },
+                'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
             },
         })
     })
