@@ -1,7 +1,17 @@
-const { safeFormatError } = require('./apolloErrorFormatter')
-
 const { createError } = require('apollo-errors')
 const { ApolloError } = require('apollo-server-errors')
+const { GraphQLError } = require('graphql')
+const { Source, parse } = require('graphql/language')
+
+const { safeFormatError, toGraphQLFormat } = require('./apolloErrorFormatter')
+
+const GQL_SOURCE_EXAMPLE = new Source(`
+  {
+    field
+  }
+`)
+const GQL_AST_EXAMPLE = parse(GQL_SOURCE_EXAMPLE)
+const GQL_FIELD_NODE_EXAMPLE = GQL_AST_EXAMPLE.definitions[0].selectionSet.selections[0]
 
 const NestedError = createError('NestedError', {
     message: 'Nested errors occurred',
@@ -141,6 +151,159 @@ describe('safeFormatError', () => {
             'data': {},
             'internalData': {},
             'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
+        })
+    })
+    test('safeFormatError(new GraphQLError) with printable GQL_SOURCE_EXAMPLE case1', () => {
+        const error = new GraphQLError('msg1', [GQL_FIELD_NODE_EXAMPLE])
+        const result = safeFormatError(error)
+        expect(result).toEqual({
+            'message': 'msg1',
+            'name': 'GraphQLError',
+            'stack': expect.stringMatching(/^GraphQLError: msg1/),
+            'developerMessage': 'msg1\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+            'locations': [
+                {
+                    'column': 5,
+                    'line': 3,
+                },
+            ],
+        })
+    })
+    test('safeFormatError(new GraphQLError) with printable GQL_SOURCE_EXAMPLE case2', () => {
+        const error = new GraphQLError('msg2', null, GQL_SOURCE_EXAMPLE, [9])
+        const result = safeFormatError(error)
+        expect(result).toEqual({
+            'message': 'msg2',
+            'name': 'GraphQLError',
+            'stack': expect.stringMatching(/^GraphQLError: msg2/),
+            'developerMessage': 'msg2\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+            'locations': [
+                {
+                    'column': 5,
+                    'line': 3,
+                },
+            ],
+        })
+    })
+    test('safeFormatError(new GraphQLError) with path', () => {
+        const error = new GraphQLError('msg3', null, null, null, [
+            'path',
+            3,
+            'to',
+            'field',
+        ])
+        const result = safeFormatError(error)
+        expect(result).toEqual({
+            'message': 'msg3',
+            'name': 'GraphQLError',
+            'stack': expect.stringMatching(/^GraphQLError: msg3/),
+            'path': [
+                'path',
+                3,
+                'to',
+                'field',
+            ],
+        })
+    })
+    test('safeFormatError(new GraphQLError) with original error', () => {
+        const original = new Error('original')
+        const error = new GraphQLError('msg4', null, null, null, null, original)
+        const result = safeFormatError(error)
+        expect(result).toEqual({
+            'message': 'msg4',
+            'name': 'GraphQLError',
+            'stack': expect.stringMatching(/^Error: original/),
+            'originalError': {
+                'message': 'original',
+                'name': 'Error',
+                'stack': expect.stringMatching(/^Error: original/),
+            },
+        })
+    })
+})
+
+describe('toGraphQLFormat', () => {
+    test('toGraphQLFormat(GraphQLError) no hide', () => {
+        const original = new Error('original')
+        original.errors = [
+            new ApolloError('something happened!', 'CODE1', { foo: [1], bar: '22' }),
+            new NestedError({ message: 'Hello', internalData: { foo: [2] }, data: { bar: '33' } })]
+        const error = new GraphQLError('msg', [GQL_FIELD_NODE_EXAMPLE], null, null, ['path', 'field'], original)
+        const result = toGraphQLFormat(safeFormatError(error))
+        expect(result).toEqual({
+            'extensions': {
+                'developerMessage': 'msg\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+                'name': 'GraphQLError',
+                'originalError': {
+                    'errors': [
+                        {
+                            'extensions': {
+                                'bar': '22',
+                                'code': 'CODE1',
+                                'foo': [
+                                    1,
+                                ],
+                            },
+                            'message': 'something happened!',
+                            'name': 'Error',
+                            'stack': expect.stringMatching(/^Error: something happened!/),
+                        },
+                        {
+                            'data': {
+                                'bar': '33',
+                            },
+                            'internalData': {
+                                'foo': [
+                                    2,
+                                ],
+                            },
+                            'message': 'Hello',
+                            'name': 'NestedError',
+                            'stack': expect.stringMatching(/^NestedError: Hello/),
+                            'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
+                        },
+                    ],
+                    'message': 'original',
+                    'name': 'Error',
+                    'stack': expect.stringMatching(/^Error: original/),
+                },
+                'stack': expect.stringMatching(/^Error: original/),
+            },
+            'locations': [
+                {
+                    'column': 5,
+                    'line': 3,
+                },
+            ],
+            'message': 'msg',
+            'path': [
+                'path',
+                'field',
+            ],
+        })
+    })
+    test('toGraphQLFormat(GraphQLError) hide', () => {
+        const original = new Error('original')
+        original.errors = [
+            new ApolloError('something happened!', 'CODE1', { foo: [1], bar: '22' }),
+            new NestedError({ message: 'Hello', internalData: { foo: [2] }, data: { bar: '33' } })]
+        const error = new GraphQLError('msg', [GQL_FIELD_NODE_EXAMPLE], null, null, ['path', 'field'], original)
+        const result = toGraphQLFormat(safeFormatError(error, true))
+        expect(result).toEqual({
+            'extensions': {
+                'developerMessage': 'msg\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+            },
+            'locations': [
+                {
+                    'column': 5,
+                    'line': 3,
+                },
+            ],
+            'message': 'msg',
+            'path': [
+                'path',
+                'field',
+            ],
         })
     })
 })

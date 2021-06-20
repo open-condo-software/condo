@@ -6,7 +6,7 @@
     But the apollo-errors is not compatible with the common GraphQL spec.
     We need a way to fix it!
 
-    1) you should read at leas an examples from GraphQL specification: http://spec.graphql.org/draft/#sec-Errors
+    1) you should read at leas an examples from GraphQL specification: http://spec.graphql.org/draft/#sec-Errors and https://github.com/graphql/graphql-js/blob/main/src/error/GraphQLError.ts
     2) you need to read the code from apollo-errors npm package: https://github.com/thebigredgeek/apollo-errors/blob/master/src/index.ts
     3) you need to look at: https://www.apollographql.com/docs/apollo-server/data/errors/ and https://github.com/apollographql/apollo-server/blob/main/packages/apollo-server-errors/src/index.ts
     4) you need to look at KeystonJs source: /node_modules/@keystonejs/keystone/lib/Keystone/format-error.js,
@@ -26,10 +26,12 @@ const {
     isInstance: isKeystoneErrorInstance,
 } = require('apollo-errors')
 const { ApolloError } = require('apollo-server-errors')
+const { GraphQLError, printError } = require('graphql')
+
 const ensureError = require('ensure-error')
 const { serializeError } = require('serialize-error')
 const cuid = require('cuid')
-const { pick, toArray, _, toString, isObject } = require('lodash')
+const { pick, pickBy, identity, toArray, _, toString, isObject } = require('lodash')
 
 const { graphqlLogger } = require('@keystonejs/keystone/lib/Keystone/logger')
 
@@ -38,31 +40,46 @@ const conf = require('@core/config')
 const IS_HIDE_INTERNALS = conf.NODE_ENV === 'production'
 
 const safeFormatError = (error, hideInternals = false) => {
-    // error keyst: message, name, stack
-    const pickKeys1 = (hideInternals) ? ['message', 'name'] : ['message', 'name', 'stack']
-    const result = pick(serializeError(error), pickKeys1)
+    const result = {}
 
-    // keystoneError keys: time_thrown, message, data, locations, path
+    // error keyst: message, name, stack
+    const pickKeys1 = (hideInternals) ? ['message'] : ['message', 'name', 'stack']
+    Object.assign(result, pick(serializeError(error), pickKeys1))
+
+    // keystoneError keys: time_thrown, message, data, internalData, locations, path
     if (isKeystoneErrorInstance(error)) {
-        const pickKeys2 = (hideInternals) ? ['time_thrown', 'data'] : ['data', 'internalData', 'time_thrown', 'locations', 'path']
+        const pickKeys2 = (hideInternals) ? ['time_thrown', 'data', 'locations', 'path'] : ['time_thrown', 'data', 'locations', 'path', 'internalData']
         Object.assign(result, pick(error, pickKeys2))
     }
 
-    // apolloError keys: path, extensions, locations, source, positions, nodes, originalError
-    if (error instanceof ApolloError) {
-        const pickKeys3 = (hideInternals) ? ['path', 'locations'] : ['path', 'locations', 'source', 'positions', 'nodes']
-        Object.assign(result, pick(error, pickKeys3))
-    }
-
-    if (!hideInternals && error.extensions && isObject(error.extensions)) {
-        result.extensions = _(error.extensions).toJSON()
-        if (error.extensions.exception) {
-            result.extensions.exception = safeFormatError(error.extensions.exception, hideInternals)
+    // apolloError keys: path, locations, source, positions, nodes, extensions, originalError
+    //  + 'locations', 'positions', 'source', 'nodes' -- used for printError() in human readable format!
+    //  + 'path' -- GraphQL query path with aliases
+    //  + 'extensions' -- some extra context
+    //  + 'originalError' -- original Error instance
+    if (error instanceof ApolloError || error instanceof GraphQLError) {
+        const pickKeys3 = ['path', 'locations']
+        Object.assign(result, pickBy(pick(error, pickKeys3), identity))
+        const developerErrorMessage = printError(error)
+        if (developerErrorMessage !== result.message) {
+            // we want to show a developer friendly message
+            result.developerMessage = printError(error)
+        }
+        if (error.extensions) {
+            result.extensions = _(error.extensions).toJSON()
+            if (!hideInternals && error.extensions.exception) {
+                result.extensions.exception = safeFormatError(error.extensions.exception, hideInternals)
+            }
         }
     }
 
     if (!hideInternals && error.originalError) {
         result.originalError = safeFormatError(error.originalError, hideInternals)
+    }
+
+    // NOTE(pahaz): Take path from originalError (taken from KeystoneJS). Probably useless?
+    if (error.originalError && error.originalError.path && !result.path) {
+        result.path = error.originalError.path
     }
 
     if (error.uid) {
@@ -75,6 +92,23 @@ const safeFormatError = (error, hideInternals = false) => {
         if (nestedErrors.length) result.errors = nestedErrors
     }
 
+    return result
+}
+
+const toGraphQLFormat = (safeFormattedError) => {
+    const result = {
+        message: safeFormattedError.message || 'no message',
+        extensions: {
+            ...safeFormattedError,
+            ...(safeFormattedError.extensions ? safeFormattedError.extensions : {}),
+        },
+        path: safeFormattedError.path || null,
+        locations: safeFormattedError.locations || null,
+    }
+    delete result.extensions.extensions
+    delete result.extensions.path
+    delete result.extensions.locations
+    delete result.extensions.message
     return result
 }
 
@@ -113,5 +147,6 @@ const formatError = error => {
 
 module.exports = {
     safeFormatError,
+    toGraphQLFormat,
     formatError,
 }
