@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { TicketClassifier as TicketClassifierGQL } from '@condo/domains/ticket/gql'
-import { TicketClassifier, TicketClassifierUpdateInput, QueryAllTicketClassifiersArgs } from '../../../../schema'
+import { TicketClassifier, TicketClassifierUpdateInput, QueryAllTicketClassifiersArgs, TicketClassifierWhereInput } from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'parent']
 const RELATIONS = ['organization', 'parent']
@@ -18,6 +18,7 @@ export interface ITicketClassifierUIState extends TicketClassifier {
     // TODO(codegen): write ITicketClassifierUIState or extends it from
 }
 
+export type TicketClassifierSelectWhereInput = Pick<TicketClassifierWhereInput, 'parent' | 'parent_is_null' | 'id'>
 
 function convertToUIState (item: TicketClassifier): ITicketClassifierUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')

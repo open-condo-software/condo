@@ -263,9 +263,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 <Form.Item noStyle dependencies={['property']}>
                                     {
                                         ({ getFieldsValue }) => {
-                                            const { property } = getFieldsValue(['property'])
+                                            const { property, classifier } = getFieldsValue(['property', 'classifier'])
                                             const disableUserInteraction = !property
-
                                             return (
                                                 <Col span={24}>
                                                     <FrontLayerContainer showLayer={disableUserInteraction}>
@@ -276,11 +275,14 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                         <Typography.Title level={5} style={{ margin: '0' }}>{ClassifierLabel}</Typography.Title>
                                                                     </Col>
                                                                     <Col span={24}>
-                                                                        <TicketClassifierSelect
-                                                                            rules={validations.classifier}
-                                                                            disabled={disableUserInteraction}
-                                                                        >
-                                                                        </TicketClassifierSelect>
+                                                                        <Form.Item name={'classifier'} rules={validations.classifier}>
+                                                                            <TicketClassifierSelect
+                                                                                disabled={disableUserInteraction}
+                                                                                initialValue={classifier}
+                                                                                onSelect={ id => form.setFieldsValue({ 'classifier': id })}
+                                                                            >
+                                                                            </TicketClassifierSelect>
+                                                                        </Form.Item>
                                                                     </Col>
 
                                                                     <Col span={24}>
