@@ -1,12 +1,6 @@
-const conf = require('@core/config')
-const util = require('util')
-
-const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
-
 function throwIfError (data, errors) {
     if (errors) {
-        const err = new Error('GraphQLError')
-        if (IS_DEBUG) console.log(util.inspect(errors[0], { showHidden: false, depth: null }))
+        const err = new Error('TestRequestError')
         err.errors = errors
         err.data = data
         throw err
