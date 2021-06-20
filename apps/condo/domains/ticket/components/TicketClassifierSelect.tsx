@@ -27,11 +27,11 @@ interface ITicketClassifierSelectHookInput {
 interface ITicketClassifierSelectHookOutput {
     load: (variables: TicketClassifierSelectWhereInput) => Promise<void>
     SelectComponent: React.FC<{
-        disabled?: boolean;
+        disabled?: boolean
     }>
-    setSelected: React.Dispatch<React.SetStateAction<string>>;
-    reset: () => void;
-    ref: React.MutableRefObject<HTMLSelectElement>;
+    setSelected: React.Dispatch<React.SetStateAction<string>>
+    reset: () => void
+    ref: React.MutableRefObject<HTMLSelectElement>
 }
 
 const useTicketClassifierSelectHook = ({
