@@ -34,10 +34,10 @@ interface ITicketClassifierSelectHookOutput {
     ref: React.MutableRefObject<HTMLSelectElement>;
 }
 
-const useTicketClassifierSelectHook = ({ 
-    label, 
-    onChange, 
-    allowClear = true, 
+const useTicketClassifierSelectHook = ({
+    label,
+    onChange,
+    allowClear = true,
     showAction = ['focus', 'click'],
 }: ITicketClassifierSelectHookInput): ITicketClassifierSelectHookOutput => {
     const [classifiers, setClassifiers] = useState<ITicketClassifierUIState[]>([])
@@ -48,7 +48,7 @@ const useTicketClassifierSelectHook = ({
     async function load (variables) {
         setLoading(true)
         const data = await loadClassifiers(client, variables)
-        const loaded = data.map(({ id, name }) => ({ id, name }))        
+        const loaded = data.map(({ id, name }) => ({ id, name }))
         setClassifiers(loaded)
         setLoading(false)
     }
@@ -58,7 +58,7 @@ const useTicketClassifierSelectHook = ({
     }
     const reset = () => {
         setSelected(null)
-        setClassifiers([])   
+        setClassifiers([])
     }
     const SelectComponent: React.FC<{ disabled?: boolean }> = (props) => {
         const { disabled } = props
@@ -85,7 +85,7 @@ const useTicketClassifierSelectHook = ({
                         ))
                     }
                 </Select>
-            </Space>            
+            </Space>
         )
     }
     return {
@@ -111,9 +111,9 @@ export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props)
     const CategoriesLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoriesLabel' })
     const SubjectsLabel = intl.formatMessage({ id: 'component.ticketclassifier.SubjectsLabel' })
     const client = useApolloClient()
-   
-    const { 
-        load: loadSubjects, 
+
+    const {
+        load: loadSubjects,
         SelectComponent: SubjectSelect,
         reset: resetSubjects,
         setSelected: setSubject,
@@ -125,14 +125,14 @@ export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props)
     const onCategoryChange = (id) => {
         resetSubjects()
         if (id) {
-            loadSubjects({ parent: { id } }).then(_ => 
+            loadSubjects({ parent: { id } }).then(_ =>
                 subjectRef.current && subjectRef.current.focus()
             )
         }
-    } 
+    }
 
-    const { 
-        load: loadCategories, 
+    const {
+        load: loadCategories,
         SelectComponent: CategorySelect,
         reset: resetCategories,
         setSelected: setCategory,
@@ -141,15 +141,15 @@ export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props)
     const onPlaceChange = (id) => {
         resetSubjects()
         resetCategories()
-        if (id) {    
-            loadCategories({ parent: { id } }).then(_ => 
+        if (id) {
+            loadCategories({ parent: { id } }).then(_ =>
                 categoryRef.current && categoryRef.current.focus()
             )
         }
     }
-    
-    const { 
-        load: loadPlaces, 
+
+    const {
+        load: loadPlaces,
         SelectComponent: PlaceSelect,
         setSelected: setPlace,
     } = useTicketClassifierSelectHook({ label: PlacesLabel, allowClear: false, showAction: ['click'], onChange: onPlaceChange })
