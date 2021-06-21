@@ -12,6 +12,8 @@ import { PlusCircleFilled, MinusCircleFilled } from '@ant-design/icons'
 import { find, get, pick, has } from 'lodash'
 import { useTicketValidations } from '../../../ticket/components/BaseTicketForm/useTicketValidations'
 import styled from '@emotion/styled'
+import { useApolloClient } from '@core/next/apollo'
+import { searchContacts } from '../../../ticket/utils/clientSchema/search'
 
 interface ILabelsProps {
     left: React.ReactNode,
@@ -155,7 +157,24 @@ export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs)
 export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const { form, fields, value: initialValue, onChange, organization, property, unitName } = props
 
-    const { objs: contacts, loading, error } = Contact.useObjects({
+    const [contacts, setContacts] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState()
+
+    const client = useApolloClient()
+
+    searchContacts(client, {
+        organizationId: organization,
+        propertyId: property ? property : undefined,
+        unitName : unitName ? unitName : undefined,
+    })
+        .then(({ data, loading, error }) => {
+            setContacts(data.objs)
+            setLoading(loading)
+            setError(error)
+        })
+
+    Contact.useObjects({
         where: {
             organization: { id: organization },
             property: property ? { id: property } : undefined,
@@ -414,7 +433,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
     const renderOption = (field) => (item) => {
         return (
             <Select.Option
-                style={{textAlign: 'left', color: grey[6]}}
+                style={{ textAlign: 'left', color: grey[6] }}
                 key={item.id}
                 value={item[field]}
                 title={item[field]}
