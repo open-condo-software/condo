@@ -29,21 +29,23 @@ const ErrorContainerOfHiddenControl = styled.div`
   }
 `
 
+const LABELS_COL_STYLE = { marginTop: '24px' }
+
 const Labels: React.FC<ILabelsProps> = ({ left, right }) => (
     <>
-        <Col span={10}>
+        <Col span={10} style={LABELS_COL_STYLE}>
             <Typography.Text type="secondary">
                 {left}
             </Typography.Text>
         </Col>
-        <Col span={10}>
+        <Col span={10} style={LABELS_COL_STYLE}>
             <Typography.Text type="secondary">
                 {right}
             </Typography.Text>
         </Col>
-        <Col span={2}>
+        <Col span={2} style={LABELS_COL_STYLE}>
         </Col>
-        <Col span={2}>
+        <Col span={2} style={LABELS_COL_STYLE}>
         </Col>
     </>
 )
