@@ -8,7 +8,7 @@ import { BaseSearchInput } from '../../../common/components/BaseSearchInput'
 import { green, grey } from '@ant-design/colors'
 import { OptionProps } from 'antd/lib/mentions'
 import { useIntl } from '@core/next/intl'
-import { PlusCircleFilled } from '@ant-design/icons'
+import { PlusCircleFilled, MinusCircleFilled } from '@ant-design/icons'
 import { find, get, pick, has } from 'lodash'
 import { useTicketValidations } from '../../../ticket/components/BaseTicketForm/useTicketValidations'
 import styled from '@emotion/styled'
@@ -204,6 +204,12 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         setEditableFieldsChecked(true)
     }
 
+    const handleClickOnMinusButton = () => {
+        setDisplayEditableContactFields(false)
+        setSelectedContact(contacts[0])
+        setEditableFieldsChecked(false)
+    }
+
     const handleSelectContact = (contact) => {
         setSelectedContact(contact)
         setEditableFieldsChecked(false)
@@ -291,6 +297,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                         onChecked={handleSyncedFieldsChecked}
                                         checked={editableFieldsChecked}
                                         contacts={contacts}
+                                        displayMinusButton={true}
+                                        onClickMinusButton={handleClickOnMinusButton}
                                     />
                                 </>
                             ) : (
@@ -364,6 +372,8 @@ interface IContactSyncedAutocompleteFieldsProps {
     checked?: boolean,
     // Used for autocomplete
     contacts: TContact[],
+    displayMinusButton: boolean,
+    onClickMinusButton: () => void,
 }
 
 /**
@@ -372,7 +382,7 @@ interface IContactSyncedAutocompleteFieldsProps {
  * And vise-versa.
  * When value in fields are typed, not selected, `onChange` callback will be fired.
  */
-const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({ initialValue, onChange, onChecked, checked, contacts }) => {
+const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({ initialValue, onChange, onChecked, checked, contacts, displayMinusButton, onClickMinusButton }) => {
     const [value, setValue] = useState(initialValue)
 
     const searchContactBy = useCallback(
@@ -456,10 +466,21 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
                 )}
             </Col>
             <Col span={2}>
+                {displayMinusButton && (
+                    <MinusCircleFilled
+                        style={{ color: green[6] }}
+                        onClick={onClickMinusButton}
+                    />
+                )}
             </Col>
         </>
     )
 }
+
+ContactSyncedAutocompleteFields.defaultProps = {
+    displayMinusButton: false,
+}
+
 
 interface IContactFieldsDisplayProps {
     contact: TContact,
