@@ -54,13 +54,14 @@ interface ICountDownTimer {
     id: string
     timeout?: number
     children: CountDownChildrenType
+    autostart?: boolean
 }
 
 export const CountDownTimer: React.FC<ICountDownTimer> = (props) => {
-    const { action, id, timeout = DEFAULT_TIMEOUT } = props
+    const { action, id, timeout = DEFAULT_TIMEOUT, autostart = false } = props
 
     const [loading, setLoading] = useState(false)
-    const [countdown, setCountDown] = useState(0)
+    const [countdown, setCountDown] = useState(autostart ? timeout : 0 )
 
     const startTimer = React.useCallback((duration) => {
         timer({
@@ -80,10 +81,15 @@ export const CountDownTimer: React.FC<ICountDownTimer> = (props) => {
 
     useEffect(() => {
         const countDownFromCookies = getCountDownDateFromCookies(id)
-
-        if (countDownFromCookies) {
+        if (autostart) {
+            setCountDown(timeout)
+            startTimer(timeout)
+        } else if (countDownFromCookies) {
             setCountDown(countDownFromCookies)
             startTimer(countDownFromCookies)
+        }
+        return () => {
+            console.log('Destroyed')
         }
     }, [])
 

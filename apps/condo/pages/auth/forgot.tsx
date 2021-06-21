@@ -1,6 +1,6 @@
 import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
+import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import Router from 'next/router'
 import React, { useState, useContext } from 'react'
@@ -53,12 +53,12 @@ const ResetPage: AuthPage = () => {
                 <Typography.Title>{CheckEmailMsg}</Typography.Title>
                 <Typography.Paragraph>
                     <FormattedMessage id='pages.auth.reset.ResetSuccessMessage' values={{ email: form.getFieldValue('email') }} />
-                </Typography.Paragraph>    
+                </Typography.Paragraph>
                 <Typography.Paragraph>
                     <a style={LINK_STYLE} onClick={() => Router.push('/auth/signin')}>{ReturnToLoginPage}</a>
-                </Typography.Paragraph>    
+                </Typography.Paragraph>
             </div>
-        )    
+        )
     }
 
     const forgotAction = async () => {
@@ -89,7 +89,7 @@ const ResetPage: AuthPage = () => {
     return (
         <div>
             <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
-            <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>    
+            <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>
             <Form
                 form={form}
                 name='forgot-password'
@@ -97,7 +97,7 @@ const ResetPage: AuthPage = () => {
                 initialValues={initialValues}
                 colon={false}
                 style={{ marginTop: '40px' }}
-                requiredMark={false}                
+                requiredMark={false}
             >
                 <Form.Item
                     name='email'
@@ -113,7 +113,7 @@ const ResetPage: AuthPage = () => {
                         },
                     ]}
                     labelAlign='left'
-                    labelCol={{ flex: 1 }}                            
+                    labelCol={{ flex: 1 }}
                 >
                     <Input placeholder={EmailPlaceholder}  style={INPUT_STYLE}/>
                 </Form.Item>

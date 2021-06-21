@@ -1,4 +1,4 @@
-import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
+import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 import React, { useState, useContext } from 'react'
 import Router from 'next/router'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
@@ -47,7 +47,7 @@ const SignInForm = (): React.ReactElement => {
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
     const UserNotFound = intl.formatMessage({ id: 'pages.auth.UserIsNotFound' })
-    const PasswordMismatch = intl.formatMessage({ id: 'pages.auth.WrongPassword' }) 
+    const PasswordMismatch = intl.formatMessage({ id: 'pages.auth.WrongPassword' })
 
     const [isLoading, setIsLoading] = useState(false)
     const [signinByPhoneAndPassword] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
@@ -55,13 +55,13 @@ const SignInForm = (): React.ReactElement => {
         [WRONG_PHONE_ERROR]: {
             name: 'phone',
             errors: [UserNotFound],
-        },        
+        },
         [WRONG_PASSWORD_ERROR]: {
             name: 'password',
             errors: [PasswordMismatch],
         },
     }
-    
+
     const onFormSubmit = values => {
         setIsLoading(true)
         return runMutation({
@@ -106,18 +106,18 @@ const SignInForm = (): React.ReactElement => {
                 name="password"
                 label={PasswordMsg}
                 labelAlign='left'
-                labelCol={{ flex: 1 }} 
+                labelCol={{ flex: 1 }}
                 style={{ marginTop: '24px' }}
                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
             >
                 <Input.Password style={INPUT_STYLE}  />
             </Form.Item>
-            
+
             <div style={{ paddingTop: '4em', display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                 <Button
                     key='submit'
                     type='sberPrimary'
-                    htmlType="submit" 
+                    htmlType="submit"
                     style={{ justifySelf: 'flex-start' }}
                     loading={isLoading}
                 >
