@@ -1,7 +1,7 @@
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { GET_ALL_TICKET_FOR_XLS_EXPORT } from '@condo/domains/ticket/gql'
+import { GET_ALL_TICKET_FOR_XLS_EXPORT, EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
 import { DatabaseFilled } from '@ant-design/icons'
 import { format } from 'date-fns'
 import {
@@ -19,12 +19,11 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import { pickBy, get, debounce } from 'lodash'
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Button } from '@condo/domains/common/components/Button'
-import XLSX from 'xlsx'
 import { useOrganization } from '@core/next/organization'
 import { SortTicketsBy } from '../../schema'
 
@@ -40,7 +39,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
-    
+    const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const offsetFromQuery = getPageIndexFromQuery(router.query)
@@ -52,6 +51,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
 
     const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC' //TODO(Dimitreee):Find cleanest solution
     const where = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
+    const [downloadLink, setDownloadLink] = useState(null)
 
     const {
         fetchMore,
@@ -66,42 +66,18 @@ const TicketsPage: IPageWithHeaderAction = () => {
     }, {
         fetchPolicy: 'network-only',
     })
-    
+
     const [
-        loadXlsTickets, 
+        exportToExcel,
         { loading: isXlsLoading },
     ] = useLazyQuery(
-        GET_ALL_TICKET_FOR_XLS_EXPORT,
+        EXPORT_TICKETS_TO_EXCEL,
         {
             onError: error => {
                 throw new Error(error)
             },
             onCompleted: data => {
-                return new Promise<void>((resolve, reject) => {
-                    try {
-                        const cols = [
-                            'number',
-                            'status',
-                            'details',
-                            'property',
-                            'assignee',
-                            'executor',
-                            'createdAt',
-                            'clientName',
-                        ]
-                        const wb = XLSX.utils.book_new()
-                        const ws = XLSX.utils.json_to_sheet(
-                            data.tickets.map((ticket) => Ticket.extractAttributes(ticket, cols)), { header: cols }
-                        )
-                        XLSX.utils.book_append_sheet(wb, ws, 'table')
-                        XLSX.writeFile(wb, `export_${format(new Date(), 'dd.mm.yyyy') }.xlsx`)
-                    } catch (e) {
-                        console.error('Error while fetching tickets for Xls ', e)
-                        reject(e)
-                    } finally {
-                        resolve()
-                    }
-                })
+                setDownloadLink(data.result.linkToFile)
             },
         },
     )
@@ -131,14 +107,15 @@ const TicketsPage: IPageWithHeaderAction = () => {
                 first: current * pageSize,
             }).then(() => {
                 const query = qs.stringify(
-                    { 
-                        ...router.query, 
-                        sort, 
-                        offset, 
+                    {
+                        ...router.query,
+                        sort,
+                        offset,
                         filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })),
                     },
                     { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
                 )
+                setDownloadLink(null)
                 router.push(router.route + query)
             })
         }
@@ -171,14 +148,27 @@ const TicketsPage: IPageWithHeaderAction = () => {
                                         />
                                     </Col>
                                     <Col span={6} push={1}>
-                                        <Button 
-                                            type={'inlineLink'} 
-                                            icon={<DatabaseFilled />} 
-                                            loading={isXlsLoading}
-                                            onClick={
-                                                () => loadXlsTickets({ variables: { sortBy: sortBy, where: where } })
-                                            }
-                                        >{ExportAsExcel}</Button>
+                                        {
+                                            downloadLink
+                                                ?
+                                                <Button
+                                                    type={'inlineLink'}
+                                                    icon={<DatabaseFilled />}
+                                                    loading={isXlsLoading}
+                                                    target='_blank'
+                                                    href={downloadLink}
+                                                    rel='noreferrer'>{DownloadExcelLabel}
+                                                </Button>
+                                                :
+                                                <Button
+                                                    type={'inlineLink'}
+                                                    icon={<DatabaseFilled />}
+                                                    loading={isXlsLoading}
+                                                    onClick={
+                                                        () => exportToExcel({ variables: { data: { where: where, sortBy: sortBy } } })
+                                                    }>{ExportAsExcel}
+                                                </Button>
+                                        }
                                     </Col>
                                     <Col span={24}>
                                         <Table
@@ -192,7 +182,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
                                             rowKey={record => record.id}
                                             pagination={{
                                                 showSizeChanger: false,
-                                                total,                                                
+                                                total,
                                                 current: offsetFromQuery,
                                                 pageSize: pagesizeFromQuey,
                                                 position: ['bottomLeft'],

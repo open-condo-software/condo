@@ -9634,6 +9634,7 @@ export type Query = {
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
+  exportTicketsToExcel?: Maybe<TicketExportExcelOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -10797,6 +10798,11 @@ export type Query_KsListsMetaArgs = {
 
 export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
   data: GetPhoneByConfirmPhoneActionTokenInput;
+};
+
+
+export type QueryExportTicketsToExcelArgs = {
+  data: TicketExportExcelInput;
 };
 
 export type RegisterNewOrganizationInput = {
@@ -14006,6 +14012,17 @@ export type TicketCreateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+};
+
+export type TicketExportExcelInput = {
+  where: TicketWhereInput;
+  sortBy?: Maybe<Array<SortTicketsBy>>;
+};
+
+export type TicketExportExcelOutput = {
+  __typename?: 'TicketExportExcelOutput';
+  status: Scalars['String'];
+  linkToFile: Scalars['String'];
 };
 
 /**  File attached to the ticket  */
