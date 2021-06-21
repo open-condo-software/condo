@@ -24,6 +24,8 @@ const black = '#000'
 const beautifulBlue = '#eFF7FF'
 const markColor = '#B5CCFF'
 const whiteTranslucent = 'rgba(255, 255, 255, 0.9)'
+const emergencyTagBackground = '#FFCCC7'
+const emergencyTagColor = '#F5222D'
 
 const colors = {
     sberDefault: generateCustomColorPalette(sberBlue, sberSecondaryBlue),
@@ -43,6 +45,8 @@ const colors = {
     ultraLightGrey,
     inputBorderGrey,
     whiteTranslucent,
+    emergencyTagBackground,
+    emergencyTagColor,
 }
 
 // Possible customizations can be found at https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less

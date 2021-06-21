@@ -1,3 +1,5 @@
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
@@ -32,6 +34,12 @@ import { SortTicketsBy } from '../../schema'
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
+
+const verticalAlign = css`
+    & tbody.ant-table-tbody {
+        vertical-align: baseline;
+    }
+`
 
 const TicketsPage: IPageWithHeaderAction = () => {
     const intl = useIntl()
@@ -173,8 +181,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
                                             value={search}
                                         />
                                     </Col>
-                                    <Col span={1}></Col>
-                                    <Col span={4}>
+                                    <Col span={4} offset={1}>
                                         <Checkbox
                                             onChange={handleEmergencyChange}
                                             checked={emergency}
@@ -194,7 +201,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
                                     <Col span={24}>
                                         <Table
                                             bordered
-                                            className='ticket-table'
+                                            css={verticalAlign}
                                             tableLayout={'fixed'}
                                             loading={loading}
                                             dataSource={tickets}
