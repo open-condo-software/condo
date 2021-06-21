@@ -332,14 +332,14 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                         <Input value={get(value, 'id')}/>
                     </Form.Item>
                     <ErrorContainerOfHiddenControl>
-                        <Form.Item name={fields.phone} rules={validations.clientPhone}>
+                        <Form.Item name={fields.phone} rules={unitName && validations.clientPhone}>
                             <Input value={get(value, 'phone')}/>
                         </Form.Item>
                     </ErrorContainerOfHiddenControl>
                 </Col>
                 <Col span={10}>
                     <ErrorContainerOfHiddenControl>
-                        <Form.Item name={fields.name} rules={validations.clientName}>
+                        <Form.Item name={fields.name} rules={unitName && validations.clientName}>
                             <Input value={get(value, 'name')}/>
                         </Form.Item>
                     </ErrorContainerOfHiddenControl>
