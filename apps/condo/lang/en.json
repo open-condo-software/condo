@@ -252,6 +252,8 @@
   "pages.condo.ticket.title.TicketInfo": "Task information",
   "pages.condo.ticket.title.UserInfo": "Resident information",
   "pages.condo.ticket.title.TicketChanges": "Change log of the ticket",
+  "pages.condo.ticket.title.TicketFromResident": "Ticket from resident",
+  "pages.condo.ticket.title.TicketNotFromResident": "Ticket not from resident",
   "pages.condo.ticket.TicketChanges.details": "changed problem description. It was «{from}», and got «{to}»",
   "pages.condo.ticket.TicketChanges.clientPhone": "changed client phone. It was {from}, and got {to}",
   "pages.condo.ticket.TicketChanges.clientName": "changed client. It was {from}, and got {to}",

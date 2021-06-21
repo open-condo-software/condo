@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
-import { Checkbox, Col, Form, Input, Row, Typography, Tooltip } from 'antd'
+import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs } from 'antd'
 import { get } from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
@@ -18,6 +18,8 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor'
+
+const { TabPane } = Tabs
 
 const LAYOUT = {
     labelCol: { span: 8 },
@@ -57,6 +59,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
+    const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
+    const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
 
     const { action: _action, initialValues, organization, afterActionCompleted, files } = props
     const validations = useTicketValidations()
@@ -161,19 +165,32 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                     } : null
 
                                                     return property && (
-                                                        <ContactsEditorComponent
-                                                            form={form}
-                                                            fields={{
-                                                                id: 'contact',
-                                                                phone: 'clientPhone',
-                                                                name: 'clientName',
-                                                            }}
-                                                            value={value}
-                                                            // Local `property` cannot be used here, because `PropertyAddressSearchInput`
-                                                            // sets `Property.address` as its value, but we need `Property.id` here
-                                                            property={selectedPropertyId}
-                                                            unitName={unitName}
-                                                        />
+                                                        <Tabs defaultActiveKey="1" style={{ width: '100%' }}>
+                                                            <TabPane tab={TicketFromResidentMessage} key="1">
+                                                                <ContactsEditorComponent
+                                                                    form={form}
+                                                                    fields={{
+                                                                        id: 'contact',
+                                                                        phone: 'clientPhone',
+                                                                        name: 'clientName',
+                                                                    }}
+                                                                    value={value}
+                                                                    // Local `property` cannot be used here, because `PropertyAddressSearchInput`
+                                                                    // sets `Property.address` as its value, but we need `Property.id` here
+                                                                    property={selectedPropertyId}
+                                                                    unitName={unitName}
+                                                                />
+                                                            </TabPane>
+                                                            <TabPane
+                                                                tab={
+                                                                    <Tooltip title={NotImplementedYetMessage}>
+                                                                        {TicketNotFromResidentMessage}
+                                                                    </Tooltip>
+                                                                }
+                                                                key="2"
+                                                                disabled
+                                                            />
+                                                        </Tabs>
                                                     )
                                                 }}
                                             </Form.Item>
