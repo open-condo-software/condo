@@ -257,97 +257,99 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const initialValueIsPresentedInFetchedContacts = contacts && initialValue && initialValue.name && initialValue.phone && find(contacts, initialValue)
 
     return (
-        <Col span={24}>
-            <Row gutter={[40, 25]}>
-                <Labels
-                    left={PhoneLabel}
-                    right={FullNameLabel}
-                />
-                {contacts.length === 0 || !unitName ? (
-                    <ContactSyncedAutocompleteFields
-                        initialValue={initialValue || manuallyTypedContact}
-                        onChange={handleChangeContact}
-                        contacts={contacts}
+        <Row gutter={[40, 25]}>
+            <Col span={24}>
+                <Row gutter={[40, 25]}>
+                    <Labels
+                        left={PhoneLabel}
+                        right={FullNameLabel}
                     />
-                ) : (
-                    <>
-                        {contacts.map((contact, i) => (
-                            <ContactOption
-                                key={contact.id}
-                                contact={contact}
-                                onSelect={handleSelectContact}
-                                selected={
-                                    selectedContact
-                                        ? selectedContact.id === contact.id
-                                        : initialValue
-                                            ? !editableFieldsChecked && (initialValue.name === contact.name && initialValue.phone === contact.phone)
-                                            : !editableFieldsChecked && i === 0
-                                }
-                            />
-                        ))}
+                    {contacts.length === 0 || !unitName ? (
+                        <ContactSyncedAutocompleteFields
+                            initialValue={initialValue || manuallyTypedContact}
+                            onChange={handleChangeContact}
+                            contacts={contacts}
+                        />
+                    ) : (
                         <>
-                            {(displayEditableContactFields || (initialValue && !initialValueIsPresentedInFetchedContacts)) ? (
-                                <>
-                                    <Labels
-                                        left={AnotherContactLabel}
-                                    />
-                                    <ContactSyncedAutocompleteFields
-                                        initialValue={initialValue || manuallyTypedContact}
-                                        onChange={handleChangeContact}
-                                        onChecked={handleSyncedFieldsChecked}
-                                        checked={editableFieldsChecked}
-                                        contacts={contacts}
-                                        displayMinusButton={true}
-                                        onClickMinusButton={handleClickOnMinusButton}
-                                    />
-                                </>
-                            ) : (
-                                <Button
-                                    type="link"
-                                    style={{ color: green[6] }}
-                                    onClick={handleClickOnPlusButton}
-                                    icon={<PlusCircleFilled style={{ color: green[6], fontSize: 21 }}/>}
-                                >
-                                    {AddNewContactLabel}
-                                </Button>
-                            )}
+                            {contacts.map((contact, i) => (
+                                <ContactOption
+                                    key={contact.id}
+                                    contact={contact}
+                                    onSelect={handleSelectContact}
+                                    selected={
+                                        selectedContact
+                                            ? selectedContact.id === contact.id
+                                            : initialValue
+                                                ? !editableFieldsChecked && (initialValue.name === contact.name && initialValue.phone === contact.phone)
+                                                : !editableFieldsChecked && i === 0
+                                    }
+                                />
+                            ))}
+                            <>
+                                {(displayEditableContactFields || (initialValue && !initialValueIsPresentedInFetchedContacts)) ? (
+                                    <>
+                                        <Labels
+                                            left={AnotherContactLabel}
+                                        />
+                                        <ContactSyncedAutocompleteFields
+                                            initialValue={initialValue || manuallyTypedContact}
+                                            onChange={handleChangeContact}
+                                            onChecked={handleSyncedFieldsChecked}
+                                            checked={editableFieldsChecked}
+                                            contacts={contacts}
+                                            displayMinusButton={true}
+                                            onClickMinusButton={handleClickOnMinusButton}
+                                        />
+                                    </>
+                                ) : (
+                                    <Button
+                                        type="link"
+                                        style={{ color: green[6] }}
+                                        onClick={handleClickOnPlusButton}
+                                        icon={<PlusCircleFilled style={{ color: green[6], fontSize: 21 }}/>}
+                                    >
+                                        {AddNewContactLabel}
+                                    </Button>
+                                )}
+                            </>
                         </>
-                    </>
-                )}
-            </Row>
-            {/*
-                This is a place for items of external form, this component is embedded into.
-                Why not to use them in place of actual inputs?
-                Because we have many inputs ;)
-                1. Input pairs, imitating radio group for select
-                2. Text inputs for manual typing
-                Logic of displaying `Form.Item`, depending on what is currently selected:
-                radio-like pair, or manual input pair, — will be complex.
-                The simplest solution, i currently know, — is to keep it in one place.
-                So, we use hidden inputs here, but reveal validation errors.
-            */}
-            <Row gutter={[40, 25]}>
-                <Col span={10}>
-                    <Form.Item name={fields.id} hidden>
-                        <Input value={get(value, 'id')}/>
-                    </Form.Item>
-                    <ErrorContainerOfHiddenControl>
-                        <Form.Item name={fields.phone} rules={unitName && validations.clientPhone}>
-                            <Input value={get(value, 'phone')}/>
+                    )}
+                </Row>
+                {/*
+                    This is a place for items of external form, this component is embedded into.
+                    Why not to use them in place of actual inputs?
+                    Because we have many inputs ;)
+                    1. Input pairs, imitating radio group for select
+                    2. Text inputs for manual typing
+                    Logic of displaying `Form.Item`, depending on what is currently selected:
+                    radio-like pair, or manual input pair, — will be complex.
+                    The simplest solution, i currently know, — is to keep it in one place.
+                    So, we use hidden inputs here, but reveal validation errors.
+                */}
+                <Row gutter={[40, 25]}>
+                    <Col span={10}>
+                        <Form.Item name={fields.id} hidden>
+                            <Input value={get(value, 'id')}/>
                         </Form.Item>
-                    </ErrorContainerOfHiddenControl>
-                </Col>
-                <Col span={10}>
-                    <ErrorContainerOfHiddenControl>
-                        <Form.Item name={fields.name} rules={unitName && validations.clientName}>
-                            <Input value={get(value, 'name')}/>
-                        </Form.Item>
-                    </ErrorContainerOfHiddenControl>
-                </Col>
-                <Col span={2}></Col>
-                <Col span={2}></Col>
-            </Row>
-        </Col>
+                        <ErrorContainerOfHiddenControl>
+                            <Form.Item name={fields.phone} rules={unitName && validations.clientPhone}>
+                                <Input value={get(value, 'phone')}/>
+                            </Form.Item>
+                        </ErrorContainerOfHiddenControl>
+                    </Col>
+                    <Col span={10}>
+                        <ErrorContainerOfHiddenControl>
+                            <Form.Item name={fields.name} rules={unitName && validations.clientName}>
+                                <Input value={get(value, 'name')}/>
+                            </Form.Item>
+                        </ErrorContainerOfHiddenControl>
+                    </Col>
+                    <Col span={2}></Col>
+                    <Col span={2}></Col>
+                </Row>
+            </Col>
+        </Row>
     )
 }
 
