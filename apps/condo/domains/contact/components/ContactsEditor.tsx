@@ -322,14 +322,19 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                         />
                                     </>
                                 ) : (
-                                    <Button
-                                        type="link"
-                                        style={{ color: green[6] }}
-                                        onClick={handleClickOnPlusButton}
-                                        icon={<PlusCircleFilled style={{ color: green[6], fontSize: 21 }}/>}
-                                    >
-                                        {AddNewContactLabel}
-                                    </Button>
+                                    <Col span={24}>
+                                        <Button
+                                            type="link"
+                                            style={{
+                                                color: green[6],
+                                                paddingLeft: '5px',
+                                            }}
+                                            onClick={handleClickOnPlusButton}
+                                            icon={<PlusCircleFilled style={{ color: green[6], fontSize: 21 }}/>}
+                                        >
+                                            {AddNewContactLabel}
+                                        </Button>
+                                    </Col>
                                 )}
                             </>
                         </>
