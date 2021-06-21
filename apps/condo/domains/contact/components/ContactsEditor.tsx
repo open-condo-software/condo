@@ -497,7 +497,9 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
                     <MinusCircleFilled
                         style={{
                             color: green[6],
-                            marginTop: '12px',
+                            fontSize: '21px',
+                            marginTop: '9px',
+                            marginLeft: '-4px',
                         }}
                         onClick={onClickMinusButton}
                     />
