@@ -330,7 +330,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                 paddingLeft: '5px',
                                             }}
                                             onClick={handleClickOnPlusButton}
-                                            icon={<PlusCircleFilled style={{ color: green[6], fontSize: 21 }}/>}
+                                            icon={<PlusCircleFilled style={{ color: green[6], fontSize: 21, position: 'relative', top: '2px' }}/>}
                                         >
                                             {AddNewContactLabel}
                                         </Button>
