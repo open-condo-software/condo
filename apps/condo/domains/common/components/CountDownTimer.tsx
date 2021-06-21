@@ -61,7 +61,7 @@ export const CountDownTimer: React.FC<ICountDownTimer> = (props) => {
     const { action, id, timeout = DEFAULT_TIMEOUT, autostart = false } = props
 
     const [loading, setLoading] = useState(false)
-    const [countdown, setCountDown] = useState(autostart ? timeout : 0 )
+    const [countdown, setCountDown] = useState(0)
 
     const startTimer = React.useCallback((duration) => {
         timer({
