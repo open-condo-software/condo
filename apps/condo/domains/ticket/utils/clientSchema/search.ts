@@ -49,6 +49,16 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
     }
 `
 
+const GET_ALL_CONTACTS_QUERY = gql`
+    query selectContact ($organizationId: ID, $propertyId: ID, $unitName: String) {
+        objs: allContacts(where: {organization: { id: $organizationId }, property: { id: $propertyId }, unitName: $unitName}) {
+            id
+            name
+            phone
+        }
+    }
+`
+
 async function _search (client, query, variables) {
     return await client.query({
         query: query,
@@ -103,4 +113,8 @@ export function searchEmployee (organizationId) {
             }
         }).filter(Boolean)
     }
+}
+
+export function searchContacts (client, { organizationId, propertyId, unitName }) {
+    return _search(client, GET_ALL_CONTACTS_QUERY, { organizationId, propertyId, unitName })
 }
