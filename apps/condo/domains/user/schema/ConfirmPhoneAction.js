@@ -186,7 +186,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
                 }
                 const now = extra.extraNow || Date.now()
-                const actions = await ConfirmPhoneActionUtils.getAll(context.createContext({ skipAccessControl: true }), {
+                const actions = await ConfirmPhoneActionUtils.getAll(context, {
                     token,
                     expiresAt_gte: new Date(now).toISOString(),
                     completedAt: null,
@@ -234,7 +234,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     requestedAt,
                     expiresAt,
                 }
-                await ConfirmPhoneActionUtils.create(context.createContext({ skipAccessControl: true }), variables)
+                await ConfirmPhoneActionUtils.create(context, variables)
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
                 await sendMessage(context, {
                     lang,
@@ -259,7 +259,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
                 }
                 const now = extra.extraNow || Date.now()
-                const actions = await ConfirmPhoneActionUtils.getAll(context.createContext({ skipAccessControl: true }), {
+                const actions = await ConfirmPhoneActionUtils.getAll(context, {
                     token,
                     expiresAt_gte: new Date(now).toISOString(),
                     completedAt: null,
@@ -272,7 +272,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 await checkLock(phone, 'sendsms')
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
                 const newSmsCode = generateSmsCode(phone)
-                await ConfirmPhoneActionUtils.update(context.createContext({ skipAccessControl: true }), id, {
+                await ConfirmPhoneActionUtils.update(context, id, {
                     smsCode: newSmsCode,
                     smsCodeExpiresAt:  new Date(now + SMS_CODE_TTL * 1000).toISOString(),
                     smsCodeRequestedAt: new Date(now).toISOString(),
@@ -301,7 +301,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
                 }
                 const now = extra.extraNow || Date.now()
-                const actions = await ConfirmPhoneActionUtils.getAll(context.createContext({ skipAccessControl: true }), {
+                const actions = await ConfirmPhoneActionUtils.getAll(context, {
                     token,
                     expiresAt_gte: new Date(now).toISOString(),
                     completedAt: null,
@@ -317,18 +317,18 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new Error(`${CONFIRM_PHONE_SMS_CODE_EXPIRED}] SMS code expired `)
                 }
                 if (retries >= CONFIRM_PHONE_SMS_MAX_RETRIES) {
-                    await ConfirmPhoneActionUtils.update(context.createContext({ skipAccessControl: true }), id, {
+                    await ConfirmPhoneActionUtils.update(context, id, {
                         completedAt: new Date(now).toISOString(),
                     })
                     throw new Error(`${CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED}] Retries limit is excided try to confirm from start`)
                 }
                 if (actionSmsCode !== smsCode) {
-                    await ConfirmPhoneActionUtils.update(context.createContext({ skipAccessControl: true }), id, {
+                    await ConfirmPhoneActionUtils.update(context, id, {
                         retries: retries + 1,
                     })
                     throw new Error(`${CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED}]: SMSCode mismatch`)
                 }
-                await ConfirmPhoneActionUtils.update(context.createContext({ skipAccessControl: true }), id, {
+                await ConfirmPhoneActionUtils.update(context, id, {
                     isPhoneVerified: true,
                 })
                 return { status: 'ok' }
