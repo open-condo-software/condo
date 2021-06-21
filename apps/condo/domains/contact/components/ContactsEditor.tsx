@@ -1,19 +1,19 @@
 import React, { useCallback, useState, useMemo, useRef, useEffect } from 'react'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
-import { Contact as TContact } from '../../../../schema'
+import { Contact as TContact } from '@condo/domains/contact/schema'
 import { Input, Row, Col, Select, Typography, Radio, Form, FormInstance, Skeleton } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { BaseSearchInput } from '../../../common/components/BaseSearchInput'
+import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { green, grey } from '@ant-design/colors'
 import { OptionProps } from 'antd/lib/mentions'
 import { useIntl } from '@core/next/intl'
 import { PlusCircleFilled, MinusCircleFilled } from '@ant-design/icons'
 import { find, get, pick, has } from 'lodash'
-import { useTicketValidations } from '../../../ticket/components/BaseTicketForm/useTicketValidations'
+import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
 import styled from '@emotion/styled'
 import { useApolloClient } from '@core/next/apollo'
-import { searchContacts } from '../../../ticket/utils/clientSchema/search'
+import { searchContacts } from '@condo/domains/ticket/utils/clientSchema/search'
 
 interface ILabelsProps {
     left: React.ReactNode,
