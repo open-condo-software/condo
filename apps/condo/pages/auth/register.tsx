@@ -91,17 +91,18 @@ const Register = ({ children }): React.ReactElement => {
     })
 
     useEffect(() => {
-        console.log('Loading token info ')
-        if (!isEmpty(token)) {
+        if (!isEmpty(queryToken)) {
             handleReCaptchaVerify('get_confirm_phone_token_info').then(captcha => {
-                loadTokenInfo({ variables: { data: { token, captcha } } })
+                if (captcha) {
+                    loadTokenInfo({ variables: { data: { token: queryToken, captcha } } })
+                }
             })
         } else {
             setPhone('')
             setIsConfirmed(false)
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [token])
+    }, [queryToken, handleReCaptchaVerify])
 
     return (
         <RegisterContext.Provider
@@ -129,13 +130,14 @@ const RegisterSteps = (): React.ReactElement => {
     const RestartPhoneConfirmLabel = intl.formatMessage({ id: 'pages.auth.register.RestartPhoneConfirmLabel' })
 
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useContext(RegisterContext)
-    let initialState = 'inputPhone'
-    if (token && isConfirmed) {
-        initialState = 'register'
-    } else if (token) {
-        initialState = 'validatePhone'
-    }
-    const [state, setState] = useState(initialState)
+    const [state, setState] = useState('inputPhone')
+    useEffect(() => {
+        if (token && isConfirmed) {
+            setState('register')
+        } else if (token) {
+            setState('validatePhone')
+        }
+    }, [token, isConfirmed])
 
     if (tokenError && token) {
         return (
