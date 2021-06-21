@@ -6,4 +6,9 @@ export const FocusContainer = styled.div`
   border: 1px solid ${({ color }) => color || colors.lightGrey[5]};
   border-radius: 8px;
   padding: 24px;
+  
+  &.disabled {
+    opacity: 0.5;
+    pointer-events: none;  
+  }
 `
