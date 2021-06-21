@@ -3,7 +3,7 @@ import React, { createContext } from 'react'
 import Router from 'next/router'
 import { FormattedMessage } from 'react-intl'
 import { ConfigProvider, Layout } from 'antd'
-import { 
+import {
     SIGNIN_MUTATION,
     SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,
 } from '@condo/domains/user/gql'
@@ -35,7 +35,7 @@ export interface AuthPage extends React.FC {
 }
 
 const FOOTER_LINK_STYLE = { color: colors.sberPrimary[7] }
-const AUTH_PAGES_STYLE = { width: '100%', maxWidth: '500px', paddingLeft: '20px', paddingRight: '20px' } 
+const AUTH_PAGES_STYLE = { width: '100%', maxWidth: '500px', paddingLeft: '20px', paddingRight: '20px' }
 const HEADER_STYLE = { background: colors.white, padding: '20px', margin: '0px', width: '100%' }
 const FOOTER_STYLE = { color: colors.lightGrey[7], backgroundColor: colors.white, fontSize: '12px', lineHeight: '20px',  padding: '20px' }
 
@@ -110,19 +110,19 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
         }).catch(error => {
             console.error(error)
         })
-    }    
+    }
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE}>
             <GoogleReCaptchaProvider
-                reCaptchaKey={googleCaptcha}
+                reCaptchaKey={googleCaptcha.SITE_KEY}
                 language={intl.locale}
                 useRecaptchaNet
                 scriptProps={{
-                    async: true, 
-                    defer: true, 
+                    async: true,
+                    defer: true,
                     appendTo: 'body',
                 }}>
-                <AuthLayoutContext.Provider value={{ 
+                <AuthLayoutContext.Provider value={{
                     isMobile,
                     signInByEmail,
                     signInByPhone,

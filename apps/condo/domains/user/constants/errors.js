@@ -1,15 +1,19 @@
 const WRONG_PASSWORD_ERROR = '[passwordAuth:secret:mismatch'
 const EMPTY_PASSWORD_ERROR = '[passwordAuth:secret:notSet'
 const WRONG_EMAIL_ERROR = '[passwordAuth:identity:notFound'
-const MULTIPLE_ACCOUNTS_MATCHES = '[resetPassword:identity:multipleFound'
 const WRONG_PHONE_ERROR = '[passwordAuth:identity:notFound'
 const AUTH_BY_PASSWORD_FAILED_ERROR = '[passwordAuth:failure'
-const MIN_PASSWORD_LENGTH_ERROR = '[register:password:minLength'
+
+const MULTIPLE_ACCOUNTS_MATCHES = '[resetPassword:identity:multipleFound'
 const RESET_TOKEN_NOT_FOUND = '[resetPassword:token:notFound'
+
+const MIN_PASSWORD_LENGTH_ERROR = '[register:password:minLength'
 const PASSWORD_TOO_SHORT = '[password:min:length'
+
 const EMAIL_ALREADY_REGISTERED_ERROR = '[unique:email:multipleFound'
 const PHONE_ALREADY_REGISTERED_ERROR = '[unique:phone:multipleFound'
-const CONFIRM_PHONE_ACTION_EXPIRED = '[confirm:phone:expired' 
+
+const CONFIRM_PHONE_ACTION_EXPIRED = '[confirm:phone:expired'
 const CONFIRM_PHONE_SMS_CODE_EXPIRED = '[confirm:phone:smscode:expired'
 const CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED = '[confirm:phone:smscode:verify:failed'
 const CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED = '[confirm:phone:smscode:tooManyRequests'

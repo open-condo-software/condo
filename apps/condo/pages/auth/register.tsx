@@ -3,10 +3,10 @@ import { FormattedMessage } from 'react-intl'
 import Router, { useRouter } from 'next/router'
 import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
-import React, { createContext, useEffect, useState, useContext, useCallback } from 'react'
+import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
+import React, { createContext, useEffect, useState, useContext, useCallback, Dispatch, SetStateAction } from 'react'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { 
+import {
     START_CONFIRM_PHONE_MUTATION,
     RESEND_CONFIRM_PHONE_SMS_MUTATION,
     COMPLETE_CONFIRM_PHONE_MUTATION,
@@ -27,44 +27,50 @@ import { isEmpty } from 'lodash'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
-import { 
-    PHONE_ALREADY_REGISTERED_ERROR, 
-    MIN_PASSWORD_LENGTH_ERROR, 
+import {
+    PHONE_ALREADY_REGISTERED_ERROR,
+    MIN_PASSWORD_LENGTH_ERROR,
     EMAIL_ALREADY_REGISTERED_ERROR,
     CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED,
     CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED,
     CONFIRM_PHONE_ACTION_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_EXPIRED,
+    TOO_MANY_REQUESTS,
 } from '@condo/domains/user/constants/errors'
-
 
 const POLICY_LOCATION = '/policy.pdf'
 const LINK_STYLE = { color: colors.sberPrimary[7] }
 const INPUT_STYLE = { width: '20em' }
 
 interface IRegisterContext {
-    setconfirmPhoneActionToken: (token: string) => void,
-    setPhone: (phone: string) => void,
-    handleReCaptchaVerify: (action: string) => Promise<string>,
-    confirmPhoneActionToken: string,
-    phone: string,
-    tokenError: Error,
+    handleReCaptchaVerify: (action: string) => Promise<string>
+    token: string
+    setToken: Dispatch<SetStateAction<string>>
+    phone: string
+    setPhone: Dispatch<SetStateAction<string>>
+    tokenError: Error
+    setTokenError: Dispatch<SetStateAction<Error>>
+    isConfirmed: boolean
 }
 
 const RegisterContext = createContext<IRegisterContext>({
-    setconfirmPhoneActionToken: (token) => null,
-    setPhone: (phone) => null,
     handleReCaptchaVerify: (action: string) => null,
-    confirmPhoneActionToken: '',
+    token: '',
+    setToken: (token) => null,
     phone: '',
+    setPhone: (phone) => null,
     tokenError: null,
+    setTokenError: (error) => null,
+    isConfirmed: false,
 })
 
 const Register = ({ children }): React.ReactElement => {
-    const { query: { token } } = useRouter()
-    const [confirmPhoneActionToken, setconfirmPhoneActionToken] = useState(token as string)
+    const { query: { token: queryToken } } = useRouter()
+    const [token, setToken] = useState(queryToken as string)
     const [phone, setPhone] = useState('')
     const [tokenError, setTokenError] = useState<Error | null>(null)
+    const [isConfirmed, setIsConfirmed] = useState(false)
+
     const { executeRecaptcha } = useGoogleReCaptcha()
     const handleReCaptchaVerify = useCallback(async (action) => {
         if (executeRecaptcha) {
@@ -72,38 +78,41 @@ const Register = ({ children }): React.ReactElement => {
             return userToken
         }
     }, [executeRecaptcha])
-    useEffect(() => {
-        if (!confirmPhoneActionToken) {
+
+    const [loadTokenInfo] = useLazyQuery(GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY, {
+        onError: error => {
+            setTokenError(error)
+        },
+        onCompleted: ({ result: { phone, isPhoneVerified } }) => {
+            setPhone(phone)
+            setIsConfirmed(isPhoneVerified)
             setTokenError(null)
-        }        
-    }, [confirmPhoneActionToken])
-    const [loadPhoneByToken] = useLazyQuery(
-        GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY,
-        {
-            onError: error => {
-                setTokenError(error)
-            },
-            onCompleted: ({ result: { phone } }) => {
-                setPhone(phone)
-            },
-        })
+        },
+    })
+
     useEffect(() => {
-        if (!isEmpty(confirmPhoneActionToken)) {
+        console.log('Loading token info ')
+        if (!isEmpty(token)) {
             handleReCaptchaVerify('get_confirm_phone_token_info').then(captcha => {
-                loadPhoneByToken({ variables: { data: { token: confirmPhoneActionToken, captcha } } })
-            })            
+                loadTokenInfo({ variables: { data: { token, captcha } } })
+            })
         } else {
             setPhone('')
+            setIsConfirmed(false)
         }
-    }, [loadPhoneByToken, confirmPhoneActionToken, handleReCaptchaVerify])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [token])
+
     return (
         <RegisterContext.Provider
             value={{
-                confirmPhoneActionToken,
-                setconfirmPhoneActionToken,
-                setPhone,
                 phone,
+                setPhone,
+                token,
+                setToken,
                 tokenError,
+                setTokenError,
+                isConfirmed,
                 handleReCaptchaVerify,
             }}
         >
@@ -119,10 +128,16 @@ const RegisterSteps = (): React.ReactElement => {
     const PhoneConfirmTokenErrorMessage = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorMessage' })
     const RestartPhoneConfirmLabel = intl.formatMessage({ id: 'pages.auth.register.RestartPhoneConfirmLabel' })
 
-    const { confirmPhoneActionToken, tokenError, setconfirmPhoneActionToken } = useContext(RegisterContext)
-    const [state, setState] = useState(isEmpty(confirmPhoneActionToken) ? 'inputPhone' : 'validatePhone')
+    const { token, isConfirmed, tokenError, setToken, setTokenError } = useContext(RegisterContext)
+    let initialState = 'inputPhone'
+    if (token && isConfirmed) {
+        initialState = 'register'
+    } else if (token) {
+        initialState = 'validatePhone'
+    }
+    const [state, setState] = useState(initialState)
 
-    if (tokenError && confirmPhoneActionToken) {
+    if (tokenError && token) {
         return (
             <BasicEmptyListView>
                 <Typography.Title level={3}>
@@ -135,7 +150,8 @@ const RegisterSteps = (): React.ReactElement => {
                     type='sberPrimary'
                     style={{ marginTop: '16px' }}
                     onClick={() => {
-                        setconfirmPhoneActionToken(null)
+                        setToken(null)
+                        setTokenError(null)
                         setState('inputPhone')
                         Router.push('/auth/register')
                     }}
@@ -152,7 +168,7 @@ const RegisterSteps = (): React.ReactElement => {
             Router.push('/auth/register')
         }} />,
         register: <RegisterForm onFinish={() => null} />,
-    }    
+    }
     return (
         <>
             <Typography.Title style={{ textAlign: 'left' }}>{RegistrationTitleMsg}</Typography.Title>
@@ -183,13 +199,17 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
     const UserAgreementFileName = intl.formatMessage({ id: 'pages.auth.register.info.UserAgreementFileName' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const { setconfirmPhoneActionToken, setPhone, handleReCaptchaVerify } = useContext(RegisterContext)
+    const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+    const { setToken, setPhone, handleReCaptchaVerify } = useContext(RegisterContext)
     const [smsSendError, setSmsSendError] = useState(null)
     const [isloading, setIsLoading] = useState(false)
     const [startPhoneVerify] = useMutation(START_CONFIRM_PHONE_MUTATION)
-
-    const ErrorToFormFieldMsgMapping = {}
-
+    const ErrorToFormFieldMsgMapping = {
+        [TOO_MANY_REQUESTS]: {
+            name: 'phone',
+            errors: [SMSTooManyRequestsError],
+        },
+    }
     const startConfirmPhone = async () => {
         const registerExtraData = {
             dv: 1,
@@ -206,7 +226,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
             variables,
             onCompleted: (data) => {
                 const { data: { result: { token } } } = data
-                setconfirmPhoneActionToken(token)
+                setToken(token)
                 Router.push(`/auth/register?token=${token}`)
                 onFinish()
             },
@@ -299,7 +319,8 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
     const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
     const SMSMaxRetriesReachedError = intl.formatMessage({ id: 'pages.auth.register.SMSMaxRetriesReachedError' })
     const SMSBadFormat = intl.formatMessage({ id: 'pages.auth.register.SMSBadFormat' })
-    
+    const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+
     const ErrorToFormFieldMsgMapping = {
         [CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED]: {
             name: 'smsCode',
@@ -316,12 +337,16 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
         [CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED]: {
             name: 'smsCode',
             errors: [SMSMaxRetriesReachedError],
-        },                
+        },
+        [TOO_MANY_REQUESTS]: {
+            name: 'smsCode',
+            errors: [SMSTooManyRequestsError],
+        },
     }
 
     const [isPhoneVisible, setisPhoneVisible] = useState(false)
     const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'Hide' }) : intl.formatMessage({ id: 'Show' })
-    const { confirmPhoneActionToken, phone, handleReCaptchaVerify } = useContext(RegisterContext)
+    const { token, phone, handleReCaptchaVerify } = useContext(RegisterContext)
     const [showPhone, setShowPhone] = useState(phone)
     useEffect(() => {
         if (isPhoneVisible) {
@@ -332,12 +357,12 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
         }
     }, [isPhoneVisible, phone, setShowPhone])
     const [phoneValidateError, setPhoneValidateError] = useState(null)
-    
+
     const [resendSmsMutation] = useMutation(RESEND_CONFIRM_PHONE_SMS_MUTATION)
     const resendSms = async () => {
         const sender = getClientSideSenderInfo()
         const captcha = await handleReCaptchaVerify('resend_sms')
-        const variables = { data: { token: confirmPhoneActionToken, sender, captcha } }
+        const variables = { data: { token, sender, captcha } }
         return runMutation({
             mutation: resendSmsMutation,
             variables,
@@ -355,7 +380,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
             throw new Error(SMSBadFormat)
         }
         const captcha = await handleReCaptchaVerify('complete_verify_phone')
-        const variables = { data: { token: confirmPhoneActionToken, smsCode, captcha } }
+        const variables = { data: { token, smsCode, captcha } }
         return runMutation({
             mutation: completeConfirmPhoneMutation,
             variables,
@@ -363,7 +388,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
             form,
             ErrorToFormFieldMsgMapping,
         })
-    }    
+    }
 
     async function handleVerifyCode () {
         setPhoneValidateError(null)
@@ -421,7 +446,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
                     <Input onChange={handleVerifyCode} style={INPUT_STYLE} />
                 </Form.Item>
             </Form>
-            <CountDownTimer action={resendSms} id={'RESEND_SMS'} timeout={SMS_CODE_TTL}>
+            <CountDownTimer action={resendSms} id={'RESEND_SMS'} timeout={SMS_CODE_TTL} autostart={true}>
                 {({ countdown, runAction }) => {
                     const isCountDownActive = countdown > 0
                     return (
@@ -446,7 +471,7 @@ interface IRegisterFormProps {
 
 const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
     const [form] = Form.useForm()
-    const { phone, confirmPhoneActionToken } = useContext(RegisterContext)
+    const { phone, token } = useContext(RegisterContext)
     const [isLoading, setIsLoading] = useState(false)
     const { signInByPhone } = useContext(AuthLayoutContext)
     const initialValues = { phone }
@@ -494,7 +519,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
         }
         const { name, email: inputEmail, password } = form.getFieldsValue(['name', 'email', 'password'])
         const email = inputEmail.toLowerCase().trim()
-        const data = { name, email, password, ...registerExtraData, confirmPhoneActionToken }
+        const data = { name, email, password, ...registerExtraData, confirmPhoneActionToken: token }
         setIsLoading(true)
         return runMutation({
             mutation: registerMutation,

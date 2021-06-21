@@ -22,7 +22,7 @@ module.exports = withTM(withLess(withCSS({
         apolloGraphQLUrl,
         addressSuggestionsConfig,
         mapApiKey,
-        googleCaptcha: googleCaptcha.SITE_KEY,
+        googleCaptcha,
         behaviorRecorder,
         docsConfig,
     },

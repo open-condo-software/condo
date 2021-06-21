@@ -62,8 +62,8 @@ const START_CONFIRM_PHONE_MUTATION = gql`
     }
 `
 const RESEND_CONFIRM_PHONE_SMS_MUTATION = gql`
-    mutation confirmPhoneActionResendSms($data: ConfirmPhoneActionResendSmsInput!) {
-        result: confirmPhoneActionResendSms(data: $data) { status }
+    mutation resendConfirmPhoneActionSms($data: ResendConfirmPhoneActionSmsInput!) {
+        result: resendConfirmPhoneActionSms(data: $data) { status }
     }
 `
 const COMPLETE_CONFIRM_PHONE_MUTATION = gql`
@@ -73,7 +73,7 @@ const COMPLETE_CONFIRM_PHONE_MUTATION = gql`
 `
 const GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY = gql`
     query getPhoneByConfirmPhoneActionToken($data: GetPhoneByConfirmPhoneActionTokenInput!) {
-        result: getPhoneByConfirmPhoneActionToken(data: $data) { phone }
+        result: getPhoneByConfirmPhoneActionToken(data: $data) { phone, isPhoneVerified }
     }
 `
 
@@ -90,7 +90,7 @@ module.exports = {
     SIGNIN_MUTATION,
     CHANGE_PASSWORD_WITH_TOKEN_MUTATION,
     SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,
-    START_PASSWORD_RECOVERY_MUTATION,    
+    START_PASSWORD_RECOVERY_MUTATION,
     START_CONFIRM_PHONE_MUTATION,
     RESEND_CONFIRM_PHONE_SMS_MUTATION,
     COMPLETE_CONFIRM_PHONE_MUTATION,

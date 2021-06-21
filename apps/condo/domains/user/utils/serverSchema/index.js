@@ -6,8 +6,8 @@
 
 const has = require('lodash/has')
 const faker = require('faker')
-const { 
-    SMS_CODE_LENGTH, 
+const {
+    SMS_CODE_LENGTH,
 } = require('@condo/domains/user/constants/common')
 
 
@@ -26,10 +26,10 @@ const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
 
 
 const generateSmsCode = (phone) => {
-    if (has(whiteList, phone)) { // Emulate fire base white list for development - no real send sms
+    if (has(whiteList, phone)) { // Emulate Firebase white list for development - no real send sms
         return Number(whiteList[phone])
     }
-    return faker.datatype.number({ 
+    return faker.datatype.number({
         min: Math.pow(10, SMS_CODE_LENGTH - 1), // example 6 symbols:  min = 10^(6-1) = 100000
         max: Math.pow(10, SMS_CODE_LENGTH) - 1, // max = 10^6-1 = 999999
     })

@@ -4,7 +4,7 @@ import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/common/components/containers/BaseLayout/AuthLayout'
+import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 import React, { useState, useContext } from 'react'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
@@ -63,7 +63,7 @@ const ChangePasswordPage: AuthPage = () => {
         <div >
             <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
             <Typography.Paragraph style={{ textAlign: 'left' }} >{CreateNewPasswordMsg}</Typography.Paragraph>
-                
+
             <Form
                 form={form}
                 name="change-password"
@@ -71,7 +71,7 @@ const ChangePasswordPage: AuthPage = () => {
                 initialValues={initialValues}
                 colon={false}
                 style={{ marginTop: '40px' }}
-                requiredMark={false}                
+                requiredMark={false}
             >
                 <Form.Item name="token" style={{ display: 'none' }}>
                     <Input type="hidden" />
@@ -80,7 +80,7 @@ const ChangePasswordPage: AuthPage = () => {
                     name="password"
                     label={PasswordMsg}
                     labelAlign='left'
-                    labelCol={{ flex: 1 }}                            
+                    labelCol={{ flex: 1 }}
                     rules={[
                         {
                             required: true,
@@ -98,8 +98,8 @@ const ChangePasswordPage: AuthPage = () => {
                     name="confirm"
                     label={ConfirmPasswordMsg}
                     labelAlign='left'
-                    labelCol={{ flex: 1 }}                            
-                    style={{ marginTop: '40px' }}                        
+                    labelCol={{ flex: 1 }}
+                    style={{ marginTop: '40px' }}
                     dependencies={['password']}
                     rules={[
                         {
@@ -114,7 +114,7 @@ const ChangePasswordPage: AuthPage = () => {
                                 return Promise.reject(TwoPasswordDontMatchMsg)
                             },
                         }),
-                    ]}                            
+                    ]}
                 >
                     <Input.Password  style={INPUT_STYLE}/>
                 </Form.Item>
@@ -124,7 +124,7 @@ const ChangePasswordPage: AuthPage = () => {
                             key='submit'
                             type='sberPrimary'
                             loading={isLoading}
-                            htmlType="submit" 
+                            htmlType="submit"
                         >
                             {SaveMsg}
                         </Button>

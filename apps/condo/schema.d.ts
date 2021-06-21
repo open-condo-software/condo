@@ -4170,17 +4170,6 @@ export type ConfirmPhoneActionHistoryRecordsUpdateInput = {
   data?: Maybe<ConfirmPhoneActionHistoryRecordUpdateInput>;
 };
 
-export type ConfirmPhoneActionResendSmsInput = {
-  token: Scalars['String'];
-  sender: Scalars['JSON'];
-  captcha: Scalars['String'];
-};
-
-export type ConfirmPhoneActionResendSmsOutput = {
-  __typename?: 'ConfirmPhoneActionResendSmsOutput';
-  status: Scalars['String'];
-};
-
 export type ConfirmPhoneActionUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
@@ -4757,6 +4746,7 @@ export type GetPhoneByConfirmPhoneActionTokenInput = {
 export type GetPhoneByConfirmPhoneActionTokenOutput = {
   __typename?: 'GetPhoneByConfirmPhoneActionTokenOutput';
   phone: Scalars['String'];
+  isPhoneVerified: Scalars['Boolean'];
 };
 
 export type InviteNewOrganizationEmployeeInput = {
@@ -5889,7 +5879,7 @@ export type Mutation = {
   startPasswordRecovery?: Maybe<Scalars['String']>;
   changePasswordWithToken?: Maybe<Scalars['String']>;
   startConfirmPhoneAction?: Maybe<StartConfirmPhoneActionOutput>;
-  confirmPhoneActionResendSms?: Maybe<ConfirmPhoneActionResendSmsOutput>;
+  resendConfirmPhoneActionSms?: Maybe<ResendConfirmPhoneActionSmsOutput>;
   completeConfirmPhoneAction?: Maybe<CompleteConfirmPhoneActionOutput>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
@@ -7358,8 +7348,8 @@ export type MutationStartConfirmPhoneActionArgs = {
 };
 
 
-export type MutationConfirmPhoneActionResendSmsArgs = {
-  data: ConfirmPhoneActionResendSmsInput;
+export type MutationResendConfirmPhoneActionSmsArgs = {
+  data: ResendConfirmPhoneActionSmsInput;
 };
 
 
@@ -10828,6 +10818,17 @@ export type RegisterNewUserInput = {
   confirmPhoneActionToken?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+};
+
+export type ResendConfirmPhoneActionSmsInput = {
+  token: Scalars['String'];
+  sender: Scalars['JSON'];
+  captcha: Scalars['String'];
+};
+
+export type ResendConfirmPhoneActionSmsOutput = {
+  __typename?: 'ResendConfirmPhoneActionSmsOutput';
+  status: Scalars['String'];
 };
 
 export type ResendMessageInput = {
