@@ -26,7 +26,7 @@ const Contact = new GQLListSchema('Contact', {
             schemaDoc: 'Property, that is a subject of an issue, reported by this person in first ticket. Meaning of this field will be revised in the future',
             type: Relationship,
             ref: 'Property',
-            isRequired: false,
+            isRequired: true,
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
