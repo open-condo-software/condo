@@ -488,13 +488,17 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
                     <Radio
                         onClick={handleChecked}
                         checked={checked}
+                        style={{ marginTop: '8px' }}
                     />
                 )}
             </Col>
             <Col span={2}>
                 {displayMinusButton && (
                     <MinusCircleFilled
-                        style={{ color: green[6] }}
+                        style={{
+                            color: green[6],
+                            marginTop: '12px',
+                        }}
                         onClick={onClickMinusButton}
                     />
                 )}
@@ -538,6 +542,7 @@ const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, onSelect
                 <Radio
                     onClick={handleSelect}
                     checked={selected}
+                    style={{ marginTop: '8px' }}
                 />
             </Col>
             <Col span={2}>
