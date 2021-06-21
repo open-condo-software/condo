@@ -125,35 +125,35 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                         <Col span={13}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
-                                    <FocusContainer>
-                                        <Row justify={'space-between'} gutter={[0, 24]}>
-                                            <Col span={24}>
-                                                <Typography.Title level={5} style={{ margin: '0' }}>{UserInfoTitle}</Typography.Title>
-                                            </Col>
-                                            <Col span={selectedPropertyId ? 18 : 24}>
-                                                <Form.Item name={'property'} label={AddressLabel} rules={validations.property}>
-                                                    <PropertyAddressSearchInput
+                                    <Row justify={'space-between'} gutter={[0, 24]}>
+                                        <Col span={24}>
+                                            <Typography.Title level={5} style={{ margin: '0' }}>{UserInfoTitle}</Typography.Title>
+                                        </Col>
+                                        <Col span={selectedPropertyId ? 18 : 24}>
+                                            <Form.Item name={'property'} label={AddressLabel} rules={validations.property}>
+                                                <PropertyAddressSearchInput
+                                                    onSelect={(_, option) => {
+                                                        form.setFieldsValue({ 'unitName': null })
+                                                        setSelectedPropertyId(option.key)
+                                                    }}
+                                                    placeholder={AddressPlaceholder}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                        {selectedPropertyId && (
+                                            <Col span={4}>
+                                                <Form.Item name={'unitName'} label={FlatNumberLabel}>
+                                                    <UnitNameInput
+                                                        propertyId={selectedPropertyId}
+                                                        allowClear={false}
                                                         onSelect={(_, option) => {
-                                                            form.setFieldsValue({ 'unitName': null })
-                                                            setSelectedPropertyId(option.key)
+                                                            setSelectedUnitName(option.key)
                                                         }}
-                                                        placeholder={AddressPlaceholder}
                                                     />
                                                 </Form.Item>
                                             </Col>
-                                            {selectedPropertyId && (
-                                                <Col span={4}>
-                                                    <Form.Item name={'unitName'} label={FlatNumberLabel}>
-                                                        <UnitNameInput
-                                                            propertyId={selectedPropertyId}
-                                                            allowClear={false}
-                                                            onSelect={(_, option) => {
-                                                                setSelectedUnitName(option.key)
-                                                            }}
-                                                        />
-                                                    </Form.Item>
-                                                </Col>
-                                            )}
+                                        )}
+                                        <Col span={24}>
                                             <Form.Item shouldUpdate noStyle>
                                                 {({ getFieldsValue }) => {
                                                     const { property, unitName } = getFieldsValue(['property', 'unitName'])
@@ -164,38 +164,40 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                         phone: initialValues.clientPhone,
                                                     } : null
 
-                                                    return property && (
-                                                        <Tabs defaultActiveKey="1" style={{ width: '100%' }}>
-                                                            <TabPane tab={TicketFromResidentMessage} key="1">
-                                                                <ContactsEditorComponent
-                                                                    form={form}
-                                                                    fields={{
-                                                                        id: 'contact',
-                                                                        phone: 'clientPhone',
-                                                                        name: 'clientName',
-                                                                    }}
-                                                                    value={value}
-                                                                    // Local `property` cannot be used here, because `PropertyAddressSearchInput`
-                                                                    // sets `Property.address` as its value, but we need `Property.id` here
-                                                                    property={selectedPropertyId}
-                                                                    unitName={unitName}
+                                                    return (
+                                                        <FocusContainer>
+                                                            <Tabs defaultActiveKey="1" style={{ width: '100%' }}>
+                                                                <TabPane tab={TicketFromResidentMessage} key="1">
+                                                                    <ContactsEditorComponent
+                                                                        form={form}
+                                                                        fields={{
+                                                                            id: 'contact',
+                                                                            phone: 'clientPhone',
+                                                                            name: 'clientName',
+                                                                        }}
+                                                                        value={value}
+                                                                        // Local `property` cannot be used here, because `PropertyAddressSearchInput`
+                                                                        // sets `Property.address` as its value, but we need `Property.id` here
+                                                                        property={selectedPropertyId}
+                                                                        unitName={unitName}
+                                                                    />
+                                                                </TabPane>
+                                                                <TabPane
+                                                                    tab={
+                                                                        <Tooltip title={NotImplementedYetMessage}>
+                                                                            {TicketNotFromResidentMessage}
+                                                                        </Tooltip>
+                                                                    }
+                                                                    key="2"
+                                                                    disabled
                                                                 />
-                                                            </TabPane>
-                                                            <TabPane
-                                                                tab={
-                                                                    <Tooltip title={NotImplementedYetMessage}>
-                                                                        {TicketNotFromResidentMessage}
-                                                                    </Tooltip>
-                                                                }
-                                                                key="2"
-                                                                disabled
-                                                            />
-                                                        </Tabs>
+                                                            </Tabs>
+                                                        </FocusContainer>
                                                     )
                                                 }}
                                             </Form.Item>
-                                        </Row>
-                                    </FocusContainer>
+                                        </Col>
+                                    </Row>
                                 </Col>
                                 <Form.Item noStyle dependencies={['property']}>
                                     {
