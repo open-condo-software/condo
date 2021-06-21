@@ -501,7 +501,7 @@ const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, onSelect
                 <PhoneInput
                     disabled
                     value={contact.phone}
-                    style={{ width: '100%' }}
+                    style={{ width: '100%', height: '40px' }}
                 />
             </Col>
             <Col span={10}>
