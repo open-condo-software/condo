@@ -60,6 +60,29 @@ describe('Contact', () => {
         })
     })
 
+    describe('validation', () => {
+        test('name length should be min 2 characters', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            await catchErrorFrom(async () => {
+                await createTestContact(adminClient, userClient.organization, {
+                    name: '',
+                })
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                expect(errors[0].data.messages[0]).toMatch('Name should not be a blank string')
+            })
+            await catchErrorFrom(async () => {
+                await createTestContact(adminClient, userClient.organization, {
+                    name: 'a',
+                })
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                expect(errors[0].data.messages[0]).toMatch('Name should not be a one-character string')
+            })
+        })
+    })
+
     describe('normalization', async () => {
         it('converts phone to E.164 format without spaces', async () => {
             const userClient = await makeClientWithProperty()

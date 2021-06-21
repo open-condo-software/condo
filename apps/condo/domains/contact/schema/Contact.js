@@ -62,6 +62,17 @@ const Contact = new GQLListSchema('Contact', {
             schemaDoc: 'Name or full name of this person',
             type: Text,
             isRequired: true,
+            hooks: {
+                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                    if (!resolvedData.hasOwnProperty(fieldPath)) return // skip if on value
+                    const value = resolvedData[fieldPath]
+                    if (value === '') {
+                        return addFieldValidationError('Name should not be a blank string')
+                    } else if (value.length === 1) {
+                        return addFieldValidationError('Name should not be a one-character string')
+                    }
+                },
+            },
         },
 
     },
