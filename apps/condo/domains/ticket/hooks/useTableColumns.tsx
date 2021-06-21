@@ -150,9 +150,9 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 render: (status, record) => {
                     const { primary: color, secondary: backgroundColor } = status.colors
                     return (
-                        <span style={{ lineHeight: '30px' }}>
-                            <Tag color={backgroundColor} style={{ color }}>
-                                <Typography.Text strong>{
+                        <Space direction='vertical' size={7}>
+                            <Tag color={backgroundColor}>
+                                <Typography.Text style={{ color }}>{
                                     isEmpty(status.name)
                                         ? status.name
                                         : (
@@ -168,10 +168,10 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                                         )}</Typography.Text>
                             </Tag>
                             { record.isEmergency &&
-                            <Tag color={ '#FFCCC7' }>
-                                <Typography.Text style={{ color: '#F5222D' }}>{ EmergencyMessage }</Typography.Text>
+                            <Tag color={colors.emergencyTagBackground}>
+                                <Typography.Text style={{ color: colors.emergencyTagColor }}>{ EmergencyMessage }</Typography.Text>
                             </Tag> }
-                        </span>
+                        </Space>
                     )
                 },
                 dataIndex: 'status',
