@@ -165,7 +165,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                     } : null
 
                                                     return (
-                                                        <FocusContainer>
+                                                        <FocusContainer className={!property && 'disabled'}>
                                                             <Tabs defaultActiveKey="1" style={{ width: '100%' }}>
                                                                 <TabPane tab={TicketFromResidentMessage} key="1">
                                                                     <ContactsEditorComponent
