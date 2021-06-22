@@ -357,10 +357,10 @@
   "VerificationCodeHasBeenSentToYourPhone": "Verification code has been sent to your phone",
   "WeAreStillDevelopingThisPage": "We are still **developing** this page, it is not **yet** available",
   "Welcome": "Hello, {name}!",
-  "You": "you"
   "You": "you",
   "contact.Contact.ContactsEditor.AddNewContact": "New contact",
   "contact.Contact.ContactsEditor.Phone": "Phone",
   "contact.Contact.ContactsEditor.Name": "Name",
-  "contact.Contact.ContactsEditor.AnotherContact": "Another contact"
+  "contact.Contact.ContactsEditor.AnotherContact": "Another contact",
+  "contact.Contact.ContactsEditor.CannotCreateContact": "Contacts requisites will be saved into the ticket, but a Contact record will not be created, because current use does not have rights to do so"
 }
