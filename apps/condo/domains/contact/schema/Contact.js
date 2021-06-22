@@ -28,7 +28,8 @@ const Contact = new GQLListSchema('Contact', {
             type: Relationship,
             ref: 'Property',
             isRequired: true,
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            knexOptions: { isNotNullable: true }, // Required relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
         unitName: {
