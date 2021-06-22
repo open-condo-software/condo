@@ -1,9 +1,8 @@
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { GET_ALL_TICKET_FOR_XLS_EXPORT, EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
+import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
 import { DatabaseFilled } from '@ant-design/icons'
-import { format } from 'date-fns'
 import {
     filtersToQuery,
     getPageIndexFromQuery,

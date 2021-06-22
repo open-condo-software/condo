@@ -107,27 +107,6 @@ const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
 const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
 
-
-/* AUTOGENERATE MARKER <CONST> */
-const XLS_EXPORT_LIMIT = 100
-// If there is no limit - error "maxTotalResults","limit":1000 - will take place
-// TODO(zuch): Xls export on server side and make xls exports look better
-
-const GET_ALL_TICKET_FOR_XLS_EXPORT = gql`
-    query GetAllTicketsForXLS ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!]) {
-        tickets: allTickets(where: $where, sortBy: $sortBy, first: ${XLS_EXPORT_LIMIT}) {
-            number
-            status { id name }
-            details
-            property { id name }
-            assignee { id name }
-            executor { id name }
-            createdAt
-            clientName
-        }
-  }
-`
-
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportToExcel ($data: TicketExportExcelInput!) {
         result: exportTicketsToExcel(data: $data) { status, linkToFile }
@@ -142,7 +121,6 @@ module.exports = {
     TicketClassifier,
     TicketFile,
     TICKET_CHANGE_DATA_FIELDS,
-    GET_ALL_TICKET_FOR_XLS_EXPORT,
     EXPORT_TICKETS_TO_EXCEL,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
