@@ -9,6 +9,7 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const access = require('@condo/domains/contact/access/Contact')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { Contact: ContactAPI } = require('../utils/serverSchema')
 
 /**
  * Composite unique constraint with name `Contact_uniq` is declared in a database-level on following set of columns:
@@ -75,6 +76,26 @@ const Contact = new GQLListSchema('Contact', {
             },
         },
 
+    },
+    hooks: {
+        validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
+            const { property, unitName, name, phone } = resolvedData
+            const [contact] = await ContactAPI.getAll(context, {
+                property: { id: property },
+                unitName,
+                name,
+                phone,
+            })
+            if (operation === 'create') {
+                if (contact) {
+                    return addValidationError('Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"')
+                }
+            } else if (operation === 'update') {
+                if (contact && contact.id !== existingItem.id) {
+                    return addValidationError('Cannot update contact, because another contact already exists with the same provided set of "property", "unitName", "name", "phone"')
+                }
+            }
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

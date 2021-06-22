@@ -41,22 +41,52 @@ describe('Contact', () => {
         expect(obj.property).toBeNull()
     })
 
-    test('unique constraint', async () => {
-        const userClient = await makeClientWithProperty()
-        const adminClient = await makeLoggedInAdminClient()
-        const duplicatedFields = {
-            property: { connect: { id: userClient.property.id } },
-            unitName: faker.random.alphaNumeric(3),
-            name: faker.name.firstName(),
-            phone: createTestPhone(),
-        }
-        await createTestContact(adminClient, userClient.organization, duplicatedFields)
-
-        await catchErrorFrom(async () => {
+    describe('unique constraint', async () => {
+        it('throws error on create record with same set of fields: "property", "unitName", "name", "phone"', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const duplicatedFields = {
+                property: { connect: { id: userClient.property.id } },
+                unitName: faker.random.alphaNumeric(3),
+                name: faker.name.firstName(),
+                phone: createTestPhone(),
+            }
             await createTestContact(adminClient, userClient.organization, duplicatedFields)
-        }, ({ errors, data }) => {
-            expect(errors[0].message).toMatch('duplicate key value violates unique constraint "Contact_uniq"')
-            expect(data).toEqual({ 'obj': null })
+
+            await catchErrorFrom(async () => {
+                await createTestContact(adminClient, userClient.organization, duplicatedFields)
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                expect(errors[0].data.messages[0]).toMatch('Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"')
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
+        it('throws error on update record when another record exist with same set of fields: "property", "unitName", "name", "phone"', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const sameFields = {
+                property: { connect: { id: userClient.property.id } },
+                unitName: faker.random.alphaNumeric(3),
+                name: faker.name.firstName(),
+                phone: createTestPhone(),
+            }
+
+            await createTestContact(adminClient, userClient.organization, sameFields)
+            const [contact] = await createTestContact(adminClient, userClient.organization, {
+                property: { connect: { id: userClient.property.id } },
+                unitName: faker.random.alphaNumeric(3),
+                name: faker.name.firstName(),
+                phone: createTestPhone(),
+            })
+
+            await catchErrorFrom(async () => {
+                await updateTestContact(adminClient, contact.id, sameFields)
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                expect(errors[0].data.messages[0]).toMatch('Cannot update contact, because another contact already exists with the same provided set of "property", "unitName", "name", "phone"')
+                expect(data).toEqual({ 'obj': null })
+            })
         })
     })
 
