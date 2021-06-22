@@ -159,6 +159,13 @@ export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs)
 }
 
 export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
+    const intl = useIntl()
+    const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
+    const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
+    const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
+    const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
+    const CannotCreateContactMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.CannotCreateContact' })
+
     const { form, fields, value: initialValue, onChange, organization, property, unitName } = props
 
     const [contacts, setContacts] = useState([])
@@ -196,15 +203,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     // manually typed information should not be lost.
     const [manuallyTypedContact, setManuallyTypedContact] = useState()
     const [displayEditableContactFields, setDisplayEditableContactFields] = useState()
-    const intl = useIntl()
-    const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
-    const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
-    const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
-    const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
-    const CannotCreateContactMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.CannotCreateContact' })
 
     const validations = useTicketValidations()
-
 
     // It's not enough to have `value` props of `Input` set.
     useEffect(() => {
