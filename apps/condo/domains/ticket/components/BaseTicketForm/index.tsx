@@ -18,6 +18,8 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor'
+import { useOrganization } from '@core/next/organization'
+
 
 const { TabPane } = Tabs
 
@@ -89,8 +91,13 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         organization: organization.id,
     })
 
+    const { link: { role } } = useOrganization()
+
     const action = async (variables, ...args) => {
-        const createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
+        let createdContact
+        if (role.canManageContacts) {
+            createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
+        }
         const result = await _action({
             ...variables,
             contact: get(createdContact, 'id') || variables.contact,
