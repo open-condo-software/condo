@@ -185,16 +185,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
             setError(error)
         })
 
-    Contact.useObjects({
-        where: {
-            organization: { id: organization },
-            property: property ? { id: property } : undefined,
-            unitName: unitName || undefined,
-        },
-    }, {
-        fetchPolicy: 'network-only',
-    })
-
     const [selectedContact, setSelectedContact] = useState(null)
     const [value, setValue] = useState(initialValue)
     const [editableFieldsChecked, setEditableFieldsChecked] = useState(false)
