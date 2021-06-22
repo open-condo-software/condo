@@ -6,7 +6,7 @@
     But the apollo-errors is not compatible with the common GraphQL spec.
     We need a way to fix it!
 
-    1) you should read at leas an examples from GraphQL specification: http://spec.graphql.org/draft/#sec-Errors and https://github.com/graphql/graphql-js/blob/main/src/error/GraphQLError.ts
+    1) you should read at least an example from GraphQL specification: http://spec.graphql.org/draft/#sec-Errors and https://github.com/graphql/graphql-js/blob/main/src/error/GraphQLError.ts
     2) you need to read the code from apollo-errors npm package: https://github.com/thebigredgeek/apollo-errors/blob/master/src/index.ts
     3) you need to look at: https://www.apollographql.com/docs/apollo-server/data/errors/ and https://github.com/apollographql/apollo-server/blob/main/packages/apollo-server-errors/src/index.ts
     4) you need to look at KeystonJs source: /node_modules/@keystonejs/keystone/lib/Keystone/format-error.js,
