@@ -33,6 +33,12 @@ const STATUS_SELECT_COLORS = {
     },
 }
 
+const EMERGENCY_TAG_COLOR = {
+    background: '#FFCCC7',
+    text: '#F5222D',
+}
+
 module.exports = {
+    EMERGENCY_TAG_COLOR,
     STATUS_SELECT_COLORS,
 }
