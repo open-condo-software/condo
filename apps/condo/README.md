@@ -120,3 +120,18 @@ Fields:
    - `operator:Relationship:User:SET_NULL;` -- SET_NULL example ^^
    - `user:Relationship:User:CASCADE;` -- `CASCADE`: When the referenced object is deleted, also delete the objects that have references to it (when you remove a blog post for instance, you might want to delete comments as well). SQL equivalent: CASCADE.
    - `property:Relationship:Property:CASCADE;` -- CASCADE ^^
+
+# local development and debug
+
+For easy local development you can add `.env` config:
+```
+TESTS_FAKE_CLIENT_MODE=true
+TESTS_FAKE_WORKER_MODE=true
+TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS=true
+NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
+```
+
+ - `TESTS_FAKE_CLIENT_MODE` -- switch to mode where the tests are executed in the same process as the web server
+ - `TESTS_FAKE_WORKER_MODE` -- switch to mode where a task worker is executed in the same process as the tests
+ - `TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS` -- console.log GraphQL request errors
+ - `NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE` -- switch to mode where SendMessageService just display the messages to console
