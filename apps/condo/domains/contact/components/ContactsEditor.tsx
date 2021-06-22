@@ -14,6 +14,8 @@ import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicke
 import styled from '@emotion/styled'
 import { useApolloClient } from '@core/next/apollo'
 import { searchContacts } from '@condo/domains/ticket/utils/clientSchema/search'
+import { useOrganization } from '@core/next/organization'
+import { ErrorsWrapper } from '@condo/domains/ticket/components/BaseTicketForm/ErrorsContainer'
 
 interface ILabelsProps {
     left: React.ReactNode,
@@ -162,7 +164,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const [contacts, setContacts] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState()
-
+    const { link: { role } } = useOrganization()
     const client = useApolloClient()
 
     searchContacts(client, {
@@ -199,6 +201,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
     const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
     const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
+    const CannotCreateContactMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.CannotCreateContact' })
 
     const validations = useTicketValidations()
 
@@ -322,6 +325,13 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                             displayMinusButton={true}
                                             onClickMinusButton={handleClickOnMinusButton}
                                         />
+                                        {!role.canManageContacts && (
+                                            <Col span={24}>
+                                                <ErrorsWrapper>
+                                                    {CannotCreateContactMessage}
+                                                </ErrorsWrapper>
+                                            </Col>
+                                        )}
                                     </>
                                 ) : (
                                     <Col span={24}>
