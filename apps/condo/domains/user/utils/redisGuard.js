@@ -1,7 +1,6 @@
 const conf = require('@core/config')
 const IORedis = require('ioredis')
-// TODO(zuch) : remove WORKER_REDIS_URL when .env will be updated
-const REDIS_URL = conf['REDIS_URL'] || conf['WORKER_REDIS_URL']
+const REDIS_URL = conf['REDIS_URL']
 const { utc } = require('moment')
 
 class RedisGuard {

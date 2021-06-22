@@ -192,7 +192,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     completedAt: null,
                 })
                 if (isEmpty(actions)) {
-                    throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}]: Unable to find confirm phone action by token`)
+                    throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] unable to find confirm phone action by token`)
                 }
                 const { phone, isPhoneVerified } = actions[0]
                 return { phone, isPhoneVerified }
@@ -265,7 +265,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     completedAt: null,
                 })
                 if (isEmpty(actions)) {
-                    throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] : Unable to find confirm phone action by token`)
+                    throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] unable to find confirm phone action by token`)
                 }
                 const { id, phone } = actions[0]
                 await checkDayLimitCounters(phone, context.req.ip)
@@ -307,7 +307,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     completedAt: null,
                 })
                 if (isEmpty(actions)) {
-                    throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] Unable to find confirm phone action`)
+                    throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] unable to find confirm phone action`)
                 }
                 await checkLock(token, 'confirm')
                 await redisGuard.lock(token, 'confirm', LOCK_TIMEOUT)
