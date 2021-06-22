@@ -74,7 +74,6 @@ const Contact = new GQLListSchema('Contact', {
             isRequired: true,
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
-                    if (!resolvedData.hasOwnProperty(fieldPath)) return // skip if on value
                     const value = resolvedData[fieldPath]
                     if (value === '') {
                         return addFieldValidationError('Name should not be a blank string')
