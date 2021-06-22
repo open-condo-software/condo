@@ -358,4 +358,9 @@
   "WeAreStillDevelopingThisPage": "We are still **developing** this page, it is not **yet** available",
   "Welcome": "Hello, {name}!",
   "You": "you"
+  "You": "you",
+  "contact.Contact.ContactsEditor.AddNewContact": "New contact",
+  "contact.Contact.ContactsEditor.Phone": "Phone",
+  "contact.Contact.ContactsEditor.Name": "Name",
+  "contact.Contact.ContactsEditor.AnotherContact": "Another contact"
 }
