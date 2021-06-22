@@ -8,6 +8,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const access = require('@condo/domains/contact/access/Contact')
+const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { Contact: ContactAPI } = require('../utils/serverSchema')
 
@@ -55,7 +56,14 @@ const Contact = new GQLListSchema('Contact', {
             isRequired: true,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
-                    return normalizePhone(resolvedData['phone'])
+                    const newValue = normalizePhone(resolvedData['phone'])
+                    return newValue || resolvedData['phone']
+                },
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                    const newValue = normalizePhone(resolvedData['phone'])
+                    if (!newValue && newValue !== resolvedData['phone']) {
+                        addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
+                    }
                 },
             },
         },
