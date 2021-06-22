@@ -9,6 +9,7 @@ import moment from 'moment'
 import React, { useMemo } from 'react'
 import { FilterFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
+import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { createSorterMap, IFilters } from '../utils/helpers'
@@ -168,8 +169,8 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                                         )}</Typography.Text>
                             </Tag>
                             { record.isEmergency &&
-                            <Tag color={colors.emergencyTagBackground}>
-                                <Typography.Text style={{ color: colors.emergencyTagColor }}>{ EmergencyMessage }</Typography.Text>
+                            <Tag color={EMERGENCY_TAG_COLOR.background}>
+                                <Typography.Text style={{ color: EMERGENCY_TAG_COLOR.text }}>{ EmergencyMessage }</Typography.Text>
                             </Tag> }
                         </Space>
                     )
