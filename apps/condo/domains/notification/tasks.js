@@ -24,6 +24,13 @@ async function _sendMessageByAdapter (transport, adapter, messageContext) {
 }
 
 async function _choseMessageTransport (message) {
+    const { phone, user, email } = message
+    if (message.type.indexOf('SMS_') === 0) {
+        return SMS_TRANSPORT
+    }
+    if (phone && !user && !email) {
+        return SMS_TRANSPORT
+    }
     // TODO(pahaz): we should chose the best transport for the message.
     //  We can chose transport depends on the message.type?
     //  or use something like message.user.profile.preferredNotificationTransport if user want to get messages from TG
@@ -61,6 +68,7 @@ async function deliveryMessage (messageId) {
     })
 
     try {
+        console.log('adapter is adapter', TRANSPORTS[transport])
         const adapter = TRANSPORTS[transport]
         const messageContext = await adapter.prepareMessageToSend(message)
         processingMeta.step = 'prepared'
