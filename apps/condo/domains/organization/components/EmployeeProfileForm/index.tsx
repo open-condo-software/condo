@@ -60,7 +60,7 @@ export const EmployeeProfileForm = () => {
             action={formAction}
             initialValues={initialValues}
             layout={'horizontal'}
-            validateTrigger={['onBlur', 'onSubmit', 'onChange']}
+            validateTrigger={['onBlur', 'onSubmit']}
             formValuesToMutationDataPreprocessor={(values) => {
                 const isRoleDeleted = !values.role && initialValues.role
 
