@@ -90,7 +90,7 @@ class TriggersManager {
 
 const triggersManager = new TriggersManager()
 
-// TODO:Dimtiree add dynamic trigger registration
+// TODO(Dimtiree): add dynamic trigger registration
 const registerTriggers = (modulesList) => {
     modulesList.forEach(
         (module) => {
