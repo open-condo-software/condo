@@ -5,4 +5,5 @@
 
 export * as User from './User'
 export * as ConfirmPhoneAction from './ConfirmPhoneAction'
+export * as ForgotPasswordAction from './ForgotPasswordAction'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

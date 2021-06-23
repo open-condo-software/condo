@@ -4,13 +4,14 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-const { v4: uuid } = require('uuid') 
+const { v4: uuid } = require('uuid')
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { User: UserGQL, UserAdmin: UserAdminGQL, REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
 const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
+const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -20,9 +21,9 @@ const createTestEmail = () => ('test.' + getRandomString() + '@example.com').toL
 const createTestPhone = () => '+18170' + String(Math.random()).slice(2).slice(-6)
 
 
-const { 
-    SMS_CODE_TTL, 
-    CONFIRM_PHONE_ACTION_EXPIRY, 
+const {
+    SMS_CODE_TTL,
+    CONFIRM_PHONE_ACTION_EXPIRY,
 } = require('@condo/domains/user/constants/common')
 
 async function createTestUser (client, extraAttrs = {}) {
@@ -104,6 +105,7 @@ async function addAdminAccess (user) {
 }
 
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
+const ForgotPasswordAction = generateGQLTestUtils(ForgotPasswordActionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
@@ -142,11 +144,45 @@ async function updateTestConfirmPhoneAction (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestForgotPasswordAction (client, user, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const now = Date.now()
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        token: uuid(),
+        requestedAt: new Date(now).toISOString(),
+        expiresAt: new Date(now + CONFIRM_PHONE_ACTION_EXPIRY * 1000).toISOString(),
+        ...extraAttrs,
+    }
+    const obj = await ForgotPasswordAction.create(client, attrs)
+
+    return [obj, attrs]
+}
+
+async function updateTestForgotPasswordAction (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ForgotPasswordAction.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient,
     makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, createTestEmail, createTestPhone,
     ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

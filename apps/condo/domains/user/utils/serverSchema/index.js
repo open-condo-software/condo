@@ -15,10 +15,12 @@ const { generateServerUtils } = require('@condo/domains/common/utils/codegenerat
 
 const { User: UserGQL } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
+const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
 const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
+const ForgotPasswordAction = generateServerUtils(ForgotPasswordActionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const conf = require('@core/config')
@@ -40,5 +42,6 @@ module.exports = {
     User,
     ConfirmPhoneAction,
     generateSmsCode,
+    ForgotPasswordAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
