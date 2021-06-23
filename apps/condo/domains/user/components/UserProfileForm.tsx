@@ -52,7 +52,7 @@ export const UserProfileForm = () => {
             action={formAction}
             initialValues={initialValues}
             layout={'horizontal'}
-            validateTrigger={['onBlur', 'onSubmit', 'onChange']}
+            validateTrigger={['onBlur', 'onSubmit']}
         >
             {({ handleSave, isLoading }) => {
                 return (
