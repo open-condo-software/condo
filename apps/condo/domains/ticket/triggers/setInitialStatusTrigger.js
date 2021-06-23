@@ -37,12 +37,12 @@ const setInitialStatusTrigger = {
             ],
         },
         event: {
-            type: 'setInitialStatus',
+            type: 'setInitialStatusTrigger',
         },
     },
     action: ({ data: { resolvedData } }) => {
         // TODO(Dimitreee): add SDl to triggers action, think about solution
-        // TODO(Dimitreee): should fetch this tatus from organization settings?
+        // TODO(Dimitreee): should fetch this status from organization settings?
         const IN_PROGRESS = 'aa5ed9c2-90ca-4042-8194-d3ed23cb7919'
         resolvedData['status'] = IN_PROGRESS
     },
