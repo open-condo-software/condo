@@ -1,6 +1,7 @@
 import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
+
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import Router from 'next/router'
 import React, { useState, useContext } from 'react'
@@ -71,7 +72,7 @@ const ResetPage: AuthPage = () => {
         }
         return runMutation({
             mutation: startPasswordRecovery,
-            variables: values,
+            variables: { data: values },
             onCompleted: () => {
                 setIsLoading(false)
                 setIsSuccessMessage(true)

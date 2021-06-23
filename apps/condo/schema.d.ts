@@ -3869,6 +3869,25 @@ export enum CacheControlScope {
   Private = 'PRIVATE'
 }
 
+export type ChangePasswordWithTokenInput = {
+  token: Scalars['String'];
+  password: Scalars['String'];
+};
+
+export type ChangePasswordWithTokenOutput = {
+  __typename?: 'ChangePasswordWithTokenOutput';
+  status: Scalars['String'];
+};
+
+export type CheckPasswordRecoveryTokenInput = {
+  token: Scalars['String'];
+};
+
+export type CheckPasswordRecoveryTokenOutput = {
+  __typename?: 'CheckPasswordRecoveryTokenOutput';
+  status: Scalars['String'];
+};
+
 export type CompleteConfirmPhoneActionInput = {
   token: Scalars['String'];
   smsCode: Scalars['Int'];
@@ -4338,7 +4357,7 @@ export type File = {
   publicUrl?: Maybe<Scalars['String']>;
 };
 
-/**  A keystone list  */
+/**  Forgot password actions is used for anonymous user password recovery procedure  */
 export type ForgotPasswordAction = {
   __typename?: 'ForgotPasswordAction';
   /**
@@ -4355,9 +4374,13 @@ export type ForgotPasswordAction = {
   sender?: Maybe<Scalars['JSON']>;
   /**  Ref to the user. The object will be deleted if the user ceases to exist  */
   user?: Maybe<User>;
+  /**  Unique token to complete confirmation  */
   token?: Maybe<Scalars['String']>;
+  /**  DateTime when confirm phone action was started  */
   requestedAt?: Maybe<Scalars['String']>;
+  /**  When password recovery action becomes invalid  */
   expiresAt?: Maybe<Scalars['String']>;
+  /**  When password recovery action was completed  */
   usedAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -5876,8 +5899,8 @@ export type Mutation = {
   deleteMessages?: Maybe<Array<Maybe<Message>>>;
   registerNewUser?: Maybe<User>;
   authenticateUserWithPhoneAndPassword?: Maybe<AuthenticateUserWithPhoneAndPasswordOutput>;
-  startPasswordRecovery?: Maybe<Scalars['String']>;
-  changePasswordWithToken?: Maybe<Scalars['String']>;
+  startPasswordRecovery?: Maybe<StartPasswordRecoveryOutput>;
+  changePasswordWithToken?: Maybe<ChangePasswordWithTokenOutput>;
   startConfirmPhoneAction?: Maybe<StartConfirmPhoneActionOutput>;
   resendConfirmPhoneActionSms?: Maybe<ResendConfirmPhoneActionSmsOutput>;
   completeConfirmPhoneAction?: Maybe<CompleteConfirmPhoneActionOutput>;
@@ -7332,15 +7355,12 @@ export type MutationAuthenticateUserWithPhoneAndPasswordArgs = {
 
 
 export type MutationStartPasswordRecoveryArgs = {
-  email: Scalars['String'];
-  sender: Scalars['JSON'];
-  dv: Scalars['Int'];
+  data: StartPasswordRecoveryInput;
 };
 
 
 export type MutationChangePasswordWithTokenArgs = {
-  token: Scalars['String'];
-  password: Scalars['String'];
+  data: ChangePasswordWithTokenInput;
 };
 
 
@@ -9639,6 +9659,7 @@ export type Query = {
   _MessagesMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
+  checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
@@ -10798,6 +10819,11 @@ export type Query_AllMessagesMetaArgs = {
 
 export type Query_KsListsMetaArgs = {
   where?: Maybe<_KsListsMetaInput>;
+};
+
+
+export type QueryCheckPasswordRecoveryTokenArgs = {
+  data: CheckPasswordRecoveryTokenInput;
 };
 
 
@@ -12320,6 +12346,17 @@ export type StartConfirmPhoneActionInput = {
 export type StartConfirmPhoneActionOutput = {
   __typename?: 'StartConfirmPhoneActionOutput';
   token: Scalars['String'];
+};
+
+export type StartPasswordRecoveryInput = {
+  email: Scalars['String'];
+  sender: Scalars['JSON'];
+  dv: Scalars['Int'];
+};
+
+export type StartPasswordRecoveryOutput = {
+  __typename?: 'StartPasswordRecoveryOutput';
+  status: Scalars['String'];
 };
 
 /**  Users request or contact with the user  */
