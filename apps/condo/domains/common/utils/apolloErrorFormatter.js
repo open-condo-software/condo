@@ -132,20 +132,14 @@ const formatError = error => {
         //   SyntaxError, ValidationError, UserInputError, AuthenticationError, ForbiddenError, PersistedQueryNotFoundError, PersistedQueryNotSupportedError, ...
         if (isKeystoneErrorInstance(originalError) || originalError instanceof ApolloError) {
             // originalError: { message name data internalData time_thrown path locations }
-            graphqlLogger.info({
-                type: 'error',
-                ...safeFormatError(error),
-            })
+            graphqlLogger.info({ error: safeFormatError(error) })
         } else {
-            graphqlLogger.error({
-                type: 'error',
-                ...safeFormatError(error),
-            })
+            graphqlLogger.error({ error: safeFormatError(error) })
         }
     } catch (formatErrorError) {
         // Something went wrong with formatting above, so we log the errors
-        graphqlLogger.error(serializeError(ensureError(error)))
-        graphqlLogger.error(serializeError(ensureError(formatErrorError)))
+        graphqlLogger.error({ error: serializeError(ensureError(error)) })
+        graphqlLogger.error({ error: serializeError(ensureError(formatErrorError)) })
     }
 
     return safeFormatError(error, IS_HIDE_INTERNALS)
