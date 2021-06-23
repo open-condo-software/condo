@@ -5883,6 +5883,7 @@ export type Mutation = {
   completeConfirmPhoneAction?: Maybe<CompleteConfirmPhoneActionOutput>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
+  reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
   sendMessage?: Maybe<SendMessageOutput>;
@@ -7365,6 +7366,11 @@ export type MutationRegisterNewOrganizationArgs = {
 
 export type MutationInviteNewOrganizationEmployeeArgs = {
   data: InviteNewOrganizationEmployeeInput;
+};
+
+
+export type MutationReInviteOrganizationEmployeeArgs = {
+  data: ReInviteOrganizationEmployeeInput;
 };
 
 
@@ -10799,6 +10805,14 @@ export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
   data: GetPhoneByConfirmPhoneActionTokenInput;
 };
 
+export type ReInviteOrganizationEmployeeInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  organization: OrganizationWhereUniqueInput;
+  email: Scalars['String'];
+  phone?: Maybe<Scalars['String']>;
+};
+
 export type RegisterNewOrganizationInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -10872,6 +10886,7 @@ export type SendMessageToInput = {
 
 export enum SendMessageType {
   InviteNewEmployee = 'INVITE_NEW_EMPLOYEE',
+  DirtyInviteNewEmployee = 'DIRTY_INVITE_NEW_EMPLOYEE',
   RegisterNewUser = 'REGISTER_NEW_USER',
   ResetPassword = 'RESET_PASSWORD',
   SmsVerify = 'SMS_VERIFY'
