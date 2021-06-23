@@ -44,11 +44,11 @@ export interface IContactEditorProps {
     },
     value?: ContactValue,
     onChange: (contact: ContactFields, isNew: boolean) => void,
-    // Contacts for autocomplete will be fetched for specified organization
+
+    // Composite scope of organization, property and unitName, used to
+    // fetch contacts for autocomplete fields.
     organization?: string,
-    // Contacts for autocomplete will be fetched for specified property
     property?: string,
-    // Contacts for autocomplete will be fetched for specified unit of the property
     unitName?: string,
 }
 
