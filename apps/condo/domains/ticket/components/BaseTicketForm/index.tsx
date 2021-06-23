@@ -152,7 +152,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     label={PhoneLabel}
                                                                     validateFirst
                                                                 >
-                                                                    <PhoneInput/>
+                                                                    <PhoneInput style={{ width: '100%', height: '40px' }}/>
                                                                 </Form.Item>
                                                             </Col>
                                                         </>
