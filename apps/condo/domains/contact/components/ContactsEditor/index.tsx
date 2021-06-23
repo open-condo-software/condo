@@ -164,6 +164,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
     const initialValueIsPresentedInFetchedContacts = contacts && initialValue && initialValue.name && initialValue.phone && find(contacts, initialValue)
 
+    const sameAsInitial = (contact) => (
+        initialValue && initialValue.name === contact.name && initialValue.phone === contact.phone
+    )
+
     return (
         <Row gutter={[40, 25]}>
             <Col span={24}>
@@ -188,9 +192,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                     selected={
                                         selectedContact
                                             ? selectedContact.id === contact.id
-                                            : initialValue
-                                                ? !editableFieldsChecked && (initialValue.name === contact.name && initialValue.phone === contact.phone)
-                                                : !editableFieldsChecked && i === 0
+                                            : !editableFieldsChecked && (sameAsInitial(contact) || !initialValue && i === 0)
                                     }
                                 />
                             ))}
