@@ -1,26 +1,19 @@
-import React, { useCallback, useState, useMemo, useRef, useEffect } from 'react'
-import { Contact } from '@condo/domains/contact/utils/clientSchema'
-import { Contact as TContact } from '@condo/domains/contact/schema'
-import { Input, Row, Col, Select, Typography, Radio, Form, FormInstance, Skeleton } from 'antd'
-import { Button } from '@condo/domains/common/components/Button'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
-import { green, grey } from '@ant-design/colors'
-import { OptionProps } from 'antd/lib/mentions'
+import { find, get, has } from 'lodash'
+import { Col, Form, FormInstance, Input, Row, Skeleton } from 'antd'
+import { PlusCircleFilled } from '@ant-design/icons'
+import React, { useEffect, useState } from 'react'
 import { useIntl } from '@core/next/intl'
-import { PlusCircleFilled, MinusCircleFilled } from '@ant-design/icons'
-import { find, get, pick, has } from 'lodash'
-import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
-import styled from '@emotion/styled'
+import { useOrganization } from '@core/next/organization'
 import { useApolloClient } from '@core/next/apollo'
 import { searchContacts } from '@condo/domains/ticket/utils/clientSchema/search'
-import { useOrganization } from '@core/next/organization'
+import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
+import { Labels } from './Labels'
+import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
+import { ContactOption } from './ContactOption'
 import { ErrorsWrapper } from '@condo/domains/ticket/components/BaseTicketForm/ErrorsContainer'
-
-interface ILabelsProps {
-    left: React.ReactNode,
-    right?: React.ReactNode,
-}
+import { Button } from '@condo/domains/common/components/Button'
+import { green } from '@ant-design/colors'
+import styled from '@emotion/styled'
 
 /**
  * Displays validation error, but hides form input
@@ -30,38 +23,15 @@ const ErrorContainerOfHiddenControl = styled.div`
     display: none;
   }
 `
-
-const LABELS_COL_STYLE = { marginTop: '24px' }
-
-const Labels: React.FC<ILabelsProps> = ({ left, right }) => (
-    <>
-        <Col span={10} style={LABELS_COL_STYLE}>
-            <Typography.Text type="secondary">
-                {left}
-            </Typography.Text>
-        </Col>
-        <Col span={10} style={LABELS_COL_STYLE}>
-            <Typography.Text type="secondary">
-                {right}
-            </Typography.Text>
-        </Col>
-        <Col span={2} style={LABELS_COL_STYLE}>
-        </Col>
-        <Col span={2} style={LABELS_COL_STYLE}>
-        </Col>
-    </>
-)
-
-type ContactFields = {
+export type ContactFields = {
     name: string,
     phone: string,
 }
-
-type ContactValue = ContactFields & {
+export type ContactValue = ContactFields & {
     id?: string,
 }
 
-interface IContactEditorProps {
+export interface IContactEditorProps {
     form: FormInstance<any>,
     // Customizeable field names of the provided `form`, where editor component will be mounted
     // Fields `clientName` and `clientPhone` are not hardcoded to make this component
@@ -80,82 +50,6 @@ interface IContactEditorProps {
     property?: string,
     // Contacts for autocomplete will be fetched for specified unit of the property
     unitName?: string,
-}
-
-interface IContactsEditorHookArgs {
-    // Organization scope for contacts autocomplete and new contact, that can be created
-    organization: string,
-}
-
-interface IContactsEditorHookResult {
-    createContact: (organization: string, property: string, unitName: string) => Promise<void>,
-    ContactsEditorComponent: React.FC<IContactEditorProps>,
-}
-
-export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs): IContactsEditorHookResult => {
-    // Field value will be initialized only on user interaction.
-    // In case of no interaction, no create action will be performed
-    const [contactFields, setContactFields] = useState({})
-    const [shouldCreateContact, setShouldCreateContact] = useState(false)
-
-    // Closure of `createContact` will be broken, when it will be assigned to another constant outside of this hook
-    // Refs are used to keep it
-
-    const contactFieldsRef = useRef(contactFields)
-    useEffect(() => {
-        contactFieldsRef.current = contactFields
-    }, [contactFields])
-
-    const shouldCreateContactRef = useRef(shouldCreateContact)
-    useEffect(() => {
-        shouldCreateContactRef.current = shouldCreateContact
-    }, [shouldCreateContact])
-
-    const createContactAction = Contact.useCreate({ }, () => Promise.resolve())
-
-    const handleChangeContact = (values, isNew) => {
-        setContactFields(values)
-        setShouldCreateContact(isNew)
-    }
-
-    const createContact = async (organization, property, unitName) => {
-        if (shouldCreateContactRef.current) {
-            try {
-                return await createContactAction({
-                    ...contactFieldsRef.current,
-                    organization,
-                    property,
-                    unitName,
-                })
-            } catch (e) {
-                // Duplicated contacts should be figured out on the client,
-                // and "create" action should not be performed.
-                // In case of violation of unique constraint on `Contact` table,
-                // be silent for a user, but make a record in log.
-                if (e.message.match('Contact_uniq')) {
-                    console.error(e)
-                } else {
-                    throw (e)
-                }
-            }
-        }
-    }
-
-    const ContactsEditorComponent: React.FC<IContactEditorProps> = useMemo(() => {
-        const ContactsEditorWrapper = (props) => (
-            <ContactsEditor
-                {...props}
-                organization={organization}
-                onChange={handleChangeContact}
-            />
-        )
-        return ContactsEditorWrapper
-    }, [])
-
-    return {
-        createContact,
-        ContactsEditorComponent,
-    }
 }
 
 export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
@@ -177,7 +71,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     searchContacts(client, {
         organizationId: organization,
         propertyId: property ? property : undefined,
-        unitName : unitName ? unitName : undefined,
+        unitName: unitName ? unitName : undefined,
     })
         .then(({ data, loading, error }) => {
             setContacts(data.objs)
@@ -332,7 +226,12 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                 paddingLeft: '5px',
                                             }}
                                             onClick={handleClickOnPlusButton}
-                                            icon={<PlusCircleFilled style={{ color: green[6], fontSize: 21, position: 'relative', top: '2px' }}/>}
+                                            icon={<PlusCircleFilled style={{
+                                                color: green[6],
+                                                fontSize: 21,
+                                                position: 'relative',
+                                                top: '2px',
+                                            }}/>}
                                         >
                                             {AddNewContactLabel}
                                         </Button>
@@ -376,181 +275,5 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                 </Row>
             </Col>
         </Row>
-    )
-}
-
-/**
- * Prevent crash of `String.match`, when providing a regular expression string value,
- * that containts special characters.
- *
- * @example
- *
- *      someString.match(escapeRegex(value))
- *
- * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
- */
-function escapeRegex (string) {
-    return string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
-}
-
-interface IContactSyncedAutocompleteFieldsProps {
-    initialValue?: TContact,
-    onChange: (contact: ContactValue) => void,
-    onChecked?: () => void,
-    checked?: boolean,
-    // Used for autocomplete
-    contacts: TContact[],
-    displayMinusButton: boolean,
-    onClickMinusButton: () => void,
-}
-
-/**
- * Synchronized pair of "Phone" and "Name" fields.
- * When a phone will be selected, "Name" field should reflect appropriate value for selected contact
- * And vise-versa.
- * When value in fields are typed, not selected, `onChange` callback will be fired.
- */
-const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({ initialValue, onChange, onChecked, checked, contacts, displayMinusButton, onClickMinusButton }) => {
-    const [value, setValue] = useState(initialValue)
-
-    const searchContactBy = useCallback(
-        (field) => async (query) => {
-            return contacts.filter(c => c[field].match(escapeRegex(query)))
-        },
-        []
-    )
-
-    const handleSelectContact = (value: string, option: OptionProps) => {
-        setValueAndTriggerOnChange(option.data)
-    }
-
-    const handleChangeContact = (field) => (fieldValue) => {
-        const newValue = {
-            ...value,
-            [field]: fieldValue,
-        }
-        setValueAndTriggerOnChange(newValue)
-    }
-
-    const setValueAndTriggerOnChange = (contact) => {
-        setValue(contact)
-        onChange(contact)
-    }
-
-    const renderOption = (field) => (item) => {
-        return (
-            <Select.Option
-                style={{ textAlign: 'left', color: grey[6] }}
-                key={item.id}
-                value={item[field]}
-                title={item[field]}
-                data={pick(item, ['id', 'name', 'phone'])}
-            >
-                {item[field]}
-            </Select.Option>
-        )
-    }
-
-    const handleClearContact = () => {
-        setValue(null)
-    }
-
-    const handleChecked = () => {
-        onChecked && onChecked()
-    }
-
-    return (
-        <>
-            <Col span={10}>
-                <BaseSearchInput
-                    value={get(value, 'phone')}
-                    loadOptionsOnFocus={false}
-                    search={searchContactBy('phone')}
-                    renderOption={renderOption('phone')}
-                    onSelect={handleSelectContact}
-                    onChange={handleChangeContact('phone')}
-                    onClear={handleClearContact}
-                    style={{ width: '100%' }}
-                />
-            </Col>
-            <Col span={10}>
-                <BaseSearchInput
-                    value={get(value, 'name')}
-                    loadOptionsOnFocus={false}
-                    search={searchContactBy('name')}
-                    renderOption={renderOption('name')}
-                    onSelect={handleSelectContact}
-                    onChange={handleChangeContact('name')}
-                    onClear={handleClearContact}
-                    style={{ width: '100%' }}
-                />
-            </Col>
-            <Col span={2}>
-                {onChecked && (
-                    <Radio
-                        onClick={handleChecked}
-                        checked={checked}
-                        style={{ marginTop: '8px' }}
-                    />
-                )}
-            </Col>
-            <Col span={2}>
-                {displayMinusButton && (
-                    <MinusCircleFilled
-                        style={{
-                            color: green[6],
-                            fontSize: '21px',
-                            marginTop: '9px',
-                            marginLeft: '-4px',
-                        }}
-                        onClick={onClickMinusButton}
-                    />
-                )}
-            </Col>
-        </>
-    )
-}
-
-ContactSyncedAutocompleteFields.defaultProps = {
-    displayMinusButton: false,
-}
-
-
-interface IContactFieldsDisplayProps {
-    contact: TContact,
-    onSelect: (contact: TContact) => void,
-    selected: boolean,
-}
-
-const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, onSelect, selected }) => {
-    const handleSelect = () => {
-        onSelect(contact)
-    }
-
-    return (
-        <>
-            <Col span={10}>
-                <PhoneInput
-                    disabled
-                    value={contact.phone}
-                    style={{ width: '100%', height: '40px' }}
-                />
-            </Col>
-            <Col span={10}>
-                <Input
-                    disabled
-                    value={contact.name}
-                />
-            </Col>
-            <Col span={2}>
-                <Radio
-                    onClick={handleSelect}
-                    checked={selected}
-                    style={{ marginTop: '8px' }}
-                />
-            </Col>
-            <Col span={2}>
-            </Col>
-        </>
     )
 }
