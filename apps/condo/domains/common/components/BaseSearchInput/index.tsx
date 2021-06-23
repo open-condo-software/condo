@@ -30,6 +30,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         renderOption,
         initialValueGetter,
         loadOptionsOnFocus = true,
+        style,
         ...restSelectProps
     } = props
 
@@ -141,7 +142,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             filterOption={false}
             autoClearSearchValue={false}
             defaultActiveFirstOption={false}
-            {...restSelectProps}
+            style={style}
         >
             {options}
         </Select>
