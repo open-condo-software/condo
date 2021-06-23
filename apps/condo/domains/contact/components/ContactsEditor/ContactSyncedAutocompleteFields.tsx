@@ -33,10 +33,8 @@ interface IContactSyncedAutocompleteFieldsProps {
 }
 
 /**
- * Synchronized pair of "Phone" and "Name" fields.
- * When a phone will be selected, "Name" field should reflect appropriate value for selected contact
- * And vise-versa.
- * When value in fields are typed, not selected, `onChange` callback will be fired.
+ * When a phone will be selected, "Name" field should reflect appropriate value
+ * for selected contact and vise-versa.
  */
 export const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({
     initialValue,
