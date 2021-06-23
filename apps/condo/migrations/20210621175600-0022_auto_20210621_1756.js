@@ -33,6 +33,34 @@ CREATE INDEX "Contact_createdBy_6eab3efb" ON "Contact" ("createdBy");
 CREATE INDEX "Contact_organization_836229b0" ON "Contact" ("organization");
 CREATE INDEX "Contact_property_517359e1" ON "Contact" ("property");
 CREATE INDEX "Contact_updatedBy_92af9fd7" ON "Contact" ("updatedBy");
+
+--
+-- Add field contact to ticket
+--
+ALTER TABLE "Ticket" ADD COLUMN "contact" uuid NULL CONSTRAINT "Ticket_contact_33a1e141_fk_Contact_id" REFERENCES "Contact"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_contact_33a1e141_fk_Contact_id" IMMEDIATE;
+--
+-- Add field contactDisplayNameFrom to ticketchange
+--
+ALTER TABLE "TicketChange" ADD COLUMN "contactDisplayNameFrom" text NULL;
+--
+-- Add field contactDisplayNameTo to ticketchange
+--
+ALTER TABLE "TicketChange" ADD COLUMN "contactDisplayNameTo" text NULL;
+--
+-- Add field contactIdFrom to ticketchange
+--
+ALTER TABLE "TicketChange" ADD COLUMN "contactIdFrom" uuid NULL;
+--
+-- Add field contactIdTo to ticketchange
+--
+ALTER TABLE "TicketChange" ADD COLUMN "contactIdTo" uuid NULL;
+--
+-- Add field contact to tickethistoryrecord
+--
+ALTER TABLE "TicketHistoryRecord" ADD COLUMN "contact" uuid NULL;
+CREATE INDEX "Ticket_contact_33a1e141" ON "Ticket" ("contact");
+
+
 COMMIT;
 
     `)
@@ -53,10 +81,36 @@ ALTER TABLE "OrganizationEmployeeRoleHistoryRecord" DROP COLUMN "canManageContac
 -- Add field canManageContacts to organizationemployeerole
 --
 ALTER TABLE "OrganizationEmployeeRole" DROP COLUMN "canManageContacts" CASCADE;
+
 --
 -- Create model contacthistoryrecord
 --
 DROP TABLE "ContactHistoryRecord" CASCADE;
+--
+-- Add field contact to tickethistoryrecord
+--
+ALTER TABLE "TicketHistoryRecord" DROP COLUMN "contact" CASCADE;
+--
+-- Add field contactIdTo to ticketchange
+--
+ALTER TABLE "TicketChange" DROP COLUMN "contactIdTo" CASCADE;
+--
+-- Add field contactIdFrom to ticketchange
+--
+ALTER TABLE "TicketChange" DROP COLUMN "contactIdFrom" CASCADE;
+--
+-- Add field contactDisplayNameTo to ticketchange
+--
+ALTER TABLE "TicketChange" DROP COLUMN "contactDisplayNameTo" CASCADE;
+--
+-- Add field contactDisplayNameFrom to ticketchange
+--
+ALTER TABLE "TicketChange" DROP COLUMN "contactDisplayNameFrom" CASCADE;
+--
+-- Add field contact to ticket
+--
+ALTER TABLE "Ticket" DROP COLUMN "contact" CASCADE;
+
 COMMIT;
 
     `)
