@@ -56,6 +56,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
     const FindWordMessage = intl.formatMessage({ id: 'filters.FindWord' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const UserNameMessage = intl.formatMessage({ id: 'filters.UserName' })
+    const FlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
 
     const sorterMap = createSorterMap(sort)
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
@@ -223,12 +224,15 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 ellipsis: false,
                 sortOrder: get(sorterMap, 'property'),
                 filteredValue: getFilteredValue(filters, 'property'),
-                dataIndex: 'property',
                 key: 'property',
                 sorter: true,
                 width: '12%',
-                render: (property) => {
+                render: (record) => {
+                    const unitName = get(record, 'unitName')
+                    const property = get(record, 'property')
                     const text = get(property, 'address')
+
+                    const formattedFlatNumberMessage = `${FlatNumber.substr(0, 2).toLowerCase()}.`
 
                     if (!isEmpty(search)) {
                         return (
@@ -242,11 +246,11 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                                         </Typography.Text>
                                     )}
                                 />
-                                { ` ${get(property, 'name')}` }
+                                { ` ${formattedFlatNumberMessage} ${unitName}` }
                             </>
                         )
                     }
-                    return `${text} ${get(property, 'name')}`
+                    return `${text} ${formattedFlatNumberMessage} ${unitName}`
                 },
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
