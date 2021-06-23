@@ -517,6 +517,7 @@ describe('toGraphQLFormat', () => {
         expect(result).toEqual({
             'extensions': {
                 'developerMessage': 'msg\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+                'name': 'GraphQLError',
             },
             'locations': [
                 {
