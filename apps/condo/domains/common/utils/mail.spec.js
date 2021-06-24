@@ -3,6 +3,7 @@ const { normalizeEmail }  = require('./mail')
 describe('normalizeMail()', () => {
     test('no data', () => {
         expect(normalizeEmail()).toBeUndefined()
+        expect(normalizeEmail(null)).toBeUndefined()
     })
 
     test('empty trimmed data', () => {

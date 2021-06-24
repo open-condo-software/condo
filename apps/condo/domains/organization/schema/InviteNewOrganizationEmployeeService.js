@@ -11,6 +11,7 @@ const { rules } = require('../../../access')
 const guards = require('../utils/serverSchema/guards')
 const { ALREADY_EXISTS_ERROR, NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const get = require('lodash/get')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { getById } = require('@core/keystone/schema')
 
 const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrganizationEmployeeService', {
@@ -33,9 +34,8 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const { data } = args
                 let { organization, email, phone, role, position, name, ...restData } = data
                 phone = normalizePhone(phone)
+                email = normalizeEmail(email)
                 if (!phone) throw new Error(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
-
-                // TODO(pahaz): normalize email!
                 const [userOrganization] = await Organization.getAll(context, { id: organization.id })
                 let user = await guards.checkUserExistency(context, email, phone)
                 const existedEmployee = await guards.checkEmployeeExistency(context, userOrganization, email, phone, user)
@@ -114,9 +114,10 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     throw new Error('[error] User is not authenticated')
                 }
                 const { data } = args
-                const { organization, email, sender } = data
+                let { organization, email, sender } = data
                 let { phone } = data
                 phone = normalizePhone(phone)
+                email = normalizeEmail(email)
                 if (!phone) {
                     throw new Error(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
                 }

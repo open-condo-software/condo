@@ -7,10 +7,12 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/user/access/User')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 
 const User = new GQLListSchema('User', {
@@ -60,7 +62,12 @@ const User = new GQLListSchema('User', {
             hooks: {
                 resolveInput: ({ resolvedData }) => {
                     // TODO(pahaz): convert email to lover case is not enough! normalize by `+` and aliases (ya.ru/yandex.ru) and so on ..
-                    return resolvedData['email'] && resolvedData['email'].toLowerCase()
+                    return normalizeEmail(resolvedData['email']) || resolvedData['email']
+                },
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                    if (resolvedData['email'] && normalizeEmail(resolvedData['email']) !== resolvedData['email']) {
+                        addFieldValidationError(`${EMAIL_WRONG_FORMAT_ERROR}mail] invalid format`)
+                    }
                 },
             },
         },
