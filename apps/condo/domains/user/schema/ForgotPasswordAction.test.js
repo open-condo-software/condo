@@ -4,151 +4,89 @@
 
 const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction, createTestUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('ForgotPasswordAction', () => {
     describe('User', () => {
         it('cannot create', async () => {
-            await catchErrorFrom(async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [user, userAttrs] = await createTestUser(admin)
-                const client = await makeLoggedInClient(userAttrs)
+            const admin = await makeLoggedInAdminClient()
+            const [user, userAttrs] = await createTestUser(admin)
+            const client = await makeLoggedInClient(userAttrs)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestForgotPasswordAction(client, user)
-            }, (error) => {
-                expect(error).toBeDefined()
-                expect(error.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
             })
         })
 
         it('cannot read', async () => {
-            await catchErrorFrom(async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [, userAttrs] = await createTestUser(admin)
-                const client = await makeLoggedInClient(userAttrs)
+            const admin = await makeLoggedInAdminClient()
+            const [, userAttrs] = await createTestUser(admin)
+            const client = await makeLoggedInClient(userAttrs)
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
                 await ForgotPasswordAction.getAll(client)
-            }, (error) => {
-                expect(error).toBeDefined()
-                expect(error.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['objs'],
-                })
-                expect(error.data).toEqual({ 'objs': null })
             })
         })
 
         it('cannot update', async () => {
-            await catchErrorFrom(async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [user, userAttrs] = await createTestUser(admin)
-                const client = await makeLoggedInClient(userAttrs)
+            const admin = await makeLoggedInAdminClient()
+            const [user, userAttrs] = await createTestUser(admin)
+            const client = await makeLoggedInClient(userAttrs)
 
-                const [objCreated] = await createTestForgotPasswordAction(admin, user)
-                const usedAt = new Date(Date.now()).toISOString()
+            const [objCreated] = await createTestForgotPasswordAction(admin, user)
+            const usedAt = new Date(Date.now()).toISOString()
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestForgotPasswordAction(client, objCreated.id, { usedAt })
-            }, (error) => {
-                expect(error).toBeDefined()
-                expect(error.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(error.data).toEqual({ 'obj': null })
             })
         })
 
         it('cannot delete', async () => {
-            await catchErrorFrom(async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [user, userAttrs] = await createTestUser(admin)
-                const client = await makeLoggedInClient(userAttrs)
+            const admin = await makeLoggedInAdminClient()
+            const [user, userAttrs] = await createTestUser(admin)
+            const client = await makeLoggedInClient(userAttrs)
 
-                const [objCreated] = await createTestForgotPasswordAction(admin, user)
+            const [objCreated] = await createTestForgotPasswordAction(admin, user)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await ForgotPasswordAction.delete(client, objCreated.id)
-            }, (error) => {
-                expect(error).toBeDefined()
-                expect(error.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(error.data).toEqual({ 'obj': null })
             })
         })
     })
     describe('Anonymous', () => {
         it('cannot create', async () => {
-            await catchErrorFrom(async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [user] = await createTestUser(admin)
-                const client = await makeClient()
+            const admin = await makeLoggedInAdminClient()
+            const [user] = await createTestUser(admin)
+            const client = await makeClient()
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestForgotPasswordAction(client, user)
-            }, (error) => {
-                expect(error).toBeDefined()
-                expect(error.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
             })
         })
 
         it('cannot read', async () => {
-            await catchErrorFrom(async () => {
-                const client = await makeClient()
+            const client = await makeClient()
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
                 await ForgotPasswordAction.getAll(client)
-            }, (error) => {
-                expect(error).toBeDefined()
-                expect(error.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['objs'],
-                })
-                expect(error.data).toEqual({ 'objs': null })
             })
         })
 
         it('cannot update', async () => {
-            await catchErrorFrom(async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [user] = await createTestUser(admin)
-                const client = await makeClient()
+            const admin = await makeLoggedInAdminClient()
+            const [user] = await createTestUser(admin)
+            const client = await makeClient()
 
-                const [objCreated] = await createTestForgotPasswordAction(admin, user)
-                const usedAt = new Date(Date.now()).toISOString()
+            const [objCreated] = await createTestForgotPasswordAction(admin, user)
+            const usedAt = new Date(Date.now()).toISOString()
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestForgotPasswordAction(client, objCreated.id, { usedAt })
-            }, (error) => {
-                expect(error).toBeDefined()
-                expect(error.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(error.data).toEqual({ 'obj': null })
             })
         })
 
         it('cannot delete', async () => {
-            await catchErrorFrom(async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [user] = await createTestUser(admin)
-                const client = await makeClient()
+            const admin = await makeLoggedInAdminClient()
+            const [user] = await createTestUser(admin)
+            const client = await makeClient()
 
-                const [objCreated] = await createTestForgotPasswordAction(admin, user)
+            const [objCreated] = await createTestForgotPasswordAction(admin, user)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await ForgotPasswordAction.delete(client, objCreated.id)
-            }, (error) => {
-                expect(error).toBeDefined()
-                expect(error.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(error.data).toEqual({ 'obj': null })
             })
         })
     })
