@@ -29,15 +29,15 @@ interface IContactSyncedAutocompleteFieldsProps {
     checked?: boolean,
     // Used for autocomplete
     contacts: TContact[],
-    displayMinusButton: boolean,
-    onClickMinusButton: () => void,
+    displayMinusButton?: boolean,
+    onClickMinusButton?: () => void,
 }
 
 /**
  * When a phone will be selected, "Name" field should reflect appropriate value
  * for selected contact and vise-versa.
  */
-export const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({
+const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({
     initialValue,
     onChange,
     onChecked,
@@ -148,4 +148,10 @@ export const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocomplet
 
 ContactSyncedAutocompleteFields.defaultProps = {
     displayMinusButton: false,
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    onClickMinusButton: () => {},
+}
+
+export {
+    ContactSyncedAutocompleteFields,
 }
