@@ -117,7 +117,7 @@ const PdfView = () => {
     }
 
     const TicketCreationDate = getTicketCreateMessage(intl, ticket)
-    const ticketAddress = get(ticket, ['property', 'address']) + (ticket.unitName && (', ' + ticket.unitName))
+    const ticketAddress = get(ticket, ['property', 'address']) + (ticket.unitName ? (', ' + ticket.unitName) : '')
     const isEmergency = get(ticket, 'isEmergency')
 
     return (
