@@ -59,6 +59,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const UserNameMessage = intl.formatMessage({ id: 'filters.UserName' })
     const FlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
 
     const sorterMap = createSorterMap(sort)
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
@@ -240,8 +241,6 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                     const property = get(record, 'property')
                     const text = get(property, 'address')
 
-                    const formattedFlatNumberMessage = `${FlatNumber.substr(0, 2).toLowerCase()}.`
-
                     if (!isEmpty(search)) {
                         return (
                             <>
@@ -254,11 +253,11 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                                         </Typography.Text>
                                     )}
                                 />
-                                { ` ${formattedFlatNumberMessage} ${unitName}` }
+                                { ` ${ShortFlatNumber} ${unitName}` }
                             </>
                         )
                     }
-                    return `${text} ${formattedFlatNumberMessage} ${unitName}`
+                    return `${text} ${ShortFlatNumber} ${unitName}`
                 },
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
