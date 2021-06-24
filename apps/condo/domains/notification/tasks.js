@@ -68,7 +68,6 @@ async function deliveryMessage (messageId) {
     })
 
     try {
-        console.log('adapter is adapter', TRANSPORTS[transport])
         const adapter = TRANSPORTS[transport]
         const messageContext = await adapter.prepareMessageToSend(message)
         processingMeta.step = 'prepared'
