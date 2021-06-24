@@ -6,6 +6,7 @@ const AUTH_BY_PASSWORD_FAILED_ERROR = '[passwordAuth:failure'
 
 const MULTIPLE_ACCOUNTS_MATCHES = '[resetPassword:identity:multipleFound'
 const RESET_TOKEN_NOT_FOUND = '[resetPassword:token:notFound'
+const TOKEN_EXPIRED_ERROR = '[resetPassword:token:expired'
 
 const MIN_PASSWORD_LENGTH_ERROR = '[register:password:minLength'
 const PASSWORD_TOO_SHORT = '[password:min:length'
@@ -33,6 +34,7 @@ module.exports = {
     AUTH_BY_PASSWORD_FAILED_ERROR,
     EMAIL_ALREADY_REGISTERED_ERROR,
     RESET_TOKEN_NOT_FOUND,
+    TOKEN_EXPIRED_ERROR,
     MIN_PASSWORD_LENGTH_ERROR,
     CONFIRM_PHONE_ACTION_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_EXPIRED,
