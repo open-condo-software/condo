@@ -12,7 +12,7 @@ import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useLazyQuery, useMutation } from '@core/next/apollo'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN } from '@condo/domains/user/gql'
 import { useAuth } from '@core/next/auth'
-import { BasicEmptyListView } from '../../domains/common/components/EmptyListView'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 
 const INPUT_STYLE = { width: '20em' }
 
@@ -51,11 +51,11 @@ const ChangePasswordPage: AuthPage = () => {
             variables: { data: { token, password } },
             onFinally: () => {
                 setIsLoading(false)
-                if (userId) {
-                    Router.push('/organizations/')
-                } else {
-                    Router.push('/auth/signin/')
-                }
+                // if (userId) {
+                //     Router.push('/organizations/')
+                // } else {
+                //     Router.push('/auth/signin/')
+                // }
             },
             intl,
             form,
