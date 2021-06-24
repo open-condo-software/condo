@@ -33,8 +33,8 @@ export interface ITicketFormState {
     operator?: string
     client?: string
     contact?: string
-    clientPhone: string
-    clientName: string
+    clientPhone?: string
+    clientName?: string
 }
 
 function convertToUIFormState (state: ITicketUIState): ITicketFormState | undefined {

@@ -86,7 +86,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     // with different set of prefetched contacts. For example, when a different unitName is selected,
     // manually typed information should not be lost.
     const [manuallyTypedContact, setManuallyTypedContact] = useState()
-    const [displayEditableContactFields, setDisplayEditableContactFields] = useState()
+    const [displayEditableContactFields, setDisplayEditableContactFields] = useState(false)
 
     const validations = useTicketValidations()
 
