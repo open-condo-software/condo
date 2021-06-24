@@ -15,7 +15,10 @@ const RELATIONS = ['organization', 'property']
 
 export interface IContactUIState extends Contact {
     id: string
-    // TODO(codegen): write IContactUIState or extends it from
+    unitName?: string
+    email?: string
+    phone: string
+    name: string
 }
 
 function convertToUIState (item: Contact): IContactUIState {
