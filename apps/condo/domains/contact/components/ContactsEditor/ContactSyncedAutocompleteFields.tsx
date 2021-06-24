@@ -6,6 +6,7 @@ import { get, pick } from 'lodash'
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { MinusCircleFilled } from '@ant-design/icons'
 import { Contact as TContact } from '@condo/domains/contact/schema'
+import { ContactValue } from './index'
 
 /**
  * Prevent crash of `String.match`, when providing a regular expression string value,
