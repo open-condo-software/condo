@@ -7,6 +7,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { BillingIntegrationOrganizationContext, createTestBillingIntegration, createTestBillingIntegrationAccessRight, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 
 describe('BillingIntegrationOrganizationContext', () => {
     test.skip('user: create BillingIntegrationOrganizationContext', async () => {
@@ -27,16 +28,9 @@ describe('BillingIntegrationOrganizationContext', () => {
 
     test.skip('anonymous: create BillingIntegrationOrganizationContext', async () => {
         const client = await makeClient()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestBillingIntegrationOrganizationContext(client)  // TODO(codegen): check the 'anonymous: create BillingIntegrationOrganizationContext' test!
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test.skip('user: read BillingIntegrationOrganizationContext', async () => {
@@ -63,16 +57,9 @@ describe('BillingIntegrationOrganizationContext', () => {
     test.skip('anonymous: read BillingIntegrationOrganizationContext', async () => {
         const client = await makeClient()
 
-        try {
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
             await BillingIntegrationOrganizationContext.getAll(client)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['objs'],
-            })
-            expect(e.data).toEqual({ 'objs': null })
-        }
+        })
     })
 
     test.skip('user: update BillingIntegrationOrganizationContext', async () => {
@@ -103,16 +90,9 @@ describe('BillingIntegrationOrganizationContext', () => {
 
         const client = await makeClient()
         const payload = {}  // TODO(codegen): change the 'anonymous: update BillingIntegrationOrganizationContext' payload
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestBillingIntegrationOrganizationContext(client, objCreated.id, payload)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test.skip('user: delete BillingIntegrationOrganizationContext', async () => {

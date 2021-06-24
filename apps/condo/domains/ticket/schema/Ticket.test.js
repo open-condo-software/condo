@@ -6,6 +6,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient } = require('@core/keystone/test.utils')
 
 const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 
 describe('Ticket', () => {
     test('user: create Ticket', async () => {
@@ -58,16 +59,9 @@ describe('Ticket', () => {
     test('anonymous: create Ticket', async () => {
         const client1 = await makeClientWithProperty()
         const client = await makeClient()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestTicket(client, client1.organization, client1.property)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('user: read Ticket', async () => {
@@ -102,16 +96,9 @@ describe('Ticket', () => {
     test('anonymous: read Ticket', async () => {
         const client = await makeClient()
 
-        try {
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
             await Ticket.getAll(client)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['objs'],
-            })
-            expect(e.data).toEqual({ 'objs': null })
-        }
+        })
     })
 
     test('user: update Ticket', async () => {
@@ -165,47 +152,26 @@ describe('Ticket', () => {
         const client = await makeClient()
         const payload = { details: 'new data' }
         const [objCreated] = await createTestTicket(client1, client1.organization, client1.property)
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestTicket(client, objCreated.id, payload)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('user: delete Ticket', async () => {
         const client = await makeClientWithProperty()
         const [objCreated] = await createTestTicket(client, client.organization, client.property)
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await Ticket.delete(client, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('anonymous: delete Ticket', async () => {
         const client1 = await makeClientWithProperty()
         const client = await makeClient()
         const [objCreated] = await createTestTicket(client1, client1.organization, client1.property)
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await Ticket.delete(client, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 })
 
@@ -213,31 +179,17 @@ describe('Ticket:permissions', () => {
     test('user: create Ticket', async () => {
         const client = await makeClientWithProperty()
         const client2 = await makeClientWithProperty()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestTicket(client, client.organization, client2.property)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('user: update Ticket', async () => {
         const client = await makeClientWithProperty()
         const client2 = await makeClientWithProperty()
         const [obj] = await createTestTicket(client, client.organization, client.property)
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestTicket(client, obj.id, { property: { connect: { id: client2.property.id } } })
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 })

@@ -9,6 +9,7 @@ const { Property, createTestProperty, updateTestProperty, makeClientWithProperty
 const { makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
 const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@condo/domains/ticket/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 
 describe('Property', () => {
 
@@ -96,16 +97,9 @@ describe('Property', () => {
 
     test('anonymous: read Property', async () => {
         const client = await makeClient()
-        try {
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
             await Property.getAll(client)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['objs'],
-            })
-            expect(e.data).toEqual({ 'objs': null })
-        }
+        })
     })
 
     test('anonymous: update Property', async () => {
@@ -114,32 +108,18 @@ describe('Property', () => {
 
         const guest = await makeClient()
         const payload = {}
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestProperty(guest, objCreated.id, payload)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('anonymous: delete Property', async () => {
         const user = await makeClientWithRegisteredOrganization()
         const [objCreated] = await createTestProperty(user, user.organization)
         const guest = await makeClient()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await Property.delete(guest, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
 })
