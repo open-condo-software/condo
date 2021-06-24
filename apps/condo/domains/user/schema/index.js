@@ -6,7 +6,8 @@
 const { User } = require('./User')
 const { RegisterNewUserService } = require('./RegisterNewUserService')
 const { AuthenticateUserWithPhoneAndPasswordService } = require('./AuthenticateUserWithPhoneAndPasswordService')
-const { ForgotPasswordAction, ForgotPasswordService } = require('./ForgotPasswordAction')
+const { ForgotPasswordAction  } = require('./ForgotPasswordAction')
+const { ForgotPasswordService } = require('./ForgotPasswordService')
 const { ConfirmPhoneAction, ConfirmPhoneActionService } = require('./ConfirmPhoneAction')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
