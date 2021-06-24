@@ -1,6 +1,6 @@
 const { v4: uuid } = require('uuid')
 const conf = require('@core/config')
-const { WRONG_EMAIL_ERROR, MULTIPLE_ACCOUNTS_MATCHES, RESET_TOKEN_NOT_FOUND, PASSWORD_TOO_SHORT } = require('@condo/domains/user/constants/errors')
+const { WRONG_EMAIL_ERROR, MULTIPLE_ACCOUNTS_MATCHES, RESET_TOKEN_NOT_FOUND, PASSWORD_TOO_SHORT, TOKEN_EXPIRED_ERROR } = require('@condo/domains/user/constants/errors')
 const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
@@ -50,7 +50,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     expiresAt_gte: new Date(now).toISOString(),
                 })
                 if (isEmpty(actions)) {
-                    throw new Error('[error]: Unable to find valid token')
+                    throw new Error(`${TOKEN_EXPIRED_ERROR}]: Unable to find valid token`)
                 }
 
                 return { status: 'ok' }
