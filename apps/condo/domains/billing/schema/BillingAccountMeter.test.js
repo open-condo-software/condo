@@ -5,6 +5,7 @@
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter } = require('@condo/domains/billing/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 
 describe('BillingAccountMeter', () => {
     test.skip('user: create BillingAccountMeter', async () => {
@@ -25,16 +26,9 @@ describe('BillingAccountMeter', () => {
 
     test.skip('anonymous: create BillingAccountMeter', async () => {
         const client = await makeClient()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestBillingAccountMeter(client)  // TODO(codegen): check the 'anonymous: create BillingAccountMeter' test!
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test.skip('user: read BillingAccountMeter', async () => {
@@ -61,16 +55,9 @@ describe('BillingAccountMeter', () => {
     test.skip('anonymous: read BillingAccountMeter', async () => {
         const client = await makeClient()
 
-        try {
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
             await BillingAccountMeter.getAll(client)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['objs'],
-            })
-            expect(e.data).toEqual({ 'objs': null })
-        }
+        })
     })
 
     test.skip('user: update BillingAccountMeter', async () => {
@@ -101,16 +88,9 @@ describe('BillingAccountMeter', () => {
 
         const client = await makeClient()
         const payload = {}  // TODO(codegen): change the 'anonymous: update BillingAccountMeter' payload
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestBillingAccountMeter(client, objCreated.id, payload)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test.skip('user: delete BillingAccountMeter', async () => {

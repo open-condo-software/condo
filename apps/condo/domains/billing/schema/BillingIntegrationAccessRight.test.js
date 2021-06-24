@@ -6,6 +6,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight, createTestBillingIntegration } = require('../utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 
 describe('BillingIntegrationAccessRight', () => {
     test('user: create BillingIntegrationAccessRight', async () => {
@@ -13,16 +14,9 @@ describe('BillingIntegrationAccessRight', () => {
         const [integration] = await createTestBillingIntegration(admin)
 
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestBillingIntegrationAccessRight(client, integration, client.user)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('anonymous: create BillingIntegrationAccessRight', async () => {
@@ -49,31 +43,17 @@ describe('BillingIntegrationAccessRight', () => {
         await createTestBillingIntegrationAccessRight(admin, integration, admin.user)
 
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
-        try {
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
             await BillingIntegrationAccessRight.getAll(client)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['objs'],
-            })
-            expect(e.data).toEqual({ 'objs': null })
-        }
+        })
     })
 
     test('anonymous: read BillingIntegrationAccessRight', async () => {
         const client = await makeClient()
 
-        try {
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
             await BillingIntegrationAccessRight.getAll(client)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['objs'],
-            })
-            expect(e.data).toEqual({ 'objs': null })
-        }
+        })
     })
 
     test('user: update BillingIntegrationAccessRight', async () => {
@@ -83,16 +63,9 @@ describe('BillingIntegrationAccessRight', () => {
 
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const payload = {}
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestBillingIntegrationAccessRight(client, objCreated.id, payload)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('anonymous: update BillingIntegrationAccessRight', async () => {
@@ -102,16 +75,9 @@ describe('BillingIntegrationAccessRight', () => {
 
         const client = await makeClient()
         const payload = {}
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestBillingIntegrationAccessRight(client, objCreated.id, payload)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('user: delete BillingIntegrationAccessRight', async () => {

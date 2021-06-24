@@ -6,35 +6,21 @@ const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
 const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
 const { User, UserAdmin, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 
 describe('User', () => {
     test('user: create User', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
-
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestUser(client)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('anonymous: create User', async () => {
         const client = await makeClient()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestUser(client)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('user: read User', async () => {
@@ -54,17 +40,9 @@ describe('User', () => {
 
     test('anonymous: read User', async () => {
         const client = await makeClient()
-
-        try {
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
             await User.getAll(client)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['objs'],
-            })
-            expect(e.data).toEqual({ 'objs': null })
-        }
+        })
     })
 
     test('user: update User', async () => {
@@ -73,16 +51,9 @@ describe('User', () => {
 
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const payload = {}
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestUser(client, objCreated.id, payload)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('anonymous: update User', async () => {
@@ -91,16 +62,9 @@ describe('User', () => {
 
         const client = await makeClient()
         const payload = {}
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestUser(client, objCreated.id, payload)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('user: delete User', async () => {
@@ -108,16 +72,9 @@ describe('User', () => {
         const [objCreated] = await createTestUser(admin)
 
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await User.delete(client, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('anonymous: delete User', async () => {
@@ -125,16 +82,9 @@ describe('User', () => {
         const [objCreated] = await createTestUser(admin)
 
         const client = await makeClient()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await User.delete(client, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('anonymous: count', async () => {

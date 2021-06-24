@@ -5,7 +5,7 @@
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { {{name}}, createTest{{name}}, updateTest{{name}} } = require('@condo/domains/{{domain}}/utils/testSchema')
-
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 describe('{{name}}', () => {
     test('user: create {{name}}', async () => {
         const client = await makeClient()  // TODO(codegen): use truly useful client!
@@ -25,16 +25,9 @@ describe('{{name}}', () => {
 
     test('anonymous: create {{name}}', async () => {
         const client = await makeClient()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTest{{name}}(client)  // TODO(codegen): check the 'anonymous: create {{name}}' test!
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('user: read {{name}}', async () => {
@@ -62,16 +55,9 @@ describe('{{name}}', () => {
     test('anonymous: read {{name}}', async () => {
         const client = await makeClient()
 
-        try {
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
             await {{name}}.getAll(client)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['objs'],
-            })
-            expect(e.data).toEqual({ 'objs': null })
-        }
+})
     })
 
     test('user: update {{name}}', async () => {
@@ -102,16 +88,9 @@ describe('{{name}}', () => {
 
         const client = await makeClient()
         const payload = {}  // TODO(codegen): change the 'anonymous: update {{name}}' payload
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTest{{name}}(client, objCreated.id, payload)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+})
     })
 
     test('user: delete {{name}}', async () => {

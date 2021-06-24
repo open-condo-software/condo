@@ -9,6 +9,7 @@ const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { OrganizationEmployee, createTestOrganizationEmployee, updateTestOrganizationEmployee, softDeleteTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 
 describe('OrganizationEmployee', () => {
     describe('user: create OrganizationEmployee', () => {
@@ -22,16 +23,9 @@ describe('OrganizationEmployee', () => {
             const notManagerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
             await createTestOrganizationEmployee(admin, organization, notManagerUserClient.user, role)
             const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestOrganizationEmployee(notManagerUserClient, organization, user, role)
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
+            })
         })
 
         test('can with granted "canManageEmployees" permission', async () => {
@@ -64,16 +58,9 @@ describe('OrganizationEmployee', () => {
             canManageEmployees: false,
         })
         const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestOrganizationEmployee(anonymous, organization, user, role)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('user: read OrganizationEmployee', async () => {
@@ -101,16 +88,9 @@ describe('OrganizationEmployee', () => {
     test('anonymous: read OrganizationEmployee', async () => {
         const client = await makeClient()
 
-        try {
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
             await OrganizationEmployee.getAll(client)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['objs'],
-            })
-            expect(e.data).toEqual({ 'objs': null })
-        }
+        })
     })
 
     describe('user: update OrganizationEmployee', () => {
@@ -125,16 +105,9 @@ describe('OrganizationEmployee', () => {
             await createTestOrganizationEmployee(admin, organization, notManagerUserClient.user, role)
             const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
             const [objCreated] = await createTestOrganizationEmployee(admin, organization, user, role)
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestOrganizationEmployee(notManagerUserClient, objCreated.id)
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
+            })
         })
 
         test('can with granted "canManageEmployees" permission', async () => {
@@ -169,16 +142,9 @@ describe('OrganizationEmployee', () => {
 
         const client = await makeClient()
         const payload = {}
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestOrganizationEmployee(client, employee.id, payload)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     describe('user: softDelete OrganizationEmployee', () => {
@@ -192,16 +158,9 @@ describe('OrganizationEmployee', () => {
 
             await createTestOrganizationEmployee(admin, organization, notManagerUserClient.user, role)
 
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await softDeleteTestOrganizationEmployee(notManagerUserClient, employee.id)
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
+            })
         })
 
         test('can with granted "canManageEmployees" permission', async () => {
@@ -219,7 +178,7 @@ describe('OrganizationEmployee', () => {
 
             const objs = await OrganizationEmployee.getAll(admin, { id: obj.id })
 
-            expect(objs.length).toBe(0)
+            expect(objs).toHaveLength(0)
         })
 
     })
@@ -228,16 +187,9 @@ describe('OrganizationEmployee', () => {
         const { employee } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee()
 
         const client = await makeClient()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await OrganizationEmployee.delete(client, employee.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     describe('admin', () => {

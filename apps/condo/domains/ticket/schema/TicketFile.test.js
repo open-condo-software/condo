@@ -11,6 +11,7 @@ const {
 } = require('@condo/domains/ticket/utils/testSchema')
 
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 
 describe('TicketFile', () => {
     describe('User', () => {
@@ -100,45 +101,24 @@ describe('TicketFile', () => {
         it('cannot create TicketFile', async () => {
             const client = await makeClient()
             const clientWithOrganization = await makeClientWithProperty()
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestTicketFile(client, clientWithOrganization.organization) 
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
+            })
         })
         it('cannot read TicketFile', async () => {
             const client = await makeClient()
-            try {
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
                 await TicketFile.getAll(client)
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['objs'],
-                })
-                expect(e.data).toEqual({ 'objs': null })
-            }
+            })
         })
         it('cannot update TicketFile', async () => {
             const userClient = await makeClientWithTicket()
             const [ticketFileCreated] = await createTestTicketFile(userClient, userClient.organization, userClient.ticket)  
             const client = await makeClient()
             const payload = { ticket: { connect: { id: userClient.ticket.id } } }
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestTicketFile(client, ticketFileCreated.id, payload)
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
+            })
         })
         it('cannot delete TicketFile', async () => {
             const userClient = await makeClientWithTicket()
