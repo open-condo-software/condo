@@ -8,11 +8,12 @@ const { Text, Relationship, Uuid, Checkbox } = require('@keystonejs/fields')
 
 const { userIsAdmin } = require('@core/keystone/access')
 const access = require('@condo/domains/organization/access/OrganizationEmployee')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, tracked, softDeleted } = require('@core/keystone/plugins')
 
 const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { DV_UNKNOWN_VERSION_ERROR, EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasRequestAndDbFields, hasOneOfFields } = require('@condo/domains/common/utils/validation.utils')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
@@ -58,7 +59,12 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             kmigratorOptions: { null: true },
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
-                    return resolvedData['email'] && resolvedData['email'].toLowerCase()
+                    return normalizeEmail(resolvedData['email']) || resolvedData['email']
+                },
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                    if (resolvedData['email'] && normalizeEmail(resolvedData['email']) !== resolvedData['email']) {
+                        addFieldValidationError(`${EMAIL_WRONG_FORMAT_ERROR}mail] invalid format`)
+                    }
                 },
             },
         },
