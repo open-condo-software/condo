@@ -210,7 +210,7 @@ const TicketIdPage = () => {
         )
     }
 
-    const ticketAddress = get(ticket, ['property', 'address']) + (ticket.unitName && (', ' + ticket.unitName))
+    const ticketAddress = get(ticket, ['property', 'address']) + (ticket.unitName ? ', ' + ticket.unitName : '')
     const isEmergency = get(ticket, 'isEmergency')
 
     const handleTicketStatusChanged = () => {
@@ -315,12 +315,12 @@ const TicketIdPage = () => {
                                                 </Col>
                                             </Row>
                                         </Col>
-                                        <Row gutter={[0, 8]}>
+                                        <Row gutter={[0, 8]} style={{ maxWidth: '100%' }}>
                                             <Col span={24}>
                                                 <Typography.Title level={5} style={{ margin: 0 }}>{TicketInfoMessage}</Typography.Title>
                                             </Col>
                                             <Col span={24}>
-                                                <Typography.Text style={{ fontSize: '24px' }}>{ticket.details}</Typography.Text>
+                                                <Typography.Text style={{ fontSize: '24px', wordWrap: 'break-word' }}>{ticket.details}</Typography.Text>
                                                 {
                                                     !isEmpty(files) && (
                                                         <TicketFileList files={files} />
