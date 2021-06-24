@@ -21,7 +21,6 @@ describe('normalizeMail()', () => {
 
     test('multiple @  test', () => {
         expect(normalizeEmail('asd@asd@ads')).toBeUndefined()
-        expect(normalizeEmail('asd@asd.asd')).toEqual('asd@asd.asd')
     })
 
     test('domain replace test', () => {
