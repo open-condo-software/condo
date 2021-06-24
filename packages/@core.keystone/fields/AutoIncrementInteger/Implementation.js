@@ -10,7 +10,9 @@ class AutoIncrementInteger extends Integer.implementation {
         return resolvedData[this.path]
     }
 
-    async validateInput ({ resolvedData, addFieldValidationError }) {
+    async validateInput ({ resolvedData, existingItem, addFieldValidationError }) {
+        // if we want to set already existed item number we don't need to check it
+        if (existingItem && resolvedData[this.path] === existingItem[this.path]) return
         const value = resolvedData[this.path]
         if (value) {
             const list = this.getListByKey(this.listKey)

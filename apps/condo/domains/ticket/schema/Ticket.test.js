@@ -124,6 +124,16 @@ describe('Ticket', () => {
         // TODO(pahaz): check others fields ...
     })
 
+    test('user: set the same ticket number', async () => {
+        const client = await makeClientWithProperty()
+        const [objCreated] = await createTestTicket(client, client.organization, client.property)
+        const payload = { number: objCreated.number }
+        const [objUpdated] = await updateTestTicket(client, objCreated.id, payload)
+
+        expect(objUpdated.id).toEqual(objCreated.id)
+        expect(objUpdated.number).toEqual(objCreated.number)
+    })
+
     test('anonymous: update Ticket', async () => {
         const client1 = await makeClientWithProperty()
         const client = await makeClient()
