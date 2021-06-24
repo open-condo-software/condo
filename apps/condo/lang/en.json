@@ -66,6 +66,7 @@
   "field.Executor": "Executor",
   "field.Executor.description": "The executor is an employee who will fix the problem described in the task",
   "field.FlatNumber": "Flat",
+  "field.ShortFlatNumber": "fl.",
   "field.FullName": "Full name",
   "field.Phone.lengthError": "The value of the field \" Phone \"is too long (Maximum: 15 characters)",
   "field.Phone.requiredError": "Enter your phone",
