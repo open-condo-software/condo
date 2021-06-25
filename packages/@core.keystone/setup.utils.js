@@ -2,6 +2,10 @@ const { v5: uuidv5 } = require('uuid')
 
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
+const redis = require('redis')
+const session = require('express-session')
+const { COOKIE_MAX_AGE } = require('@condo/domains/user/constants/common')
+const RedisStore = require('connect-redis')(session)
 
 function _makeid (length) {
     let result = ''
@@ -53,17 +57,21 @@ function getAdapter (databaseUrl) {
 }
 
 function prepareDefaultKeystoneConfig (conf) {
+    const redisClient = redis.createClient({ url: conf.WORKER_REDIS_URL })
+    const sessionStore = new RedisStore({ client: redisClient })
+
     return {
         cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
         cookie: {
             sameSite: false,
             secure: false,
-            maxAge: 1000 * 60 * 60 * 24 * 130, // 130 days
+            maxAge: COOKIE_MAX_AGE,
         },
         name: conf.PROJECT_NAME,
         adapter: getAdapter(conf.DATABASE_URL),
         defaultAccess: { list: false, field: true, custom: false },
         queryLimits: { maxTotalResults: 1000 },
+        sessionStore,
     }
 }
 
