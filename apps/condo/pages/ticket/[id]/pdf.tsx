@@ -99,7 +99,8 @@ const PdfView = () => {
 
     useEffect(() => {
         if (ticket) {
-            createPdf({ element: containerRef.current, fileName: getTicketPdfName(intl, ticket) }).catch((e) => {
+            // TODO: (savelevmatthew) let user choose format?
+            createPdf({ element: containerRef.current, fileName: getTicketPdfName(intl, ticket), format: 'a5' }).catch((e) => {
                 notification.error({
                     message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
                     description: e.message,
