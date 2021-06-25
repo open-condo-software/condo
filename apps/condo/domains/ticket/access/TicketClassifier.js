@@ -10,16 +10,6 @@ async function canReadTicketClassifiers ({ authentication: { item: user } }) {
     }
 }
 
-// TODO(pahaz): regenerate it with createschema util
-/*
-const READ_ONLY_ACCESS = {
-    read: true,
-    create: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
-    update: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
-    delete: false,
-    auth: false,
-}
-*/
 async function canManageTicketClassifiers ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin) return true
