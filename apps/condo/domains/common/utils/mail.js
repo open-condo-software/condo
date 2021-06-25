@@ -1,4 +1,4 @@
-const mailDomains = [
+const MAIL_DOMAINS = [
     {
         mainAddress: 'gmail.com',
         addresses: ['gmail.com', 'googlemail.com'],
@@ -37,7 +37,7 @@ function normalizeEmail (email) {
 }
 
 function replaceDomain (domain) {
-    for (const domainGroup of mailDomains) {
+    for (const domainGroup of MAIL_DOMAINS) {
         if (domainGroup.addresses.includes(domain)) return domainGroup.mainAddress
     }
     return domain
