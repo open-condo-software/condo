@@ -8,7 +8,7 @@ const PDF_FORMAT_SETTINGS = {
     // firstLineOffset - margin right for first line (in css pixels)
     // lineSpace - margin right for rest of lines (in css pixels)
     'a4': { pdfWidth: 210, pdfHeight: 297, elementOffset: 10, firstLineOffset: 23, lineSpace: 80, ratio: Math.sqrt(2) },
-    'a5': { pdfWidth: 128, pdfHeight: 210, elementOffset: 10, firstLineOffset: 23, lineSpace: 80, ratio: Math.sqrt(2) },
+    'a5': { pdfWidth: 148, pdfHeight: 210, elementOffset: 10, firstLineOffset: 23, lineSpace: 80, ratio: Math.sqrt(2) },
 }
 
 function getPdfHeightFromElement (element: HTMLElement, expectedWidth: number) {
