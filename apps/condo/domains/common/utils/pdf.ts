@@ -7,6 +7,15 @@ function getPdfHeightFromElement (element: HTMLElement, expectedWidth: number) {
     return expectedWidth * originalRatio
 }
 
+function getLine () {
+    const line = document.createElement('div')
+    // line.style.width = 'calc(100% + 48px)'
+    line.style.width = '100%'
+    // line.style.margin = '0 -24px'
+    line.style.borderTop = '1px solid black'
+    return line
+}
+
 interface ICreatePdfOptions {
     element: HTMLElement
     fileName: string
@@ -17,17 +26,35 @@ export function createPdf (options: ICreatePdfOptions) {
         element,
         fileName,
     } = options
+    const pdfWidth = 400
+    const elementOffset = 20
+    const firstLineOffset = 23
+    const lineSpace = 80
 
+    const maxElHeight = (element.clientWidth + 40) * Math.sqrt(2)
+    let freeSpace = maxElHeight - element.clientHeight - firstLineOffset
+
+    const linesContainer = element.querySelector('#pdfLineInput')
+    let linesCounter = 0
+
+    while (linesContainer && freeSpace > elementOffset) {
+        const marginTop = linesCounter > 0 ? lineSpace : firstLineOffset
+        const line = getLine()
+        line.style.marginTop = `${marginTop}px`
+        linesContainer.appendChild(line)
+        freeSpace -= lineSpace
+        linesCounter++
+    }
+
+    const pdfHeight = getPdfHeightFromElement(element, pdfWidth)
     return  html2canvas(element).then(canvas => {
         const doc = new Jspdf('p', 'px')
-        const pdfWidth = 400
-        const elementOffset = 20
         const imageOptions = {
             imageData: canvas,
             x: elementOffset,
             y: elementOffset,
             width: pdfWidth,
-            height: getPdfHeightFromElement(element, pdfWidth),
+            height: pdfHeight,
         }
 
         doc.addImage(imageOptions)

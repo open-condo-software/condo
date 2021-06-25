@@ -108,6 +108,7 @@ const PdfView = () => {
         }
     }, [loading])
 
+
     const TicketTitleMessage = getTicketTitleMessage(intl, ticket)
 
     if (error || loading || !ticket) {
@@ -209,6 +210,7 @@ const PdfView = () => {
                     {NotesMessage}
                 </Typography.Title>
             </Col>
+            <Col span={24} id={'pdfLineInput'}/>
         </Row>
     )
 }
