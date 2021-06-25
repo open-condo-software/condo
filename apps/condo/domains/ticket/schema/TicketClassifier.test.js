@@ -5,6 +5,7 @@
 const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@core/keystone/test.utils')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 const { TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const faker = require('faker')
 
 describe('TicketClassifier CRUD', () => {
@@ -13,19 +14,9 @@ describe('TicketClassifier CRUD', () => {
             const admin = await makeLoggedInAdminClient()
             const [_, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
-            let errorThrown = false
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestTicketClassifier(client)
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-                errorThrown = true
-            }
-            expect(errorThrown).toBe(true)
+            })
         })
         it('can read', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -50,111 +41,50 @@ describe('TicketClassifier CRUD', () => {
             const client = await makeLoggedInClient(userAttrs)
             const [objCreated] = await createTestTicketClassifier(admin)
             const payload = { name: faker.lorem.word() }
-            let errorThrown = false
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestTicketClassifier(client, objCreated.id, payload)
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-                errorThrown = true
-            }
-            expect(errorThrown).toBe(true)
+            })
         })
         it('cant delete', async () => {
             const admin = await makeLoggedInAdminClient()
             const [_, userAttrs] = await createTestUser(admin)
             const [objCreated] = await createTestTicketClassifier(admin)
             const client = await makeLoggedInClient(userAttrs)
-            let errorThrown = false
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await TicketClassifier.delete(client, objCreated.id)
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-                errorThrown = true
-            }
-            expect(errorThrown).toBe(true)
+            })
         })
     })
     describe('Anonymous', () => {
         it('cant create', async () => {
             const client = await makeClient()
-            let errorThrown = false
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestTicketClassifier(client)
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-                errorThrown = true
-            }
-            expect(errorThrown).toBe(true)
+            })
         })
         // TODO(zuch): if we have access to model for anonymous to read - it will still fail as anonymous do not have access to allUsers - and createBy field will fail
-        it.skip('can read', async () => {
+        it('can read', async () => {
             const client = await makeClient()
-            const admin = await makeLoggedInAdminClient()
-            const [objCreated, attrs] = await createTestTicketClassifier(admin)
-            const objs = await TicketClassifier.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
-            console.log(objs)
-            expect(objs[0].id).toMatch(objCreated.id)
-            expect(objs[0].dv).toEqual(1)
-            expect(objs[0].sender).toEqual(attrs.sender)
-            expect(objs[0].v).toEqual(1)
-            expect(objs[0].newId).toEqual(null)
-            expect(objs[0].deletedAt).toEqual(null)
-            expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-            expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-            expect(objs[0].createdAt).toMatch(objCreated.createdAt)
-            expect(objs[0].updatedAt).toMatch(objCreated.updatedAt)
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await TicketClassifier.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+            })
         })
         it('cant update', async () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestTicketClassifier(admin)
             const client = await makeClient()
             const payload = { name: faker.lorem.word() }
-            let errorThrown = false
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestTicketClassifier(client, objCreated.id, payload)
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-                errorThrown = true
-            }
-            expect(errorThrown).toBe(true)
+            })
         })
         it('cant delete', async () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestTicketClassifier(admin)
             const client = await makeClient()
-            let errorThrown = false
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await TicketClassifier.delete(client, objCreated.id)
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-                errorThrown = true
-            }
-            expect(errorThrown).toBe(true)
+            })
         })
     })
 })
