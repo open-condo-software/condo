@@ -227,13 +227,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                         </Form.Item>
                                                                     </Col>
                                                                     <Col flex={0}>
-                                                                        <Tooltip  title={NotImplementedYetMessage} style={{ pointerEvents: 'none' }}>
-                                                                            <Form.Item 
-                                                                                label={AttachedFilesLabel}
-                                                                            >   
-                                                                                <UploadComponent />                                                                                
-                                                                            </Form.Item>
-                                                                        </Tooltip>
+                                                                        <Form.Item
+                                                                            label={AttachedFilesLabel}
+                                                                        >
+                                                                            <UploadComponent />
+                                                                        </Form.Item>
                                                                     </Col>
                                                                 </Row>
                                                             </Col>
