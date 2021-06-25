@@ -24,17 +24,9 @@ describe('BillingIntegrationAccessRight', () => {
         const [integration] = await createTestBillingIntegration(admin)
 
         const client = await makeClient()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestBillingIntegrationAccessRight(client, integration, admin.user)
-        } catch (e) {
-            console.log(e)
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('user: read BillingIntegrationAccessRight', async () => {

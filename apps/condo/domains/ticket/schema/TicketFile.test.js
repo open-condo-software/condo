@@ -83,17 +83,10 @@ describe('TicketFile', () => {
         it('cannot delete TicketFile', async () => {
             const userClient = await makeClientWithTicket()
             const [ticketFileCreated] = await createTestTicketFile(userClient, userClient.organization, userClient.ticket)  
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 // TODO(codegen): check 'user: delete TicketFile' test!
                 await TicketFile.delete(userClient, ticketFileCreated.id)
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
+            })
         })
     })
 
@@ -124,17 +117,10 @@ describe('TicketFile', () => {
             const userClient = await makeClientWithTicket()
             const [ticketFileCreated] = await createTestTicketFile(userClient, userClient.organization, userClient.ticket)  
             const client = await makeClient()
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 // TODO(codegen): check 'anonymous: delete TicketFile' test!
                 await TicketFile.delete(client, ticketFileCreated.id)
-            } catch (e) {
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
+            })
         })
     })
 })

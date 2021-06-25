@@ -101,17 +101,10 @@ describe('BillingIntegrationLog', () => {
         const [objCreated] = await createTestBillingIntegrationLog(admin)  // TODO(codegen): check create function!
 
         const client = await makeClient()  // TODO(codegen): use truly useful client!
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {            
             // TODO(codegen): check 'user: delete BillingIntegrationLog' test!
             await BillingIntegrationLog.delete(client, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test.skip('anonymous: delete BillingIntegrationLog', async () => {
@@ -119,17 +112,10 @@ describe('BillingIntegrationLog', () => {
         const [objCreated] = await createTestBillingIntegrationLog(admin)  // TODO(codegen): check create function!
 
         const client = await makeClient()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             // TODO(codegen): check 'anonymous: delete BillingIntegrationLog' test!
             await BillingIntegrationLog.delete(client, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test('user: can see the logs', async () => {

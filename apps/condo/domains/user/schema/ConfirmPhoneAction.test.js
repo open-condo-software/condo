@@ -29,6 +29,7 @@ const {
     COMPLETE_CONFIRM_PHONE_MUTATION,
     GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY,
 } = require('@condo/domains/user/gql')
+const { expectToThrowAccessDeniedErrorToObj } = require('../../common/utils/testSchema')
 
 const captcha = () => {
     return faker.lorem.sentence()
@@ -39,37 +40,17 @@ describe('ConfirmPhoneAction CRUD', () => {
             const admin = await makeLoggedInAdminClient()
             const [, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
-            let isErrorThrown = false
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestConfirmPhoneAction(client)
-            } catch (e) {
-                isErrorThrown = true
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
-            expect(isErrorThrown).toBe(true)
+            })
         })
         it('cant read confirm phone actions', async () => {
             const admin = await makeLoggedInAdminClient()
             const [, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
-            let isErrorThrown = false
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await ConfirmPhoneAction.getAll(client)
-            } catch (e) {
-                isErrorThrown = true
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['objs'],
-                })
-                expect(e.data).toEqual({ 'objs': null })
-            }
-            expect(isErrorThrown).toBe(true)
+            })
         })
         it('cant update confirm phone action', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -77,109 +58,49 @@ describe('ConfirmPhoneAction CRUD', () => {
             const [, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
             const payload = { phone: createTestPhone() }
-            let isErrorThrown = false
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestConfirmPhoneAction(client, objCreated.id, payload)
-            } catch (e) {
-                isErrorThrown = true
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
-            expect(isErrorThrown).toBe(true)
+            })
         })
         it('cant delete confirm phone action', async () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestConfirmPhoneAction(admin)
             const [, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
-            let isErrorThrown = false
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await ConfirmPhoneAction.delete(client, objCreated.id)
-            } catch (e) {
-                isErrorThrown = true
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
-            expect(isErrorThrown).toBe(true)
+            })
         })
     })
     describe('Anonymous', () => {
         it('cant create confirm phone action', async () => {
             const client = await makeClient()
-            let isErrorThrown = false
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestConfirmPhoneAction(client)
-            } catch (e) {
-                isErrorThrown = true
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
-            expect(isErrorThrown).toBe(true)
+            })
         })
         it('cant read confirm phone actions', async () => {
             const client = await makeClient()
-            let isErrorThrown = false
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await ConfirmPhoneAction.getAll(client)
-            } catch (e) {
-                isErrorThrown = true
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['objs'],
-                })
-                expect(e.data).toEqual({ 'objs': null })
-            }
-            expect(isErrorThrown).toBe(true)
+            })
         })
         it('cant update confirm phone action', async () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestConfirmPhoneAction(admin)
             const client = await makeClient()
             const payload = { phone: createTestPhone() }
-            let isErrorThrown = false
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () =>{
                 await updateTestConfirmPhoneAction(client, objCreated.id, payload)
-            } catch (e) {
-                isErrorThrown = true
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
-            expect(isErrorThrown).toBe(true)
+            })
         })
         it('cant delete confirm phone action', async () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestConfirmPhoneAction(admin)
             const client = await makeClient()
-            let isErrorThrown = false
-            try {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await ConfirmPhoneAction.delete(client, objCreated.id)
-            } catch (e) {
-                isErrorThrown = true
-                expect(e.errors[0]).toMatchObject({
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['obj'],
-                })
-                expect(e.data).toEqual({ 'obj': null })
-            }
-            expect(isErrorThrown).toBe(true)
+            })
         })
     })
 })
