@@ -44,10 +44,10 @@ function replaceDomain (domain) {
 }
 
 function processUserPart (userPart, domainPart) {
-    const beforePlus = userPart.split('+')[0]
-    if (domainPart !== 'gmail.com') return beforePlus
+    let result = userPart.split('+')[0]
     // For google abc.abc@ = abcabc@, but abc..abc != abcabc != abc.abc
-    return beforePlus.replace(/\.+/g, dotReplacer)
+    if (domainPart === 'gmail.com') result = result.replace(/\.+/g, dotReplacer)
+    return result
 }
 
 function dotReplacer (match) {
