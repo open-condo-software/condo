@@ -61,7 +61,6 @@ const User = new GQLListSchema('User', {
             kmigratorOptions: { null: true, unique: true },
             hooks: {
                 resolveInput: ({ resolvedData }) => {
-                    // TODO(pahaz): convert email to lover case is not enough! normalize by `+` and aliases (ya.ru/yandex.ru) and so on ..
                     return normalizeEmail(resolvedData['email']) || resolvedData['email']
                 },
                 validateInput: async ({ resolvedData, addFieldValidationError }) => {
