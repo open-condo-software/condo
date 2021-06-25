@@ -98,17 +98,10 @@ describe('BillingAccountMeter', () => {
         const [objCreated] = await createTestBillingAccountMeter(admin)  // TODO(codegen): check create function!
 
         const client = await makeClient()  // TODO(codegen): use truly useful client!
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             // TODO(codegen): check 'user: delete BillingAccountMeter' test!
             await BillingAccountMeter.delete(client, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
     test.skip('anonymous: delete BillingAccountMeter', async () => {
@@ -116,16 +109,9 @@ describe('BillingAccountMeter', () => {
         const [objCreated] = await createTestBillingAccountMeter(admin)  // TODO(codegen): check create function!
 
         const client = await makeClient()
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             // TODO(codegen): check 'anonymous: delete BillingAccountMeter' test!
             await BillingAccountMeter.delete(client, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
-            })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 })
