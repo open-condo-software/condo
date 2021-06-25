@@ -4,7 +4,6 @@ const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
 const IORedis = require('ioredis')
 const session = require('express-session')
-const { COOKIE_MAX_AGE } = require('@condo/domains/user/constants/common')
 const RedisStore = require('connect-redis')(session)
 
 function _makeid (length) {
@@ -65,7 +64,7 @@ function prepareDefaultKeystoneConfig (conf) {
         cookie: {
             sameSite: false,
             secure: false,
-            maxAge: COOKIE_MAX_AGE,
+            maxAge: conf.COOKIE_MAX_AGE || 1000 * 60 * 60 * 24 * 130,
         },
         name: conf.PROJECT_NAME,
         adapter: getAdapter(conf.DATABASE_URL),

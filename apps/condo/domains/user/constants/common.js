@@ -8,7 +8,6 @@ const SAFE_CAPTCHA_SCORE = 0.5
 const TROW_ERRORS_ON_LOW_CAPTCHA_SCORE = false
 const MAX_SMS_FOR_IP_BY_DAY = 100
 const MAX_SMS_FOR_PHONE_BY_DAY = 20
-const COOKIE_MAX_AGE = 1000 * 60 * 60 * 24 * 130 // 130 days
 
 module.exports = {
     MIN_PASSWORD_LENGTH,
@@ -21,5 +20,4 @@ module.exports = {
     TROW_ERRORS_ON_LOW_CAPTCHA_SCORE,
     MAX_SMS_FOR_IP_BY_DAY,
     MAX_SMS_FOR_PHONE_BY_DAY,
-    COOKIE_MAX_AGE,
 }
