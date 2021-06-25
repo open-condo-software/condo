@@ -41,13 +41,19 @@ export function createPdf (options: ICreatePdfOptions) {
     const settings = format in PDF_FORMAT_SETTINGS ? PDF_FORMAT_SETTINGS[format] : PDF_FORMAT_SETTINGS['a4']
     const { pdfWidth, pdfHeight, elementOffset, firstLineOffset, lineSpace } = settings
 
+    // Calculating image ratio
+    // Width = pdfWidth - leftOffset - rightOffset = pdfWidth - elementOffset * 2
+    // Same for height
     const imageRatio = (pdfHeight - elementOffset * 2) / (pdfWidth - elementOffset * 2)
+    // Now let's define what's max css height with this ratio
     const maxElHeight = (element.clientWidth) * imageRatio
+    // And how much space in css pixels is left for lines
     let freeSpace = maxElHeight - element.clientHeight - firstLineOffset
 
     const linesContainer = element.querySelector('#pdfLineInput')
     let linesCounter = 0
 
+    // Adding lines while we have free space
     while (linesContainer && freeSpace > lineSpace / 2) {
         const marginTop = linesCounter > 0 ? lineSpace : firstLineOffset
         const line = getLine()
