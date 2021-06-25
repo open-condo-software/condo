@@ -19,9 +19,7 @@ function getPdfHeightFromElement (element: HTMLElement, expectedWidth: number) {
 
 function getLine () {
     const line = document.createElement('div')
-    // line.style.width = 'calc(100% + 48px)'
     line.style.width = '100%'
-    // line.style.margin = '0 -24px'
     line.style.borderTop = '1px solid black'
     return line
 }
