@@ -46,7 +46,11 @@ const TicketDescriptionField: React.FC<ITicketDescriptionFieldProps> = ({ title,
     const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
 
     return (
-        <Space direction={'vertical'} size={8}>
+        <Space
+            direction={'vertical'}
+            size={8}
+            style={{ maxWidth: '100%' }}
+        >
             <Typography.Text type={'secondary'}>{title}</Typography.Text>
             <Typography.Text {...{ type }} style={{ fontSize: '16px' }}>{value || NotDefinedMessage}</Typography.Text>
         </Space>
