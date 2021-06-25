@@ -29,7 +29,7 @@ const {
     COMPLETE_CONFIRM_PHONE_MUTATION,
     GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY,
 } = require('@condo/domains/user/gql')
-const { expectToThrowAccessDeniedErrorToObj } = require('../../common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 
 const captcha = () => {
     return faker.lorem.sentence()
@@ -48,7 +48,7 @@ describe('ConfirmPhoneAction CRUD', () => {
             const admin = await makeLoggedInAdminClient()
             const [, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
                 await ConfirmPhoneAction.getAll(client)
             })
         })
@@ -81,7 +81,7 @@ describe('ConfirmPhoneAction CRUD', () => {
         })
         it('cant read confirm phone actions', async () => {
             const client = await makeClient()
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
                 await ConfirmPhoneAction.getAll(client)
             })
         })
