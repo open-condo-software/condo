@@ -1,12 +1,15 @@
 import React, { useCallback, useState } from 'react'
 import { OptionProps } from 'antd/lib/mentions'
-import { Col, Radio, Select } from 'antd'
+import { AutoComplete, Col, Radio, Select, Input } from 'antd'
 import { green, grey } from '@ant-design/colors'
 import { get, pick } from 'lodash'
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { MinusCircleFilled } from '@ant-design/icons'
 import { Contact as TContact } from '@condo/domains/contact/schema'
 import { ContactValue } from './index'
+import { PhoneInput } from '../../../common/components/PhoneInput'
+
+const { TextArea } = Input
 
 /**
  * Prevent crash of `String.match`, when providing a regular expression string value,
@@ -34,19 +37,15 @@ interface IContactSyncedAutocompleteFieldsProps {
 }
 
 /**
- * When a phone will be selected, "Name" field should reflect appropriate value
- * for selected contact and vise-versa.
+ * Synchronized pair of "Phone" and "Name" fields.
+ * When a phone will be selected, "Name" field should reflect appropriate value for selected contact
+ * And vise-versa.
+ * When value in fields are typed, not selected, `onChange` callback will be fired.
  */
-const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({
-    initialValue,
-    onChange,
-    onChecked,
-    checked,
-    contacts,
-    displayMinusButton,
-    onClickMinusButton,
-}) => {
+const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({ initialValue, onChange, onChecked, checked, contacts, displayMinusButton, onClickMinusButton }) => {
     const [value, setValue] = useState(initialValue)
+    const [contactsByPhone, setContactsByPhone] = useState([])
+    const [contactsByName, setContactsByName] = useState([])
 
     const searchContactBy = useCallback(
         (field) => async (query) => {
@@ -55,8 +54,16 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
         []
     )
 
+    const searchContactByPhone = useCallback((query) => {
+        setContactsByPhone(contacts.filter(c => c.phone.match(escapeRegex(query))))
+    }, [])
+
+    const searchContactByName = useCallback((query) => {
+        setContactsByName(contacts.filter(c => c.name.match(escapeRegex(query))))
+    }, [])
+
     const handleSelectContact = (value: string, option: OptionProps) => {
-        setValueAndTriggerOnChange(option.data)
+        setValueAndTriggerOnChange(option.item)
     }
 
     const handleChangeContact = (field) => (fieldValue) => {
@@ -79,7 +86,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
                 key={item.id}
                 value={item[field]}
                 title={item[field]}
-                data={pick(item, ['id', 'name', 'phone'])}
+                item={pick(item, ['id', 'name', 'phone'])}
             >
                 {item[field]}
             </Select.Option>
@@ -94,19 +101,32 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
         onChecked && onChecked()
     }
 
+    const renderOptionsBy = useCallback((prop, items) =>
+        items.map(item => ({
+            value: item[prop],
+            item,
+        }))
+    , [])
+
     return (
         <>
             <Col span={10}>
-                <BaseSearchInput
+                <AutoComplete
+                    allowClear
                     value={get(value, 'phone')}
-                    loadOptionsOnFocus={false}
-                    search={searchContactBy('phone')}
-                    renderOption={renderOption('phone')}
+                    options={renderOptionsBy('phone', contactsByPhone)}
                     onSelect={handleSelectContact}
+                    onSearch={searchContactByPhone}
                     onChange={handleChangeContact('phone')}
                     onClear={handleClearContact}
                     style={{ width: '100%' }}
-                />
+                >
+                    <PhoneInput
+                        style={{ width: '100%', height: '40px' }}
+                        compatibilityWithAntAutoComplete={true}
+                    />
+                </AutoComplete>
+
             </Col>
             <Col span={10}>
                 <BaseSearchInput
