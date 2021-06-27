@@ -14,11 +14,11 @@ interface ILoaderProps extends SpinProps {
 export const Loader: React.FC<ILoaderProps> = (props) => {
 
     const filledContainerStyles = css`
-            display:'flex';
-            justify-content: 'center';
-            align-items: 'center';
-            height: '100%';
-            width: '100%';
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
         `
 
     const coloredSpinnerStyles = css`
@@ -26,8 +26,6 @@ export const Loader: React.FC<ILoaderProps> = (props) => {
             background-color: ${props.color};
         }
     `
-
-    console.log(colors)
 
     const loaderStyles = [coloredSpinnerStyles]
 
