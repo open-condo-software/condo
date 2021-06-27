@@ -1,8 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { css } from '@emotion/core'
-import { Spin, Typography } from 'antd'
-import { LoadingOutlined } from '@ant-design/icons'
+import { Typography } from 'antd'
 import { useEffect } from 'react'
 import Router, { useRouter } from 'next/router'
 import qs from 'qs'
@@ -10,6 +9,7 @@ import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 
 import { isFunction } from '../../utils/ecmascript.utils'
+import { Loader } from '../Loader'
 
 function RedirectToLogin () {
     const intl = useIntl()
@@ -36,8 +36,7 @@ export function AuthRequired ({ children }) {
     const { isAuthenticated, isLoading } = auth
 
     if (isLoading) {
-        const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin/>
-        return <Spin indicator={antIcon}/>
+        return <Loader/>
     }
 
     if (!isAuthenticated) {
