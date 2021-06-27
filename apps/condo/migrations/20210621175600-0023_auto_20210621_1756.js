@@ -11,7 +11,7 @@ CREATE TABLE "ContactHistoryRecord" ("dv" integer NULL, "sender" jsonb NULL, "or
 --
 -- Add field canManageContacts to organizationemployeerole
 --
-ALTER TABLE "OrganizationEmployeeRole" ADD COLUMN "canManageContacts" boolean DEFAULT false NOT NULL;
+ALTER TABLE "OrganizationEmployeeRole" ADD COLUMN "canManageContacts" boolean DEFAULT true NOT NULL;
 ALTER TABLE "OrganizationEmployeeRole" ALTER COLUMN "canManageContacts" DROP DEFAULT;
 --
 -- Add field canManageContacts to organizationemployeerolehistoryrecord
