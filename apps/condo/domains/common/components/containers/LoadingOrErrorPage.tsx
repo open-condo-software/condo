@@ -3,6 +3,7 @@ import { PageContent, PageHeader, PageWrapper } from './BaseLayout'
 import React from 'react'
 import { Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
+import { Loader } from '../Loader'
 
 interface ILoadingOrErrorPageProps {
     title: string
@@ -12,7 +13,6 @@ interface ILoadingOrErrorPageProps {
 
 const LoadingOrErrorPage: React.FC<ILoadingOrErrorPageProps> = ({ title, loading, error }) => {
     const intl = useIntl()
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
     return <>
         <Head>
@@ -21,7 +21,7 @@ const LoadingOrErrorPage: React.FC<ILoadingOrErrorPageProps> = ({ title, loading
         <PageWrapper>
             <PageHeader title={title}/>
             <PageContent>
-                {(loading) ? <Typography.Title>{LoadingMessage}</Typography.Title> : null}
+                {(loading) ? <Loader/> : null}
                 {(error) ? <Typography.Title>{error}</Typography.Title> : null}
             </PageContent>
         </PageWrapper>
