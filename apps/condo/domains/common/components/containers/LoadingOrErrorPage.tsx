@@ -2,7 +2,6 @@ import Head from 'next/head'
 import { PageContent, PageHeader, PageWrapper } from './BaseLayout'
 import React from 'react'
 import { Typography } from 'antd'
-import { useIntl } from '@core/next/intl'
 import { Loader } from '../Loader'
 
 interface ILoadingOrErrorPageProps {
@@ -12,8 +11,6 @@ interface ILoadingOrErrorPageProps {
 }
 
 const LoadingOrErrorPage: React.FC<ILoadingOrErrorPageProps> = ({ title, loading, error }) => {
-    const intl = useIntl()
-
     return <>
         <Head>
             <title>{title}</title>
