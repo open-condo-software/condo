@@ -40,7 +40,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     if (error || loading) {
         return (
             <>
-                {(loading) ? <Loader/> : null}
+                {(loading) ? <Loader fill size={'large'}/> : null}
                 {(error) ? <Typography.Title>{error}</Typography.Title> : null}
             </>
         )
