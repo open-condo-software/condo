@@ -1,10 +1,11 @@
 import { OptionProps } from 'antd/lib/mentions'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Select, Spin, SelectProps } from 'antd'
+import { Select, SelectProps } from 'antd'
 import debounce from 'lodash/debounce'
 import { useIntl } from '@core/next/intl'
 import { InitialValuesGetter, useInitialValueGetter } from './useInitialValueGetter'
 import { useSelectCareeteControls } from './useSelectCareeteControls'
+import { Loader } from '../Loader'
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -134,7 +135,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             onClear={handleClear}
             ref={setSelectRef}
             placeholder={placeholder}
-            notFoundContent={fetching ? <Spin size="small" /> : null}
+            notFoundContent={fetching ? <Loader size="small" /> : null}
             // TODO(Dimitreee): remove ts ignore after combobox mode will be introduced after ant update
             // @ts-ignore
             mode={'SECRET_COMBOBOX_MODE_DO_NOT_USE'}
