@@ -6,6 +6,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 
 const { {{name}}, createTest{{name}}, updateTest{{name}} } = require('@condo/domains/{{domain}}/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+
 describe('{{name}}', () => {
     test('user: create {{name}}', async () => {
         const client = await makeClient()  // TODO(codegen): use truly useful client!
