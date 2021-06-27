@@ -42,7 +42,13 @@ if [[ -z "${DOCKER_COMPOSE_MIGRATION_COMMAND}" ]]; then
 fi
 if [[ -z "${VERSION}" ]]; then
     echo "Use: $0 <VERSION>"
-    echo "Example: $0 v1"
+    echo "Example: $0 v.1.0.0"
+    exit 1
+fi
+
+if [[ ! "${VERSION}" =~ ^v[-][0-9]+[-][0-9]+[-][0-9]+$ ]]; then
+    echo "Use: $0 <VERSION>"
+    echo "Error: wrong version format. Use something like v.1.0.0"
     exit 1
 fi
 
