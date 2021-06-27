@@ -1,8 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { css } from '@emotion/core'
-import { Spin, Typography } from 'antd'
-import { LoadingOutlined } from '@ant-design/icons'
+import { Typography } from 'antd'
 import { useEffect } from 'react'
 import Router, { useRouter } from 'next/router'
 import qs from 'qs'
@@ -14,6 +13,7 @@ import get from 'lodash/get'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { AuthRequired } from '../../common/components/containers/AuthRequired'
 import { isFunction } from '../../common/utils/ecmascript.utils'
+import { Loader } from '../../common/components/Loader'
 
 function RedirectToOrganizations () {
     const { asPath } = useRouter()
@@ -43,7 +43,7 @@ function OrganizationRequiredAfterAuthRequired ({ children, withEmployeeRestrict
     const { isLoading, link } = organization
 
     if (isLoading || isLoadingAuth) {
-        return <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin/>}/>
+        return <Loader/>
     }
 
     if (!link) {
