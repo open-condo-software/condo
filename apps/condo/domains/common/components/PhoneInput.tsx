@@ -13,15 +13,20 @@ interface IPhoneInputProps extends InputProps {
     compatibilityWithAntAutoComplete?: boolean,
 }
 
+interface PhoneInputRef {
+    numberInputRef: {
+        focus: () => void,
+    },
+}
+
 export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, ref) => {
     const { value, placeholder, style, disabled } = props
     const { organization } = useOrganization()
-    const inputRef = useRef()
+    const inputRef = useRef<PhoneInputRef>()
 
     // `AutoComplete` component needs `focus` method of it's direct child component (custom input)
     useImperativeHandle(ref, () => ({
         focus: () => {
-            // @ts-ignore
             inputRef.current.numberInputRef.focus()
         },
     }))
@@ -51,9 +56,9 @@ export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, r
         }
     }, [])
 
-    // @ts-ignore
     return (
         <ReactPhoneInput
+            // @ts-ignore
             ref={inputRef}
             inputClass={'ant-input'}
             value={String(value)}
