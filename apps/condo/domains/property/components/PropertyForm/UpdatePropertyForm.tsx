@@ -1,4 +1,4 @@
-import { Form, Space, Typography, Col, Row } from 'antd'
+import { Form, Space, Typography } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
@@ -11,6 +11,7 @@ import { FormResetButton } from '@condo/domains/common/components/FormResetButto
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import Modal from 'antd/lib/modal/Modal'
 import ActionBar from '@condo/domains/common/components/ActionBar'
+import { Loader } from '../../../common/components/Loader'
 interface IUpdatePropertyForm {
     id: string
 }
@@ -19,7 +20,6 @@ interface IUpdatePropertyForm {
 export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     const intl = useIntl()
     const ApplyChangesLabel = intl.formatMessage({ id: 'ApplyChanges' })
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const DeletePropertyLabel = intl.formatMessage({ id: 'pages.condo.property.form.DeleteLabel' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteMessage' })
@@ -63,7 +63,7 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     if (error || loading) {
         return (
             <>
-                {(loading) ? <Typography.Title>{LoadingMessage}</Typography.Title> : null}
+                {(loading) ? <Loader/> : null}
                 {(error) ? <Typography.Title>{error}</Typography.Title> : null}
             </>
         )
