@@ -11,6 +11,7 @@ import { FormResetButton } from '@condo/domains/common/components/FormResetButto
 // @ts-ignore
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
+import { Loader } from '../../../common/components/Loader'
 interface IUpdateTicketForm {
     id: string
 }
@@ -18,7 +19,6 @@ interface IUpdateTicketForm {
 export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
     const { push } = useRouter()
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -40,7 +40,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     if (error || loading) {
         return (
             <>
-                {(loading) ? <Typography.Title>{LoadingMessage}</Typography.Title> : null}
+                {(loading) ? <Loader/> : null}
                 {(error) ? <Typography.Title>{error}</Typography.Title> : null}
             </>
         )
