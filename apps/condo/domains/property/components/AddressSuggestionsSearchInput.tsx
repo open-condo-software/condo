@@ -10,9 +10,9 @@ import { grey } from '@ant-design/colors'
 import { colors } from '@condo/domains/common/constants/style'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 
-type IAddressSearchInput = SelectProps<string>
+type AddressSearchInputProps = SelectProps<string>
 
-export const AddressSuggestionsSearchInput: React.FC<IAddressSearchInput> = (props) => {
+export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = (props) => {
     const intl = useIntl()
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
@@ -23,10 +23,8 @@ export const AddressSuggestionsSearchInput: React.FC<IAddressSearchInput> = (pro
         async (query: string) => {
             try {
                 const { suggestions } = await addressApi.getSuggestions(query)
-
                 return suggestions.map(suggestion => {
                     const cleanedSuggestion = pickBy(suggestion, identity)
-
                     return {
                         text: suggestion.value,
                         value: JSON.stringify({ ...cleanedSuggestion, address: suggestion.value }),
@@ -86,6 +84,7 @@ export const AddressSuggestionsSearchInput: React.FC<IAddressSearchInput> = (pro
                     description: AddressMetaError,
                 })
             }
+            props.onSelect && props.onSelect(value, option)
         },
         [],
     )

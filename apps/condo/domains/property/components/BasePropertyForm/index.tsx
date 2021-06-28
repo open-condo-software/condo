@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
-import { Col, Form, Input, notification, Row, Typography } from 'antd'
+import { Col, Form, Input, notification, Row, Typography, FormItemProps } from 'antd'
 import React, { useCallback } from 'react'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -9,6 +9,8 @@ import { AddressSuggestionsSearchInput } from '@condo/domains/property/component
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { PropertyPanels } from '../panels'
 import Prompt from '@condo/domains/common/components/Prompt'
+import { AddressMeta } from '../../../common/utils/addressApi/AddressMeta'
+import { useState } from 'react'
 
 interface IOrganization {
     id: string
@@ -31,11 +33,15 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
+    const AddressValidationErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
+
 
     const { addressApi } = useAddressApi()
 
     const { action, initialValues } = props
 
+    const restrictedPropertyTypes: AddressMeta['data']['house_type'][] = ['д', 'к']
+    const [addressValidatorError, setAddressValidatorError] = useState<string | null>(null)
     const formValuesToMutationDataPreprocessor = useCallback((formData, _, form) => {
         const isAddressFieldTouched = form.isFieldsTouched(['address'])
 
@@ -83,9 +89,27 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     <Form.Item
                                         name="address"
                                         label={AddressLabel}
-                                        rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                                        rules={[{
+                                            required: true,
+                                            message: FieldIsRequiredMsg,
+                                        },
+                                        {
+                                            validator() {
+                                                if (!addressValidatorError) {
+                                                    return Promise.resolve()
+                                                }
+                                                return Promise.reject(addressValidatorError)
+                                            },
+                                        },
+                                        ]}
                                     >
-                                        <AddressSuggestionsSearchInput />
+                                        <AddressSuggestionsSearchInput
+                                            onSelect={(_, option) => {
+                                                const address = JSON.parse(option.key) as AddressMeta
+                                                if (!restrictedPropertyTypes?.includes(address.data.house_type)) {
+                                                    setAddressValidatorError(AddressValidationErrorMsg)
+                                                }
+                                            }} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={7} offset={1}>
