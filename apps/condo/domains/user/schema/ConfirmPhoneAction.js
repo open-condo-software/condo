@@ -63,6 +63,23 @@ const checkLock = async (phone, action) => {
     }
 }
 
+const getMobilePlatform = (userAgent) => {
+    const isMobile = !!userAgent.match(/mobile/i)
+    const isIpad = !!userAgent.match(/ipad/i)
+    const isIPhone = !!userAgent.match(/iphone/i)
+    const isIPod = !!userAgent.match(/ipod/i)
+    const isAndroid = !!userAgent.match(/android/i)
+    if (isMobile) {
+        if (isIpad || isIPhone || isIPod) {
+            return 'iOS'
+        }
+        if (isAndroid) {
+            return 'Android'
+        }
+    }
+    return ''
+}
+
 const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
     schemaDoc: 'User confirm phone actions is used before registration starts',
     fields: {
@@ -181,7 +198,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             schema: 'getPhoneByConfirmPhoneActionToken(data: GetPhoneByConfirmPhoneActionTokenInput!): GetPhoneByConfirmPhoneActionTokenOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { token, captcha } = args.data
-                const { error } = await captchaCheck(captcha, 'get_confirm_phone_token_info')
+                const { error } = await captchaCheck(captcha, 'get_confirm_phone_token_info', getMobilePlatform(context.req.headers['user-agent']))
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
                 }
@@ -205,7 +222,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             schema: 'startConfirmPhoneAction(data: StartConfirmPhoneActionInput!): StartConfirmPhoneActionOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { phone: inputPhone, sender, dv, captcha } = args.data
-                const { error } = await captchaCheck(captcha, 'start_confirm_phone')
+                const { error } = await captchaCheck(captcha, 'start_confirm_phone', getMobilePlatform(context.req.headers['user-agent']))
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
                 }
@@ -254,7 +271,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             schema: 'resendConfirmPhoneActionSms(data: ResendConfirmPhoneActionSmsInput!): ResendConfirmPhoneActionSmsOutput',
             resolver: async (parent, args, context, info, extra) => {
                 const { token, sender, captcha } = args.data
-                const { error } = await captchaCheck(captcha, 'resend_sms')
+                const { error } = await captchaCheck(captcha, 'resend_sms', getMobilePlatform(context.req.headers['user-agent']))
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
                 }
@@ -296,7 +313,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             schema: 'completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput',
             resolver: async (parent, args, context, info, extra) => {
                 const { token, smsCode, captcha } = args.data
-                const { error } = await captchaCheck(captcha, 'complete_verify_phone')
+                const { error } = await captchaCheck(captcha, 'complete_verify_phone', getMobilePlatform(context.req.headers['user-agent']))
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
                 }

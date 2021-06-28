@@ -4,24 +4,39 @@ const captchaConfig = conf.GOOGLE_RECAPTCHA_CONFIG ? JSON.parse(conf.GOOGLE_RECA
 const CAPTCHA_SCORE_URL = captchaConfig.CAPTCHA_SCORE_URL ? captchaConfig.CAPTCHA_SCORE_URL : 'https://www.google.com/recaptcha/api/siteverify'
 const SERVER_KEY = captchaConfig.SERVER_KEY
 const { SAFE_CAPTCHA_SCORE, TROW_ERRORS_ON_LOW_CAPTCHA_SCORE } = require('@condo/domains/user/constants/common')
+const mobileCapthaCheck = conf.MOBILE_CAPTCHA_CHECK
 
 if (isEmpty(SERVER_KEY)) {
     console.error('Google reCaptcha not configured')
+}
+if (isEmpty(mobileCapthaCheck)){
+    console.warn('Mobile reCaptcha not configured')
 }
 
 const onCaptchaCheck = ({ success, challenge_ts, hostname, score, action }) => {
     console.log(
         (score < SAFE_CAPTCHA_SCORE) ? '\x1b[31m' : '\x1b[32m',
-        `Recaptcha: ${action} - [${score}]: ${success}`,         
-        challenge_ts, 
+        `Recaptcha: ${action} - [${score}]: ${success}`,
+        challenge_ts,
         hostname,
         '\x1b[0m'
     )
-} 
+}
 
-const captchaCheck = async (response, action = '') => {
+const captchaCheck = async (response, action = '', mobilePlatform = '') => {
     if (conf.NODE_ENV === 'test') {
         return { error: null }
+    }
+    if (mobilePlatform) {
+        try {
+            let result = false
+            eval(mobileCapthaCheck)
+            if (result) {
+                return { error: null }
+            }
+        } catch (error) {
+            console.warn('[error] mobile captcha check failed', error)
+        }
     }
     const serverAnswer = await fetch(CAPTCHA_SCORE_URL, {
         headers: {
@@ -30,13 +45,15 @@ const captchaCheck = async (response, action = '') => {
         method: 'POST',
         body: `secret=${SERVER_KEY}&response=${response}`,
     })
-
     if (serverAnswer.ok) {
         const result = await serverAnswer.json()
         if (result.action !== action) {
             console.error(`Captcha actions mismatch ${result.action} - ${action}`)
         }
         onCaptchaCheck(result)
+        if (result.success === false) {
+            return { error: '[error] captcha check failed' }
+        }
         const error = (TROW_ERRORS_ON_LOW_CAPTCHA_SCORE && result.score < SAFE_CAPTCHA_SCORE) ? `Low captcha score ${result.score}` : null
         return { error }
     } else {
