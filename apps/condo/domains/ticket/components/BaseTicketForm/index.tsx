@@ -19,7 +19,7 @@ import { useMultipleFileUploadHook } from '@condo/domains/common/components/Mult
 import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { useOrganization } from '@core/next/organization'
-
+import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 
 const { TabPane } = Tabs
 
@@ -50,6 +50,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
+    const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+    const FloorNameLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const DescriptionLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
     const ClassifierLabel = intl.formatMessage({ id: 'Classifier' })
     const ExecutorLabel = intl.formatMessage({ id: 'field.Executor' })
@@ -68,6 +70,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState(get(initialValues, 'property'))
     const selectPropertyIdRef = useRef(selectedPropertyId)
+
+    const { loading, obj: property } = useObject({ where: { id: selectedPropertyId ? selectedPropertyId : null } })
 
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
     const selectedUnitNameRef = useRef(selectedUnitName)
@@ -121,6 +125,24 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         </UserNameField>
     )
 
+    const updateSectionAndFloor = (form, selectedUnitName) => {
+        if (selectedUnitName) {
+            const sections = get(property, ['map', 'sections'], [])
+            for (const section of sections) {
+                for (const floor of section.floors) {
+                    for (const unit of floor.units) {
+                        if (unit.label === selectedUnitName) {
+                            return form.setFieldsValue({ sectionName: section.name, floorName: floor.name })
+                        }
+                    }
+                }
+            }
+
+            form.setFieldsValue({ sectionName: null, floorName: null })
+        }
+    }
+
+
     return (
         <>
             <FormWithAction
@@ -138,15 +160,15 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                         <Col span={13}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
-                                    <Row justify={'space-between'} gutter={[0, 24]}>
+                                    <Row justify={'space-between'} gutter={[0, 15]}>
                                         <Col span={24}>
                                             <Typography.Title level={5} style={{ margin: '0' }}>{UserInfoTitle}</Typography.Title>
                                         </Col>
-                                        <Col span={selectedPropertyId ? 18 : 24}>
+                                        <Col span={24}>
                                             <Form.Item name={'property'} label={AddressLabel} rules={validations.property}>
                                                 <PropertyAddressSearchInput
                                                     onSelect={(_, option) => {
-                                                        form.setFieldsValue({ 'unitName': null })
+                                                        form.setFieldsValue({ unitName: null, sectionName: null, floorName: null })
                                                         setSelectedPropertyId(option.key)
                                                     }}
                                                     placeholder={AddressPlaceholder}
@@ -154,63 +176,79 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             </Form.Item>
                                         </Col>
                                         {selectedPropertyId && (
-                                            <Col span={4}>
-                                                <Form.Item name={'unitName'} label={FlatNumberLabel}>
-                                                    <UnitNameInput
-                                                        propertyId={selectedPropertyId}
-                                                        allowClear={true}
-                                                        onSelect={(_, option) => {
-                                                            setSelectedUnitName(option.key)
-                                                        }}
-                                                    />
-                                                </Form.Item>
+                                            <Col span={16}>
+                                                <Row justify={'space-between'}>
+                                                    <Col span={6}>
+                                                        <Form.Item name={'unitName'} label={FlatNumberLabel}>
+                                                            <UnitNameInput
+                                                                property={property}
+                                                                loading={loading}
+                                                                allowClear={true}
+                                                                onSelect={(_, option) => {
+                                                                    setSelectedUnitName(option.key)
+                                                                    updateSectionAndFloor(form, option.key)
+                                                                }}
+                                                            />
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col span={6}>
+                                                        <Form.Item name={'sectionName'} label={SectionNameLabel}>
+                                                            <Input disabled />
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col span={6}>
+                                                        <Form.Item name={'floorName'} label={FloorNameLabel}>
+                                                            <Input disabled />
+                                                        </Form.Item>
+                                                    </Col>
+                                                </Row>
                                             </Col>
                                         )}
-                                        <Col span={24}>
-                                            <Form.Item shouldUpdate noStyle>
-                                                {({ getFieldsValue }) => {
-                                                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
-
-                                                    const value = initialValues.clientName && initialValues.clientPhone ? {
-                                                        id: get(initialValues.contact, 'id'),
-                                                        name: initialValues.clientName,
-                                                        phone: initialValues.clientPhone,
-                                                    } : null
-
-                                                    return (
-                                                        <FocusContainer className={!property && 'disabled'}>
-                                                            <Tabs defaultActiveKey="1" style={{ width: '100%' }}>
-                                                                <TabPane tab={TicketFromResidentMessage} key="1">
-                                                                    <ContactsEditorComponent
-                                                                        form={form}
-                                                                        fields={{
-                                                                            id: 'contact',
-                                                                            phone: 'clientPhone',
-                                                                            name: 'clientName',
-                                                                        }}
-                                                                        value={value}
-                                                                        // Local `property` cannot be used here, because `PropertyAddressSearchInput`
-                                                                        // sets `Property.address` as its value, but we need `Property.id` here
-                                                                        property={selectedPropertyId}
-                                                                        unitName={unitName}
-                                                                    />
-                                                                </TabPane>
-                                                                <TabPane
-                                                                    tab={
-                                                                        <Tooltip title={NotImplementedYetMessage}>
-                                                                            {TicketNotFromResidentMessage}
-                                                                        </Tooltip>
-                                                                    }
-                                                                    key="2"
-                                                                    disabled
-                                                                />
-                                                            </Tabs>
-                                                        </FocusContainer>
-                                                    )
-                                                }}
-                                            </Form.Item>
-                                        </Col>
                                     </Row>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item shouldUpdate noStyle>
+                                        {({ getFieldsValue }) => {
+                                            const { property, unitName } = getFieldsValue(['property', 'unitName'])
+
+                                            const value = initialValues.clientName && initialValues.clientPhone ? {
+                                                id: get(initialValues.contact, 'id'),
+                                                name: initialValues.clientName,
+                                                phone: initialValues.clientPhone,
+                                            } : null
+
+                                            return (
+                                                <FocusContainer className={!property && 'disabled'}>
+                                                    <Tabs defaultActiveKey="1" style={{ width: '100%' }}>
+                                                        <TabPane tab={TicketFromResidentMessage} key="1">
+                                                            <ContactsEditorComponent
+                                                                form={form}
+                                                                fields={{
+                                                                    id: 'contact',
+                                                                    phone: 'clientPhone',
+                                                                    name: 'clientName',
+                                                                }}
+                                                                value={value}
+                                                                // Local `property` cannot be used here, because `PropertyAddressSearchInput`
+                                                                // sets `Property.address` as its value, but we need `Property.id` here
+                                                                property={selectedPropertyId}
+                                                                unitName={unitName}
+                                                            />
+                                                        </TabPane>
+                                                        <TabPane
+                                                            tab={
+                                                                <Tooltip title={NotImplementedYetMessage}>
+                                                                    {TicketNotFromResidentMessage}
+                                                                </Tooltip>
+                                                            }
+                                                            key="2"
+                                                            disabled
+                                                        />
+                                                    </Tabs>
+                                                </FocusContainer>
+                                            )
+                                        }}
+                                    </Form.Item>
                                 </Col>
                                 <Form.Item noStyle dependencies={['property']}>
                                     {
