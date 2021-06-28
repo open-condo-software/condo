@@ -10,14 +10,7 @@ async function canReadBillingIntegrationAccessRights ({ authentication: { item: 
 
 async function canManageBillingIntegrationAccessRights ({ authentication: { item: user }, operation }) {
     if (!user) return false
-    if (user.isAdmin) return true
-    if (operation === 'create') {
-        // TODO(codegen): write canManageBillingIntegrationAccessRights create logic!
-        return false
-    } else if (operation === 'update') {
-        // TODO(codegen): write canManageBillingIntegrationAccessRights update logic!
-        return false
-    }
+    if (user.isAdmin || user.isSupport) return true
     return false
 }
 

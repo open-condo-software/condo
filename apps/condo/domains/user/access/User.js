@@ -12,7 +12,7 @@ async function canReadUsers ({ authentication: { item: user } }) {
 
 async function canManageUsers ({ authentication: { item: user }, operation, itemId }) {
     if (!user) return false
-    if (user.isAdmin) return true
+    if (user.isAdmin && user.isSupport) return true
 
     if (operation === 'update') {
         return Boolean(itemId === user.id)
