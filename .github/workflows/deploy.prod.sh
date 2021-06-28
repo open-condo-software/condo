@@ -42,7 +42,7 @@ if [[ -z "${DOCKER_COMPOSE_MIGRATION_COMMAND}" ]]; then
 fi
 if [[ -z "${VERSION}" ]]; then
     echo "Use: $0 <VERSION>"
-    echo "Example: $0 v.1.0.0"
+    echo "Example: $0 v-1-0-0"
     exit 1
 fi
 
