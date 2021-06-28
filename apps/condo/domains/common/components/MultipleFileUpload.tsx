@@ -30,7 +30,7 @@ const reducer = (state, action) => {
     switch (type) {
         case 'delete':
             return {
-                ...state,                    
+                ...state,
                 added: [...state.added].filter(addFile => addFile.id !== file.id),
                 deleted: [...state.deleted, file],
             }
@@ -56,7 +56,7 @@ const convertFilesToUploadFormat = (files: DBFile[]): UploadListFile[] => {
             status: 'done' as UploadFileStatus,
             url: file.publicUrl,
         }
-        return fileInList        
+        return fileInList
     })
     return uploadFiles
 }
@@ -71,16 +71,16 @@ interface IMultipleFileUploadHookArgs {
     initialCreateValues?: Record<string, unknown>
 }
 interface IMultipleFileUploadHookResult {
-    UploadComponent: React.FC<IUploadComponentProps>, 
+    UploadComponent: React.FC<IUploadComponentProps>,
     syncModifiedFiles: (id: string) => Promise<void>
 }
 
-export const useMultipleFileUploadHook = ({ 
-    Model, 
+export const useMultipleFileUploadHook = ({
+    Model,
     relationField,
     initialFileList,
-    initialCreateValues = {},    
-}: IMultipleFileUploadHookArgs): IMultipleFileUploadHookResult => {    
+    initialCreateValues = {},
+}: IMultipleFileUploadHookArgs): IMultipleFileUploadHookResult => {
     const [modifiedFiles, dispatch] = useReducer(reducer, { added: [], deleted: [] })
     // Todo(zuch): without ref modifiedFiles dissappears on submit
     const modifiedFilesRef = useRef(modifiedFiles)
@@ -90,7 +90,7 @@ export const useMultipleFileUploadHook = ({
 
     const updateAction = Model.useUpdate({}, () => Promise.resolve())
     const deleteAction = Model.useSoftDelete({}, () => Promise.resolve())
-    
+
     const syncModifiedFiles = async (id: string) => {
         const { added, deleted } = modifiedFilesRef.current
         for (const file of added) {
@@ -115,7 +115,7 @@ export const useMultipleFileUploadHook = ({
     }, [])
     return {
         UploadComponent,
-        syncModifiedFiles,        
+        syncModifiedFiles,
     }
 }
 
@@ -130,11 +130,11 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
     const intl = useIntl()
     const AddFileLabel = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })
     const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' })
-    const UploadFailedErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.UploadFailedErrorMessage' })    
-    const { 
-        fileList, 
-        initialCreateValues, 
-        Model, 
+    const UploadFailedErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.UploadFailedErrorMessage' })
+    const {
+        fileList,
+        initialCreateValues,
+        Model,
         onFilesChange,
     } = props
 
@@ -149,11 +149,16 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
 
     const options = {
         fileList: listFiles,
-        onChange: ({ file }) => {
-            if (file.status === 'uploading') {
-                // add dummy file to show upload progressbar
-                setListFiles([...listFiles, { name: file.name, uid: file.uid, id: null, status: 'uploading' }])
-            }
+        multiple: true,
+        onChange: (info) => {
+            let fileList = [...info.fileList]
+            fileList = fileList.map(file => {
+                if (file.response) {
+                    file.url = file.response.url
+                }
+                return file
+            })
+            setListFiles(fileList)
         },
         showUploadList: {
             showRemoveIcon: true,
@@ -164,7 +169,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                         if (!id) {
                             // remove file that failed to upload from list
                             setListFiles([...listFiles].filter(file => file.uid !== uid))
-                            return 
+                            return
                         }
                         setListFiles([...listFiles].filter(file => file.id !== id))
                         onFilesChange({ type: 'delete', payload: file })
@@ -172,24 +177,22 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 )
                 return removeIcon
             },
-        }, 
+        },
         customRequest: (options: UploadRequestOption) => {
             const { onSuccess, onError } = options
             const file = options.file as UploadFile
             if (file.size > MAX_UPLOAD_FILE_SIZE) {
                 const error = new Error(FileTooBigErrorMessage)
                 onError(error)
-                setListFiles([...listFiles.filter(file => file.status !== 'uploading'), { name: file.name, uid: file.uid, id: null, status: 'error', error: error }])
-                return 
+                return
             }
             return createAction({ ...initialCreateValues, file }).then( dbFile  => {
                 const [uploadFile] = convertFilesToUploadFormat([dbFile])
-                setListFiles([...listFiles.filter(file => file.status !== 'uploading'), uploadFile])
-                onSuccess('Ok', null)
-                onFilesChange({ type: 'add', payload: dbFile })                                
+                onSuccess(uploadFile, null)
+                onFilesChange({ type: 'add', payload: dbFile })
             }).catch(err => {
                 const error = new Error(UploadFailedErrorMessage)
-                setListFiles([...listFiles.filter(file => file.status !== 'uploading'), { name: file.name, uid: file.uid, id: null, status: 'error', error: error }])
+                console.error('Upload failed', err)
                 onError(error)
             })
         },
