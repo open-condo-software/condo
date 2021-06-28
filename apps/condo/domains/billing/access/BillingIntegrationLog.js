@@ -25,6 +25,9 @@ async function canReadBillingIntegrationLogs ({ authentication: { item: user } }
         //         { integration: { accessRights_some: { user: { id: user.id } } } },
         //     ],
         // },
+        context: {
+            integration: { accessRights_some: { user: { id: user.id } } },
+        },
     }
 }
 

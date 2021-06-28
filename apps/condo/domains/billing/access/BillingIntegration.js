@@ -5,21 +5,13 @@
 async function canReadBillingIntegrations ({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
-    return {
-        // TODO(codegen): write canReadBillingIntegrations logic!
-    }
+    return {}
 }
 
 async function canManageBillingIntegrations ({ authentication: { item: user }, operation }) {
     if (!user) return false
     if (user.isAdmin) return true
-    if (operation === 'create') {
-        // TODO(codegen): write canManageBillingIntegrations create logic!
-        return false
-    } else if (operation === 'update') {
-        // TODO(codegen): write canManageBillingIntegrations update logic!
-        return false
-    }
+    if (user.isSupport && operation === 'create') return false
     return false
 }
 

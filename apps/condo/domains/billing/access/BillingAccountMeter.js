@@ -6,7 +6,9 @@ async function canReadBillingAccountMeters ({ authentication: { item: user } }) 
     if (!user) return false
     if (user.isAdmin) return {}
     return {
-        // TODO(codegen): write canReadBillingAccountMeters logic!
+        context: {
+            integration: { accessRights_some: { user: { id: user.id } } },
+        },
     }
 }
 

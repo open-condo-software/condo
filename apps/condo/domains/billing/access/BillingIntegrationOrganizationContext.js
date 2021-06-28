@@ -17,6 +17,7 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
         //     { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true } } } },
         //     { integration: { accessRights_some: { user: { id: user.id } } } },
         // ],
+        integration: { accessRights_some: { user: { id: user.id } } },
     }
 }
 
