@@ -48,7 +48,7 @@ fi
 
 if [[ ! "${VERSION}" =~ ^v[-][0-9]+[-][0-9]+[-][0-9]+$ ]]; then
     echo "Use: $0 <VERSION>"
-    echo "Error: wrong version format. Use something like v.1.0.0"
+    echo "Error: wrong version format. Use something like v-1-0-0"
     exit 1
 fi
 
