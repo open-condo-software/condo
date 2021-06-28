@@ -33,7 +33,7 @@ export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, r
 
     const userOrganizationCountry = get(organization, 'country', 'ru')
 
-    const onChange = useCallback((value) => {
+    const onChange = (value) => {
         const formattedValue = value ? '+' + value : value
         if (props.compatibilityWithAntAutoComplete) {
             /*
@@ -54,7 +54,7 @@ export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, r
         } else {
             props.onChange(formattedValue)
         }
-    }, [])
+    }
 
     return (
         <ReactPhoneInput
