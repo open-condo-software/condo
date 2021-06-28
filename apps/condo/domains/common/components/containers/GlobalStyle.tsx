@@ -154,11 +154,50 @@ export default function GlobalStyle () {
               }
 
               ${uploadControlCss}
+              ${radioGroupCss}
               ${page}
             `}
         />
     )
 }
+
+const radioGroupCss = css`
+  .sberRadioGroup .ant-radio-button-wrapper-checked:not([class*=' ant-radio-button-wrapper-disabled']).ant-radio-button-wrapper:first-child{
+    border-right-color:${colors.black};
+  }
+  .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):first-child{
+    border-color:${colors.black};
+  }
+  .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled){
+    color: ${colors.black};
+  }
+  .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover{
+    color: ${colors.white};
+    border-color: ${colors.black};
+  }
+  .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled){
+    color: ${colors.white};
+    background-color: ${colors.black};
+    border-color: ${colors.black};
+  }
+  .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before{
+    background-color: ${colors.black};
+  }
+  .sberRadioGroup .ant-radio-button-wrapper{
+    border-color: ${colors.black};
+    --antd-wave-shadow-color: ${colors.black};
+  }
+  .sberRadioGroup .ant-radio-button-wrapper:first-child{
+    border-left-color: ${colors.black};
+  }
+  .sberRadioGroup .ant-radio-button-wrapper:hover{
+    color: ${colors.black};
+  }
+  .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before{
+    background-color:${colors.black};
+  }
+`
+
 
 const uploadControlCss = css`
   .upload-control-wrapper .ant-upload-list-text-container {
