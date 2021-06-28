@@ -201,8 +201,8 @@ const Ticket = new GQLListSchema('Ticket', {
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
 
-        entranceName: {
-            schemaDoc: 'Entrance name/number of an apartment building (property). You need to take from Property.map',
+        sectionName: {
+            schemaDoc: 'Section name/number of an apartment building (property). You need to take from Property.map',
             type: Text,
         },
         floorName: {

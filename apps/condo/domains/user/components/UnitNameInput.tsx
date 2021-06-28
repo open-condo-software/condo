@@ -2,17 +2,17 @@ import { Select, Input, SelectProps } from 'antd'
 import React, { useMemo } from 'react'
 import get from 'lodash/get'
 import flattenDeep from 'lodash/flattenDeep'
-import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
+import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 
 interface IUnitNameInputProps extends Pick<SelectProps<string>, 'onSelect'> {
-    propertyId: string
+    property: IPropertyUIState
     placeholder?: string
-    allowClear?: false
+    allowClear?: false,
+    loading: boolean
 }
 
 const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
-    const { placeholder, propertyId, ...restInputProps } = props
-    const { loading, obj: property } = useObject({ where: { id: propertyId } })
+    const { placeholder, property, loading, ...restInputProps } = props
 
     // TODO(Dimitreee): move search to serverside
     const options = useMemo(() => {
@@ -32,7 +32,7 @@ const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
             )
         )
 
-    }, [property, propertyId])
+    }, [property])
 
     return (
         <Select
@@ -50,9 +50,9 @@ const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
 }
 
 export const UnitNameInput = (props: IUnitNameInputProps) => {
-    const { propertyId, onSelect, ...baseInputProps } = props
+    const { property, onSelect, ...baseInputProps } = props
 
-    if (!propertyId) {
+    if (!property) {
         return <Input {...baseInputProps} disabled value={null}/>
     }
 

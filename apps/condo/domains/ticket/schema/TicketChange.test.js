@@ -38,7 +38,7 @@ describe('TicketChange', () => {
             const [ticket2] = await createTestTicket(client, client.organization, client.property)
             const [ticket3] = await createTestTicket(client, client.organization, client.property)
             const [ticket] = await createTestTicket(client, client.organization, client.property, {
-                entranceName: faker.lorem.word(),
+                sectionName: faker.lorem.word(),
                 floorName: faker.lorem.word(),
                 unitName: faker.lorem.word(),
                 isEmergency: true,
@@ -63,7 +63,7 @@ describe('TicketChange', () => {
                 clientName: faker.name.firstName(),
                 clientEmail: faker.internet.email(),
                 clientPhone: faker.phone.phoneNumber(),
-                entranceName: faker.lorem.word(),
+                sectionName: faker.lorem.word(),
                 floorName: faker.lorem.word(),
                 unitName: faker.lorem.word(),
                 isEmergency: false,
@@ -111,8 +111,8 @@ describe('TicketChange', () => {
             expect(objs[0].isEmergencyTo).toEqual(payload.isEmergency)
             expect(objs[0].isPaidFrom).toEqual(ticket.isPaid)
             expect(objs[0].isPaidTo).toEqual(payload.isPaid)
-            expect(objs[0].entranceNameFrom).toEqual(ticket.entranceName)
-            expect(objs[0].entranceNameTo).toEqual(payload.entranceName)
+            expect(objs[0].sectionNameFrom).toEqual(ticket.sectionName)
+            expect(objs[0].sectionNameTo).toEqual(payload.sectionName)
             expect(objs[0].floorNameFrom).toEqual(ticket.floorName)
             expect(objs[0].floorNameTo).toEqual(payload.floorName)
             expect(objs[0].unitNameFrom).toEqual(ticket.unitName)
