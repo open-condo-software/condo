@@ -11,9 +11,9 @@ import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { AuthRequired } from '../../common/components/containers/AuthRequired'
-import { isFunction } from '../../common/utils/ecmascript.utils'
-import { Loader } from '../../common/components/Loader'
+import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
+import { isFunction } from '@condo/domains/common/utils/ecmascript.utils'
+import { Loader } from '@condo/domains/common/components/Loader'
 
 function RedirectToOrganizations () {
     const { asPath } = useRouter()

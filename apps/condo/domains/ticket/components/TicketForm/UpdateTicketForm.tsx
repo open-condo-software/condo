@@ -11,7 +11,7 @@ import { FormResetButton } from '@condo/domains/common/components/FormResetButto
 // @ts-ignore
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Loader } from '../../../common/components/Loader'
+import { Loader } from '@condo/domains/common/components/Loader'
 interface IUpdateTicketForm {
     id: string
 }

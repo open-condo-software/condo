@@ -11,7 +11,7 @@ import { FormResetButton } from '@condo/domains/common/components/FormResetButto
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import Modal from 'antd/lib/modal/Modal'
 import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Loader } from '../../../common/components/Loader'
+import { Loader } from '@condo/domains/common/components/Loader'
 interface IUpdatePropertyForm {
     id: string
 }
