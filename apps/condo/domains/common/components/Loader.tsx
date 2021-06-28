@@ -43,5 +43,5 @@ export const Loader: React.FC<ILoaderProps> = (props) => {
 Loader.defaultProps = {
     fill: false,
     delay: DEFAULT_DELAY,
-    color: colors?.sberDefault[5],
+    color: colors.sberDefault[5],
 }
