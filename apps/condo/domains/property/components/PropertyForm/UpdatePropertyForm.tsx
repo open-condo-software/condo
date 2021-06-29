@@ -63,7 +63,7 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     if (error || loading) {
         return (
             <>
-                {(loading) ? <Loader/> : null}
+                {(loading) ? <Loader size={'large'} fill/> : null}
                 {(error) ? <Typography.Title>{error}</Typography.Title> : null}
             </>
         )
