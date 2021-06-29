@@ -7,6 +7,7 @@ import { formatDate } from '../../utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { green } from '@ant-design/colors'
+import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -138,10 +139,16 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const formatField = (field, value) => {
         const formatterFor = {
             clientPhone: (field, value) => (
-                <PhoneLink value={value}/>
+                <PhoneLink value={value} />
             ),
             details: (field, value) => (
-                value.length > 30 ? value.slice(0, 30) + '…' : value
+                value.length > MAX_DESCRIPTION_DISPLAY_LENGTH ? (<Tooltip title={value}
+                    placement="top"
+                    overlayStyle={{
+                        maxWidth: '80%',
+                    }}>
+                    {value.slice(0, MAX_DESCRIPTION_DISPLAY_LENGTH) + '…'}
+                </Tooltip>) : value
             ),
         }
         return has(formatterFor, field)
@@ -163,12 +170,12 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         // we have both "from" and "to" parts to interpolate
         if (message.search('{from}') !== -1 && message.search('{to}') !== -1) {
             const aroundFrom = message.split('{from}')
-            const aroundTo =  aroundFrom[1].split('{to}')
+            const aroundTo = aroundFrom[1].split('{to}')
             const valueFrom = ticketChange[`${field}From`]
             const valueTo = ticketChange[`${field}To`]
             return (
                 <>
-                    <SafeUserMention createdBy={ticketChange.createdBy}/>
+                    <SafeUserMention createdBy={ticketChange.createdBy} />
                     &nbsp;{aroundFrom[0]}
                     <del>{format(field, valueFrom)}</del>
                     {aroundTo[0]}
@@ -181,7 +188,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             const valueTo = ticketChange[`${field}To`]
             return (
                 <>
-                    <SafeUserMention createdBy={ticketChange.createdBy}/>
+                    <SafeUserMention createdBy={ticketChange.createdBy} />
                     &nbsp;{aroundTo[0]}
                     <ins>{format(field, valueTo)}</ins>
                     {aroundTo[1]}
@@ -248,7 +255,10 @@ const Diff = styled.p`
     }
     &.details, &.isEmergency, &.isPaid, &.classifierDisplayName {
         del, ins {
-            color: black
+            color: black;
+            span {
+                color: black;
+            }
         }
     }
     span, del, ins {
