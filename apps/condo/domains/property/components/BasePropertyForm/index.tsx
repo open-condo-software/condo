@@ -94,7 +94,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                             message: FieldIsRequiredMsg,
                                         },
                                         {
-                                            validator() {
+                                            validator () {
                                                 if (!addressValidatorError) {
                                                     return Promise.resolve()
                                                 }
