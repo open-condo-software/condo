@@ -23,7 +23,7 @@ describe('Contact', () => {
             email: null,
             unitName: null,
         }
-        const [obj, attrs] = await createTestContact(adminClient, userClient.organization, emptyFields)
+        const [obj, attrs] = await createTestContact(adminClient, userClient.organization, userClient.property, emptyFields)
         expect(obj.id).toMatch(UUID_RE)
         expect(obj.dv).toEqual(1)
         expect(obj.sender).toEqual(attrs.sender)
@@ -39,7 +39,7 @@ describe('Contact', () => {
         expect(obj.updatedAt).toMatch(DATETIME_RE)
         expect(obj.email).toEqual(emptyFields.email)
         expect(obj.unitName).toEqual(emptyFields.unitName)
-        expect(obj.property).toBeNull()
+        expect(obj.property).toEqual(expect.objectContaining({ id: userClient.property.id }))
     })
 
     describe('unique constraint', async () => {
@@ -52,10 +52,10 @@ describe('Contact', () => {
                 name: faker.name.firstName(),
                 phone: createTestPhone(),
             }
-            await createTestContact(adminClient, userClient.organization, duplicatedFields)
+            await createTestContact(adminClient, userClient.organization, userClient.property, duplicatedFields)
 
             await catchErrorFrom(async () => {
-                await createTestContact(adminClient, userClient.organization, duplicatedFields)
+                await createTestContact(adminClient, userClient.organization, userClient.property, duplicatedFields)
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
                 expect(errors[0].data.messages[0]).toMatch('Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"')
@@ -73,8 +73,8 @@ describe('Contact', () => {
                 phone: createTestPhone(),
             }
 
-            await createTestContact(adminClient, userClient.organization, sameFields)
-            const [contact] = await createTestContact(adminClient, userClient.organization, {
+            await createTestContact(adminClient, userClient.organization, userClient.property, sameFields)
+            const [contact] = await createTestContact(adminClient, userClient.organization, userClient.property, {
                 property: { connect: { id: userClient.property.id } },
                 unitName: faker.random.alphaNumeric(3),
                 name: faker.name.firstName(),
@@ -96,7 +96,7 @@ describe('Contact', () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             await catchErrorFrom(async () => {
-                await createTestContact(adminClient, userClient.organization, {
+                await createTestContact(adminClient, userClient.organization, userClient.property, {
                     name: '',
                 })
             }, ({ errors, data }) => {
@@ -104,7 +104,7 @@ describe('Contact', () => {
                 expect(errors[0].data.messages[0]).toMatch('Name should not be a blank string')
             })
             await catchErrorFrom(async () => {
-                await createTestContact(adminClient, userClient.organization, {
+                await createTestContact(adminClient, userClient.organization, userClient.property, {
                     name: 'a',
                 })
             }, ({ errors, data }) => {
@@ -120,7 +120,7 @@ describe('Contact', () => {
                 phone: '8 999 111-22-33',
             }
             await catchErrorFrom(async () => {
-                await createTestContact(adminClient, userClient.organization, fields)
+                await createTestContact(adminClient, userClient.organization, userClient.property, fields)
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
                 expect(errors[0].data.messages[0]).toMatch(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
@@ -136,7 +136,7 @@ describe('Contact', () => {
             const fields = {
                 phone: '+7 999 111-22-33',
             }
-            const [obj] = await createTestContact(adminClient, userClient.organization, fields)
+            const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property, fields)
             expect(obj.phone).toEqual('+79991112233')
         })
 
@@ -146,7 +146,7 @@ describe('Contact', () => {
             const fields = {
                 email: 'Test@Example.com',
             }
-            const [obj] = await createTestContact(adminClient, userClient.organization, fields)
+            const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property, fields)
             expect(obj.email).toEqual('test@example.com')
         })
     })
@@ -155,7 +155,7 @@ describe('Contact', () => {
         it('can be created by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj, attrs] = await createTestContact(adminClient, userClient.organization)
+            const [obj, attrs] = await createTestContact(adminClient, userClient.organization, userClient.property)
 
             expect(obj.id).toMatch(UUID_RE)
             expect(obj.dv).toEqual(1)
@@ -176,14 +176,14 @@ describe('Contact', () => {
 
         it('can be created by user, who is employed in the same organization and has "canManageContacts" ability', async () => {
             const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                 canManageContacts: true,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
-            const [obj, attrs] = await createTestContact(userClient, organization)
+            const [obj, attrs] = await createTestContact(userClient, organization, userClient.property)
 
             expect(obj.id).toMatch(UUID_RE)
             expect(obj.dv).toEqual(1)
@@ -204,7 +204,7 @@ describe('Contact', () => {
 
         it('cannot be created by user, who is employed in the same organization and does not have "canManageContacts" ability', async () => {
             const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
             const [anotherOrganization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
@@ -213,7 +213,7 @@ describe('Contact', () => {
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestContact(userClient, anotherOrganization)
+                await createTestContact(userClient, anotherOrganization, userClient.property)
             })
         })
 
@@ -221,7 +221,7 @@ describe('Contact', () => {
             const user = await makeClientWithProperty()
             const anotherUser = await makeClientWithProperty()
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestContact(anotherUser, user.organization)
+                await createTestContact(anotherUser, user.organization, user.property)
             })
         })
 
@@ -229,7 +229,7 @@ describe('Contact', () => {
             const userClient = await makeClientWithProperty()
             const anonymous = await makeClient()
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestContact(anonymous, userClient.organization)
+                await createTestContact(anonymous, userClient.organization, userClient.property)
             })
         })
     })
@@ -238,7 +238,7 @@ describe('Contact', () => {
         it('can be read by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestContact(adminClient, userClient.organization)
+            const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
             const objs = await Contact.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs.length >= 1).toBeTruthy()
             expect(objs[0].id).toMatch(obj.id)
@@ -247,7 +247,7 @@ describe('Contact', () => {
         it('can be read by user, who is employed in organization, which manages associated property', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestContact(adminClient, userClient.organization)
+            const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
             const objs = await Contact.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs.length).toEqual(1)
             expect(objs[0].id).toMatch(obj.id)
@@ -257,8 +257,8 @@ describe('Contact', () => {
             const userClient = await makeClientWithProperty()
             const anotherUserClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestContact(adminClient, userClient.organization)
-            await createTestContact(adminClient, anotherUserClient.organization)
+            const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
+            await createTestContact(adminClient, anotherUserClient.organization, userClient.property)
             const objs = await Contact.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs.length).toEqual(1)
             expect(objs[0].id).toMatch(obj.id)
@@ -268,7 +268,7 @@ describe('Contact', () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const anonymousClient = await makeClient()
-            await createTestContact(adminClient, userClient.organization)
+            await createTestContact(adminClient, userClient.organization, userClient.property)
             await expectToThrowAccessDeniedErrorToObjects(async () => {
                 await Contact.getAll(anonymousClient)
             })
@@ -279,7 +279,7 @@ describe('Contact', () => {
         it('can be updated by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestContact(adminClient, userClient.organization)
+            const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
 
             const [objUpdated, attrs] = await updateTestContact(adminClient, obj.id)
 
@@ -301,14 +301,14 @@ describe('Contact', () => {
 
         it('can be updated by user, who is employed in the same organization and does have "canManageContacts" ability', async () => {
             const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                 canManageContacts: true,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
-            const [obj] = await createTestContact(adminClient, organization)
+            const [obj] = await createTestContact(adminClient, organization, userClient.property)
 
             const [objUpdated, attrs] = await updateTestContact(userClient, obj.id)
 
@@ -330,14 +330,14 @@ describe('Contact', () => {
 
         it('cannot be updated by user, who is employed in organization and does not have "canManageContacts" ability', async () => {
             const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                 canManageContacts: false,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
-            const [obj] = await createTestContact(adminClient, organization)
+            const [obj] = await createTestContact(adminClient, organization, userClient.property)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestContact(userClient, obj.id)
@@ -346,7 +346,7 @@ describe('Contact', () => {
 
         it('cannot be updated by user, who is not employed in organization, which manages associated property', async () => {
             const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                 canManageContacts: true,
@@ -355,7 +355,7 @@ describe('Contact', () => {
 
             const anotherUserClient = await makeClientWithProperty()
 
-            const [obj] = await createTestContact(adminClient, organization)
+            const [obj] = await createTestContact(adminClient, organization, userClient.property)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestContact(anotherUserClient, obj.id)
@@ -367,7 +367,7 @@ describe('Contact', () => {
             const userClient = await makeClientWithProperty()
             const anonymousClient = await makeClient()
 
-            const [obj] = await createTestContact(adminClient, userClient.organization)
+            const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestContact(anonymousClient, obj.id)
@@ -380,7 +380,7 @@ describe('Contact', () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
 
-            const [obj] = await createTestContact(adminClient, userClient.organization)
+            const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await Contact.delete(adminClient, obj.id)
@@ -391,7 +391,7 @@ describe('Contact', () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
 
-            const [obj] = await createTestContact(adminClient, userClient.organization)
+            const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await Contact.delete(userClient, obj.id)
@@ -403,7 +403,7 @@ describe('Contact', () => {
             const userClient = await makeClientWithProperty()
             const anonymousClient = await makeClient()
 
-            const [obj] = await createTestContact(adminClient, userClient.organization)
+            const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await Contact.delete(anonymousClient, obj.id)

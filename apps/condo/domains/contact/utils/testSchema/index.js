@@ -15,7 +15,7 @@ const { Contact: ContactGQL } = require('@condo/domains/contact/gql')
 const Contact = generateGQLTestUtils(ContactGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestContact (client, organization, extraAttrs = {}) {
+async function createTestContact (client, organization, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -26,6 +26,7 @@ async function createTestContact (client, organization, extraAttrs = {}) {
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
+        property: { connect: { id: property.id } },
         unitName: faker.random.alphaNumeric(3),
         name: faker.name.firstName(),
         email: createTestEmail(),
