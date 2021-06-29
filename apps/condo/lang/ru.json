@@ -297,7 +297,7 @@
   "pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title": "Неизвестный пользователь",
   "pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description": "Упс, кажется пользователь, который внёс эти изменения, был удалён из системы",
   "pages.condo.ticket.TicketChanges.fetchMore": "Показать ещё {count}",
-  "pages.index.PageTitle": "CONDO",
+  "pages.index.PageTitle": "Аналитика",
   "pages.organizations.CreateOrganizationButtonLabel": "Создать новую организацию",
   "pages.organizations.CreateOrganizationModalTitle": "Форма создания новой организации",
   "pages.organizations.EditOrganizationModalTitle": "Форма редактирования организации",

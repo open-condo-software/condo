@@ -297,7 +297,7 @@
   "pages.condo.ticket.TicketChanges.errors.DeletedCreatedAt.title": "Unknown user",
   "pages.condo.ticket.TicketChanges.errors.DeletedCreatedAt.description": "Oops! It seems, like a user, who's made this changes, was removed from the system",
   "pages.condo.ticket.TicketChanges.fetchMore": "Show more {count}",
-  "pages.index.PageTitle": "CONDO",
+  "pages.index.PageTitle": "Analytics",
   "pages.organizations.CreateOrganizationButtonLabel": "Create new organization",
   "pages.organizations.CreateOrganizationModalTitle": "New organization form",
   "pages.organizations.EditOrganizationModalTitle": "Edit organization form",
