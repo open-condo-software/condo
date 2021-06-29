@@ -3,8 +3,17 @@ import React from 'react'
 import { Spin, SpinProps } from 'antd'
 import { css, jsx } from '@emotion/core'
 import { colors } from '../constants/style'
+import styled from '@emotion/styled'
 
 const DEFAULT_DELAY = 200 // milliseconds
+
+const FilledLoaderContainer = styled.section`
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+        `
 
 interface ILoaderProps extends SpinProps {
     fill?: boolean
@@ -13,30 +22,25 @@ interface ILoaderProps extends SpinProps {
 
 export const Loader: React.FC<ILoaderProps> = (props) => {
 
-    const filledContainerStyles = css`
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-        `
-
+    // We need this to recolor antd spinner. It's not easily configurable from theme
     const coloredSpinnerStyles = css`
         .ant-spin-dot-item {
             background-color: ${props.color};
         }
     `
 
-    const loaderStyles = [coloredSpinnerStyles]
-
     if (props.fill) {
-        loaderStyles.push(filledContainerStyles)
+        return (
+            <FilledLoaderContainer css={coloredSpinnerStyles}>
+                <Spin {...props}/>
+            </FilledLoaderContainer>
+        )
     }
 
     return (
-        <div css={loaderStyles}>
+        <section css={coloredSpinnerStyles}>
             <Spin {...props}/>
-        </div>
+        </section>
     )
 }
 
