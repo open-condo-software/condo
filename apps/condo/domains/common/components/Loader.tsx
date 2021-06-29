@@ -17,7 +17,6 @@ const FilledLoaderContainer = styled.section`
 
 interface ILoaderProps extends SpinProps {
     fill?: boolean
-    color?: string
 }
 
 export const Loader: React.FC<ILoaderProps> = (props) => {
@@ -25,7 +24,7 @@ export const Loader: React.FC<ILoaderProps> = (props) => {
     // We need this to recolor antd spinner. It's not easily configurable from theme
     const coloredSpinnerStyles = css`
         .ant-spin-dot-item {
-            background-color: ${props.color};
+            background-color: ${colors.sberDefault[5]};
         }
     `
 
@@ -47,5 +46,4 @@ export const Loader: React.FC<ILoaderProps> = (props) => {
 Loader.defaultProps = {
     fill: false,
     delay: DEFAULT_DELAY,
-    color: colors.sberDefault[5],
 }
