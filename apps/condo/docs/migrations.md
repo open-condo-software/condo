@@ -4,7 +4,20 @@ Migrations guide
 Migrations should not be changed if they have already been merged in master ;)
 Don't change migration files by hands If you don't really understand how the `kmigrator` works!
 
-## Changed a schema during work in progress — recreate corresponding migration
+## Snippets
+
+Drop database and reapply all migrations:
+
+```
+docker-compose down &&
+docker-compose up -d postgresdb redis &&
+docker-compose run app yarn workspace @app/condo makemigrations &&
+docker-compose run app yarn workspace @app/condo migrate
+```
+
+## Workflow cases
+
+### Changed a schema during work in progress — recreate corresponding migration
 
 Suppose, You changed structure of a schema, you are working with.
 You need changes to be reflected in a corresponding migration file.
@@ -25,7 +38,7 @@ docker-compose run app yarn workspace @app/condo kmigrator down
 docker-compose run app yarn workspace @app/condo makemigrations
 ```
 
-## Do not merge migration files by hands
+### Do not merge migration files by hands
 
 If Your work results to several migration files, that You need to merge into one, don't do it by hands.
 It's not enough just to merge SQL-contents of migration files, because a special system comment "KMIGRATOR…" will not be conformed with the file anymore.
@@ -49,7 +62,7 @@ docker-compose run app yarn workspace @app/condo kmigrator down
 docker-compose run app yarn workspace @app/condo makemigrations
 ```
 
-## Stay in sync with other's migrations
+### Stay in sync with other's migrations
 
 If You are ready to ship Your work, make a rebase and look at migrations, created by others.
 Maybe, your migration number is not ahead of others anymore.
