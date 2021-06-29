@@ -32,8 +32,8 @@ describe('TicketChange', () => {
             const inProgressStatus = (await TicketStatus.getAll(admin, { id: STATUS_IDS.IN_PROGRESS }))[0]
             const classifiers = await TicketClassifier.getAll(admin, {})
             const sources = await TicketSource.getAll(admin, {})
-            const [contact] = await createTestContact(client, client.organization)
-            const [contact2] = await createTestContact(client, client.organization)
+            const [contact] = await createTestContact(client, client.organization, client.property)
+            const [contact2] = await createTestContact(client, client.organization, client.property)
 
             const [ticket2] = await createTestTicket(client, client.organization, client.property)
             const [ticket3] = await createTestTicket(client, client.organization, client.property)

@@ -11,7 +11,7 @@ const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObj
 describe('Ticket', () => {
     test('user: create Ticket', async () => {
         const client = await makeClientWithProperty()
-        const [contact] = await createTestContact(client, client.organization)
+        const [contact] = await createTestContact(client, client.organization, client.property)
         const fields = {
             contact: { connect: { id: contact.id } },
         }

@@ -20,8 +20,6 @@ async function createTestContact (client, organization, property, extraAttrs = {
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestContact logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -41,8 +39,6 @@ async function updateTestContact (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestContact logic for generate fields
 
     const attrs = {
         dv: 1,
