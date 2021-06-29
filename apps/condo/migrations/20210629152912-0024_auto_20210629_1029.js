@@ -5,14 +5,14 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
 --
+-- HOTFIX(pahaz): MISSED migration hack!
+--    
+delete from "Contact" where property is NULL;
+    COMMIT;
+    BEGIN;
+--
 -- Alter field property on contact
 --
-
--- HOTFIX: MISSED migration hack!
-delete from "Contact" where property is NULL;
-COMMIT;
-
-BEGIN;
 SET CONSTRAINTS "Contact_property_517359e1_fk_Property_id" IMMEDIATE; ALTER TABLE "Contact" DROP CONSTRAINT "Contact_property_517359e1_fk_Property_id";
 ALTER TABLE "Contact" ALTER COLUMN "property" SET DEFAULT 'd88651d5-b311-4ecf-82ac-b5b87fecd06f'::uuid;
 UPDATE "Contact" SET "property" = 'd88651d5-b311-4ecf-82ac-b5b87fecd06f'::uuid WHERE "property" IS NULL;
