@@ -3,9 +3,7 @@
  */
 
 async function canReadBillingIntegrations ({ authentication: { item: user } }) {
-    if (!user) return false
-    if (user.isAdmin) return {}
-    return {}
+    return !!user
 }
 
 async function canManageBillingIntegrations ({ authentication: { item: user }, operation }) {
