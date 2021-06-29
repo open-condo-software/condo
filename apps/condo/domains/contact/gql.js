@@ -8,7 +8,7 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const CONTACT_FIELDS = `{ organization { id } property { id } name phone unitName email ${COMMON_FIELDS} }`
+const CONTACT_FIELDS = `{ organization { id } property { id, address } name phone unitName email ${COMMON_FIELDS} }`
 const Contact = generateGqlQueries('Contact', CONTACT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

@@ -4,11 +4,11 @@ import {
     filtersToQuery,
     getPageIndexFromQuery,
     getSortStringFromQuery,
-    EMPLOYEE_PAGE_SIZE,
+    CITIZEN_PAGE_SIZE,
     sorterToQuery, queryToSorter,
-} from '@condo/domains/organization/utils/helpers'
+} from '@condo/domains/contact/utils/helpers'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
-import { IFilters } from '@condo/domains/organization/utils/helpers'
+import { IFilters } from '@condo/domains/contact/utils/helpers'
 import { useIntl } from '@core/next/intl'
 
 import { Col, Input, Row, Space, Table, Typography, Dropdown, Menu, Tooltip } from 'antd'
@@ -19,21 +19,21 @@ import qs from 'qs'
 import { pickBy, get, debounce } from 'lodash'
 import React, { useCallback } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
+import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useOrganization } from '@core/next/organization'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { Button } from '../../domains/common/components/Button'
-import { SortOrganizationEmployeesBy } from '../../schema'
-const ADD_EMPLOYEE_ROUTE = '/employee/create/'
+import { SortContactsBy } from '../../schema'
+const ADD_CITIZEN_ROUTE = '/citizen/create/'
 
-const TicketsPage = () => {
+const CitizensPage = () => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
+    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.citizen.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const EmptyListLabel = intl.formatMessage({ id: 'employee.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'employee.EmptyList.title' })
-    const CreateEmployee = intl.formatMessage({ id: 'AddEmployee' })
+    const EmptyListLabel = intl.formatMessage({ id: 'citizen.EmptyList.header' })
+    const EmptyListMessage = intl.formatMessage({ id: 'citizen.EmptyList.title' })
+    const CreateCitizen = intl.formatMessage({ id: 'AddCitizen' })
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const AddItemUsingFormLabel = intl.formatMessage({ id: 'AddItemUsingForm' })
     const AddItemUsingUploadLabel = intl.formatMessage({ id: 'AddItemUsingFileUpload' })
@@ -50,12 +50,12 @@ const TicketsPage = () => {
         fetchMore,
         loading,
         count: total,
-        objs: tickets,
-    } = OrganizationEmployee.useObjects({
-        sortBy: sortFromQuery.length > 0  ? sortFromQuery : ['createdAt_DESC'] as Array<SortOrganizationEmployeesBy>, //TODO(Dimitreee):Find cleanest solution
+        objs: citizens,
+    } = Contact.useObjects({
+        sortBy: sortFromQuery.length > 0 ? sortFromQuery : ['createdAt_DESC'] as Array<SortContactsBy>,
         where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
-        skip: (offsetFromQuery * EMPLOYEE_PAGE_SIZE) - EMPLOYEE_PAGE_SIZE,
-        first: EMPLOYEE_PAGE_SIZE,
+        skip: (offsetFromQuery * CITIZEN_PAGE_SIZE) - CITIZEN_PAGE_SIZE,
+        first: CITIZEN_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
     })
@@ -65,7 +65,7 @@ const TicketsPage = () => {
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
-                router.push(`/employee/${record.id}/`)
+                router.push(`/citizen/${record.id}/`)
             },
         }
     }, [])
@@ -84,7 +84,7 @@ const TicketsPage = () => {
                 sortBy: sort,
                 where: filters,
                 skip: offset,
-                first: EMPLOYEE_PAGE_SIZE,
+                first: CITIZEN_PAGE_SIZE,
             }).then(() => {
                 const query = qs.stringify(
                     { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
@@ -98,11 +98,11 @@ const TicketsPage = () => {
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
 
-    const handleAddEmployee = () => router.push(ADD_EMPLOYEE_ROUTE)
+    const handleAddCitizen = () => router.push(ADD_CITIZEN_ROUTE)
 
     const dropDownMenu = (
         <Menu>
-            <Menu.Item key="1" onClick={handleAddEmployee}>
+            <Menu.Item key="1" onClick={handleAddCitizen}>
                 {AddItemUsingFormLabel}
             </Menu.Item>
             <Menu.Item key="2">
@@ -112,7 +112,6 @@ const TicketsPage = () => {
             </Menu.Item>
         </Menu>
     )
-
     return (
         <>
             <Head>
@@ -123,19 +122,19 @@ const TicketsPage = () => {
                 <OrganizationRequired>
                     <PageContent>
                         {
-                            !tickets.length && !filtersFromQuery
+                            !citizens.length && !filtersFromQuery
                                 ? <EmptyListView
                                     label={EmptyListLabel}
                                     message={EmptyListMessage}
-                                    createRoute={ADD_EMPLOYEE_ROUTE}
-                                    createLabel={CreateEmployee} />
+                                    createRoute={ADD_CITIZEN_ROUTE}
+                                    createLabel={CreateCitizen} />
                                 : <Row gutter={[0, 40]} align={'middle'}>
                                     <Col span={24}>
                                         <Row justify={'space-between'}>
                                             <Col span={6}>
                                                 <Input
                                                     placeholder={SearchPlaceholder}
-                                                    onChange={(e)=>{handleSearchChange(e.target.value)}}
+                                                    onChange={(e) => {handleSearchChange(e.target.value)}}
                                                     value={search}
                                                 />
                                             </Col>
@@ -146,18 +145,16 @@ const TicketsPage = () => {
                                                         key='left'
                                                         type={'sberPrimary'}
                                                         style={{ borderRight: '1px solid white' }}
-                                                        onClick={() => router.push(ADD_EMPLOYEE_ROUTE)}
+                                                        onClick={() => router.push(ADD_CITIZEN_ROUTE)}
                                                     >
-                                                        {CreateEmployee}
+                                                        {CreateCitizen}
                                                     </Button>,
                                                     <Button
                                                         key='right'
                                                         type={'sberPrimary'}
                                                         style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
-                                                        icon={<EllipsisOutlined />}
-                                                    />,
-                                                ]}
-                                            />
+                                                        icon={<EllipsisOutlined />}/>,
+                                                ]}/>
                                         </Row>
                                     </Col>
                                     <Col span={24}>
@@ -165,15 +162,15 @@ const TicketsPage = () => {
                                             bordered
                                             tableLayout={'fixed'}
                                             loading={loading}
-                                            dataSource={tickets}
+                                            dataSource={citizens}
                                             columns={tableColumns}
+                                            rowKey={record =>  record.id}
                                             onRow={handleRowAction}
                                             onChange={handleTableChange}
-                                            rowKey={record => record.id}
                                             pagination={{
                                                 total,
                                                 current: offsetFromQuery,
-                                                pageSize: EMPLOYEE_PAGE_SIZE,
+                                                pageSize: CITIZEN_PAGE_SIZE,
                                                 position: ['bottomLeft'],
                                             }}
                                         />
@@ -189,7 +186,7 @@ const TicketsPage = () => {
 
 const HeaderAction = () => {
     const intl = useIntl()
-    const BackButtonLabel = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
+    const BackButtonLabel = intl.formatMessage({ id: 'pages.condo.citizen.PageTitle' })
 
     return (
         <Space>
@@ -200,6 +197,6 @@ const HeaderAction = () => {
     )
 }
 
-TicketsPage.headerAction = <HeaderAction/>
+CitizensPage.headerAction = <HeaderAction/>
 
-export default TicketsPage
+export default CitizensPage

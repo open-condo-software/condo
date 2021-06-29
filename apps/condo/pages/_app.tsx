@@ -45,9 +45,14 @@ function menuDataRender () {
             locale: 'menu.Property',
         },
         {
+            path: '/citizen',
+            icon: HeartFilled,
+            locale: 'menu.Citizens',
+        },
+        {
             path: '/employee',
             icon: HeartFilled,
-            locale: 'menu.Employee',
+            locale: 'menu.Employees',
         },
     ]
 }
