@@ -26,13 +26,11 @@ const UpdatePropertyPage: IPageWithHeaderAction = () => {
             <PageWrapper>
                 <OrganizationRequired>
                     <PageContent>
-                        <Row gutter={[0, 40]}>
+                        <Row gutter={[0, 40]} style={{ height: '100%' }}>
                             <Col span={24}>
                                 <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                             </Col>
-                            <Col span={24}>
-                                <PropertyForm id={id as string}/>
-                            </Col>
+                            <PropertyForm id={id as string}/>
                         </Row>
                     </PageContent>
                 </OrganizationRequired>
