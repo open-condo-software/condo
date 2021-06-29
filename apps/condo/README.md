@@ -65,6 +65,8 @@ docker-compose run app yarn workspace @app/condo migrate
 docker-compose run app yarn workspace @app/condo kmigrator down
 ```
 
+Read more at [Migrations guide](./docs/migrations.md)
+
 # typescript GraphQL types
 
 ```
