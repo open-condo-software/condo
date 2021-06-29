@@ -135,7 +135,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             onClear={handleClear}
             ref={setSelectRef}
             placeholder={placeholder}
-            notFoundContent={fetching ? <Loader size="small" /> : null}
+            notFoundContent={fetching ? <Loader size="small" delay={0} fill /> : null}
             // TODO(Dimitreee): remove ts ignore after combobox mode will be introduced after ant update
             // @ts-ignore
             mode={'SECRET_COMBOBOX_MODE_DO_NOT_USE'}
