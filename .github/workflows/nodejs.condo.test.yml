@@ -62,6 +62,9 @@ jobs:
           yarn workspace @app/condo dev &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
 
+          # check migrations
+          yarn workspace @app/condo makemigrations --check
+
           yarn workspace @app/condo worker &
           sleep 3
 
