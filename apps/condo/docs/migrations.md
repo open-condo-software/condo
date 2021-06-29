@@ -1,12 +1,13 @@
 Migrations guide
 =====
 
-Migrations should not be changed between releases ;)
+Migrations should not be changed if they have already been merged in master ;)
+Don't change migration files by hands If you don't really understand how the `kmigrator` works!
 
 ## Changed a schema during work in progress — recreate corresponding migration
 
 Suppose, You changed structure of a schema, you are working with.
-You need the changes to be reflected in a corresponding migration file.
+You need changes to be reflected in a corresponding migration file.
 Don't change migration file by hands.
 Instead, recreate it completely.
 
@@ -71,7 +72,7 @@ docker-compose run app yarn workspace @app/condo makemigrations
 
 ### CommandError: Conflicting migrations detected
 
-If you faced this message, do:
+It's better to roll back your migration and recreate it. But sometimes you should do:
 
 ```
 docker-compose run app python apps/condo/.kmigrator/manage.py makemigrations --merge
