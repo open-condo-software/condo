@@ -11,7 +11,7 @@ async function canReadBillingIntegrations ({ authentication: { item: user } }) {
 async function canManageBillingIntegrations ({ authentication: { item: user }, operation }) {
     if (!user) return false
     if (user.isAdmin) return true
-    if (user.isSupport && operation === 'create') return false
+    if (user.isSupport && operation === 'create') return true
     return false
 }
 
