@@ -31,7 +31,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 3, 0)
+VERSION = (1, 4, 0)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -559,13 +559,15 @@ def _hotfix_django_migration_bug(item):
         item.write_text(code)
 
 
-def _4_1_makemigrations(ctx, merge=False):
+def _4_1_makemigrations(ctx, merge=False, check=False):
     log_file = DJANGO_DIR / '..' / 'makemigrations.{}.log'.format(time())
     exists = ctx['__KNEX_DJANGO_MIGRATION__']
     n = datetime.now()
     command = [sys.executable, str(DJANGO_DIR / '..' / 'manage.py'), 'makemigrations', '_django_schema']
     if merge:
         command += ['--merge']
+    elif check:
+        command += ['--check', '--dry-run', '--noinput']
     r = os.system(' '.join(command))
     if r != 0:
         raise KProblem('ERROR: can\'t create migration')
@@ -607,7 +609,7 @@ def _5_1_run_knex_command(ctx, cmd='latest'):
         print(log.decode('utf-8'))
 
 
-def main(command, keystoneEntryFile='./index.js', merge=False):
+def main(command, keystoneEntryFile='./index.js', merge=False, check=False):
     ctx = {
         '__KEYSTONE_ENTRY_PATH__': keystoneEntryFile,
         '__KNEX_SCHEMA_PATH__': CACHE_DIR / 'knex.schema.json',
@@ -622,7 +624,7 @@ def main(command, keystoneEntryFile='./index.js', merge=False):
         _3_2_generate_django_models(ctx)
         _3_3_restore_django_migrations(ctx)
         if command == 'makemigrations':
-            _4_1_makemigrations(ctx, merge=merge)
+            _4_1_makemigrations(ctx, merge=merge, check=check)
         elif command == 'migrate':
             _5_1_run_knex_command(ctx)
         elif command == 'up':
@@ -642,7 +644,7 @@ def main(command, keystoneEntryFile='./index.js', merge=False):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print('use: kmigrator.py (makemigrations [--merge] | migrate) [keystoneEntryFile]')
+        print('use: kmigrator.py (makemigrations ([--merge] | [--check]) | migrate) [keystoneEntryFile]')
         sys.exit(1)
     args = [x for x in sys.argv[1:] if not x.startswith('--')]
     flags = {k[2:]: True for k in sys.argv[1:] if k.startswith('--')}
