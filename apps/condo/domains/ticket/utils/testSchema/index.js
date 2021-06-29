@@ -15,6 +15,7 @@ const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
 const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketFile: TicketFileGQL } = require('@condo/domains/ticket/gql')
+const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -27,6 +28,7 @@ const TicketFile = generateGQLTestUtils(TicketFileGQL)
 const TicketChange = generateGQLTestUtils(TicketChangeGQL)
 const TicketSource = generateGQLTestUtils(TicketSourceGQL)
 const TicketClassifier = generateGQLTestUtils(TicketClassifierGQL)
+const TicketComment = generateGQLTestUtils(TicketCommentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -157,6 +159,41 @@ async function updateTestTicketFile (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestTicketComment (client, ticket, user, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!ticket || !ticket.id) throw new Error('no ticket.id')
+    if (!user || !user.id) throw new Error('no user.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestTicketComment logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ticket: { connect: { id: ticket.id } },
+        user: { connect: { id: user.id } },
+        ...extraAttrs,
+    }
+    const obj = await TicketComment.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketComment (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestTicketComment logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketComment.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -183,6 +220,7 @@ module.exports = {
     createTestTicketChange,
     updateTestTicketChange,
     makeClientWithTicket,
+    TicketComment, createTestTicketComment, updateTestTicketComment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
