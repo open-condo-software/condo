@@ -111,6 +111,9 @@ const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
 const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
 
+const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id } content ${COMMON_FIELDS} }`
+const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 const XLS_EXPORT_LIMIT = 100
 // If there is no limit - error "maxTotalResults","limit":1000 - will take place 
@@ -142,5 +145,6 @@ module.exports = {
     TicketFile,
     TICKET_CHANGE_DATA_FIELDS,
     GET_ALL_TICKET_FOR_XLS_EXPORT,
+    TicketComment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
