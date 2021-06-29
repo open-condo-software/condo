@@ -165,13 +165,14 @@ async function createTestTicketComment (client, ticket, user, extraAttrs = {}) {
     if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestTicketComment logic for generate fields
+    const content = faker.random.alphaNumeric(10)
 
     const attrs = {
         dv: 1,
         sender,
         ticket: { connect: { id: ticket.id } },
         user: { connect: { id: user.id } },
+        content,
         ...extraAttrs,
     }
     const obj = await TicketComment.create(client, attrs)
@@ -183,11 +184,10 @@ async function updateTestTicketComment (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestTicketComment logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
+        content: faker.random.alphaNumeric(10),
         ...extraAttrs,
     }
     const obj = await TicketComment.update(client, id, attrs)
