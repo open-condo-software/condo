@@ -4,7 +4,7 @@
 
 async function canReadBillingIntegrationAccessRights ({ authentication: { item: user } }) {
     if (!user) return false
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return true
     return false
 }
 
