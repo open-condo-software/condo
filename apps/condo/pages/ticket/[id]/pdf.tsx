@@ -114,7 +114,7 @@ const PdfView = () => {
 
     if (error || loading || !ticket) {
         return (
-            <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={ServerErrorMessage}/>
+            <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={error ? ServerErrorMessage : null}/>
         )
     }
 
