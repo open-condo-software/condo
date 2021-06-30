@@ -124,8 +124,8 @@ describe('TicketChange', () => {
 
             expect(objs[0].propertyIdFrom).toEqual(ticket.property.id)
             expect(objs[0].propertyIdTo).toEqual(payload.property.connect.id)
-            expect(objs[0].propertyDisplayNameFrom).toEqual(client.property.name)
-            expect(objs[0].propertyDisplayNameTo).toEqual(client2.property.name)
+            expect(objs[0].propertyDisplayNameFrom).toEqual(client.property.address)
+            expect(objs[0].propertyDisplayNameTo).toEqual(client2.property.address)
 
             expect(objs[0].statusIdFrom).toEqual(ticket.status.id)
             expect(objs[0].statusIdTo).toEqual(payload.status.connect.id)
