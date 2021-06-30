@@ -50,7 +50,7 @@ export type AddressMeta = {
         street: string;
         house_fias_id: string;
         house_kladr_id: string;
-        house_type: 'д' | 'влд' | 'к';
+        house_type: 'д' | 'влд' | 'к' | 'стр';
         house_type_full: string;
         house: string;
         block_type?: string;
