@@ -116,7 +116,7 @@ const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 const XLS_EXPORT_LIMIT = 100
-// If there is no limit - error "maxTotalResults","limit":1000 - will take place 
+// If there is no limit - error "maxTotalResults","limit":1000 - will take place
 // TODO(zuch): Xls export on server side and make xls exports look better
 
 const GET_ALL_TICKET_FOR_XLS_EXPORT = gql`
@@ -134,7 +134,11 @@ const GET_ALL_TICKET_FOR_XLS_EXPORT = gql`
   }
 `
 
-
+const GET_TICKET_WIDGET_REPORT_DATA = gql`
+    query getWidgetData ($data: TicketReportWidgetInput!) {
+        result: ticketReportWidgetData(data: $data) { data }
+    }
+`
 
 module.exports = {
     Ticket,
@@ -145,6 +149,7 @@ module.exports = {
     TicketFile,
     TICKET_CHANGE_DATA_FIELDS,
     GET_ALL_TICKET_FOR_XLS_EXPORT,
+    GET_TICKET_WIDGET_REPORT_DATA,
     TicketComment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
