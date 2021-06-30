@@ -155,6 +155,7 @@ export default function GlobalStyle () {
 
               ${uploadControlCss}
               ${radioGroupCss}
+              ${inputControlCss}
               ${page}
             `}
         />
@@ -234,6 +235,15 @@ const uploadControlCss = css`
   }
   .upload-control-wrapper .ant-upload-list-item-card-actions {
     margin-left: 50px;
+  }
+`
+
+const inputControlCss = css`
+  .ant-input.white {
+    background: white;
+    &:focus, &:active {
+      background: white !important;
+    }
   }
 `
 
