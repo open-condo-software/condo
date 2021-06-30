@@ -3,9 +3,8 @@
  */
 
 const { getRandomString } = require('@core/keystone/test.utils')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
-
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 
@@ -30,6 +29,14 @@ describe('BillingIntegration', () => {
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestBillingIntegration(client)
         })
+    })
+
+    test('support: create_BillingIntegration', async () => {
+        const support = await makeClientWithSupportUser()
+        const [integration, attrs] = await createTestBillingIntegration(support)
+        expect(integration).toEqual(expect.objectContaining({
+            name: attrs.name,
+        }))
     })
 
     test('user: read BillingIntegration', async () => {
