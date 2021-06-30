@@ -328,6 +328,7 @@
   "employee.ConfirmDeleteMessage": "Все данные о нём сотрутся навсегда",
   "employee.emptyList.title": "Вы заблокированы",
   "employee.emptyList.description": "Ваш работодатель заблокировал вас в организации",
+  "citizen.AddCitizen": "Добавление жителя",
   "Paid": "Платная",
   "Password": "Пароль",
   "Phone": "Телефон",

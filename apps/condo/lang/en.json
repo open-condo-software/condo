@@ -328,6 +328,7 @@
   "employee.ConfirmDeleteMessage": "All data about him will be erased forever",
   "employee.emptyList.title": "You are blocked",
   "employee.emptyList.description": "Your employer has blocked you from the organization",
+  "citizen.AddCitizen": "Add citizen",
   "Paid": "Paid",
   "Password": "Password",
   "Phone": "Phone",
