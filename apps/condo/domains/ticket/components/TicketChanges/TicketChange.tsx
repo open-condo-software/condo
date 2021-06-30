@@ -46,55 +46,81 @@ export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => 
 
 const useChangedFieldMessagesOf = (ticketChange) => {
     const intl = useIntl()
-
-    const getChangeMessages = (baseId: string) => {
-        return {
-            add: intl.formatMessage({ id: `${baseId}.add` }),
-            change: intl.formatMessage({ id: `${baseId}.change` }),
-            remove: intl.formatMessage({ id: `${baseId}.remove` }),
-        }
-    }
+    const ClientPhoneChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone.change' })
+    const DetailsChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details.change' })
+    const ClientNameChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientName.change' })
+    const IsPaidChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.change' })
+    const IsEmergencyChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.change' })
+    const StatusDisplayNameChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.statusDisplayName.change' })
+    const PropertyDisplayNameChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.propertyDisplayName.change' })
+    const UnitNameChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName.change' })
+    const UnitNameAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName.add' })
+    const UnitNameRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName.remove' })
+    const AssigneeChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.assignee.change' })
+    const ClassifierChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier.change' })
 
     const fields: ITicketChangeField[] = [
         {
             title: 'clientPhone',
-            messages: getChangeMessages('pages.condo.ticket.TicketChanges.clientPhone'),
+            messages: {
+                change: ClientPhoneChangeMessage,
+            }
         },
         {
             title: 'details',
-            messages: getChangeMessages('pages.condo.ticket.TicketChanges.details'),
+            messages: {
+                change: DetailsChangeMessage,
+            }
         },
         {
             title: 'clientName',
-            messages: getChangeMessages('pages.condo.ticket.TicketChanges.clientName'),
+            messages: {
+                change: ClientNameChangeMessage,
+            }
         },
         {
             title: 'isPaid',
-            messages: getChangeMessages('pages.condo.ticket.TicketChanges.isPaid'),
+            messages: {
+                change: IsPaidChangeMessage,
+            }
         },
         {
             title: 'isEmergency',
-            messages: getChangeMessages('pages.condo.ticket.TicketChanges.isEmergency'),
+            messages: {
+                change: IsEmergencyChangeMessage,
+            }
         },
         {
             title: 'statusDisplayName',
-            messages: getChangeMessages('pages.condo.ticket.TicketChanges.statusDisplayName'),
+            messages: {
+                change: StatusDisplayNameChangeMessage,
+            }
         },
         {
             title: 'unitName',
-            messages: getChangeMessages('pages.condo.ticket.TicketChanges.unitName'),
+            messages: {
+                add: UnitNameAddMessage,
+                change: UnitNameChangeMessage,
+                remove: UnitNameRemoveMessage,
+            }
         },
         {
             title: 'propertyDisplayName',
-            messages: getChangeMessages('pages.condo.ticket.TicketChanges.propertyDisplayName'),
+            messages: {
+                change: PropertyDisplayNameChangeMessage,
+            }
         },
         {
             title: 'assigneeDisplayName',
-            messages: getChangeMessages('pages.condo.ticket.TicketChanges.assignee'),
+            messages: {
+                change: AssigneeChangeMessage,
+            }
         },
         {
             title: 'classifierDisplayName',
-            messages: getChangeMessages('pages.condo.ticket.TicketChanges.classifier'),
+            messages: {
+                change: ClassifierChangeMessage,
+            }
         },
     ]
 
