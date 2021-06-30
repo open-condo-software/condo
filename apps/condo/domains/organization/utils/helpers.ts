@@ -90,6 +90,7 @@ export const filtersToQuery = (filters: IFilters): OrganizationEmployeeWhereInpu
     const phone = get(filters, 'phone')
     const email = get(filters, 'email')
     const roles = get(filters, 'role')
+    const position = get(filters, 'position')
     const search = get(filters, 'search')
 
     const roleQuery = roleToQuery(roles)
@@ -100,6 +101,7 @@ export const filtersToQuery = (filters: IFilters): OrganizationEmployeeWhereInpu
         phone && { phone_contains_i: phone },
         email && { email_contains_i: email },
         roles && { role: roleQuery },
+        position && { position_contains_i: position },
         searchQuery && { OR: searchQuery },
     ].filter(Boolean)
 
@@ -152,6 +154,7 @@ const EMPLOYEE_TABLE_COLUMNS = [
     'phone',
     'email',
     'role',
+    'position'
 ]
 
 export const queryToSorter = (query: Array<string>) => {

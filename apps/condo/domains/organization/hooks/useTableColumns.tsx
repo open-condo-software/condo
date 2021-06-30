@@ -47,6 +47,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
+    const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
 
@@ -63,6 +64,30 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 key: 'name',
                 sorter: true,
                 width: '40%',
+                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                    return (
+                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
+                            <Input
+                                placeholder={NameMessage}
+                                value={selectedKeys}
+                                onChange={e => {
+                                    setSelectedKeys(e.target.value)
+                                    confirm({ closeDropdown: false })
+                                }}
+                            />
+                        </FilterContainer>
+                    )
+                },
+                filterIcon: getFilterIcon,
+            },
+            {
+                title: PositionMessage,
+                sortOrder: get(sorterMap, 'position'),
+                filteredValue: getFilteredValue(filters, 'position'),
+                dataIndex: 'position',
+                key: 'position',
+                sorter: true,
+                width: '20%',
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
                         <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
