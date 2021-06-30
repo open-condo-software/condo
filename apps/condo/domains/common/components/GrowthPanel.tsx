@@ -11,8 +11,10 @@ const growthPanelCss = (isPositive) => css`
   color: ${isPositive ? colors.green[5] : colors.red[5]};
 `
 
-export const GrowthPanel = ({ value }: { value: number }) => (
-    <div css={growthPanelCss(value > 0)} >
-        {value > 0 ? <ArrowIconUp /> : <ArrowIconDown/>}&nbsp;{value}&nbsp;%
-    </div>
-)
+export const GrowthPanel = ({ value }: { value: number }) => {
+    if (!value) return null
+    return (
+        <div css={growthPanelCss(value > 0)}>
+            {value > 0 ? <ArrowIconUp/> : <ArrowIconDown/>}&nbsp;{value}&nbsp;%
+        </div>)
+}
