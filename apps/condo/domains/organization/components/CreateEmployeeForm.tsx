@@ -10,7 +10,7 @@ import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 import { Button } from '@condo/domains/common/components/Button'
-import { useInviteNewOrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { OrganizationEmployee, useInviteNewOrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ErrorsContainer } from '@condo/domains/organization/components/ErrorsContainer'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
@@ -47,6 +47,16 @@ export const CreateEmployeeForm: React.FC = () => {
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
+    const UserAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
+
+    const {
+        objs: employee,
+    } = OrganizationEmployee.useObjects({
+        where: { organization: { id: organization.id } },
+    }, {
+        fetchPolicy: 'network-only',
+    })
+
 
     const validations: { [key: string]: Rule[] } = {
         phone: [
@@ -56,6 +66,7 @@ export const CreateEmployeeForm: React.FC = () => {
             },
             {
                 validator: (_, value) => {
+                    if (employee.find(emp => emp.phone === value)) return Promise.reject(UserAlreadyInListMsg)
                     const v = normalizePhone(value)
                     if (!v) return Promise.reject(PhoneIsNotValidMsg)
                     return Promise.resolve()
@@ -70,6 +81,12 @@ export const CreateEmployeeForm: React.FC = () => {
             {
                 type: 'email',
                 message: EmailError,
+            },
+            {
+                validator: (_, value) => {
+                    if (employee.find(emp => emp.email === value)) return Promise.reject(UserAlreadyInListMsg)
+                    return Promise.resolve()
+                },
             },
         ],
     }
