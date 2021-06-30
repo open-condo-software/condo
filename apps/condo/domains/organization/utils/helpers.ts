@@ -154,7 +154,7 @@ const EMPLOYEE_TABLE_COLUMNS = [
     'phone',
     'email',
     'role',
-    'position'
+    'position',
 ]
 
 export const queryToSorter = (query: Array<string>) => {
