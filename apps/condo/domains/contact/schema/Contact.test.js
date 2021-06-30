@@ -249,7 +249,7 @@ describe('Contact', () => {
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
             const objs = await Contact.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
-            expect(objs.length).toEqual(1)
+            expect(objs).toHaveLength(1)
             expect(objs[0].id).toMatch(obj.id)
         })
 
@@ -260,7 +260,7 @@ describe('Contact', () => {
             const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
             await createTestContact(adminClient, anotherUserClient.organization, userClient.property)
             const objs = await Contact.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
-            expect(objs.length).toEqual(1)
+            expect(objs).toHaveLength(1)
             expect(objs[0].id).toMatch(obj.id)
         })
 

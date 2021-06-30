@@ -37,7 +37,7 @@ describe('Organization', () => {
         const client = await makeClientWithRegisteredOrganization()
 
         const objs = await Organization.getAll(client, {})
-        expect(objs.length).toBe(1)
+        expect(objs).toHaveLength(1)
         expect(objs[0].id).toEqual(client.organization.id)
     })
 
