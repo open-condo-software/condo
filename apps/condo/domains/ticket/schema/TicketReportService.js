@@ -2,7 +2,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const { Ticket, TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const moment = require('moment')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
-
+const access = require('@condo/domains/ticket/access/Ticket')
 
 const PERIOD_TYPES = ['week', 'month', 'quarter']
 
@@ -29,11 +29,14 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
     ],
     queries: [
         {
-            access: true,
+            access: access.canReadTickets,
             schema: 'ticketReportWidgetData(data: TicketReportWidgetInput!): TicketReportWidgetOutput',
             resolver: async (parent, args, context, info, extra) => {
                 const { periodType, offset = 0, userOrganizationId } = args.data
-                await checkOrganizationPermission(context.authedItem.id, userOrganizationId, 'canManageTickets')
+                const hasAccess = await checkOrganizationPermission(context.authedItem.id, userOrganizationId, 'canManageTickets')
+                if (!hasAccess) {
+                    throw new Error('[error] yot do not have access to this organization')
+                }
                 const statuses = await TicketStatus.getAll(context, { OR: [
                     { organization: { id: userOrganizationId } },
                     { organization_is_null: true },
@@ -55,7 +58,11 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                 Object.entries(currentData).forEach((e) => {
                     const [statusName, currentValue] = e
                     const previousValue = previousData[statusName]
-                    const growth = Number(((currentValue * 100 / previousValue) - 100).toFixed(2))
+                    let growth = 0
+                    if (previousValue !== 0 && currentValue !== 0) {
+                        growth = Number((currentValue * 100 / previousValue - 100).toFixed(2))
+                    }
+
                     data.push({
                         statusName,
                         currentValue,
