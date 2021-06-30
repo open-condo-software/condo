@@ -24,7 +24,7 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
-        // NOTE: can create only by the organization integration manager
+        // NOTE: can only be created by the organization integration manager
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
         return await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
