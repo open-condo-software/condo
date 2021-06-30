@@ -50,6 +50,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
+    const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
 
     const sorterMap = createSorterMap(sort)
     const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({})
@@ -88,6 +89,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 key: 'position',
                 sorter: true,
                 width: '20%',
+                render: (position) => position ? position : NotDefinedMessage,
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
                         <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
@@ -112,7 +114,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 key: 'role',
                 sorter: true,
                 width: '20%',
-                render: (role) => get(role, 'name', '-'),
+                render: (role) => get(role, 'name', NotDefinedMessage),
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     const adaptedStatuses = organizationEmployeeRoles.map(OrganizationEmployeeRole.convertGQLItemToFormSelectState).filter(identity)
 
