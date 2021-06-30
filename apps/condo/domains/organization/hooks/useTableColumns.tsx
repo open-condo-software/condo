@@ -50,7 +50,6 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
-    const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
 
     const sorterMap = createSorterMap(sort)
     const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({})
@@ -89,12 +88,12 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 key: 'position',
                 sorter: true,
                 width: '20%',
-                render: (position) => position ? position : NotDefinedMessage,
+                render: (position) => position ? position : '—',
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
                         <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
                             <Input
-                                placeholder={NameMessage}
+                                placeholder={PositionMessage}
                                 value={selectedKeys}
                                 onChange={e => {
                                     setSelectedKeys(e.target.value)
@@ -114,7 +113,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 key: 'role',
                 sorter: true,
                 width: '20%',
-                render: (role) => get(role, 'name', NotDefinedMessage),
+                render: (role) => get(role, 'name', '—'),
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     const adaptedStatuses = organizationEmployeeRoles.map(OrganizationEmployeeRole.convertGQLItemToFormSelectState).filter(identity)
 
@@ -150,7 +149,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                     return (
                         <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
                             <Input
-                                placeholder={NameMessage}
+                                placeholder={PhoneMessage}
                                 value={selectedKeys}
                                 onChange={e => {
                                     setSelectedKeys(e.target.value)
@@ -173,7 +172,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                     return (
                         <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
                             <Input
-                                placeholder={NameMessage}
+                                placeholder={EmailMessage}
                                 value={selectedKeys}
                                 onChange={e => {
                                     setSelectedKeys(e.target.value)
