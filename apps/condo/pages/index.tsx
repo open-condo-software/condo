@@ -5,7 +5,7 @@ import { useIntl } from '@core/next/intl'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { RequestsWidget } from '../domains/common/components/RequestsWidget'
+import { TicketsWidget } from '../domains/common/components/TicketsWidget'
 
 const IndexPage = () => {
     const intl = useIntl()
@@ -20,7 +20,7 @@ const IndexPage = () => {
                 <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>{PageTitleMsg}</Typography.Title>}/>
                 <OrganizationRequired>
                     <PageContent>
-                        <RequestsWidget />
+                        <TicketsWidget />
                     </PageContent>
                 </OrganizationRequired>
             </PageWrapper>

@@ -1,23 +1,30 @@
 /** @jsx jsx */
-import React, { useCallback, useState } from 'react'
-import { Card as AntCard, CardProps, Col, Dropdown, Menu, Row, Skeleton } from 'antd'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Card as AntCard, CardProps, Col, Dropdown, Menu, Row, Skeleton, Space } from 'antd'
 import { DownOutlined, RightOutlined } from '@ant-design/icons'
 import { Button } from './Button'
 import Router from 'next/router'
 import { css, jsx } from '@emotion/core'
+import { colors } from '@condo/domains/common/constants/style'
+import { useIntl } from '@core/next/intl'
 
 interface IStatsCardProps {
     title: string;
     link: string;
-    loading: boolean;
+    loading?: boolean;
+    onFilterChange?: (filter: string) => void;
 }
-const SELECTED_PERIOD_MAP = ['неделю', 'квартал', 'год']
 
 const cardCss = css`
   box-shadow: 0 9px 28px rgba(0, 0, 0, 0.05), 
     0 6px 16px rgba(0, 0, 0, 0.08), 
     0 3px 6px rgba(0, 0, 0, 0.12);
   border-radius: 8px;
+  min-height: 210px;
+`
+
+const cardTitleCss = css`
+  cursor: pointer;
 `
 
 const Card: React.FC<CardProps> = (props) => {
@@ -25,22 +32,31 @@ const Card: React.FC<CardProps> = (props) => {
     return <AntCard css={cardCss} {...allProps}>{children}</AntCard>
 }
 
-export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, loading }) => {
-    const [selectedPeriod, setSelectedPeriod] = useState<number>(0)
+export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, loading = false, onFilterChange }) => {
+    const intl = useIntl()
+    const SELECTED_PERIOD = {
+        week: intl.formatMessage({ id: 'component.statscard.periodtypes.week' }),
+        month: intl.formatMessage({ id: 'component.statscard.periodtypes.month' }),
+        quarter: intl.formatMessage({ id: 'component.statscard.periodtypes.quarter' }),
+    }
+    const [selectedPeriod, setSelectedPeriod] = useState<string>(Object.keys(SELECTED_PERIOD)[0])
+    useEffect(() => {
+        onFilterChange(selectedPeriod)
+    }, [selectedPeriod])
 
     const menu = (
-        <Menu onClick={({ key }) => setSelectedPeriod(parseInt(key))} disabled={loading}>
-            {SELECTED_PERIOD_MAP.map((period, key) => <Menu.Item key={key}>{period}</Menu.Item>)}
+        <Menu onClick={({ key }) => setSelectedPeriod(key)} disabled={loading}>
+            {Object.keys(SELECTED_PERIOD).map((period, key) => <Menu.Item key={period}>{SELECTED_PERIOD[period]}</Menu.Item>)}
         </Menu>
     )
 
     const cardTitle = (
-        <span>
-            {title}&nbsp;
+        <Space css={cardTitleCss}>
+            {title}
             <Dropdown overlay={menu} >
-                <span style={{ color: 'green' }}>{SELECTED_PERIOD_MAP[selectedPeriod]} <DownOutlined /></span>
+                <span style={{ color: colors.green[6] }}>{SELECTED_PERIOD[selectedPeriod]} <DownOutlined /></span>
             </Dropdown>
-        </span>
+        </Space>
     )
 
     const linkClick = useCallback(

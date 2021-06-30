@@ -1,4 +1,4 @@
-const { pickBy } = require('lodash')
+const { pickBy, get } = require('lodash')
 
 const conf = require('@core/config')
 
@@ -32,7 +32,7 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
         throw new Error('wrong query result')
     }
 
-    return data[dataPath]
+    return get(data, dataPath)
 }
 
 function generateServerUtils (gql) {
@@ -58,7 +58,7 @@ function generateServerUtils (gql) {
                 where, sortBy, first, skip,
             },
             errorMessage: `[error] Unable to query ${gql.PLURAL_FORM}`,
-            dataPath: 'objs',
+            dataPath: 'meta.count',
         })
     }
 

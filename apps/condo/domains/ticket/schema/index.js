@@ -4,6 +4,7 @@
  */
 
 const { Ticket } = require('./Ticket')
+const { TicketReportService } = require('./TicketReportService')
 const { TicketSource } = require('./TicketSource')
 const { TicketClassifier } = require('./TicketClassifier')
 const { TicketStatus } = require('./TicketStatus')
@@ -14,6 +15,7 @@ const { TicketComment } = require('./TicketComment')
 
 module.exports = {
     Ticket,
+    TicketReportService,
     TicketSource,
     TicketClassifier,
     TicketStatus,
