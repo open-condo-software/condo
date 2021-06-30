@@ -41,6 +41,7 @@ describe('TicketComment', () => {
             expect(obj.createdAt).toMatch(DATETIME_RE)
             expect(obj.updatedAt).toMatch(DATETIME_RE)
             expect(obj.content).toMatch(attrs.content)
+            expect(obj.user.id).toMatch(userClient.user.id)
         })
 
         it('cannot be created by user, who does not have "canManageTicketComments" ability', async () => {
@@ -79,6 +80,7 @@ describe('TicketComment', () => {
             expect(obj.createdAt).toMatch(DATETIME_RE)
             expect(obj.updatedAt).toMatch(DATETIME_RE)
             expect(obj.content).toMatch(attrs.content)
+            expect(obj.user.id).toMatch(adminClient.user.id)
         })
 
         it('cannot be created by anonymous', async () => {
@@ -170,6 +172,7 @@ describe('TicketComment', () => {
             expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
             expect(objUpdated.content).not.toEqual(objCreated.content)
+            expect(objUpdated.user.id).toMatch(userClient.user.id)
         })
 
         it('cannot be updated by user, who has created it, but does not have "canManageTicketComments" ability', async () => {
@@ -232,6 +235,7 @@ describe('TicketComment', () => {
             expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
             expect(objUpdated.content).not.toEqual(objCreated.content)
+            expect(objUpdated.user.id).toMatch(userClient.user.id)
         })
 
         it('cannot be updated by anonymous', async () => {
