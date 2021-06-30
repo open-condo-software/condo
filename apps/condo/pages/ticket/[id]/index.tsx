@@ -1,4 +1,4 @@
-import { Col, Row, Space, Typography, Tag } from 'antd'
+import { Col, Row, Space, Typography, Tag, Affix } from 'antd'
 import UploadList from 'antd/lib/upload/UploadList/index'
 import { get, isEmpty } from 'lodash'
 import React, { useEffect, useMemo, useState } from 'react'
@@ -10,7 +10,7 @@ import styled from '@emotion/styled'
 import { Button } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { Ticket, TicketChange, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
+import { Ticket, TicketChange, TicketFile, TicketComment } from '@condo/domains/ticket/utils/clientSchema'
 import Link from 'next/link'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
@@ -27,6 +27,25 @@ import { UploadFileStatus } from 'antd/lib/upload/interface'
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { CommentsList } from '@condo/domains/common/components/Comments'
+import faker from 'faker'
+import { Property } from '../../../domains/property/utils/clientSchema'
+
+const mockComments = (count) => {
+    const result = []
+    for (let i = 0; i < count; i++) {
+        result.push({
+            id: faker.random.alphaNumeric(20),
+            content: faker.lorem.sentence(),
+            createdAt: '2021-05-30 18:30',
+            user: {
+                id: faker.random.alphaNumeric(20),
+                name: faker.name.firstName(),
+            },
+        })
+    }
+    return result
+}
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
@@ -205,6 +224,10 @@ const TicketIdPage = () => {
     }, {
         fetchPolicy: 'network-only',
     })
+
+    const ticketCommentCreateAction = TicketComment.useCreate({
+    }, () => { })
+
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
@@ -231,139 +254,151 @@ const TicketIdPage = () => {
                 <OrganizationRequired>
                     <PageContent>
                         <Row gutter={[0, 40]}>
-                            <Col span={24}>
-                                <Row>
-                                    <Col span={12}>
-                                        <Row align={'top'}>
-                                            <Space size={8} direction={'vertical'}>
-                                                <Space align={'start'}>
-                                                    <Typography.Title level={1} style={{ margin: 0 }}>{TicketTitleMessage}</Typography.Title>
-                                                    {isEmergency && <EmergencyTag color={'red'}>{EmergencyMessage.toLowerCase()}</EmergencyTag>}
-                                                </Space>
-                                                <Typography.Text>
-                                                    <Typography.Text type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
-                                                    <UserNameField user={get(ticket, ['createdBy'])}>
-                                                        {({ name, postfix }) => (
-                                                            <Typography.Text>
-                                                                <Typography.Text ellipsis>{name}</Typography.Text>
-                                                                {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
-                                                            </Typography.Text>
-                                                        )}
-                                                    </UserNameField>
-                                                </Typography.Text>
-                                            </Space>
+                            <Col span={16}>
+                                <Row gutter={[0, 40]}>
+                                    <Col span={24}>
+                                        <Row>
+                                            <Col span={12}>
+                                                <Row align={'top'}>
+                                                    <Space size={8} direction={'vertical'}>
+                                                        <Space align={'start'}>
+                                                            <Typography.Title level={1} style={{ margin: 0 }}>{TicketTitleMessage}</Typography.Title>
+                                                            {isEmergency && <EmergencyTag color={'red'}>{EmergencyMessage.toLowerCase()}</EmergencyTag>}
+                                                        </Space>
+                                                        <Typography.Text>
+                                                            <Typography.Text type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
+                                                            <UserNameField user={get(ticket, ['createdBy'])}>
+                                                                {({ name, postfix }) => (
+                                                                    <Typography.Text>
+                                                                        <Typography.Text ellipsis>{name}</Typography.Text>
+                                                                        {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
+                                                                    </Typography.Text>
+                                                                )}
+                                                            </UserNameField>
+                                                        </Typography.Text>
+                                                    </Space>
+                                                </Row>
+                                            </Col>
+                                            <Col span={12}>
+                                                <Row justify={'end'}>
+                                                    <TicketStatusSelect ticket={ticket} onUpdate={handleTicketStatusChanged} loading={loading}/>
+                                                </Row>
+                                            </Col>
                                         </Row>
                                     </Col>
-                                    <Col span={12}>
-                                        <Row justify={'end'}>
-                                            <TicketStatusSelect ticket={ticket} onUpdate={handleTicketStatusChanged} loading={loading}/>
+                                    <Col span={24}>
+                                        <Row>
+                                            <Col span={6}>
+                                                <TicketDescriptionField
+                                                    title={SourceMessage}
+                                                    value={get(ticket, ['source', 'name'])}
+                                                />
+                                            </Col>
+                                            <Col span={6}>
+                                                <TicketDescriptionField
+                                                    title={ClassifierMessage}
+                                                    value={get(ticket, ['classifier', 'name'])}
+                                                />
+                                            </Col>
+                                            <Col span={6}>
+                                                <TicketUserInfoField
+                                                    title={ExecutorMessage}
+                                                    user={get(ticket, ['executor'])}
+                                                />
+                                            </Col>
+                                            <Col span={6}>
+                                                <TicketUserInfoField
+                                                    title={AssigneeMessage}
+                                                    user={get(ticket, ['assignee'])}
+                                                />
+                                            </Col>
                                         </Row>
                                     </Col>
-                                </Row>
-                            </Col>
-                            <Col span={24}>
-                                <Row>
-                                    <Col span={6}>
-                                        <TicketDescriptionField
-                                            title={SourceMessage}
-                                            value={get(ticket, ['source', 'name'])}
-                                        />
-                                    </Col>
-                                    <Col span={6}>
-                                        <TicketDescriptionField
-                                            title={ClassifierMessage}
-                                            value={get(ticket, ['classifier', 'name'])}
-                                        />
-                                    </Col>
-                                    <Col span={6}>
-                                        <TicketUserInfoField
-                                            title={ExecutorMessage}
-                                            user={get(ticket, ['executor'])}
-                                        />
-                                    </Col>
-                                    <Col span={6}>
-                                        <TicketUserInfoField
-                                            title={AssigneeMessage}
-                                            user={get(ticket, ['assignee'])}
-                                        />
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <FocusContainer>
-                                <Col span={24}>
-                                    <Row gutter={[0, 24]}>
+                                    <FocusContainer>
                                         <Col span={24}>
-                                            <Typography.Title level={5}>{ClientInfoMessage}</Typography.Title>
-                                        </Col>
-                                        <Col span={24}>
-                                            <Row gutter={[12, 12]}>
-                                                <Col span={6}>
-                                                    <TicketDescriptionField
-                                                        title={AddressMessage}
-                                                        value={ticketAddress}
-                                                        type={'success'}
-                                                    />
+                                            <Row gutter={[0, 24]}>
+                                                <Col span={24}>
+                                                    <Typography.Title level={5}>{ClientInfoMessage}</Typography.Title>
                                                 </Col>
-                                                <Col span={6}>
-                                                    <TicketUserInfoField
-                                                        hidePersonalData
-                                                        title={FullNameMessage}
-                                                        user={{
-                                                            name: ticket.clientName,
-                                                            phone: ticket.clientPhone,
-                                                        }}
-                                                    />
+                                                <Col span={24}>
+                                                    <Row gutter={[12, 12]}>
+                                                        <Col span={6}>
+                                                            <TicketDescriptionField
+                                                                title={AddressMessage}
+                                                                value={ticketAddress}
+                                                                type={'success'}
+                                                            />
+                                                        </Col>
+                                                        <Col span={6}>
+                                                            <TicketUserInfoField
+                                                                hidePersonalData
+                                                                title={FullNameMessage}
+                                                                user={{
+                                                                    name: ticket.clientName,
+                                                                    phone: ticket.clientPhone,
+                                                                }}
+                                                            />
+                                                        </Col>
+                                                        <Col span={6}>
+                                                            <TicketDescriptionField title={EmailMessage} value={ticket.clientEmail}/>
+                                                        </Col>
+                                                    </Row>
                                                 </Col>
-                                                <Col span={6}>
-                                                    <TicketDescriptionField title={EmailMessage} value={ticket.clientEmail}/>
-                                                </Col>
+                                                <Row gutter={[0, 8]} style={{ maxWidth: '100%' }}>
+                                                    <Col span={24}>
+                                                        <Typography.Title level={5} style={{ margin: 0 }}>{TicketInfoMessage}</Typography.Title>
+                                                    </Col>
+                                                    <Col span={24}>
+                                                        <Typography.Text style={{ fontSize: '24px', wordWrap: 'break-word' }}>{ticket.details}</Typography.Text>
+                                                        {
+                                                            !isEmpty(files) && (
+                                                                <TicketFileList files={files} />
+                                                            )
+                                                        }
+                                                    </Col>
+                                                </Row>
                                             </Row>
                                         </Col>
-                                        <Row gutter={[0, 8]} style={{ maxWidth: '100%' }}>
-                                            <Col span={24}>
-                                                <Typography.Title level={5} style={{ margin: 0 }}>{TicketInfoMessage}</Typography.Title>
-                                            </Col>
-                                            <Col span={24}>
-                                                <Typography.Text style={{ fontSize: '24px', wordWrap: 'break-word' }}>{ticket.details}</Typography.Text>
-                                                {
-                                                    !isEmpty(files) && (
-                                                        <TicketFileList files={files} />
-                                                    )
-                                                }
-                                            </Col>
-                                        </Row>
-                                    </Row>
-                                </Col>
-                            </FocusContainer>
+                                    </FocusContainer>
+                                    <ActionBar>
+                                        <Link href={`/ticket/${ticket.id}/update`}>
+                                            <Button
+                                                color={'green'}
+                                                type={'sberPrimary'}
+                                                secondary
+                                                icon={<EditFilled />}
+                                            >
+                                                {UpdateMessage}
+                                            </Button>
+                                        </Link>
+                                        <Button
+                                            type={'sberPrimary'}
+                                            icon={<FilePdfFilled />}
+                                            href={`/ticket/${ticket.id}/pdf`}
+                                            target={'_blank'}
+                                            secondary
+                                        >
+                                            {PrintMessage}
+                                        </Button>
+                                    </ActionBar>
+                                    <TicketChanges
+                                        loading={ticketChangesResult.loading}
+                                        items={ticketChangesResult.objs}
+                                        total={ticketChangesResult.count}
+                                    />
+                                </Row>
+                            </Col>
+                            <Col span={1}>
+                            </Col>
+                            <Col span={7}>
+                                <Affix offsetTop={40}>
+                                    <CommentsList
+                                        createAction={ticketCommentCreateAction}
+                                        comments={mockComments(20)}
+                                    />
+                                </Affix>
+                            </Col>
                         </Row>
-
-                        <ActionBar>
-                            <Link href={`/ticket/${ticket.id}/update`}>
-                                <Button
-                                    color={'green'}
-                                    type={'sberPrimary'}
-                                    secondary
-                                    icon={<EditFilled />}
-                                >
-                                    {UpdateMessage}
-                                </Button>
-                            </Link>
-                            <Button
-                                type={'sberPrimary'}
-                                icon={<FilePdfFilled />}
-                                href={`/ticket/${ticket.id}/pdf`}
-                                target={'_blank'}
-                                secondary
-                            >
-                                {PrintMessage}
-                            </Button>
-                        </ActionBar>
-
-                        <TicketChanges
-                            loading={ticketChangesResult.loading}
-                            items={ticketChangesResult.objs}
-                            total={ticketChangesResult.count}
-                        />
                     </PageContent>
                 </OrganizationRequired>
             </PageWrapper>

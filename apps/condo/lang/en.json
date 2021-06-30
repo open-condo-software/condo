@@ -405,5 +405,10 @@
   "contact.Contact.ContactsEditor.Phone": "Phone",
   "contact.Contact.ContactsEditor.Name": "Name",
   "contact.Contact.ContactsEditor.AnotherContact": "Another contact",
-  "contact.Contact.ContactsEditor.CannotCreateContact": "Contacts requisites will be saved into the ticket, but a Contact record will not be created, because current use does not have rights to do so"
+  "contact.Contact.ContactsEditor.CannotCreateContact": "Contacts requisites will be saved into the ticket, but a Contact record will not be created, because current use does not have rights to do so",
+  "Comments.title": "Comments",
+  "Comments.prompt.title": "Add comments here",
+  "Comments.prompt.description": "They will not been visible for residents. They will be only readable my employees of your organization.",
+  "Comments.list.description": "Not visible for residents. Only for employees of your organization.",
+  "Comments.form.placeholder": "Your comment"
 }
