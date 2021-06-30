@@ -31,12 +31,23 @@ describe('BillingIntegration', () => {
         })
     })
 
-    test('support: create_BillingIntegration', async () => {
+    test('support: create BillingIntegration', async () => {
         const support = await makeClientWithSupportUser()
         const [integration, attrs] = await createTestBillingIntegration(support)
         expect(integration).toEqual(expect.objectContaining({
             name: attrs.name,
         }))
+    })
+
+    test('support: update BillingIntegration', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [objCreated] = await createTestBillingIntegration(admin)
+
+        const support = await makeClientWithSupportUser()
+        const payload = { name: getRandomString() }
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestBillingIntegration(support, objCreated.id, payload)
+        })
     })
 
     test('user: read BillingIntegration', async () => {
