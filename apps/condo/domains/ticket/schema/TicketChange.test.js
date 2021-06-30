@@ -175,12 +175,12 @@ describe('TicketChange', () => {
             // TODO(antonal): figure out how to get old list of related items in many-to-many relationship.
             expect(objs[0].watchersIdsFrom).toEqual(expect.arrayContaining([client2.user.id, client3.user.id]))
             expect(objs[0].watchersIdsTo).toEqual(expect.arrayContaining([client3.user.id, client4.user.id]))
-            expect(objs[0].watchersIdsFrom.length).toEqual(2)
-            expect(objs[0].watchersIdsTo.length).toEqual(2)
+            expect(objs[0].watchersIdsFrom).toHaveLength(2)
+            expect(objs[0].watchersIdsTo).toHaveLength(2)
             expect(objs[0].watchersDisplayNamesFrom).toEqual(expect.arrayContaining([client2.user.name, client3.user.name]))
             expect(objs[0].watchersDisplayNamesTo).toEqual(expect.arrayContaining([client3.user.name, client4.user.name]))
-            expect(objs[0].watchersDisplayNamesFrom.length).toEqual(2)
-            expect(objs[0].watchersDisplayNamesTo.length).toEqual(2)
+            expect(objs[0].watchersDisplayNamesFrom).toHaveLength(2)
+            expect(objs[0].watchersDisplayNamesTo).toHaveLength(2)
         })
 
         it('not gets created when Ticket has no changes', async () => {

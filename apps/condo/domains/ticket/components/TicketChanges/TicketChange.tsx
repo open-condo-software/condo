@@ -64,37 +64,37 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             title: 'clientPhone',
             messages: {
                 change: ClientPhoneChangeMessage,
-            }
+            },
         },
         {
             title: 'details',
             messages: {
                 change: DetailsChangeMessage,
-            }
+            },
         },
         {
             title: 'clientName',
             messages: {
                 change: ClientNameChangeMessage,
-            }
+            },
         },
         {
             title: 'isPaid',
             messages: {
                 change: IsPaidChangeMessage,
-            }
+            },
         },
         {
             title: 'isEmergency',
             messages: {
                 change: IsEmergencyChangeMessage,
-            }
+            },
         },
         {
             title: 'statusDisplayName',
             messages: {
                 change: StatusDisplayNameChangeMessage,
-            }
+            },
         },
         {
             title: 'unitName',
@@ -102,25 +102,25 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 add: UnitNameAddMessage,
                 change: UnitNameChangeMessage,
                 remove: UnitNameRemoveMessage,
-            }
+            },
         },
         {
             title: 'propertyDisplayName',
             messages: {
                 change: PropertyDisplayNameChangeMessage,
-            }
+            },
         },
         {
             title: 'assigneeDisplayName',
             messages: {
                 change: AssigneeChangeMessage,
-            }
+            },
         },
         {
             title: 'classifierDisplayName',
             messages: {
                 change: ClassifierChangeMessage,
-            }
+            },
         },
     ]
 
