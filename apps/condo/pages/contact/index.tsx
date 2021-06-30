@@ -4,7 +4,7 @@ import {
     filtersToQuery,
     getPageIndexFromQuery,
     getSortStringFromQuery,
-    CITIZEN_PAGE_SIZE,
+    CONTACT_PAGE_SIZE,
     sorterToQuery, queryToSorter,
 } from '@condo/domains/contact/utils/helpers'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
@@ -25,15 +25,15 @@ import { useOrganization } from '@core/next/organization'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { Button } from '../../domains/common/components/Button'
 import { SortContactsBy } from '../../schema'
-const ADD_CITIZEN_ROUTE = '/citizen/create/'
+const ADD_CONTACT_ROUTE = '/contact/create/'
 
-const CitizensPage = () => {
+const ContactPage = () => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.citizen.PageTitle' })
+    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.contact.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const EmptyListLabel = intl.formatMessage({ id: 'citizen.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'citizen.EmptyList.title' })
-    const CreateCitizen = intl.formatMessage({ id: 'AddCitizen' })
+    const EmptyListLabel = intl.formatMessage({ id: 'contact.EmptyList.header' })
+    const EmptyListMessage = intl.formatMessage({ id: 'contact.EmptyList.title' })
+    const CreateContact = intl.formatMessage({ id: 'AddContact' })
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const AddItemUsingFormLabel = intl.formatMessage({ id: 'AddItemUsingForm' })
     const AddItemUsingUploadLabel = intl.formatMessage({ id: 'AddItemUsingFileUpload' })
@@ -50,12 +50,12 @@ const CitizensPage = () => {
         fetchMore,
         loading,
         count: total,
-        objs: citizens,
+        objs: contacts,
     } = Contact.useObjects({
         sortBy: sortFromQuery.length > 0 ? sortFromQuery : ['createdAt_DESC'] as Array<SortContactsBy>,
         where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
-        skip: (offsetFromQuery * CITIZEN_PAGE_SIZE) - CITIZEN_PAGE_SIZE,
-        first: CITIZEN_PAGE_SIZE,
+        skip: (offsetFromQuery * CONTACT_PAGE_SIZE) - CONTACT_PAGE_SIZE,
+        first: CONTACT_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
     })
@@ -65,7 +65,7 @@ const CitizensPage = () => {
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
-                router.push(`/citizen/${record.id}/`)
+                router.push(`/contact/${record.id}/`)
             },
         }
     }, [])
@@ -84,7 +84,7 @@ const CitizensPage = () => {
                 sortBy: sort,
                 where: filters,
                 skip: offset,
-                first: CITIZEN_PAGE_SIZE,
+                first: CONTACT_PAGE_SIZE,
             }).then(() => {
                 const query = qs.stringify(
                     { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
@@ -98,11 +98,11 @@ const CitizensPage = () => {
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
 
-    const handleAddCitizen = () => router.push(ADD_CITIZEN_ROUTE)
+    const handleAddContact = () => router.push(ADD_CONTACT_ROUTE)
 
     const dropDownMenu = (
         <Menu>
-            <Menu.Item key="1" onClick={handleAddCitizen}>
+            <Menu.Item key="1" onClick={handleAddContact}>
                 {AddItemUsingFormLabel}
             </Menu.Item>
             <Menu.Item key="2">
@@ -122,12 +122,12 @@ const CitizensPage = () => {
                 <OrganizationRequired>
                     <PageContent>
                         {
-                            !citizens.length && !filtersFromQuery
+                            !contacts.length && !filtersFromQuery
                                 ? <EmptyListView
                                     label={EmptyListLabel}
                                     message={EmptyListMessage}
-                                    createRoute={ADD_CITIZEN_ROUTE}
-                                    createLabel={CreateCitizen} />
+                                    createRoute={ADD_CONTACT_ROUTE}
+                                    createLabel={CreateContact} />
                                 : <Row gutter={[0, 40]} align={'middle'}>
                                     <Col span={24}>
                                         <Row justify={'space-between'}>
@@ -145,9 +145,9 @@ const CitizensPage = () => {
                                                         key='left'
                                                         type={'sberPrimary'}
                                                         style={{ borderRight: '1px solid white' }}
-                                                        onClick={() => router.push(ADD_CITIZEN_ROUTE)}
+                                                        onClick={() => router.push(ADD_CONTACT_ROUTE)}
                                                     >
-                                                        {CreateCitizen}
+                                                        {CreateContact}
                                                     </Button>,
                                                     <Button
                                                         key='right'
@@ -162,7 +162,7 @@ const CitizensPage = () => {
                                             bordered
                                             tableLayout={'fixed'}
                                             loading={loading}
-                                            dataSource={citizens}
+                                            dataSource={contacts}
                                             columns={tableColumns}
                                             rowKey={record =>  record.id}
                                             onRow={handleRowAction}
@@ -170,7 +170,7 @@ const CitizensPage = () => {
                                             pagination={{
                                                 total,
                                                 current: offsetFromQuery,
-                                                pageSize: CITIZEN_PAGE_SIZE,
+                                                pageSize: CONTACT_PAGE_SIZE,
                                                 position: ['bottomLeft'],
                                             }}
                                         />
@@ -186,7 +186,7 @@ const CitizensPage = () => {
 
 const HeaderAction = () => {
     const intl = useIntl()
-    const BackButtonLabel = intl.formatMessage({ id: 'pages.condo.citizen.PageTitle' })
+    const BackButtonLabel = intl.formatMessage({ id: 'pages.condo.contact.PageTitle' })
 
     return (
         <Space>
@@ -197,6 +197,6 @@ const HeaderAction = () => {
     )
 }
 
-CitizensPage.headerAction = <HeaderAction/>
+ContactPage.headerAction = <HeaderAction/>
 
-export default CitizensPage
+export default ContactPage

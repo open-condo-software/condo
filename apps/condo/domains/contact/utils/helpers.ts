@@ -84,7 +84,7 @@ const SORT_ORDERS = {
     'DESC': 'descend',
 }
 
-const CITIZEN_TABLE_COLUMNS = [
+const CONTACT_TABLE_COLUMNS = [
     'name',
     'phone',
     'email',
@@ -97,7 +97,7 @@ export const queryToSorter = (query: Array<string>) => {
         const [columnKey, sortKey] = sort.split('_')
 
         try {
-            if (CITIZEN_TABLE_COLUMNS.includes(columnKey) && SORT_ORDERS[sortKey]) {
+            if (CONTACT_TABLE_COLUMNS.includes(columnKey) && SORT_ORDERS[sortKey]) {
                 return {
                     columnKey,
                     order: SORT_ORDERS[sortKey],
@@ -121,7 +121,7 @@ export const createSorterMap = (sortStringFromQuery: Array<string>): Record<stri
 
         const order = SORT_ORDERS[sortOrder]
 
-        if (!order || !CITIZEN_TABLE_COLUMNS.includes(columnKey)) {
+        if (!order || !CONTACT_TABLE_COLUMNS.includes(columnKey)) {
             return acc
         }
 
@@ -141,8 +141,8 @@ export const getSortStringFromQuery = (query: ParsedUrlQuery): Array<string> => 
     return sort.split(',')
 }
 
-export const CITIZEN_PAGE_SIZE = 10
+export const CONTACT_PAGE_SIZE = 10
 
 export const getPageIndexFromQuery = (query: ParsedUrlQuery): number => {
-    return Math.floor(Number(get(query, 'offset', 0)) / CITIZEN_PAGE_SIZE) + 1
+    return Math.floor(Number(get(query, 'offset', 0)) / CONTACT_PAGE_SIZE) + 1
 }
