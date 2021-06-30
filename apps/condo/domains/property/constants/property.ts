@@ -1,3 +1,8 @@
+import { AddressMeta } from '@condo/domains/common/utils/addressApi/AddressMeta'
+
+// "д" - "дом" or "к" - "корпус"
+const validMapObjects: AddressMeta['data']['house_type'][] = ['д', 'к']
+
 const buildingEmptyMapJson = {
     'dv': 1,
     'type': 'building',
@@ -302,9 +307,10 @@ const buildingAddressMetaJson = {
     'dv': 1,
 }
 
-module.exports = {
+export {
     buildingEmptyMapJson,
     buildingMapJson,    
     buildingAddressMetaJson,
     notValidBuildingMapJson,
+    validMapObjects,
 }
