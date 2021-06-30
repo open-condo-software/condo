@@ -99,9 +99,23 @@ async function makeClientWithNewRegisteredAndLoggedInUser () {
     return client
 }
 
+async function makeClientWithSupportUser() {
+    const [user, userAttrs] = await registerNewUser(await makeClient())
+    const client = await makeLoggedInClient(userAttrs)
+    await addSupportAccess(user)
+    client.user = user
+    client.userAttrs = userAttrs
+    return client
+}
+
 async function addAdminAccess (user) {
     const admin = await makeLoggedInAdminClient()
     await User.update(admin, user.id, { isAdmin: true })
+}
+
+async function addSupportAccess (user) {
+    const admin = await makeLoggedInAdminClient()
+    await User.update(admin, user.id, { isSupport: true})
 }
 
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
@@ -180,8 +194,8 @@ async function updateTestForgotPasswordAction (client, id, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient,
-    makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, createTestEmail, createTestPhone,
+    User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient, makeClientWithSupportUser,
+    makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, addSupportAccess, createTestEmail, createTestPhone,
     ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
     ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
