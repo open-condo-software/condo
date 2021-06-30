@@ -7,10 +7,20 @@ import { formatDate } from '../../utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { green } from '@ant-design/colors'
-import { FormattedMessage } from 'react-intl'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
+}
+
+interface ITicketChangeFieldMessages {
+    add?: string,
+    change: string,
+    remove?: string,
+}
+
+interface ITicketChangeField {
+    title: string,
+    messages: ITicketChangeFieldMessages
 }
 
 export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => {
@@ -36,25 +46,56 @@ export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => 
 
 const useChangedFieldMessagesOf = (ticketChange) => {
     const intl = useIntl()
-    const ClientPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone' })
-    const DetailsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details' })
-    const ClientNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientName' })
-    const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid' })
-    const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency' })
-    const StatusDisplayNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.statusDisplayName' })
-    const UnitNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName' })
-    const AssigneeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.assignee' })
-    const ClassifierMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier' })
-    const fields = [
-        ['clientPhone', ClientPhoneMessage],
-        ['details', DetailsMessage],
-        ['clientName', ClientNameMessage],
-        ['isPaid', IsPaidMessage],
-        ['isEmergency', IsEmergencyMessage],
-        ['statusDisplayName', StatusDisplayNameMessage],
-        ['unitName', UnitNameMessage],
-        ['assigneeDisplayName', AssigneeMessage],
-        ['classifierDisplayName', ClassifierMessage],
+
+    const getChangeMessages = (baseId: string) => {
+        return {
+            add: intl.formatMessage({ id: `${baseId}.add` }),
+            change: intl.formatMessage({ id: `${baseId}.change` }),
+            remove: intl.formatMessage({ id: `${baseId}.remove` }),
+        }
+    }
+
+    const fields: ITicketChangeField[] = [
+        {
+            title: 'clientPhone',
+            messages: getChangeMessages('pages.condo.ticket.TicketChanges.clientPhone'),
+        },
+        {
+            title: 'details',
+            messages: getChangeMessages('pages.condo.ticket.TicketChanges.details'),
+        },
+        {
+            title: 'clientName',
+            messages: getChangeMessages('pages.condo.ticket.TicketChanges.clientName'),
+        },
+        {
+            title: 'isPaid',
+            messages: getChangeMessages('pages.condo.ticket.TicketChanges.isPaid'),
+        },
+        {
+            title: 'isEmergency',
+            messages: getChangeMessages('pages.condo.ticket.TicketChanges.isEmergency'),
+        },
+        {
+            title: 'statusDisplayName',
+            messages: getChangeMessages('pages.condo.ticket.TicketChanges.statusDisplayName'),
+        },
+        {
+            title: 'unitName',
+            messages: getChangeMessages('pages.condo.ticket.TicketChanges.unitName'),
+        },
+        {
+            title: 'propertyDisplayName',
+            messages: getChangeMessages('pages.condo.ticket.TicketChanges.propertyDisplayName'),
+        },
+        {
+            title: 'assigneeDisplayName',
+            messages: getChangeMessages('pages.condo.ticket.TicketChanges.assignee'),
+        },
+        {
+            title: 'classifierDisplayName',
+            messages: getChangeMessages('pages.condo.ticket.TicketChanges.classifier'),
+        },
     ]
 
     const BooleanToString = {
@@ -75,18 +116,6 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             ),
             details: (field, value) => (
                 value.length > 30 ? value.slice(0, 30) + '…' : value
-            ),
-            unitName: (field, value) => (
-                // Formally, unit name (e.g. apartment) was changed, but semantically,
-                // was changed a whole address of the ticket, so, to preserve context,
-                // the change of the unit is displayed as the change of the address
-                <FormattedMessage
-                    id="pages.condo.ticket.TicketChanges.unitName.change"
-                    values={{
-                        address: ticketChange.ticket.property.address,
-                        unitName: value,
-                    }}
-                />
             ),
         }
         return has(formatterFor, field)
@@ -121,7 +150,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     {aroundTo[1]}
                 </>
             )
-        } else { // only "to" part
+        } else if (message.search('{to}') !== -1) { // only "to" part
             const aroundTo =  message.split('{to}')
             const valueTo = ticketChange[`${field}To`]
             return (
@@ -132,15 +161,38 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     {aroundTo[1]}
                 </>
             )
+        } else if (message.search('{from}') !== -1) {
+            const aroundFrom =  message.split('{from}')
+            const valueFrom = ticketChange[`${field}From`]
+            return (
+                <>
+                    <SafeUserMention createdBy={ticketChange.createdBy}/>
+                    &nbsp;{aroundFrom[0]}
+                    <ins>{format(field, valueFrom)}</ins>
+                    {aroundFrom[1]}
+                </>
+            )
         }
     }
 
     // Omit what was not changed
-    const changedFields = fields.filter(([field]) => (
-        ticketChange[`${field}From`] !== ticketChange[`${field}To`]
+    const changedFields = fields.filter(({ title }) => (
+        ticketChange[`${title}From`] !== ticketChange[`${title}To`]
     ))
 
-    return changedFields.map(([field, message]) => ({
+    const changedFieldsWithMessages = changedFields.map(({ title, messages }) => {
+        if (!ticketChange[`${title}From`]) {
+            return [title, messages.add]
+        }
+        else if (!ticketChange[`${title}To`]) {
+            return [title, messages.remove]
+        }
+        else {
+            return [title, messages.change]
+        }
+    })
+
+    return changedFieldsWithMessages.map(([field, message]) => ({
         field,
         message: formatDiffMessage(field, message, ticketChange),
     }))
