@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
-import { Col, Form, Input, notification, Row, Typography, FormItemProps } from 'antd'
+import { Col, Form, Input, notification, Row, Typography } from 'antd'
 import React, { useCallback } from 'react'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -9,9 +9,9 @@ import { AddressSuggestionsSearchInput } from '@condo/domains/property/component
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { PropertyPanels } from '../panels'
 import Prompt from '@condo/domains/common/components/Prompt'
-import { AddressMeta } from '../../../common/utils/addressApi/AddressMeta'
+import { AddressMeta } from '@condo/domains/common/utils/addressApi/AddressMeta'
 import { useState } from 'react'
-
+import { validMapObjects } from '@condo/domains/property/constants/property'
 interface IOrganization {
     id: string
 }
@@ -40,7 +40,6 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
 
     const { action, initialValues } = props
 
-    const restrictedPropertyTypes: AddressMeta['data']['house_type'][] = ['д', 'к']
     const [addressValidatorError, setAddressValidatorError] = useState<string | null>(null)
     const formValuesToMutationDataPreprocessor = useCallback((formData, _, form) => {
         const isAddressFieldTouched = form.isFieldsTouched(['address'])
@@ -106,9 +105,10 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         <AddressSuggestionsSearchInput
                                             onSelect={(_, option) => {
                                                 const address = JSON.parse(option.key) as AddressMeta
-                                                if (!restrictedPropertyTypes?.includes(address.data.house_type)) {
+                                                if (!validMapObjects.includes(address.data.house_type)) {
                                                     setAddressValidatorError(AddressValidationErrorMsg)
                                                 }
+                                                else if (AddressValidationErrorMsg) setAddressValidatorError(null)
                                             }} />
                                     </Form.Item>
                                 </Col>
