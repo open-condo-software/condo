@@ -20,7 +20,7 @@ interface PhoneInputRef {
 }
 
 export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, ref) => {
-    const { value, placeholder, style, disabled } = props
+    const { value, placeholder, style, disabled, ...otherProps } = props
     const { organization } = useOrganization()
     const inputRef = useRef<PhoneInputRef>()
 
@@ -58,6 +58,7 @@ export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, r
 
     return (
         <ReactPhoneInput
+            {...otherProps}
             // @ts-ignore
             ref={inputRef}
             inputClass={'ant-input'}
