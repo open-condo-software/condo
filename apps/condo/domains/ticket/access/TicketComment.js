@@ -45,6 +45,14 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
     return false
 }
 
+async function canSetUserField ({ authentication: { item: user }, originalInput, addFieldValidationError }) {
+    if (user.isAdmin) return true
+    if (get(originalInput, ['user', 'connect', 'id']) !== user.id) {
+        return false
+    }
+    return true
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -52,4 +60,5 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
 module.exports = {
     canReadTicketComments,
     canManageTicketComments,
+    canSetUserField,
 }
