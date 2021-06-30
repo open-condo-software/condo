@@ -45,9 +45,9 @@ function menuDataRender () {
             locale: 'menu.Property',
         },
         {
-            path: '/citizen',
+            path: '/contact',
             icon: HeartFilled,
-            locale: 'menu.Citizens',
+            locale: 'menu.Contacts',
         },
         {
             path: '/employee',
