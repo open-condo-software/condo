@@ -11,6 +11,8 @@ interface IContactsEditorHookArgs {
 interface IContactsEditorHookResult {
     createContact: (organization: string, property: string, unitName: string) => Promise<IContactUIState>,
     ContactsEditorComponent: React.FC<IContactEditorProps>,
+    // Explicitly indicates, that we have enough data to call `createContact` action
+    canCreateContact: boolean,
 }
 
 export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs): IContactsEditorHookResult => {
@@ -78,6 +80,7 @@ export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs)
 
     return {
         createContact,
+        canCreateContact: !!contactFieldsRef.current.phone && !!contactFieldsRef.current.name,
         ContactsEditorComponent,
     }
 }

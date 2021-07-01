@@ -87,7 +87,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         initialCreateValues: { organization: organization.id },
     })
 
-    const { createContact, ContactsEditorComponent } = useContactsEditorHook({
+    const { createContact, canCreateContact, ContactsEditorComponent } = useContactsEditorHook({
         organization: organization.id,
     })
 
@@ -95,7 +95,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const action = async (variables, ...args) => {
         let createdContact
-        if (role.canManageContacts) {
+        if (role.canManageContacts && canCreateContact) {
             createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
         }
         const result = await _action({
