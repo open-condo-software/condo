@@ -7,8 +7,11 @@ import { useOrganization } from '@core/next/organization'
 import { get } from 'lodash'
 import { GET_TICKET_WIDGET_REPORT_DATA } from '@condo/domains/ticket/gql'
 import { useLazyQuery } from '@core/next/apollo'
+import { useIntl } from '@core/next/intl'
 
 export const TicketsWidget = () => {
+    const intl = useIntl()
+    const ticketsWidgetTitle = intl.formatMessage({ id: 'component.ticketswidget.Title' })
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const [ticketData, setTicketData] = useState([])
@@ -33,7 +36,7 @@ export const TicketsWidget = () => {
     }
 
     return (
-        <StatsCard title='Заявки за' link='/' onFilterChange={filterChange} loading={loading}>
+        <StatsCard title={ticketsWidgetTitle} link='/' onFilterChange={filterChange} loading={loading}>
             <Row gutter={[40, 20]}>
                 {
                     ticketData.map((e, i) => (
