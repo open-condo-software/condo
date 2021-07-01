@@ -246,6 +246,7 @@ async function createTestBillingMeterResource (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
+        name: faker.lorem.words(),
         ...extraAttrs,
     }
     const obj = await BillingMeterResource.create(client, attrs)
