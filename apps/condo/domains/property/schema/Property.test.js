@@ -13,6 +13,24 @@ const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObj
 
 describe('Property', () => {
 
+    test('user: can use soft delete', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+        const [obj, attrs] = await createTestProperty(client, client.organization)
+        await updateTestProperty(client, obj.id, { deletedAt: 'true' })
+
+        const count = await Property.count(client)
+        expect(count).toEqual(0)
+    })
+
+    test('user: can read soft deleted objects', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+        const [obj, attrs] = await createTestProperty(client, client.organization)
+        await updateTestProperty(client, obj.id, { deletedAt: 'true' })
+
+        const count = await Property.count(client, { deletedAt_not: null })
+        expect(count).toEqual(1)
+    })
+
     test('user: create Property', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const [obj, attrs] = await createTestProperty(client, client.organization)
