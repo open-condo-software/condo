@@ -75,9 +75,16 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
             const { obj } = data
             if (JSON.stringify(obj) === JSON.stringify(link)) return
             if (DEBUG_RERENDERS) console.log('OrganizationProvider() newState', obj)
-            setCookieLinkId(obj.id)
-            setLinkIdState(obj.id)
-            setLink(obj)
+            const isLinkActive = !obj.isRejected && !obj.isBlocked && obj.isAccepted
+            if (!isLinkActive) {
+                setCookieLinkId('')
+                setLinkIdState(null)
+                setLink(null)
+            } else {
+                setCookieLinkId(obj.id)
+                setLinkIdState(obj.id)
+                setLink(obj)
+            }
         },
         onError,
     })

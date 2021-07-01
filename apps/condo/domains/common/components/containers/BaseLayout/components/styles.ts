@@ -57,8 +57,6 @@ export const sideMenuDesktopCss = css`
   width: ${SIDE_MENU_WIDTH}px;
   height: 100%;
   position: fixed;
-  top: 0;
-  left: 0;
   z-index: 10;
   border-width: 0 1px 0 0;
   border-color: ${colors.lightGrey[5]};
@@ -167,12 +165,12 @@ export const StyledMenuItem = styled(Menu.Item)`
   &:first-of-type {
     padding: 0 0 14px;
   }
-  
+
   &:last-of-type {
     border-bottom: none;
     padding: 14px 0 0;
   }
-  
+
   &:hover {
     background-color: ${colors.defaultWhite[5]};
     font-weight: 700;
@@ -211,7 +209,7 @@ export const pageWrapperCss = css`
     padding: 0 12px;
     border-radius: 0;
   }
-  
+
   @media (max-width: 480px) {
     padding: 0 12px;
     border-radius: 0;

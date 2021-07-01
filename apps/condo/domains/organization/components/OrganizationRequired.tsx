@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { css } from '@emotion/core'
-import { Typography } from 'antd'
+import { Typography, Affix, Alert } from 'antd'
 import { useEffect } from 'react'
 import Router, { useRouter } from 'next/router'
 import qs from 'qs'
@@ -14,8 +14,6 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { isFunction } from '@condo/domains/common/utils/ecmascript.utils'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { AuthRequired } from '../../common/components/containers/AuthRequired'
-import { isFunction } from '../../common/utils/ecmascript.utils'
 import { Avatar, Button, Form, Input, notification, Radio, Tag } from 'antd'
 import {
     BaseModalForm,
@@ -31,6 +29,8 @@ import {
     OrganizationEmployee,
 } from '@condo/domains/organization/utils/clientSchema'
 import { useState } from 'react'
+import { isEmpty } from 'lodash'
+import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
 const DEFAULT_ORGANIZATION_AVATAR_URL = 'https://www.pngitem.com/pimgs/m/226-2261747_company-name-icon-png-transparent-png.png'
 
@@ -81,15 +81,15 @@ function CreateOrganizationModalForm ({ visible, onFinish }) {
     </BaseModalForm>
 }
 
+
+
 function OrganizationRequiredAfterAuthRequired ({ children, withEmployeeRestrictions }) {
     const intl = useIntl()
     const EmployeeRestrictedTitle = intl.formatMessage({ id: 'employee.emptyList.title' })
     const EmployeeRestrictedDescription = intl.formatMessage({ id: 'employee.emptyList.description' })
-
     const { isLoading: isLoadingAuth } = useAuth()
     const organization = useOrganization()
     const { isLoading, link } = organization
-
     if (isLoading || isLoadingAuth) {
         return <Loader/>
     }
