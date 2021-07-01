@@ -46,11 +46,12 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
 }
 
 async function canSetUserField ({ authentication: { item: user }, originalInput, addFieldValidationError }) {
+    if (!user) return false    
     if (user.isAdmin) return true
-    if (get(originalInput, ['user', 'connect', 'id']) !== user.id) {
-        return false
+    if (get(originalInput, ['user', 'connect', 'id']) === user.id) {
+        return true
     }
-    return true
+    return false
 }
 
 /*
