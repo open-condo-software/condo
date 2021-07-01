@@ -94,10 +94,10 @@ function applySoftDeletedFilters (access, deletedAtField, args) {
     if (type === 'Boolean') {
         return (access) ? { [deletedAtField]: null } : false
     } else if (type === 'Object') {
-        // const currentWhereFilters = getWhereVariables(args)
-        // if (Object.keys(currentWhereFilters).find((x) => x.startsWith(deletedAtField))) {
-        //     return access
-        // }
+        const currentWhereFilters = getWhereVariables(args)
+        if (Object.keys(currentWhereFilters).find((x) => x.startsWith(deletedAtField))) {
+            return access
+        }
 
         const anyFilterByDeleted = Object.keys(access).find((x) => x.startsWith(deletedAtField))
         if (anyFilterByDeleted) return access
