@@ -41,9 +41,12 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     fields[deletedAtField] = { ...datedOptions }
     fields[newIdField] = { ...newIdOptions }
 
-    const newResolveInput = ({ resolvedData, existingItem }) => {
+    const newResolveInput = ({ existingItem, resolvedData }) => {
         if (existingItem && existingItem[newIdField]) {
             throw new Error('Already merged')
+        }
+        if (existingItem && existingItem[deletedAtField] && resolvedData[deletedAtField] !== null) {
+            throw new Error('Already deleted')
         }
         if (resolvedData[deletedAtField]) {
             resolvedData[deletedAtField] = new Date().toISOString()
