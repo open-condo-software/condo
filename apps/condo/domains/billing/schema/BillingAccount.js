@@ -12,6 +12,8 @@ const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/er
 const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const { JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+
 
 const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, BILLING_PROPERTY_FIELD, RAW_DATA_FIELD } = require('./fields')
 
@@ -57,15 +59,15 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             type: Json,
             isRequired: true,
             hooks: {
-                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                validateInput: (args) => {
+                    const { resolvedData, fieldPath, addFieldValidationError } = args;
                     if (!resolvedData.hasOwnProperty(fieldPath)) return // skip if on value
                     const value = resolvedData[fieldPath]
                     if (value === null) return // null is OK
-                    if (typeof value !== 'object') {return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`)}
+                    if (!hasValidJsonStructure(args, true, 1, {}))
+                        return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`)
                     const { dv } = value
-                    if (dv === 1) {
-                        // TODO(pahaz): need to checkIt!
-                    } else {
+                    if (dv !== 1) {
                         return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
                     }
                 },
