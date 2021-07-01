@@ -7,7 +7,7 @@ import {
     SortContactsBy,
 } from '../../../schema'
 
-export interface IFilters extends Pick<Contact, 'name' | 'phone' | 'email' | 'property'> {
+export interface IFilters extends Pick<Contact, 'name' | 'phone' | 'email'> {
     search?: string
     address?: string
 }
