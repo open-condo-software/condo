@@ -10369,6 +10369,7 @@ export type Query = {
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
+  ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -11637,6 +11638,11 @@ export type QueryCheckPasswordRecoveryTokenArgs = {
 
 export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
   data: GetPhoneByConfirmPhoneActionTokenInput;
+};
+
+
+export type QueryTicketReportWidgetDataArgs = {
+  data: TicketReportWidgetInput;
 };
 
 export type ReInviteOrganizationEmployeeInput = {
@@ -16180,6 +16186,17 @@ export type TicketRelateToOneInput = {
   connect?: Maybe<TicketWhereUniqueInput>;
   disconnect?: Maybe<TicketWhereUniqueInput>;
   disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+export type TicketReportWidgetInput = {
+  periodType: Scalars['String'];
+  offset?: Maybe<Scalars['Int']>;
+  userOrganizationId: Scalars['String'];
+};
+
+export type TicketReportWidgetOutput = {
+  __typename?: 'TicketReportWidgetOutput';
+  data?: Maybe<Scalars['JSON']>;
 };
 
 /**  Ticket source. Income call, mobile app, external system, ...  */
