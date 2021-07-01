@@ -36,7 +36,7 @@ export const TicketsWidget = () => {
     }
 
     return (
-        <StatsCard title={ticketsWidgetTitle} link='/' onFilterChange={filterChange} loading={loading}>
+        <StatsCard title={ticketsWidgetTitle} link='/' onFilterChange={filterChange} loading={loading} dependencyArray={[userOrganizationId]}>
             <Row gutter={[40, 20]}>
                 {
                     ticketData.map((e, i) => (

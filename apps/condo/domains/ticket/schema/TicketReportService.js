@@ -6,10 +6,13 @@ const access = require('@condo/domains/ticket/access/Ticket')
 
 const PERIOD_TYPES = ['week', 'month', 'quarter']
 
-const countTicketsByStatuses = async (context, statues, dateStart, dateEnd) => {
+const countTicketsByStatuses = async (context, statuses, dateStart, dateEnd, organizationId) => {
     const answer = {}
-    for (const status of statues) {
-        const queryByStatus = [{ createdAt_lte: dateEnd }, { createdAt_gte: dateStart }, { status: { name: status } }]
+    for (const status of statuses) {
+        const queryByStatus = [
+            { createdAt_lte: dateEnd }, { createdAt_gte: dateStart },
+            { status: { name: status } }, { organization: { id: organizationId } },
+        ]
         const count = await Ticket.count(context, { AND: queryByStatus })
         answer[status] = count || 0
     }
@@ -35,7 +38,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                 const { periodType, offset = 0, userOrganizationId } = args.data
                 const hasAccess = await checkOrganizationPermission(context.authedItem.id, userOrganizationId, 'canManageTickets')
                 if (!hasAccess) {
-                    throw new Error('[error] yot do not have access to this organization')
+                    throw new Error('[error] you do not have access to this organization')
                 }
                 const statuses = await TicketStatus.getAll(context, { OR: [
                     { organization: { id: userOrganizationId } },
@@ -51,8 +54,8 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                 const previousEndDate =  moment().endOf(periodType).add(offset - 1, periodType).toISOString()
 
 
-                const currentData = await countTicketsByStatuses(context, statusNames, startDate, endDate)
-                const previousData = await countTicketsByStatuses(context, statusNames, previousStartDate, previousEndDate)
+                const currentData = await countTicketsByStatuses(context, statusNames, startDate, endDate, userOrganizationId)
+                const previousData = await countTicketsByStatuses(context, statusNames, previousStartDate, previousEndDate, userOrganizationId)
 
                 const data = []
                 Object.entries(currentData).forEach((e) => {
