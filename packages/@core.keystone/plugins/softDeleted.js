@@ -1,5 +1,6 @@
 const { DateTimeUtc } = require('@keystonejs/fields')
 const { getType } = require('@keystonejs/utils')
+const { get } = require('lodash')
 
 const { HiddenRelationship } = require('./utils')
 const { composeHook, evaluateKeystoneAccessResult } = require('./utils')
@@ -67,7 +68,7 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
         const { operation } = args
         if (operation === 'read') {
             const current = await evaluateKeystoneAccessResult(access, 'read', args, keystone)
-            return applySoftDeletedFilters(current, deletedAtField)
+            return applySoftDeletedFilters(current, deletedAtField, args)
         } else if (operation === 'delete') {
             return false
         } else {
@@ -78,11 +79,26 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     return { fields, hooks, access: newAccess, ...rest }
 }
 
-function applySoftDeletedFilters (access, deletedAtField) {
+function getWhereVariables (args) {
+    // TODO(pahaz): this work only for GET query parametrs. Check Post data
+    const variables = get(args, ['context', 'req', 'query', 'variables'])
+    try {
+        return JSON.parse(variables).where || {}
+    } catch (e) {
+        return {}
+    }
+}
+
+function applySoftDeletedFilters (access, deletedAtField, args) {
     const type = getType(access)
     if (type === 'Boolean') {
         return (access) ? { [deletedAtField]: null } : false
     } else if (type === 'Object') {
+        // const currentWhereFilters = getWhereVariables(args)
+        // if (Object.keys(currentWhereFilters).find((x) => x.startsWith(deletedAtField))) {
+        //     return access
+        // }
+
         const anyFilterByDeleted = Object.keys(access).find((x) => x.startsWith(deletedAtField))
         if (anyFilterByDeleted) return access
         return {
