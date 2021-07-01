@@ -3,13 +3,13 @@ const { Ticket, TicketStatus } = require('@condo/domains/ticket/utils/serverSche
 const moment = require('moment')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const access = require('@condo/domains/ticket/access/Ticket')
-const { TICKET_STATUS_TYPES: ticketTypes } = require('@condo/domains/ticket/constants')
+const { TICKET_STATUS_TYPES: ticketStatusTypes } = require('@condo/domains/ticket/constants')
 
 const PERIOD_TYPES = ['week', 'month', 'quarter']
 
 const countTicketsByStatuses = async (context, dateStart, dateEnd, organizationId) => {
     const answer = {}
-    for (const type of ticketTypes) {
+    for (const type of ticketStatusTypes) {
         const queryByStatus = [
             { createdAt_lte: dateEnd }, { createdAt_gte: dateStart },
             { status: { type } }, { organization: { id: organizationId } },
