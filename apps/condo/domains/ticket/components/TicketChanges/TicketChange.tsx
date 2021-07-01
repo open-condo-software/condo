@@ -142,13 +142,15 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 <PhoneLink value={value} />
             ),
             details: (field, value) => (
-                value.length > MAX_DESCRIPTION_DISPLAY_LENGTH ? (<Tooltip title={value}
-                    placement="top"
-                    overlayStyle={{
-                        maxWidth: '80%',
-                    }}>
-                    {value.slice(0, MAX_DESCRIPTION_DISPLAY_LENGTH) + '…'}
-                </Tooltip>) : value
+                value.length > MAX_DESCRIPTION_DISPLAY_LENGTH ? (
+                    <Tooltip title={value}
+                        placement="top"
+                        overlayStyle={{
+                            maxWidth: '80%',
+                        }}>
+                        {value.slice(0, MAX_DESCRIPTION_DISPLAY_LENGTH) + '…'}
+                    </Tooltip>
+                ) : value
             ),
         }
         return has(formatterFor, field)
@@ -184,7 +186,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 </>
             )
         } else if (message.search('{to}') !== -1) { // only "to" part
-            const aroundTo =  message.split('{to}')
+            const aroundTo = message.split('{to}')
             const valueTo = ticketChange[`${field}To`]
             return (
                 <>
@@ -195,11 +197,11 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 </>
             )
         } else if (message.search('{from}') !== -1) {
-            const aroundFrom =  message.split('{from}')
+            const aroundFrom = message.split('{from}')
             const valueFrom = ticketChange[`${field}From`]
             return (
                 <>
-                    <SafeUserMention createdBy={ticketChange.createdBy}/>
+                    <SafeUserMention createdBy={ticketChange.createdBy} />
                     &nbsp;{aroundFrom[0]}
                     <ins>{format(field, valueFrom)}</ins>
                     {aroundFrom[1]}
