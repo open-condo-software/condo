@@ -211,7 +211,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                             displayMinusButton={true}
                                             onClickMinusButton={handleClickOnMinusButton}
                                         />
-                                        {(!role || !role.canManageContacts) && (
+                                        {(!get(role, 'canManageContacts')) && (
                                             <Col span={24}>
                                                 <ErrorsWrapper>
                                                     {CannotCreateContactMessage}
