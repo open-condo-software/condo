@@ -28,25 +28,9 @@ import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { CommentsList } from '@condo/domains/common/components/Comments'
-import faker from 'faker'
 import { Property } from '../../../domains/property/utils/clientSchema'
+import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
-
-const mockComments = (count) => {
-    const result = []
-    for (let i = 0; i < count; i++) {
-        result.push({
-            id: faker.random.alphaNumeric(20),
-            content: faker.lorem.sentence(),
-            createdAt: '2021-05-30 18:30',
-            user: {
-                id: faker.random.alphaNumeric(20),
-                name: faker.name.firstName(),
-            },
-        })
-    }
-    return result
-}
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
@@ -202,6 +186,8 @@ const TicketIdPage = () => {
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
     const router = useRouter()
+    const auth = useAuth() as { user: { id: string } }
+
     // NOTE: cast `string | string[]` to `string`
     const { query: { id } } = router as { query: { [key: string]: string } }
 
@@ -226,8 +212,14 @@ const TicketIdPage = () => {
         fetchPolicy: 'network-only',
     })
 
-    const ticketCommentCreateAction = TicketComment.useCreate({
-    }, () => { })
+    const { objs: comments, refetch: refetchComments } = TicketComment.useObjects({
+        where: { ticket: { id } },
+    })
+
+    const createCommentAction = TicketComment.useCreate({
+        ticket: id,
+        user: auth.user.id,
+    }, () => { refetchComments() })
 
     const { link: { role } } = useOrganization()
 
@@ -396,8 +388,8 @@ const TicketIdPage = () => {
                             <Col span={7}>
                                 <Affix offsetTop={40}>
                                     <CommentsList
-                                        createAction={ticketCommentCreateAction}
-                                        comments={mockComments(20)}
+                                        createAction={createCommentAction}
+                                        comments={comments}
                                         canCreateComments={role.canManageTicketComments}
                                     />
                                 </Affix>

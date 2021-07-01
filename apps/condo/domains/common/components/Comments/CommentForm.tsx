@@ -10,7 +10,7 @@ import { SendMessage } from '../icons/SendMessage'
 
 const Holder = styled.div`
   position: relative;
-  button {
+  button.ant-btn {
     position: absolute;
     right: 4px;
     bottom: 4px;
@@ -35,8 +35,9 @@ const CommentForm: React.FC<ICommentFormProps> = ({ comment, action, fieldNames 
         <FormWithAction
             initialValues={comment}
             action={action}
+            resetOnComplete={true}
         >
-            {({ handleSave, isLoading, form }) => (
+            {({ handleSave, isLoading }) => (
                 <Holder>
                     <Form.Item
                         name={fieldNames.content}

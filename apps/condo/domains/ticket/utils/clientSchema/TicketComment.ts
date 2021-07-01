@@ -25,7 +25,8 @@ function convertToUIState (item: TicketComment): ITicketCommentUIState {
 
 export interface ITicketCommentFormState {
     id?: undefined
-    // TODO(codegen): write ITicketCommentUIFormState or extends it from
+    user?: string
+    ticket?: string
 }
 
 function convertToUIFormState (state: ITicketCommentUIState): ITicketCommentFormState | undefined {
