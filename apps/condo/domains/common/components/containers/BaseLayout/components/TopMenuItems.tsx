@@ -6,29 +6,29 @@ import { MenuUnfoldOutlined, BellFilled } from '@ant-design/icons'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import { OrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
+import { useOrganizationInvites } from '@condo/domains/organization/components/OrganizationInvites'
 import { TopMenuItem, menuIconStyles } from './styles'
-
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 interface ITopMenuItemsProps {
     isMobile: boolean
-    toggleSideMenuCollapsed: boolean
+    isSideMenuCollapsed: boolean
     headerAction?: React.ElementType
+    toggleSideMenuCollapsed: () => void
 }
 
 export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const auth = useAuth()
     const { isLoading } = useOrganization()
+    const { loading: isInvitesLoading } = useOrganizationInvites()
     const { isMobile, toggleSideMenuCollapsed } = props
-
-    if (isLoading || auth.isLoading) {
+    if (isLoading || auth.isLoading || isInvitesLoading) {
         return (
             <div>
                 <Spin size="small" style={{ marginLeft: 16, marginRight: 16 }}/>
             </div>
         )
     }
-
     return (
         <>
             {props.headerAction && props.headerAction}

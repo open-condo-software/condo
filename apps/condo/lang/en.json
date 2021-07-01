@@ -317,6 +317,7 @@
   "pages.organizations.OrganizationName": "Name",
   "pages.organizations.PageTitle": "Organizations",
   "pages.users.InviteNewUserButtonLabel": "Invite new user",
+  "pages.users.InviteMessageTitle": "You have an invitation to «{name}»",
   "pages.users.PageTitle": "Users",
   "pages.users.status.Accepted": "Invite is accepted",
   "pages.users.status.NotActive": "Not active",

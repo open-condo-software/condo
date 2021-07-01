@@ -88,9 +88,6 @@ export const CountDownTimer: React.FC<ICountDownTimer> = (props) => {
             setCountDown(countDownFromCookies)
             startTimer(countDownFromCookies)
         }
-        return () => {
-            console.log('Destroyed')
-        }
     }, [])
 
     const runAction = () => {

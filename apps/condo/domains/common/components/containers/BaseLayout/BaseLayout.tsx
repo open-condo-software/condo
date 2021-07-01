@@ -1,23 +1,29 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
 import { createContext, CSSProperties, FunctionComponent, useContext, useState } from 'react'
 import { ConfigProvider, Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
+import { useTopNotificationsHook, ITopNotification } from '@condo/domains/common/components/TopNotifications'
 import { DashboardOutlined } from '@ant-design/icons'
 import { SideMenu } from './components/SideMenu'
 import Router from 'next/router'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
 import classnames from 'classnames'
-
 import 'antd/dist/antd.less'
 import { TopMenuItems } from './components/TopMenuItems'
 import { useIntl } from '@core/next/intl'
 import { useAntdMediaQuery } from '../../../utils/mediaQuery.utils'
 import { layoutCss, pageContentCss, pageHeaderCss, pageWrapperCss, subLayoutCss, topMenuCss } from './components/styles'
+import { ElementType } from 'react'
+import MenuItem from 'antd/lib/menu/MenuItem'
 
-const LayoutContext = createContext({})
+
+
+const LayoutContext = createContext({
+    isMobile: false,
+    addNotification: (notification: ITopNotification) => null,
+})
+
 const useLayoutContext = () => useContext(LayoutContext)
 
 const { Header, Content } = Layout
@@ -28,11 +34,11 @@ const ANT_LOCALES = {
     ru: ruRU,
     en: enUS,
 }
-
+/*
 const DEFAULT_MENU = [
     {
         path: '/',
-        icon: <DashboardOutlined/>,
+        icon: <DashboardOutlined />,
         locale: 'menu.Home',
     },
     {
@@ -59,8 +65,18 @@ const DEFAULT_MENU = [
         ],
     },
 ]
+*/
+interface IBaseLayoutProps {
+    style?: CSSProperties
+    className?: string
+    disableMobile?: boolean
+    headerAction: ElementType<unknown>
+    onLogoClick: () => void
+    menuDataRender: () => MenuItem[]
+}
 
-function BaseLayout (props) {
+
+const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
     const {
         style,
         children,
@@ -68,35 +84,36 @@ function BaseLayout (props) {
         disableMobile,
         headerAction,
         onLogoClick = () => Router.push('/'),
-        menuDataRender = () => DEFAULT_MENU,
+        menuDataRender = () => [],
     } = props
-
     const intl = useIntl()
     const colSize = useAntdMediaQuery()
+    const {
+        TopNotificationComponent: TopNotifications,
+        addNotification,
+    } = useTopNotificationsHook()
     // TODO(Dimitreee): add UA base isMobile detection
     const isMobile = (colSize === 'xs') && !disableMobile
     const menuData = menuDataRender()
     const [isSideMenuCollapsed, setIsSideMenuCollapsed] = useState(!isMobile)
-
     const menuDataClassNames = classnames(
         'layout',
         { 'hided-side-menu': !menuData || menuData.length === 0 },
         className
     )
-
     const toggleSideMenuCollapsed = () => setIsSideMenuCollapsed(!isSideMenuCollapsed)
-
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
-            <LayoutContext.Provider value={{ isMobile }}>
-                <Layout className={menuDataClassNames} style={style} css={layoutCss} as="section">
+            <LayoutContext.Provider value={{ isMobile, addNotification }}>
+                <TopNotifications />
+                <Layout className={menuDataClassNames} style={style} css={layoutCss} >
                     <SideMenu {...{
                         onLogoClick,
                         menuData,
                         isMobile,
                         isSideMenuCollapsed,
                         toggleSideMenuCollapsed,
-                    }}/>
+                    }} />
                     <Layout css={subLayoutCss}>
                         <Header css={topMenuCss}>
                             <TopMenuItems
@@ -119,9 +136,9 @@ interface IPageWrapperProps {
     style?: CSSProperties
 }
 
-const PageWrapper: FunctionComponent<IPageWrapperProps> =  ({ children, className, style }) => {
+const PageWrapper: FunctionComponent<IPageWrapperProps> = ({ children, className, style }) => {
     return (
-        <Content className={classnames('page-wrapper', className)} css={pageWrapperCss} as="main" style={style}>
+        <Content className={classnames('page-wrapper', className)} css={pageWrapperCss}  style={style}>
             {children}
         </Content>
     )
@@ -142,6 +159,8 @@ const PageHeader: FunctionComponent<IPageHeaderProps> = ({ children, className, 
             {...pageHeaderProps}
         >
             {children}
+
+
         </AntPageHeader>
     )
 }
