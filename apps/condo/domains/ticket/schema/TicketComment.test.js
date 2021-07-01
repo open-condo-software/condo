@@ -118,7 +118,7 @@ describe('TicketComment', () => {
             await createTestTicketComment(anotherUserClient, anotherTicket, anotherUserClient.user)
 
             const objs = await TicketComment.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
-            expect(objs.length).toBe(1)
+            expect(objs).toHaveLength(1)
             expect(objs[0].id).toMatch(obj1.id)
         })
 
