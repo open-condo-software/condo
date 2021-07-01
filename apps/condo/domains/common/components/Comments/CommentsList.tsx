@@ -68,7 +68,7 @@ const CommentsList: React.FC<ICommentsListProps> = ({ comments, createAction }) 
                 </EmptyContainer>
             ) : (
                 <Body>
-                    <Typography.Text>{ListDescriptionMessage}</Typography.Text>
+                    <Typography.Text style={{ fontSize: '12px' }}>{ListDescriptionMessage}</Typography.Text>
                     {comments.map(comment => (
                         <Comment
                             key={comment.id}
