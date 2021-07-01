@@ -172,9 +172,9 @@ async function createTestBillingProperty (client, context, extraAttrs = {}) {
         raw: faker.lorem.words(),
         globalId: faker.lorem.words(),
         address: faker.lorem.words(),
-        meta: JSON.stringify({
-          test: faker.lorem.words()
-        }),
+        meta: {
+            test: 123,
+        },
         ...extraAttrs,
     }
     const obj = await BillingProperty.create(client, attrs)
@@ -208,6 +208,13 @@ async function createTestBillingAccount (client, context, property, extraAttrs =
         sender,
         context: { connect: { id: context.id } },
         property: { connect: { id: property.id } },
+        raw: faker.lorem.words(),
+        number: faker.lorem.words(),
+        unitName: faker.lorem.words(),
+        meta: {
+            dv: 1,
+            test: 123,
+        },
         ...extraAttrs,
     }
     const obj = await BillingAccount.create(client, attrs)
