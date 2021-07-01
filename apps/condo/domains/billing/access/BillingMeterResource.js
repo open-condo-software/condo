@@ -9,9 +9,12 @@ const { checkBillingIntegrationAccessRight } = require('../utils/accessSchema')
 
 async function canReadBillingMeterResources ({ authentication: { item: user } }) {
     if (!user) return false
-    if (user.isAdmin) return {}
+    if (user.isAdmin) return true
     return {
-        // TODO(codegen): write canReadBillingMeterResources logic!
+        OR: [
+            { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true } } } },
+            { integration: { accessRights_some: { user: { id: user.id } } } },
+        ],
     }
 }
 

@@ -6,9 +6,10 @@ async function canReadBillingAccounts ({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return true
     return {
-        context: {
-            integration: { accessRights_some: { user: { id: user.id } } },
-        },
+        OR: [
+            { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true } } } },
+            { integration: { accessRights_some: { user: { id: user.id } } } },
+        ],
     }
 }
 
