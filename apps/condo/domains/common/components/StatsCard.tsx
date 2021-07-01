@@ -12,7 +12,8 @@ interface IStatsCardProps {
     title: string;
     link: string;
     loading?: boolean;
-    onFilterChange?: (filter: string) => void;
+    onFilterChange: (filter: string) => void;
+    dependencyArray: string[] | number[];
 }
 
 const cardCss = css`
@@ -32,7 +33,7 @@ const Card: React.FC<CardProps> = (props) => {
     return <AntCard css={cardCss} {...allProps}>{children}</AntCard>
 }
 
-export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, loading = false, onFilterChange }) => {
+export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, loading = false, onFilterChange, dependencyArray }) => {
     const intl = useIntl()
     const extraTitle = intl.formatMessage({ id: 'component.statscard.ExtraTitle' })
     const SELECTED_PERIOD = {
@@ -42,9 +43,11 @@ export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, lo
     }
 
     const [selectedPeriod, setSelectedPeriod] = useState<string>(Object.keys(SELECTED_PERIOD)[0])
+    const updateDependencies = [selectedPeriod, ...dependencyArray]
+
     useEffect(() => {
         onFilterChange(selectedPeriod)
-    }, [selectedPeriod])
+    }, updateDependencies)
 
     const menu = (
         <Menu onClick={({ key }) => setSelectedPeriod(key)} disabled={loading}>
