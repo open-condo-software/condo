@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
-import { Empty } from 'antd'
+import { Empty, Typography } from 'antd'
 import { Comment as TComment } from './index'
 import { CommentForm } from './CommentForm'
 import { Comment } from './Comment'
@@ -15,6 +15,7 @@ const Container = styled.aside`
     }
     display: flex;
     flex-flow: column nowrap;
+    align-content: space-between;
 `
 
 const Head = styled.div`
@@ -25,28 +26,18 @@ const Head = styled.div`
     line-height: 28px;
 `
 
+const Body = styled.div`
+    overflow-y: scroll;
+    flex: 0 1 auto;
+`
+
 const Footer = styled.div`
     border-top: solid thin #D9D9D9;
 `
 
-const Body = styled.div`
-    overflow-y: scroll;
-`
-
-const EmptyMessagesDescription = styled.div`
-    color: black;
+const EmptyContainer = styled.div`
     text-align: center;
-    font-style: normal;
-    strong {
-        font-weight: bold;
-        font-size: 16px;
-        line-height: 24px;
-    }
-    p {
-        margin-top: 1em;
-        font-size: 14px;
-        line-height: 22px;
-    }
+    flex: 1 1;
 `
 
 interface ICommentsListProps {
@@ -54,7 +45,7 @@ interface ICommentsListProps {
     createAction?: (formValues) => Promise<any>,
 }
 
-export const CommentsList: React.FC<ICommentsListProps> = ({ comments, createAction }) => {
+const CommentsList: React.FC<ICommentsListProps> = ({ comments, createAction }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
     const PromptTitleMessage = intl.formatMessage({ id: 'Comments.prompt.title' })
@@ -63,35 +54,43 @@ export const CommentsList: React.FC<ICommentsListProps> = ({ comments, createAct
     return (
         <Container>
             <Head>{TitleMessage}</Head>
-            <Body>
-                {comments.length === 0 ? (
+            {comments.length === 0 ? (
+                <EmptyContainer>
                     <Empty
                         image={null}
                         description={
-                            <EmptyMessagesDescription>
-                                <strong>{PromptTitleMessage}</strong><br/>
-                                <p>{PromptDescriptionMessage}</p>
-                            </EmptyMessagesDescription>
+                            <>
+                                <Typography.Text strong>{PromptTitleMessage}</Typography.Text><br/>
+                                <Typography.Text>{PromptDescriptionMessage}</Typography.Text>
+                            </>
                         }
                     />
-                ) : (
-                    <>
-                        <p>{ListDescriptionMessage}</p>
-                        {comments.map(comment => (
-                            <Comment
-                                key={comment.id}
-                                comment={comment}
-                            />
-                        ))}
-                    </>
-                )}
-            </Body>
+                </EmptyContainer>
+            ) : (
+                <Body>
+                    <Typography.Text>{ListDescriptionMessage}</Typography.Text>
+                    {comments.map(comment => (
+                        <Comment
+                            key={comment.id}
+                            comment={comment}
+                        />
+                    ))}
+                </Body>
+            )}
             <Footer>
                 <CommentForm
                     action={createAction}
-                    comment={{ content: 'Lorem ipsum' }}
+                    comment={{ content: '' }}
                 />
             </Footer>
         </Container>
     )
+}
+
+CommentsList.defaultProps = {
+    comments: [],
+}
+
+export {
+    CommentsList,
 }
