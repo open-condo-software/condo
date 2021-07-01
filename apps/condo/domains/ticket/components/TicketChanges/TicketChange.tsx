@@ -48,53 +48,83 @@ export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => 
 const useChangedFieldMessagesOf = (ticketChange) => {
     const intl = useIntl()
     const ClientPhoneChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone.change' })
+    const ClientPhoneAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone.add' })
+    const ClientPhoneRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone.remove' })
     const DetailsChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details.change' })
+    const DetailsAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details.add' })
+    const DetailsRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details.remove' })
     const ClientNameChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientName.change' })
+    const ClientNameAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientName.add' })
+    const ClientNameRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientName.remove' })
     const IsPaidChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.change' })
+    const IsPaidAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.add' })
+    const IsPaidRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.remove' })
     const IsEmergencyChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.change' })
+    const IsEmergencyAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.add' })
+    const IsEmergencyRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.remove' })
     const StatusDisplayNameChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.statusDisplayName.change' })
+    const StatusDisplayNameAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.statusDisplayName.add' })
+    const StatusDisplayNameRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.statusDisplayName.remove' })
     const PropertyDisplayNameChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.propertyDisplayName.change' })
+    const PropertyDisplayNameAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.propertyDisplayName.add' })
+    const PropertyDisplayNameRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.propertyDisplayName.remove' })
     const UnitNameChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName.change' })
     const UnitNameAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName.add' })
     const UnitNameRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName.remove' })
     const AssigneeChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.assignee.change' })
+    const AssigneeAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.assignee.add' })
+    const AssigneeRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.assignee.remove' })
     const ClassifierChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier.change' })
+    const ClassifierAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier.add' })
+    const ClassifierRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier.remove' })
 
     const fields: ITicketChangeField[] = [
         {
             title: 'clientPhone',
             messages: {
+                add: ClientPhoneAddMessage,
                 change: ClientPhoneChangeMessage,
+                remove: ClientPhoneRemoveMessage,
             },
         },
         {
             title: 'details',
             messages: {
+                add: DetailsAddMessage,
                 change: DetailsChangeMessage,
+                remove: DetailsRemoveMessage,
             },
         },
         {
             title: 'clientName',
             messages: {
+                add: ClientNameAddMessage,
                 change: ClientNameChangeMessage,
+                remove: ClientNameRemoveMessage,
             },
         },
         {
             title: 'isPaid',
             messages: {
+                add: IsPaidAddMessage,
                 change: IsPaidChangeMessage,
+                remove: IsPaidRemoveMessage,
             },
         },
         {
             title: 'isEmergency',
             messages: {
+                add: IsEmergencyAddMessage,
                 change: IsEmergencyChangeMessage,
+                remove: IsEmergencyRemoveMessage,
             },
         },
         {
             title: 'statusDisplayName',
             messages: {
+                add: StatusDisplayNameAddMessage,
                 change: StatusDisplayNameChangeMessage,
+                remove: StatusDisplayNameRemoveMessage,
             },
         },
         {
@@ -108,19 +138,25 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         {
             title: 'propertyDisplayName',
             messages: {
+                add: PropertyDisplayNameAddMessage,
                 change: PropertyDisplayNameChangeMessage,
+                remove: PropertyDisplayNameRemoveMessage,
             },
         },
         {
             title: 'assigneeDisplayName',
             messages: {
+                add: AssigneeAddMessage,
                 change: AssigneeChangeMessage,
+                remove: AssigneeRemoveMessage,
             },
         },
         {
             title: 'classifierDisplayName',
             messages: {
+                add: ClassifierAddMessage,
                 change: ClassifierChangeMessage,
+                remove: ClassifierRemoveMessage,
             },
         },
     ]
