@@ -42,9 +42,6 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     fields[newIdField] = { ...newIdOptions }
 
     const newResolveInput = ({ resolvedData, existingItem }) => {
-        if (existingItem && existingItem[deletedAtField]) {
-            throw new Error('Already deleted')
-        }
         if (existingItem && existingItem[newIdField]) {
             throw new Error('Already merged')
         }
