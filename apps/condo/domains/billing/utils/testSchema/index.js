@@ -169,6 +169,12 @@ async function createTestBillingProperty (client, context, extraAttrs = {}) {
         dv: 1,
         sender,
         context: { connect: { id: context.id } },
+        raw: faker.lorem.words(),
+        globalId: faker.lorem.words(),
+        address: faker.lorem.words(),
+        meta: JSON.stringify({
+          test: faker.lorem.words()
+        }),
         ...extraAttrs,
     }
     const obj = await BillingProperty.create(client, attrs)

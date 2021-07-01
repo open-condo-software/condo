@@ -6,7 +6,14 @@ const { canReadBillingEntity } = require('../utils/accessSchema')
 const { canManageBillingEntity } = require('../utils/accessSchema')
 
 async function canReadBillingProperties ({ authentication: { item: user } }) {
-    return await canReadBillingEntity(user)
+    if (!user) return false
+    if (user.isAdmin) return true
+    return {
+        OR: [
+            { context: { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true } } } } },
+            { context: { integration: { accessRights_some: { user: { id: user.id } } } } },
+        ],
+    }
 }
 
 async function canManageBillingProperties ({ authentication: { item: user }, operation, itemId }) {
