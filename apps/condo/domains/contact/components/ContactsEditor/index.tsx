@@ -65,7 +65,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const [contacts, setContacts] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState()
-    const { link: { role } } = useOrganization()
+    const { link: { role = {} } } = useOrganization()
     const client = useApolloClient()
 
     searchContacts(client, {
@@ -211,7 +211,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                             displayMinusButton={true}
                                             onClickMinusButton={handleClickOnMinusButton}
                                         />
-                                        {!role.canManageContacts && (
+                                        {(!role || !role.canManageContacts) && (
                                             <Col span={24}>
                                                 <ErrorsWrapper>
                                                     {CannotCreateContactMessage}
