@@ -4,7 +4,7 @@
 
 async function canReadBillingAccounts ({ authentication: { item: user } }) {
     if (!user) return false
-    if (user.isAdmin) return {}
+    if (user.isAdmin) return true
     return {
         context: {
             integration: { accessRights_some: { user: { id: user.id } } },
@@ -16,7 +16,7 @@ async function canManageBillingAccounts ({ authentication: { item: user }, opera
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
-        // TODO(codegen): write canManageBillingAccounts create logic!
+        // TODO(codegen): write canManageBillingAccounts update logic!
         return true
     } else if (operation === 'update') {
         // TODO(codegen): write canManageBillingAccounts update logic!
