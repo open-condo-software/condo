@@ -3,10 +3,10 @@ import { Comment } from './index'
 import { FormWithAction } from '../containers/FormList'
 import { Form, Input } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-import { SendOutlined } from '@ant-design/icons'
+import Icon from '@ant-design/icons';
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
-import { green } from '@ant-design/colors'
+import { SendMessage } from '../icons/SendMessage'
 
 const Holder = styled.div`
   position: relative;
@@ -14,10 +14,9 @@ const Holder = styled.div`
     position: absolute;
     right: 4px;
     bottom: 4px;
-    background: ${green[6]};
-    &:hover {
-      background: ${green[7]};
-    }
+  }
+  .ant-form-item-explain {
+    display: none;
   }
 `
 
@@ -41,6 +40,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ comment, action, fieldNames 
                 <Holder>
                     <Form.Item
                         name={fieldNames.content}
+                        rules={[{required: true}]}
                     >
                         <Input.TextArea
                             placeholder={PlaceholderMessage}
@@ -49,9 +49,11 @@ const CommentForm: React.FC<ICommentFormProps> = ({ comment, action, fieldNames 
                         />
                     </Form.Item>
                     <Button
-                        size="default"
-                        icon={<SendOutlined style={{color: 'white'}}/>}
-                        type="sberGreen"
+                        type="sberPrimary"
+                        size="middle"
+                        icon={<Icon component={SendMessage} style={{color: 'white'}}/>}
+                        onClick={handleSave}
+                        loading={isLoading}
                     />
                 </Holder>
             )}
