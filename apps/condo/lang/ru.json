@@ -75,6 +75,7 @@
   "field.Unit.requiredError": "Выберете квартиру",
   "field.Property.requiredError": "Укажите адрес",
   "field.email.requiredError": "Укажите email",
+  "field.FullName.requiredError": "Укажите имя жителя",
   "field.Responsible": "Ответственный",
   "field.Responsible.description": "Ответственный — контролирует работу Исполнителя",
   "field.Source": "Источник",

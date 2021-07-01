@@ -75,6 +75,7 @@
   "field.Property.requiredError": "Enter the address",
   "field.Unit.requiredError": "Select unit",
   "field.email.requiredError": "Enter email",
+  "field.FullName.requiredError": "Enter contact name",
   "field.Responsible": "Responsible",
   "field.Responsible.description": "Responsible - controls the work of the Contractor",
   "field.Source": "Source",
