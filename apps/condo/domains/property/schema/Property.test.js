@@ -31,6 +31,16 @@ describe('Property', () => {
         expect(count).toEqual(1)
     })
 
+    test('user: can read and restore soft deleted objects', async  () => {
+        const client = await makeClientWithRegisteredOrganization()
+        const [obj, attrs] = await createTestProperty(client, client.organization)
+        await updateTestProperty(client, obj.id, { deletedAt: 'true' })
+        await updateTestProperty(client, obj.id, { deletedAt: null })
+
+        const count = await Property.count(client)
+        expect(count).toEqual(1)
+    })
+
     test('user: create Property', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const [obj, attrs] = await createTestProperty(client, client.organization)
