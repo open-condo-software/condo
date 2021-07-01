@@ -18,7 +18,7 @@ async function canManageOrganizations ({ authentication: { item: user }, origina
     } else if (operation === 'update') {
         // user is inside employee list and is not blocked
         return {
-            employees_some: { user: { id: user.id }, role: { canManageOrganization: true }, isBlocked: false },
+            employees_some: { user: { id: user.id }, role: { canManageOrganization: true }, isBlocked: false, deletedAt: null },
         }
     }
     return false

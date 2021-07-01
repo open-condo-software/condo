@@ -23,7 +23,7 @@ async function canManageOrganizationEmployees ({ authentication: { item: user },
             deletedAt: null,
         })
 
-        if (employeeForUser.isBlocked) {
+        if (!employeeForUser || employeeForUser.isBlocked) {
             return false
         }
 
