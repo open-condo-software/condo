@@ -79,8 +79,11 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     return { fields, hooks, access: newAccess, ...rest }
 }
 
+/**
+ * Gets "where" variables from http graphQL request
+ */
 function getWhereVariables (args) {
-    // TODO(pahaz): this work only for GET query parametrs. Check Post data
+    // TODO(pahaz || toplenboren): this work only for GET query parametrs. Check Post data
     const variables = get(args, ['context', 'req', 'query', 'variables'])
     try {
         return JSON.parse(variables).where || {}
@@ -89,12 +92,25 @@ function getWhereVariables (args) {
     }
 }
 
+/**
+ * We dont want developer to manually set the filter on every query like this:
+ * getAllEntities where : {deletedAt: null}
+ * Instead we want to automatically hide deleted items.
+ * Right now (keystone v5) we can only implement this functionality by merging
+ * access rights from entity and deletedAt: null
+ *
+ * We also want to give developer an ability to manually override the settings
+ * and explicitly show the deleted items. For this developer should explicitly
+ * set deletedAt at the request filter:
+ * getAllEntities where : {deletedAt_not: null} // will get all deleted entities
+ */
 function applySoftDeletedFilters (access, deletedAtField, args) {
     const type = getType(access)
     if (type === 'Boolean') {
         return (access) ? { [deletedAtField]: null } : false
     } else if (type === 'Object') {
         const currentWhereFilters = getWhereVariables(args)
+        // If we explicitly pass the deletedAt filter - we wont hide deleted items
         if (Object.keys(currentWhereFilters).find((x) => x.startsWith(deletedAtField))) {
             return access
         }
