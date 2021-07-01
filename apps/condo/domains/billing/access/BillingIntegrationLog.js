@@ -11,22 +11,18 @@ async function canReadBillingIntegrationLogs ({ authentication: { item: user } }
     if (!user) return false
     if (user.isAdmin) return true
     return {
-        // TODO(pahaz): wait https://github.com/keystonejs/keystone/issues/4829 (no access check!)
-        // context: {
-        //     OR: [
-        //         {
-        //             organization: {
-        //                 employees_some: {
-        //                     user: { id: user.id },
-        //                     role: { canManageIntegrations: true },
-        //                 },
-        //             },
-        //         },
-        //         { integration: { accessRights_some: { user: { id: user.id } } } },
-        //     ],
-        // },
         context: {
-            integration: { accessRights_some: { user: { id: user.id } } },
+            OR: [
+                {
+                    organization: {
+                        employees_some: {
+                            user: { id: user.id },
+                            role: { canManageIntegrations: true },
+                        },
+                    },
+                },
+                { integration: { accessRights_some: { user: { id: user.id } } } },
+            ],
         },
     }
 }
