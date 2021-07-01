@@ -6,7 +6,7 @@ const { makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee } = requir
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
 const { createTestOrganization } = require('../utils/testSchema')
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { OrganizationEmployee, createTestOrganizationEmployee, updateTestOrganizationEmployee, softDeleteTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
@@ -207,6 +207,28 @@ describe('OrganizationEmployee', () => {
 
             const countOfAll = await OrganizationEmployee.count(admin)
             expect(countOfAll).toBeGreaterThanOrEqual(countOfCreatedByAdmin)
+        })
+    })
+
+    test('user: deleted user dont have access to update OrganizationEmployee', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [organization] = await createTestOrganization(admin)
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+            canManageEmployees: true,
+            canManageOrganization: true,
+        })
+
+        const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [obj] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
+
+        await updateTestOrganizationEmployee(userClient, obj.id, { name: 'name2' })
+        await updateTestOrganizationEmployee(userClient, obj.id, { deletedAt: 'true' })
+
+        const objs = await OrganizationEmployee.getAll(userClient)
+        expect(objs).toHaveLength(0)
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestOrganizationEmployee(userClient, obj.id, { name: 'name3' })
         })
     })
 })

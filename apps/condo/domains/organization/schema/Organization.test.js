@@ -10,7 +10,7 @@ const { makeClientWithRegisteredOrganization } = require('../../../utils/testSch
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const { Organization, createTestOrganization, updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { Organization, createTestOrganization, updateTestOrganization, OrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 
 describe('Organization', () => {
     // Despite just registered user can create Organization from UI, calling `Organization.create`
@@ -231,4 +231,28 @@ describe('Organization', () => {
         expect(obj.createdAt).toMatch(DATETIME_RE)
         expect(obj.updatedAt).toMatch(DATETIME_RE)
     })
+
+    test('user: deleted user dont have access to update organization', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [organization] = await createTestOrganization(admin)
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+            canManageEmployees: true,
+            canManageOrganization: true,
+        })
+
+        const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [obj] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
+
+        await updateTestOrganization(userClient, organization.id, { name: 'name2' })
+
+        await updateTestOrganizationEmployee(userClient, obj.id, { deletedAt: 'true' })
+
+        const objs = await OrganizationEmployee.getAll(userClient)
+        expect(objs).toHaveLength(0)
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestOrganization(userClient, organization.id, { name: 'name3' })
+        })
+    })
+
 })
