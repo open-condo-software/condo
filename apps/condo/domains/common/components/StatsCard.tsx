@@ -34,11 +34,13 @@ const Card: React.FC<CardProps> = (props) => {
 
 export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, loading = false, onFilterChange }) => {
     const intl = useIntl()
+    const extraTitle = intl.formatMessage({ id: 'component.statscard.ExtraTitle' })
     const SELECTED_PERIOD = {
-        week: intl.formatMessage({ id: 'component.statscard.periodtypes.week' }),
-        month: intl.formatMessage({ id: 'component.statscard.periodtypes.month' }),
-        quarter: intl.formatMessage({ id: 'component.statscard.periodtypes.quarter' }),
+        week: intl.formatMessage({ id: 'component.statscard.periodtypes.Week' }),
+        month: intl.formatMessage({ id: 'component.statscard.periodtypes.Month' }),
+        quarter: intl.formatMessage({ id: 'component.statscard.periodtypes.Quarter' }),
     }
+
     const [selectedPeriod, setSelectedPeriod] = useState<string>(Object.keys(SELECTED_PERIOD)[0])
     useEffect(() => {
         onFilterChange(selectedPeriod)
@@ -66,7 +68,7 @@ export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, lo
 
     const cardExtra = (
         <Button style={{ fontSize: 16, fontWeight: 700 }} type={'inlineLink'} onClick={linkClick}>
-            Подробнее{<RightOutlined />}
+            {extraTitle}{<RightOutlined />}
         </Button>
     )
 
