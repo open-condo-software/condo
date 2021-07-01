@@ -30,6 +30,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { CommentsList } from '@condo/domains/common/components/Comments'
 import faker from 'faker'
 import { Property } from '../../../domains/property/utils/clientSchema'
+import { useOrganization } from '@core/next/organization'
 
 const mockComments = (count) => {
     const result = []
@@ -228,6 +229,8 @@ const TicketIdPage = () => {
     const ticketCommentCreateAction = TicketComment.useCreate({
     }, () => { })
 
+    const { link: { role } } = useOrganization()
+
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
@@ -395,6 +398,7 @@ const TicketIdPage = () => {
                                     <CommentsList
                                         createAction={ticketCommentCreateAction}
                                         comments={mockComments(20)}
+                                        canCreateComments={role.canManageTicketComments}
                                     />
                                 </Affix>
                             </Col>

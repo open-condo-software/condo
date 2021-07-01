@@ -43,14 +43,16 @@ const EmptyContainer = styled.div`
 interface ICommentsListProps {
     comments: TComment[],
     createAction?: (formValues) => Promise<any>,
+    canCreateComments: boolean,
 }
 
-const CommentsList: React.FC<ICommentsListProps> = ({ comments, createAction }) => {
+const CommentsList: React.FC<ICommentsListProps> = ({ comments, createAction, canCreateComments }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
     const PromptTitleMessage = intl.formatMessage({ id: 'Comments.prompt.title' })
     const PromptDescriptionMessage = intl.formatMessage({ id: 'Comments.prompt.description' })
     const ListDescriptionMessage = intl.formatMessage({ id: 'Comments.list.description' })
+    const CannotCreateCommentsMessage = intl.formatMessage({ id: 'Comments.cannotCreateComments' })
     return (
         <Container>
             <Head>{TitleMessage}</Head>
@@ -78,10 +80,14 @@ const CommentsList: React.FC<ICommentsListProps> = ({ comments, createAction }) 
                 </Body>
             )}
             <Footer>
-                <CommentForm
-                    action={createAction}
-                    comment={{ content: '' }}
-                />
+                {canCreateComments ? (
+                    <CommentForm
+                        action={createAction}
+                        comment={{ content: '' }}
+                    />
+                ) : (
+                    <Typography.Text disabled>{CannotCreateCommentsMessage}</Typography.Text>
+                )}
             </Footer>
         </Container>
     )
