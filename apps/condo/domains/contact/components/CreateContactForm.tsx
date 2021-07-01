@@ -10,9 +10,9 @@ import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ErrorsContainer } from '@condo/domains/contact/components/ErrorsContainer'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { useInviteNewOrganizationEmployee } from '../../organization/utils/clientSchema'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
+import { Contact } from '@condo/domains/contact/utils/clientSchema'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -87,6 +87,12 @@ export const CreateContactForm: React.FC = () => {
                 message: intl.formatMessage({ id: 'field.Unit.requiredError' }),
             },
         ],
+        name: [
+            {
+                required: true,
+                message: intl.formatMessage({ id: 'field.FullName.requiredError' }),
+            },
+        ],
     }
 
     const [selectedPropertyId, setSelectedPropertyId] = useState(null)
@@ -95,8 +101,12 @@ export const CreateContactForm: React.FC = () => {
         selectPropertyIdRef.current = selectedPropertyId
     }, [selectedPropertyId])
 
-    const action = useInviteNewOrganizationEmployee({ organization: { id: organization.id } }, () => {
-        router.push('/employee/')
+    const action = Contact.useCreate({
+        organization: organization,
+        phone: '+7906888888',
+        name: 'Володя',
+    }, () => {
+        router.push('/contact/')
     })
 
     return (
@@ -115,7 +125,7 @@ export const CreateContactForm: React.FC = () => {
                                 <Row gutter={[0, 24]}>
                                     <Col span={18}>
                                         <Form.Item
-                                            name={'address'}
+                                            name={'property'}
                                             label={AddressLabel}
                                             labelAlign={'left'}
                                             validateFirst
@@ -151,10 +161,13 @@ export const CreateContactForm: React.FC = () => {
                                     </Col>
                                     <Col span={18}>
                                         <Form.Item
-                                            name={'fullName'}
+                                            name={'name'}
                                             label={FullNameLabel}
                                             {...INPUT_LAYOUT_PROPS}
-                                            labelAlign={'left'}>
+                                            labelAlign={'left'}
+                                            required
+                                            validateFirst
+                                            rules={validations.name}>
                                             <Input placeholder={FullNamePlaceholder}/>
                                         </Form.Item>
                                     </Col>
@@ -186,10 +199,10 @@ export const CreateContactForm: React.FC = () => {
                                 </Row>
                             </Col>
                             <Col span={24}>
-                                <Form.Item noStyle dependencies={['phone', 'address', 'unit']}>
+                                <Form.Item noStyle dependencies={['phone', 'property', 'unit', 'name']}>
                                     {
                                         ({ getFieldsValue }) => {
-                                            const { phone, address, unit } = getFieldsValue(['phone', 'address', 'unit'])
+                                            const { phone, property, unit, name } = getFieldsValue(['phone', 'property', 'unit', 'name'])
 
                                             return (
                                                 <Row gutter={[0, 24]}>
@@ -200,11 +213,15 @@ export const CreateContactForm: React.FC = () => {
                                                                 onClick={handleSave}
                                                                 type='sberPrimary'
                                                                 loading={isLoading}
-                                                                disabled={!address || !unit || !phone}
+                                                                disabled={!property || !unit || !phone || !name}
                                                             >
                                                                 {SubmitButtonValue}
                                                             </Button>
-                                                            <ErrorsContainer phone={phone} address={address} unit={unit}/>
+                                                            <ErrorsContainer
+                                                                phone={phone}
+                                                                address={property}
+                                                                unit={unit}
+                                                                name={name}/>
                                                         </BottomLineWrapper>
                                                     </Col>
                                                 </Row>
