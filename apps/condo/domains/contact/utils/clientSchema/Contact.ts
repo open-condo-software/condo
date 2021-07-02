@@ -33,6 +33,7 @@ export interface IContactFormState {
     unitName?: string,
     phone: string,
     name: string,
+    email?: string
 }
 
 function convertToUIFormState (state: IContactUIState): IContactFormState | undefined {
