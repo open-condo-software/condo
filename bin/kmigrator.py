@@ -499,8 +499,8 @@ def _2_1_generate_knex_jsons(ctx):
         raise KProblem('ERROR: can\'t get knex schema')
     finally:
         GET_KNEX_SETTINGS_LOG.write_bytes(log)
-    ctx['__KNEX_SCHEMA_DATA__'] = Path(ctx['__KNEX_SCHEMA_PATH__']).read_text()
-    ctx['__KNEX_CONNECTION_DATA__'] = Path(ctx['__KNEX_CONNECTION_PATH__']).read_text()
+    ctx['__KNEX_SCHEMA_DATA__'] = Path(ctx['__KNEX_SCHEMA_PATH__']).read_text(encoding='utf-8')
+    ctx['__KNEX_CONNECTION_DATA__'] = Path(ctx['__KNEX_CONNECTION_PATH__']).read_text(encoding='utf-8')
 
 
 def _3_1_prepare_django_dir(ctx):
@@ -526,7 +526,7 @@ def _3_3_restore_django_migrations(ctx):
     for item in KNEX_MIGRATIONS_DIR.iterdir():
         if not item.is_file():
             continue
-        d = item.read_text()
+        d = item.read_text(encoding='utf-8')
         for name, code in (re.findall(r'^// KMIGRATOR:(.*?):([A-Za-z0-9+/=]*?)$', d, re.MULTILINE)):
             (DJANGO_DIR / 'migrations' / '{}.py'.format(name)).write_bytes(base64.b64decode(code.encode('ascii')))
             repaired.add(name)
@@ -537,7 +537,7 @@ def _hotfix_django_migration_bug(item):
     if item.name.startswith('__'):
         return
     flags = re.MULTILINE | re.DOTALL
-    source = code = item.read_text()
+    source = code = item.read_text(encoding='utf-8')
     deleting_models = re.findall(r'\s*migrations\.DeleteModel\(.*?name=[\'"](.*?)[\'"].*?\),', code, flags)
     def _repl(x):
         return x.group(0).replace('\n', '\n#')
