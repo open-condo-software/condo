@@ -1,0 +1,13 @@
+/* AUTOGENERATE MARKER <CONST> */
+// TODO(codegen): write return type result!
+const {{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}_MUTATION = gql`
+    mutation {{ convertFirstLetterToLower(name.replace("Service", "")) }} ($data: {{ name.replace("Service", "") }}Input!) {
+        result: {{ convertFirstLetterToLower(name.replace("Service", "")) }}(data: $data) { id }
+    }
+`
+
+/**/
+
+/* AUTOGENERATE MARKER <EXPORTS> */
+    {{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}_MUTATION,
+/**/

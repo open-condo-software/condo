@@ -14,6 +14,7 @@ const conf = require('@core/config')
 
 const DEFAULT_APPLICATION_TEMPLATE = 'app00'
 const DEFAULT_SCHEMA_TEMPLATE = 'schema00'
+const DEFAULT_SERVICE_TEMPLATE = 'service00'
 const access = promisify(fs.access)
 const copy = promisify(ncp)
 const readdir = promisify(fs.readdir)
@@ -39,6 +40,11 @@ async function streamToString (stream) {
 function convertSnakeCaseToUpperCase (text) {
     // EXAMPLE: convertSnakeCaseToUpperCase('ModelNameField') --> 'MODEL_NAME_FIELD'
     return text.split(/([A-Z]+[a-z]+)/).filter(x => x).map(x => x.toUpperCase()).join('_')
+}
+
+function convertFirstLetterToLower (text) {
+    if (!text) return ''
+    return text.slice(0, 1).toLowerCase() + text.slice(1)
 }
 
 function toFields (signature) {
@@ -70,6 +76,7 @@ function renderToString (filename, template, templateContext) {
         now: Date.now(),
         pluralize,
         convertSnakeCaseToUpperCase,
+        convertFirstLetterToLower,
     }
     try {
         return nunjucks.renderString(template, { ...globalContext, ...templateContext })
@@ -252,7 +259,7 @@ function createschema (argv) {
         .coerce('domainschema', opt => {
             let name = opt
             if (name.length < 3) throw new Error('<domain>.<schema> is too short!')
-            if (!/^[a-z][a-z0-9]+[.][A-Z][a-zA-Z0-9]+$/.test(name)) throw new Error('<domain>.<schema> has a invalid name format: we expect `domain.SchemaName` or `domain.SomeService`')
+            if (!/^[a-z][a-z0-9]+[.][A-Z][a-zA-Z0-9]+$/.test(name)) throw new Error('<domain>.<schema> has a invalid name format: we expect `domain.SchemaName`')
             return name
         })
         .coerce('signature', opt => {
@@ -341,7 +348,61 @@ function createschema (argv) {
     args.parse(argv.slice(2))
 }
 
+function createservice (argv) {
+    const args = yargs(argv)
+        .coerce('domainschema', opt => {
+            let name = opt
+            if (name.length < 3) throw new Error('<domain>.<schema> is too short!')
+            if (!/^[a-z][a-z0-9]+[.][A-Z][a-zA-Z0-9]+$/.test(name)) throw new Error('<domain>.<schema> has a invalid name format: we expect `domain.SomeService`')
+            if (!name.endsWith('Service')) throw new Error('service name should ends with Service')
+            return name
+        })
+        .options({
+            'force': {
+                default: false,
+                describe: 'create if exists',
+                type: 'boolean',
+            },
+        })
+        .usage(
+            '$0 <domain>.<schema> [--force]',
+            'generate new domain service',
+            (yargs) => {
+                yargs.positional('<domain>.<service>', {
+                    describe: 'model or service name',
+                    type: 'string',
+                })
+            },
+            async (args) => {
+                const force = args.force
+                const [domain, name] = args.domainschema.split('.')
+                const greeting = chalk.blue.bold(domain) + chalk.green.bold('.') + chalk.red.bold(name)
+                const boxenOptions = {
+                    padding: 1,
+                    margin: 1,
+                    borderStyle: 'round',
+                    borderColor: 'green',
+                    backgroundColor: '#555555',
+                }
+                const msgBox = boxen(greeting, boxenOptions)
+                const template = conf.CODEGEN_SERVICE_TEMPLATE || DEFAULT_SERVICE_TEMPLATE
+                const targetDirectory = path.resolve(process.cwd())
+                const templateDirectory = path.resolve(path.dirname(__filename), 'templates', template)
+                const app = path.basename(targetDirectory)
+
+                const isTargetDirExists = await exists(path.join(targetDirectory, 'domains', domain, 'schema', `${name}.js`))
+                if (isTargetDirExists && !force) throw new Error(`Service ${domain}.'${name}'.js is already exists!`)
+
+                console.log(msgBox)
+                generate(templateDirectory, targetDirectory, { app, domain, name })
+            },
+        )
+
+    args.parse(argv.slice(2))
+}
+
 module.exports = {
     createapp,
     createschema,
+    createservice,
 }
