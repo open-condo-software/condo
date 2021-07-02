@@ -7,7 +7,7 @@ const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { createTestBillingIntegration, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingIntegration, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext, createTestBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingIntegrationOrganizationContext', () => {
@@ -87,26 +87,35 @@ describe('BillingIntegrationOrganizationContext', () => {
         }))
     })
 
+    test('integration: create BillingIntegrationOrganizationContext', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [integration] = await createTestBillingIntegration(admin)
+        const [organization] = await createTestOrganization(admin)
+
+        const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        await createTestBillingIntegrationAccessRight(admin, integration, integrationClient.user)
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestBillingIntegrationOrganizationContext(integrationClient, organization, integration)
+        })
+    })
+
     test('integration: update BillingIntegrationOrganizationContext', async () => {
         const admin = await makeLoggedInAdminClient()
         const [integration] = await createTestBillingIntegration(admin)
         const [organization] = await createTestOrganization(admin)
-        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-            canManageIntegrations: true,
-        })
-        const managerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
-        await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
 
-        const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-        const [updContext] = await updateTestBillingIntegrationOrganizationContext(managerUserClient, context.id, { settings: {
+        const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        await createTestBillingIntegrationAccessRight(admin, integration, integrationClient.user)
+
+        const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+        const [updContext] = await updateTestBillingIntegrationOrganizationContext(integrationClient, context.id, { settings: {
             dv: 1,
             gisOrganizationId: 'testId',
         } })
 
         expect(updContext).toEqual(expect.objectContaining({
-            integration: { id: integration.id, name: integration.name },
-            organization: { id: organization.id, name: organization.name },
-            settings: { gisOrganizationId: 'testId', dv: 1 },
+            settings: { dv: 1, gisOrganizationId: 'testId'  },
         }))
     })
 })
