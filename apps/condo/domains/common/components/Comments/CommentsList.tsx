@@ -32,7 +32,7 @@ const Body = styled.div`
 `
 
 const Footer = styled.div`
-    border-top: solid thin #D9D9D9;
+    ${({ hasComments }) => hasComments ? 'border-top: solid thin #D9D9D9;' : ''}
 `
 
 const EmptyContainer = styled.div`
@@ -98,7 +98,7 @@ const CommentsList: React.FC<ICommentsListProps> = ({ comments, createAction, ca
                     ))}
                 </Body>
             )}
-            <Footer>
+            <Footer hasComments={comments.length > 0}>
                 {canCreateComments ? (
                     <CommentForm
                         action={createAction}
