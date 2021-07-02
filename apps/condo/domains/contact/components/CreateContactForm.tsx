@@ -101,20 +101,22 @@ export const CreateContactForm: React.FC = () => {
         selectPropertyIdRef.current = selectedPropertyId
     }, [selectedPropertyId])
 
+    // @ts-ignore
     const action = Contact.useCreate({
-        organization: organization,
-        phone: '+7906888888',
-        name: 'Володя',
+        organization: organization.id,
     }, () => {
         router.push('/contact/')
     })
-
     return (
         <FormWithAction
             action={action}
             layout={'horizontal'}
             validateTrigger={['onBlur', 'onSubmit']}
             colon={false}
+            formValuesToMutationDataPreprocessor={(values) => {
+                values.property = selectPropertyIdRef.current
+                return values
+            }}
         >
             {
                 ({ handleSave, isLoading, form }) => {
@@ -135,8 +137,12 @@ export const CreateContactForm: React.FC = () => {
                                             wrapperCol={{ span: 14 }}>
                                             <PropertyAddressSearchInput
                                                 onSelect={(_, option) => {
-                                                    form.setFieldsValue({ 'unit': null })
+                                                    form.setFieldsValue({ 'unitName': null })
                                                     setSelectedPropertyId(option.key)
+                                                }}
+                                                onChange={() => {
+                                                    form.setFieldsValue({ 'unitName': null })
+                                                    setSelectedPropertyId(null)
                                                 }}
                                                 placeholder={AddressPlaceholder}
 
@@ -145,7 +151,7 @@ export const CreateContactForm: React.FC = () => {
                                     </Col>
                                     <Col span={18}>
                                         <Form.Item
-                                            name={'unit'}
+                                            name={'unitName'}
                                             label={UnitLabel}
                                             labelAlign={'left'}
                                             required
@@ -199,10 +205,10 @@ export const CreateContactForm: React.FC = () => {
                                 </Row>
                             </Col>
                             <Col span={24}>
-                                <Form.Item noStyle dependencies={['phone', 'property', 'unit', 'name']}>
+                                <Form.Item noStyle dependencies={['phone', 'property', 'unitName', 'name']}>
                                     {
                                         ({ getFieldsValue }) => {
-                                            const { phone, property, unit, name } = getFieldsValue(['phone', 'property', 'unit', 'name'])
+                                            const { phone, property, unitName, name } = getFieldsValue(['phone', 'property', 'unitName', 'name'])
 
                                             return (
                                                 <Row gutter={[0, 24]}>
@@ -213,14 +219,14 @@ export const CreateContactForm: React.FC = () => {
                                                                 onClick={handleSave}
                                                                 type='sberPrimary'
                                                                 loading={isLoading}
-                                                                disabled={!property || !unit || !phone || !name}
+                                                                disabled={!property || !unitName || !phone || !name}
                                                             >
                                                                 {SubmitButtonValue}
                                                             </Button>
                                                             <ErrorsContainer
                                                                 phone={phone}
                                                                 address={property}
-                                                                unit={unit}
+                                                                unit={unitName}
                                                                 name={name}/>
                                                         </BottomLineWrapper>
                                                     </Col>
