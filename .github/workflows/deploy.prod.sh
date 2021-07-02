@@ -26,6 +26,10 @@ SSH_DESTINATION=root@v1.doma.ai
 APP=prod
 DOMAIN=v1.doma.ai
 
+action "Prepare build .env file"
+[ -f .env ] && cp .env .env.deploy.backup
+cp .env.build .env
+
 source .env
 
 if [[ -z "${DOCKER_COMPOSE_START_APP_COMMAND}" ]]; then
@@ -130,3 +134,9 @@ run "dokku tags:deploy ${APP} ${VERSION}"
 
 action "Run migrations"
 run "docker exec -u root ${APP}.web.1 ${DOCKER_COMPOSE_MIGRATION_COMMAND}"
+
+if [[ -f .env.deploy.backup ]]; then
+    action "Rollback local .env file"
+    cp .env.deploy.backup .env
+    rm .env.deploy.backup
+fi
