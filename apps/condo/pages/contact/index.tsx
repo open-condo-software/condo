@@ -23,7 +23,7 @@ import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useOrganization } from '@core/next/organization'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
-import { Button } from '../../domains/common/components/Button'
+import { Button } from '@condo/domains/common/components/Button'
 import { SortContactsBy } from '../../schema'
 const ADD_CONTACT_ROUTE = '/contact/create/'
 
