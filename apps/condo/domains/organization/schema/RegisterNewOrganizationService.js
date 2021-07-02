@@ -1,4 +1,4 @@
-const { createConfirmedEmployee, createAdminRole, createOrganization } = require('../../../utils/serverSchema/Organization')
+const { createConfirmedEmployee, createAdminRole, createOrganization, createDefaultRoles } = require('../../../utils/serverSchema/Organization')
 const { getById, GQLCustomSchema } = require('@core/keystone/schema')
 const { rules } = require('../../../access')
 
@@ -17,11 +17,10 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data } = args
                 const extraData = { dv: data.dv, sender: data.sender }
-
                 const organization = await createOrganization(context, data)
-                const role = await createAdminRole(context, organization, extraData)
-                await createConfirmedEmployee(context, organization, context.authedItem, role, extraData)
-
+                const defaultRoles = await createDefaultRoles(context, organization, extraData)
+                const adminRole = defaultRoles[0]
+                await createConfirmedEmployee(context, organization, context.authedItem, adminRole, extraData)
                 return await getById('Organization', organization.id)
             },
         },
