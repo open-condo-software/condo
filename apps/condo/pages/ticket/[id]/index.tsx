@@ -28,7 +28,7 @@ import { UploadFileStatus } from 'antd/lib/upload/interface'
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { CommentsList } from '@condo/domains/common/components/Comments'
+import { Comments } from '@condo/domains/common/components/Comments'
 import { Property } from '../../../domains/property/utils/clientSchema'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
@@ -392,7 +392,7 @@ const TicketIdPage = () => {
                             </Col>
                             <Col span={7}>
                                 <Affix offsetTop={40}>
-                                    <CommentsList
+                                    <Comments
                                         createAction={createCommentAction}
                                         updateAction={updateComment}
                                         deleteAction={deleteComment}
