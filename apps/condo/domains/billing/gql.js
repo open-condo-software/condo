@@ -32,7 +32,7 @@ const BillingMeterResource = generateGqlQueries('BillingMeterResource', BILLING_
 const BILLING_ACCOUNT_METER_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id } account { id } resource { id } raw meta ${COMMON_FIELDS} }`
 const BillingAccountMeter = generateGqlQueries('BillingAccountMeter', BILLING_ACCOUNT_METER_FIELDS)
 
-const BILLING_ACCOUNT_METER_READING_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id } account { id } meter { id } period value1 value2 value3 date raw meta ${COMMON_FIELDS} }`
+const BILLING_ACCOUNT_METER_READING_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id } account { id } meter { id } period value1 value2 value3 date raw ${COMMON_FIELDS} }`
 const BillingAccountMeterReading = generateGqlQueries('BillingAccountMeterReading', BILLING_ACCOUNT_METER_READING_FIELDS)
 
 const BILLING_RECEIPT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id } account { id } period raw toPay services meta ${COMMON_FIELDS} }`
