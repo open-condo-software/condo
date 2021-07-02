@@ -1,17 +1,58 @@
-import { Select, SelectProps } from 'antd'
+/** @jsx jsx */
+
+import { Select, Divider, Input } from 'antd'
+import { Button } from '@condo/domains/common/components/Button'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { useRouter } from 'next/router'
 import React from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useAuth } from '@core/next/auth'
 import get from 'lodash/get'
-import styled from '@emotion/styled'
+import { css, jsx } from '@emotion/core'
 import { useIntl } from '@core/next/intl'
+import { colors } from '@condo/domains/common/constants/style'
 
-// @ts-ignore
-const StyledSelect = styled<SelectProps<string>>(Select)`
-  min-width: 120px;
+
+const blackSelectCss = css`
+  width: 200px;
+  color: ${colors.white};
+
+  &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    border: 1px solid ${colors.black};
+    border-radius: 4px;
+  }
+  &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    border-color: ${colors.sberGrey[6]};
+    background-color: ${colors.black};
+    color: ${colors.white};
+  }
+  &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    background-color: ${colors.black};
+  }
+  & .ant-select-arrow{
+    color: ${colors.white};
+  }
+  &.ant-select:not(.ant-select-disabled):hover .ant-select-selector{
+      border-color: ${colors.sberGrey[6]};
+  }
+  &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector{
+    box-shadow: 0 0 0 1px ${colors.sberGrey[6]};
+  }
+  &.ant-select-single.ant-select-open .ant-select-selection-item{
+    color: ${colors.white};
+  }
+  & .ant-select-item-option-selected:not(.ant-select-item-option-disabled){
+      background: ${colors.white};
+  }
 `
+const blackSelectOptionsStyle: React.CSSProperties = {
+    fontSize: '16px',
+    lineHeight: '24px',
+    backgroundColor: 'white',
+    paddingTop: '8px',
+    paddingBottom: '8px',
+    paddingLeft: '12px',
+}
 
 export const OrganizationSelect = () => {
     // @ts-ignore
@@ -19,6 +60,7 @@ export const OrganizationSelect = () => {
     const intl = useIntl()
     const router = useRouter()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const AddOrganizationTitle = 'Добавить организацию'
 
     const { link, selectLink, isLoading } = useOrganization()
     const { objs: userOrganizations, loading, refetch } = OrganizationEmployee.useObjects(
@@ -29,8 +71,7 @@ export const OrganizationSelect = () => {
     const options = React.useMemo(() => {
         return userOrganizations.map((organization) => {
             const { value, label } = OrganizationEmployee.convertGQLItemToFormSelectState(organization)
-
-            return (<Select.Option key={value} value={value} title={label}>{label}</Select.Option>)
+            return (<Select.Option style={blackSelectOptionsStyle} key={value} value={value} title={label}>{label}</Select.Option>)
         })
     }, [userOrganizations])
 
@@ -41,25 +82,37 @@ export const OrganizationSelect = () => {
         })
     }, [])
 
-    const isSelectOptionsVisible = userOrganizations.length > 1 && get(link, 'isBlocked')
     const isOptionsEmpty = !options.length
     const selectValue = isOptionsEmpty ? LoadingMessage : get(link, 'id')
 
     const selectOptionsProps = {
         value: selectValue,
-        size: 'middle',
         onChange: handleChange,
         loading: loading || isLoading,
-        disabled: loading || isLoading || isOptionsEmpty,
-        ...isSelectOptionsVisible && { open: isSelectOptionsVisible },
+        disabled: loading || isLoading,
     }
 
 
     return (
         !isLoading && (
-            <StyledSelect {...selectOptionsProps}>
+            <Select
+                css={blackSelectCss}
+                size={'middle'}
+                dropdownRender={menu => (
+                    <div>
+                        {menu}
+                        <Button
+                            type={'inlineLink'}
+                            style={{ marginLeft: '12px', paddingBottom: '8px' }}
+                            onClick={
+                                () => alert()
+                            }
+                        >{AddOrganizationTitle}</Button>
+                    </div>
+                )}
+                {...selectOptionsProps}>
                 {options}
-            </StyledSelect>
+            </Select>
         )
     )
 }
