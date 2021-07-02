@@ -1,9 +1,8 @@
-import { Comment as AntComment, Input, Popconfirm, Typography } from 'antd'
+import { Comment as AntComment, Popconfirm, Typography, Button } from 'antd'
 import { Comment as TComment } from './index'
 import { useIntl } from '@core/next/intl'
 import { formatDate } from '../../../ticket/utils/helpers'
 import { CheckOutlined, CloseOutlined, DeleteFilled, EditFilled } from '@ant-design/icons'
-import { Button } from '../Button'
 import React, { useState } from 'react'
 import { green, red, grey } from '@ant-design/colors'
 /** @jsx jsx */

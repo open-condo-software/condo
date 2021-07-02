@@ -31,7 +31,9 @@ const Body = styled.div`
     flex: 1 1 auto;
 `
 
-const Footer = styled.div`
+const Footer = styled.div<{
+    hasComments?: boolean
+}>`
     ${({ hasComments }) => hasComments ? 'border-top: solid thin #D9D9D9;' : ''}
 `
 
@@ -104,10 +106,7 @@ const CommentsList: React.FC<ICommentsListProps> = ({ comments, createAction, up
             )}
             <Footer hasComments={comments.length > 0}>
                 {canCreateComments ? (
-                    <CommentForm
-                        action={createAction}
-                        comment={{ content: '' }}
-                    />
+                    <CommentForm action={createAction}/>
                 ) : (
                     <Typography.Text disabled>{CannotCreateCommentsMessage}</Typography.Text>
                 )}

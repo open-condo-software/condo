@@ -15,7 +15,14 @@ const RELATIONS = ['ticket', 'user']
 
 export interface ITicketCommentUIState extends TicketComment {
     id: string
-    // TODO(codegen): write ITicketCommentUIState or extends it from
+    content: string,
+    createdAt: string,
+    updatedAt: string,
+    deletedAt: string,
+    user: {
+        id: string,
+        name: string,
+    },
 }
 
 function convertToUIState (item: TicketComment): ITicketCommentUIState {
