@@ -136,7 +136,7 @@ const GET_ALL_TICKET_FOR_XLS_EXPORT = gql`
 
 const GET_TICKET_WIDGET_REPORT_DATA = gql`
     query getWidgetData ($data: TicketReportWidgetInput!) {
-        result: ticketReportWidgetData(data: $data) { data { statusName, currentValue, growth } } 
+        result: ticketReportWidgetData(data: $data) { data { statusName, currentValue, growth, statusType } } 
     }
 `
 

@@ -32,7 +32,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
         },
         {
             access: true,
-            type: 'type TicketReportData { statusName: String! currentValue: Int! growth: Float! }',
+            type: 'type TicketReportData { statusName: String! currentValue: Int! growth: Float! statusType: TicketStatusTypeType! }',
         },
         {
             access: true,
@@ -84,6 +84,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                     }
 
                     data.push({
+                        statusType,
                         statusName: statusesMap[statusType],
                         currentValue,
                         growth,

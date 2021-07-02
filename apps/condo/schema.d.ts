@@ -16193,6 +16193,7 @@ export type TicketReportData = {
   statusName: Scalars['String'];
   currentValue: Scalars['Int'];
   growth: Scalars['Float'];
+  statusType: TicketStatusTypeType;
 };
 
 export enum TicketReportPeriodType {
