@@ -2,7 +2,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const { Ticket, TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const moment = require('moment')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
-const access = require('@condo/domains/ticket/access/Ticket')
+const access = require('@condo/domains/ticket/access/TicketReportService')
 const { TICKET_STATUS_TYPES: ticketStatusTypes } = require('@condo/domains/ticket/constants')
 
 const PERIOD_TYPES = ['week', 'month', 'quarter']
@@ -41,7 +41,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
     ],
     queries: [
         {
-            access: access.canReadTickets,
+            access: access.canReadTicketReportWidgetData,
             schema: 'ticketReportWidgetData(data: TicketReportWidgetInput!): TicketReportWidgetOutput',
             resolver: async (parent, args, context, info, extra) => {
                 const { periodType, offset = 0, userOrganizationId } = args.data

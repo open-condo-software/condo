@@ -1,4 +1,4 @@
-const { demoProperty } = require('@condo/domains/property/constants/property')
+const { demoProperty } = require('./constants')
 const { Ticket, TicketStatus, TicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const { Property, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { Organization } = require('@condo/domains/organization/utils/testSchema')
