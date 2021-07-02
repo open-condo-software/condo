@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+const { createservice } = require('@core/codegen')
+createservice(process.argv)
