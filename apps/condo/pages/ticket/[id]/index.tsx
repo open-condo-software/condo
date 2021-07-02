@@ -214,7 +214,9 @@ const TicketIdPage = () => {
 
     const { objs: comments, refetch: refetchComments } = TicketComment.useObjects({
         where: { ticket: { id } },
+        sortBy: 'createdAt_ASC',
     })
+    const updateComment = TicketComment.useUpdate({}, () => {})
 
     const createCommentAction = TicketComment.useCreate({
         ticket: id,
@@ -389,6 +391,7 @@ const TicketIdPage = () => {
                                 <Affix offsetTop={40}>
                                     <CommentsList
                                         createAction={createCommentAction}
+                                        updateAction={updateComment}
                                         comments={comments}
                                         canCreateComments={role.canManageTicketComments}
                                     />
