@@ -38,6 +38,8 @@ const Footer = styled.div`
 const EmptyContainer = styled.div`
     text-align: center;
     flex: 1 1;
+    display: flex;
+    align-items: center;
   
     .ant-empty-image {
       display: none;
