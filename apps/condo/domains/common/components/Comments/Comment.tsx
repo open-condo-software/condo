@@ -22,6 +22,7 @@ const StyledComment = styled.div`
     
     footer {
       margin-top: 0.6em;
+      font-size: 12px;
       > span {
         color: ${green[6]};
       }
