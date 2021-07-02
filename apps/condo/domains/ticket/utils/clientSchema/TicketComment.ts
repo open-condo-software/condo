@@ -55,6 +55,7 @@ const {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
 } = generateReactHooks<TicketComment, TicketCommentUpdateInput, ITicketCommentFormState, ITicketCommentUIState, QueryAllTicketCommentsArgs>(TicketCommentGQL, { convertToGQLInput, convertToUIState })
 
 export {
@@ -63,5 +64,6 @@ export {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
     convertToUIFormState,
 }

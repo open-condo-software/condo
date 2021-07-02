@@ -217,6 +217,7 @@ const TicketIdPage = () => {
         sortBy: 'createdAt_ASC',
     })
     const updateComment = TicketComment.useUpdate({}, () => {})
+    const deleteComment = TicketComment.useSoftDelete({}, () => {})
 
     const createCommentAction = TicketComment.useCreate({
         ticket: id,
@@ -392,6 +393,7 @@ const TicketIdPage = () => {
                                     <CommentsList
                                         createAction={createCommentAction}
                                         updateAction={updateComment}
+                                        deleteAction={deleteComment}
                                         comments={comments}
                                         canCreateComments={role.canManageTicketComments}
                                     />

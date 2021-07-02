@@ -1,11 +1,11 @@
-import { Comment as AntComment, Typography } from 'antd'
+import { Comment as AntComment, Input, Popconfirm, Typography } from 'antd'
 import { Comment as TComment } from './index'
 import { useIntl } from '@core/next/intl'
 import { formatDate } from '../../../ticket/utils/helpers'
-import { CheckOutlined, CloseOutlined, EditFilled } from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined, DeleteFilled, EditFilled } from '@ant-design/icons'
 import { Button } from '../Button'
 import React, { useState } from 'react'
-import { green, grey } from '@ant-design/colors'
+import { green, red, grey } from '@ant-design/colors'
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 
@@ -13,6 +13,7 @@ import { css, jsx } from '@emotion/core'
 interface ICommentProps {
     comment: TComment,
     updateAction?: (formValues, obj) => Promise<any>,
+    deleteAction?: (formValues, obj) => Promise<any>,
 }
 
 type CommentMode = 'display' | 'edit' | 'deleted'
@@ -23,8 +24,19 @@ const WhiteStyle = css`
     margin-left: 4px;
 `
 
-export const Comment: React.FC<ICommentProps> = ({ comment, updateAction }) => {
+const DeletedTextStyle = css`
+  margin-top: 1em;
+  padding-left: 12px;
+  color: ${grey[2]};
+`
+
+export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, deleteAction }) => {
     const intl = useIntl()
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'Comments.actions.delete.confirm.title' })
+    const ConfirmDeleteOkText = intl.formatMessage({ id: 'Comments.actions.delete.confirm.okText' })
+    const ConfirmDeleteCancelText = intl.formatMessage({ id: 'Comments.actions.delete.confirm.cancelText' })
+    const CommentDeletedText = intl.formatMessage({ id: 'Comments.deleted' })
+
     const [mode, setMode] = useState<CommentMode>('display')
     const [content, setContent] = useState(comment.content)
 
@@ -40,6 +52,10 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction }) => {
         setMode('display')
     }
 
+    const handleDelete = () => {
+        deleteAction({}, comment)
+    }
+
     const actions = []
     if (mode === 'display') {
         if (updateAction) {
@@ -52,6 +68,24 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction }) => {
                     onClick={() => {setMode('edit')}}
                     style={{ color: green[7] }}
                 />
+            )
+        }
+        if (deleteAction) {
+            actions.push(
+                <Popconfirm
+                    title={ConfirmDeleteTitle}
+                    okText={ConfirmDeleteOkText}
+                    cancelText={ConfirmDeleteCancelText}
+                    onConfirm={handleDelete}
+                >
+                    <Button
+                        key="delete"
+                        size="middle"
+                        css={WhiteStyle}
+                        icon={<DeleteFilled />}
+                        style={{ color: red[5] }}
+                    />
+                </Popconfirm>
             )
         }
     } else if (mode === 'edit') {
@@ -74,6 +108,17 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction }) => {
                 onClick={handleSave}
                 style={{ color: green[7] }}
             />
+        )
+    }
+
+    if (comment.deletedAt) {
+        return (
+            <Typography.Paragraph
+                italic
+                css={DeletedTextStyle}
+            >
+                {CommentDeletedText}
+            </Typography.Paragraph>
         )
     }
 
