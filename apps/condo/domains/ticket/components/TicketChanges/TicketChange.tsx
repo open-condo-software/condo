@@ -271,4 +271,9 @@ const Diff = styled.p`
     del, ins {
         text-decoration: none;
     }
+    del, ins {
+        span:hover {
+            background: ${green[6]}
+        }
+    }
 `
