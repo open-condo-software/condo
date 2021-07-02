@@ -1,5 +1,5 @@
 import { Comment as AntComment, Popconfirm, Typography, Button } from 'antd'
-import { Comment as TComment } from './index'
+import { TComment } from './index'
 import { useIntl } from '@core/next/intl'
 import { formatDate } from '../../../ticket/utils/helpers'
 import { CheckOutlined, CloseOutlined, DeleteFilled, EditFilled } from '@ant-design/icons'
