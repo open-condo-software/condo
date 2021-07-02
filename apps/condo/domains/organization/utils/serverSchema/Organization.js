@@ -61,28 +61,69 @@ async function createDefaultRoles (context, organization, data) {
     if (!organization.id) throw new Error('wrong organization.id argument')
     if (!organization.country) throw new Error('wrong organization.country argument')
     const langDict = COUNTRIES[organization.country] || COUNTRIES[DEFAULT_ENGLISH_COUNTRY]
-    console.log('creating default roles')
-    console.log('OrganizationEmployeeRole', OrganizationEmployeeRole)
-    const tasks = Object.values(langDict.roleNames).map((roleName) => 
+    // TODO: place to another file?
+    const defaultRoles = {
+        admin: {
+            canManageOrganization: true,
+            canManageEmployees: true,
+            canManageRoles: true,
+            canManageIntegrations: true,
+            canManageProperties: true,
+            canManageTickets: true,
+            canManageContacts: true,
+        },
+        supervisor: {
+            canManageOrganization: false,
+            canManageEmployees: false,
+            canManageRoles: false,
+            canManageIntegrations: false,
+            canManageProperties: true,
+            canManageTickets: true,
+            canManageContacts: true,
+        },
+        manager: {
+            canManageOrganization: false,
+            canManageEmployees: false,
+            canManageRoles: false,
+            canManageIntegrations: false,
+            canManageProperties: true,
+            canManageTickets: true,
+            canManageContacts: true,
+        },
+        foreman: {
+            canManageOrganization: false,
+            canManageEmployees: false,
+            canManageRoles: false,
+            canManageIntegrations: false,
+            canManageProperties: false,
+            canManageTickets: false,
+            canManageContacts: false,
+        },
+        technician: {
+            canManageOrganization: false,
+            canManageEmployees: false,
+            canManageRoles: false,
+            canManageIntegrations: false,
+            canManageProperties: false,
+            canManageTickets: false,
+            canManageContacts: false,
+        },
+    }
+    Object.keys(defaultRoles).forEach((roleId) => {
+        defaultRoles[roleId].name = langDict.roleNames[roleId]
+    })
+    const tasks = Object.values(defaultRoles).map((roleInfo) => 
         execGqlWithoutAccess(context, {
             query: OrganizationEmployeeRole.CREATE_OBJ_MUTATION,
             variables: {
                 data: {
                     organization: { connect: { id: organization.id } },
-                    canManageOrganization: true,
-                    canManageEmployees: true,
-                    canManageRoles: true,
-                    canManageIntegrations: true,
-                    canManageProperties: true,
-                    canManageTickets: true,
-                    canManageContacts: true,
-                    name: roleName,
+                    ...roleInfo,
                     ...data,
                 },
             },
             errorMessage: '[error] Create admin role internal error',
             dataPath: 'obj',
-            // OrganizationEmployeeRole.
         })
     )
     return await Promise.all(tasks)

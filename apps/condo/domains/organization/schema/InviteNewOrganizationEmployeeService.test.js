@@ -3,7 +3,7 @@ const {
     reInviteNewOrganizationEmployee,
     makeClientWithRegisteredOrganization,
     acceptOrRejectOrganizationInviteById,
-} = require('../../../utils/testSchema/Organization')
+} = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')

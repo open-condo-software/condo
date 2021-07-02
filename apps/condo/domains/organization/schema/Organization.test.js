@@ -5,7 +5,7 @@ const { expectToThrowAccessDeniedErrorToObj, catchErrorFrom, expectToThrowAccess
 const { DEFAULT_STATUS_TRANSITIONS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
 const { createTestOrganizationEmployee } = require('../utils/testSchema')
-const { makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
+const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')

@@ -3,7 +3,7 @@
  */
 
 const { REGISTER_NEW_USER_MESSAGE_TYPE, INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
-const { makeClientWithRegisteredOrganization } = require('../../../utils/testSchema/Organization')
+const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { Message, createTestMessage, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
