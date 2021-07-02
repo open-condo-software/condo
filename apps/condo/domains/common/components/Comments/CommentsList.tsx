@@ -28,7 +28,7 @@ const Head = styled.div`
 
 const Body = styled.div`
     overflow-y: scroll;
-    flex: 0 1 auto;
+    flex: 1 1 auto;
 `
 
 const Footer = styled.div`
