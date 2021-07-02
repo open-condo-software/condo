@@ -278,6 +278,10 @@ async function createTestBillingAccountMeter (client, context, property, account
     const attrs = {
         dv: 1,
         sender,
+        raw: faker.lorem.words(),
+        meta: {
+            dv: 1,
+        },
         context: { connect: { id: context.id } },
         property: { connect: { id: property.id } },
         account: { connect: { id: account.id } },
@@ -317,6 +321,12 @@ async function createTestBillingAccountMeterReading (client, context, property, 
         property: { connect: { id: property.id } },
         account: { connect: { id: account.id } },
         meter: { connect: { id: meter.id } },
+        raw: faker.lorem.words(),
+        period: '2021-07-11',
+        date: new Date(),
+        value1: faker.datatype.number(),
+        value2: faker.datatype.number(),
+        value3: faker.datatype.number(),
         ...extraAttrs,
     }
     const obj = await BillingAccountMeterReading.create(client, attrs)
