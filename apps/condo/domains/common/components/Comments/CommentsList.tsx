@@ -38,6 +38,10 @@ const Footer = styled.div`
 const EmptyContainer = styled.div`
     text-align: center;
     flex: 1 1;
+  
+    .ant-empty-image {
+      display: none;
+    }
 `
 
 interface ICommentsListProps {
