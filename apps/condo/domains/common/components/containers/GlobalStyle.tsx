@@ -254,13 +254,24 @@ const commentCss = css`
     background: white;
     margin-top: 1em;
     border-radius: 8px;
-    padding: 12px;
+    padding: 0;
     box-shadow: rgba(0,0,0,0.15) 0px 1px 3px;
     font-size: 14px;
     line-height: 22px;
     
+    &:hover {
+      .ant-comment-inner {
+        .ant-comment-content {
+          .ant-comment-actions {
+            opacity: 1;
+            pointer-events: all;
+          }
+        }
+      }
+    }
+    
     .ant-comment-inner {
-      padding: 0;
+      padding: 12px;
 
       .ant-comment-content {
         display: flex;
@@ -281,6 +292,14 @@ const commentCss = css`
           .ant-comment-content-author-time {
             color: ${grey[2]};
           }
+        }
+        .ant-comment-actions {
+          position: absolute;
+          right: -5px;
+          bottom: -5px;
+          opacity: 0;
+          pointer-events: none;
+          transition: all 0.3s ease-in-out;
         }
       }
     }
