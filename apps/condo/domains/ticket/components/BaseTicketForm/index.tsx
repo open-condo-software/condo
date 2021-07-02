@@ -91,11 +91,17 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         organization: organization.id,
     })
 
+    const canCreateContactRef = useRef(canCreateContact)
+
+    useEffect(() => {
+        canCreateContactRef.current = canCreateContact
+    }, [canCreateContact])
+
     const { link: { role } } = useOrganization()
 
     const action = async (variables, ...args) => {
         let createdContact
-        if (role.canManageContacts && canCreateContact) {
+        if (role.canManageContacts && canCreateContactRef.current) {
             createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
         }
         const result = await _action({
