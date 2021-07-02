@@ -16188,15 +16188,28 @@ export type TicketRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+export type TicketReportData = {
+  __typename?: 'TicketReportData';
+  statusName: Scalars['String'];
+  currentValue: Scalars['Int'];
+  growth: Scalars['Float'];
+};
+
+export enum TicketReportPeriodType {
+  Week = 'week',
+  Month = 'month',
+  Quarter = 'quarter'
+}
+
 export type TicketReportWidgetInput = {
-  periodType: Scalars['String'];
+  periodType: TicketReportPeriodType;
   offset?: Maybe<Scalars['Int']>;
   userOrganizationId: Scalars['String'];
 };
 
 export type TicketReportWidgetOutput = {
   __typename?: 'TicketReportWidgetOutput';
-  data?: Maybe<Scalars['JSON']>;
+  data?: Maybe<Array<TicketReportData>>;
 };
 
 /**  Ticket source. Income call, mobile app, external system, ...  */

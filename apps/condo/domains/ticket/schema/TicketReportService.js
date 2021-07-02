@@ -24,11 +24,19 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
     types: [
         {
             access: true,
-            type: 'input TicketReportWidgetInput { periodType: String! offset: Int, userOrganizationId: String! }',
+            type: `enum TicketReportPeriodType { ${PERIOD_TYPES.join(' ')} }`,
         },
         {
             access: true,
-            type: 'type TicketReportWidgetOutput { data: JSON }',
+            type: 'input TicketReportWidgetInput { periodType: TicketReportPeriodType! offset: Int, userOrganizationId: String! }',
+        },
+        {
+            access: true,
+            type: 'type TicketReportData { statusName: String! currentValue: Int! growth: Float! }',
+        },
+        {
+            access: true,
+            type: 'type TicketReportWidgetOutput { data: [ TicketReportData! ] }',
         },
     ],
     queries: [
