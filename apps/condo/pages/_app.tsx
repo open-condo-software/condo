@@ -4,7 +4,7 @@ import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
-import { ThunderboltFilled, HomeFilled, HeartFilled, PieChartFilled } from '@ant-design/icons'
+import { ThunderboltFilled, HomeFilled, PieChartFilled } from '@ant-design/icons'
 
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
@@ -18,6 +18,7 @@ import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleA
 import BehaviorRecorder from '@condo/domains/common/components/containers/BehaviorRecorder'
 import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
+import { UserIcon } from '@condo/domains/common/components/Icons'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 
@@ -46,12 +47,12 @@ function menuDataRender () {
         },
         {
             path: '/contact',
-            icon: HeartFilled,
+            icon: UserIcon,
             locale: 'menu.Contacts',
         },
         {
             path: '/employee',
-            icon: HeartFilled,
+            icon: UserIcon,
             locale: 'menu.Employees',
         },
     ]
