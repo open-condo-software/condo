@@ -3,7 +3,7 @@ import { Comment } from './index'
 import { FormWithAction } from '../containers/FormList'
 import { Form, Input } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-import Icon from '@ant-design/icons';
+import Icon from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
 import { SendMessage } from '../icons/SendMessage'
@@ -24,27 +24,27 @@ const Holder = styled.div`
 `
 
 interface ICommentFormProps {
-    comment: Comment,
     action?: (formValues) => Promise<any>
-    fieldNames: {
-        content: string,
-    }
+    fieldName?: string
+    initialValue?: string
 }
 
-const CommentForm: React.FC<ICommentFormProps> = ({ comment, action, fieldNames }) => {
+const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldName }) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
     return (
         <FormWithAction
-            initialValues={comment}
+            initialValues={{
+                [fieldName]: initialValue,
+            }}
             action={action}
             resetOnComplete={true}
         >
             {({ handleSave, isLoading }) => (
                 <Holder>
                     <Form.Item
-                        name={fieldNames.content}
-                        rules={[{required: true}]}
+                        name={fieldName}
+                        rules={[{ required: true }]}
                     >
                         <Input.TextArea
                             placeholder={PlaceholderMessage}
@@ -55,7 +55,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ comment, action, fieldNames 
                     <Button
                         type="sberPrimary"
                         size="middle"
-                        icon={<Icon component={SendMessage} style={{color: 'white'}}/>}
+                        icon={<Icon component={SendMessage} style={{ color: 'white' }}/>}
                         onClick={handleSave}
                         loading={isLoading}
                     />
@@ -66,11 +66,10 @@ const CommentForm: React.FC<ICommentFormProps> = ({ comment, action, fieldNames 
 }
 
 CommentForm.defaultProps = {
-    fieldNames: {
-        content: 'content',
-    },
+    fieldName: 'content',
+    initialValue: '',
 }
 
 export {
-    CommentForm
+    CommentForm,
 }
