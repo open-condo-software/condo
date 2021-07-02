@@ -21,7 +21,7 @@ export const searchToQuery = (search?: string): ContactWhereInput[] => {
         { phone_contains_i: search },
         { email_contains_i: search },
         { property: { address_contains_i: search } },
-    ].filter(Boolean)
+    ]
 }
 
 export const filtersToQuery = (filters: IFilters): ContactWhereInput => {
