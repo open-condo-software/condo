@@ -1,5 +1,4 @@
 import React from 'react'
-import { Comment } from './index'
 import { FormWithAction } from '../containers/FormList'
 import { Form, Input } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
