@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { Col, Row, Space, Typography, Tag, Affix } from 'antd'
 import UploadList from 'antd/lib/upload/UploadList/index'
 import { get, isEmpty } from 'lodash'
@@ -214,7 +215,8 @@ const TicketIdPage = () => {
 
     const { objs: comments, refetch: refetchComments } = TicketComment.useObjects({
         where: { ticket: { id } },
-        sortBy: 'createdAt_ASC',
+        // @ts-ignore
+        sortBy: ['createdAt_ASC'],
     })
     const updateComment = TicketComment.useUpdate({}, () => {})
     const deleteComment = TicketComment.useSoftDelete({}, () => {})
