@@ -56,6 +56,37 @@ async function createAdminRole (context, organization, data) {
     })
 }
 
+async function createDefaultRoles (context, organization, data) {
+    if (!context) throw new Error('no context')
+    if (!organization.id) throw new Error('wrong organization.id argument')
+    if (!organization.country) throw new Error('wrong organization.country argument')
+    const langDict = COUNTRIES[organization.country] || COUNTRIES[DEFAULT_ENGLISH_COUNTRY]
+    console.log('creating default roles')
+    console.log('OrganizationEmployeeRole', OrganizationEmployeeRole)
+    const tasks = Object.values(langDict.roleNames).map((roleName) => 
+        execGqlWithoutAccess(context, {
+            query: OrganizationEmployeeRole.CREATE_OBJ_MUTATION,
+            variables: {
+                data: {
+                    organization: { connect: { id: organization.id } },
+                    canManageOrganization: true,
+                    canManageEmployees: true,
+                    canManageRoles: true,
+                    canManageIntegrations: true,
+                    canManageProperties: true,
+                    canManageTickets: true,
+                    canManageContacts: true,
+                    name: roleName,
+                    ...data,
+                },
+            },
+            errorMessage: '[error] Create admin role internal error',
+            dataPath: 'obj',
+            // OrganizationEmployeeRole.
+        })
+    )
+    return await Promise.all(tasks)
+}
 async function createConfirmedEmployee (context, organization, user, role, data) {
     if (!context) throw new Error('no context')
     if (!organization.id) throw new Error('wrong organization.id argument')
@@ -101,6 +132,7 @@ module.exports = {
     createOrganizationEmployee,
     updateOrganizationEmployee,
     createAdminRole,
+    createDefaultRoles,
     createConfirmedEmployee,
     findOrganizationEmployee,
 }

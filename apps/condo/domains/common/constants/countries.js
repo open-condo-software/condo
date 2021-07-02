@@ -5,11 +5,25 @@ const RUSSIA_COUNTRY = 'ru'
 const COUNTRIES = {
     [DEFAULT_ENGLISH_COUNTRY]: {
         adminRoleName: 'Admin',
+        roleNames: {
+            admin: 'Admin',
+            supervisor: 'Supervisor',
+            manager: 'Manager',
+            foreman: 'Foreman',
+            technician : 'Techies',
+        },
         // statusTransitions: {},  // TODO(pahaz): write logic for transitions
         phonePattern: /^[+]1[0-9-. ()]{7,}[0-9]$/gi,
         locale: EN_LOCALE,
     },
     [RUSSIA_COUNTRY]: {
+        roleNames: {
+            admin: 'Администратор',
+            supervisor: 'Диспетчер',
+            manager: 'Управляющий',
+            foreman: 'Мастер участка',
+            technician : 'Техник',
+        },
         adminRoleName: 'Администратор',
         // statusTransitions: {},  // TODO(pahaz): write logic for transitions
         phonePattern: /^[+]?[0-9-. ()]{7,}[0-9]$/gi,
