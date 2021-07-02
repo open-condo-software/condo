@@ -49,10 +49,11 @@ const EmptyContainer = styled.div`
 interface ICommentsListProps {
     comments: TComment[],
     createAction?: (formValues) => Promise<any>,
+    updateAction?: (formValues, obj) => Promise<any>,
     canCreateComments: boolean,
 }
 
-const CommentsList: React.FC<ICommentsListProps> = ({ comments, createAction, canCreateComments }) => {
+const CommentsList: React.FC<ICommentsListProps> = ({ comments, createAction, updateAction, canCreateComments }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
     const PromptTitleMessage = intl.formatMessage({ id: 'Comments.prompt.title' })
@@ -94,6 +95,7 @@ const CommentsList: React.FC<ICommentsListProps> = ({ comments, createAction, ca
                         <Comment
                             key={comment.id}
                             comment={comment}
+                            updateAction={updateAction}
                         />
                     ))}
                 </Body>
