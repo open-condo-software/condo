@@ -46,13 +46,12 @@ describe('BillingIntegrationOrganizationContext', () => {
         })
     })
 
-    //You do not have access to this resource createBillingIntegrationOrganizationContext
-    test.skip('organization integration manager: create BillingIntegrationOrganizationContext', async () => {
+    test('organization integration manager: create BillingIntegrationOrganizationContext', async () => {
         const admin = await makeLoggedInAdminClient()
         const [integration] = await createTestBillingIntegration(admin)
         const [organization] = await createTestOrganization(admin)
         const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-            canManageEmployees: true,
+            canManageIntegrations: true,
         })
         const managerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
         await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
