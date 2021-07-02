@@ -7,7 +7,6 @@ import React, { useMemo } from 'react'
 import { FilterFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
 import { createSorterMap, IFilters } from '../utils/helpers'
-import { css } from '@emotion/core'
 
 const getFilterIcon = filtered => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 
@@ -15,14 +14,13 @@ interface IFilterContainerProps {
     clearFilters: () => void
     showClearButton?: boolean
 }
-
+// TODO (SavelevMatthew) 1 common component in common domain?
 const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
     const intl = useIntl()
     const ResetLabel = intl.formatMessage({ id: 'filters.Reset' })
-    const FilterContainerDiv = css`padding: 16px`
 
     return (
-        <div css={FilterContainerDiv}>
+        <div style={{ padding: 16 }}>
             <Space size={8} direction={'vertical'} align={'center'}>
                 {props.children}
                 {
