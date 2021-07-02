@@ -30,7 +30,6 @@ const BottomLineWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 24px;
   justify-content: flex-start;
 `
 
@@ -220,6 +219,7 @@ export const CreateContactForm: React.FC = () => {
                                                                 type='sberPrimary'
                                                                 loading={isLoading}
                                                                 disabled={!property || !unitName || !phone || !name}
+                                                                style={{ marginRight: 24 }}
                                                             >
                                                                 {SubmitButtonValue}
                                                             </Button>
