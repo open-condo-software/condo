@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
 import { Empty, Typography } from 'antd'
@@ -59,6 +59,19 @@ const CommentsList: React.FC<ICommentsListProps> = ({ comments, createAction, ca
     const PromptDescriptionMessage = intl.formatMessage({ id: 'Comments.prompt.description' })
     const ListDescriptionMessage = intl.formatMessage({ id: 'Comments.list.description' })
     const CannotCreateCommentsMessage = intl.formatMessage({ id: 'Comments.cannotCreateComments' })
+
+    const bodyRef = useRef(null)
+
+    const scrollToBottom = () => {
+        if (bodyRef.current) {
+            bodyRef.current.scrollTop = bodyRef.current.scrollHeight
+        }
+    }
+
+    useEffect(() => {
+        scrollToBottom()
+    }, [comments.length])
+
     return (
         <Container>
             <Head>{TitleMessage}</Head>
@@ -75,7 +88,7 @@ const CommentsList: React.FC<ICommentsListProps> = ({ comments, createAction, ca
                     />
                 </EmptyContainer>
             ) : (
-                <Body>
+                <Body ref={bodyRef}>
                     <Typography.Text style={{ fontSize: '12px' }}>{ListDescriptionMessage}</Typography.Text>
                     {comments.map(comment => (
                         <Comment
