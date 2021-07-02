@@ -60,7 +60,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             isRequired: true,
             hooks: {
                 validateInput: (args) => {
-                    const { resolvedData, fieldPath, addFieldValidationError } = args;
+                    const { resolvedData, fieldPath, addFieldValidationError } = args
                     if (!resolvedData.hasOwnProperty(fieldPath)) return // skip if on value
                     const value = resolvedData[fieldPath]
                     if (value === null) return // null is OK
