@@ -28,22 +28,22 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         period: PERIOD_FIELD,
 
         toPay: {
-            // TODO(codegen): write doc for BillingReceipt.toPay field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Total sum to pay. The sum of all services',
             type: Text,
             isRequired: true,
         },
 
         services: {
-            // TODO(codegen): write doc for BillingReceipt.services field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Structured items in the receipt obtained from the `billing data source`. Amount of payment is required for use in the `receipt template`. ' +
+                'Structure example: {"Maintenance and repair": {"name": "maintenance-and-repair", "payment": "1129.17", "currency": "RUB", "formula": "payment = tariff * volume + recalculation + privilege + penalty", "tariff": "19.95", "volume": "56.6", "isByMeter": true, "recalculation": "0.0", "privilege": "0.0", "penalty": "0"}, ...}',
             type: Json,
             isRequired: true,
         },
 
         meta: {
-            // TODO(codegen): write doc for BillingReceipt.meta field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
+                'Examples of data keys: `payer name`, `full address`, `living space`, `non-living space`, `registered residents`, `living residents`, `news message`',
+            // TODO(pahaz): research keys!
             type: Json,
             isRequired: true,
         },
