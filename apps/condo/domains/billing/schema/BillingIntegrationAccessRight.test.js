@@ -42,6 +42,19 @@ describe('BillingIntegrationAccessRight', () => {
         }))
     })
 
+    test('admin: create BillingIntegrationAccessRight', async () => {
+        const admin = await makeLoggedInAdminClient()
+
+        const [integration] = await createTestBillingIntegration(admin)
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        const [integrationAccessRight] = await createTestBillingIntegrationAccessRight(
+            admin, integration, client.user)
+        expect(integrationAccessRight).toEqual(expect.objectContaining({
+            integration: { id: integration.id, name: integration.name },
+        }))
+    })
+
     test('user: read BillingIntegrationAccessRight', async () => {
         const admin = await makeLoggedInAdminClient()
         const [integration] = await createTestBillingIntegration(admin)
