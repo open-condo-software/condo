@@ -18,6 +18,9 @@ const Holder = styled.div`
   .ant-form-item-explain {
     display: none;
   }
+  textarea {
+    padding-right: 45px;
+  }
 `
 
 interface ICommentFormProps {
