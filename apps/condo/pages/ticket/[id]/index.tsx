@@ -393,11 +393,17 @@ const TicketIdPage = () => {
                             <Col span={7}>
                                 <Affix offsetTop={40}>
                                     <Comments
+                                        // @ts-ignore
                                         createAction={createCommentAction}
-                                        updateAction={updateComment}
-                                        deleteAction={deleteComment}
                                         comments={comments}
                                         canCreateComments={role.canManageTicketComments}
+                                        actionsFor={comment => {
+                                            const isAuthor = comment.user.id === auth.user.id
+                                            return {
+                                                updateAction: isAuthor ? updateComment : null,
+                                                deleteAction: isAuthor ? deleteComment : null,
+                                            }
+                                        }}
                                     />
                                 </Affix>
                             </Col>

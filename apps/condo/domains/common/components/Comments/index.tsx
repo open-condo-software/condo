@@ -57,20 +57,24 @@ const EmptyContainer = styled.div`
   }
 `
 
+type ActionsForComment = {
+    updateAction?: (formValues, obj) => Promise<void>,
+    deleteAction?: (formValues, obj) => Promise<void>,
+}
+
 interface ICommentsListProps {
     comments: TComment[],
     createAction?: (formValues) => Promise<void>,
-    updateAction?: (formValues, obj) => Promise<void>,
-    deleteAction?: (formValues, obj) => Promise<void>,
+    // Place for abilities check. If action of given type is not returned, appropriate button will not be displayed
+    actionsFor: (comment: TComment) => ActionsForComment,
     canCreateComments: boolean,
 }
 
 const Comments: React.FC<ICommentsListProps> = ({
     comments,
     createAction,
-    updateAction,
-    deleteAction,
     canCreateComments,
+    actionsFor,
 }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
@@ -109,14 +113,17 @@ const Comments: React.FC<ICommentsListProps> = ({
             ) : (
                 <Body ref={bodyRef}>
                     <Typography.Text style={{ fontSize: '12px' }}>{ListDescriptionMessage}</Typography.Text>
-                    {comments.map(comment => (
-                        <Comment
-                            key={comment.id}
-                            comment={comment}
-                            updateAction={updateAction}
-                            deleteAction={deleteAction}
-                        />
-                    ))}
+                    {comments.map(comment => {
+                        const { updateAction, deleteAction } = actionsFor(comment)
+                        return (
+                            <Comment
+                                key={comment.id}
+                                comment={comment}
+                                updateAction={updateAction}
+                                deleteAction={deleteAction}
+                            />
+                        )
+                    })}
                 </Body>
             )}
             <Footer hasComments={comments.length > 0}>
