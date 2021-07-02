@@ -1,3 +1,4 @@
+const { NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
@@ -17,11 +18,10 @@ describe('TicketReportService', () => {
             })
             expect(data).toBeInstanceOf(Array)
             expect(data.length).toBeGreaterThanOrEqual(1)
-            expect(data.find(e => e.statusName === 'Открыта')).toMatchObject({
-                statusName: 'Открыта',
-                currentValue: 1,
-                growth: 0,
-            })
+            const clientTicket = data.find(e => e.statusType === NEW_OR_REOPENED_STATUS_TYPE)
+            expect(clientTicket).toBeDefined()
+            expect(clientTicket.currentValue).toEqual(1)
+            expect(clientTicket.growth).toEqual(0)
         })
 
         it('can not get ticket report with another organization', async () => {
