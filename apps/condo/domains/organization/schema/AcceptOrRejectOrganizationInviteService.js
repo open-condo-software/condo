@@ -1,4 +1,4 @@
-const { updateOrganizationEmployee } = require('../../../utils/serverSchema/Organization')
+const { updateOrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { getByCondition, getById, GQLCustomSchema } = require('@core/keystone/schema')
 const { rules } = require('../../../access')
 

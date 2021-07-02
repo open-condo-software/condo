@@ -3,7 +3,7 @@ const faker = require('faker')
 const { makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 
-const { registerNewOrganization } = require('../../../utils/testSchema/Organization')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 const { OrganizationEmployee } = require('../utils/testSchema')
 
