@@ -14,7 +14,7 @@ test('on simple query without deletedAt => false', () => {
     expect(softDeleted.queryHasSoftDeletedFieldDeep(SIMPLE_QUERY, DELETED_AT_FIELD)).toEqual(false)
 })
 
-test('on simple query with deletedAt', () => {
+test('on simple query with deletedAt => true', () => {
     const simpleQueryWithDeletedAt = {
         deletedAt: null,
     }
@@ -78,7 +78,7 @@ test('on complex logical query with deletedAt 1 => true', () => {
 
 test('on complex logical query with deletedAt 2 => true', () => {
     const customQuery = { ...{}, ...COMPLEX_QUERY }
-    customQuery.account = { deletedAt: null }
+    customQuery.property = { deletedAt: null }
     expect(softDeleted.queryHasSoftDeletedFieldDeep(customQuery, DELETED_AT_FIELD)).toEqual(true)
 })
 
