@@ -43,6 +43,16 @@ describe('Property', () => {
         expect(count).toEqual(1)
     })
 
+    test('user: can read all objects', async  () => {
+        const client = await makeClientWithRegisteredOrganization()
+        const [obj] = await createTestProperty(client, client.organization)
+        await createTestProperty(client, client.organization)
+        await updateTestProperty(client, obj.id, { deletedAt: 'true' })
+
+        const count = await Property.count(client, { OR: [{ deletedAt_not: null }, { deletedAt: null }] } )
+        expect(count).toEqual(2)
+    })
+
     test('user: can not soft delete object twice', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const [obj] = await createTestProperty(client, client.organization)
@@ -167,5 +177,4 @@ describe('Property', () => {
             await Property.delete(guest, objCreated.id)
         })
     })
-
 })
