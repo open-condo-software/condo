@@ -101,8 +101,8 @@ function getWhereVariables (args) {
  * @param {string} deletedAtField
  * @return {boolean}
  */
-function queryHasSoftDeletedField (obj, deletedAtField) {
-    return Object.keys(obj).find((x) => x.startsWith(deletedAtField))
+function queryHasSoftDeletedField (whereQuery, deletedAtField) {
+    return Object.keys(whereQuery).find((x) => x.startsWith(deletedAtField))
 }
 
 /**
@@ -125,7 +125,7 @@ function queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
             }
         // property: { deletedAt: null } case
         } else if (isPlainObject(queryValue)){
-            if (queryHasSoftDeletedField(queryValue)) {
+            if (queryHasSoftDeletedFieldDeep(queryValue, deletedAtField)) {
                 return true
             }
         }
@@ -180,5 +180,5 @@ function applySoftDeletedFilters (access, deletedAtField, args) {
 
 module.exports = {
     softDeleted,
-    queryHasSoftDeletedFieldDeep
+    queryHasSoftDeletedFieldDeep,
 }
