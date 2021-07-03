@@ -41,6 +41,7 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     fields[deletedAtField] = { ...datedOptions }
     fields[newIdField] = { ...newIdOptions }
 
+    // NOTE: we can't change and restore already merged objects!
     const newResolveInput = ({ existingItem, resolvedData }) => {
         if (existingItem && existingItem[newIdField]) {
             throw new Error('Already merged')
