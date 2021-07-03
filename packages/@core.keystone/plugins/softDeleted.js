@@ -82,6 +82,8 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
 
 /**
  * Gets "where" variables from http graphQL request
+ * @param {Object} args
+ * @return {Object}
  */
 function getWhereVariables (args) {
     // TODO(pahaz || toplenboren): this work only for GET query parametrs. Check Post data
@@ -94,16 +96,35 @@ function getWhereVariables (args) {
 }
 
 /**
+ * Checks if query has the soft deleted property on any level of depth
+ * @param {Object} whereQuery
+ * @param {string} deletedAtField
+ * @return {boolean}
+ */
+function queryHasSoftDeletedField (whereQuery, deletedAtField) {
+    return Boolean(Object.keys(whereQuery).find((x) => x.startsWith(deletedAtField)))
+}
+
+/**
+ * SYNOPSIS:
  * We dont want developer to manually set the filter on every query like this:
  * getAllEntities where : {deletedAt: null}
  * Instead we want to automatically hide deleted items.
  * Right now (keystone v5) we can only implement this functionality by merging
  * access rights from entity and deletedAt: null
  *
+ * OVERRIDE THIS BEHAVIOUR:
  * We also want to give developer an ability to manually override the settings
  * and explicitly show the deleted items. For this developer should explicitly
  * set deletedAt at the request filter:
  * getAllEntities where : {deletedAt_not: null} // will get all deleted entities
+ *
+ * NOTE:
+ * If you want to override default behaviour by explicitly setting
+ * {deletedAt_not: null} on any part of the query -> the filters will not be
+ * activated. So if you want to override the default behaviour on one part of the
+ * query, you should explicitly specify the {deltedAt: null} on other parts of
+ * the query to get only NOT DELETED items
  */
 function applySoftDeletedFilters (access, deletedAtField, args) {
     const type = getType(access)
@@ -111,8 +132,9 @@ function applySoftDeletedFilters (access, deletedAtField, args) {
         return (access) ? { [deletedAtField]: null } : false
     } else if (type === 'Object') {
         const currentWhereFilters = getWhereVariables(args)
+
         // If we explicitly pass the deletedAt filter - we wont hide deleted items
-        if (Object.keys(currentWhereFilters).find((x) => x.startsWith(deletedAtField))) {
+        if (queryHasSoftDeletedField(currentWhereFilters)) {
             return access
         }
 
