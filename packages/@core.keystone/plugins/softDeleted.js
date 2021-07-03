@@ -1,6 +1,6 @@
 const { DateTimeUtc } = require('@keystonejs/fields')
 const { getType } = require('@keystonejs/utils')
-const { get } = require('lodash')
+const { get, isPlainObject } = require('lodash')
 
 const { HiddenRelationship } = require('./utils')
 const { composeHook, evaluateKeystoneAccessResult } = require('./utils')
@@ -96,13 +96,41 @@ function getWhereVariables (args) {
 }
 
 /**
+ * Checks if query has the soft deleted property on first level of depth
+ * @param {Object} whereQuery
+ * @param {string} deletedAtField
+ * @return {boolean}
+ */
+function queryHasSoftDeletedField (obj, deletedAtField) {
+    return Object.keys(obj).find((x) => x.startsWith(deletedAtField))
+}
+
+/**
  * Checks if query has the soft deleted property on any level of depth
  * @param {Object} whereQuery
  * @param {string} deletedAtField
  * @return {boolean}
  */
-function queryHasSoftDeletedField (whereQuery, deletedAtField) {
-    return Object.keys(whereQuery).find((x) => x.startsWith(deletedAtField))
+function queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
+    // { deletedAt: null } case
+    if (queryHasSoftDeletedField(whereQuery, deletedAtField)) {
+        return true
+    }
+    for (const queryValue of Object.values(whereQuery)) {
+        // OR: [ { deletedAt: null }, { ... } ] case
+        if (Array.isArray(queryValue)) {
+            for (const innerQuery of queryValue) {
+                if (queryHasSoftDeletedFieldDeep(innerQuery, deletedAtField))
+                    return true
+            }
+        // property: { deletedAt: null } case
+        } else if (isPlainObject(queryValue)){
+            if (queryHasSoftDeletedField(queryValue)) {
+                return true
+            }
+        }
+    }
+    return false
 }
 
 /**
@@ -134,7 +162,7 @@ function applySoftDeletedFilters (access, deletedAtField, args) {
         const currentWhereFilters = getWhereVariables(args)
 
         // If we explicitly pass the deletedAt filter - we wont hide deleted items
-        if (queryHasSoftDeletedField(currentWhereFilters, deletedAtField)) {
+        if (queryHasSoftDeletedFieldDeep(currentWhereFilters, deletedAtField)) {
             return access
         }
 
@@ -152,4 +180,5 @@ function applySoftDeletedFilters (access, deletedAtField, args) {
 
 module.exports = {
     softDeleted,
+    queryHasSoftDeletedFieldDeep
 }
