@@ -102,7 +102,7 @@ function getWhereVariables (args) {
  * @return {boolean}
  */
 function queryHasSoftDeletedField (whereQuery, deletedAtField) {
-    return Boolean(Object.keys(whereQuery).find((x) => x.startsWith(deletedAtField)))
+    return Object.keys(whereQuery).find((x) => x.startsWith(deletedAtField))
 }
 
 /**
@@ -134,7 +134,7 @@ function applySoftDeletedFilters (access, deletedAtField, args) {
         const currentWhereFilters = getWhereVariables(args)
 
         // If we explicitly pass the deletedAt filter - we wont hide deleted items
-        if (queryHasSoftDeletedField(currentWhereFilters)) {
+        if (queryHasSoftDeletedField(currentWhereFilters, deletedAtField)) {
             return access
         }
 
