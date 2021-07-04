@@ -21,7 +21,6 @@ async function canReadBillingIntegrationLogs ({ authentication: { item: user } }
                             role: { canManageIntegrations: true },
                             deletedAt: null,
                         },
-                        deletedAt: null,
                     },
                 },
                 { integration: { accessRights_some: { user: { id: user.id } } } },
