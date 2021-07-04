@@ -14,7 +14,7 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
     return {
         // TODO(pahaz & toplenboren): add an ability to create integration context from interface
         OR: [
-            { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true }, deletedAt: null } } },
+            { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true } } } },
             { integration: { accessRights_some: { user: { id: user.id } } } },
         ],
     }
@@ -23,22 +23,25 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
 async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin) return true
+    let organizationId
+    let integrationId
     if (operation === 'create') {
         // NOTE: can only be created by the organization integration manager
-        const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-        if (!organizationId) return false
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
+        organizationId = get(originalInput, ['organization', 'connect', 'id'])
+        integrationId = get(originalInput, ['integration', 'connect', 'id'])
+        if (!organizationId || !integrationId) return false
     } else if (operation === 'update') {
         // NOTE: can update by the organization integration manager OR the integration account
         if (!itemId) return false
         const context = await getById('BillingIntegrationOrganizationContext', itemId)
         if (!context) return false
-        const { organization: organizationId, integration: integrationId } = context
-        const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
-        if (canManageIntegrations) return true
-        return await checkBillingIntegrationAccessRight(user.id, integrationId)
+        const { organization, integration } = context
+        organizationId = organization
+        integrationId = integration
     }
-    return false
+    const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
+    if (canManageIntegrations) return true
+    return await checkBillingIntegrationAccessRight(user.id, integrationId)
 }
 
 /*
@@ -49,3 +52,5 @@ module.exports = {
     canReadBillingIntegrationOrganizationContexts,
     canManageBillingIntegrationOrganizationContexts,
 }
+
+
