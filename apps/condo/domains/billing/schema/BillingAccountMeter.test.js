@@ -234,4 +234,3 @@ describe('BillingAccountMeter', () => {
         })
     })
 })
-

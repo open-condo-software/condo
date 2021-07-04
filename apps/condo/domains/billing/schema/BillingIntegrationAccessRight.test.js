@@ -5,7 +5,6 @@
 const { makeClientWithSupportUser } = require('../../user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-
 const { BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight, createTestBillingIntegration } = require('../utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 
