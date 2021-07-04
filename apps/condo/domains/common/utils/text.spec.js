@@ -1,6 +1,6 @@
 const { normalizeText } = require('./text')
 
-describe('normalizePhone()', () => {
+describe('normalizeText()', () => {
     test('empty text', () => {
         expect(normalizeText('')).toBeUndefined()
     })
@@ -25,4 +25,17 @@ describe('normalizePhone()', () => {
         expect(normalizeText('123\r\n\r\n\r\n\r\n123\r\n\r\n\r\n456'))
             .toEqual('123\r\n\r\n123\r\n\r\n456')
     })
+
+    test('normalize punctuations', () => {
+        expect(normalizeText('123c .  sad ...')).toEqual('123c. sad...')
+        expect(normalizeText('например ,мама мыла раму . срочно!!!')).toEqual('например, мама мыла раму. срочно!!!')
+        expect(normalizeText('abc    ,  asd123 :123 \n 321 .    test')).toEqual('abc, asd123: 123\n321. test')
+    })
+
+    test('normalize quotes', () => {
+        expect(normalizeText('"   123 312 432 " asd. ""')).toEqual('"123 312 432" asd. ""')
+        expect(normalizeText('"   123      "      asd .     ""')).toEqual('"123" asd. ""')
+        expect(normalizeText('"132   " " 13212asd  " zxc 123 "')).toEqual('"132" "13212asd" zxc 123 "')
+    })
+
 })
