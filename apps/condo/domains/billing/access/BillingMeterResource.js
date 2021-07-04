@@ -10,7 +10,7 @@ async function canReadBillingMeterResources ({ authentication: { item: user } })
 
 async function canManageBillingMeterResources ({ authentication: { item: user }, operation, originalInput, listKey, itemId }) {
     // need to discussion, for now BillingMeterResource have no context
-    return false
+    return true
     // return await canManageBillingEntityWithContext({
     //     user,
     //     operation,
