@@ -3,6 +3,8 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+import {registerNewOrganization} from "../../../../utils/testSchema/Organization";
+
 const { makeLoggedInAdminClient } = require("@core/keystone/test.utils");
 const {
     createTestOrganizationEmployee,
@@ -414,7 +416,7 @@ async function makeClientWithIntegrationAccess () {
 async function makeContextWithOrganizationAndIntegration(contextCreator) {
     const admin = await makeLoggedInAdminClient()
     const [integration] = await createTestBillingIntegration(admin)
-    const [organization] = await createTestOrganization(admin)
+    const [organization] = await registerNewOrganization(contextCreator)
     const [context] = await createTestBillingIntegrationOrganizationContext(contextCreator, organization, integration)
 
     return { context, integration, organization }
