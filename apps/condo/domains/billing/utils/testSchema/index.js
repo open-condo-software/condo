@@ -413,11 +413,11 @@ async function makeClientWithIntegrationAccess () {
  * Simplifies creating series of instances
  */
 
-async function makeContextWithOrganizationAndIntegration(contextCreator) {
+async function makeContextWithOrganizationAndIntegrationAsAdmin() {
     const admin = await makeLoggedInAdminClient()
     const [integration] = await createTestBillingIntegration(admin)
-    const [organization] = await registerNewOrganization(contextCreator)
-    const [context] = await createTestBillingIntegrationOrganizationContext(contextCreator, organization, integration)
+    const [organization] = await registerNewOrganization(admin)
+    const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
 
     return { context, integration, organization }
 }
@@ -446,9 +446,7 @@ module.exports = {
     BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter,
     BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading,
     BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt,
-    makeContextWithOrganizationAndIntegration,
+    makeContextWithOrganizationAndIntegrationAsAdmin,
     makeOrganizationIntegrationManager
     /* AUTOGENERATE MARKER <EXPORTS> */
 }
-
-
