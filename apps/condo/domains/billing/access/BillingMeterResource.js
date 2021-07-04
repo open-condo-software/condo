@@ -3,14 +3,21 @@
  */
 
 const { canReadBillingEntity } = require('../utils/accessSchema')
-const { canManageBillingEntity } = require('../utils/accessSchema')
 
 async function canReadBillingMeterResources ({ authentication: { item: user } }) {
     return await canReadBillingEntity(user)
 }
 
-async function canManageBillingMeterResources ({ authentication: { item: user }, operation, itemId }) {
-    return await canManageBillingEntity(user, operation, itemId)
+async function canManageBillingMeterResources ({ authentication: { item: user }, operation, originalInput, listKey, itemId }) {
+    // need to discussion, for now BillingMeterResource have no context
+    return false
+    // return await canManageBillingEntityWithContext({
+    //     user,
+    //     operation,
+    //     itemId,
+    //     originalInput,
+    //     schemaWithContextName: listKey,
+    // })
 }
 
 /*
@@ -21,3 +28,5 @@ module.exports = {
     canReadBillingMeterResources,
     canManageBillingMeterResources,
 }
+
+

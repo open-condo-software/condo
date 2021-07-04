@@ -3,11 +3,16 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const { makeLoggedInAdminClient } = require("@core/keystone/test.utils");
+const {
+    createTestOrganizationEmployee,
+    createTestOrganizationEmployeeRole
+} = require("@condo/domains/organization/utils/testSchema");
+const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
 const faker = require('faker')
-
+const { createTestOrganization } = require("@condo/domains/organization/utils/testSchema");
 const { makeLoggedInClient, registerNewUser } = require('@condo/domains/user/utils/testSchema')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationOrganizationContext: BillingIntegrationOrganizationContextGQL } = require('@condo/domains/billing/gql')
@@ -402,6 +407,22 @@ async function makeClientWithIntegrationAccess () {
     return client
 }
 
+/**
+ * Simplifies creating series of instances
+ */
+
+async function makeOrganizationIntegrationManager() {
+    const admin = await makeLoggedInAdminClient()
+    const [organization] = await createTestOrganization(admin)
+    const [integration] = await createTestBillingIntegration(admin)
+    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+        canManageIntegrations: true,
+    })
+    const managerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+    await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
+    return { organization, integration, managerUserClient }
+}
+
 module.exports = {
     BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration,
     BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight,
@@ -414,5 +435,8 @@ module.exports = {
     BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter,
     BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading,
     BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    makeContext, makeOrganizationIntegrationManager
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }
+
+
