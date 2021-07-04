@@ -3,14 +3,20 @@
  */
 
 const { canReadBillingEntity } = require('../utils/accessSchema')
-const { canManageBillingEntity } = require('../utils/accessSchema')
+const { canManageBillingEntityWithContext } = require('../utils/accessSchema')
 
 async function canReadBillingReceipts ({ authentication: { item: user } }) {
     return await canReadBillingEntity(user)
 }
 
-async function canManageBillingReceipts ({ authentication: { item: user }, operation, itemId }) {
-    return await canManageBillingEntity(user, operation, itemId)
+async function canManageBillingReceipts ({ authentication: { item: user }, operation, originalInput, listKey, itemId }) {
+    return await canManageBillingEntityWithContext({
+        user,
+        operation,
+        itemId,
+        originalInput,
+        schemaWithContextName: listKey,
+    })
 }
 
 /*
@@ -21,3 +27,5 @@ module.exports = {
     canReadBillingReceipts,
     canManageBillingReceipts,
 }
+
+
