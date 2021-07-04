@@ -368,6 +368,15 @@ async function createTestBillingReceipt (client, context, property, account, ext
         context: { connect: { id: context.id } },
         property: { connect: { id: property.id } },
         account: { connect: { id: account.id } },
+        raw: "test",
+        period: '2021-07-11',
+        toPay: "123",
+        services: {
+            dv: 1,
+        },
+        meta: {
+            dv: 1,
+        },
         ...extraAttrs,
     }
     const obj = await BillingReceipt.create(client, attrs)
@@ -450,3 +459,5 @@ module.exports = {
     makeOrganizationIntegrationManager
     /* AUTOGENERATE MARKER <EXPORTS> */
 }
+
+
