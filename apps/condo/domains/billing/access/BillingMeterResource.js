@@ -5,7 +5,8 @@
 const { canReadBillingEntity } = require('../utils/accessSchema')
 
 async function canReadBillingMeterResources ({ authentication: { item: user } }) {
-    return await canReadBillingEntity(user)
+    // return await canReadBillingEntity(user)
+    return true
 }
 
 async function canManageBillingMeterResources ({ authentication: { item: user }, operation, originalInput, listKey, itemId }) {
