@@ -4,7 +4,6 @@
 
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
-
 const { BillingMeterResource, createTestBillingMeterResource, updateTestBillingMeterResource } = require('@condo/domains/billing/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 

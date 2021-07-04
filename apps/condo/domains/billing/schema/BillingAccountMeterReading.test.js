@@ -6,7 +6,6 @@ const { createTestBillingIntegrationOrganizationContext } = require('@condo/doma
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-
 const { createTestBillingMeterResource } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingAccountMeter } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
@@ -269,4 +268,3 @@ describe('BillingAccountMeterReading', () => {
         })
     })
 })
-
