@@ -5,7 +5,7 @@ const faker = require('faker')
 
 const { createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
-const { makeContextWithOrganizationAndIntegration } = require('@condo/domains/billing/utils/testSchema')
+const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
@@ -15,7 +15,7 @@ const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObj
 describe('BillingAccount', () => {
     test('admin: create BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { context } = await makeContextWithOrganizationAndIntegration(admin)
+        const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const [property] = await createTestBillingProperty(admin, context)
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
 
@@ -25,7 +25,7 @@ describe('BillingAccount', () => {
 
     test('user: create BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { context } = await makeContextWithOrganizationAndIntegration(admin)
+        const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const [property] = await createTestBillingProperty(admin, context)
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -36,7 +36,7 @@ describe('BillingAccount', () => {
 
     test('anonymous: create BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { context } = await makeContextWithOrganizationAndIntegration(admin)
+        const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const [property] = await createTestBillingProperty(admin, context)
         const client = await makeClient()
 
@@ -57,7 +57,7 @@ describe('BillingAccount', () => {
 
     test('admin: read BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { context } = await makeContextWithOrganizationAndIntegration(admin)
+        const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const [property] = await createTestBillingProperty(admin, context)
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const billingAccounts = await BillingAccount.getAll(admin, { id: billingAccount.id })
@@ -75,7 +75,7 @@ describe('BillingAccount', () => {
 
     test('user: read BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { context } = await makeContextWithOrganizationAndIntegration(admin)
+        const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const [property] = await createTestBillingProperty(admin, context)
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         await createTestBillingAccount(admin, context, property)
@@ -85,7 +85,7 @@ describe('BillingAccount', () => {
 
     test('anonymous: read BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { context } = await makeContextWithOrganizationAndIntegration(admin)
+        const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const [property] = await createTestBillingProperty(admin, context)
         const client = await makeClient()
         await createTestBillingAccount(admin, context, property)
@@ -97,7 +97,7 @@ describe('BillingAccount', () => {
 
     test('admin: update BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { context } = await makeContextWithOrganizationAndIntegration(admin)
+        const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const [property] = await createTestBillingProperty(admin, context)
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
 
@@ -128,7 +128,7 @@ describe('BillingAccount', () => {
 
     test('user: update BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { context } = await makeContextWithOrganizationAndIntegration(admin)
+        const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const [property] = await createTestBillingProperty(admin, context)
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -141,7 +141,7 @@ describe('BillingAccount', () => {
 
     test('anonymous: update BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { context } = await makeContextWithOrganizationAndIntegration(admin)
+        const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const [property] = await createTestBillingProperty(admin, context)
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const client = await makeClient()
@@ -154,7 +154,7 @@ describe('BillingAccount', () => {
 
     test('admin: delete BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { context } = await makeContextWithOrganizationAndIntegration(admin)
+        const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const [property] = await createTestBillingProperty(admin, context)
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
 
@@ -176,7 +176,7 @@ describe('BillingAccount', () => {
 
     test('user: delete BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { context } = await makeContextWithOrganizationAndIntegration(admin)
+        const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const [property] = await createTestBillingProperty(admin, context)
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const user = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -188,7 +188,7 @@ describe('BillingAccount', () => {
 
     test('anonymous: delete BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { context } = await makeContextWithOrganizationAndIntegration(admin)
+        const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const [property] = await createTestBillingProperty(admin, context)
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const client = await makeClient()
