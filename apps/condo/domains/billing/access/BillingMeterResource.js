@@ -3,7 +3,7 @@
  */
 
 async function canReadBillingMeterResources ({ authentication: { item: user } }) {
-    return user
+    return !!user
 }
 
 async function canManageBillingMeterResources ({ authentication: { item: user } }) {
