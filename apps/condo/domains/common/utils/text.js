@@ -27,6 +27,8 @@ function normalizeText (text) {
         .replace(threeOrMoreEOL, EOL + EOL)
         // replace two or more spaces to one space
         .replace(/ {2,}/gm, ' ')
+        .replace(/ {2,}/gm, ' ')
+        .replace(/[  ]{2,}/gm, ' ')
         // normalize punctuation between words, e.g: 'test  ,test' -> 'test, test'
         .replace(new RegExp(`[^${punctuations}] *[${punctuations}]+ *`, 'gm'), wordWithPunctuation => (
             `${wordWithPunctuation.replace(new RegExp(` *[${punctuations}] *`, 'gm'), punctuation => punctuation.trim())} `
