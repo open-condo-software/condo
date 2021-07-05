@@ -47,7 +47,7 @@ function menuDataRender () {
         {
             path: '/employee',
             icon: HeartFilled,
-            locale: 'menu.Users',
+            locale: 'menu.Employee',
         },
     ]
 }
