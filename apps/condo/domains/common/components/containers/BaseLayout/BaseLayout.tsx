@@ -3,7 +3,6 @@ import { jsx } from '@emotion/core'
 import { createContext, CSSProperties, FunctionComponent, useContext, useState } from 'react'
 import { ConfigProvider, Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import { useTopNotificationsHook, ITopNotification } from '@condo/domains/common/components/TopNotifications'
-import { DashboardOutlined } from '@ant-design/icons'
 import { SideMenu } from './components/SideMenu'
 import Router from 'next/router'
 import enUS from 'antd/lib/locale/en_US'
@@ -18,13 +17,17 @@ import { ElementType } from 'react'
 import MenuItem from 'antd/lib/menu/MenuItem'
 
 
+interface ILayoutContext {
+    isMobile: boolean
+    addNotification: (notification: ITopNotification) => void
+}
 
-const LayoutContext = createContext({
+const LayoutContext = createContext<ILayoutContext>({
     isMobile: false,
-    addNotification: (notification: ITopNotification) => null,
+    addNotification: (notification) => null,
 })
 
-const useLayoutContext = () => useContext(LayoutContext)
+const useLayoutContext = (): ILayoutContext => useContext<ILayoutContext>(LayoutContext)
 
 const { Header, Content } = Layout
 
@@ -34,38 +37,6 @@ const ANT_LOCALES = {
     ru: ruRU,
     en: enUS,
 }
-/*
-const DEFAULT_MENU = [
-    {
-        path: '/',
-        icon: <DashboardOutlined />,
-        locale: 'menu.Home',
-    },
-    {
-        path: '/auth/signin',
-        locale: 'menu.Auth',
-        hideInMenu: true,
-        children: [
-            {
-                path: '/auth/signin',
-                locale: 'menu.SignIn',
-            },
-            {
-                path: '/auth/register',
-                locale: 'menu.SignUp',
-            },
-            {
-                path: '/auth/forgot',
-                locale: 'menu.ResetPassword',
-            },
-            {
-                path: '/auth/change-password',
-                locale: 'menu.ChangePassword',
-            },
-        ],
-    },
-]
-*/
 interface IBaseLayoutProps {
     style?: CSSProperties
     className?: string
@@ -74,7 +45,6 @@ interface IBaseLayoutProps {
     onLogoClick: () => void
     menuDataRender: () => MenuItem[]
 }
-
 
 const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
     const {

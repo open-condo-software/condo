@@ -1,5 +1,6 @@
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { notification } from 'antd'
+import { useOrganization } from '@core/next/organization'
 import React from 'react'
 import { FormattedMessage } from 'react-intl'
 import { useAuth } from '@core/next/auth'
@@ -16,12 +17,13 @@ interface IOrganizationInvitesHookResult {
 }
 
 export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
-    const { user } = useAuth()
     const intl = useIntl()
     const AcceptMessage = intl.formatMessage({ id: 'Accept' })
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
     const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const { user } = useAuth()
+    const { selectLink } = useOrganization()
     const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects(
         { where: user ? { user: { id: user.id }, isAccepted: false, isRejected: false, isBlocked: false } : {} },
     )
@@ -58,7 +60,9 @@ export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
                         secondary: true,
                     },
                     {
-                        action: () => handleAcceptOrReject(invite, 'accept'),
+                        action: () => handleAcceptOrReject(invite, 'accept').then(() => {
+                            selectLink({ id: invite.id })
+                        }),
                         title: AcceptMessage,
                     },
                 ],

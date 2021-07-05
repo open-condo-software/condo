@@ -12,6 +12,7 @@ import { css, jsx } from '@emotion/core'
 import { useIntl } from '@core/next/intl'
 import { colors } from '@condo/domains/common/constants/style'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
+import { useEffect } from 'react'
 
 const blackSelectCss = css`
   width: 200px;
@@ -60,7 +61,7 @@ export const OrganizationSelect: React.FC = () => {
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
     const { link, selectLink, isLoading: organizationLoading } = useOrganization()
     const { objs: userOrganizations, loading: organizationLinksLoading, fetchMore } = OrganizationEmployee.useObjects(
-        { where: user ? { user: { id: user.id }, isAccepted: true } : {} },
+        { where: user ? { user: { id: user.id }, isRejected: false, isBlocked: false } : {} },
         { fetchPolicy: 'network-only' }
     )
     const chooseOrganizationByLinkId = React.useCallback((value) => {
@@ -75,7 +76,6 @@ export const OrganizationSelect: React.FC = () => {
                 where: { organization: { id }, user: { id: user.id } },
             }).then((data) => {
                 const userLinks = get(data, 'data.objs', [])
-                console.log(userLinks)
                 if (id) {
                     const newLink = userLinks.find(link => link.organization.id === id)
                     if (newLink) {
@@ -87,11 +87,20 @@ export const OrganizationSelect: React.FC = () => {
         },
     })
     const options = React.useMemo(() => {
-        return userOrganizations.map((organization) => {
+        return userOrganizations.filter(link => link.isAccepted).map((organization) => {
             const { value, label } = OrganizationEmployee.convertGQLItemToFormSelectState(organization)
             return (<Select.Option style={optionStyle} key={value} value={value} title={label}>{label}</Select.Option>)
         })
     }, [userOrganizations])
+
+    useEffect(() => {
+        if (!organizationLinksLoading && user){
+            if (!userOrganizations.length) {
+                showCreateOrganizationModal(true)
+            }
+        }
+    }, [userOrganizations, organizationLinksLoading, showCreateOrganizationModal, user])
+
     const isOptionsEmpty = !options.length
     const selectValue = isOptionsEmpty ? LoadingMessage : get(link, 'id')
     const selectOptionsProps = {
