@@ -8,6 +8,7 @@ import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useAuth } from '@core/next/auth'
 import { CountDownTimer } from '../../common/components/CountDownTimer'
 import { START_PASSWORD_RECOVERY_MUTATION } from '../gql'
+import { getClientSideSenderInfo } from '../../common/utils/userid.utils'
 
 export const UserPasswordResetButton = () => {
     const intl = useIntl()
@@ -18,11 +19,16 @@ export const UserPasswordResetButton = () => {
     const [startPasswordRecovery] = useMutation(START_PASSWORD_RECOVERY_MUTATION)
 
     const updatePassword = () => {
+        const sender = getClientSideSenderInfo()
+        const meta = { dv: 1, sender }
         // @ts-ignore TODO(Dimitreee): remove after runMutation typo
         return runMutation({
             mutation: startPasswordRecovery,
             variables: {
-                email: get(user, 'email'),
+                data: {
+                    email: get(user, 'email'),
+                    ...meta,
+                },
             },
             intl,
         })
