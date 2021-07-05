@@ -25,7 +25,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const { isMobile, toggleSideMenuCollapsed } = props
     if (isLoading || auth.isLoading || isInvitesLoading) {
         return (
-            <Loader />
+            <Loader fill='false' />
         )
     }
     return (
