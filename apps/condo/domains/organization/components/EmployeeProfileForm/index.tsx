@@ -10,6 +10,7 @@ import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { OrganizationEmployee } from '../../utils/clientSchema'
 import { EmployeeRoleSelect } from './EmployeeRoleSelect'
+import { Loader } from '@condo/domains/common/components/Loader'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -44,6 +45,9 @@ export const EmployeeProfileForm = () => {
 
     if (error) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
+    }
+    if (loading) {
+        return <Loader />
     }
 
     const formAction = (formValues) => {
