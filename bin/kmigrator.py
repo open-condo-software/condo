@@ -31,7 +31,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 4, 0)
+VERSION = (1, 4, 1)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -486,7 +486,7 @@ def _1_1_prepare_cache_dir(ctx):
 
 
 def _1_2_prepare_get_knex_schema_script(ctx):
-    GET_KNEX_SETTINGS_SCRIPT.write_text(_inject_ctx(GET_KEYSTONE_SCHEMA_SCRIPT, ctx))
+    GET_KNEX_SETTINGS_SCRIPT.write_text(_inject_ctx(GET_KEYSTONE_SCHEMA_SCRIPT, ctx), encoding='utf-8')
 
 
 def _2_1_generate_knex_jsons(ctx):
@@ -509,11 +509,11 @@ def _3_1_prepare_django_dir(ctx):
     if migrations_dir.exists():
         shutil.rmtree(migrations_dir, ignore_errors=True)
     migrations_dir.mkdir(exist_ok=True)
-    (migrations_dir / '__init__.py').write_text('')
-    (DJANGO_DIR / '__init__.py').write_text('')
-    (DJANGO_DIR / 'settings.py').write_text(_inject_ctx(DJANGO_SETTINGS_SCRIPT, ctx))
-    (DJANGO_DIR / '..' / 'manage.py').write_text(DJANGO_MANAGE_SCRIPT)
-    (DJANGO_DIR / '..' / '_django_model_generator.py').write_text(_inject_ctx(DJANGO_MODEL_GENERATOR_SCRIPT, ctx))
+    (migrations_dir / '__init__.py').write_text('', encoding='utf-8')
+    (DJANGO_DIR / '__init__.py').write_text('', encoding='utf-8')
+    (DJANGO_DIR / 'settings.py').write_text(_inject_ctx(DJANGO_SETTINGS_SCRIPT, ctx), encoding='utf-8')
+    (DJANGO_DIR / '..' / 'manage.py').write_text(DJANGO_MANAGE_SCRIPT, encoding='utf-8')
+    (DJANGO_DIR / '..' / '_django_model_generator.py').write_text(_inject_ctx(DJANGO_MODEL_GENERATOR_SCRIPT, ctx), encoding='utf-8')
 
 
 def _3_2_generate_django_models(ctx):
@@ -556,7 +556,7 @@ def _hotfix_django_migration_bug(item):
     op_ind = code_0.rfind(']')
     code = code_0[:op_ind].rstrip() + ''.join(reversed(delete_sections)) + '\n    ]\n'
     if source != code:
-        item.write_text(code)
+        item.write_text(code, encoding='utf-8')
 
 
 def _4_1_makemigrations(ctx, merge=False, check=False):
@@ -590,13 +590,13 @@ def _4_1_makemigrations(ctx, merge=False, check=False):
             log_file.write_bytes(e.stderr)
             text = KNEX_MIGRATION_TPL_NO_DOWN.format(**locals())
 
-        (KNEX_MIGRATIONS_DIR / filename).write_text(text)
+        (KNEX_MIGRATIONS_DIR / filename).write_text(text, encoding='utf-8')
         print(" -> ", filename)
 
 
 def _5_1_run_knex_command(ctx, cmd='latest'):
     ctx['__KNEX_MIGRATION_CODE__'] = 'return await knex.migrate.{}(config)'.format(cmd)
-    KNEX_MIGRATE_SCRIPT.write_text(_inject_ctx(RUN_KEYSTONE_KNEX_SCRIPT, ctx))
+    KNEX_MIGRATE_SCRIPT.write_text(_inject_ctx(RUN_KEYSTONE_KNEX_SCRIPT, ctx), encoding='utf-8')
     log_file = DJANGO_DIR / '..' / 'knex.run.{}.{}.log'.format(time(), cmd)
     try:
         log = subprocess.check_output(['node', str(KNEX_MIGRATE_SCRIPT)], stderr=subprocess.STDOUT)
