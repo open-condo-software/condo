@@ -23,9 +23,10 @@ describe('BillingIntegrationLog', () => {
     test('organization integration manager: create BillingIntegrationLog', async () => {
         const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
         const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-        const [obj] = await createTestBillingIntegrationLog(managerUserClient, context)
 
-        expect(obj.context.id).toEqual(context.id)
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestBillingIntegrationLog(managerUserClient, context)
+        })
     })
 
     test('user: create BillingIntegrationLog', async () => {
@@ -56,9 +57,10 @@ describe('BillingIntegrationLog', () => {
     })
 
     test('organization integration manager: read BillingIntegrationLog', async () => {
+        const admin = await makeLoggedInAdminClient()
         const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
         const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-        const [obj] = await createTestBillingIntegrationLog(managerUserClient, context)
+        const [obj] = await createTestBillingIntegrationLog(admin, context)
         const logs = await BillingIntegrationLog.getAll(managerUserClient, { id: obj.id })
 
         expect(logs).toHaveLength(1)
@@ -100,17 +102,17 @@ describe('BillingIntegrationLog', () => {
     })
 
     test('organization integration manager: update BillingIntegrationLog', async () => {
+        const admin = await makeLoggedInAdminClient()
         const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
         const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-        const [obj] = await createTestBillingIntegrationLog(managerUserClient, context)
+        const [obj] = await createTestBillingIntegrationLog(admin, context)
         const message = faker.lorem.words()
         const payload = {
             message,
         }
-        const [objUpdated] = await updateTestBillingIntegrationLog(managerUserClient, obj.id, payload)
-
-        expect(obj.id).toEqual(objUpdated.id)
-        expect(objUpdated.message).toEqual(message)
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestBillingIntegrationLog(managerUserClient, obj.id, payload)
+        })
     })
 
     test('user: update BillingIntegrationLog', async () => {
@@ -165,7 +167,7 @@ describe('BillingIntegrationLog', () => {
         })
     })
 
-    test.skip('user: can see the logs', async () => {
+    test('user: can see the logs', async () => {
         const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
         // const hackerClient = await makeClientWithNewRegisteredAndLoggedInUser()
         const adminClient = await makeLoggedInAdminClient()
@@ -188,7 +190,7 @@ describe('BillingIntegrationLog', () => {
 
         // user doesn't have access to change log record
         await expectToThrowAccessDeniedErrorToObj(async () => {
-            await BillingIntegrationLog.update(userClient, logMessage.id, { message: 'no message' }, { raw: true })
+            await BillingIntegrationLog.update(userClient, logMessage.id, { message: 'no message' })
         })
 
         // hacker client doesn't have access to the integration log record

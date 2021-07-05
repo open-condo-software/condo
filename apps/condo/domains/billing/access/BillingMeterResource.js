@@ -7,7 +7,8 @@ async function canReadBillingMeterResources ({ authentication: { item: user } })
 }
 
 async function canManageBillingMeterResources ({ authentication: { item: user } }) {
-    return user && (user.isAdmin || user.isSupport)
+    return (user && (user.isAdmin || user.isSupport)) ||
+        { context: { integration: { accessRights_some: { user: { id: user.id } } } } }
 }
 
 /*
