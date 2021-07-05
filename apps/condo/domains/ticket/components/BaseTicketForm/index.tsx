@@ -152,7 +152,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 <Form.Item name={'unitName'} label={FlatNumberLabel}>
                                                     <UnitNameInput
                                                         propertyId={selectedPropertyId}
-                                                        allowClear={false}
+                                                        allowClear={true}
                                                         onSelect={(_, option) => {
                                                             setSelectedUnitName(option.key)
                                                         }}
