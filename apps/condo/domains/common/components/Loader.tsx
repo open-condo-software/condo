@@ -20,7 +20,7 @@ interface ILoaderProps extends SpinProps {
 }
 
 export const Loader: React.FC<ILoaderProps> = (props) => {
-
+    const { fill, ...other } = props
     // We need this to recolor antd spinner. It's not easily configurable from theme
     const coloredSpinnerStyles = css`
         .ant-spin-dot-item {
@@ -28,17 +28,17 @@ export const Loader: React.FC<ILoaderProps> = (props) => {
         }
     `
 
-    if (props.fill) {
+    if (fill) {
         return (
             <FilledLoaderContainer css={coloredSpinnerStyles}>
-                <Spin {...props}/>
+                <Spin {...other} />
             </FilledLoaderContainer>
         )
     }
 
     return (
         <section css={coloredSpinnerStyles}>
-            <Spin {...props}/>
+            <Spin {...other}/>
         </section>
     )
 }
