@@ -58,7 +58,6 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
     const FindWordMessage = intl.formatMessage({ id: 'filters.FindWord' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const UserNameMessage = intl.formatMessage({ id: 'filters.UserName' })
-    const FlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
     const ShortFlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
 
     const sorterMap = createSorterMap(sort)

@@ -453,10 +453,8 @@ class MapEdit extends MapView {
             const units = []
             for (let unitOnFloor = 0; unitOnFloor < unitsOnFloor; unitOnFloor++) {
                 let label = ' '
-                if (floor > 0) {
-                    label = String(unitNumber)
-                    unitNumber++
-                }
+                label = String(unitNumber)
+                unitNumber++
                 units.push({
                     id: String(++this.autoincrement),
                     label,
