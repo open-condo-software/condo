@@ -1,5 +1,5 @@
 import { InputProps } from 'antd'
-import React, { useCallback, useRef, useImperativeHandle, useEffect } from 'react'
+import React, { useRef, useImperativeHandle, useEffect, ComponentProps } from 'react'
 import ReactPhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import { useOrganization } from '@core/next/organization'
@@ -13,11 +13,11 @@ interface IPhoneInputProps extends InputProps {
     compatibilityWithAntAutoComplete?: boolean,
 }
 
-interface PhoneInputRef {
+type PhoneInputRef = {
     numberInputRef: {
         focus: () => void,
-    },
-}
+    } & ComponentProps<'input'>,
+} 
 
 export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, ref) => {
     const { value, placeholder, style, disabled, ...otherProps } = props
@@ -31,9 +31,9 @@ export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, r
         },
     }))
     useEffect(() => {
-        // @ts-ignore
         inputRef.current.numberInputRef.tabIndex = props.tabIndex
-    })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
     const userOrganizationCountry = get(organization, 'country', 'ru')
 
     const onChange = (value) => {
