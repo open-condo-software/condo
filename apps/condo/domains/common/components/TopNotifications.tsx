@@ -46,8 +46,7 @@ export const useTopNotificationsHook = (): ITopNotificationHookResult => {
         }
     }
     const removeNotification = (notificationId) => {
-        const newNotificatios = topNotifications.filter(notification => notification.id !== notificationId)
-        setTopNotifications(newNotificatios)
+        setTopNotifications([...topNotifications.filter(notification => notification.id !== notificationId)])
     }
 
     const TopNotificationComponent: React.FC = () => {
