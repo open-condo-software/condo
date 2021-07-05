@@ -8,22 +8,28 @@ import {
     CONTACT_PAGE_SIZE,
 } from './helpers'
 
+function randInt (maxValue) {
+    return Math.floor(Math.random() * maxValue)
+}
+
 describe('Contact Helpers', () => {
     describe('query utils', () => {
         describe('searchToQuery', () => {
-            it('correct work on correct string', () => {
-                const testTimes = 1000
-                for (let i = 0; i < testTimes; i++) {
-                    let randomString = Math.random().toString(36)
-                    const randomCut = Math.floor(Math.random() * randomString.length)
-                    randomString = randomString.substring(randomCut)
-                    expect(searchToQuery(randomString)).toStrictEqual([
-                        { name_contains_i: randomString },
-                        { phone_contains_i: randomString },
-                        { email_contains_i: randomString },
-                        { property: { address_contains_i: randomString } },
-                    ])
-                }
+            it('should generate searches for all fields on correct input', () => {
+                const search = 'stringToSearch'
+                expect(searchToQuery(search)).toStrictEqual([
+                    { name_contains_i: search },
+                    { phone_contains_i: search },
+                    { email_contains_i: search },
+                    { property: { address_contains_i: search } },
+                ])
+            })
+            it('should not generate anything on undefined/null/empty_string', () => {
+                const nullTest = null
+                const emptyTest = ''
+                expect(searchToQuery()).toBeUndefined()
+                expect(searchToQuery(nullTest)).toBeUndefined()
+                expect(searchToQuery(emptyTest)).toBeUndefined()
             })
         })
         describe('filtersToQuery', () => {
@@ -235,17 +241,18 @@ describe('Contact Helpers', () => {
         })
         describe('getPageIndexFromQuery', () => {
             const query = {}
-            const pages = 1000
+            const attemps = 10
             const maxOffset = CONTACT_PAGE_SIZE
             it('rounded value test', () => {
-                for (let i = 0; i < pages; i++) {
-                    query['offset'] = i * CONTACT_PAGE_SIZE
-                    expect(getPageIndexFromQuery(query)).toStrictEqual(i + 1)
+                for (let i = 0; i < attemps; i++) {
+                    const page = randInt(1000)
+                    query['offset'] = page * CONTACT_PAGE_SIZE
+                    expect(getPageIndexFromQuery(query)).toStrictEqual(page + 1)
                 }
             })
             it('not-rounded value test', () => {
-                for (let i = 0; i < pages; i++) {
-                    query['offset'] = i * CONTACT_PAGE_SIZE + Math.floor(Math.random() * maxOffset)
+                for (let i = 0; i < attemps; i++) {
+                    query['offset'] = i * CONTACT_PAGE_SIZE + randInt(maxOffset)
                     expect(getPageIndexFromQuery(query)).toStrictEqual(i + 1)
                 }
             })

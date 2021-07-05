@@ -18,7 +18,7 @@ import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleA
 import BehaviorRecorder from '@condo/domains/common/components/containers/BehaviorRecorder'
 import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
-import { UserIcon } from '@condo/domains/common/components/Icons'
+import { UserIcon } from '@condo/domains/common/components/icons/Icons'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 

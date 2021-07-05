@@ -12,7 +12,6 @@ const UserIconSVG: React.FC = () => {
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const UserIcon = props => {
-    console.log(props)
     return (
         <Icon component={UserIconSVG} {...props}/>
     )
