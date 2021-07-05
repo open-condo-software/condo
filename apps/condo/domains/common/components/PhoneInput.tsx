@@ -31,8 +31,9 @@ export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, r
         },
     }))
     useEffect(() => {
+        // @ts-ignore
         inputRef.current.numberInputRef.tabIndex = props.tabIndex
-    });
+    })
     const userOrganizationCountry = get(organization, 'country', 'ru')
 
     const onChange = (value) => {
