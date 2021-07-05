@@ -61,7 +61,7 @@ export const sideMenuDesktopCss = css`
   left: 0;
   z-index: 10;
   border-width: 0 1px 0 0;
-  border-color: ${colors.lightGrey};
+  border-color: ${colors.lightGrey[5]};
   border-style: solid;
 `
 
