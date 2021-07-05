@@ -81,7 +81,6 @@ const SignInForm = (): React.ReactElement => {
             setIsLoading(false)
         })
     }
-
     return (
         <Form
             form={form}
@@ -99,7 +98,7 @@ const SignInForm = (): React.ReactElement => {
                 labelCol={{ flex: 1 }}
                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
             >
-                <PhoneInput placeholder={ExamplePhoneMsg} style={INPUT_STYLE}/>
+                <PhoneInput placeholder={ExamplePhoneMsg} style={INPUT_STYLE} tabIndex={1} />
             </Form.Item>
 
             <Form.Item
@@ -110,7 +109,7 @@ const SignInForm = (): React.ReactElement => {
                 style={{ marginTop: '24px' }}
                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
             >
-                <Input.Password style={INPUT_STYLE}  />
+                <Input.Password style={INPUT_STYLE} tabIndex={2} />
             </Form.Item>
 
             <div style={{ paddingTop: '4em', display: 'flex', justifyContent: 'space-between', width: '100%' }}>
@@ -124,7 +123,7 @@ const SignInForm = (): React.ReactElement => {
                     {SignInMsg}
                 </Button>
 
-                <Typography.Text  type='secondary'>
+                <Typography.Text type='secondary'>
                     <FormattedMessage
                         id='pages.auth.signin.ResetPasswordLink'
                         values={{

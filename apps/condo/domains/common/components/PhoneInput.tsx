@@ -1,5 +1,5 @@
 import { InputProps } from 'antd'
-import React, { useCallback, useRef, useImperativeHandle } from 'react'
+import React, { useCallback, useRef, useImperativeHandle, useEffect } from 'react'
 import ReactPhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import { useOrganization } from '@core/next/organization'
@@ -30,7 +30,9 @@ export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, r
             inputRef.current.numberInputRef.focus()
         },
     }))
-
+    useEffect(() => {
+        inputRef.current.numberInputRef.tabIndex = props.tabIndex
+    });
     const userOrganizationCountry = get(organization, 'country', 'ru')
 
     const onChange = (value) => {
