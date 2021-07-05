@@ -51,7 +51,7 @@ const MenuItems = (props) => {
                             return (
                                 <Link href={item.path} key={item.path}>
                                     <MenuItem className={menuItemClassNames}>
-                                        <Icon className='icon'/>
+                                        <Icon className='icon' />
                                         <Typography.Text className='label'>
                                             {intl.formatMessage({ id: item.locale })}
                                         </Typography.Text>
@@ -77,7 +77,7 @@ type MenuItem = {
 interface ISideMenuProps {
     onLogoClick: (...args) => void
     menuData: Array<MenuItem>,
-    localeRender: (...args) =>  React.ElementType
+    localeRender: (...args) => React.ElementType
     onClickMenuItem: (...args) => void
     isMobile: boolean
     isSideMenuCollapsed: boolean
@@ -88,11 +88,13 @@ const TicketCreateButton = () => {
     const intl = useIntl()
 
     return (
-        <Link href={'/ticket/create'}>
-            <Button type='sberDefault'>
-                <PlusCircleFilled/>
-                {intl.formatMessage({ id: 'CreateTicket' })}
-            </Button>
+        <Link href={'/ticket/create'} >
+            <a>
+                <Button type='sberDefault' >
+                    <PlusCircleFilled />
+                    {intl.formatMessage({ id: 'CreateTicket' })}
+                </Button>
+            </a>
         </Link>
     )
 }
@@ -126,10 +128,10 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
                 width={SIDE_MENU_WIDTH}
                 onCollapse={toggleSideMenuCollapsed}
             >
-                <Logo onClick={onLogoClick}/>
+                <Logo onClick={onLogoClick} />
                 <Space size={60} direction={'vertical'}>
-                    <MenuItems menuData={menuData}/>
-                    <TicketCreateButton/>
+                    <MenuItems menuData={menuData} />
+                    <TicketCreateButton />
                 </Space>
             </Layout.Sider>
         </Drawer>
@@ -144,13 +146,13 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
                 onCollapse={toggleSideMenuCollapsed}
                 className='side-menu'
             >
-                <Logo onClick={onLogoClick}/>
+                <Logo onClick={onLogoClick} />
                 <Space size={60} direction={'vertical'}>
-                    <MenuItems menuData={menuData}/>
-                    <TicketCreateButton/>
+                    <MenuItems menuData={menuData} />
+                    <TicketCreateButton />
                 </Space>
             </Layout.Sider>
-            {menuData && <div css={substrateDesktopCss} className='side-menu-substrate'/>}
+            {menuData && <div css={substrateDesktopCss} className='side-menu-substrate' />}
         </>
     )
 
