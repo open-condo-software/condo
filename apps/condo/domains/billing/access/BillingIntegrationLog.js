@@ -36,7 +36,7 @@ async function canManageBillingIntegrationLogs ({ authentication: { item: user }
     if (operation === 'create') {
         // NOTE: can create only by the integration account
         contextId = get(originalInput, ['context', 'connect', 'id'])
-    } else if (operation === 'update' || operation === 'delete') {
+    } else if (operation === 'update') {
         // NOTE: can update only by the integration account
         if (!itemId) return false
         const log = await getById('BillingIntegrationLog', itemId)
@@ -48,9 +48,7 @@ async function canManageBillingIntegrationLogs ({ authentication: { item: user }
     if (!contextId) return false
     const context = await getById('BillingIntegrationOrganizationContext', contextId)
     if (!context) return false
-    const { organization: organizationId, integration: integrationId } = context
-    const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
-    if (canManageIntegrations) return true
+    const { integration: integrationId } = context
     return await checkBillingIntegrationAccessRight(user.id, integrationId)
 }
 
