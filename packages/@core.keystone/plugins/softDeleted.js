@@ -86,8 +86,14 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
  * @return {Object}
  */
 function getWhereVariables (args) {
-    // TODO(pahaz || toplenboren): this work only for GET query parametrs. Check Post data
-    const variables = get(args, ['context', 'req', 'query', 'variables'])
+    const method = get(args, ['context', 'req', 'method'])
+    let variables = {}
+    if (method === 'GET') {
+        variables = get(args, ['context', 'req', 'query', 'variables'])
+    }
+    else if (method === 'POST') {
+        variables = get(args, ['context', 'req', 'body', 'variables'])
+    }
     try {
         return JSON.parse(variables).where || {}
     } catch (e) {
