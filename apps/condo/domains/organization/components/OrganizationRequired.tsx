@@ -2,7 +2,7 @@
 // @ts-nocheck
 import { css } from '@emotion/core'
 import { Typography, Affix, Alert } from 'antd'
-import { useEffect } from 'react'
+import { useEffect, createContext, useContext } from 'react'
 import Router, { useRouter } from 'next/router'
 import qs from 'qs'
 import { useAuth } from '@core/next/auth'
@@ -31,6 +31,12 @@ import {
 import { useState } from 'react'
 import { isEmpty } from 'lodash'
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+
+export const OrganizationContext = createContext({
+    invites: [],
+    showLinks: () => null,
+})
+
 
 const DEFAULT_ORGANIZATION_AVATAR_URL = 'https://www.pngitem.com/pimgs/m/226-2261747_company-name-icon-png-transparent-png.png'
 
@@ -83,17 +89,23 @@ function CreateOrganizationModalForm ({ visible, onFinish }) {
 
 
 
+
 function OrganizationRequiredAfterAuthRequired ({ children, withEmployeeRestrictions }) {
     const intl = useIntl()
     const EmployeeRestrictedTitle = intl.formatMessage({ id: 'employee.emptyList.title' })
     const EmployeeRestrictedDescription = intl.formatMessage({ id: 'employee.emptyList.description' })
-    const { isLoading: isLoadingAuth } = useAuth()
+    const { user, isLoading: isLoadingAuth } = useAuth()
     const organization = useOrganization()
     const { isLoading, link } = organization
-    if (isLoading || isLoadingAuth) {
+    const { objs: userInvites, refetch, loading: isAllOrganizationsLoading } = OrganizationEmployee.useObjects(
+        { where: user ? { user: { id: user.id }, isAccepted: false, isRejected: false, isBlocked: false } : {} },
+    )
+
+
+    if (isLoading || isLoadingAuth || isAllOrganizationsLoading) {
         return <Loader/>
     }
-
+    console.log('AAA', userInvites)
     if (!link) {
         return CreateOrganizationModalForm({ visible: true })
     }
@@ -119,8 +131,13 @@ function OrganizationRequiredAfterAuthRequired ({ children, withEmployeeRestrict
     if (isFunction(children)) {
         return children(organization)
     }
-
-    return children
+    return (
+        <OrganizationContext.Provider value={{
+            invites: userInvites,
+        }}>
+            {children}
+        </OrganizationContext.Provider>
+    )
 }
 
 export function OrganizationRequired ({ children, withEmployeeRestrictions = true }) {

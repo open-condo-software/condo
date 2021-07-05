@@ -149,7 +149,7 @@ export const TopMenuItem = styled.div`
 `
 
 export const menuIconStyles = {
-    color: colors.lightGrey[5],
+    color: colors.black,
     fontSize: '24px',
 }
 

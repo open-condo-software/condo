@@ -1,9 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { Button, Dropdown, Form, Input, List, Menu, Modal, Popconfirm, Skeleton, Typography } from 'antd'
+import { Dropdown, Form, Input, List, Menu, Modal, Popconfirm, Skeleton, Typography } from 'antd'
+import { Button } from '@condo/domains/common/components/Button'
 import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import React, { FunctionComponent, useCallback, useState } from 'react'
+import React, { FunctionComponent, useCallback, useState, useRef } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
 import { throttle } from 'lodash'
@@ -84,7 +85,7 @@ function FormList ({ dataSource, renderItem, ...extra }) {
                         avatar={itemData.avatar}
                         title={itemData.title}
                         description={itemData.description}
-                        {...mainBlockMeta}/>
+                        {...mainBlockMeta} />
                     <SListItemExtra {...extraBlockMeta}>
                         {(itemData.actions && Array.isArray(itemData.actions)) ?
                             itemData.actions
@@ -100,7 +101,7 @@ function FormList ({ dataSource, renderItem, ...extra }) {
                                                 if (!action) return null
                                                 return <li key={j} className='ant-list-item-action'>
                                                     {action}
-                                                    {j !== length - 1 && <em className='ant-list-item-action-split'/>}
+                                                    {j !== length - 1 && <em className='ant-list-item-action-split' />}
                                                 </li>
                                             })
                                         }
@@ -121,7 +122,7 @@ function CreateFormListItemButton ({ label, ...extra }) {
         style={{ width: '100%' }}
         {...extra}
     >
-        <PlusOutlined/>{label}
+        <PlusOutlined />{label}
     </Button>
 }
 
@@ -148,7 +149,7 @@ function ExtraDropdownActionsMenu ({ actions }) {
         <Dropdown overlay={<Menu onClick={handleAction}>
             {actionsLine.map((action, i) => <Menu.Item key={i}>{action.label}</Menu.Item>)}
         </Menu>}>
-            <a> ... <DownOutlined/></a>
+            <a> ... <DownOutlined /></a>
         </Dropdown>
     </Popconfirm>
 }
@@ -184,124 +185,13 @@ function useCreateAndEditModalForm () {
     return { visible, editableItem, openCreateModal, openEditModal, cancelModal }
 }
 
-function BaseModalForm ({ action, mutation, mutationExtraVariables, mutationExtraData, mutationOptions, formValuesToMutationDataPreprocessor, formValuesToMutationDataPreprocessorContext, formInitialValues, children, onMutationCompleted, onFormValuesChange, modalExtraFooter = [], visible, cancelModal, ModalTitleMsg, ModalCancelButtonLabelMsg, ModalSaveButtonLabelMsg, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
-    // TODO(pahaz): refactor all (mutation, mutationExtraVariables, mutationOptions, mutationExtraData) and remove it
-    if (mutationOptions) throw new Error('mutationOptions is not supported!')
-    if (!children) throw new Error('need to define Form.Item inside ModalForm')
-    if (!mutation && !action) throw new Error('need to pass mutation or action prop')
-    if (action && mutation) throw new Error('impossible to pass mutation and action prop')
-    if (action && mutationExtraVariables) throw new Error('impossible to pass action and mutationExtraVariables prop')
-    if (action && mutationExtraData) throw new Error('impossible to pass action and mutationExtraData prop')
-    if (typeof visible === 'undefined') throw new Error('need to pass visible prop')
-    if (typeof cancelModal === 'undefined') throw new Error('need to pass cancelModal prop')
-    if (!mutationExtraData) mutationExtraData = {}
-    if (!mutationExtraVariables) mutationExtraVariables = {}
-    if (typeof mutationExtraData !== 'object') throw new Error('wrong mutationExtraData prop')
-    if (typeof mutationExtraVariables !== 'object') throw new Error('wrong mutationExtraVariables prop')
-
-    const intl = useIntl()
-    const CancelMessage = intl.formatMessage({ id: 'Cancel' })
-    const SaveMessage = intl.formatMessage({ id: 'Save' })
-    const ClientSideErrorMessage = intl.formatMessage({ id: 'ClientSideError' })
-
-    const [form] = Form.useForm()
-    const [isLoading, setIsLoading] = useState(false)
-    let create = null
-    if (!action) {
-        [create] = useMutation(mutation) // eslint-disable-line react-hooks/rules-of-hooks
-    }
-
-    function handleFormSubmit (values) {
-        if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
-        let data
-        try {
-            data = (formValuesToMutationDataPreprocessor) ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext) : values
-        } catch (err) {
-            if (err instanceof ValidationError) {
-                let errors = []
-                if (ErrorToFormFieldMsgMapping) {
-                    const errorString = `${err}`
-                    Object.keys(ErrorToFormFieldMsgMapping).forEach((msg) => {
-                        if (errorString.includes(msg)) {
-                            errors.push(ErrorToFormFieldMsgMapping[msg])
-                        }
-                    })
-                }
-                if (errors.length === 0) {
-                    errors = [{ name: err.field || NON_FIELD_ERROR_NAME, errors: [String(err.message)] }]
-                }
-                form.setFields(errors)
-                return
-            } else {
-                form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [ClientSideErrorMessage] }])
-                throw err  // unknown error, rethrow it (**)
-            }
-        }
-        form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [] }])
-        setIsLoading(true)
-
-        const actionOrMutationProps = (!action) ?
-            { mutation: create, variables: { data: { ...data, ...mutationExtraData }, ...mutationExtraVariables } } :
-            { action: () => action({ ...data }) }
-
-        return runMutation({
-            ...actionOrMutationProps,
-            onCompleted: () => {
-                if (onMutationCompleted) onMutationCompleted()
-                form.resetFields()
-            },
-            onFinally: () => {
-                setIsLoading(false)
-                cancelModal()
-            },
-            intl,
-            form,
-            ErrorToFormFieldMsgMapping,
-            OnErrorMsg,
-            OnCompletedMsg,
-        })
-    }
-
-    function handleSave () {
-        form.submit()
-    }
-
-    function handleChangeForm (changedValues, allValues) {
-        if (onFormValuesChange) onFormValuesChange(changedValues, allValues)
-    }
-
-    return (<Modal
-        title={ModalTitleMsg || ''}
-        visible={visible}
-        onCancel={cancelModal}
-        footer={[
-            ...modalExtraFooter,
-            <Button key="cancel" onClick={cancelModal}>{ModalCancelButtonLabelMsg || CancelMessage}</Button>,
-            <Button key="submit" onClick={handleSave} type="primary" loading={isLoading}>
-                {ModalSaveButtonLabelMsg || SaveMessage}
-            </Button>,
-        ]}
-    >
-        <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleFormSubmit}
-            initialValues={formInitialValues}
-            onValuesChange={handleChangeForm}
-        >
-            <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input/></Form.Item>
-            {children}
-        </Form>
-    </Modal>)
-}
-
-
 type IFormValuesType = Record<string, string | number | { id: string } | { disconnectId: string }>
 
 // TODO(Dimitreee): add children type/interface
 // TODO(Dimitreee): remove any
 interface IFormWithAction {
     action?: (formValues) => Promise<any>
+    mutation?: Document.Node
     initialValues?: Record<string, unknown>
     onChange?: (changedValues: Record<string, unknown>, allValues: Record<string, unknown>) => void
     handleSubmit?: (values) => void
@@ -310,6 +200,17 @@ interface IFormWithAction {
     layout?: 'vertical' | 'horizontal'
     colon?: boolean
     formValuesToMutationDataPreprocessor?: (values: IFormValuesType) => IFormValuesType
+    ErrorToFormFieldMsgMapping?: Record<string, {
+        name: string
+        errors: string[]
+    }>
+    mutationExtraVariables?: Record<string, unknown>
+    mutationExtraData?: Record<string, unknown>
+    formValuesToMutationDataPreprocessor?: (values) => values
+    formValuesToMutationDataPreprocessorContext?: Record<string, unknown>
+    OnErrorMsg?: string
+    OnCompletedMsg?: string
+    onMutationCompleted?: (result) => void
 }
 
 const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
@@ -384,9 +285,9 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
 
         return runMutation({
             ...actionOrMutationProps,
-            onCompleted: () => {
+            onCompleted: (...args) => {
                 if (onMutationCompleted) {
-                    onMutationCompleted()
+                    onMutationCompleted(...args)
                 }
                 if (resetOnComplete) {
                     form.resetFields()
@@ -437,11 +338,70 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
             colon={colon}
             scrollToFirstError
         >
-            <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input/></Form.Item>
+            <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input /></Form.Item>
             {children({ handleSave, isLoading, handleSubmit: _handleSubmit, form })}
         </Form>
     )
 }
+
+
+interface IBaseModalFormProps extends IFormWithAction {
+    visible: boolean
+    cancelModal: () => void
+    ModalTitleMsg: string | JSX.Element
+    showCancelButton?: boolean
+    ModalCancelButtonLabelMsg?: string
+    ModalSaveButtonLabelMsg?: string
+    modalExtraFooter?: JSX.Element[]
+}
+
+const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
+    visible,
+    cancelModal,
+    ModalTitleMsg = '',
+    showCancelButton = true,
+    ModalCancelButtonLabelMsg,
+    ModalSaveButtonLabelMsg,
+    modalExtraFooter = [],
+    children,
+    ...props
+}) => {
+    const intl = useIntl()
+    const CancelMessage = ModalCancelButtonLabelMsg ? ModalCancelButtonLabelMsg : intl.formatMessage({ id: 'Cancel' })
+    const SaveMessage = ModalSaveButtonLabelMsg ? ModalSaveButtonLabelMsg : intl.formatMessage({ id: 'Save' })
+    const handleSaveRef = useRef(null)
+    const Buttons = []
+    if (showCancelButton) {
+        Buttons.push((<Button key="cancel" type="sberPrimary" secondary onClick={cancelModal}>{CancelMessage}</Button>))
+    }
+    return (<Modal
+        title={<h2 style={{ fontWeight: 'bold', lineHeight: '22px', marginBottom: '0px' }}>{ModalTitleMsg}</h2>}
+        visible={visible}
+        onCancel={cancelModal}
+        footer={[
+            ...modalExtraFooter,
+            ...Buttons,
+            <Button key="submit" onClick={() => {
+                console.log('handleSaveRef.current')
+                handleSaveRef.current()
+            }} type="sberPrimary" >{SaveMessage}</Button>,
+        ]}
+    >
+        <FormWithAction {...props}>
+            {
+                ({ handleSave }) => {
+                    handleSaveRef.current = handleSave
+                    return (
+                        <>
+                            {children}
+                        </>
+                    )
+                }
+            }
+        </FormWithAction>
+    </Modal>)
+}
+
 
 export {
     ValidationError,

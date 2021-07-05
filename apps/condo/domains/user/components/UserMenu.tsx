@@ -72,25 +72,12 @@ export const UserMenu = () => {
     const SignInMessage = intl.formatMessage({ id: 'SignIn' })
     const GuestUsernameMessage = intl.formatMessage({ id: 'baselayout.menuheader.GuestUsername' })
     const SignOutMessage = intl.formatMessage({ id: 'SignOut' })
-    const OwnerMessage = intl.formatMessage({ id: 'Owner' })
     const auth = useAuth()
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const { organization, link } = useOrganization()
 
     const DropdownOverlay = (
         <StyledMenu>
-            {organization && (
-                <StyledMenuItem onClick={goToOrganization}>
-                    <Space size={16}>
-                        <EnvironmentFilled style={menuIconStyles}/>
-                        <>
-                            {organization.name + ' '}
-                            {get(link, 'role') === 'owner' && <Tag color="error" className="tag">{OwnerMessage}</Tag>}
-                        </>
-                    </Space>
-                </StyledMenuItem>
-            )}
             <StyledMenuItem key="signout" onClick={auth.signout}>
                 <Space size={16}>
                     <RestFilled style={menuIconStyles}/>
