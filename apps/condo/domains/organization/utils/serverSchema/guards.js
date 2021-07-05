@@ -1,4 +1,4 @@
-const { findOrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
+const { findOrganizationEmployee } = require('./Organization')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
 const checkEmployeeExistency = async (context, organization, email, phone, user) => {

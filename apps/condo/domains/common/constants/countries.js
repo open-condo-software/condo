@@ -4,7 +4,6 @@ const DEFAULT_ENGLISH_COUNTRY = 'en'
 const RUSSIA_COUNTRY = 'ru'
 const COUNTRIES = {
     [DEFAULT_ENGLISH_COUNTRY]: {
-        adminRoleName: 'Admin',
         roleNames: {
             admin: 'Admin',
             supervisor: 'Supervisor',
@@ -24,7 +23,6 @@ const COUNTRIES = {
             foreman: 'Мастер участка',
             technician : 'Техник',
         },
-        adminRoleName: 'Администратор',
         // statusTransitions: {},  // TODO(pahaz): write logic for transitions
         phonePattern: /^[+]?[0-9-. ()]{7,}[0-9]$/gi,
         locale: RU_LOCALE,
