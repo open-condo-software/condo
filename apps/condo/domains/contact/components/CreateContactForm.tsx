@@ -35,35 +35,35 @@ const BottomLineWrapper = styled.div`
 
 export const CreateContactForm: React.FC = () => {
     const intl = useIntl()
+    const FullNameLabel = intl.formatMessage({ id: 'field.FullName.short' })
+    const FullNamePlaceholderMessage = intl.formatMessage({ id:'field.FullName' })
+    const FullNameRequiredMessage = intl.formatMessage({ id: 'field.FullName.requiredError' })
+    const PhoneLabel = intl.formatMessage({ id: 'Phone' })
+    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
+    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
+    const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
+    const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
+    const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
+    const SubmitButtonLabel = intl.formatMessage({ id: 'AddContact' })
+    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
+    const AddressPlaceholderMessage = intl.formatMessage({ id: 'placeholder.Address' })
+    const UnitLabel = intl.formatMessage({ id: 'field.Unit' })
+    const PropertyErrorMessage = intl.formatMessage({ id: 'field.Property.requiredError' })
+    const UnitErrorMessage = intl.formatMessage({ id: 'field.Unit.requiredError' })
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     const { organization } = useOrganization()
     const router = useRouter()
-
-    const FullNameLabel = intl.formatMessage({ id: 'field.FullName.short' })
-    const FullNamePlaceholder = intl.formatMessage({ id:'field.FullName' })
-    const PhoneLabel = intl.formatMessage({ id: 'Phone' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
-    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
-    const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
-    const EmailError = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
-    const SubmitButtonValue = intl.formatMessage({ id: 'AddContact' })
-    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
-    const UnitLabel = intl.formatMessage({ id: 'field.Unit' })
 
     const validations: { [key: string]: Rule[] } = {
         phone: [
             {
                 required: true,
-                message: FieldIsRequiredMsg,
+                message: FieldIsRequiredMessage,
             },
             {
                 validator: (_, value) => {
                     const v = normalizePhone(value)
-                    if (!v) return Promise.reject(PhoneIsNotValidMsg)
+                    if (!v) return Promise.reject(PhoneIsNotValidMessage)
                     return Promise.resolve()
                 },
             },
@@ -71,25 +71,25 @@ export const CreateContactForm: React.FC = () => {
         email: [
             {
                 type: 'email',
-                message: EmailError,
+                message: EmailErrorMessage,
             },
         ],
         property: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'field.Property.requiredError' }),
+                message: PropertyErrorMessage,
             },
         ],
         unit: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'field.Unit.requiredError' }),
+                message: UnitErrorMessage,
             },
         ],
         name: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'field.FullName.requiredError' }),
+                message: FullNameRequiredMessage,
             },
         ],
     }
@@ -143,7 +143,7 @@ export const CreateContactForm: React.FC = () => {
                                                     form.setFieldsValue({ 'unitName': null })
                                                     setSelectedPropertyId(null)
                                                 }}
-                                                placeholder={AddressPlaceholder}
+                                                placeholder={AddressPlaceholderMessage}
 
                                             />
                                         </Form.Item>
@@ -173,7 +173,7 @@ export const CreateContactForm: React.FC = () => {
                                             required
                                             validateFirst
                                             rules={validations.name}>
-                                            <Input placeholder={FullNamePlaceholder}/>
+                                            <Input placeholder={FullNamePlaceholderMessage}/>
                                         </Form.Item>
                                     </Col>
                                     <Col span={18}>
@@ -186,7 +186,7 @@ export const CreateContactForm: React.FC = () => {
                                             rules={validations.phone}
                                             {...INPUT_LAYOUT_PROPS}
                                         >
-                                            <PhoneInput placeholder={ExamplePhoneMsg} style={{ width: '100%' }}/>
+                                            <PhoneInput placeholder={ExamplePhoneMessage} style={{ width: '100%' }}/>
                                         </Form.Item>
                                     </Col>
                                     <Col span={18}>
@@ -221,7 +221,7 @@ export const CreateContactForm: React.FC = () => {
                                                                 disabled={!property || !unitName || !phone || !name}
                                                                 style={{ marginRight: 24 }}
                                                             >
-                                                                {SubmitButtonValue}
+                                                                {SubmitButtonLabel}
                                                             </Button>
                                                             <ErrorsContainer
                                                                 phone={phone}
