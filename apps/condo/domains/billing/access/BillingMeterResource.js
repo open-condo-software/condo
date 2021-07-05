@@ -3,20 +3,11 @@
  */
 
 async function canReadBillingMeterResources ({ authentication: { item: user } }) {
-    // return await canReadBillingEntity(user)
-    return true
+    return user
 }
 
-async function canManageBillingMeterResources ({ authentication: { item: user }, operation, originalInput, listKey, itemId }) {
-    // need to discussion, for now BillingMeterResource have no context
-    return true
-    // return await canManageBillingEntityWithContext({
-    //     user,
-    //     operation,
-    //     itemId,
-    //     originalInput,
-    //     schemaWithContextName: listKey,
-    // })
+async function canManageBillingMeterResources ({ authentication: { item: user } }) {
+    return user && (user.isAdmin || user.isSupport)
 }
 
 /*
