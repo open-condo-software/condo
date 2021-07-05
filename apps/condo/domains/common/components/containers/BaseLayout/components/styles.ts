@@ -60,7 +60,9 @@ export const sideMenuDesktopCss = css`
   top: 0;
   left: 0;
   z-index: 10;
-  ${shadow}
+  border-width: 0 1px 0 0;
+  border-color: #D9D9D9;
+  border-style: solid;
 `
 
 export const substrateDesktopCss = css`
