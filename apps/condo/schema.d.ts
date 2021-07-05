@@ -23,15 +23,6 @@ export type AcceptOrRejectOrganizationInviteInput = {
   isAccepted?: Maybe<Scalars['Boolean']>;
 };
 
-export type AuthenticateUserWithFirebaseIdTokenInput = {
-  firebaseIdToken: Scalars['String'];
-};
-
-export type AuthenticateUserWithFirebaseIdTokenOutput = {
-  __typename?: 'AuthenticateUserWithFirebaseIdTokenOutput';
-  item?: Maybe<User>;
-};
-
 export type AuthenticateUserWithPhoneAndPasswordInput = {
   phone: Scalars['String'];
   password: Scalars['String'];
@@ -56,7 +47,7 @@ export type BillingAccount = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
@@ -385,7 +376,7 @@ export type BillingAccountMeter = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
@@ -662,7 +653,7 @@ export type BillingAccountMeterReading = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
@@ -1485,7 +1476,7 @@ export type BillingIntegration = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  The name of the `integration component` that the developer remembers  */
   name?: Maybe<Scalars['String']>;
@@ -1537,7 +1528,7 @@ export type BillingIntegrationAccessRight = {
   id: Scalars['ID'];
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Integration  */
   integration?: Maybe<BillingIntegration>;
@@ -1985,7 +1976,7 @@ export type BillingIntegrationLog = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
@@ -2166,7 +2157,7 @@ export type BillingIntegrationOrganizationContext = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  ID of the integration that is configured to receive data for the organization  */
   integration?: Maybe<BillingIntegration>;
@@ -2627,7 +2618,7 @@ export type BillingMeterResource = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  The name of the `resource types`  */
   name?: Maybe<Scalars['String']>;
@@ -2965,7 +2956,7 @@ export type BillingProperty = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
@@ -3414,7 +3405,7 @@ export type BillingReceipt = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
@@ -3428,11 +3419,11 @@ export type BillingReceipt = {
   account?: Maybe<BillingAccount>;
   /**  Period date (01.2020, 02.2020, ...)  */
   period?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
+  /**  Total sum to pay. The sum of all services  */
   toPay?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
+  /**  Structured items in the receipt obtained from the `billing data source`. Amount of payment is required for use in the `receipt template`. Structure example: {"Maintenance and repair": {"name": "maintenance-and-repair", "payment": "1129.17", "currency": "RUB", "formula": "payment = tariff * volume + recalculation + privilege + penalty", "tariff": "19.95", "volume": "56.6", "isByMeter": true, "recalculation": "0.0", "privilege": "0.0", "penalty": "0"}, ...}  */
   services?: Maybe<Scalars['JSON']>;
-  /**  TODO DOC!  */
+  /**  Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. Examples of data keys: `payer name`, `full address`, `living space`, `non-living space`, `registered residents`, `living residents`, `news message`  */
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -3921,7 +3912,7 @@ export type ConfirmPhoneAction = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Phone. In international E.164 format without spaces  */
   phone?: Maybe<Scalars['String']>;
@@ -4368,7 +4359,7 @@ export type Contact = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
@@ -4863,7 +4854,7 @@ export type ForgotPasswordAction = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Ref to the user. The object will be deleted if the user ceases to exist  */
   user?: Maybe<User>;
@@ -5290,7 +5281,7 @@ export type Message = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  This message is related to some organization. Organization can manage their messages  */
   organization?: Maybe<Organization>;
@@ -6366,30 +6357,6 @@ export type Mutation = {
   deleteTicketChange?: Maybe<TicketChange>;
   /**  Delete multiple TicketChange items by ID.  */
   deleteTicketChanges?: Maybe<Array<Maybe<TicketChange>>>;
-  /**  Create a single TicketContactHistoryRecord item.  */
-  createTicketContactHistoryRecord?: Maybe<TicketContactHistoryRecord>;
-  /**  Create multiple TicketContactHistoryRecord items.  */
-  createTicketContactHistoryRecords?: Maybe<Array<Maybe<TicketContactHistoryRecord>>>;
-  /**  Update a single TicketContactHistoryRecord item by ID.  */
-  updateTicketContactHistoryRecord?: Maybe<TicketContactHistoryRecord>;
-  /**  Update multiple TicketContactHistoryRecord items by ID.  */
-  updateTicketContactHistoryRecords?: Maybe<Array<Maybe<TicketContactHistoryRecord>>>;
-  /**  Delete a single TicketContactHistoryRecord item by ID.  */
-  deleteTicketContactHistoryRecord?: Maybe<TicketContactHistoryRecord>;
-  /**  Delete multiple TicketContactHistoryRecord items by ID.  */
-  deleteTicketContactHistoryRecords?: Maybe<Array<Maybe<TicketContactHistoryRecord>>>;
-  /**  Create a single TicketContact item.  */
-  createTicketContact?: Maybe<TicketContact>;
-  /**  Create multiple TicketContact items.  */
-  createTicketContacts?: Maybe<Array<Maybe<TicketContact>>>;
-  /**  Update a single TicketContact item by ID.  */
-  updateTicketContact?: Maybe<TicketContact>;
-  /**  Update multiple TicketContact items by ID.  */
-  updateTicketContacts?: Maybe<Array<Maybe<TicketContact>>>;
-  /**  Delete a single TicketContact item by ID.  */
-  deleteTicketContact?: Maybe<TicketContact>;
-  /**  Delete multiple TicketContact items by ID.  */
-  deleteTicketContacts?: Maybe<Array<Maybe<TicketContact>>>;
   /**  Create a single TicketCommentHistoryRecord item.  */
   createTicketCommentHistoryRecord?: Maybe<TicketCommentHistoryRecord>;
   /**  Create multiple TicketCommentHistoryRecord items.  */
@@ -9528,7 +9495,7 @@ export type Property = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
@@ -12767,10 +12734,10 @@ export enum SortTicketChangesBy {
   IsEmergencyFromDesc = 'isEmergencyFrom_DESC',
   IsEmergencyToAsc = 'isEmergencyTo_ASC',
   IsEmergencyToDesc = 'isEmergencyTo_DESC',
-  EntranceNameFromAsc = 'entranceNameFrom_ASC',
-  EntranceNameFromDesc = 'entranceNameFrom_DESC',
-  EntranceNameToAsc = 'entranceNameTo_ASC',
-  EntranceNameToDesc = 'entranceNameTo_DESC',
+  SectionNameFromAsc = 'sectionNameFrom_ASC',
+  SectionNameFromDesc = 'sectionNameFrom_DESC',
+  SectionNameToAsc = 'sectionNameTo_ASC',
+  SectionNameToDesc = 'sectionNameTo_DESC',
   FloorNameFromAsc = 'floorNameFrom_ASC',
   FloorNameFromDesc = 'floorNameFrom_DESC',
   FloorNameToAsc = 'floorNameTo_ASC',
@@ -13036,8 +13003,8 @@ export enum SortTicketHistoryRecordsBy {
   IsPaidDesc = 'isPaid_DESC',
   IsEmergencyAsc = 'isEmergency_ASC',
   IsEmergencyDesc = 'isEmergency_DESC',
-  EntranceNameAsc = 'entranceName_ASC',
-  EntranceNameDesc = 'entranceName_DESC',
+  SectionNameAsc = 'sectionName_ASC',
+  SectionNameDesc = 'sectionName_DESC',
   FloorNameAsc = 'floorName_ASC',
   FloorNameDesc = 'floorName_DESC',
   UnitNameAsc = 'unitName_ASC',
@@ -13199,8 +13166,8 @@ export enum SortTicketsBy {
   IsEmergencyDesc = 'isEmergency_DESC',
   PropertyAsc = 'property_ASC',
   PropertyDesc = 'property_DESC',
-  EntranceNameAsc = 'entranceName_ASC',
-  EntranceNameDesc = 'entranceName_DESC',
+  SectionNameAsc = 'sectionName_ASC',
+  SectionNameDesc = 'sectionName_DESC',
   FloorNameAsc = 'floorName_ASC',
   FloorNameDesc = 'floorName_DESC',
   UnitNameAsc = 'unitName_ASC',
@@ -13335,7 +13302,7 @@ export type Ticket = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
@@ -13382,8 +13349,8 @@ export type Ticket = {
   meta?: Maybe<Scalars['JSON']>;
   /**  Property related to the Ticket  */
   property?: Maybe<Property>;
-  /**  Entrance name/number of an apartment building (property). You need to take from Property.map  */
-  entranceName?: Maybe<Scalars['String']>;
+  /**  Section name/number of an apartment building (property). You need to take from Property.map  */
+  sectionName?: Maybe<Scalars['String']>;
   /**  Floor of an apartment building (property). You need to take from Property.map  */
   floorName?: Maybe<Scalars['String']>;
   /**  Flat number / door number of an apartment building (property). You need to take from Property.map  */
@@ -13437,7 +13404,7 @@ export type TicketChange = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Related ticket, whose change is logged in this entity  */
   ticket?: Maybe<Ticket>;
@@ -13481,10 +13448,10 @@ export type TicketChange = {
   metaFrom?: Maybe<Scalars['JSON']>;
   /**  Extra analytics not related to remote system  */
   metaTo?: Maybe<Scalars['JSON']>;
-  /**  Entrance name/number of an apartment building (property). You need to take from Property.map  */
-  entranceNameFrom?: Maybe<Scalars['String']>;
-  /**  Entrance name/number of an apartment building (property). You need to take from Property.map  */
-  entranceNameTo?: Maybe<Scalars['String']>;
+  /**  Section name/number of an apartment building (property). You need to take from Property.map  */
+  sectionNameFrom?: Maybe<Scalars['String']>;
+  /**  Section name/number of an apartment building (property). You need to take from Property.map  */
+  sectionNameTo?: Maybe<Scalars['String']>;
   /**  Floor of an apartment building (property). You need to take from Property.map  */
   floorNameFrom?: Maybe<Scalars['String']>;
   /**  Floor of an apartment building (property). You need to take from Property.map  */
@@ -13625,8 +13592,8 @@ export type TicketChangeCreateInput = {
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
   metaFrom?: Maybe<Scalars['JSON']>;
   metaTo?: Maybe<Scalars['JSON']>;
-  entranceNameFrom?: Maybe<Scalars['String']>;
-  entranceNameTo?: Maybe<Scalars['String']>;
+  sectionNameFrom?: Maybe<Scalars['String']>;
+  sectionNameTo?: Maybe<Scalars['String']>;
   floorNameFrom?: Maybe<Scalars['String']>;
   floorNameTo?: Maybe<Scalars['String']>;
   unitNameFrom?: Maybe<Scalars['String']>;
@@ -13712,8 +13679,8 @@ export type TicketChangeUpdateInput = {
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
   metaFrom?: Maybe<Scalars['JSON']>;
   metaTo?: Maybe<Scalars['JSON']>;
-  entranceNameFrom?: Maybe<Scalars['String']>;
-  entranceNameTo?: Maybe<Scalars['String']>;
+  sectionNameFrom?: Maybe<Scalars['String']>;
+  sectionNameTo?: Maybe<Scalars['String']>;
   floorNameFrom?: Maybe<Scalars['String']>;
   floorNameTo?: Maybe<Scalars['String']>;
   unitNameFrom?: Maybe<Scalars['String']>;
@@ -14020,42 +13987,42 @@ export type TicketChangeWhereInput = {
   metaTo_not?: Maybe<Scalars['JSON']>;
   metaTo_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   metaTo_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  entranceNameFrom?: Maybe<Scalars['String']>;
-  entranceNameFrom_not?: Maybe<Scalars['String']>;
-  entranceNameFrom_contains?: Maybe<Scalars['String']>;
-  entranceNameFrom_not_contains?: Maybe<Scalars['String']>;
-  entranceNameFrom_starts_with?: Maybe<Scalars['String']>;
-  entranceNameFrom_not_starts_with?: Maybe<Scalars['String']>;
-  entranceNameFrom_ends_with?: Maybe<Scalars['String']>;
-  entranceNameFrom_not_ends_with?: Maybe<Scalars['String']>;
-  entranceNameFrom_i?: Maybe<Scalars['String']>;
-  entranceNameFrom_not_i?: Maybe<Scalars['String']>;
-  entranceNameFrom_contains_i?: Maybe<Scalars['String']>;
-  entranceNameFrom_not_contains_i?: Maybe<Scalars['String']>;
-  entranceNameFrom_starts_with_i?: Maybe<Scalars['String']>;
-  entranceNameFrom_not_starts_with_i?: Maybe<Scalars['String']>;
-  entranceNameFrom_ends_with_i?: Maybe<Scalars['String']>;
-  entranceNameFrom_not_ends_with_i?: Maybe<Scalars['String']>;
-  entranceNameFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  entranceNameFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  entranceNameTo?: Maybe<Scalars['String']>;
-  entranceNameTo_not?: Maybe<Scalars['String']>;
-  entranceNameTo_contains?: Maybe<Scalars['String']>;
-  entranceNameTo_not_contains?: Maybe<Scalars['String']>;
-  entranceNameTo_starts_with?: Maybe<Scalars['String']>;
-  entranceNameTo_not_starts_with?: Maybe<Scalars['String']>;
-  entranceNameTo_ends_with?: Maybe<Scalars['String']>;
-  entranceNameTo_not_ends_with?: Maybe<Scalars['String']>;
-  entranceNameTo_i?: Maybe<Scalars['String']>;
-  entranceNameTo_not_i?: Maybe<Scalars['String']>;
-  entranceNameTo_contains_i?: Maybe<Scalars['String']>;
-  entranceNameTo_not_contains_i?: Maybe<Scalars['String']>;
-  entranceNameTo_starts_with_i?: Maybe<Scalars['String']>;
-  entranceNameTo_not_starts_with_i?: Maybe<Scalars['String']>;
-  entranceNameTo_ends_with_i?: Maybe<Scalars['String']>;
-  entranceNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
-  entranceNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  entranceNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionNameFrom?: Maybe<Scalars['String']>;
+  sectionNameFrom_not?: Maybe<Scalars['String']>;
+  sectionNameFrom_contains?: Maybe<Scalars['String']>;
+  sectionNameFrom_not_contains?: Maybe<Scalars['String']>;
+  sectionNameFrom_starts_with?: Maybe<Scalars['String']>;
+  sectionNameFrom_not_starts_with?: Maybe<Scalars['String']>;
+  sectionNameFrom_ends_with?: Maybe<Scalars['String']>;
+  sectionNameFrom_not_ends_with?: Maybe<Scalars['String']>;
+  sectionNameFrom_i?: Maybe<Scalars['String']>;
+  sectionNameFrom_not_i?: Maybe<Scalars['String']>;
+  sectionNameFrom_contains_i?: Maybe<Scalars['String']>;
+  sectionNameFrom_not_contains_i?: Maybe<Scalars['String']>;
+  sectionNameFrom_starts_with_i?: Maybe<Scalars['String']>;
+  sectionNameFrom_not_starts_with_i?: Maybe<Scalars['String']>;
+  sectionNameFrom_ends_with_i?: Maybe<Scalars['String']>;
+  sectionNameFrom_not_ends_with_i?: Maybe<Scalars['String']>;
+  sectionNameFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionNameFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionNameTo?: Maybe<Scalars['String']>;
+  sectionNameTo_not?: Maybe<Scalars['String']>;
+  sectionNameTo_contains?: Maybe<Scalars['String']>;
+  sectionNameTo_not_contains?: Maybe<Scalars['String']>;
+  sectionNameTo_starts_with?: Maybe<Scalars['String']>;
+  sectionNameTo_not_starts_with?: Maybe<Scalars['String']>;
+  sectionNameTo_ends_with?: Maybe<Scalars['String']>;
+  sectionNameTo_not_ends_with?: Maybe<Scalars['String']>;
+  sectionNameTo_i?: Maybe<Scalars['String']>;
+  sectionNameTo_not_i?: Maybe<Scalars['String']>;
+  sectionNameTo_contains_i?: Maybe<Scalars['String']>;
+  sectionNameTo_not_contains_i?: Maybe<Scalars['String']>;
+  sectionNameTo_starts_with_i?: Maybe<Scalars['String']>;
+  sectionNameTo_not_starts_with_i?: Maybe<Scalars['String']>;
+  sectionNameTo_ends_with_i?: Maybe<Scalars['String']>;
+  sectionNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
+  sectionNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   floorNameFrom?: Maybe<Scalars['String']>;
   floorNameFrom_not?: Maybe<Scalars['String']>;
   floorNameFrom_contains?: Maybe<Scalars['String']>;
@@ -15064,7 +15031,7 @@ export type TicketComment = {
   sender?: Maybe<Scalars['JSON']>;
   /**  Related ticket of the comment  */
   ticket?: Maybe<Ticket>;
-  /**  Who created the comment  */
+  /**  User, who created the comment  */
   user?: Maybe<User>;
   /**  Plain text content  */
   content?: Maybe<Scalars['String']>;
@@ -15420,7 +15387,7 @@ export type TicketCreateInput = {
   isEmergency?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<PropertyRelateToOneInput>;
-  entranceName?: Maybe<Scalars['String']>;
+  sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   source?: Maybe<TicketSourceRelateToOneInput>;
@@ -15447,7 +15414,7 @@ export type TicketFile = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
@@ -15788,7 +15755,7 @@ export type TicketHistoryRecord = {
   isEmergency?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
-  entranceName?: Maybe<Scalars['String']>;
+  sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
@@ -15830,7 +15797,7 @@ export type TicketHistoryRecordCreateInput = {
   isEmergency?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
-  entranceName?: Maybe<Scalars['String']>;
+  sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
@@ -15877,7 +15844,7 @@ export type TicketHistoryRecordUpdateInput = {
   isEmergency?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
-  entranceName?: Maybe<Scalars['String']>;
+  sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
@@ -16067,24 +16034,24 @@ export type TicketHistoryRecordWhereInput = {
   property_not?: Maybe<Scalars['String']>;
   property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  entranceName?: Maybe<Scalars['String']>;
-  entranceName_not?: Maybe<Scalars['String']>;
-  entranceName_contains?: Maybe<Scalars['String']>;
-  entranceName_not_contains?: Maybe<Scalars['String']>;
-  entranceName_starts_with?: Maybe<Scalars['String']>;
-  entranceName_not_starts_with?: Maybe<Scalars['String']>;
-  entranceName_ends_with?: Maybe<Scalars['String']>;
-  entranceName_not_ends_with?: Maybe<Scalars['String']>;
-  entranceName_i?: Maybe<Scalars['String']>;
-  entranceName_not_i?: Maybe<Scalars['String']>;
-  entranceName_contains_i?: Maybe<Scalars['String']>;
-  entranceName_not_contains_i?: Maybe<Scalars['String']>;
-  entranceName_starts_with_i?: Maybe<Scalars['String']>;
-  entranceName_not_starts_with_i?: Maybe<Scalars['String']>;
-  entranceName_ends_with_i?: Maybe<Scalars['String']>;
-  entranceName_not_ends_with_i?: Maybe<Scalars['String']>;
-  entranceName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  entranceName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionName?: Maybe<Scalars['String']>;
+  sectionName_not?: Maybe<Scalars['String']>;
+  sectionName_contains?: Maybe<Scalars['String']>;
+  sectionName_not_contains?: Maybe<Scalars['String']>;
+  sectionName_starts_with?: Maybe<Scalars['String']>;
+  sectionName_not_starts_with?: Maybe<Scalars['String']>;
+  sectionName_ends_with?: Maybe<Scalars['String']>;
+  sectionName_not_ends_with?: Maybe<Scalars['String']>;
+  sectionName_i?: Maybe<Scalars['String']>;
+  sectionName_not_i?: Maybe<Scalars['String']>;
+  sectionName_contains_i?: Maybe<Scalars['String']>;
+  sectionName_not_contains_i?: Maybe<Scalars['String']>;
+  sectionName_starts_with_i?: Maybe<Scalars['String']>;
+  sectionName_not_starts_with_i?: Maybe<Scalars['String']>;
+  sectionName_ends_with_i?: Maybe<Scalars['String']>;
+  sectionName_not_ends_with_i?: Maybe<Scalars['String']>;
+  sectionName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   floorName?: Maybe<Scalars['String']>;
   floorName_not?: Maybe<Scalars['String']>;
   floorName_contains?: Maybe<Scalars['String']>;
@@ -16610,7 +16577,7 @@ export type TicketStatus = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
@@ -17018,7 +16985,7 @@ export type TicketUpdateInput = {
   isEmergency?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<PropertyRelateToOneInput>;
-  entranceName?: Maybe<Scalars['String']>;
+  sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   source?: Maybe<TicketSourceRelateToOneInput>;
@@ -17195,24 +17162,24 @@ export type TicketWhereInput = {
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   property?: Maybe<PropertyWhereInput>;
   property_is_null?: Maybe<Scalars['Boolean']>;
-  entranceName?: Maybe<Scalars['String']>;
-  entranceName_not?: Maybe<Scalars['String']>;
-  entranceName_contains?: Maybe<Scalars['String']>;
-  entranceName_not_contains?: Maybe<Scalars['String']>;
-  entranceName_starts_with?: Maybe<Scalars['String']>;
-  entranceName_not_starts_with?: Maybe<Scalars['String']>;
-  entranceName_ends_with?: Maybe<Scalars['String']>;
-  entranceName_not_ends_with?: Maybe<Scalars['String']>;
-  entranceName_i?: Maybe<Scalars['String']>;
-  entranceName_not_i?: Maybe<Scalars['String']>;
-  entranceName_contains_i?: Maybe<Scalars['String']>;
-  entranceName_not_contains_i?: Maybe<Scalars['String']>;
-  entranceName_starts_with_i?: Maybe<Scalars['String']>;
-  entranceName_not_starts_with_i?: Maybe<Scalars['String']>;
-  entranceName_ends_with_i?: Maybe<Scalars['String']>;
-  entranceName_not_ends_with_i?: Maybe<Scalars['String']>;
-  entranceName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  entranceName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionName?: Maybe<Scalars['String']>;
+  sectionName_not?: Maybe<Scalars['String']>;
+  sectionName_contains?: Maybe<Scalars['String']>;
+  sectionName_not_contains?: Maybe<Scalars['String']>;
+  sectionName_starts_with?: Maybe<Scalars['String']>;
+  sectionName_not_starts_with?: Maybe<Scalars['String']>;
+  sectionName_ends_with?: Maybe<Scalars['String']>;
+  sectionName_not_ends_with?: Maybe<Scalars['String']>;
+  sectionName_i?: Maybe<Scalars['String']>;
+  sectionName_not_i?: Maybe<Scalars['String']>;
+  sectionName_contains_i?: Maybe<Scalars['String']>;
+  sectionName_not_contains_i?: Maybe<Scalars['String']>;
+  sectionName_starts_with_i?: Maybe<Scalars['String']>;
+  sectionName_not_starts_with_i?: Maybe<Scalars['String']>;
+  sectionName_ends_with_i?: Maybe<Scalars['String']>;
+  sectionName_not_ends_with_i?: Maybe<Scalars['String']>;
+  sectionName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   floorName?: Maybe<Scalars['String']>;
   floorName_not?: Maybe<Scalars['String']>;
   floorName_contains?: Maybe<Scalars['String']>;
@@ -17328,7 +17295,7 @@ export type User = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
   /**  Name. If impersonal account should be a company name  */
   name?: Maybe<Scalars['String']>;
