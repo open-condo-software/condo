@@ -6,7 +6,7 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
     types: [
         {
             access: true,
-            type: 'input RegisterNewOrganizationInput { dv: Int!, sender: JSON!, country: String!, name: String!, description: String!, meta: JSON!, avatar: Upload }',
+            type: 'input RegisterNewOrganizationInput { dv: Int!, sender: JSON!, country: String!, name: String!, description: String, meta: JSON!, avatar: Upload }',
         },
     ],
     mutations: [

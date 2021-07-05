@@ -47,12 +47,10 @@ export const useTopNotificationsHook = (): ITopNotificationHookResult => {
     }
     const removeNotification = (notificationId) => {
         const newNotificatios = topNotifications.filter(notification => notification.id !== notificationId)
-        console.log('setting ... ', newNotificatios)
         setTopNotifications(newNotificatios)
     }
 
     const TopNotificationComponent: React.FC = () => {
-        console.log('topNotifications', topNotifications)
         return (
             <>
                 <Affix>{

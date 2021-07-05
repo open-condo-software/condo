@@ -11658,7 +11658,7 @@ export type RegisterNewOrganizationInput = {
   sender: Scalars['JSON'];
   country: Scalars['String'];
   name: Scalars['String'];
-  description: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
   meta: Scalars['JSON'];
   avatar?: Maybe<Scalars['Upload']>;
 };

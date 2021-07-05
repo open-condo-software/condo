@@ -75,7 +75,6 @@ export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
             })
         })
     }
-
     return {
         loading,
     }
