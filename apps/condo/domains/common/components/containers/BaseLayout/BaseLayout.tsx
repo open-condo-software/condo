@@ -59,7 +59,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
     const intl = useIntl()
     const colSize = useAntdMediaQuery()
     const {
-        TopNotificationComponent: TopNotifications,
+        TopNotificationComponent,
         addNotification,
     } = useTopNotificationsHook()
     // TODO(Dimitreee): add UA base isMobile detection
@@ -75,7 +75,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
             <LayoutContext.Provider value={{ isMobile, addNotification }}>
-                <TopNotifications />
+                <TopNotificationComponent />
                 <Layout className={menuDataClassNames} style={style} css={layoutCss} >
                     <SideMenu {...{
                         onLogoClick,
