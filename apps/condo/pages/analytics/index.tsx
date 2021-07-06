@@ -3,8 +3,7 @@ import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { Col, Radio, Row, Space, Table, Typography, Tabs, Skeleton } from 'antd'
-import { BarChartOutlined, PieChartOutlined, LineChartOutlined } from '@ant-design/icons'
+import { Col, Radio, Row, Space, Table, Typography, Tabs, Skeleton, Divider } from 'antd'
 import { useRouter } from 'next/router'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
@@ -20,12 +19,13 @@ import { getPageSizeFromQuery, queryToSorter, filtersToQuery, getSortStringFromQ
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { SortTicketsBy } from '../../schema'
 import moment from 'moment'
+import { BarChartIcon, LinearChartIcon } from '../../domains/common/components/icons/ChartIcons'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
-type viewModeTypes = 'chart' | 'list'
-type chartModeTypes = 'stacked-bar' | 'pie' | 'linear'
+type viewModeTypes = 'barChart' | 'lineChart' | 'pieChart'
+type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
 // TODO: grab selectedPeriod from filter component
 const SELECTED_PERIOD = [moment().subtract(7, 'days'), moment()]
 
@@ -44,7 +44,6 @@ const TicketAnalyticsPageChartView: React.FC = () => {
             data: [320, 302, 301, 334, 390, 330, 320],
         },
     ]
-    const [chartType, setChartType] = useState<chartModeTypes>('stacked-bar')
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
@@ -57,7 +56,6 @@ const TicketAnalyticsPageChartView: React.FC = () => {
 
     const {
         loading,
-        count: total,
         objs: tickets,
     } = Ticket.useObjects({
         where,
@@ -92,16 +90,7 @@ const TicketAnalyticsPageChartView: React.FC = () => {
     }
 
     return <>
-        <Tabs
-            defaultActiveKey='stacked-bar'
-            activeKey={chartType}
-            onChange={(key) => setChartType(key as chartModeTypes)}
-        >
-            <Tabs.TabPane key='stacked-bar' tab={<span><BarChartOutlined />График 1</span>} />
-            <Tabs.TabPane key='pie' tab={<span><PieChartOutlined />График 2</span>} />
-            <Tabs.TabPane key='linear' tab={<span><LineChartOutlined />График 3</span>} />
-        </Tabs>
-        <ReactECharts showLoading={loading} option={option} style={{ height: '500px' }} />
+        <ReactECharts showLoading={loading} option={option} />
     </>
 }
 
@@ -219,12 +208,17 @@ const TicketAnalyticsPageFilter: React.FC = () => (
 
 const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const intl = useIntl()
-    const [viewMode, setViewMode] = useState<viewModeTypes>('chart')
+    const [groupTicketsBy, setGroupTicketsBy] = useState<groupTicketsByTypes>('status')
+    const [viewMode, setViewMode] = useState<viewModeTypes>('barChart')
     const pageTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' })
-    const showChart = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ShowChart' })
-    const showList = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ShowList' })
     const viewModeTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ViewModeTitle' })
+    const statusFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Status' })
+    const propertyFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Property' })
+    const categoryFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })
+    const userFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.User' })
+    const responsibleFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Responsible' })
     const selectedPeriod = SELECTED_PERIOD.map(e => e.format('DD.MM.YYYY')).join(' - ')
+
     return <>
         <Head>
             <title>{pageTitle}</title>
@@ -235,23 +229,40 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                 <PageContent>
                     <Row gutter={[0, 40]} align={'top'} justify={'space-between'}>
                         <Col span={24}>
+                            <Tabs
+                                defaultActiveKey='status'
+                                activeKey={groupTicketsBy}
+                                onChange={(key) => setGroupTicketsBy(key as groupTicketsByTypes)}
+                            >
+                                <Tabs.TabPane key='status' tab={statusFilterLabel} />
+                                <Tabs.TabPane disabled key='property' tab={propertyFilterLabel} />
+                                <Tabs.TabPane disabled key='category' tab={categoryFilterLabel} />
+                                <Tabs.TabPane disabled key='user' tab={userFilterLabel} />
+                                <Tabs.TabPane disabled key='responsible' tab={responsibleFilterLabel} />
+                            </Tabs>
+                        </Col>
+                        <Col span={24}>
                             <TicketAnalyticsPageFilter />
+                            <Divider />
                         </Col>
                         <Col span={14}>
                             <Typography.Title level={3}>{viewModeTitle} {selectedPeriod}</Typography.Title>
                         </Col>
-                        <Col span={6} >
+                        <Col span={6}>
                             <Radio.Group
-                                className={'sberRadioGroup'}
+                                className={'sberRadioGroup sberRadioGroupIcon'}
                                 value={viewMode}
                                 buttonStyle='outline'
                                 onChange={(e) => setViewMode(e.target.value)}>
-                                <Radio.Button value='chart'>{showChart}</Radio.Button>
-                                <Radio.Button value='list'>{showList}</Radio.Button>
+                                <Radio.Button value='lineChart'><LinearChartIcon color={viewMode === 'lineChart' ? 'white' : 'black'} /></Radio.Button>
+                                <Radio.Button value='barChart'><BarChartIcon color={viewMode === 'barChart' ? 'white' : 'black'} /></Radio.Button>
                             </Radio.Group>
                         </Col>
                         <Col span={24}>
-                            {viewMode === 'chart' ? <TicketAnalyticsPageChartView /> : <TicketAnalyticsPageListView />}
+                            <TicketAnalyticsPageChartView />
+                        </Col>
+                        <Col span={24}>
+                            <TicketAnalyticsPageListView />
                         </Col>
                     </Row>
                 </PageContent>
