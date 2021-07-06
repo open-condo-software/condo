@@ -15,6 +15,10 @@ function normalizeText (text) {
         ))
         // normalize spaces in double quotes, e.g: "  a b c   " => "a b c"
         .replace(/"[^"]*"/gm, m => `"${m.split('"')[1].trim()}"`)
+        // normalize open quote, e.g: "« " -> "«" (there can be no more than one space due to the previous replaces)
+        .replace(/\p{Pi} /gmu, m => m[0])
+        // normalize close quote, e.g: "» " -> "»"
+        .replace(/ \p{Pf}/gmu, m => m[1])
         // trim each row
         .split('\n')
         .map(str => str.trim())

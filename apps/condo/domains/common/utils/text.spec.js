@@ -40,5 +40,13 @@ describe('normalizeText()', () => {
         expect(normalizeText('"   123 312 432 " asd. ""')).toEqual('"123 312 432" asd. ""')
         expect(normalizeText('"   123      "      asd .     ""')).toEqual('"123" asd. ""')
         expect(normalizeText('"132   " " 13212asd  " zxc 123 "')).toEqual('"132" "13212asd" zxc 123 "')
+        expect(normalizeText('«   123  432   »')).toEqual('«123 432»')
+        expect(normalizeText('“ 123    432   ”')).toEqual('“123 432”')
+    })
+
+    test('removes trailing and leading spaces inside nested quotes', () => {
+        expect(normalizeText('“ 123  «   123  432   »  432   ”')).toEqual('“123 «123 432» 432”')
+        expect(normalizeText('« 123  «   123  432   »  432   »')).toEqual('«123 «123 432» 432»')
+        expect(normalizeText('“ 123 432 “  432 234   ” ”')).toEqual('“123 432 “432 234””')
     })
 })
