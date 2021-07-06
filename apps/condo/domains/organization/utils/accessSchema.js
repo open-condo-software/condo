@@ -16,6 +16,10 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
         return false
     }
 
+    if (employee.deletedAt !== null) {
+        return false
+    }
+
     const employeeRole = await getByCondition('OrganizationEmployeeRole', {
         id: employee.role,
         organization: { id: organizationId },
