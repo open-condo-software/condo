@@ -6,11 +6,12 @@ test('on empty query => false', () => {
     expect(softDeleted.queryHasSoftDeletedFieldDeep({}, DELETED_AT_FIELD)).toEqual(false)
 })
 
-const SIMPLE_QUERY = {
-    foo: 'bar',
-}
-
 test('on simple query without deletedAt => false', () => {
+
+    const SIMPLE_QUERY = {
+        foo: 'bar',
+    }
+
     expect(softDeleted.queryHasSoftDeletedFieldDeep(SIMPLE_QUERY, DELETED_AT_FIELD)).toEqual(false)
 })
 
