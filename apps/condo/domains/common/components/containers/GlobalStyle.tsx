@@ -201,6 +201,9 @@ const radioGroupCss = css`
   .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before{
     background-color:${colors.black};
   }
+  .sberRadioGroupIcon .ant-radio-button-wrapper {
+    height: 32px;
+  }
 `
 
 
