@@ -20,7 +20,7 @@ describe('normalizeText()', () => {
     })
 
     test('squashes sequential non-breaking spaces into one', () => {
-        expect(normalizeText('lorem   ipsum dolor')).toEqual('lorem ipsum dolor')
+        expect(normalizeText('lorem   ipsum dolor')).toEqual('lorem ipsum dolor')
     })
 
     test('squashes sequential blank lines into one', () => {

@@ -8,11 +8,7 @@ function normalizeText (text) {
         // replace three or more EOL to two EOL
         .replace(threeOrMoreEOL, EOL + EOL)
         // replace two or more spaces to one space
-        .replace(/ {2,}/gm, ' ')
-        // eslint-disable-next-line no-irregular-whitespace
-        .replace(/ {2,}/gm, ' ')
-        // eslint-disable-next-line no-irregular-whitespace
-        .replace(/[  ]{2,}/gm, ' ')
+        .replace(/[^\S\r\n]+/g, ' ')
         // normalize punctuation between words, e.g: 'test  ,test' -> 'test, test'
         .replace(new RegExp(`[^${punctuations}] *[${punctuations}]+ *`, 'gm'), wordWithPunctuation => (
             `${wordWithPunctuation.replace(new RegExp(` *[${punctuations}] *`, 'gm'), punctuation => punctuation.trim())} `
