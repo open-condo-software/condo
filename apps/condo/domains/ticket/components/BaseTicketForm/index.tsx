@@ -184,6 +184,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 property={property}
                                                                 loading={loading}
                                                                 allowClear={true}
+                                                                onClear={() => {
+                                                                    form.setFieldsValue({ sectionName: null, floorName: null })
+                                                                }}
                                                                 onSelect={(_, option) => {
                                                                     setSelectedUnitName(option.key)
                                                                     updateSectionAndFloor(form, option.key)
