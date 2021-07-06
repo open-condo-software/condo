@@ -3,8 +3,6 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-import {registerNewOrganization} from "../../../../utils/testSchema/Organization";
-
 const { makeLoggedInAdminClient } = require("@core/keystone/test.utils");
 const {
     createTestOrganizationEmployee,
@@ -12,6 +10,7 @@ const {
 } = require("@condo/domains/organization/utils/testSchema");
 const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
 const faker = require('faker')
+const { registerNewOrganization } = require('../../../../utils/testSchema/Organization')
 const { createTestOrganization } = require("@condo/domains/organization/utils/testSchema");
 const { makeLoggedInClient, registerNewUser } = require('@condo/domains/user/utils/testSchema')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
@@ -176,8 +175,8 @@ async function createTestBillingProperty (client, context, extraAttrs = {}) {
         dv: 1,
         sender,
         context: { connect: { id: context.id } },
-        raw: faker.lorem.words(),
-        globalId: faker.lorem.words(),
+        raw: { foo: faker.lorem.words() },
+        globalId: faker.random.alphaNumeric(10),
         address: faker.lorem.words(),
         meta: {
             test: 123,
@@ -215,7 +214,7 @@ async function createTestBillingAccount (client, context, property, extraAttrs =
         sender,
         context: { connect: { id: context.id } },
         property: { connect: { id: property.id } },
-        raw: faker.lorem.words(),
+        raw: { foo: faker.lorem.words() },
         number: faker.lorem.words(),
         unitName: faker.lorem.words(),
         meta: {
@@ -285,7 +284,7 @@ async function createTestBillingAccountMeter (client, context, property, account
     const attrs = {
         dv: 1,
         sender,
-        raw: faker.lorem.words(),
+        raw: { foo: faker.lorem.words() },
         meta: {
             dv: 1,
         },
@@ -328,7 +327,7 @@ async function createTestBillingAccountMeterReading (client, context, property, 
         property: { connect: { id: property.id } },
         account: { connect: { id: account.id } },
         meter: { connect: { id: meter.id } },
-        raw: faker.lorem.words(),
+        raw: { foo: faker.lorem.words() },
         period: '2021-07-11',
         date: new Date(),
         value1: faker.datatype.number(),
@@ -368,7 +367,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
         context: { connect: { id: context.id } },
         property: { connect: { id: property.id } },
         account: { connect: { id: account.id } },
-        raw: "test",
+        raw: { foo: faker.lorem.words() },
         period: '2021-07-11',
         toPay: "123",
         services: {
@@ -422,7 +421,7 @@ async function makeClientWithIntegrationAccess () {
  * Simplifies creating series of instances
  */
 
-async function makeContextWithOrganizationAndIntegrationAsAdmin() {
+async function createContextWithOrganizationAndIntegrationAsAdmin() {
     const admin = await makeLoggedInAdminClient()
     const [integration] = await createTestBillingIntegration(admin)
     const [organization] = await registerNewOrganization(admin)
@@ -431,7 +430,7 @@ async function makeContextWithOrganizationAndIntegrationAsAdmin() {
     return { context, integration, organization }
 }
 
-async function makeOrganizationIntegrationManager() {
+async function createOrganizationIntegrationManager() {
     const admin = await makeLoggedInAdminClient()
     const [organization] = await createTestOrganization(admin)
     const [integration] = await createTestBillingIntegration(admin)
@@ -455,8 +454,8 @@ module.exports = {
     BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter,
     BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading,
     BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt,
-    makeContextWithOrganizationAndIntegrationAsAdmin,
-    makeOrganizationIntegrationManager
+    makeContextWithOrganizationAndIntegrationAsAdmin: createContextWithOrganizationAndIntegrationAsAdmin,
+    makeOrganizationIntegrationManager: createOrganizationIntegrationManager
     /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
