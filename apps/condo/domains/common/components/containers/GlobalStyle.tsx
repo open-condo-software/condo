@@ -1,7 +1,6 @@
 import React from 'react'
 import { css, Global } from '@emotion/core'
 import { colors } from '@condo/domains/common/constants/style'
-import { green, grey } from '@ant-design/colors'
 
 export default function GlobalStyle () {
     return (
@@ -241,9 +240,9 @@ const uploadControlCss = css`
 
 const inputControlCss = css`
   .ant-input.white {
-    background: white;
+    background: ${colors.white};
     &:focus, &:active {
-      background: white !important;
+      background: ${colors.white} !important;
     }
   }
 `

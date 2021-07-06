@@ -29,7 +29,6 @@ import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Comments } from '@condo/domains/common/components/Comments'
-import { Property } from '../../../domains/property/utils/clientSchema'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 
