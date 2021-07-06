@@ -1,9 +1,9 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { Col, Radio, Row, Space, Table, Typography, Tabs } from 'antd'
+import { Col, Radio, Row, Space, Table, Typography, Tabs, Skeleton } from 'antd'
 import { BarChartOutlined, PieChartOutlined, LineChartOutlined } from '@ant-design/icons'
 import { useRouter } from 'next/router'
 import { useOrganization } from '@core/next/organization'
@@ -19,15 +19,17 @@ import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { getPageSizeFromQuery, queryToSorter, filtersToQuery, getSortStringFromQuery, sorterToQuery, getPageIndexFromQuery, IFilters } from '@condo/domains/ticket/utils/helpers'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { SortTicketsBy } from '../../schema'
+import moment from 'moment'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
-
 type viewModeTypes = 'chart' | 'list'
 type chartModeTypes = 'stacked-bar' | 'pie' | 'linear'
+// TODO: grab selectedPeriod from filter component
+const SELECTED_PERIOD = [moment().subtract(7, 'days'), moment()]
 
-const TicketAnalyticsPageChartView = () => {
+const TicketAnalyticsPageChartView: React.FC = () => {
     const series = [
         {
             name: 'Direct',
@@ -41,56 +43,27 @@ const TicketAnalyticsPageChartView = () => {
             },
             data: [320, 302, 301, 334, 390, 330, 320],
         },
-        {
-            name: 'Mail Ad',
-            type: 'bar',
-            stack: 'total',
-            label: {
-                show: true,
-            },
-            emphasis: {
-                focus: 'series',
-            },
-            data: [120, 132, 101, 134, 90, 230, 210],
-        },
-        {
-            name: 'Affiliate Ad',
-            type: 'bar',
-            stack: 'total',
-            label: {
-                show: true,
-            },
-            emphasis: {
-                focus: 'series',
-            },
-            data: [220, 182, 191, 234, 290, 330, 310],
-        },
-        {
-            name: 'Video Ad',
-            type: 'bar',
-            stack: 'total',
-            label: {
-                show: true,
-            },
-            emphasis: {
-                focus: 'series',
-            },
-            data: [150, 212, 201, 154, 190, 330, 410],
-        },
-        {
-            name: 'Search Engine',
-            type: 'bar',
-            stack: 'total',
-            label: {
-                show: true,
-            },
-            emphasis: {
-                focus: 'series',
-            },
-            data: [820, 832, 901, 934, 1290, 1330, 1320],
-        },
     ]
     const [chartType, setChartType] = useState<chartModeTypes>('stacked-bar')
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+
+    const [startDate, endDate] = SELECTED_PERIOD
+    const where = {
+        organization: { id: userOrganizationId },
+        createdAt_gte: startDate.toISOString(), createdAt_lte: endDate.toISOString(),
+    }
+
+
+    const {
+        loading,
+        count: total,
+        objs: tickets,
+    } = Ticket.useObjects({
+        where,
+    }, {
+        fetchPolicy: 'network-only',
+    })
 
     const option = {
         tooltip: {
@@ -128,11 +101,11 @@ const TicketAnalyticsPageChartView = () => {
             <Tabs.TabPane key='pie' tab={<span><PieChartOutlined />График 2</span>} />
             <Tabs.TabPane key='linear' tab={<span><LineChartOutlined />График 3</span>} />
         </Tabs>
-        <ReactECharts option={option} style={{ height: '500px' }} />
+        <ReactECharts showLoading={loading} option={option} style={{ height: '500px' }} />
     </>
 }
 
-const TicketAnalyticsPageListView = () => {
+const TicketAnalyticsPageListView: React.FC = () => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
@@ -238,6 +211,12 @@ const TicketAnalyticsPageListView = () => {
     )
 }
 
+
+const TicketAnalyticsPageFilter: React.FC = () => (
+    <Skeleton loading={true} />
+)
+
+
 const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const intl = useIntl()
     const [viewMode, setViewMode] = useState<viewModeTypes>('chart')
@@ -245,7 +224,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const showChart = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ShowChart' })
     const showList = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ShowList' })
     const viewModeTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ViewModeTitle' })
-
+    const selectedPeriod = SELECTED_PERIOD.map(e => e.format('DD.MM.YYYY')).join(' - ')
     return <>
         <Head>
             <title>{pageTitle}</title>
@@ -255,8 +234,11 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
             <OrganizationRequired>
                 <PageContent>
                     <Row gutter={[0, 40]} align={'top'} justify={'space-between'}>
+                        <Col span={24}>
+                            <TicketAnalyticsPageFilter />
+                        </Col>
                         <Col span={14}>
-                            <Typography.Title level={3}>{viewModeTitle} 16.05.2021-18.05.2021</Typography.Title>
+                            <Typography.Title level={3}>{viewModeTitle} {selectedPeriod}</Typography.Title>
                         </Col>
                         <Col span={6} >
                             <Radio.Group
