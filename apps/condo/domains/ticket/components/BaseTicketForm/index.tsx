@@ -20,6 +20,7 @@ import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clie
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { useOrganization } from '@core/next/organization'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
+import { normalizeText } from '@condo/domains/common/utils/text'
 
 const { TabPane } = Tabs
 
@@ -104,12 +105,14 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const { link: { role } } = useOrganization()
 
     const action = async (variables, ...args) => {
+        const { details, ...otherVariables } = variables
         let createdContact
         if (role.canManageContacts && canCreateContactRef.current) {
             createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
         }
         const result = await _action({
-            ...variables,
+            ...otherVariables,
+            details: normalizeText(details),
             contact: get(createdContact, 'id') || variables.contact,
         }, ...args)
         await syncModifiedFiles(result.id)
