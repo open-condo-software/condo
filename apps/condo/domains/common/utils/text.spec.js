@@ -26,9 +26,6 @@ describe('normalizeText()', () => {
     test('squashes sequential blank lines into one', () => {
         expect(normalizeText('123\n\n\n\n123\n\n\n456'))
             .toEqual('123\n\n123\n\n456')
-
-        expect(normalizeText('123\r\n\r\n\r\n\r\n123\r\n\r\n\r\n456'))
-            .toEqual('123\r\n\r\n123\r\n\r\n456')
     })
 
     test('removes extra spaces around punctuations', () => {
