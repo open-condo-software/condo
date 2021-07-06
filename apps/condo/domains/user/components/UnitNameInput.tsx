@@ -4,7 +4,7 @@ import get from 'lodash/get'
 import flattenDeep from 'lodash/flattenDeep'
 import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 
-interface IUnitNameInputProps extends Pick<SelectProps<string>, 'onSelect'> {
+interface IUnitNameInputProps extends Pick<SelectProps<string>, 'onChange' | 'onSelect'> {
     property: IPropertyUIState
     placeholder?: string
     allowClear?: false,
@@ -50,11 +50,11 @@ const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
 }
 
 export const UnitNameInput = (props: IUnitNameInputProps) => {
-    const { property, onSelect, ...baseInputProps } = props
+    const { property, onSelect, onChange, ...baseInputProps } = props
 
     if (!property) {
         return <Input {...baseInputProps} disabled value={null}/>
     }
 
-    return <BaseUnitNameInput {...props} onSelect={onSelect}/>
+    return <BaseUnitNameInput {...props} onSelect={onSelect} onChange={onChange}/>
 }
