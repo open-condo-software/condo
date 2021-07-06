@@ -157,7 +157,6 @@ export default function GlobalStyle () {
               ${uploadControlCss}
               ${radioGroupCss}
               ${inputControlCss}
-              ${commentCss}
               ${page}
             `}
         />
@@ -245,63 +244,6 @@ const inputControlCss = css`
     background: white;
     &:focus, &:active {
       background: white !important;
-    }
-  }
-`
-
-const commentCss = css`
-  .ant-comment {
-    background: white;
-    margin-top: 1em;
-    border-radius: 8px;
-    padding: 0;
-    box-shadow: rgba(0,0,0,0.15) 0px 1px 3px;
-    font-size: 14px;
-    line-height: 22px;
-    
-    &:hover {
-      .ant-comment-inner {
-        .ant-comment-content {
-          .ant-comment-actions {
-            opacity: 1;
-            pointer-events: all;
-          }
-        }
-      }
-    }
-    
-    .ant-comment-inner {
-      padding: 12px;
-
-      .ant-comment-content {
-        display: flex;
-        flex-flow: column nowrap;
-
-        .ant-comment-content-detail {
-          order: 1;
-        }
-        .ant-comment-content-author {
-          order: 2;
-          margin-top: 0.6em;
-          font-size: 12px;
-          
-          .ant-comment-content-author-name {
-            color: ${green[6]};
-          }
-
-          .ant-comment-content-author-time {
-            color: ${grey[2]};
-          }
-        }
-        .ant-comment-actions {
-          position: absolute;
-          right: -5px;
-          bottom: -5px;
-          opacity: 0;
-          pointer-events: none;
-          transition: all 0.3s ease-in-out;
-        }
-      }
     }
   }
 `
