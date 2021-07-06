@@ -76,6 +76,14 @@ const PropertyPageViewTable = (): React.FC => {
     const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    // EXCEL TABLE FIELDS
+    const ExcelAddressLabel = intl.formatMessage({ id: 'field.Address' })
+    const ExcelOrganizationLabel = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
+    const ExcelUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
+    const ExcelTicketsInWorkLabel = intl.formatMessage({ id:'pages.condo.property.id.TicketsInWork' })
+
     const createRoute = '/property/create'
 
     const router = useRouter()
@@ -134,16 +142,26 @@ const PropertyPageViewTable = (): React.FC => {
     const generateExcelData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {
             try {
-                const cols = [
+                const dataCols = [
                     'address',
                     'organization',
                     'unitsCount',
                     'ticketsInWork',
                 ]
+                const headers = [
+                    [
+                        ExcelAddressLabel,
+                        ExcelOrganizationLabel,
+                        ExcelUnitsLabel,
+                        ExcelTicketsInWorkLabel,
+                    ],
+                ]
                 const wb = XLSX.utils.book_new()
                 const ws = XLSX.utils.json_to_sheet(
-                    properties.map((property) => Property.extractAttributes(property, cols)), { header: cols }
+                    properties.map((property) => Property.extractAttributes(property, dataCols)),
+                    { skipHeader: true, origin: 'A2' }
                 )
+                XLSX.utils.sheet_add_aoa(ws, headers)
                 XLSX.utils.book_append_sheet(wb, ws, 'table')
                 XLSX.writeFile(wb, 'export_properties.xlsx')
             } catch (e) {
@@ -161,9 +179,6 @@ const PropertyPageViewTable = (): React.FC => {
             },
         }
     }, [router])
-
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     if (error) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
