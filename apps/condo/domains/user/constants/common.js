@@ -1,6 +1,6 @@
 const MIN_PASSWORD_LENGTH = 8
 const LOCK_TIMEOUT = 5  // 5 seconds // default timeout to avoid brute force attacks
-const SMS_CODE_LENGTH = 6
+const SMS_CODE_LENGTH = 4
 const SMS_CODE_TTL = 60 // seconds
 const CONFIRM_PHONE_ACTION_EXPIRY = 3600 // 1 hour
 const CONFIRM_PHONE_SMS_MAX_RETRIES = 10
