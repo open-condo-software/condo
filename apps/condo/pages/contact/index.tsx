@@ -25,7 +25,7 @@ import { useOrganization } from '@core/next/organization'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
 import { SortContactsBy } from '../../schema'
-import XLSX from 'xlsx'
+import XLSX, { ColInfo } from 'xlsx'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 
@@ -129,6 +129,7 @@ const ContactPage = () => {
                     'phone',
                     'email',
                 ]
+                const columnWidths = {}
                 const headers = [
                     [
                         ExcelNameMessage,
@@ -143,12 +144,17 @@ const ContactPage = () => {
                         const result = {}
                         dataCols.forEach((col) => {
                             const colName = Array.isArray(col) ? col.join('.') : col
-                            result[colName] = get(contact, col)
+                            const colValue = get(contact, col)
+                            columnWidths[colName] = columnWidths[colName] && colValue
+                                ? Math.max(columnWidths[colName], colValue.length)
+                                : (colValue ? colValue.length : 0)
+                            result[colName] = colValue
                         })
                         return result
                     }),
                     { skipHeader: true }
                 )
+                ws['!cols'] = Object.values(columnWidths).map((width) => ({ wch: width } as ColInfo))
                 XLSX.utils.sheet_add_aoa(ws, headers)
                 XLSX.utils.book_append_sheet(wb, ws, 'table')
                 XLSX.writeFile(wb, 'export_contacts.xlsx')
