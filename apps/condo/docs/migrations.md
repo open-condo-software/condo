@@ -15,6 +15,24 @@ docker-compose run app yarn workspace @app/condo makemigrations &&
 docker-compose run app yarn workspace @app/condo migrate
 ```
 
+To reflect changes, made on Keystone schemas, with database schema, create migration file, that will be added into `apps/condo/migrations`:
+
+```
+docker-compose run app yarn workspace @app/condo makemigrations
+```
+
+Migrate current database to new schema, this will run all migrations, that was not applied:
+
+```
+docker-compose run app yarn workspace @app/condo migrate
+```
+
+Rollback last applied migration:
+
+```
+docker-compose run app yarn workspace @app/condo kmigrator down
+```
+
 ## Workflow cases
 
 ### Changed a schema during work in progress — recreate corresponding migration
