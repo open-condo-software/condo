@@ -35,6 +35,7 @@ async function canManageBillingEntityWithContext ({ user, operation, itemId, ori
         if (!itemId) return false
         const itemWithContext = await getById(schemaWithContextName, itemId)
         contextId = get(itemWithContext, ['context'])
+        if (!contextId) return false
     }
     const context = await getById('BillingIntegrationOrganizationContext', contextId)
     if (!context) return false

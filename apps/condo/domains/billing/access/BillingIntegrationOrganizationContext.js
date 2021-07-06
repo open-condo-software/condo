@@ -37,6 +37,7 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
         organizationId = organization
         integrationId = integration
     }
+    if (!organizationId || !integrationId) return false
     const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
     if (canManageIntegrations) return true
     return await checkBillingIntegrationAccessRight(user.id, integrationId)
