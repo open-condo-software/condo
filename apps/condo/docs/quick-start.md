@@ -1,6 +1,8 @@
 Quick start
 =====
 
+To spin-up your development project instance, do the following.
+
 Declare environment variables:
 
 ```shell
