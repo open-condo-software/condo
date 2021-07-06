@@ -35,14 +35,14 @@ class SberCloudObsAcl {
             Metadata: newMeta,
             MetadataDirective: 'REPLACE_NEW',
         })
-        const  { CommonMsg: { Status } } = result 
+        const  { CommonMsg: { Status } } = result
         return Status < 300
     }
     // createSignedUrlSync is executed without request to obs, so there is no need to cache result
     generateUrl (filename, ttl = 300) { // obs default
         const { SignedUrl } = this.s3.createSignedUrlSync({
             Method: 'GET',
-            Bucket : this.bucket, 
+            Bucket : this.bucket,
             Key : filename,
             Expires: ttl,
         })
@@ -61,7 +61,7 @@ class SberCloudFileAdapter {
         this.acl = new SberCloudObsAcl(config)
     }
 
-    save ({ stream, filename, id, mimetype, encoding }) {
+    save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
         return new Promise((resolve, reject) => {
             const fileData = {
                 id,
@@ -70,7 +70,7 @@ class SberCloudFileAdapter {
                 mimetype,
                 encoding,
             }
-            const uploadParams = this.uploadParams(fileData)
+            const uploadParams = this.uploadParams({ ...fileData, meta })
             this.s3.putObject(
                 {
                     Body: stream,
@@ -104,7 +104,7 @@ class SberCloudFileAdapter {
     }
 
     getFilename ({ id, originalFilename }) {
-        return `${id}${path.extname(originalFilename)}` // will skip adding originalFilename 
+        return `${id}${path.extname(originalFilename)}` // will skip adding originalFilename
     }
 
     publicUrl ({ filename }) {
@@ -118,9 +118,9 @@ class SberCloudFileAdapter {
         return `${SERVER_URL}/api/files/${this.folder}/${filename}`
     }
 
-    uploadParams () {
-        return { 
-            Metadata: {},
+    uploadParams ({ meta = {} }) {
+        return {
+            Metadata: meta,
         }
     }
 }
@@ -164,7 +164,7 @@ const obsRouterHandler = ({ keystone }) => {
             return res.end()
         }
         const url = Acl.generateUrl(req.params.file)
-        return res.redirect(url)        
+        return res.redirect(url)
     }
 }
 

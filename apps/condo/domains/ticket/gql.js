@@ -115,28 +115,15 @@ const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name } content ${COMMON
 const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
-const XLS_EXPORT_LIMIT = 100
-// If there is no limit - error "maxTotalResults","limit":1000 - will take place
-// TODO(zuch): Xls export on server side and make xls exports look better
-
-const GET_ALL_TICKET_FOR_XLS_EXPORT = gql`
-    query GetAllTicketsForXLS ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!]) {
-        tickets: allTickets(where: $where, sortBy: $sortBy, first: ${XLS_EXPORT_LIMIT}) {
-            number
-            status { id name }
-            details
-            property { id name }
-            assignee { id name }
-            executor { id name }
-            createdAt
-            clientName
-        }  
-  }
+const EXPORT_TICKETS_TO_EXCEL =  gql`
+    query exportToExcel ($data: TicketExportExcelInput!) {
+        result: exportTicketsToExcel(data: $data) { status, linkToFile }
+    }
 `
 
 const GET_TICKET_WIDGET_REPORT_DATA = gql`
     query getWidgetData ($data: TicketReportWidgetInput!) {
-        result: ticketReportWidgetData(data: $data) { data { statusName, currentValue, growth, statusType } } 
+        result: ticketReportWidgetData(data: $data) { data { statusName, currentValue, growth, statusType } }
     }
 `
 
@@ -148,7 +135,7 @@ module.exports = {
     TicketClassifier,
     TicketFile,
     TICKET_CHANGE_DATA_FIELDS,
-    GET_ALL_TICKET_FOR_XLS_EXPORT,
+    EXPORT_TICKETS_TO_EXCEL,
     GET_TICKET_WIDGET_REPORT_DATA,
     TicketComment,
 /* AUTOGENERATE MARKER <EXPORTS> */
