@@ -12,7 +12,7 @@ import { AuthRequired } from '@condo/domains/common/components/containers/AuthRe
 import { isFunction } from '@condo/domains/common/utils/ecmascript.utils'
 import { Loader } from '@condo/domains/common/components/Loader'
 
-const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions: boolean }> = ({ children, withEmployeeRestrictions }) => {
+const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions }) => {
     const intl = useIntl()
     const EmployeeRestrictedTitle = intl.formatMessage({ id: 'employee.emptyList.title' })
     const EmployeeRestrictedDescription = intl.formatMessage({ id: 'employee.emptyList.description' })
@@ -60,7 +60,7 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     return children
 }
 
-export const OrganizationRequired: React.FC<{ withEmployeeRestrictions: boolean }> = ({ children, withEmployeeRestrictions = true }) => {
+export const OrganizationRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions = true }) => {
     return (
         <AuthRequired>
             <OrganizationRequiredAfterAuthRequired withEmployeeRestrictions={withEmployeeRestrictions}>
