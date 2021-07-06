@@ -6,10 +6,10 @@ const COUNTRIES = {
     [DEFAULT_ENGLISH_COUNTRY]: {
         roleNames: {
             admin: 'Admin',
-            supervisor: 'Supervisor',
+            dispatcher: 'Dispatcher',
             manager: 'Manager',
             foreman: 'Foreman',
-            technician : 'Techies',
+            technician : 'Technician',
         },
         // statusTransitions: {},  // TODO(pahaz): write logic for transitions
         phonePattern: /^[+]1[0-9-. ()]{7,}[0-9]$/gi,
@@ -18,7 +18,7 @@ const COUNTRIES = {
     [RUSSIA_COUNTRY]: {
         roleNames: {
             admin: 'Администратор',
-            supervisor: 'Диспетчер',
+            dispatcher: 'Диспетчер',
             manager: 'Управляющий',
             foreman: 'Мастер участка',
             technician : 'Техник',
