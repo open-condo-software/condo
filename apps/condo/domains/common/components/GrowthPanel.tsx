@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { colors } from '../constants/style'
-import { ArrowIconDown, ArrowIconUp } from './ArrowIcons'
+import { ArrowIconDown, ArrowIconUp } from './icons/ArrowIcons'
 import { css, jsx } from '@emotion/core'
 
 const growthPanelCss = (isPositive) => css`
