@@ -71,6 +71,7 @@ interface IBuildingChooseSectionsProps {
     toggleFullscreen?(): void
     isFullscreen?: boolean
 }
+
 export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
     Builder,
     refresh,

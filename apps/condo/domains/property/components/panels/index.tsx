@@ -14,11 +14,12 @@ interface IPropertyPanels {
     mode: 'view' | 'edit'
     updateMap?(map: BuildingMap): void
     handleSave?(): void
-    address?: string
+    address?: string,
+    mapValidationError?: string
 }
 
 
-export const PropertyPanels: React.FC<IPropertyPanels> = ({ mode, map, updateMap, handleSave, address }) => {
+export const PropertyPanels: React.FC<IPropertyPanels> = ({ mapValidationError, mode, map, updateMap, handleSave, address }) => {
     const intl = useIntl()
     const BuildingTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.BuildingTabTitle' })
     const ResidentsTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.ResidentsTabTitle' })
@@ -28,8 +29,11 @@ export const PropertyPanels: React.FC<IPropertyPanels> = ({ mode, map, updateMap
                 <FocusContainer style={{ margin: 'initial', marginTop: '40px' }}>
                     {
                         mode === 'view'
-                            ? <BuildingPanelView map={map as BuildingMap} />
+                            ? <BuildingPanelView
+                                map={map as BuildingMap}
+                            />
                             : <BuildingPanelEdit
+                                mapValidationError={mapValidationError}
                                 handleSave={handleSave}
                                 map={map as BuildingMap}
                                 updateMap={updateMap}
