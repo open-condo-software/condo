@@ -86,6 +86,19 @@ describe('BillingAccount', () => {
         expect(billingAccounts).toHaveLength(0)
     })
 
+    test('blocked organization integration manager: read BillingAccount', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+        const employees = await OrganizationEmployee.getAll(admin, { user: { id: managerUserClient.user.id } })
+        expect(employees).toHaveLength(1)
+        const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+        const [property] = await createTestBillingProperty(managerUserClient, context)
+        const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+        await updateTestOrganizationEmployee(admin, employees[0].id, { isBlocked: true })
+        const billingAccounts = await BillingAccount.getAll(managerUserClient, { id: billingAccount.id })
+        expect(billingAccounts).toHaveLength(0)
+    })
+
     test('user: read BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
         const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -137,6 +150,45 @@ describe('BillingAccount', () => {
 
         expect(billingAccount.id).toEqual(updatedBillingAccount.id)
         expect(updatedBillingAccount.unitName).toEqual(randomUnitName)
+    })
+
+    test('deleted organization integration manager: update BillingAccount', async () => {
+        const admin = await makeLoggedInAdminClient()
+
+        const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+        const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+        const [property] = await createTestBillingProperty(managerUserClient, context)
+        const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+
+        const employees = await OrganizationEmployee.getAll(admin, { user: { id: managerUserClient.user.id } })
+        expect(employees).toHaveLength(1)
+        await updateTestOrganizationEmployee(admin, employees[0].id, { deletedAt: 'true' })
+
+        const payload = {}
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestBillingAccount(managerUserClient, billingAccount.id, payload)
+        })
+    })
+
+
+    test('blocked organization integration manager: update BillingAccount', async () => {
+        const admin = await makeLoggedInAdminClient()
+
+        const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+        const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+        const [property] = await createTestBillingProperty(managerUserClient, context)
+        const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+
+        const employees = await OrganizationEmployee.getAll(admin, { user: { id: managerUserClient.user.id } })
+        expect(employees).toHaveLength(1)
+        await updateTestOrganizationEmployee(admin, employees[0].id, { isBlocked: true })
+
+        const payload = {}
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestBillingAccount(managerUserClient, billingAccount.id, payload)
+        })
     })
 
     test('user: update BillingAccount', async () => {
