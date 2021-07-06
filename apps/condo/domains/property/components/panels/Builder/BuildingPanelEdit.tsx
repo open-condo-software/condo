@@ -31,10 +31,11 @@ interface IBuildingPanelEditProps {
     map: BuildingMap
     updateMap: (map: BuildingMap) => void
     handleSave(): void
-    address?: string;
+    address?: string
+    mapValidationError?: string
 }
 
-export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, updateMap: updateFormField, handleSave, address }) => {
+export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValidationError, map, updateMap: updateFormField, handleSave, address }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
@@ -129,6 +130,11 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ map, upda
                             toggleFullscreen={toggleFullscreen}
                             isFullscreen={isFullscreen}
                         />
+                }
+                {
+                    <Typography.Paragraph type="danger" style={{ width: '100%', textAlign: 'center' }}>
+                        {mapValidationError}
+                    </Typography.Paragraph>
                 }
             </Row>
         </FullscreenWrapper>

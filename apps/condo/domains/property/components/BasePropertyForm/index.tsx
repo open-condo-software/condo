@@ -43,6 +43,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
 
     const { action, initialValues } = props
 
+    const [mapValidationError, setMapValidationError] = useState<string | null>(null)
     const [addressValidatorError, setAddressValidatorError] = useState<string | null>(null)
     const formValuesToMutationDataPreprocessor = useCallback((formData, _, form) => {
         const isAddressFieldTouched = form.isFieldsTouched(['address'])
@@ -128,6 +129,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                 </Col>
                                 <Col span={24} >
                                     <Form.Item
+                                        hidden
                                         name='map'
                                         rules={[
                                             {
@@ -141,22 +143,28 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                                         .flat(2)
 
                                                     if (unitLabels.length !== new Set(unitLabels).size) {
-                                                        return Promise.reject(SameUnitNamesErrorMsg)
+                                                        setMapValidationError(SameUnitNamesErrorMsg)
+                                                        return Promise.reject()
                                                     }
 
+                                                    setMapValidationError(null)
                                                     return Promise.resolve()
                                                 },
                                             },
                                         ]}
                                     >
-                                        <Input type='hidden' />
+                                        <Input />
                                     </Form.Item>
-                                    <Form.Item shouldUpdate={true}>
+                                    <Form.Item
+                                        shouldUpdate={true}
+                                        onFocus={() => setMapValidationError(null)}
+                                    >
                                         {
                                             ({ getFieldsValue, setFieldsValue }) => {
                                                 const { map } = getFieldsValue(['map'])
                                                 return (
                                                     <PropertyPanels
+                                                        mapValidationError={mapValidationError}
                                                         mode='edit'
                                                         map={map}
                                                         handleSave={handleSave}
