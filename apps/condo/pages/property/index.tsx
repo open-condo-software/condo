@@ -81,7 +81,7 @@ const PropertyPageViewTable = (): React.FC => {
     // EXCEL TABLE FIELDS
     const ExcelAddressLabel = intl.formatMessage({ id: 'field.Address' })
     const ExcelOrganizationLabel = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
-    const ExcelUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
+    const ExcelUnitsCountLabel = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
     const ExcelTicketsInWorkLabel = intl.formatMessage({ id:'pages.condo.property.id.TicketsInWork' })
 
     const createRoute = '/property/create'
@@ -152,7 +152,7 @@ const PropertyPageViewTable = (): React.FC => {
                     [
                         ExcelAddressLabel,
                         ExcelOrganizationLabel,
-                        ExcelUnitsLabel,
+                        ExcelUnitsCountLabel,
                         ExcelTicketsInWorkLabel,
                     ],
                 ]
