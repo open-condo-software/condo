@@ -399,8 +399,8 @@ const TicketIdPage = () => {
                                         actionsFor={comment => {
                                             const isAuthor = comment.user.id === auth.user.id
                                             return {
-                                                updateAction: isAuthor ? updateComment : null,
                                                 deleteAction: isAuthor ? deleteComment : null,
+                                                updateAction: auth.user.isAdmin || isAuthor ? updateComment : null,
                                             }
                                         }}
                                     />
