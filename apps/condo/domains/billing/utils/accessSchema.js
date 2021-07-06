@@ -18,7 +18,7 @@ async function canReadBillingEntity (user) {
     return {
         OR: [
             { context: { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true }, deletedAt: null, isBlocked: false } } } },
-            { context: { integration: { accessRights_some: { user: { id: user.id } } } } },
+            { context: { integration: { accessRights_some: { user: { id: user.id } }, deletedAt: null } } },
         ],
     }
 }
