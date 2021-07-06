@@ -77,8 +77,6 @@ type MenuItem = {
 interface ISideMenuProps {
     onLogoClick: (...args) => void
     menuData: Array<MenuItem>,
-    localeRender: (...args) => React.ElementType
-    onClickMenuItem: (...args) => void
     isMobile: boolean
     isSideMenuCollapsed: boolean
     toggleSideMenuCollapsed: (...args) => void
