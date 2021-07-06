@@ -17,7 +17,7 @@ async function canReadBillingEntity (user) {
     if (user.isAdmin) return true
     return {
         OR: [
-            { context: { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true, deletedAt: null }, deletedAt: null, isBlocked: false } } } },
+            { context: { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true }, deletedAt: null, isBlocked: false } } } },
             { context: { integration: { accessRights_some: { user: { id: user.id } } } } },
         ],
     }
