@@ -23,7 +23,7 @@ const Holder = styled.div`
 `
 
 interface ICommentFormProps {
-    action?: (formValues) => Promise<any>
+    action: (formValues) => Promise<any>
     fieldName?: string
     initialValue?: string
 }
