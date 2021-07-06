@@ -113,11 +113,13 @@ function queryHasSoftDeletedField (whereQuery, deletedAtField) {
 
 /**
  * Checks if query has the soft deleted property on any level of depth
+ * todo(toplenboren) learn how to process very complex queries:
+ * todo(toplenboren) see https://github.com/open-condo-software/condo/pull/232/files#r664256921
  * @param {Object} whereQuery
  * @param {string} deletedAtField
  * @return {boolean}
  */
-function queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
+function _queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
     // { deletedAt: null } case
     if (queryHasSoftDeletedField(whereQuery, deletedAtField)) {
         return true
@@ -126,12 +128,12 @@ function queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
         // OR: [ { deletedAt: null }, { ... } ] case
         if (Array.isArray(queryValue)) {
             for (const innerQuery of queryValue) {
-                if (queryHasSoftDeletedFieldDeep(innerQuery, deletedAtField))
+                if (_queryHasSoftDeletedFieldDeep(innerQuery, deletedAtField))
                     return true
             }
         // property: { deletedAt: null } case
         } else if (isPlainObject(queryValue)){
-            if (queryHasSoftDeletedFieldDeep(queryValue, deletedAtField)) {
+            if (_queryHasSoftDeletedFieldDeep(queryValue, deletedAtField)) {
                 return true
             }
         }
@@ -157,8 +159,14 @@ function queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
  * If you want to override default behaviour by explicitly setting
  * {deletedAt_not: null} on any part of the query -> the filters will not be
  * activated. So if you want to override the default behaviour on one part of the
- * query, you should explicitly specify the {deltedAt: null} on other parts of
+ * query, you should explicitly specify the {deltedAt: null} on ALL other parts of
  * the query to get only NOT DELETED items
+ *
+ * Example:
+ * wrong: where = { role : { deletedAt: null } }
+ * correct: where = { role : { deletedAt: null }, deletedAt: null }
+ *
+ * For more info look up to the https://github.com/open-condo-software/condo/pull/232/files#r664256921
  */
 function applySoftDeletedFilters (access, deletedAtField, args) {
     const type = getType(access)
@@ -168,7 +176,7 @@ function applySoftDeletedFilters (access, deletedAtField, args) {
         const currentWhereFilters = getWhereVariables(args)
 
         // If we explicitly pass the deletedAt filter - we wont hide deleted items
-        if (queryHasSoftDeletedFieldDeep(currentWhereFilters, deletedAtField)) {
+        if (_queryHasSoftDeletedFieldDeep(currentWhereFilters, deletedAtField)) {
             return access
         }
 
@@ -186,5 +194,5 @@ function applySoftDeletedFilters (access, deletedAtField, args) {
 
 module.exports = {
     softDeleted,
-    queryHasSoftDeletedFieldDeep,
+    _queryHasSoftDeletedFieldDeep,
 }
