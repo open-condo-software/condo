@@ -225,7 +225,7 @@ const TicketIdPage = () => {
         user: auth.user.id,
     }, () => { refetchComments() })
 
-    const { link: { role } } = useOrganization()
+    const { link } = useOrganization()
 
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
@@ -395,7 +395,7 @@ const TicketIdPage = () => {
                                         // @ts-ignore
                                         createAction={createCommentAction}
                                         comments={comments}
-                                        canCreateComments={role.canManageTicketComments}
+                                        canCreateComments={auth.user.isAdmin || get(link, ['role', 'canManageTicketComments'])}
                                         actionsFor={comment => {
                                             const isAuthor = comment.user.id === auth.user.id
                                             return {
