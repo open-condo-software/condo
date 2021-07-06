@@ -4,6 +4,7 @@ import { useIntl } from '@core/next/intl'
 import { Empty, Typography } from 'antd'
 import { Comment } from './Comment'
 import { CommentForm } from './CommentForm'
+import { colors } from '@condo/domains/common/constants/style'
 
 export type TComment = {
     id: string,
@@ -31,7 +32,7 @@ const Container = styled.aside`
   align-content: space-between;
 `
 const Head = styled.div`
-  border-bottom: solid thin #D9D9D9;
+  border-bottom: solid thin ${colors.lightGrey};
   font-style: normal;
   font-weight: bold;
   font-size: 20px;
