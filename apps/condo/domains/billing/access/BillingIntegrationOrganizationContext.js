@@ -11,7 +11,6 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
     if (!user) return false
     if (user.isAdmin) return true
     return {
-        // TODO(pahaz & toplenboren): add an ability to create integration context from interface
         OR: [
             { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true }, deletedAt: null, isBlocked: false } } },
             { integration: { accessRights_some: { user: { id: user.id } } } },
