@@ -8,6 +8,7 @@ describe('normalizeText()', () => {
     test('returns normalized text as is', () => {
         expect(normalizeText('lorem ipsum')).toEqual('lorem ipsum')
         expect(normalizeText('lorem   ipsum')).toEqual('lorem ipsum')
+        expect(normalizeText('@#$%^&*()_+=-;.,:№"\\|{}[]?/<>~±§')).toEqual('@#$%^&*()_+=-;.,:№"\\|{}[]?/<>~±§')
     })
 
     test('removes leading and trailing spaces', () => {
@@ -17,6 +18,7 @@ describe('normalizeText()', () => {
 
     test('squashes sequential spaces into one', () => {
         expect(normalizeText('lorem        ipsum    dolor')).toEqual('lorem ipsum dolor')
+        expect(normalizeText('lorem  \t  \r    ipsum    dolor')).toEqual('lorem ipsum dolor')
     })
 
     test('squashes sequential non-breaking spaces into one', () => {
@@ -24,8 +26,8 @@ describe('normalizeText()', () => {
     })
 
     test('squashes sequential blank lines into one', () => {
-        expect(normalizeText('123\n\n\n\n123\n\n\n456'))
-            .toEqual('123\n\n123\n\n456')
+        expect(normalizeText('123\n\n\n\n123\n\n456'))
+            .toEqual('123\n123\n456')
     })
 
     test('removes extra spaces around punctuations', () => {
@@ -39,5 +41,4 @@ describe('normalizeText()', () => {
         expect(normalizeText('"   123      "      asd .     ""')).toEqual('"123" asd. ""')
         expect(normalizeText('"132   " " 13212asd  " zxc 123 "')).toEqual('"132" "13212asd" zxc 123 "')
     })
-
 })
