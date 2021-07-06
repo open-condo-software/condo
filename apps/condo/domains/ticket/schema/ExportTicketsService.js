@@ -1,6 +1,6 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const { canReadTickets } = require('@condo/domains/ticket/access/Ticket')
-const { Ticket, TicketClassifier } = require('@condo/domains/ticket/utils/serverSchema')
+const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { compact } = require('lodash')
 const moment = require('moment')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
@@ -31,7 +31,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 if (!organizationId) {
                     throw new Error('[error] no organization id is passed')
                 }
-                const hasAccess = await checkOrganizationPermission(context.authedItem.id, organizationId, 'canReadTickets')
+                const hasAccess = await checkOrganizationPermission(context.authedItem.id, organizationId, 'canManageTickets')
                 if (!hasAccess) {
                     throw new Error('[error] you do not have access to this organization')
                 }
@@ -62,9 +62,9 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         updatedAt: moment(ticket.updatedAt).format(DATE_FORMAT),
                         statusUpdatedAt: ticket.statusUpdatedAt ? moment(ticket.updatedAt).format(ticket.statusUpdatedAt) : '',
                         status: ticket.status.name,
-                        operator: ticket.operator.name,
-                        executor: ticket.executor.name,
-                        assignee: ticket.assignee.name,
+                        operator: get(ticket, 'operator.name', ''),
+                        executor: get(ticket, 'executor.name', ''),
+                        assignee: get(ticket, 'assignee.name', ''),
                         statusReason: ticket.statusReason ? ticket.statusReason : '',
                     }
                 })

@@ -264,6 +264,7 @@
   "pages.condo.ticket.field.Type": "Тип заявки",
   "pages.condo.ticket.id.Notes": "Заметки",
   "pages.condo.ticket.id.PageTitle": "Заявка",
+  "pages.condo.ticket.id.DownloadExcelLabel": "Скачать файл",
   "pages.condo.ticket.index.CreateTicketModalTitle": "Cоздать заявку",
   "pages.condo.ticket.index.EditTicketModalTitle": "Редактировать заявку",
   "pages.condo.ticket.index.PageTitle": "Все заявки",
