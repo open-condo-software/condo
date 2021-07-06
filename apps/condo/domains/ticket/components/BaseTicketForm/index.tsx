@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { searchEmployee } from '../../utils/clientSchema/search'
+import { searchEmployee, searchTicketClassifier } from '../../utils/clientSchema/search'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
@@ -15,7 +15,6 @@ import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { useTicketValidations } from './useTicketValidations'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
-import { TicketClassifierSelect } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
@@ -263,8 +262,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 <Form.Item noStyle dependencies={['property']}>
                                     {
                                         ({ getFieldsValue }) => {
-                                            const { property, classifier } = getFieldsValue(['property', 'classifier'])
+                                            const { property } = getFieldsValue(['property'])
                                             const disableUserInteraction = !property
+
                                             return (
                                                 <Col span={24}>
                                                     <FrontLayerContainer showLayer={disableUserInteraction}>
@@ -272,19 +272,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             <Col span={24}>
                                                                 <Row gutter={[0, 24]}>
                                                                     <Col span={24}>
-                                                                        <Typography.Title level={5} style={{ margin: '0' }}>{ClassifierLabel}</Typography.Title>
+                                                                        <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
                                                                     </Col>
-                                                                    <Col span={24}>
-                                                                        <Form.Item name={'classifier'} rules={validations.classifier}>
-                                                                            <TicketClassifierSelect
-                                                                                disabled={disableUserInteraction}
-                                                                                initialValue={classifier}
-                                                                                onSelect={ id => form.setFieldsValue({ 'classifier': id })}
-                                                                            >
-                                                                            </TicketClassifierSelect>
-                                                                        </Form.Item>
-                                                                    </Col>
-
                                                                     <Col span={24}>
                                                                         <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
                                                                             <Input.TextArea rows={3} placeholder={DescriptionPlaceholder} disabled={disableUserInteraction} />
@@ -301,7 +290,16 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             </Col>
                                                             <Col span={24}>
                                                                 <Row align={'top'} >
-                                                                    <Col span={12}>
+                                                                    <Col span={11}>
+                                                                        <Form.Item name={'classifier'} rules={validations.classifier} label={ClassifierLabel} >
+                                                                            <GraphQlSearchInput
+                                                                                search={searchTicketClassifier}
+                                                                                allowClear={false}
+                                                                                disabled={disableUserInteraction}
+                                                                            />
+                                                                        </Form.Item>
+                                                                    </Col>
+                                                                    <Col push={2} span={11}>
                                                                         <Row>
                                                                             <Col span={12}>
                                                                                 <Form.Item name={'isEmergency'} label={' '} valuePropName='checked'>
@@ -314,17 +312,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                 </Form.Item>
                                                                             </Col>
                                                                         </Row>
-                                                                    </Col>
-                                                                </Row>
-                                                            </Col>
-                                                            <Col span={24}>
-                                                                <Row gutter={[0, 24]}>
-                                                                    <Col  span={24}>
-                                                                        <Form.Item
-                                                                            label={AttachedFilesLabel}
-                                                                        >
-                                                                            <UploadComponent />
-                                                                        </Form.Item>
                                                                     </Col>
                                                                 </Row>
                                                             </Col>
