@@ -16,3 +16,9 @@ Main folders:
 - `/lang` -- translations. Used on the client and server side
 - `/pages` -- next.js pages. Used on the client side
 - `/public` -- next.js static files like design images, icons
+
+## Common domain
+
+Contains items shared between other domains:
+
+- Icons: `apps/condo/domains/common/components/icons`
