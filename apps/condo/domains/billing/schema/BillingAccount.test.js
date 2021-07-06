@@ -55,6 +55,38 @@ describe('BillingAccount', () => {
         expect(billingAccount.property.id).toEqual(property.id)
     })
 
+    test('deleted organization integration manager: create BillingAccount', async () => {
+        const admin = await makeLoggedInAdminClient()
+
+        const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+        const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+        const [property] = await createTestBillingProperty(managerUserClient, context)
+
+        const employees = await OrganizationEmployee.getAll(admin, { user: { id: managerUserClient.user.id } })
+        expect(employees).toHaveLength(1)
+        await updateTestOrganizationEmployee(admin, employees[0].id, { deletedAt: 'true' })
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestBillingAccount(managerUserClient, context, property)
+        })
+    })
+
+    test('blocked organization integration manager: create BillingAccount', async () => {
+        const admin = await makeLoggedInAdminClient()
+
+        const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+        const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+        const [property] = await createTestBillingProperty(managerUserClient, context)
+
+        const employees = await OrganizationEmployee.getAll(admin, { user: { id: managerUserClient.user.id } })
+        expect(employees).toHaveLength(1)
+        await updateTestOrganizationEmployee(admin, employees[0].id, { isBlocked: true })
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestBillingAccount(managerUserClient, context, property)
+        })
+    })
+
     test('admin: read BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
         const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
