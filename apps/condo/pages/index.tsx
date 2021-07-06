@@ -31,10 +31,11 @@ const IndexPage = () => {
 
 const HeaderAction = () => {
     const intl = useIntl()
+    const menuTitle = intl.formatMessage({ id: 'menu.Analytics' })
     return (
         <Space>
             <Typography.Text style={{ fontSize: '12px' }}>
-                {intl.formatMessage({ id: 'menu.Analytics' })}
+                {menuTitle}
             </Typography.Text>
         </Space>
     )
