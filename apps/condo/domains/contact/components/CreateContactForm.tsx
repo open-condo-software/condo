@@ -13,6 +13,7 @@ import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -95,9 +96,11 @@ export const CreateContactForm: React.FC = () => {
     }
 
     const [selectedPropertyId, setSelectedPropertyId] = useState(null)
-    const selectPropertyIdRef = useRef(selectedPropertyId)
+    const selectedPropertyIdRef = useRef(selectedPropertyId)
+    const { loading, obj: property } = Property.useObject({ where:{ id: selectedPropertyId ? selectedPropertyId : null } })
+
     useEffect(() => {
-        selectPropertyIdRef.current = selectedPropertyId
+        selectedPropertyIdRef.current = selectedPropertyId
     }, [selectedPropertyId])
 
     // @ts-ignore
@@ -113,7 +116,7 @@ export const CreateContactForm: React.FC = () => {
             validateTrigger={['onBlur', 'onSubmit']}
             colon={false}
             formValuesToMutationDataPreprocessor={(values) => {
-                values.property = selectPropertyIdRef.current
+                values.property = selectedPropertyIdRef.current
                 return values
             }}
         >
@@ -159,8 +162,9 @@ export const CreateContactForm: React.FC = () => {
                                             {...INPUT_LAYOUT_PROPS}
                                             wrapperCol={{ span: 4 }}>
                                             <UnitNameInput
-                                                propertyId={selectedPropertyId}
+                                                property={property}
                                                 allowClear={false}
+                                                loading={loading}
                                             />
                                         </Form.Item>
                                     </Col>
