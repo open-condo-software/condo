@@ -128,21 +128,20 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         </UserNameField>
     )
 
-    const updateSectionAndFloor = (form, selectedUnitName) => {
-        if (selectedUnitName) {
+    const updateSectionAndFloor = (form, unitName) => {
+        if (unitName) {
             const sections = get(property, ['map', 'sections'], [])
             for (const section of sections) {
                 for (const floor of section.floors) {
                     for (const unit of floor.units) {
-                        if (unit.label === selectedUnitName) {
+                        if (unit.label === unitName) {
                             return form.setFieldsValue({ sectionName: section.name, floorName: floor.name })
                         }
                     }
                 }
             }
-
-            form.setFieldsValue({ sectionName: null, floorName: null })
         }
+        form.setFieldsValue({ sectionName: null, floorName: null })
     }
 
 
@@ -155,6 +154,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                 validateTrigger={['onBlur', 'onSubmit']}
                 formValuesToMutationDataPreprocessor={(values) => {
                     values.property = selectPropertyIdRef.current
+                    values.unitName = selectedUnitNameRef.current
                     return values
                 }}
             >
@@ -187,12 +187,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 property={property}
                                                                 loading={loading}
                                                                 allowClear={true}
-                                                                onClear={() => {
-                                                                    form.setFieldsValue({ sectionName: null, floorName: null })
-                                                                }}
-                                                                onSelect={(_, option) => {
-                                                                    setSelectedUnitName(option.key)
-                                                                    updateSectionAndFloor(form, option.key)
+                                                                onChange={(_, option) => {
+                                                                    setSelectedUnitName(option?.key ?? null)
+                                                                    updateSectionAndFloor(form, option?.key ?? null)
                                                                 }}
                                                             />
                                                         </Form.Item>
