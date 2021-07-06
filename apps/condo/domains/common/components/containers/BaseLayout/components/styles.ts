@@ -177,6 +177,22 @@ export const StyledMenuItem = styled(Menu.Item)`
     background-color: ${colors.defaultWhite[5]};
     font-weight: 700;
   }
+  > span {
+    width: 100%;
+  }
+  > span > div {
+    width: 100%;
+  }
+  .ant-space-item:nth-child(2) {
+    width: 100%;
+  }
+  .ant-space-item:nth-child(2) {
+    overflow: hidden;
+  }
+  .ant-space-item:nth-child(2) > div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `
 export const layoutCss = css`
   height: 100%;

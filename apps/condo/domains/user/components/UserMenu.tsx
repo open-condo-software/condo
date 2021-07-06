@@ -84,10 +84,10 @@ export const UserMenu = () => {
                 <StyledMenuItem onClick={goToOrganization}>
                     <Space size={16}>
                         <EnvironmentFilled style={menuIconStyles}/>
-                        <>
+                        <div title={organization.name}>
                             {organization.name + ' '}
                             {get(link, 'role') === 'owner' && <Tag color="error" className="tag">{OwnerMessage}</Tag>}
-                        </>
+                        </div>
                     </Space>
                 </StyledMenuItem>
             )}
