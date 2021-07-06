@@ -36,7 +36,7 @@ async function generate ({ name, namePath }) {
     await writeFile(path.join(namePath, 'schema.graphql'), schema)
 }
 
-function createGraphQLSchema () {
+async function createGraphQLSchema () {
     const name = path.basename(process.cwd())
     const namePath = path.join(__dirname, '..', 'apps', name)
     const greeting = chalk.white.bold(name)
@@ -49,7 +49,10 @@ function createGraphQLSchema () {
     }
     const msgBox = boxen(greeting, boxenOptions)
     console.log(msgBox)
-    generate({ name, namePath })
+    await generate({ name, namePath })
 }
 
-createGraphQLSchema()
+createGraphQLSchema().then(() => {
+    console.log('createGraphQLSchema completed')
+    process.exit(0)
+}).catch(console.error)
