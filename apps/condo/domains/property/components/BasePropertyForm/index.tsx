@@ -12,6 +12,8 @@ import Prompt from '@condo/domains/common/components/Prompt'
 import { AddressMeta } from '@condo/domains/common/utils/addressApi/AddressMeta'
 import { useState } from 'react'
 import { validHouseTypes } from '@condo/domains/property/constants/property'
+import { get } from 'lodash'
+
 interface IOrganization {
     id: string
 }
@@ -35,7 +37,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
     const AddressValidationErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
     const UnsupportedPropertyErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.UnsupportedPropertyErrorMsg' })
-
+    const SameUnitNamesErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
 
     const { addressApi } = useAddressApi()
 
@@ -125,8 +127,29 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={24} >
-                                    <Form.Item name='map' hidden >
-                                        <Input />
+                                    <Form.Item
+                                        name='map'
+                                        rules={[
+                                            {
+                                                validator (rule, value) {
+                                                    const unitLabels = get(value, 'sections', [])
+                                                        .map((section) => get(section, 'floors', [])
+                                                            .map(floor => get(floor, 'units', [])
+                                                                .map(unit => get(unit, 'label', []))
+                                                            )
+                                                        )
+                                                        .flat(2)
+
+                                                    if (unitLabels.length !== new Set(unitLabels).size) {
+                                                        return Promise.reject(SameUnitNamesErrorMsg)
+                                                    }
+
+                                                    return Promise.resolve()
+                                                },
+                                            },
+                                        ]}
+                                    >
+                                        <Input type='hidden' />
                                     </Form.Item>
                                     <Form.Item shouldUpdate={true}>
                                         {
