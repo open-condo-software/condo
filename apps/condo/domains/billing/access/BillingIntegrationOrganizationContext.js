@@ -13,7 +13,7 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
     return {
         OR: [
             { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true }, deletedAt: null, isBlocked: false } } },
-            { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+            { integration: { accessRights_some: { user: { id: user.id } } } },
         ],
     }
 }
