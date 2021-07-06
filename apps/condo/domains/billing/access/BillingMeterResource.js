@@ -27,7 +27,7 @@ async function canManageBillingMeterResources ({ authentication: { item: user },
         return false
     }
     if (!contextId) return false
-    const context = await getByßId('BillingIntegrationOrganizationContext', contextId)
+    const context = await getById('BillingIntegrationOrganizationContext', contextId)
     if (!context) return false
     const { integration: integrationId } = context
     return await checkBillingIntegrationAccessRight(user.id, integrationId)
