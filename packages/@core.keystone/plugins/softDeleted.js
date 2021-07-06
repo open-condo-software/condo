@@ -82,6 +82,7 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
 
 /**
  * Gets "where" variables from http graphQL request
+ * NOTE: it's a hack! Because we don't have access to GraphQL variables inside Keystone access function!
  * @param {Object} args
  * @return {Object}
  */
