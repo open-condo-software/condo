@@ -12,7 +12,7 @@ import { IFilters } from '@condo/domains/contact/utils/helpers'
 import { useIntl } from '@core/next/intl'
 
 import { Col, Input, Row, Space, Table, Typography, Dropdown, Menu, Tooltip } from 'antd'
-import { EllipsisOutlined } from '@ant-design/icons'
+import { DatabaseFilled, EllipsisOutlined } from '@ant-design/icons'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
@@ -25,6 +25,7 @@ import { useOrganization } from '@core/next/organization'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
 import { SortContactsBy } from '../../schema'
+import XLSX from 'xlsx'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 
@@ -38,6 +39,11 @@ const ContactPage = () => {
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const AddItemUsingFormLabel = intl.formatMessage({ id: 'AddItemUsingForm' })
     const AddItemUsingUploadLabel = intl.formatMessage({ id: 'AddItemUsingFileUpload' })
+    const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
+    const ExcelNameMessage = intl.formatMessage({ id: 'field.FullName.short' })
+    const ExcelPhoneMessage =  intl.formatMessage({ id: 'Phone' })
+    const ExcelEmailMessage = intl.formatMessage({ id: 'field.EMail' })
+    const ExcelAddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
 
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
@@ -113,6 +119,47 @@ const ContactPage = () => {
             </Menu.Item>
         </Menu>
     )
+
+    const generateExcelData = useCallback(() => {
+        return new Promise<void>((resolve, reject) => {
+            try {
+                const dataCols = [
+                    'name',
+                    ['property', 'address'],
+                    'phone',
+                    'email',
+                ]
+                const headers = [
+                    [
+                        ExcelNameMessage,
+                        ExcelAddressMessage,
+                        ExcelPhoneMessage,
+                        ExcelEmailMessage,
+                    ],
+                ]
+                const wb = XLSX.utils.book_new()
+                const ws = XLSX.utils.json_to_sheet(
+                    contacts.map((contact) => {
+                        const result = {}
+                        dataCols.forEach((col) => {
+                            const colName = Array.isArray(col) ? col.join('.') : col
+                            result[colName] = get(contact, col)
+                        })
+                        return result
+                    }),
+                    { skipHeader: true }
+                )
+                XLSX.utils.sheet_add_aoa(ws, headers)
+                XLSX.utils.book_append_sheet(wb, ws, 'table')
+                XLSX.writeFile(wb, 'export_contacts.xlsx')
+            } catch (e) {
+                reject(e)
+            } finally {
+                resolve()
+            }
+        })
+    }, [contacts])
+
     return (
         <>
             <Head>
@@ -131,7 +178,7 @@ const ContactPage = () => {
                                     createLabel={CreateContact} />
                                 : <Row gutter={[0, 40]} align={'middle'}>
                                     <Col span={24}>
-                                        <Row justify={'space-between'}>
+                                        <Row gutter={[0, 40]} style={{ alignItems: 'center' }}>
                                             <Col span={6}>
                                                 <Input
                                                     placeholder={SearchPlaceholder}
@@ -139,23 +186,32 @@ const ContactPage = () => {
                                                     value={search}
                                                 />
                                             </Col>
-                                            <Dropdown.Button
-                                                overlay={dropDownMenu}
-                                                buttonsRender={() => [
-                                                    <Button
-                                                        key='left'
-                                                        type={'sberPrimary'}
-                                                        style={{ borderRight: '1px solid white' }}
-                                                        onClick={() => router.push(ADD_CONTACT_ROUTE)}
-                                                    >
-                                                        {CreateContact}
-                                                    </Button>,
-                                                    <Button
-                                                        key='right'
-                                                        type={'sberPrimary'}
-                                                        style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
-                                                        icon={<EllipsisOutlined />}/>,
-                                                ]}/>
+                                            <Col span={9} push={1}>
+                                                <Button type={'inlineLink'} icon={<DatabaseFilled/>} onClick={generateExcelData}>
+                                                    {ExportAsExcel}
+                                                </Button>
+                                            </Col>
+                                            <Col span={9}>
+                                                <Dropdown.Button
+                                                    style={{ float: 'right' }}
+                                                    overlay={dropDownMenu}
+                                                    buttonsRender={() => [
+                                                        <Button
+                                                            key='left'
+                                                            type={'sberPrimary'}
+                                                            style={{ borderRight: '1px solid white' }}
+                                                            onClick={() => router.push(ADD_CONTACT_ROUTE)}
+                                                        >
+                                                            {CreateContact}
+                                                        </Button>,
+                                                        <Button
+                                                            key='right'
+                                                            type={'sberPrimary'}
+                                                            style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
+                                                            icon={<EllipsisOutlined />}/>,
+                                                    ]}/>
+                                            </Col>
+
                                         </Row>
                                     </Col>
                                     <Col span={24}>
