@@ -5,6 +5,7 @@ import { Empty, Typography } from 'antd'
 import { Comment } from './Comment'
 import { CommentForm } from './CommentForm'
 import { colors } from '@condo/domains/common/constants/style'
+import { ITicketCommentFormState, ITicketCommentUIState } from '../../../ticket/utils/clientSchema/TicketComment'
 
 export type TComment = {
     id: string,
@@ -59,8 +60,8 @@ const EmptyContainer = styled.div`
 `
 
 type ActionsForComment = {
-    updateAction?: (formValues, obj) => Promise<void>,
-    deleteAction?: (formValues, obj) => Promise<void>,
+    updateAction?: (formValues: ITicketCommentFormState, obj: ITicketCommentUIState) => Promise<ITicketCommentUIState>,
+    deleteAction?: (formValues: ITicketCommentFormState, obj: ITicketCommentUIState) => Promise<ITicketCommentUIState>,
 }
 
 interface ICommentsListProps {
