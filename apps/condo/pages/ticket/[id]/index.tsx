@@ -395,12 +395,13 @@ const TicketIdPage = () => {
                                         // @ts-ignore
                                         createAction={createCommentAction}
                                         comments={comments}
-                                        canCreateComments={auth.user.isAdmin || get(link, ['role', 'canManageTicketComments'])}
+                                        canCreateComments={get(auth, ['user', 'isAdmin']) || get(link, ['role', 'canManageTicketComments'])}
                                         actionsFor={comment => {
                                             const isAuthor = comment.user.id === auth.user.id
+                                            const isAdmin = get(auth, ['user', 'isAdmin'])
                                             return {
-                                                updateAction: auth.user.isAdmin || isAuthor ? updateComment : null,
-                                                deleteAction: auth.user.isAdmin || isAuthor ? deleteComment : null,
+                                                updateAction: isAdmin || isAuthor ? updateComment : null,
+                                                deleteAction: isAdmin || isAuthor ? deleteComment : null,
                                             }
                                         }}
                                     />
