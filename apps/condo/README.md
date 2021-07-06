@@ -5,3 +5,4 @@ Condo development guide
 [Project structure](./docs/project-structure.md)
 [Migrations guide](./docs/migrations.md)
 [Utils](./docs/utils)
+[Checklists](./docs/checklists)
