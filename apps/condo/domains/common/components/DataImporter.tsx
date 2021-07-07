@@ -48,8 +48,6 @@ const useUploadConfig = (onUpload: OnUpload) => {
                 const cols = makeAntdCols(ws['!ref'])
                 const data = makeAntdData(ws)
 
-                message.success(UploadSuccessMessage)
-
                 onUpload({ cols, data })
             }
 
