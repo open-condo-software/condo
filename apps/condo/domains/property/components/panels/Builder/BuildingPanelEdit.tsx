@@ -107,10 +107,10 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
                     }
                     {
                         {
-                            addSection: <AddSectionForm Builder={Map} refresh={refresh}></AddSectionForm>,
-                            addUnit: <UnitForm Builder={Map} refresh={refresh}></UnitForm>,
-                            editSection: <EditSectionForm Builder={Map} refresh={refresh}></EditSectionForm>,
-                            editUnit: <UnitForm Builder={Map} refresh={refresh}></UnitForm>,
+                            addSection: <AddSectionForm Builder={Map} refresh={refresh}/>,
+                            addUnit: <UnitForm Builder={Map} refresh={refresh}/>,
+                            editSection: <EditSectionForm Builder={Map} refresh={refresh}/>,
+                            editUnit: <UnitForm Builder={Map} refresh={refresh}/>,
                         }[mode] || null
                     }
                 </Row>
@@ -207,7 +207,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm
                                                                                 Builder={Builder}
                                                                                 refresh={refresh}
                                                                                 scrollToForm={scrollToForm}
-                                                                            ></PropertyMapUnit>
+                                                                            />
                                                                         )
                                                                     })
                                                                 }
@@ -339,7 +339,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
 
     useEffect(() => {
         if (minFloor && maxFloor) {
-            setMaxMinError((maxFloor < minFloor) ? true : false)
+            setMaxMinError((maxFloor < minFloor))
         }
         if (name && minFloor && maxFloor && unitsOnFloor && !maxMinError) {
             Builder.addPreviewSection({ id: '', name, minFloor, maxFloor, unitsOnFloor })
@@ -367,19 +367,19 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
             <Col flex={0}>
                 <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
                     <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
-                    <InputNumber value={minFloor} onChange={setMinFloor} style={INPUT_STYLE} />
+                    <InputNumber value={minFloor} onChange={setMinFloor} style={INPUT_STYLE} type={'number'}/>
                 </Space>
             </Col>
             <Col flex={0}>
                 <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
                     <Typography.Text type={'secondary'}>{MaxFloorLabel}</Typography.Text>
-                    <InputNumber value={maxFloor} onChange={setMaxFloor} style={INPUT_STYLE} />
+                    <InputNumber value={maxFloor} onChange={setMaxFloor} style={INPUT_STYLE} type={'number'} />
                 </Space>
             </Col>
             <Col flex={0}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{UnitsOnFloorLabel}</Typography.Text>
-                    <InputNumber value={unitsOnFloor} onChange={setUnitsOnFloor} style={INPUT_STYLE} />
+                    <InputNumber min={1} value={unitsOnFloor} onChange={setUnitsOnFloor} style={INPUT_STYLE} type={'number'}/>
                 </Space>
             </Col>
             <Col flex={0}>
