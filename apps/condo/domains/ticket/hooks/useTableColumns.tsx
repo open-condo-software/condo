@@ -92,7 +92,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 dataIndex: 'number',
                 key: 'number',
                 sorter: true,
-                width: '10%',
+                width: '7%',
                 render,
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
@@ -218,7 +218,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 dataIndex: 'details',
                 filteredValue: getFilteredValue(filters, 'details'),
                 key: 'details',
-                width: '22%',
+                width: '18%',
                 render,
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
@@ -321,7 +321,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 dataIndex: 'executor',
                 key: 'executor',
                 sorter: true,
-                width: '12%',
+                width: '16%',
                 render: (executor) => render(get(executor, ['name'])),
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
@@ -348,7 +348,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 dataIndex: 'assignee',
                 key: 'assignee',
                 sorter: true,
-                width: '12%',
+                width: '18%',
                 render: (assignee) => render(get(assignee, ['name'])),
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
