@@ -60,7 +60,7 @@ const TicketsPage = () => {
         fetchPolicy: 'network-only',
     })
 
-    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery)
+    const tableColumns = useTableColumns(userOrganizationId, sortFromQuery, filtersFromQuery)
 
     const handleRowAction = useCallback((record) => {
         return {

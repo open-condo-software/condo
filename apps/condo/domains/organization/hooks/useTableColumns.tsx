@@ -9,6 +9,7 @@ import { FilterFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { OrganizationEmployeeRole } from '../utils/clientSchema'
+import { useOrganization } from '../../../../../packages/@core.next/organization'
 
 const getFilterIcon = filtered => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 
@@ -43,7 +44,7 @@ const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
-export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
+export const useTableColumns = (organizationId: string, sort: Array<string>, filters: IFilters) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
@@ -52,8 +53,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
 
     const sorterMap = createSorterMap(sort)
-    const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({})
-
+    const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
     const columns = useMemo(() => {
         return [
             {
