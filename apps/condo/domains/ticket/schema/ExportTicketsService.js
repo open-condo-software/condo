@@ -49,7 +49,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         organization: ticket.organization.name,
                         property: ticket.property.address,
                         unitName: ticket.unitName,
-                        entranceName: ticket.entranceName,
+                        entranceName: ticket.sectionName,
                         floorName: ticket.floorName,
                         clientName: ticket.clientName,
                         clientPhone: ticket.clientPhone,
