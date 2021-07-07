@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useApolloClient } from '@core/next/apollo'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Select, SelectProps } from 'antd'
 import { ApolloClient } from '@apollo/client'
 
@@ -9,6 +9,9 @@ import { ApolloClient } from '@apollo/client'
 interface ISearchInputProps extends SelectProps {
     search: (client: ApolloClient<Record<string, unknown>>, queryArguments: string) => Promise<Array<Record<string, unknown>>>
     onSelect?: (...args: Array<unknown>) => void
+    onChange?: (...args: Array<unknown>) => void
+    mode?: 'multiple' | 'tag'
+    value?: string | string[]
     placeholder?: string
     label?: string
     showArrow?: boolean
@@ -34,7 +37,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         }
 
         return (
-            <Select.Option key={option.value} value={option.value} title={option.text}>
+            <Select.Option key={option.key || option.value} value={option.value} title={option.text}>
                 {optionLabel}
             </Select.Option>
         )
@@ -46,7 +49,13 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
     async function handleSearch (value) {
         setLoading(true)
-        const data = await search(client, (selected) ? selected + ' ' + value : value)
+
+        const data = await search(
+            client,
+            (selected && (!props.mode || props.mode !== 'multiple'))
+                ? selected + ' ' + value
+                : value,
+        )
         setLoading(false)
         if (data.length) setData(data)
         setValue(value)

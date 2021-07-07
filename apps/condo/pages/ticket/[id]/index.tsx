@@ -19,6 +19,10 @@ import {
     getTicketCreateMessage,
     getTicketTitleMessage,
 } from '@condo/domains/ticket/utils/helpers'
+
+import { format } from 'date-fns'
+import { LOCALES } from '@condo/domains/common/constants/locale'
+
 import { LETTERS_AND_NUMBERS } from '@condo/domains/common/constants/regexps'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
@@ -30,6 +34,7 @@ import { Comments } from '@condo/domains/common/components/Comments'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { TicketShareModal } from '@condo/domains/ticket/components/TicketShareModal'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
@@ -250,10 +255,21 @@ const TicketIdPage = () => {
         ticketChangesResult.refetch()
     }
 
+    const date = format(new Date(ticket.createdAt), 'd MMMM Y', { locale: LOCALES[intl.locale] })
+    const ShareMessage = intl.formatMessage({ id: 'ticket.shareMessage' }, {
+        date,
+        number: ticket.number,
+        details: ticket.details,
+    })
+
     return (
         <>
             <Head>
                 <title>{TicketTitleMessage}</title>
+                <meta property='og:site_name' content='CONDO' />
+                <meta property='og:title' content={TicketTitleMessage} />
+                <meta property='og:description' content={ShareMessage} />
+                <meta property='og:updated_time' content='14400000' />
             </Head>
             <PageWrapper>
                 <OrganizationRequired>
@@ -376,6 +392,9 @@ const TicketIdPage = () => {
                                                 {UpdateMessage}
                                             </Button>
                                         </Link>
+                                        <TicketShareModal
+                                            description={ShareMessage}
+                                        />
                                         <Button
                                             type={'sberPrimary'}
                                             icon={<FilePdfFilled />}
@@ -414,6 +433,12 @@ const TicketIdPage = () => {
                                 </Affix>
                             </Col>
                         </Row>
+
+                        <TicketChanges
+                            loading={ticketChangesResult.loading}
+                            items={ticketChangesResult.objs}
+                            total={ticketChangesResult.count}
+                        />
                     </PageContent>
                 </OrganizationRequired>
             </PageWrapper>
