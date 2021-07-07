@@ -1,5 +1,6 @@
 const { COUNTRIES, DEFAULT_ENGLISH_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { Organization, OrganizationEmployee, OrganizationEmployeeRole } = require('@condo/domains/organization/gql')
+const { Organization, OrganizationEmployee } = require('../../gql')
+const { OrganizationEmployeeRole } = require('./index')
 const { execGqlWithoutAccess } = require('./utils')
 
 async function createOrganization (context, data) {
@@ -91,18 +92,11 @@ async function createDefaultRoles (context, organization, data) {
     Object.keys(defaultRoles).forEach((roleId) => {
         defaultRoles[roleId].name = langDict.roleNames[roleId]
     })
-    const tasks = Object.values(defaultRoles).map((roleInfo) => 
-        execGqlWithoutAccess(context, {
-            query: OrganizationEmployeeRole.CREATE_OBJ_MUTATION,
-            variables: {
-                data: {
-                    organization: { connect: { id: organization.id } },
-                    ...roleInfo,
-                    ...data,
-                },
-            },
-            errorMessage: '[error] Create admin role internal error',
-            dataPath: 'obj',
+    const tasks = Object.values(defaultRoles).map((roleInfo) =>
+        OrganizationEmployeeRole.create(context, {
+            organization: { connect: { id: organization.id } },
+            ...roleInfo,
+            ...data,
         })
     )
     return await Promise.all(tasks)
