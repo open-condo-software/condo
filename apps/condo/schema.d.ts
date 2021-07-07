@@ -6557,6 +6557,7 @@ export type Mutation = {
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
+  ticketShare?: Maybe<TicketShareOutput>;
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
   registerResident?: Maybe<Resident>;
@@ -8248,6 +8249,11 @@ export type MutationAcceptOrRejectOrganizationInviteByIdArgs = {
 export type MutationAcceptOrRejectOrganizationInviteByCodeArgs = {
   inviteCode: Scalars['String'];
   data: AcceptOrRejectOrganizationInviteInput;
+};
+
+
+export type MutationTicketShareArgs = {
+  data: TicketShareInput;
 };
 
 
@@ -12447,7 +12453,8 @@ export enum SendMessageType {
   DirtyInviteNewEmployee = 'DIRTY_INVITE_NEW_EMPLOYEE',
   RegisterNewUser = 'REGISTER_NEW_USER',
   ResetPassword = 'RESET_PASSWORD',
-  SmsVerify = 'SMS_VERIFY'
+  SmsVerify = 'SMS_VERIFY',
+  ShareTicket = 'SHARE_TICKET'
 }
 
 export type SigninResidentUserInput = {
@@ -17021,6 +17028,17 @@ export type TicketReportWidgetInput = {
 export type TicketReportWidgetOutput = {
   __typename?: 'TicketReportWidgetOutput';
   data?: Maybe<Array<TicketReportData>>;
+};
+
+export type TicketShareInput = {
+  sender: Scalars['JSON'];
+  users: Array<Scalars['ID']>;
+  ticketId: Scalars['ID'];
+};
+
+export type TicketShareOutput = {
+  __typename?: 'TicketShareOutput';
+  status: Scalars['String'];
 };
 
 /**  Ticket source. Income call, mobile app, external system, ...  */
