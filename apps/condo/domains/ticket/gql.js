@@ -20,6 +20,12 @@ const TicketSource = generateGqlQueries('TicketSource', TICKET_SOURCE_FIELDS)
 const TICKET_CLASSIFIER_FIELDS = `{ organization { id } parent { id name parent { id name } } fullName name ${COMMON_FIELDS} }`
 const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIER_FIELDS)
 
+const TICKET_SHARE_MUTATION = gql`
+    mutation ticketShare($data: TicketShareInput!) {
+        obj: ticketShare(data: $data) { status }
+    }
+`
+
 /*
     We cannot use generated fields from TicketChange here, because we will have circular dependency,
     by requiring something from ./schema modules, that will cause all required items to be undefined.
@@ -121,6 +127,25 @@ const EXPORT_TICKETS_TO_EXCEL =  gql`
     }
 `
 
+const XLS_EXPORT_LIMIT = 100
+// If there is no limit - error "maxTotalResults","limit":1000 - will take place
+// TODO(zuch): Xls export on server side and make xls exports look better
+
+const GET_ALL_TICKET_FOR_XLS_EXPORT = gql`
+    query GetAllTicketsForXLS ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!]) {
+        tickets: allTickets(where: $where, sortBy: $sortBy, first: ${XLS_EXPORT_LIMIT}) {
+            number
+            status { id name }
+            details
+            property { id name }
+            assignee { id name }
+            executor { id name }
+            createdAt
+            clientName
+        }
+  }
+`
+
 const GET_TICKET_WIDGET_REPORT_DATA = gql`
     query getWidgetData ($data: TicketReportWidgetInput!) {
         result: ticketReportWidgetData(data: $data) { data { statusName, currentValue, growth, statusType } }
@@ -138,5 +163,6 @@ module.exports = {
     EXPORT_TICKETS_TO_EXCEL,
     GET_TICKET_WIDGET_REPORT_DATA,
     TicketComment,
+    TICKET_SHARE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

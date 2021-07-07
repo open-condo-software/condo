@@ -3899,6 +3899,15 @@ export type CheckPasswordRecoveryTokenOutput = {
   status: Scalars['String'];
 };
 
+export type CheckPropertyWithAddressExistInput = {
+  address: Scalars['String'];
+};
+
+export type CheckPropertyWithAddressExistOutput = {
+  __typename?: 'CheckPropertyWithAddressExistOutput';
+  isFound: Scalars['Boolean'];
+};
+
 export type CompleteConfirmPhoneActionInput = {
   token: Scalars['String'];
   smsCode: Scalars['Int'];
@@ -6490,6 +6499,7 @@ export type Mutation = {
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
+  ticketShare?: Maybe<TicketShareOutput>;
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
   registerResident?: Maybe<Resident>;
@@ -8181,6 +8191,11 @@ export type MutationAcceptOrRejectOrganizationInviteByIdArgs = {
 export type MutationAcceptOrRejectOrganizationInviteByCodeArgs = {
   inviteCode: Scalars['String'];
   data: AcceptOrRejectOrganizationInviteInput;
+};
+
+
+export type MutationTicketShareArgs = {
+  data: TicketShareInput;
 };
 
 
@@ -10512,6 +10527,7 @@ export type Query = {
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
+  checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
   /** The version of the Keystone application serving this API. */
@@ -11835,6 +11851,11 @@ export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
 };
 
 
+export type QueryCheckPropertyWithAddressExistArgs = {
+  data: CheckPropertyWithAddressExistInput;
+};
+
+
 export type QueryTicketReportWidgetDataArgs = {
   data: TicketReportWidgetInput;
 };
@@ -12368,7 +12389,8 @@ export enum SendMessageType {
   DirtyInviteNewEmployee = 'DIRTY_INVITE_NEW_EMPLOYEE',
   RegisterNewUser = 'REGISTER_NEW_USER',
   ResetPassword = 'RESET_PASSWORD',
-  SmsVerify = 'SMS_VERIFY'
+  SmsVerify = 'SMS_VERIFY',
+  ShareTicket = 'SHARE_TICKET'
 }
 
 export type SigninResidentUserInput = {
@@ -16920,6 +16942,17 @@ export type TicketReportWidgetInput = {
 export type TicketReportWidgetOutput = {
   __typename?: 'TicketReportWidgetOutput';
   data?: Maybe<Array<TicketReportData>>;
+};
+
+export type TicketShareInput = {
+  sender: Scalars['JSON'];
+  users: Array<Scalars['ID']>;
+  ticketId: Scalars['ID'];
+};
+
+export type TicketShareOutput = {
+  __typename?: 'TicketShareOutput';
+  status: Scalars['String'];
 };
 
 /**  Ticket source. Income call, mobile app, external system, ...  */
