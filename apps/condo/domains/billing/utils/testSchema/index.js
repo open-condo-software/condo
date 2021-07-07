@@ -10,6 +10,7 @@ const {
 } = require("@condo/domains/organization/utils/testSchema");
 const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
 const faker = require('faker')
+const { makeClient } = require('@core/keystone/test.utils')
 const { registerNewOrganization } = require('../../../../utils/testSchema/Organization')
 const { createTestOrganization } = require("@condo/domains/organization/utils/testSchema");
 const { makeLoggedInClient, registerNewUser } = require('@condo/domains/user/utils/testSchema')
