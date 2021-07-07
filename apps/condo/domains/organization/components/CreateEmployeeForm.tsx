@@ -182,7 +182,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                                             onClick={handleSave}
                                                             type='sberPrimary'
                                                             loading={isLoading}
-                                                            disabled={!phone}
+                                                            disabled={!phone || !email}
                                                         >
                                                             {InviteEmployeeLabel}
                                                         </Button>
