@@ -7,7 +7,7 @@ const { makeClientWithRegisteredOrganization } = require('../../../utils/testSch
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { Message, createTestMessage, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, catchErrorFrom } = require('../../common/utils/testSchema')
 
 describe('Message', () => {
     test('admin: create Message', async () => {
@@ -128,5 +128,27 @@ describe('Message', () => {
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await Message.delete(client, objCreated.id)
         })
+    })
+
+    test('admin: create with wrong sender', async () => {
+        const admin = await makeLoggedInAdminClient()
+        await catchErrorFrom(
+            async () => await createTestMessage(admin, { sender: 'invalid' }),
+            ({ errors, data }) => {
+                expect(data).toEqual({ obj: null })
+                expect(errors[0]).toMatchObject({
+                    name: 'ValidationFailureError',
+                    message: 'You attempted to perform an invalid mutation',
+                    path: ['obj'],
+                    uid: expect.any(String),
+                    data: expect.objectContaining({
+                        messages: ['[json:expectObject:sender] Expect JSON Object'],
+                        errors: [{}],
+                        listKey: 'Message',
+                        operation: 'create',
+                    }),
+                })
+            },
+        )
     })
 })
