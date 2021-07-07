@@ -17,6 +17,7 @@ const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
+const { normalizeText } = require('@condo/domains/common/utils/text')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -146,6 +147,11 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Text description of the issue. Maybe written by a user or an operator',
             type: Text,
             isRequired: true,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    return normalizeText(resolvedData['details'])
+                },
+            },
         },
         related: {
             schemaDoc: 'Sometimes, it is important for us to show related issues. For example, to show related issues',
