@@ -127,6 +127,12 @@ const GET_TICKET_WIDGET_REPORT_DATA = gql`
     }
 `
 
+const GET_TICKET_ANALYTICS_REPORT_DATA = gql`
+    query getAnalyticsData ($data: TicketReportAnalyticsInput!) {
+        result: ticketReportAnalyticsData(data: $data) { data }
+    }
+`
+
 module.exports = {
     Ticket,
     TicketStatus,
@@ -138,5 +144,6 @@ module.exports = {
     EXPORT_TICKETS_TO_EXCEL,
     GET_TICKET_WIDGET_REPORT_DATA,
     TicketComment,
+    GET_TICKET_ANALYTICS_REPORT_DATA,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

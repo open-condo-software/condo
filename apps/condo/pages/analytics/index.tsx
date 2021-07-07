@@ -13,6 +13,9 @@ import debounce from 'lodash/debounce'
 import qs from 'qs'
 import pickBy from 'lodash/pickBy'
 import ReactECharts from 'echarts-for-react'
+import { colors } from '@condo/domains/common/constants/style'
+import { GET_TICKET_ANALYTICS_REPORT_DATA } from '@condo/domains/ticket/gql'
+import { useLazyQuery } from '@core/next/apollo'
 
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { getPageSizeFromQuery, queryToSorter, filtersToQuery, getSortStringFromQuery, sorterToQuery, getPageIndexFromQuery, IFilters } from '@condo/domains/ticket/utils/helpers'
@@ -24,43 +27,33 @@ import { BarChartIcon, LinearChartIcon } from '../../domains/common/components/i
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
+interface ITicketAnalyticsPageChartViewProps {
+    data: null | any;
+    loading?: boolean;
+}
 type viewModeTypes = 'barChart' | 'lineChart' | 'pieChart'
 type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
+type ticketSelectTypes = 'default' | 'paid' | 'emergency'
 // TODO: grab selectedPeriod from filter component
-const SELECTED_PERIOD = [moment().subtract(7, 'days'), moment()]
+const SELECTED_PERIOD = [moment().subtract(25, 'days'), moment()]
+const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5], colors.green[7], colors.sberGrey[7], colors.blue[4]]
 
-const TicketAnalyticsPageChartView: React.FC = () => {
-    const series = [
-        {
-            name: 'Direct',
-            type: 'bar',
-            stack: 'total',
-            label: {
-                show: true,
-            },
-            emphasis: {
-                focus: 'series',
-            },
-            data: [320, 302, 301, 334, 390, 330, 320],
-        },
-    ]
-    const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
-
-    const [startDate, endDate] = SELECTED_PERIOD
-    const where = {
-        organization: { id: userOrganizationId },
-        createdAt_gte: startDate.toISOString(), createdAt_lte: endDate.toISOString(),
+const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartViewProps> = ({ data, loading = false }) => {
+    const intl = useIntl()
+    const [ticketType, setTicketType] = useState<ticketSelectTypes>('default')
+    const series = []
+    if (data === null) {
+        return null
     }
-
-
-    const {
-        loading,
-        objs: tickets,
-    } = Ticket.useObjects({
-        where,
-    }, {
-        fetchPolicy: 'network-only',
+    const { result, days } = data
+    const legend = Object.values(data.labels)
+    Object.entries(result).map(([ticketType, dataObj]) => {
+        series.push({
+            name: data.labels[ticketType],
+            type: 'line',
+            symbol: 'none',
+            data: Object.values(dataObj),
+        })
     })
 
     const option = {
@@ -71,7 +64,8 @@ const TicketAnalyticsPageChartView: React.FC = () => {
             },
         },
         legend: {
-            data: ['Direct', 'Mail Ad', 'Affiliate Ad', 'Video Ad', 'Search Engine'],
+            data: legend,
+            x: 'left',
         },
         grid: {
             left: '3%',
@@ -79,17 +73,22 @@ const TicketAnalyticsPageChartView: React.FC = () => {
             bottom: '3%',
             containLabel: true,
         },
-        xAxis: {
+        yAxis: {
             type: 'value',
         },
-        yAxis: {
+        xAxis: {
             type: 'category',
-            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            data: days,
         },
         series,
     }
 
     return <>
+        <Radio.Group className={'sberRadioGroup'} defaultValue={ticketType} onChange={(e) => setTicketType(e.target.value)}>
+            <Radio value='default'>Обычные</Radio>
+            <Radio value='paid'>Платные</Radio>
+            <Radio value='emergency'>Аварийные</Radio>
+        </Radio.Group>
         <ReactECharts showLoading={loading} option={option} />
     </>
 }
@@ -173,13 +172,12 @@ const TicketAnalyticsPageListView: React.FC = () => {
                         label={EmptyListLabel}
                         message={EmptyListMessage}
                         createRoute='/ticket/create'
-                        createLabel={CreateTicket}/> :
+                        createLabel={CreateTicket} /> :
                     <Table
                         bordered
                         tableLayout={'fixed'}
                         scroll={{
                             scrollToFirstRowOnChange: false,
-
                         }}
                         loading={loading}
                         dataSource={tickets}
@@ -209,7 +207,9 @@ const TicketAnalyticsPageFilter: React.FC = () => (
 const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const intl = useIntl()
     const [groupTicketsBy, setGroupTicketsBy] = useState<groupTicketsByTypes>('status')
-    const [viewMode, setViewMode] = useState<viewModeTypes>('barChart')
+    const [viewMode, setViewMode] = useState<viewModeTypes>('lineChart')
+    const [analyticsData, setAnalyticsData] = useState(null)
+    const [loading, setLoading] = useState<boolean>(false)
     const pageTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' })
     const viewModeTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ViewModeTitle' })
     const statusFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Status' })
@@ -218,6 +218,35 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const userFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.User' })
     const responsibleFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Responsible' })
     const selectedPeriod = SELECTED_PERIOD.map(e => e.format('DD.MM.YYYY')).join(' - ')
+
+    const [loadTicketAnalyticsData] = useLazyQuery(GET_TICKET_ANALYTICS_REPORT_DATA, {
+        onError: error => {
+            console.log(error)
+            setLoading(false)
+        },
+        fetchPolicy: 'network-only',
+        onCompleted: response => {
+            const { result: { data } } = response
+            console.log(data)
+            setAnalyticsData(data)
+            setLoading(false)
+        },
+    })
+
+    const [dateFrom, dateTo] = SELECTED_PERIOD
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+
+    useEffect(() => {
+        setLoading(true)
+        loadTicketAnalyticsData({ variables: {
+            data: {
+                dateFrom: dateFrom.toISOString(),
+                dateTo: dateTo.toISOString(),
+                groupBy: groupTicketsBy,
+                userOrganizationId,
+            } } } )
+    }, [groupTicketsBy, userOrganizationId])
 
     return <>
         <Head>
@@ -248,22 +277,27 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                         <Col span={14}>
                             <Typography.Title level={3}>{viewModeTitle} {selectedPeriod}</Typography.Title>
                         </Col>
-                        <Col span={6}>
+                        <Col span={3} push={1}>
                             <Radio.Group
                                 className={'sberRadioGroup sberRadioGroupIcon'}
                                 value={viewMode}
+                                size={'small'}
                                 buttonStyle='outline'
                                 onChange={(e) => setViewMode(e.target.value)}>
-                                <Radio.Button value='lineChart'><LinearChartIcon color={viewMode === 'lineChart' ? 'white' : 'black'} /></Radio.Button>
-                                <Radio.Button value='barChart'><BarChartIcon color={viewMode === 'barChart' ? 'white' : 'black'} /></Radio.Button>
+                                <Radio.Button value='lineChart'>
+                                    <LinearChartIcon height={32} width={24} color={viewMode === 'lineChart' ? 'white' : 'black'} />
+                                </Radio.Button>
+                                <Radio.Button value='barChart'>
+                                    <BarChartIcon height={32} width={24} color={viewMode === 'barChart' ? 'white' : 'black'} />
+                                </Radio.Button>
                             </Radio.Group>
                         </Col>
                         <Col span={24}>
-                            <TicketAnalyticsPageChartView />
+                            <TicketAnalyticsPageChartView data={analyticsData} loading={loading} />
                         </Col>
-                        <Col span={24}>
-                            <TicketAnalyticsPageListView />
-                        </Col>
+                        {/*<Col span={24}>*/}
+                        {/*    <TicketAnalyticsPageListView />*/}
+                        {/*</Col>*/}
                     </Row>
                 </PageContent>
             </OrganizationRequired>
