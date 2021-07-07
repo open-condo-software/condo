@@ -1,7 +1,6 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
-const { canReadTickets } = require('@condo/domains/ticket/access/Ticket')
+const access = require('@condo/domains/ticket/access/ExportTicketsService')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
-const { compact } = require('lodash')
 const moment = require('moment')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const get = require('lodash/get')
@@ -23,7 +22,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
     ],
     queries: [
         {
-            access: canReadTickets,
+            access: access.canExportTicketsToExcel,
             schema: 'exportTicketsToExcel(data: TicketExportExcelInput!): TicketExportExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { where, sortBy } = args.data
@@ -36,15 +35,14 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                     throw new Error('[error] you do not have access to this organization')
                 }
                 let skip = 0
-                let emergencyBreak = 1000
+                let maxCount = 1000
                 let newchunk = []
                 let allTickets = []
                 do {
                     newchunk = await Ticket.getAll(context, where, { sortBy, first: CHUNK_SIZE, skip: skip })
                     allTickets = allTickets.concat(newchunk)
                     skip += newchunk.length
-                } while (--emergencyBreak > 0 && newchunk.length)
-                // TODO(zuch): add intl or change type field
+                } while (--maxCount > 0 && newchunk.length)
                 const excelRows = allTickets.map(ticket => {
                     return {
                         number: ticket.number,
@@ -56,7 +54,8 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         clientName: ticket.clientName,
                         clientPhone: ticket.clientPhone,
                         details: ticket.details,
-                        type: compact([ticket.isEmergency ? 'Аварийная' : null, ticket.isPaid ? 'Платная' : null ]).join(', '),
+                        isEmergency: ticket.isEmergency ? 'YES' : 'NO',
+                        isPaid: ticket.isPaid ? 'YES' : 'NO',
                         classifier: ticket.classifier.name,
                         createdAt: moment(ticket.createdAt).format(DATE_FORMAT),
                         updatedAt: moment(ticket.updatedAt).format(DATE_FORMAT),
