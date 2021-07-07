@@ -17,6 +17,8 @@ const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
+const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { normalizeText } = require('@condo/domains/common/utils/text')
 
 const Ticket = new GQLListSchema('Ticket', {
@@ -93,6 +95,19 @@ const Ticket = new GQLListSchema('Ticket', {
         clientPhone: {
             schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
             type: Text,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    if (!resolvedData['clientPhone']) return resolvedData['clientPhone']
+                    const newValue = normalizePhone(resolvedData['clientPhone'])
+                    return newValue || resolvedData['clientPhone']
+                },
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                    const newValue = normalizePhone(resolvedData['clientPhone'])
+                    if (resolvedData['clientPhone'] && newValue !== resolvedData['clientPhone']) {
+                        addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
+                    }
+                },
+            },
         },
 
         operator: {
