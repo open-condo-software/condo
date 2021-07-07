@@ -14,6 +14,7 @@ import { ErrorsWrapper } from '@condo/domains/ticket/components/BaseTicketForm/E
 import { Button } from '@condo/domains/common/components/Button'
 import { green } from '@ant-design/colors'
 import styled from '@emotion/styled'
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 /**
  * Displays validation error, but hides form input
@@ -59,6 +60,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
     const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
     const CannotCreateContactMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.CannotCreateContact' })
+    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
 
     const { form, fields, value: initialValue, onChange, organization, property, unitName } = props
 
@@ -89,6 +91,16 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const [displayEditableContactFields, setDisplayEditableContactFields] = useState(false)
 
     const validations = useTicketValidations()
+    const notRequiredPhoneValidations = [
+        {
+            validator: (_, value) => {
+                if (!value) return Promise.resolve()
+                const v = normalizePhone(value)
+                if (!v) return Promise.reject(PhoneIsNotValidMessage)
+                return Promise.resolve()
+            },
+        },
+    ]
 
     // It's not enough to have `value` props of `Input` set.
     useEffect(() => {
@@ -260,7 +272,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                             <Input value={get(value, 'id')}/>
                         </Form.Item>
                         <ErrorContainerOfHiddenControl>
-                            <Form.Item name={fields.phone}>
+                            <Form.Item
+                                name={fields.phone}
+                                validateFirst
+                                rules={notRequiredPhoneValidations}>
                                 <Input value={get(value, 'phone')}/>
                             </Form.Item>
                         </ErrorContainerOfHiddenControl>
@@ -272,8 +287,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                             </Form.Item>
                         </ErrorContainerOfHiddenControl>
                     </Col>
-                    <Col span={2}></Col>
-                    <Col span={2}></Col>
+                    <Col span={2}/>
+                    <Col span={2}/>
                 </Row>
             </Col>
         </Row>
