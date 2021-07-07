@@ -1,8 +1,8 @@
-const { findOrganizationEmployee } = require('./Organization')
+const { OrganizationEmployee } = require('./index')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
 const checkEmployeeExistency = async (context, organization, email, phone, user) => {
-    const employeesByEmail = await findOrganizationEmployee(context, {
+    const employeesByEmail = await OrganizationEmployee.getAll(context, {
         email,
         organization: { id: organization.id },
         deletedAt: null,
@@ -13,7 +13,7 @@ const checkEmployeeExistency = async (context, organization, email, phone, user)
         return employeesByEmail[0]
     }
 
-    const employeesByPhone = await findOrganizationEmployee(context, {
+    const employeesByPhone = await OrganizationEmployee.getAll(context, {
         phone,
         organization: { id: organization.id },
         deletedAt: null,
@@ -25,7 +25,7 @@ const checkEmployeeExistency = async (context, organization, email, phone, user)
     }
 
     if (user && user.id) {
-        const employeesByUser = await findOrganizationEmployee(context, {
+        const employeesByUser = await OrganizationEmployee.getAll(context, {
             user: { id: user.id },
             organization: { id: organization.id },
             deletedAt: null,
