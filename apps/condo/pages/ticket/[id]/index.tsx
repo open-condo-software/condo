@@ -185,6 +185,10 @@ const TicketIdPage = () => {
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+    const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
 
@@ -236,7 +240,9 @@ const TicketIdPage = () => {
         )
     }
 
-    const ticketAddress = get(ticket, ['property', 'address']) + (ticket.unitName ? ', ' + ticket.unitName : '')
+    const ticketAddress = get(ticket, ['property', 'address'])
+        + (ticket.sectionName && ticket.floorName ? `, ${SectionName} ${ticket.sectionName}, ${FloorName} ${ticket.floorName}` : '')
+        + (ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : '')
     const isEmergency = get(ticket, 'isEmergency')
 
     const handleTicketStatusChanged = () => {
