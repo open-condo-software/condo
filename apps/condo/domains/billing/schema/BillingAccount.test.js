@@ -3,6 +3,10 @@
  */
 
 const faker = require('faker')
+const { createTestOrganization } = require(
+    '@condo/domains/organization/utils/testSchema')
+const { makeClientWithIntegrationAccess } = require(
+    '@condo/domains/billing/utils/testSchema')
 const { OrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
@@ -43,6 +47,18 @@ describe('BillingAccount', () => {
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestBillingAccount(client, context, property)
         })
+    })
+
+    test('integration: create BillingAccount', async () => {
+        const adminClient = await makeLoggedInAdminClient()
+        const integrationClient = await makeClientWithIntegrationAccess()
+        const [organization] = await createTestOrganization(adminClient)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integrationClient.integration)
+        const [property] = await createTestBillingProperty(adminClient, context)
+        const [billingAccount] = await createTestBillingAccount(integrationClient, context, property)
+
+        expect(billingAccount.context.id).toEqual(context.id)
+        expect(billingAccount.property.id).toEqual(property.id)
     })
 
     test('organization integration manager: create BillingAccount', async () => {
@@ -93,6 +109,18 @@ describe('BillingAccount', () => {
         const [property] = await createTestBillingProperty(admin, context)
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const billingAccounts = await BillingAccount.getAll(admin, { id: billingAccount.id })
+        expect(billingAccounts).toHaveLength(1)
+    })
+
+    test('integration: read BillingAccount', async () => {
+        const adminClient = await makeLoggedInAdminClient()
+        const integrationClient = await makeClientWithIntegrationAccess()
+        const [organization] = await createTestOrganization(adminClient)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integrationClient.integration)
+        const [property] = await createTestBillingProperty(adminClient, context)
+        const [billingAccount] = await createTestBillingAccount(adminClient, context, property)
+
+        const billingAccounts = await BillingAccount.getAll(integrationClient, { id: billingAccount.id })
         expect(billingAccounts).toHaveLength(1)
     })
 
@@ -203,7 +231,6 @@ describe('BillingAccount', () => {
         })
     })
 
-
     test('blocked organization integration manager: update BillingAccount', async () => {
         const admin = await makeLoggedInAdminClient()
 
@@ -221,6 +248,25 @@ describe('BillingAccount', () => {
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestBillingAccount(managerUserClient, billingAccount.id, payload)
         })
+    })
+
+    test('integration: update BillingAccount', async () => {
+        const adminClient = await makeLoggedInAdminClient()
+        const integrationClient = await makeClientWithIntegrationAccess()
+        const [organization] = await createTestOrganization(adminClient)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integrationClient.integration)
+        const [property] = await createTestBillingProperty(adminClient, context)
+        const [billingAccount] = await createTestBillingAccount(adminClient, context, property)
+
+        const randomUnitName = faker.lorem.word()
+        const payload = {
+            unitName: randomUnitName,
+        }
+        const [updatedBillingAccount] = await updateTestBillingAccount(integrationClient, billingAccount.id, payload)
+
+        expect(billingAccount.context.id).toEqual(context.id)
+        expect(billingAccount.property.id).toEqual(property.id)
+        expect(updatedBillingAccount.unitName).toEqual(randomUnitName)
     })
 
     test('user: update BillingAccount', async () => {
