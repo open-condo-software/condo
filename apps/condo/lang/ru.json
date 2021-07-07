@@ -68,7 +68,7 @@
   "field.Executor.description": "Исполнитель — это сотрудник, который будет устранять проблему, описанную в заявке",
   "field.FlatNumber": "Квартира",
   "field.ShortFlatNumber": "кв.",
-  "field.FullName": "Имя Отчество Фамилия",
+  "field.FullName": "Фамилия Имя Отчество",
   "field.FullName.short": "ФИО",
   "field.Phone.lengthError": "Значение поля \"Телефон\" слишком длинное (Максимум: 15 симв.)",
   "field.Phone.requiredError": "Укажите телефон",
