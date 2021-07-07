@@ -24,12 +24,17 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ phone, email 
 
     const disableUserInteraction = !phone || !email
 
+    const getEmptyRequiredFields = () => {
+        if (!phone && !email) return PhoneLabel + ', ' + EmailLabel
+        return !phone ? PhoneLabel : EmailLabel
+    }
+
     return (
         disableUserInteraction && (
             <Col span={24}>
                 <ErrorsWrapper>
                     {ErrorsContainerTitle}&nbsp;
-                    {(!phone && PhoneLabel || !email && EmailLabel).toLowerCase()}
+                    {getEmptyRequiredFields()?.toLowerCase()}
                 </ErrorsWrapper>
             </Col>
         )
