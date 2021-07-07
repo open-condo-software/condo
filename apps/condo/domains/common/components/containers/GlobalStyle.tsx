@@ -203,6 +203,13 @@ const radioGroupCss = css`
   }
   .sberRadioGroupIcon .ant-radio-button-wrapper {
     height: 32px;
+    //width: 32px;
+  }
+  .sberRadioGroup .ant-radio-inner::after{
+    background-color: ${colors.green[6]};
+  }
+  .sberRadioGroup .ant-radio-checked .ant-radio-inner {
+    border-color: ${colors.green[6]};
   }
 `
 

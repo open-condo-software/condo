@@ -20,6 +20,23 @@ const countTicketsByStatuses = async (context, dateStart, dateEnd, organizationI
     return answer
 }
 
+const getOrganizationStatuses = async (context, userOrganizationId) => {
+    const hasAccess = await checkUserBelongsToOrganization(context.authedItem.id, userOrganizationId, 'canManageTickets')
+    if (!hasAccess) {
+        throw new Error('[error] you do not have access to this organization')
+    }
+    const statuses = await TicketStatus.getAll(context, { OR: [
+        { organization: { id: userOrganizationId } },
+        { organization_is_null: true },
+    ] })
+
+    return statuses.filter(status =>
+        !(!status.organization && statuses
+            .find(organizationStatus => organizationStatus.organization !== null
+                && organizationStatus.type === status.type))
+    )
+}
+
 const TicketReportService = new GQLCustomSchema('TicketReportService', {
     types: [
         {
@@ -38,6 +55,14 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
             access: true,
             type: 'type TicketReportWidgetOutput { data: [ TicketReportData! ] }',
         },
+        {
+            access: true,
+            type: 'input TicketReportAnalyticsInput { dateFrom: String!, dateTo: String!, groupBy: String!, userOrganizationId: String! }',
+        },
+        {
+            access: true,
+            type: 'type TicketReportAnalyticsOutput { data: JSON! }',
+        },
     ],
     queries: [
         {
@@ -45,22 +70,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
             schema: 'ticketReportWidgetData(data: TicketReportWidgetInput!): TicketReportWidgetOutput',
             resolver: async (parent, args, context, info, extra) => {
                 const { periodType, offset = 0, userOrganizationId } = args.data
-
-                const hasAccess = await checkUserBelongsToOrganization(context.authedItem.id, userOrganizationId)
-                if (!hasAccess) {
-                    throw new Error('[error] you do not have access to this organization')
-                }
-                let statuses = await TicketStatus.getAll(context, { OR: [
-                    { organization: { id: userOrganizationId } },
-                    { organization_is_null: true },
-                ] })
-
-                statuses = statuses.filter(status =>
-                    !(!status.organization && statuses
-                        .find(organizationStatus => organizationStatus.organization !== null
-                            && organizationStatus.type === status.type))
-                )
-
+                const statuses = await getOrganizationStatuses(context, userOrganizationId)
                 const statusesMap = Object.fromEntries(statuses.map(({ type, name }) => ([type, name])))
 
                 if (!PERIOD_TYPES.includes(periodType)) {
@@ -93,6 +103,46 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                 })
 
                 return { data }
+            },
+        },
+        {
+            access: true,
+            schema: 'ticketReportAnalyticsData(data: TicketReportAnalyticsInput!): TicketReportAnalyticsOutput',
+            resolver: async (parent, args, context, info, extra) => {
+                const { dateFrom, dateTo, groupBy, userOrganizationId } = args.data
+                const statuses = await getOrganizationStatuses(context, userOrganizationId)
+                const statusesMap = Object.fromEntries(statuses.map(({ type, name }) => ([type, name])))
+                const daysCount = moment(dateTo).diff(moment(dateFrom), 'days')
+                const daysMap = Array.from({ length: daysCount }, (_, day) => moment(dateFrom).add(day, 'days'))
+                const result = {}
+                for (const type of ticketStatusTypes) {
+                    result[type] = {}
+
+                    for (const day of daysMap) {
+                        const date = day.format('DD.MM.YYYY')
+                        const query = [
+                            { createdAt_gte: day.startOf('day').toISOString() }, { createdAt_lte: day.endOf('day').toISOString() },
+                            { status: { type } }, { organization: { id:userOrganizationId } },
+                        ]
+                        const count = await Ticket.count(context, { AND: query })
+                        result[type][date] = count
+                    }
+                }
+                // for (const day of daysMap) {
+                //     const date = day.format('DD.MM.YYYY')
+                //     result[date] = {}
+                //
+                //     for (const type of ticketStatusTypes) {
+                //         const query = [
+                //             { createdAt_gte: day.startOf('day').toISOString() }, { createdAt_lte: day.endOf('day').toISOString() },
+                //             { status: { type } }, { organization: { id:userOrganizationId } },
+                //         ]
+                //         const count = await Ticket.count(context, { AND: query })
+                //         const name = statusesMap[type]
+                //         result[date][type] = { count, name }
+                //     }
+                // }
+                return { data: { result, labels: statusesMap, days: daysMap.map(e => e.format('DD.MM.YYYY')) } }
             },
         },
     ],
