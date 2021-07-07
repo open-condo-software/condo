@@ -61,7 +61,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         updatedAt: moment(ticket.updatedAt).format(DATE_FORMAT),
                         statusUpdatedAt: ticket.statusUpdatedAt ? moment(ticket.updatedAt).format(ticket.statusUpdatedAt) : '',
                         status: ticket.status.name,
-                        operator: get(ticket, 'operator.name', ''),
+                        operator: get(ticket, 'operator.name', '') || get(ticket, 'createdBy.name', ''),
                         executor: get(ticket, 'executor.name', ''),
                         assignee: get(ticket, 'assignee.name', ''),
                         statusReason: ticket.statusReason ? ticket.statusReason : '',
