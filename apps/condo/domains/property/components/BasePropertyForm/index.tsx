@@ -134,15 +134,15 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         rules={[
                                             {
                                                 validator (rule, value) {
-                                                    const unitLabels = get(value, 'sections', [])
-                                                        .map((section) => get(section, 'floors', [])
-                                                            .map(floor => get(floor, 'units', [])
-                                                                .map(unit => get(unit, 'label', []))
+                                                    const unitLabels = value?.sections
+                                                        ?.map((section) => section.floors
+                                                            ?.map(floor => floor.units
+                                                                ?.map(unit => unit.label)
                                                             )
                                                         )
                                                         .flat(2)
 
-                                                    if (unitLabels.length !== new Set(unitLabels).size) {
+                                                    if (unitLabels && unitLabels.length !== new Set(unitLabels).size) {
                                                         setMapValidationError(SameUnitNamesErrorMsg)
                                                         return Promise.reject()
                                                     }
