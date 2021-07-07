@@ -25,7 +25,7 @@
 const {
     isInstance: isKeystoneErrorInstance,
 } = require('apollo-errors')
-const { ApolloError } = require('apollo-server-errors')
+const { ApolloError, AuthenticationError } = require('apollo-server-errors')
 const { GraphQLError, printError } = require('graphql')
 
 const ensureError = require('ensure-error')
@@ -84,6 +84,8 @@ const safeFormatError = (error, hideInternals = false) => {
         if (isKeystoneErrorInstance(error.originalError)) {
             result.name = error.originalError.name
             result.data = error.originalError.data
+        } else if (error instanceof ApolloError || error instanceof GraphQLError) {
+            result.name = error.originalError.name
         }
     }
 
@@ -145,8 +147,15 @@ const formatError = error => {
     return safeFormatError(error, IS_HIDE_INTERNALS)
 }
 
+// NEW GraphQL Error standard
+
+function throwAuthenticationError () {
+    throw new AuthenticationError('No or incorrect authentication credentials')
+}
+
 module.exports = {
     safeFormatError,
     toGraphQLFormat,
     formatError,
+    throwAuthenticationError,
 }

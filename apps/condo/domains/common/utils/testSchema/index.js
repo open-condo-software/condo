@@ -65,6 +65,10 @@ export const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
 }
 
 /**
+ * @deprecated
+ * THIS FUNCTION IS DEPRECATED. We want to to separate access rights errors from non-authorization errors!
+ * Please use expectToThrowAccessDeniedErrorToObjects!
+ *
  * Expects a GraphQLError of type 'AccessDeniedError', thrown by Keystone on access to a collection of schema objects.
  * Should be used to examine access to `getAll` GraphQL utility wrapper, that returns `objs`.
  * @example
@@ -85,6 +89,35 @@ export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
             'message': 'You do not have access to this resource',
             'name': 'AccessDeniedError',
             'path': ['objs'],
+        })
+        expect(data).toEqual({ 'objs': null })
+    })
+}
+
+/**
+ * Expects a GraphQL 'AuthenticationError' Error, thrown by access check if case of UNAUTHENTICATED user access.
+ * Should be used to examine access to `getAll` GraphQL utility wrapper, that returns `objs`.
+ * @example
+ *
+ * test('something, that should throw an error', async () => {
+ *     const client = await makeClient()
+ *     await expectToThrowAuthenticationErrorToObjects(async () => {
+ *         await Organization.getAll(client)
+ *     })
+ * })
+ *
+ * @param {TestFunc} testFunc - Function, expected to throw an error
+ * @return {Promise<void>}
+ */
+export const expectToThrowAuthenticationErrorToObjects = async (testFunc) => {
+    await catchErrorFrom(testFunc, ({ errors, data }) => {
+        expect(errors[0]).toMatchObject({
+            'message': 'No or incorrect authentication credentials',
+            'name': 'AuthenticationError',
+            'path': ['objs'],
+            'extensions': {
+                'code': 'UNAUTHENTICATED'
+            }
         })
         expect(data).toEqual({ 'objs': null })
     })
