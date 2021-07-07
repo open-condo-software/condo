@@ -302,6 +302,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
             OnErrorMsg,
             OnCompletedMsg,
         })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     function handleSave () {
@@ -344,7 +345,6 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
     )
 }
 
-
 interface IBaseModalFormProps extends IFormWithAction {
     visible: boolean
     cancelModal: () => void
@@ -382,7 +382,6 @@ const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
             ...modalExtraFooter,
             ...Buttons,
             <Button key="submit" onClick={() => {
-                console.log('handleSaveRef.current')
                 handleSaveRef.current()
             }} type="sberPrimary" >{SaveMessage}</Button>,
         ]}

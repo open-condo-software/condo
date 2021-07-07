@@ -16,7 +16,6 @@ import { layoutCss, pageContentCss, pageHeaderCss, pageWrapperCss, subLayoutCss,
 import { ElementType } from 'react'
 import MenuItem from 'antd/lib/menu/MenuItem'
 
-
 interface ILayoutContext {
     isMobile: boolean
     addNotification: (notification: ITopNotification) => void
@@ -129,8 +128,6 @@ const PageHeader: FunctionComponent<IPageHeaderProps> = ({ children, className, 
             {...pageHeaderProps}
         >
             {children}
-
-
         </AntPageHeader>
     )
 }
