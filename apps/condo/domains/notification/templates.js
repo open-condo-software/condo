@@ -1,13 +1,15 @@
 const conf = require('@core/config')
-const { RU_LOCALE, EN_LOCALE } = require('@condo/domains/common/constants/locale')
+const { format } = require('date-fns')
+const { RU_LOCALE, EN_LOCALE, LOCALES } = require('@condo/domains/common/constants/locale')
 
-const { 
+const {
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
     DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
-    MESSAGE_TRANSPORTS, 
-    REGISTER_NEW_USER_MESSAGE_TYPE, 
+    MESSAGE_TRANSPORTS,
+    REGISTER_NEW_USER_MESSAGE_TYPE,
     RESET_PASSWORD_MESSAGE_TYPE,
     SMS_VERIFY_CODE_MESSAGE_TYPE,
+    SHARE_TICKET_MESSAGE_TYPE,
 } = require('./constants')
 
 async function renderTemplate (transport, message) {
@@ -65,7 +67,7 @@ async function renderTemplate (transport, message) {
                 text: `
                     Phone: ${userPhone}
                     Password: ${userPassword}
-                    
+
                     Please follow link: ${serverUrl}/auth/signin
                 `,
             }
@@ -75,8 +77,62 @@ async function renderTemplate (transport, message) {
                 text: `
                     Номер телефона: ${userPhone}
                     Пароль: ${userPassword}
-                    
-                    Ссылка для авторизации: ${serverUrl}/auth/signin 
+
+                    Ссылка для авторизации: ${serverUrl}/auth/signin
+                `,
+            }
+        }
+    }
+
+    if (message.type === SHARE_TICKET_MESSAGE_TYPE) {
+        const { ticketNumber, date, details, id } = message.meta
+
+        if (message.lang === EN_LOCALE) {
+            return {
+                subject: `Ticket №${ticketNumber}`,
+                html: `
+                    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">
+                        <tr>
+                            <td width="10%" align="left"><b>DOMA.ai</b></td>
+                            <td width="80%">&nbsp;</td>
+                            <td width="10%" align="right">ДИСПЕТЧЕРСКАЯ</td>
+                        </tr>
+                    </table>
+                    <p>Hello!<br />
+                    Ticket #${ticketNumber} dated ${format(date, 'd MMMM Y', { locale: LOCALES[EN_LOCALE] })} has been shared with you.<br />
+                    The text of the ticket: "${details}"</p>
+                    <p>&nbsp;</p>
+                    <div><!--[if mso]>
+                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${serverUrl}/ticket/${id}" style="height:40px;v-text-anchor:middle;width:330px;" arcsize="10%" stroke="f" fill="t">
+                        <v:fill type="tile" src="" color="#4CD174" />
+                        <w:anchorlock/>
+                        <center style="color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:bold;">To Doma.ai ticket's card</center>
+                    </v:roundrect>
+                    <![endif]--><a href="${serverUrl}/ticket/${id}" style="background-color:#4CD174;background-image:url();border-radius:4px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:16px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:330px;-webkit-text-size-adjust:none;mso-hide:all;">To Doma.ai ticket's card</a></div>
+                `,
+            }
+        } else if (message.lang === RU_LOCALE) {
+            return {
+                subject: `Заявка №${ticketNumber}`,
+                html: `
+                    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">
+                        <tr>
+                            <td width="10%" align="left"><b>DOMA.ai</b></td>
+                            <td width="80%">&nbsp;</td>
+                            <td width="10%" align="right">ДИСПЕТЧЕРСКАЯ</td>
+                        </tr>
+                    </table>
+                    <p>Добрый день!<br />
+                    С вами поделились заявкой №${ticketNumber} от ${format(date, 'd MMMM Y', { locale: LOCALES[RU_LOCALE] })}.<br />
+                    Текст заявки: «${details}»</p>
+                    <p>&nbsp;</p>
+                    <div><!--[if mso]>
+                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${serverUrl}/ticket/${id}" style="height:40px;v-text-anchor:middle;width:330px;" arcsize="10%" stroke="f" fill="t">
+                        <v:fill type="tile" src="" color="#4CD174" />
+                        <w:anchorlock/>
+                        <center style="color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:bold;">Перейти в карточку завяки в Doma.ai</center>
+                    </v:roundrect>
+                    <![endif]--><a href="${serverUrl}/ticket/${id}" style="background-color:#4CD174;background-image:url();border-radius:4px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:16px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:330px;-webkit-text-size-adjust:none;mso-hide:all;">Перейти в карточку завяки в Doma.ai</a></div>
                 `,
             }
         }
@@ -101,7 +157,7 @@ async function renderTemplate (transport, message) {
             }
         }
     }
-        
+
     if (message.type === SMS_VERIFY_CODE_MESSAGE_TYPE) {
         const { smsCode } = message.meta
         if (message.lang === 'en') {

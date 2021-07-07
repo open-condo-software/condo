@@ -49,6 +49,19 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
     }
 `
 
+const GET_ALL_ORGANIZATION_EMPLOYEE_WITH_EMAIL_QUERY = gql`
+    query selectOrgarnizationEmployee ($value: [ID], $organizationId: ID) {
+        objs: allOrganizationEmployees(where: { user: { id_in: $value }, organization: { id: $organizationId }}) {
+            name
+            id
+            user {
+                id
+                email
+            }
+        }
+    }
+`
+
 const GET_ALL_CONTACTS_QUERY = gql`
     query selectContact ($organizationId: ID, $propertyId: ID, $unitName: String) {
         objs: allContacts(where: {organization: { id: $organizationId }, property: { id: $propertyId }, unitName: $unitName}) {
@@ -110,6 +123,19 @@ export function searchEmployee (organizationId) {
         return data.objs.map(object => {
             if (object.user) {
                 return ({ text: object.name, value: object.user.id })
+            }
+        }).filter(Boolean)
+    }
+}
+
+export function getEmployeeWithEmail (organizationId) {
+    return async function (client, value) {
+        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_WITH_EMAIL_QUERY, { value, organizationId })
+        if (error) console.warn(error)
+
+        return data.objs.map(object => {
+            if (object.user) {
+                return ({ text: object.user.email, value: object.user.id, key: object.user.id })
             }
         }).filter(Boolean)
     }
