@@ -157,7 +157,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     </Form.Item>
                                     <Form.Item
                                         shouldUpdate={true}
-                                        onFocus={() => setMapValidationError(null)}
+                                        onBlur={() => setMapValidationError(null)}
                                     >
                                         {
                                             ({ getFieldsValue, setFieldsValue }) => {
