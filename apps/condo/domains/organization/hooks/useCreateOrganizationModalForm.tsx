@@ -9,7 +9,8 @@ import {
 import {
     convertUIStateToGQLItem,
 } from '@condo/domains/organization/utils/clientSchema'
-import { INN_LENGTH } from '@condo/domains/organization/constants'
+import { INN_LENGTH } from '@condo/domains/organization/constants/common'
+import { EMPTY_NAME_ERROR, INN_TOO_SHORT_ERROR } from '@condo/domains/organization/constants/errors'
 
 interface ICreateOrganizationModalFormArguments {
     onFinish: (newOrganization) => void
@@ -35,11 +36,11 @@ export const useCreateOrganizationModalForm = ({ onFinish }: ICreateOrganization
     }
     const [visible, setVisible] = useState<boolean>(false)
     const ErrorToFormFieldMsgMapping = {
-        '[name.is.too.short]': {
+        [EMPTY_NAME_ERROR]: {
             name: 'name',
             errors: [ValueIsTooShortMsg],
         },
-        '[inn.is.too.short]': {
+        [INN_TOO_SHORT_ERROR]: {
             name: 'inn',
             errors: [ValueIsTooShortMsg],
         },
