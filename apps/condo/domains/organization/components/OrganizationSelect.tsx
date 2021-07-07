@@ -120,7 +120,7 @@ export const OrganizationSelect: React.FC = () => {
                                 {menu}
                                 <Button
                                     type={'inlineLink'}
-                                    style={{ marginLeft: '12px', paddingBottom: '8px' }}
+                                    style={{ marginLeft: '12px', paddingBottom: '8px', paddingTop: '8px' }}
                                     onClick={() => showCreateOrganizationModal(true)}
                                 >{AddOrganizationTitle}</Button>
                             </div>
