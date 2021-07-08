@@ -57,7 +57,11 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
         },
         {
             access: true,
-            type: 'input TicketReportAnalyticsInput { dateFrom: String!, dateTo: String!, groupBy: String!, userOrganizationId: String! }',
+            type: 'enum TicketType { default paid emergency }',
+        },
+        {
+            access: true,
+            type: 'input TicketReportAnalyticsInput { dateFrom: String!, dateTo: String!, groupBy: String!, userOrganizationId: String!, ticketType: TicketType! }',
         },
         {
             access: true,
@@ -109,7 +113,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
             access: true,
             schema: 'ticketReportAnalyticsData(data: TicketReportAnalyticsInput!): TicketReportAnalyticsOutput',
             resolver: async (parent, args, context, info, extra) => {
-                const { dateFrom, dateTo, groupBy, userOrganizationId } = args.data
+                const { dateFrom, dateTo, groupBy, userOrganizationId, ticketType } = args.data
                 const statuses = await getOrganizationStatuses(context, userOrganizationId)
                 const statusesMap = Object.fromEntries(statuses.map(({ type, name }) => ([type, name])))
                 const daysCount = moment(dateTo).diff(moment(dateFrom), 'days')
