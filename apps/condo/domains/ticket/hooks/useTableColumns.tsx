@@ -65,6 +65,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
     const search = getFilteredValue(filters, 'search')
 
     const render = (text) => {
+        if (!text) return ''
         if (!isEmpty(search)) {
             return (
                 <Highliter
