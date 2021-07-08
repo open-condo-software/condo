@@ -18,6 +18,7 @@ describe('Helpers', () => {
                     const email = 'email'
                     const role = ['role1', 'role2']
                     const search = 'search'
+                    const position = 'position'
 
                     expect(filtersToQuery({
                         name,
@@ -25,6 +26,7 @@ describe('Helpers', () => {
                         email,
                         role,
                         search,
+                        position,
                     })).toStrictEqual({
                         AND: [
                             { name_contains_i: name },
@@ -37,6 +39,7 @@ describe('Helpers', () => {
                                     }],
                                 },
                             },
+                            { position_contains_i: position },
                             {
                                 OR: [
                                     { name_contains_i: search },
@@ -49,6 +52,7 @@ describe('Helpers', () => {
                                             }],
                                         },
                                     },
+                                    { position_contains_i: search },
                                 ],
                             },
                         ],
@@ -119,6 +123,7 @@ describe('Helpers', () => {
                                                 }],
                                             },
                                         },
+                                        { position_contains_i: search },
                                     ],
                                 },
                             ],
@@ -280,6 +285,7 @@ describe('Helpers', () => {
                                 }],
                             },
                         },
+                        { position_contains_i: search },
                     ])
                 })
 
@@ -298,6 +304,7 @@ describe('Helpers', () => {
                                 }],
                             },
                         },
+                        { position_contains_i: search },
                     ])
                 })
 

@@ -4,6 +4,10 @@ import { useIntl } from '@core/next/intl'
 import React, { useMemo } from 'react'
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
+import { Highliter } from '@condo/domains/common/components/Highliter'
+import { isEmpty } from 'lodash'
+import { Typography } from 'antd'
+import { colors } from '@condo/domains/common/constants/style'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
@@ -15,10 +19,26 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
 
-
     const sorterMap = createSorterMap(sort)
 
-
+    const search = getFilteredValue(filters, 'search')
+    const render = (text) => {
+        if (!text) return '—'
+        if (!isEmpty(search)) {
+            return (
+                <Highliter
+                    text={String(text)}
+                    search={String(search)}
+                    renderPart={(part) => (
+                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                            {part}
+                        </Typography.Text>
+                    )}
+                />
+            )
+        }
+        return text
+    }
 
     return useMemo(() => {
         return [
@@ -32,6 +52,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 width: '25%',
                 filterDropdown: getTextFilterDropdown(NameMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
+                render,
             },
             {
                 title: AddressMessage,
@@ -44,6 +65,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 width: '35%',
                 filterDropdown: getTextFilterDropdown(AddressMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
+                render,
             },
             {
                 title: PhoneMessage,
@@ -55,6 +77,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 width: '20%',
                 filterDropdown: getTextFilterDropdown(PhoneMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
+                render,
             },
             {
                 title: EmailMessage,
@@ -67,6 +90,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 width: '20%',
                 filterDropdown: getTextFilterDropdown(EmailMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
+                render,
             },
         ]
     }, [sort, filters])
