@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Empty, notification, Row, Statistic } from 'antd'
+import { notification, Row, Statistic, Typography } from 'antd'
 import { StatsContainer } from '@condo/domains/common/components/StatsContainer'
 import { StatsCard } from '@condo/domains/common/components/StatsCard'
 import { GrowthPanel } from '@condo/domains/common/components/GrowthPanel'
@@ -8,6 +8,7 @@ import { get } from 'lodash'
 import { GET_TICKET_WIDGET_REPORT_DATA } from '@condo/domains/ticket/gql'
 import { useLazyQuery } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 
 export const TicketsWidget = () => {
     const intl = useIntl()
@@ -42,7 +43,9 @@ export const TicketsWidget = () => {
             <Row gutter={[40, 20]} justify={'center'}>
                 {
                     ticketData === null ?
-                        <Empty description={noDataTitle} /> :
+                        <BasicEmptyListView>
+                            <Typography.Text>{noDataTitle}</Typography.Text>
+                        </BasicEmptyListView> :
                         ticketData.map((e, i) => (
                             <StatsContainer key={i}>
                                 <Statistic
