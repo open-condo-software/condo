@@ -66,7 +66,7 @@ async function createDefaultRoles (context, organization, data) {
             canManageProperties: true,
             canManageTickets: true,
             canManageContacts: true,
-            canManageTicketComments: false,
+            canManageTicketComments: true,
         },
         foreman: {
             canManageOrganization: false,
@@ -76,7 +76,7 @@ async function createDefaultRoles (context, organization, data) {
             canManageProperties: false,
             canManageTickets: false,
             canManageContacts: false,
-            canManageTicketComments: false,
+            canManageTicketComments: true,
         },
         technician: {
             canManageOrganization: false,
@@ -86,7 +86,7 @@ async function createDefaultRoles (context, organization, data) {
             canManageProperties: false,
             canManageTickets: false,
             canManageContacts: false,
-            canManageTicketComments: false,
+            canManageTicketComments: true,
         },
     }
     Object.keys(defaultRoles).forEach((roleId) => {
