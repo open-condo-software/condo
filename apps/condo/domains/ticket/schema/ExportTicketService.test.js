@@ -17,7 +17,7 @@ const isObsConfigured = () => {
 describe('ExportTicketService', () => {
     describe('User', () => {
         it('can get tickets export from selected organization', async () => {
-            if (isObsConfigured) {
+            if (isObsConfigured()) {
                 const client = await makeClientWithProperty()
                 await createTestTicket(client, client.organization, client.property)
                 const { data: { result: { status, linkToFile } } }  = await client.query(EXPORT_TICKETS_TO_EXCEL, {
