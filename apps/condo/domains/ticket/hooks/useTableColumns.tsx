@@ -1,5 +1,5 @@
 import { identity } from 'lodash/util'
-import { Tag, Typography, Input, Space, DatePicker, Checkbox } from 'antd'
+import { Checkbox, DatePicker, Input, Space, Tag, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { FilterValue } from 'antd/es/table/interface'
 import { format } from 'date-fns'
@@ -58,7 +58,6 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
     const FindWordMessage = intl.formatMessage({ id: 'filters.FindWord' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const UserNameMessage = intl.formatMessage({ id: 'filters.UserName' })
-    const FlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
     const ShortFlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
 
     const sorterMap = createSorterMap(sort)
@@ -82,7 +81,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
         return text
     }
 
-    const columns = useMemo(() => {
+    return useMemo(() => {
         return [
             {
                 title: NumberMessage,
@@ -95,7 +94,8 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 render,
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
-                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
+                        <FilterContainer clearFilters={clearFilters}
+                            showClearButton={selectedKeys && selectedKeys.length > 0}>
                             <Input
                                 placeholder={NumberMessage}
                                 value={selectedKeys}
@@ -139,7 +139,8 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                     }
 
                     return (
-                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
+                        <FilterContainer clearFilters={clearFilters}
+                            showClearButton={selectedKeys && selectedKeys.length > 0}>
                             <DatePicker {...pickerProps}/>
                         </FilterContainer>
                     )
@@ -170,10 +171,11 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                                             />
                                         )}</Typography.Text>
                             </Tag>
-                            { record.isEmergency &&
+                            {record.isEmergency &&
                             <Tag color={EMERGENCY_TAG_COLOR.background}>
-                                <Typography.Text style={{ color: EMERGENCY_TAG_COLOR.text }}>{ EmergencyMessage }</Typography.Text>
-                            </Tag> }
+                                <Typography.Text
+                                    style={{ color: EMERGENCY_TAG_COLOR.text }}>{EmergencyMessage}</Typography.Text>
+                            </Tag>}
                         </Space>
                     )
                 },
@@ -214,7 +216,8 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 render,
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
-                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
+                        <FilterContainer clearFilters={clearFilters}
+                            showClearButton={selectedKeys && selectedKeys.length > 0}>
                             <Input
                                 placeholder={FindWordMessage}
                                 value={selectedKeys}
@@ -240,6 +243,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                     const unitName = get(record, 'unitName')
                     const property = get(record, 'property')
                     const text = get(property, 'address')
+                    const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
 
                     if (!isEmpty(search)) {
                         return (
@@ -253,15 +257,16 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                                         </Typography.Text>
                                     )}
                                 />
-                                { ` ${ShortFlatNumber} ${unitName}` }
+                                {` ${unitPrefix}`}
                             </>
                         )
                     }
-                    return `${text} ${ShortFlatNumber} ${unitName}`
+                    return `${text} ${unitPrefix}`
                 },
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
-                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
+                        <FilterContainer clearFilters={clearFilters}
+                            showClearButton={selectedKeys && selectedKeys.length > 0}>
                             <Input
                                 placeholder={AddressMessage}
                                 value={selectedKeys}
@@ -286,7 +291,8 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 width: '12%',
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
-                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
+                        <FilterContainer clearFilters={clearFilters}
+                            showClearButton={selectedKeys && selectedKeys.length > 0}>
                             <Input
                                 placeholder={UserNameMessage}
                                 value={selectedKeys}
@@ -313,7 +319,8 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 render: (executor) => render(get(executor, ['name'])),
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
-                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
+                        <FilterContainer clearFilters={clearFilters}
+                            showClearButton={selectedKeys && selectedKeys.length > 0}>
                             <Input
                                 placeholder={UserNameMessage}
                                 value={selectedKeys}
@@ -339,7 +346,8 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 render: (assignee) => render(get(assignee, ['name'])),
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     return (
-                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
+                        <FilterContainer clearFilters={clearFilters}
+                            showClearButton={selectedKeys && selectedKeys.length > 0}>
                             <Input
                                 placeholder={UserNameMessage}
                                 value={selectedKeys}
@@ -355,6 +363,4 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
             },
         ]
     }, [sort, filters])
-
-    return columns
 }
