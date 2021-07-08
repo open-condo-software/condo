@@ -3,7 +3,7 @@
  */
 
 const faker = require('faker')
-const { registerNewOrganization } = require('../../../utils/testSchema/Organization')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
