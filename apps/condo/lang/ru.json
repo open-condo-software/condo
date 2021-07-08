@@ -108,7 +108,7 @@
   "menu.Contacts": "Жители",
   "component.uploadlist.AttachedFilesLabel": "Прикреплённые файлы",
   "component.uploadlist.AddFileLabel": "Добавить файл",
-  "component.uploadlist.error.FileTooBig": "Файл слишком большой",
+  "component.uploadlist.error.FileTooBig": "Файл слишком большой, максимальный размер - {maxSizeInMb} МБ",
   "component.uploadlist.error.UploadFailedErrorMessage": "Ошибка загрузки файла на сервер",
   "component.statscard.periodtypes.Week": "неделю",
   "component.statscard.periodtypes.Month": "месяц",
