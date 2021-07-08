@@ -1,5 +1,5 @@
 const PHONE_WRONG_FORMAT_ERROR = '[phone:wrongFormat:'
-const EMAIL_WRONG_FORMAT_ERROR = '[mail:wrongFormat:'
+const EMAIL_WRONG_FORMAT_ERROR = '[email:wrongFormat:'
 
 // assume format `[type:error:field] message`
 const JSON_EXPECT_OBJECT_ERROR = '[json:expectObject:'
