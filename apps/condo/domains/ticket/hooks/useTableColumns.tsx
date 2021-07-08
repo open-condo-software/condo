@@ -52,6 +52,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
     const intl = useIntl()
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
+    const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
     const DateMessage = intl.formatMessage({ id: 'Date' })
     const StatusMessage =  intl.formatMessage({ id: 'Status' })
     const DescriptionMessage = intl.formatMessage({ id: 'Description' })
@@ -177,6 +178,10 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                                 <Typography.Text
                                     style={{ color: EMERGENCY_TAG_COLOR.text }}>{EmergencyMessage}</Typography.Text>
                             </Tag>}
+                            { record.isPaid &&
+                            <Tag color={EMERGENCY_TAG_COLOR.background}>
+                                <Typography.Text style={{ color: EMERGENCY_TAG_COLOR.text }}>{ PaidMessage }</Typography.Text>
+                            </Tag> }
                         </Space>
                     )
                 },
