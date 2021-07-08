@@ -84,9 +84,9 @@ exports.up = async (knex) => {
         false,
         false,
         false,
+        false,
         true,
-        true,
-        true,
+        false,
         true
     FROM "Organization" AS org
     WHERE NOT EXISTS(SELECT FROM "OrganizationEmployeeRole" WHERE organization = org.id AND (name = 'Мастер участка' OR name = 'Foreman'));
@@ -114,9 +114,9 @@ exports.up = async (knex) => {
         false,
         false,
         false,
+        false,
         true,
-        true,
-        true,
+        false,
         true
     FROM "Organization" AS org
     WHERE NOT EXISTS(SELECT FROM "OrganizationEmployeeRole" WHERE organization = org.id AND (name = 'Техник' OR name = 'Technician'));
