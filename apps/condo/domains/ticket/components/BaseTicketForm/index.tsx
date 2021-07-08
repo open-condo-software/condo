@@ -188,8 +188,14 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 loading={loading}
                                                                 allowClear={true}
                                                                 onChange={(_, option) => {
-                                                                    setSelectedUnitName(option?.key ?? null)
-                                                                    updateSectionAndFloor(form, option?.key ?? null)
+                                                                    if (!option) {
+                                                                        setSelectedUnitName(null)
+                                                                        updateSectionAndFloor(form, null)
+                                                                    }
+                                                                    else {
+                                                                        setSelectedUnitName(option.key)
+                                                                        updateSectionAndFloor(form, option.key)
+                                                                    }
                                                                 }}
                                                             />
                                                         </Form.Item>
