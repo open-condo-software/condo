@@ -129,7 +129,8 @@ interface IMultipleFileUploadProps {
 const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
     const intl = useIntl()
     const AddFileLabel = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })
-    const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' })
+    const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' },
+        { maxSizeInMb: MAX_UPLOAD_FILE_SIZE / (1024 * 1024) })
     const UploadFailedErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.UploadFailedErrorMessage' })
     const {
         fileList,

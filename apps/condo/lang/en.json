@@ -108,7 +108,7 @@
   "menu.Contacts": "Contacts",
   "component.uploadlist.AttachedFilesLabel": "Files list",
   "component.uploadlist.AddFileLabel": "Add file",
-  "component.uploadlist.error.FileTooBig": "File size is too big",
+  "component.uploadlist.error.FileTooBig": "File size is too big, max size is {maxSizeInMb} MB",
   "component.uploadlist.error.UploadFailedErrorMessage": "Upload to server failed",
   "component.statscard.periodtypes.Week": "week",
   "component.statscard.periodtypes.Month": "month",
