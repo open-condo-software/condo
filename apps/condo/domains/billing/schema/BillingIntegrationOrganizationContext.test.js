@@ -3,7 +3,7 @@
  */
 const { createTestOrganization, updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithIntegrationAccess, updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
-const { registerNewOrganization } = require('../../../utils/testSchema/Organization')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestBillingIntegration } = require('../utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
