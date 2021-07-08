@@ -15,7 +15,7 @@ import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { useLazyQuery } from '@core/next/apollo'
-import { Col, Input, Row, Space, Table, Typography, Checkbox } from 'antd'
+import { notification, Col, Input, Row, Space, Table, Typography, Checkbox } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
@@ -84,7 +84,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
         EXPORT_TICKETS_TO_EXCEL,
         {
             onError: error => {
-                throw new Error(error)
+                notification.error(error)
             },
             onCompleted: data => {
                 setDownloadLink(data.result.linkToFile)

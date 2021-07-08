@@ -5,6 +5,7 @@ const moment = require('moment')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const get = require('lodash/get')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/ticket/constants/errors')
 
 const CHUNK_SIZE = 20
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
@@ -67,6 +68,9 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         statusReason: ticket.statusReason ? ticket.statusReason : '',
                     }
                 })
+                if (allTickets.length === 0) {
+                    throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
+                }
                 const linkToFile = await createExportFile({
                     fileName: `tickets_${moment().format('DD_MM')}.xlsx`,
                     templatePath: './domains/ticket/templates/TicketsExportTemplate.xlsx',
