@@ -89,6 +89,9 @@ const PdfView = () => {
     const NotesMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.Notes' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+    const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
 
     const containerRef = useRef(null)
 
@@ -120,7 +123,9 @@ const PdfView = () => {
     }
 
     const TicketCreationDate = getTicketCreateMessage(intl, ticket)
-    const ticketAddress = get(ticket, ['property', 'address']) + (ticket.unitName ? (', ' + ticket.unitName) : '')
+    const ticketAddress = get(ticket, ['property', 'address'])
+        + (ticket.sectionName && ticket.floorName ? `, ${SectionName} ${ticket.sectionName}, ${FloorName} ${ticket.floorName}` : '')
+        + (ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : '')
     const isEmergency = get(ticket, 'isEmergency')
 
     return (
