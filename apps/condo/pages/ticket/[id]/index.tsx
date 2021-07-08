@@ -272,7 +272,7 @@ const TicketIdPage = () => {
                                                             <Typography.Title level={1} style={{ margin: 0 }}>{TicketTitleMessage}</Typography.Title>
                                                             <Space direction={'vertical'}>
                                                                 {isEmergency && <TicketTag color={'red'}>{EmergencyMessage.toLowerCase()}</TicketTag>}
-                                                                {isPaid && <TicketTag color={'red'}>{PaidMessage.toLowerCase()}</TicketTag>}
+                                                                {isPaid && <TicketTag color={'orange'}>{PaidMessage.toLowerCase()}</TicketTag>}
                                                             </Space>
                                                         </Space>
                                                         <Typography.Text>

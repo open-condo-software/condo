@@ -179,8 +179,8 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                                     style={{ color: EMERGENCY_TAG_COLOR.text }}>{EmergencyMessage}</Typography.Text>
                             </Tag>}
                             { record.isPaid &&
-                            <Tag color={EMERGENCY_TAG_COLOR.background}>
-                                <Typography.Text style={{ color: EMERGENCY_TAG_COLOR.text }}>{ PaidMessage }</Typography.Text>
+                            <Tag color={'orange'}>
+                                { PaidMessage }
                             </Tag> }
                         </Space>
                     )
