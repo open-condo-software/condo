@@ -7,6 +7,10 @@ interface IHighliterProps {
     renderPart: (part: string, index: number) => React.ReactElement
 }
 
+const escapeRegex = (text: string) => {
+    return text.replace(/[-[\]{}()*+?.,\\/^$|#\s]/g, '\\$&')
+}
+
 export const Highliter: React.FC<IHighliterProps> = (props) => {
     const { text, search, renderPart } = props
 
@@ -14,7 +18,7 @@ export const Highliter: React.FC<IHighliterProps> = (props) => {
         return <>{ text }</>
     }
 
-    const searchRegexp = new RegExp(`(${search})`, 'ig')
+    const searchRegexp = new RegExp(`(${escapeRegex(search)})`, 'ig')
     if (!text.match(searchRegexp)) {
         return <>{ text }</>
     }
