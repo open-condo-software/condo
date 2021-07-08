@@ -30,10 +30,6 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 if (!organizationId) {
                     throw new Error('[error] no organization id is passed')
                 }
-                const hasAccess = await checkOrganizationPermission(context.authedItem.id, organizationId, 'canManageTickets')
-                if (!hasAccess) {
-                    throw new Error('[error] you do not have access to this organization')
-                }
                 let skip = 0
                 let maxCount = 1000
                 let newchunk = []
@@ -68,8 +64,8 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                     }
                 })
                 const linkToFile = await createExportFile({
-                    fileName: `tickets_${moment().format('DD_MM')}.ods`,
-                    templatePath: './domains/ticket/templates/TicketsExportTemplate.ods',
+                    fileName: `tickets_${moment().format('DD_MM')}.xlsx`,
+                    templatePath: './domains/ticket/templates/TicketsExportTemplate.xlsx',
                     replaces: { tickets: excelRows },
                     meta: {
                         listkey: 'Ticket',

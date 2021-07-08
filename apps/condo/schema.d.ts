@@ -10370,6 +10370,7 @@ export type Query = {
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
+  exportTicketsToExcel?: Maybe<TicketExportExcelOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -11643,6 +11644,11 @@ export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
 
 export type QueryTicketReportWidgetDataArgs = {
   data: TicketReportWidgetInput;
+};
+
+
+export type QueryExportTicketsToExcelArgs = {
+  data: TicketExportExcelInput;
 };
 
 export type ReInviteOrganizationEmployeeInput = {
@@ -15405,6 +15411,17 @@ export type TicketCreateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+};
+
+export type TicketExportExcelInput = {
+  where: TicketWhereInput;
+  sortBy?: Maybe<Array<SortTicketsBy>>;
+};
+
+export type TicketExportExcelOutput = {
+  __typename?: 'TicketExportExcelOutput';
+  status: Scalars['String'];
+  linkToFile: Scalars['String'];
 };
 
 /**  File attached to the ticket  */
