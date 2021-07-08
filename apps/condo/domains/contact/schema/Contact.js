@@ -8,8 +8,9 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const access = require('@condo/domains/contact/access/Contact')
-const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
+const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { Contact: ContactAPI } = require('../utils/serverSchema')
 
 /**
@@ -45,7 +46,15 @@ const Contact = new GQLListSchema('Contact', {
             isRequired: false,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
-                    return resolvedData['email'] && resolvedData['email'].toLowerCase()
+                    if (!resolvedData['email']) return resolvedData['email']
+                    const newValue = normalizeEmail(resolvedData['email'])
+                    return newValue || resolvedData['email']
+                },
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                    const newValue = normalizeEmail(resolvedData['email'])
+                    if (resolvedData['email'] && newValue !== resolvedData['email']) {
+                        addFieldValidationError(`${EMAIL_WRONG_FORMAT_ERROR}email] invalid format`)
+                    }
                 },
             },
         },
