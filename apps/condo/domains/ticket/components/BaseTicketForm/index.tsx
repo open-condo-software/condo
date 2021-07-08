@@ -220,11 +220,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                         {({ getFieldsValue }) => {
                                             const { property, unitName } = getFieldsValue(['property', 'unitName'])
 
-                                            const value = initialValues.clientName && initialValues.clientPhone ? {
+                                            const value = {
                                                 id: get(initialValues.contact, 'id'),
                                                 name: initialValues.clientName,
                                                 phone: initialValues.clientPhone,
-                                            } : null
+                                            }
 
                                             return (
                                                 <FocusContainer className={!property && 'disabled'}>
