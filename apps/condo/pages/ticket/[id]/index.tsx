@@ -164,7 +164,7 @@ const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
     )
 }
 
-const EmergencyTag = styled(Tag)`
+const TicketTag = styled(Tag)`
   font-size: 16px;
   line-height: 24px;
 `
@@ -188,6 +188,7 @@ const TicketIdPage = () => {
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+    const PaidMessage = intl.formatMessage({ id: 'Paid' })
 
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
@@ -244,6 +245,7 @@ const TicketIdPage = () => {
         + (ticket.sectionName && ticket.floorName ? `, ${SectionName} ${ticket.sectionName}, ${FloorName} ${ticket.floorName}` : '')
         + (ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : '')
     const isEmergency = get(ticket, 'isEmergency')
+    const isPaid = get(ticket, 'isPaid')
 
     const handleTicketStatusChanged = () => {
         refetchTicket()
@@ -266,9 +268,12 @@ const TicketIdPage = () => {
                                             <Col span={12}>
                                                 <Row align={'top'}>
                                                     <Space size={8} direction={'vertical'}>
-                                                        <Space align={'start'}>
+                                                        <Space align={'center'}>
                                                             <Typography.Title level={1} style={{ margin: 0 }}>{TicketTitleMessage}</Typography.Title>
-                                                            {isEmergency && <EmergencyTag color={'red'}>{EmergencyMessage.toLowerCase()}</EmergencyTag>}
+                                                            <Space direction={'vertical'}>
+                                                                {isEmergency && <TicketTag color={'red'}>{EmergencyMessage.toLowerCase()}</TicketTag>}
+                                                                {isPaid && <TicketTag color={'red'}>{PaidMessage.toLowerCase()}</TicketTag>}
+                                                            </Space>
                                                         </Space>
                                                         <Typography.Text>
                                                             <Typography.Text type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
