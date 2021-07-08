@@ -422,5 +422,6 @@
   "Comments.actions.delete.confirm.title": "Точно удалить?",
   "Comments.actions.delete.confirm.okText": "Да",
   "Comments.actions.delete.confirm.cancelText": "Ой, нет",
-  "Comments.deleted": "Комментарий был удалён"
+  "Comments.deleted": "Комментарий был удалён",
+  "Comments.meta.updated": "Обновлено"
 }

@@ -69,8 +69,11 @@ const CommentStyle = css`
             color: ${green[6]};
           }
 
-          .ant-comment-content-author-time {
+          .ant-comment-content-author-time > div > span {
             color: ${grey[2]};
+            position: absolute;
+            transition: opacity 0.2s linear;
+            will-change: opacity;
           }
         }
         .ant-comment-actions {
@@ -91,10 +94,12 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
     const ConfirmDeleteOkText = intl.formatMessage({ id: 'Comments.actions.delete.confirm.okText' })
     const ConfirmDeleteCancelText = intl.formatMessage({ id: 'Comments.actions.delete.confirm.cancelText' })
     const CommentDeletedText = intl.formatMessage({ id: 'Comments.deleted' })
+    const MetaUpdatedText = intl.formatMessage({ id: 'Comments.meta.updated' })
 
     const [mode, setMode] = useState<CommentMode>('display')
     const [content, setContent] = useState(comment.content)
 
+    const [dateShowMode, setDateShowMode] = useState<'created' | 'updated'>('created')
     const handleSave = (newContent) => {
         updateAction({ content: newContent }, comment)
             .then(() => {
@@ -120,7 +125,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
                     size="middle"
                     css={WhiteStyle}
                     icon={<EditFilled />}
-                    onClick={() => {setMode('edit')}}
+                    onClick={() => { setMode('edit') }}
                     style={{ color: green[7] }}
                 />
             )
@@ -196,7 +201,30 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
                 </Typography.Text>
             }
             author={comment.user.name}
-            datetime={formatDate(intl, comment.createdAt)}
+            datetime={
+                <div
+                    onMouseOut={() => setDateShowMode('created')}
+                    onMouseOver={() => setDateShowMode('updated')}
+                >
+                    <span
+                        style={{
+                            opacity: dateShowMode === 'created' ? 1 : 0,
+                        }}
+
+                    >
+                        {formatDate(intl, comment.createdAt)}
+                    </span>
+                    <span
+                        style={{
+                            opacity: dateShowMode === 'updated' ? 1 : 0,
+                        }}
+                        title={MetaUpdatedText}
+
+                    >
+                        {formatDate(intl, comment.updatedAt)}
+                    </span>
+                </div>
+            }
             actions={actions}
             css={CommentStyle}
         />

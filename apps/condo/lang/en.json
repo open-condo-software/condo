@@ -422,5 +422,6 @@
   "Comments.actions.delete.confirm.title": "Are you sure?",
   "Comments.actions.delete.confirm.okText": "Yes",
   "Comments.actions.delete.confirm.cancelText": "Oops, no",
-  "Comments.deleted": "Comment was deleted"
+  "Comments.deleted": "Comment was deleted",
+  "Comments.meta.updated": "Updated"
 }
