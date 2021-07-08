@@ -4,7 +4,6 @@ const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const moment = require('moment')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const get = require('lodash/get')
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
 const CHUNK_SIZE = 20
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
