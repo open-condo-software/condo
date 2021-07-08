@@ -14,6 +14,7 @@ export interface IFilters extends Pick<OrganizationEmployee, 'name' | 'phone' | 
     email?: string
     search?: string
     role?: Array<string>
+    position?: string
 }
 
 export const roleToQuery = (rolesIds: Array<string>): OrganizationEmployeeRoleWhereInput => {
@@ -82,6 +83,7 @@ export const searchToQuery = (search?: string): OrganizationEmployeeWhereInput[]
         { phone_contains_i: search },
         { email_contains_i: search },
         { role: roleQuery },
+        { position_contains_i: search },
     ].filter(Boolean)
 }
 

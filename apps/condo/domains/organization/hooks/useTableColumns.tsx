@@ -1,12 +1,15 @@
 import { identity } from 'lodash/util'
-import { Checkbox } from 'antd'
+import { Checkbox, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import React, { useMemo } from 'react'
+import { colors } from '@condo/domains/common/constants/style'
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { OrganizationEmployeeRole } from '../utils/clientSchema'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
+import { isEmpty } from 'lodash'
+import { Highliter } from '../../common/components/Highliter'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
@@ -21,6 +24,24 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
 
     const sorterMap = createSorterMap(sort)
     const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
+    const search = getFilteredValue(filters, 'search')
+    const render = (text) => {
+        if (!text) return '—'
+        if (!isEmpty(search)) {
+            return (
+                <Highliter
+                    text={String(text)}
+                    search={String(search)}
+                    renderPart={(part) => (
+                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                            {part}
+                        </Typography.Text>
+                    )}
+                />
+            )
+        }
+        return text
+    }
     const columns = useMemo(() => {
         return [
             {
@@ -33,6 +54,7 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
                 width: '40%',
                 filterDropdown: getTextFilterDropdown(NameMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
+                render,
             },
             {
                 title: PositionMessage,
@@ -40,9 +62,8 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
                 filteredValue: getFilteredValue(filters, 'position'),
                 dataIndex: 'position',
                 key: 'position',
-                sorter: true,
                 width: '20%',
-                render: (position) => position ? position : '—',
+                render,
                 filterDropdown: getTextFilterDropdown(PositionMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
@@ -54,7 +75,7 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
                 key: 'role',
                 sorter: true,
                 width: '20%',
-                render: (role) => get(role, 'name', '—'),
+                render: (role) => render(get(role, 'name')),
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     const adaptedStatuses = organizationEmployeeRoles.map(OrganizationEmployeeRole.convertGQLItemToFormSelectState).filter(identity)
 
@@ -89,6 +110,7 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
                 width: '20%',
                 filterDropdown: getTextFilterDropdown(PhoneMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
+                render,
             },
             {
                 title: EmailMessage,
@@ -99,6 +121,7 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
                 width: '20%',
                 filterDropdown: getTextFilterDropdown(EmailMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
+                render,
             },
         ]
     }, [sort, filters])
