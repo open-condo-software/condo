@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Row, Statistic } from 'antd'
+import { Empty, notification, Row, Statistic } from 'antd'
 import { StatsContainer } from '@condo/domains/common/components/StatsContainer'
 import { StatsCard } from '@condo/domains/common/components/StatsCard'
 import { GrowthPanel } from '@condo/domains/common/components/GrowthPanel'
@@ -11,6 +11,7 @@ import { useIntl } from '@core/next/intl'
 
 export const TicketsWidget = () => {
     const intl = useIntl()
+    const noDataTitle = intl.formatMessage({ id: 'NoData' })
     const ticketsWidgetTitle = intl.formatMessage({ id: 'component.ticketswidget.Title' })
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -20,7 +21,8 @@ export const TicketsWidget = () => {
     const [loadTicketsWidgetData] = useLazyQuery(GET_TICKET_WIDGET_REPORT_DATA, {
         onError: error => {
             setLoading(false)
-            console.error(error)
+            notification.error(error)
+            setTicketData(null)
         },
         fetchPolicy: 'cache-and-network',
         onCompleted: (response) => {
@@ -37,17 +39,19 @@ export const TicketsWidget = () => {
 
     return (
         <StatsCard title={ticketsWidgetTitle} link='/' onFilterChange={filterChange} loading={loading} dependencyArray={[userOrganizationId]}>
-            <Row gutter={[40, 20]}>
+            <Row gutter={[40, 20]} justify={'center'}>
                 {
-                    ticketData.map((e, i) => (
-                        <StatsContainer key={i}>
-                            <Statistic
-                                title={e.statusName}
-                                prefix={<span style={{ fontSize: 30, fontWeight: 600 }}>{e.currentValue}</span>}
-                                valueRender={() => <GrowthPanel value={e.growth}  />}
-                            />
-                        </StatsContainer>
-                    ))
+                    ticketData === null ?
+                        <Empty description={noDataTitle} /> :
+                        ticketData.map((e, i) => (
+                            <StatsContainer key={i}>
+                                <Statistic
+                                    title={e.statusName}
+                                    prefix={<span style={{ fontSize: 30, fontWeight: 600 }}>{e.currentValue}</span>}
+                                    valueRender={() => <GrowthPanel value={e.growth}  />}
+                                />
+                            </StatsContainer>
+                        ))
                 }
             </Row>
         </StatsCard>
