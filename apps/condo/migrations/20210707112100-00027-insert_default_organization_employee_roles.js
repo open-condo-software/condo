@@ -29,7 +29,7 @@ exports.up = async (knex) => {
         true,
         true
     FROM "Organization" AS org
-    WHERE NOT EXISTS(SELECT name, organization FROM "OrganizationEmployeeRole" WHERE organization = org.id AND (name = 'Диспетчер' OR name = 'Dispatcher'));
+    WHERE NOT EXISTS(SELECT FROM "OrganizationEmployeeRole" WHERE organization = org.id AND (name = 'Диспетчер' OR name = 'Dispatcher'));
     COMMIT;
 
     -- Manager
@@ -59,7 +59,7 @@ exports.up = async (knex) => {
         true,
         true
     FROM "Organization" AS org
-    WHERE NOT EXISTS(SELECT name, organization FROM "OrganizationEmployeeRole" WHERE organization = org.id AND (name = 'Управляющий' OR name = 'Manager'));
+    WHERE NOT EXISTS(SELECT FROM "OrganizationEmployeeRole" WHERE organization = org.id AND (name = 'Управляющий' OR name = 'Manager'));
     COMMIT;
     
     -- Foreman
@@ -89,7 +89,7 @@ exports.up = async (knex) => {
         true,
         true
     FROM "Organization" AS org
-    WHERE NOT EXISTS(SELECT name, organization FROM "OrganizationEmployeeRole" WHERE organization = org.id AND (name = 'Мастер участка' OR name = 'Foreman'));
+    WHERE NOT EXISTS(SELECT FROM "OrganizationEmployeeRole" WHERE organization = org.id AND (name = 'Мастер участка' OR name = 'Foreman'));
     COMMIT;
     
     -- Technician
@@ -119,7 +119,7 @@ exports.up = async (knex) => {
         true,
         true
     FROM "Organization" AS org
-    WHERE NOT EXISTS(SELECT name, organization FROM "OrganizationEmployeeRole" WHERE organization = org.id AND (name = 'Техник' OR name = 'Technician'));
+    WHERE NOT EXISTS(SELECT FROM "OrganizationEmployeeRole" WHERE organization = org.id AND (name = 'Техник' OR name = 'Technician'));
     COMMIT;
 
     `)

@@ -92,14 +92,14 @@ async function createDefaultRoles (context, organization, data) {
     Object.keys(defaultRoles).forEach((roleId) => {
         defaultRoles[roleId].name = langDict.roleNames[roleId]
     })
-    const tasks = Object.values(defaultRoles).map((roleInfo) =>
+    const tasks = Object.entries(defaultRoles).map(([roleId, roleInfo]) =>
         OrganizationEmployeeRole.create(context, {
             organization: { connect: { id: organization.id } },
             ...roleInfo,
             ...data,
-        })
+        }).then(x => ({ [roleId]: x }))
     )
-    return await Promise.all(tasks)
+    return await Promise.all(tasks).then(r => r.reduce((d, c) => ({ ...d, ...c })))
 }
 async function createConfirmedEmployee (context, organization, user, role, data) {
     if (!context) throw new Error('no context')
