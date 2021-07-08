@@ -1,8 +1,4 @@
 const { NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
-const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
-const { createTestUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { v4: uuid } = require('uuid')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { GET_TICKET_WIDGET_REPORT_DATA } = require('@condo/domains/ticket/gql')
 const { makeClient } = require('@core/keystone/test.utils')
@@ -25,16 +21,16 @@ describe('TicketReportService', () => {
         })
 
         it('can not get ticket report with another organization', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [, userAttrs] = await createTestUser(admin)
-            const client = await makeLoggedInClient(userAttrs)
+            const clientWithProperty = await makeClientWithProperty()
+            await createTestTicket(clientWithProperty, clientWithProperty.organization, clientWithProperty.property)
+
+            const client = await makeClientWithProperty()
             const { errors, data: { result } } = await client.query(GET_TICKET_WIDGET_REPORT_DATA, {
-                data: { userOrganizationId: uuid(), periodType: 'week' } }
+                data: { userOrganizationId: clientWithProperty.organization.id, periodType: 'week' } }
             )
             expect(errors).toHaveLength(1)
             expect(result).toBeNull()
         })
-
     })
 
     describe('Anonymous', () => {
