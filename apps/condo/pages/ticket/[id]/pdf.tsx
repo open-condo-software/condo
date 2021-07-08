@@ -88,6 +88,7 @@ const PdfView = () => {
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const NotesMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.Notes' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
+    const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
 
     const containerRef = useRef(null)
 
@@ -138,6 +139,7 @@ const PdfView = () => {
                     </Col>
                     <Col span={6}>
                         {isEmergency && (<Typography.Title level={2}>{EmergencyMessage.toLowerCase()}</Typography.Title>)}
+                        {ticket.isPaid && (<Typography.Title style={{ marginTop: '0' }} level={2}>{PaidMessage.toLowerCase()}</Typography.Title>)}
                     </Col>
                 </Row>
             </Col>
