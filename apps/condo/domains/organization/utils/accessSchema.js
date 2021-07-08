@@ -28,6 +28,26 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
     return employeeRole[permission] || false
 }
 
+async function checkOrganizationEmployeePermission (userId, organizationId) {
+    if (!userId || !organizationId) return false
+    const employee = await getByCondition('OrganizationEmployee', {
+        organization: { id: organizationId },
+        user: { id: userId },
+        deletedAt: null,
+    })
+
+    if (!employee) {
+        return false
+    }
+
+    if (employee.isBlocked) {
+        return false
+    }
+
+    return employee.deletedAt === null
+}
+
 module.exports = {
     checkOrganizationPermission,
+    checkOrganizationEmployeePermission,
 }
