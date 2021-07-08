@@ -23,7 +23,7 @@ const SENDER_FIELD = {
                 fingerprint: {
                     type: 'string',
                     presence: true,
-                    length: { minimum: 5, maximum: 20 },
+                    length: { minimum: 5, maximum: 40 },
                 },
             })) return
         },
