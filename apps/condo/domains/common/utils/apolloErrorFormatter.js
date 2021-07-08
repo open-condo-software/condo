@@ -84,7 +84,7 @@ const safeFormatError = (error, hideInternals = false) => {
         if (isKeystoneErrorInstance(error.originalError)) {
             result.name = error.originalError.name
             result.data = error.originalError.data
-        } else if (error instanceof ApolloError || error instanceof GraphQLError) {
+        } else if (error instanceof ApolloError) {
             result.name = error.originalError.name
         }
     }
