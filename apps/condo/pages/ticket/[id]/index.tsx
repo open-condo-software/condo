@@ -130,17 +130,17 @@ const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
     const showPersonalInfoButtonControl = (userInfo.name || userInfo.phone) && props.hidePersonalData
 
     return (
-        <Space direction={'vertical'} size={8}>
+        <Col style={{ paddingRight: '10px' }}>
             <Typography.Text type={'secondary'}>{props.title}</Typography.Text>
-            <Space size={4} direction={'vertical'} style={{ fontSize: '16px' }}>
+            <Col style={{ fontSize: '16px', margin: '0' }}>
                 {userInfo.name
                     ? (
                         <UserNameField user={{ name: userInfo.name, id: props.user.id }}>
                             {({ name, postfix }) => (
-                                <Typography.Text>
-                                    <Typography.Text ellipsis>{name}</Typography.Text>
-                                    {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
-                                </Typography.Text>
+                                <Typography.Paragraph ellipsis={true} title={name} style={{ margin: '5px 0' }}>
+                                    {name}
+                                    {postfix && <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>}
+                                </Typography.Paragraph>
                             )}
                         </UserNameField>
                     )
@@ -151,16 +151,16 @@ const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
                     : `${PhoneShortMessage} ${PhoneNotDefinedMessage}`
                 }
                 {showPersonalInfoButtonControl && (
-                    <span>
+                    <Typography.Paragraph>
                         (
                         <Button type={'inlineLink'} onClick={toggleUserInfoVisibility}>
                             {String(hidden ? ShowMessage : HideMessage).toLowerCase()}
                         </Button>
                         )
-                    </span>
+                    </Typography.Paragraph>
                 )}
-            </Space>
-        </Space>
+            </Col>
+        </Col>
     )
 }
 
@@ -310,7 +310,7 @@ const TicketIdPage = () => {
                                                     value={get(ticket, ['classifier', 'name'])}
                                                 />
                                             </Col>
-                                            <Col span={6}>
+                                            <Col span={6} >
                                                 <TicketUserInfoField
                                                     title={ExecutorMessage}
                                                     user={get(ticket, ['executor'])}
@@ -339,7 +339,7 @@ const TicketIdPage = () => {
                                                                 type={'success'}
                                                             />
                                                         </Col>
-                                                        <Col span={6}>
+                                                        <Col span={7}>
                                                             <TicketUserInfoField
                                                                 hidePersonalData
                                                                 title={FullNameMessage}
