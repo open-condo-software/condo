@@ -112,12 +112,13 @@ const PropertyPageViewTable = (): React.FC => {
         fetchPolicy: 'network-only',
     })
 
-    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery)
+    const [filtersApplied, setFiltersApplied] = useState(false)
+    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
 
     const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
         const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
         const { current, pageSize } = nextPagination
-        const offset = current * pageSize - pageSize
+        const offset = filtersApplied ? 0 : current * pageSize - pageSize
         const sort = sorterToQuery(nextSorter)
         const filters = filtersToQuery(nextFilters)
         if (!loading) {
