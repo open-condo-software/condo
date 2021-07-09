@@ -44,17 +44,28 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartViewProps>
         return null
     }
     const series = []
-    const { result, days } = data
-    const legend = Object.values(data.labels)
+    const isLineChart = viewMode === 'line'
+    const { result, axisLabels, labels } = data
+    const legend = Object.values(labels)
     Object.entries(result).map(([ticketType, dataObj]) => {
         series.push({
-            name: data.labels[ticketType],
+            name: labels[ticketType],
             type: viewMode,
             symbol: 'none',
-            stack: ticketType,
+            stack: isLineChart ? ticketType : 'total',
             data: Object.values(dataObj),
         })
     })
+    const axisData = {
+        yAxis: {
+            type: isLineChart ? 'value' : 'category',
+            data: isLineChart ? null : axisLabels,
+        },
+        xAxis: {
+            type: isLineChart ? 'category' : 'value',
+            data: isLineChart ? axisLabels : null,
+        },
+    }
 
     const option = {
         color: COLOR_SET,
@@ -81,21 +92,15 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartViewProps>
             right: '4%',
             bottom: '3%',
             containLabel: true,
+            borderWidth: 1,
         },
-        yAxis: {
-            type: 'value',
-        },
-        xAxis: {
-            type: 'category',
-            data: days,
-        },
+        ...axisData,
         series,
     }
 
     return <div style={{ position: 'relative' }}>
         <ReactECharts showLoading={loading} option={option} />
         {children}
-
     </div>
 }
 
@@ -258,6 +263,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                 groupBy: groupTicketsBy,
                 userOrganizationId,
                 ticketType,
+                viewMode,
             } } } )
     }, [groupTicketsBy, userOrganizationId, ticketType, viewMode])
 

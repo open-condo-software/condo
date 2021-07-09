@@ -1,11 +1,14 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const { Ticket, TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 const moment = require('moment')
 const { checkUserBelongsToOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const access = require('@condo/domains/ticket/access/TicketReportService')
 const { TICKET_STATUS_TYPES: ticketStatusTypes } = require('@condo/domains/ticket/constants')
 
 const PERIOD_TYPES = ['week', 'month', 'quarter']
+const TICKET_TYPES = ['default', 'paid', 'emergency']
+const CHART_VIEW_MODES = ['bar', 'line', 'pie']
 
 const countTicketsByStatuses = async (context, dateStart, dateEnd, organizationId) => {
     const answer = {}
@@ -37,6 +40,12 @@ const getOrganizationStatuses = async (context, userOrganizationId) => {
     )
 }
 
+const getOrganizationProperties = async (context, userOrganizationId) => {
+    return await Property.getAll(context, {
+        organization: { id: userOrganizationId },
+    })
+}
+
 const TicketReportService = new GQLCustomSchema('TicketReportService', {
     types: [
         {
@@ -57,11 +66,15 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
         },
         {
             access: true,
-            type: 'enum TicketType { default paid emergency }',
+            type: `enum TicketType { ${TICKET_TYPES.join(' ')} }`,
         },
         {
             access: true,
-            type: 'input TicketReportAnalyticsInput { dateFrom: String!, dateTo: String!, groupBy: String!, userOrganizationId: String!, ticketType: TicketType! }',
+            type: `enum ChartViewMode { ${CHART_VIEW_MODES.join(' ')} }`,
+        },
+        {
+            access: true,
+            type: 'input TicketReportAnalyticsInput { dateFrom: String!, dateTo: String!, groupBy: String!, userOrganizationId: String!, ticketType: TicketType!, viewMode: ChartViewMode! }',
         },
         {
             access: true,
@@ -113,40 +126,47 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
             access: true,
             schema: 'ticketReportAnalyticsData(data: TicketReportAnalyticsInput!): TicketReportAnalyticsOutput',
             resolver: async (parent, args, context, info, extra) => {
-                const { dateFrom, dateTo, groupBy, userOrganizationId, ticketType } = args.data
+                const { dateFrom, dateTo, groupBy, userOrganizationId, ticketType, viewMode } = args.data
                 const statuses = await getOrganizationStatuses(context, userOrganizationId)
                 const statusesMap = Object.fromEntries(statuses.map(({ type, name }) => ([type, name])))
+                const userProperties = await getOrganizationProperties(context, userOrganizationId)
+                const userPropertiesMap = Object.fromEntries(userProperties.map(({ id, address }) => ([id, address])))
                 const daysCount = moment(dateTo).diff(moment(dateFrom), 'days')
                 const daysMap = Array.from({ length: daysCount }, (_, day) => moment(dateFrom).add(day, 'days'))
+                const labels = viewMode ===  'line' ? statusesMap : userPropertiesMap
                 const result = {}
-                for (const type of ticketStatusTypes) {
-                    result[type] = {}
-
-                    for (const day of daysMap) {
-                        const date = day.format('DD.MM.YYYY')
-                        const query = [
-                            { createdAt_gte: day.startOf('day').toISOString() }, { createdAt_lte: day.endOf('day').toISOString() },
-                            { status: { type } }, { organization: { id:userOrganizationId } },
-                        ]
-                        const count = await Ticket.count(context, { AND: query })
-                        result[type][date] = count
+                if (viewMode === 'line') {
+                    for (const type of ticketStatusTypes) {
+                        result[type] = {}
+                        for (const day of daysMap) {
+                            const date = day.format('DD.MM.YYYY')
+                            const query = [
+                                { createdAt_gte: day.startOf('day').toISOString() },
+                                { createdAt_lte: day.endOf('day').toISOString() },
+                                { status: { type } }, { organization: { id: userOrganizationId } },
+                                { isPaid: ticketType === 'paid', isEmergency: ticketType === 'emergency' },
+                            ]
+                            result[type][date] = await Ticket.count(context, { AND: query })
+                        }
+                    }
+                } else {
+                    for (const property of userProperties) {
+                        const { id } = property
+                        result[id] = {}
+                        for (const type of ticketStatusTypes) {
+                            const query = [
+                                { createdAt_gte: dateFrom },
+                                { createdAt_lte: dateTo },
+                                { status: { type } }, { organization: { id: userOrganizationId } },
+                                { isPaid: ticketType === 'paid', isEmergency: ticketType === 'emergency' },
+                                { property: { id } },
+                            ]
+                            result[id][type] = await Ticket.count(context, { AND: query })
+                        }
                     }
                 }
-                // for (const day of daysMap) {
-                //     const date = day.format('DD.MM.YYYY')
-                //     result[date] = {}
-                //
-                //     for (const type of ticketStatusTypes) {
-                //         const query = [
-                //             { createdAt_gte: day.startOf('day').toISOString() }, { createdAt_lte: day.endOf('day').toISOString() },
-                //             { status: { type } }, { organization: { id:userOrganizationId } },
-                //         ]
-                //         const count = await Ticket.count(context, { AND: query })
-                //         const name = statusesMap[type]
-                //         result[date][type] = { count, name }
-                //     }
-                // }
-                return { data: { result, labels: statusesMap, days: daysMap.map(e => e.format('DD.MM.YYYY')) } }
+                const axisLabels = viewMode === 'line' ? daysMap.map(e => e.format('DD.MM.YYYY')) : Object.values(userPropertiesMap)
+                return { data: { result, labels, axisLabels } }
             },
         },
     ],
