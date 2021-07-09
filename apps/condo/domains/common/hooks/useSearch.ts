@@ -11,6 +11,7 @@ export const useSearch = <F>(loading): [string, (search: string) => void] => {
     const [search, setSearch] = useState(searchValue)
 
     const searchChange = useCallback(debounce((e) => {
+        if ('offset' in router.query) router.query['offset'] = '0'
         const query = qs.stringify(
             { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, search: e })) },
             { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
