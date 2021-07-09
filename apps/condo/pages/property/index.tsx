@@ -121,6 +121,7 @@ const PropertyPageViewTable = (): React.FC => {
         const offset = filtersApplied ? 0 : current * pageSize - pageSize
         const sort = sorterToQuery(nextSorter)
         const filters = filtersToQuery(nextFilters)
+        setFiltersApplied(false)
         if (!loading) {
             fetchMore({
                 sortBy: sort,
