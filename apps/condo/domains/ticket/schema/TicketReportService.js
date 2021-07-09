@@ -1,7 +1,7 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const { Ticket, TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const moment = require('moment')
-const { checkOrganizationPermission, checkOrganizationEmployeePermission } = require('@condo/domains/organization/utils/accessSchema')
+const { checkUserBelongsToOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const access = require('@condo/domains/ticket/access/TicketReportService')
 const { TICKET_STATUS_TYPES: ticketStatusTypes } = require('@condo/domains/ticket/constants')
 
@@ -46,7 +46,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
             resolver: async (parent, args, context, info, extra) => {
                 const { periodType, offset = 0, userOrganizationId } = args.data
 
-                const hasAccess = await checkOrganizationEmployeePermission(context.authedItem.id, userOrganizationId, 'canManageTickets')
+                const hasAccess = await checkUserBelongsToOrganization(context.authedItem.id, userOrganizationId)
                 if (!hasAccess) {
                     throw new Error('[error] you do not have access to this organization')
                 }
