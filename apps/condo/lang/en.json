@@ -59,6 +59,7 @@
   "example.Phone": "+1 (300) 300 22 22",
   "ExportAsExcel": "Export to Excel",
   "field.Address": "Address",
+  "field.Address.notFound": "Address not found. Maybe this house is not added into CRM",
   "field.Assignee.requiredError": "Set Responsible",
   "field.Classifier.requiredError": "Select problem classifier",
   "field.ClientName.minLengthError": "Enter your full name",
