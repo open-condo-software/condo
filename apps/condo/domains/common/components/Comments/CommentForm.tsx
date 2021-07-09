@@ -48,7 +48,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                         <Input.TextArea
                             placeholder={PlaceholderMessage}
                             className="white"
-                            autoSize
+                            autoSize={{ minRows: 1, maxRows: 6 }}
                         />
                     </Form.Item>
                     <Button
