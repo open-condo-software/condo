@@ -135,34 +135,31 @@ export const TicketShareModal: React.FC<ITicketShareModalProps> = (props) => {
     const [loading, setLoading] = useState(false)
     const [visible, setVisible] = useState(false)
 
-    function handleSelect (e) {
-        setUsersIds(e)
+    function handleSelect (userIds) {
+        setUsersIds(userIds)
     }
 
     async function handleClick () {
         setLoading(true)
         const sender = getClientSideSenderInfo()
-
-        ticketShare({ variables: {
+        const { data, error } = await ticketShare({ variables: {
             data: {
                 sender,
                 users: usersIds,
                 ticketId: query.id,
             } },
         })
-            .then(
-                (e) => {
-                    setUsersIds([])
-                },
-                (e) => {
-                    console.error(e)
-                    notification.error({
-                        message: ServerErrorMessage,
-                        description: e.message,
-                    })
-                })
-            .finally(() => setLoading(false))
-
+        if (data && data.obj) {
+            setUsersIds([])
+        }
+        if (error) {
+            console.error(error)
+            notification.error({
+                message: ServerErrorMessage,
+                description: error.message,
+            })
+        }
+        setLoading(false)
     }
 
     function handleCancel () {
