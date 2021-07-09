@@ -1,14 +1,11 @@
 import { isEmpty } from 'lodash'
 import React from 'react'
+const { ESCAPE_REGEX } = require('../constants/regexps')
 
 interface IHighliterProps {
     text: string
     search: string
     renderPart: (part: string, index: number) => React.ReactElement
-}
-
-const escapeRegex = (text: string) => {
-    return text.replace(/[-[\]{}()*+?.,\\/^$|#\s]/g, '\\$&')
 }
 
 export const Highliter: React.FC<IHighliterProps> = (props) => {
@@ -18,7 +15,7 @@ export const Highliter: React.FC<IHighliterProps> = (props) => {
         return <>{ text }</>
     }
 
-    const searchRegexp = new RegExp(`(${escapeRegex(search)})`, 'ig')
+    const searchRegexp = new RegExp(`(${ESCAPE_REGEX(search)})`, 'ig')
     if (!text.match(searchRegexp)) {
         return <>{ text }</>
     }
