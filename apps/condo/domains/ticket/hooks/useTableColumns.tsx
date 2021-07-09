@@ -1,13 +1,11 @@
 import { identity } from 'lodash/util'
-import { Checkbox, DatePicker, Input, Space, Tag, Typography } from 'antd'
-import { Button } from '@condo/domains/common/components/Button'
+import { Checkbox, DatePicker, Space, Tag, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { format } from 'date-fns'
 import { get, isEmpty } from 'lodash'
 import { useIntl } from '@core/next/intl'
 import moment from 'moment'
 import React, { useMemo } from 'react'
-import { FilterFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
 import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
 import { LOCALES } from '@condo/domains/common/constants/locale'
@@ -15,36 +13,8 @@ import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketSta
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { TicketStatus } from '../utils/clientSchema'
 import { Highliter } from '@condo/domains/common/components/Highliter'
+import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
 
-const getFilterIcon = filtered => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
-
-interface IFilterContainerProps {
-    clearFilters: () => void
-    showClearButton?: boolean
-}
-
-const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
-    const intl = useIntl()
-
-    return (
-        <div style={{ padding: 16 }}>
-            <Space size={8} direction={'vertical'} align={'center'}>
-                {props.children}
-                {
-                    props.showClearButton && (
-                        <Button
-                            size={'small'}
-                            onClick={() => props.clearFilters()}
-                            type={'inlineLink'}
-                        >
-                            {intl.formatMessage({ id: 'filters.Reset' })}
-                        </Button>
-                    )
-                }
-            </Space>
-        </div>
-    )
-}
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
@@ -87,25 +57,6 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
         return text
     }
 
-    const getFilterDropdown = (columnName: string) => {
-        return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-            return (
-                <FilterContainer clearFilters={clearFilters}
-                    showClearButton={selectedKeys && selectedKeys.length > 0}>
-                    <Input
-                        placeholder={columnName}
-                        value={selectedKeys}
-                        onChange={e => {
-                            setSelectedKeys(e.target.value)
-                            setFiltersApplied(true)
-                            confirm({ closeDropdown: false })
-                        }}
-                    />
-                </FilterContainer>
-            )
-        }
-    }
-
     return useMemo(() => {
         return [
             {
@@ -117,7 +68,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 sorter: true,
                 width: '7%',
                 render,
-                filterDropdown: getFilterDropdown(NumberMessage),
+                filterDropdown: getTextFilterDropdown(NumberMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
             {
@@ -231,7 +182,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 key: 'details',
                 width: '18%',
                 render,
-                filterDropdown: getFilterDropdown(FindWordMessage),
+                filterDropdown: getTextFilterDropdown(FindWordMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
             {
@@ -266,7 +217,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                     }
                     return `${text} ${unitPrefix}`
                 },
-                filterDropdown: getFilterDropdown(AddressMessage),
+                filterDropdown: getTextFilterDropdown(AddressMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
             {
@@ -278,7 +229,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 key: 'clientName',
                 sorter: true,
                 width: '12%',
-                filterDropdown: getFilterDropdown(ClientNameMessage),
+                filterDropdown: getTextFilterDropdown(ClientNameMessage, setFiltersApplied),
                 render,
                 filterIcon: getFilterIcon,
             },
@@ -292,7 +243,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 sorter: true,
                 width: '16%',
                 render: (executor) => render(get(executor, ['name'])),
-                filterDropdown: getFilterDropdown(UserNameMessage),
+                filterDropdown: getTextFilterDropdown(UserNameMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
             {
@@ -305,7 +256,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 sorter: true,
                 width: '18%',
                 render: (assignee) => render(get(assignee, ['name'])),
-                filterDropdown: getFilterDropdown(UserNameMessage),
+                filterDropdown: getTextFilterDropdown(UserNameMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
         ]

@@ -1,4 +1,3 @@
-import { FilterFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
 import { FilterValue } from 'antd/es/table/interface'
 
@@ -8,37 +7,10 @@ import { useIntl } from '@core/next/intl'
 import { createSorterMap, IFilters } from '../utils/helpers'
 import get from 'lodash/get'
 
-import { Input, Space, Typography } from 'antd'
-import { Button } from '@condo/domains/common/components/Button'
+import { Typography } from 'antd'
 import { isEmpty } from 'lodash'
 import { Highliter } from '@condo/domains/common/components/Highliter'
-interface IFilterContainerProps {
-    clearFilters: () => void
-    showClearButton?: boolean
-}
-
-const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
-    const intl = useIntl()
-    const ResetFilter = intl.formatMessage({ id: 'filters.Reset' })
-    return (
-        <div style={{ padding: 16 }}>
-            <Space size={8} direction={'vertical'} align={'center'}>
-                {props.children}
-                {
-                    props.showClearButton && (
-                        <Button
-                            size={'small'}
-                            onClick={() => props.clearFilters()}
-                            type={'inlineLink'}
-                        >
-                            {ResetFilter}
-                        </Button>
-                    )
-                }
-            </Space>
-        </div>
-    )
-}
+import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
 
 interface ITableColumn {
     title: string,
@@ -53,7 +25,6 @@ interface ITableColumn {
     filterIcon?: unknown
 }
 
-const getFilterIcon = filtered => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
 export const useTableColumns = (sort: Array<string>, filters: IFilters,
@@ -64,23 +35,6 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
         const UnitsCountMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.UnitsCount' })
         const TasksInWorkMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.TasksInWorkCount' })
         const sorterMap = createSorterMap(sort)
-        const getFilterDropdown = (columnName: string) => {
-            return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                return (
-                    <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
-                        <Input
-                            placeholder={columnName}
-                            value={selectedKeys}
-                            onChange={e => {
-                                setSelectedKeys(e.target.value)
-                                setFiltersApplied(true)
-                                confirm({ closeDropdown: false })
-                            }}
-                        />
-                    </FilterContainer>
-                )
-            }
-        }
         return [
             {
                 title: AddressMessage,
@@ -108,7 +62,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                     }
                     return text
                 },
-                filterDropdown: getFilterDropdown(AddressMessage),
+                filterDropdown: getTextFilterDropdown(AddressMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
             {
