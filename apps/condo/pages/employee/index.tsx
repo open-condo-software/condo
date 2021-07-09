@@ -17,7 +17,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import { pickBy, get, debounce } from 'lodash'
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
@@ -59,8 +59,9 @@ const TicketsPage = () => {
     }, {
         fetchPolicy: 'network-only',
     })
+    const [filtersApplied, setFiltersApplied] = useState(false)
 
-    const tableColumns = useTableColumns(userOrganizationId, sortFromQuery, filtersFromQuery)
+    const tableColumns = useTableColumns(userOrganizationId, sortFromQuery, filtersFromQuery, setFiltersApplied)
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -74,9 +75,10 @@ const TicketsPage = () => {
         const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
 
         const { current, pageSize } = nextPagination
-        const offset = current * pageSize - pageSize
+        const offset = filtersApplied ? 0 : current * pageSize - pageSize
         const sort = sorterToQuery(nextSorter)
         const filters = filtersToQuery(nextFilters)
+        setFiltersApplied(false)
 
         if (!loading) {
             fetchMore({

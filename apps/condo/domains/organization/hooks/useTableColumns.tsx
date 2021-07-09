@@ -43,7 +43,8 @@ const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
-export const useTableColumns = (organizationId: string, sort: Array<string>, filters: IFilters) => {
+export const useTableColumns = (organizationId: string, sort: Array<string>, filters: IFilters,
+    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
@@ -53,6 +54,23 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
 
     const sorterMap = createSorterMap(sort)
     const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
+    const getFilterDropdown = (columnName: string) => {
+        return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+            return (
+                <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
+                    <Input
+                        placeholder={columnName}
+                        value={selectedKeys}
+                        onChange={e => {
+                            setSelectedKeys(e.target.value)
+                            setFiltersApplied(true)
+                            confirm({ closeDropdown: false })
+                        }}
+                    />
+                </FilterContainer>
+            )
+        }
+    }
     const columns = useMemo(() => {
         return [
             {
@@ -63,20 +81,7 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
                 key: 'name',
                 sorter: true,
                 width: '40%',
-                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                    return (
-                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
-                            <Input
-                                placeholder={NameMessage}
-                                value={selectedKeys}
-                                onChange={e => {
-                                    setSelectedKeys(e.target.value)
-                                    confirm({ closeDropdown: false })
-                                }}
-                            />
-                        </FilterContainer>
-                    )
-                },
+                filterDropdown: getFilterDropdown(NameMessage),
                 filterIcon: getFilterIcon,
             },
             {
@@ -88,20 +93,7 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
                 sorter: true,
                 width: '20%',
                 render: (position) => position ? position : '—',
-                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                    return (
-                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
-                            <Input
-                                placeholder={PositionMessage}
-                                value={selectedKeys}
-                                onChange={e => {
-                                    setSelectedKeys(e.target.value)
-                                    confirm({ closeDropdown: false })
-                                }}
-                            />
-                        </FilterContainer>
-                    )
-                },
+                filterDropdown: getFilterDropdown(PositionMessage),
                 filterIcon: getFilterIcon,
             },
             {
@@ -127,6 +119,7 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
                                 style={{ display: 'flex', flexDirection: 'column' }}
                                 value={selectedKeys}
                                 onChange={(e) => {
+                                    setFiltersApplied(true)
                                     setSelectedKeys(e)
                                     confirm({ closeDropdown: false })
                                 }}
@@ -144,20 +137,7 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
                 key: 'phone',
                 sorter: true,
                 width: '20%',
-                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                    return (
-                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
-                            <Input
-                                placeholder={PhoneMessage}
-                                value={selectedKeys}
-                                onChange={e => {
-                                    setSelectedKeys(e.target.value)
-                                    confirm({ closeDropdown: false })
-                                }}
-                            />
-                        </FilterContainer>
-                    )
-                },
+                filterDropdown: getFilterDropdown(PhoneMessage),
                 filterIcon: getFilterIcon,
             },
             {
@@ -167,20 +147,7 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
                 filteredValue: getFilteredValue(filters, 'email'),
                 key: 'email',
                 width: '20%',
-                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                    return (
-                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
-                            <Input
-                                placeholder={EmailMessage}
-                                value={selectedKeys}
-                                onChange={e => {
-                                    setSelectedKeys(e.target.value)
-                                    confirm({ closeDropdown: false })
-                                }}
-                            />
-                        </FilterContainer>
-                    )
-                },
+                filterDropdown: getFilterDropdown(EmailMessage),
                 filterIcon: getFilterIcon,
             },
         ]
