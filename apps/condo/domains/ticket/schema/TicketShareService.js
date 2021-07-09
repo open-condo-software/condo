@@ -3,6 +3,7 @@ const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/c
 const { SHARE_TICKET_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
+const access = require('@condo/domains/ticket/access/TicketReportService')
 
 const TicketShareService = new GQLCustomSchema('TicketShareService', {
     types: [
@@ -17,7 +18,7 @@ const TicketShareService = new GQLCustomSchema('TicketShareService', {
     ],
     mutations: [
         {
-            access: true,
+            access: access.canReadTicketReportWidgetData,
             schema: 'ticketShare(data: TicketShareInput!): TicketShareOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
