@@ -3,8 +3,7 @@
 import { Select } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useRef } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useAuth } from '@core/next/auth'
 import get from 'lodash/get'
@@ -54,9 +53,9 @@ const optionStyle: React.CSSProperties = {
 export const OrganizationSelect: React.FC = () => {
     const { user } = useAuth()
     const intl = useIntl()
-    const router = useRouter()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
+    const selectRef = useRef<HTMLSelectElement>(null)
     const { link, selectLink, isLoading: organizationLoading } = useOrganization()
     const { objs: userOrganizations, loading: organizationLinksLoading, fetchMore } = OrganizationEmployee.useObjects(
         { where: user ? { user: { id: user.id }, isRejected: false, isBlocked: false } : {} },
@@ -64,7 +63,6 @@ export const OrganizationSelect: React.FC = () => {
     )
     const chooseOrganizationByLinkId = React.useCallback((value) => {
         selectLink({ id: value })
-        router.push('/')
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     const { setVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
@@ -90,7 +88,15 @@ export const OrganizationSelect: React.FC = () => {
             return (<Select.Option style={optionStyle} key={value} value={value} title={label}>{label}</Select.Option>)
         })
     }, [userOrganizations])
-
+    // When user lost his cookies with chosen organization - he will see select opened
+    useEffect(() => {
+        if (!organizationLinksLoading && user && !link){
+            if (userOrganizations.length && selectRef.current) {
+                selectRef.current.focus()
+            }
+        }
+    }, [userOrganizations, organizationLinksLoading, user, link])
+    // User without invites and organizations will be forced to create one
     useEffect(() => {
         if (!organizationLinksLoading && user){
             if (!userOrganizations.length) {
@@ -111,8 +117,10 @@ export const OrganizationSelect: React.FC = () => {
             {!(organizationLoading || organizationLinksLoading) && (
                 <>
                     <Select
+                        ref={selectRef}
                         css={blackSelectCss}
                         size={'middle'}
+                        showAction={['focus', 'click' ]}
                         dropdownRender={menu => (
                             <div>
                                 {menu}
