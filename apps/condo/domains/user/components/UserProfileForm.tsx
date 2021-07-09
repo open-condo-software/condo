@@ -14,10 +14,10 @@ import { UserPasswordResetButton } from './UserPasswordResetButton'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
-        span: 11,
+        span: 9,
     },
     wrapperCol: {
-        span: 13,
+        span: 15,
     },
     style: {
         paddingBottom: '24px',
