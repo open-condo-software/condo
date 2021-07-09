@@ -41,31 +41,34 @@ const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
-function getFilterDropdown (message: string) {
-    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-        return (
-            <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
-                <Input
-                    placeholder={message}
-                    value={selectedKeys}
-                    onChange={e => {
-                        setSelectedKeys(e.target.value)
-                        confirm({ closeDropdown: false })
-                    }}
-                />
-            </FilterContainer>
-        )
-    }
-}
-
-export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
+export const useTableColumns = (sort: Array<string>, filters: IFilters,
+    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'field.FullName.short' })
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
 
+
     const sorterMap = createSorterMap(sort)
+
+    const getFilterDropdown = (columnName: string) => {
+        return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+            return (
+                <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
+                    <Input
+                        placeholder={columnName}
+                        value={selectedKeys}
+                        onChange={e => {
+                            setSelectedKeys(e.target.value)
+                            setFiltersApplied(true)
+                            confirm({ closeDropdown: false })
+                        }}
+                    />
+                </FilterContainer>
+            )
+        }
+    }
 
     return useMemo(() => {
         return [
