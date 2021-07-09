@@ -65,10 +65,6 @@ export const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
 }
 
 /**
- * @deprecated
- * THIS FUNCTION IS DEPRECATED. We want to to separate access rights errors from non-authorization errors!
- * Please use expectToThrowAccessDeniedErrorToObjects!
- *
  * Expects a GraphQLError of type 'AccessDeniedError', thrown by Keystone on access to a collection of schema objects.
  * Should be used to examine access to `getAll` GraphQL utility wrapper, that returns `objs`.
  * @example
