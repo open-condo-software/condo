@@ -56,13 +56,31 @@ interface ITableColumn {
 const getFilterIcon = filtered => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
-export const useTableColumns = (sort: Array<string>, filters: IFilters): Array<ITableColumn> => {
+export const useTableColumns = (sort: Array<string>, filters: IFilters,
+    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>): Array<ITableColumn> => {
     const intl = useIntl()
     const columns = useMemo(() => {
         const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Address' })
         const UnitsCountMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.UnitsCount' })
         const TasksInWorkMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.TasksInWorkCount' })
         const sorterMap = createSorterMap(sort)
+        const getFilterDropdown = (columnName: string) => {
+            return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                return (
+                    <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
+                        <Input
+                            placeholder={columnName}
+                            value={selectedKeys}
+                            onChange={e => {
+                                setSelectedKeys(e.target.value)
+                                setFiltersApplied(true)
+                                confirm({ closeDropdown: false })
+                            }}
+                        />
+                    </FilterContainer>
+                )
+            }
+        }
         return [
             {
                 title: AddressMessage,
@@ -90,20 +108,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters): Array<I
                     }
                     return text
                 },
-                filterDropdown: function AddressFilterDropDown ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) {
-                    return (
-                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
-                            <Input
-                                placeholder={AddressMessage}
-                                value={selectedKeys}
-                                onChange={e => {
-                                    setSelectedKeys(e.target.value)
-                                    confirm({ closeDropdown: false })
-                                }}
-                            />
-                        </FilterContainer>
-                    )
-                },
+                filterDropdown: getFilterDropdown(AddressMessage),
                 filterIcon: getFilterIcon,
             },
             {
