@@ -10,6 +10,7 @@ interface IHighliterProps {
 
 export const Highliter: React.FC<IHighliterProps> = (props) => {
     const { text, search, renderPart } = props
+    if (!text) return <></>
 
     if (isEmpty(search)) {
         return <>{ text }</>
