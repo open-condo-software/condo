@@ -46,11 +46,9 @@ const blackSelectCss = css`
 `
 // TODO(zuch): can't use emotion css here
 const optionStyle: React.CSSProperties = {
-    fontSize: '16px',
-    lineHeight: '24px',
+    fontSize: '14px',
+    lineHeight: '20px',
     backgroundColor: colors.white,
-    padding: '8px',
-    paddingLeft: '12px',
 }
 
 export const OrganizationSelect: React.FC = () => {
@@ -120,7 +118,7 @@ export const OrganizationSelect: React.FC = () => {
                                 {menu}
                                 <Button
                                     type={'inlineLink'}
-                                    style={{ marginLeft: '12px', paddingBottom: '8px', paddingTop: '8px' }}
+                                    style={{ marginLeft: '12px', padding: '8px 0', fontSize: '14px' }}
                                     onClick={() => showCreateOrganizationModal(true)}
                                 >{AddOrganizationTitle}</Button>
                             </div>
