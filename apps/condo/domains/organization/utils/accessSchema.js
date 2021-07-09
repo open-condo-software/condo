@@ -28,12 +28,11 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
     return employeeRole[permission] || false
 }
 
-async function checkOrganizationEmployeePermission (userId, organizationId) {
+async function checkUserBelongsToOrganization (userId, organizationId) {
     if (!userId || !organizationId) return false
     const employee = await getByCondition('OrganizationEmployee', {
         organization: { id: organizationId },
         user: { id: userId },
-        deletedAt: null,
     })
 
     if (!employee) {
@@ -49,5 +48,5 @@ async function checkOrganizationEmployeePermission (userId, organizationId) {
 
 module.exports = {
     checkOrganizationPermission,
-    checkOrganizationEmployeePermission,
+    checkUserBelongsToOrganization,
 }
