@@ -361,7 +361,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
             <Col flex={0}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
-                    <Input value={name} placeholder={NamePlaceholderLabel} onChange={e => setName(e.target.value)} style={INPUT_STYLE} />
+                    <Input allowClear={true} value={name} placeholder={NamePlaceholderLabel} onChange={e => setName(e.target.value)} style={INPUT_STYLE} />
                 </Space>
             </Col>
             <Col flex={0}>
@@ -486,7 +486,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
             <Col flex={0}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
-                    <Input value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
+                    <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
                 </Space>
             </Col>
             <Col flex={0}>
