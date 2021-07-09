@@ -66,6 +66,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
     const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
+    const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
 
     const { action: _action, initialValues, organization, afterActionCompleted, files } = props
     const validations = useTicketValidations()
@@ -175,6 +176,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                         setSelectedPropertyId(option.key)
                                                     }}
                                                     placeholder={AddressPlaceholder}
+                                                    notFoundContent={AddressNotFoundContent}
                                                 />
                                             </Form.Item>
                                         </Col>
