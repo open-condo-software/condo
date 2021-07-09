@@ -124,7 +124,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         name="name"
                                         label={NameMsg}
                                     >
-                                        <Input />
+                                        <Input allowClear={true}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={24} >
