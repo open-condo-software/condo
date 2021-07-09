@@ -48,18 +48,22 @@ const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
-export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
+export const useTableColumns = (sort: Array<string>, filters: IFilters,
+    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
     const intl = useIntl()
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
     const DateMessage = intl.formatMessage({ id: 'Date' })
     const StatusMessage =  intl.formatMessage({ id: 'Status' })
+    const ClientNameMessage = intl.formatMessage({ id: 'Client' })
     const DescriptionMessage = intl.formatMessage({ id: 'Description' })
     const FindWordMessage = intl.formatMessage({ id: 'filters.FindWord' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const UserNameMessage = intl.formatMessage({ id: 'filters.UserName' })
     const ShortFlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
+    const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
+    const ResponsibleMessage = intl.formatMessage({ id: 'field.Responsible' })
 
     const sorterMap = createSorterMap(sort)
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
@@ -83,6 +87,25 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
         return text
     }
 
+    const getFilterDropdown = (columnName: string) => {
+        return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+            return (
+                <FilterContainer clearFilters={clearFilters}
+                    showClearButton={selectedKeys && selectedKeys.length > 0}>
+                    <Input
+                        placeholder={columnName}
+                        value={selectedKeys}
+                        onChange={e => {
+                            setSelectedKeys(e.target.value)
+                            setFiltersApplied(true)
+                            confirm({ closeDropdown: false })
+                        }}
+                    />
+                </FilterContainer>
+            )
+        }
+    }
+
     return useMemo(() => {
         return [
             {
@@ -94,21 +117,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 sorter: true,
                 width: '7%',
                 render,
-                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                    return (
-                        <FilterContainer clearFilters={clearFilters}
-                            showClearButton={selectedKeys && selectedKeys.length > 0}>
-                            <Input
-                                placeholder={NumberMessage}
-                                value={selectedKeys}
-                                onChange={e => {
-                                    setSelectedKeys(e.target.value)
-                                    confirm({ closeDropdown: false })
-                                }}
-                            />
-                        </FilterContainer>
-                    )
-                },
+                filterDropdown: getFilterDropdown(NumberMessage),
                 filterIcon: getFilterIcon,
             },
             {
@@ -131,6 +140,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                         value: undefined,
                         onChange: e => {
                             setSelectedKeys(e.toISOString())
+                            setFiltersApplied(true)
                             confirm({ closeDropdown: false })
                         },
                         allowClear: false,
@@ -204,6 +214,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                                 value={selectedKeys}
                                 onChange={(e) => {
                                     setSelectedKeys(e)
+                                    setFiltersApplied(true)
                                     confirm({ closeDropdown: false })
                                 }}
                             />
@@ -220,21 +231,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 key: 'details',
                 width: '18%',
                 render,
-                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                    return (
-                        <FilterContainer clearFilters={clearFilters}
-                            showClearButton={selectedKeys && selectedKeys.length > 0}>
-                            <Input
-                                placeholder={FindWordMessage}
-                                value={selectedKeys}
-                                onChange={e => {
-                                    setSelectedKeys(e.target.value)
-                                    confirm({ closeDropdown: false })
-                                }}
-                            />
-                        </FilterContainer>
-                    )
-                },
+                filterDropdown: getFilterDropdown(FindWordMessage),
                 filterIcon: getFilterIcon,
             },
             {
@@ -269,25 +266,11 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                     }
                     return `${text} ${unitPrefix}`
                 },
-                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                    return (
-                        <FilterContainer clearFilters={clearFilters}
-                            showClearButton={selectedKeys && selectedKeys.length > 0}>
-                            <Input
-                                placeholder={AddressMessage}
-                                value={selectedKeys}
-                                onChange={e => {
-                                    setSelectedKeys(e.target.value)
-                                    confirm({ closeDropdown: false })
-                                }}
-                            />
-                        </FilterContainer>
-                    )
-                },
+                filterDropdown: getFilterDropdown(AddressMessage),
                 filterIcon: getFilterIcon,
             },
             {
-                title: intl.formatMessage({ id: 'Client' }),
+                title: ClientNameMessage,
                 ellipsis: true,
                 sortOrder: get(sorterMap, 'clientName'),
                 filteredValue: getFilteredValue(filters, 'clientName'),
@@ -295,26 +278,12 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 key: 'clientName',
                 sorter: true,
                 width: '12%',
-                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                    return (
-                        <FilterContainer clearFilters={clearFilters}
-                            showClearButton={selectedKeys && selectedKeys.length > 0}>
-                            <Input
-                                placeholder={UserNameMessage}
-                                value={selectedKeys}
-                                onChange={e => {
-                                    setSelectedKeys(e.target.value)
-                                    confirm({ closeDropdown: false })
-                                }}
-                            />
-                        </FilterContainer>
-                    )
-                },
+                filterDropdown: getFilterDropdown(ClientNameMessage),
                 render,
                 filterIcon: getFilterIcon,
             },
             {
-                title: intl.formatMessage({ id: 'field.Executor' }),
+                title: ExecutorMessage,
                 ellipsis: true,
                 sortOrder: get(sorterMap, 'executor'),
                 filteredValue: getFilteredValue(filters, 'executor'),
@@ -323,25 +292,11 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 sorter: true,
                 width: '16%',
                 render: (executor) => render(get(executor, ['name'])),
-                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                    return (
-                        <FilterContainer clearFilters={clearFilters}
-                            showClearButton={selectedKeys && selectedKeys.length > 0}>
-                            <Input
-                                placeholder={UserNameMessage}
-                                value={selectedKeys}
-                                onChange={e => {
-                                    setSelectedKeys(e.target.value)
-                                    confirm({ closeDropdown: false })
-                                }}
-                            />
-                        </FilterContainer>
-                    )
-                },
+                filterDropdown: getFilterDropdown(UserNameMessage),
                 filterIcon: getFilterIcon,
             },
             {
-                title: intl.formatMessage({ id: 'field.Responsible' }),
+                title: ResponsibleMessage,
                 ellipsis: true,
                 sortOrder: get(sorterMap, 'assignee'),
                 filteredValue: getFilteredValue(filters, 'assignee'),
@@ -350,21 +305,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters) => {
                 sorter: true,
                 width: '18%',
                 render: (assignee) => render(get(assignee, ['name'])),
-                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                    return (
-                        <FilterContainer clearFilters={clearFilters}
-                            showClearButton={selectedKeys && selectedKeys.length > 0}>
-                            <Input
-                                placeholder={UserNameMessage}
-                                value={selectedKeys}
-                                onChange={e => {
-                                    confirm({ closeDropdown: false })
-                                    setSelectedKeys(e.target.value)
-                                }}
-                            />
-                        </FilterContainer>
-                    )
-                },
+                filterDropdown: getFilterDropdown(UserNameMessage),
                 filterIcon: getFilterIcon,
             },
         ]
