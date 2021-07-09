@@ -28,9 +28,13 @@ interface ICommentFormProps {
     initialValue?: string
 }
 
+const MAX_COMMENT_LENGTH = 300
+
 const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldName }) => {
     const intl = useIntl()
-    const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
+    const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' }, {
+        maxLength: MAX_COMMENT_LENGTH,
+    })
     return (
         <FormWithAction
             initialValues={{
@@ -49,6 +53,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                             placeholder={PlaceholderMessage}
                             className="white"
                             autoSize={{ minRows: 1, maxRows: 6 }}
+                            maxLength={MAX_COMMENT_LENGTH}
                         />
                     </Form.Item>
                     <Button
