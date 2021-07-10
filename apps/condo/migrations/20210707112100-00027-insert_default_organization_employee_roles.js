@@ -1,6 +1,11 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+    -- it's required for gen_random_uuid() function!
+    CREATE EXTENSION if not exists pgcrypto;
+    END;
+
+    BEGIN;
     
     -- Dispatcher
     INSERT INTO "OrganizationEmployeeRole" (
