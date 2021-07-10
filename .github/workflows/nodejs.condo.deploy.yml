@@ -3,6 +3,8 @@
 
 name: DEPLOY CONDO
 
+concurrency: nodejs.condo.deploy.yml
+
 on:
   push:
     branches:
