@@ -198,7 +198,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
                     onMouseOut={() => setDateShowMode('created')}
                     onMouseOver={() => setDateShowMode('updated')}
                 >
-                    <Typography.Text>
+                    <Typography.Text title={MetaUpdatedText}>
                         {dateShowMode === 'created' ?  formatDate(intl, comment.createdAt) : formatDate(intl, comment.updatedAt)}
                     </Typography.Text>
                 </div>
