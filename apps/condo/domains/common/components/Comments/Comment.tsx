@@ -1,10 +1,11 @@
 import { Comment as AntComment, Popconfirm, Typography, Button } from 'antd'
 import { TComment } from './index'
 import { useIntl } from '@core/next/intl'
-import { formatDate } from '../../../ticket/utils/helpers'
+import { formatDate } from '@condo/domains/ticket/utils/helpers'
 import { CheckOutlined, CloseOutlined, DeleteFilled, EditFilled } from '@ant-design/icons'
 import React, { useState } from 'react'
 import { green, red, grey } from '@ant-design/colors'
+import { MAX_COMMENT_LENGTH } from './CommentForm'
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 
@@ -183,7 +184,11 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
                     editable={{
                         editing: mode === 'edit',
                         icon: <></>, // `null` does't removes icon
-                        autoSize: true,
+                        autoSize: {
+                            minRows: 1,
+                            maxRows: 6,
+                        },
+                        maxLength: MAX_COMMENT_LENGTH,
                         onChange: handleSave,
                     }}
                 >

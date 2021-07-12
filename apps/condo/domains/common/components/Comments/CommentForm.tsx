@@ -28,13 +28,38 @@ interface ICommentFormProps {
     initialValue?: string
 }
 
-const MAX_COMMENT_LENGTH = 300
+export const MAX_COMMENT_LENGTH = 300
 
 const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldName }) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' }, {
         maxLength: MAX_COMMENT_LENGTH,
     })
+
+    const handleKeyUp = (event, form) => {
+        if (event.keyCode === 13 && !event.shiftKey) {
+            form.submit()
+        }
+    }
+
+    const handleKeyDown = (event) => {
+        if (event.keyCode === 13) {
+            event.preventDefault()
+        }
+    }
+
+    const validations = {
+        comment: [
+            { required: true },
+            {
+                validator: (_, value) => {
+                    if (!value || value.trim().length === 0) return Promise.reject()
+                    return Promise.resolve()
+                },
+            },
+        ],
+    }
+
     return (
         <FormWithAction
             initialValues={{
@@ -43,17 +68,19 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
             action={action}
             resetOnComplete={true}
         >
-            {({ handleSave, isLoading }) => (
+            {({ handleSave, isLoading, form }) => (
                 <Holder>
                     <Form.Item
                         name={fieldName}
-                        rules={[{ required: true }]}
+                        rules={validations.comment}
                     >
                         <Input.TextArea
                             placeholder={PlaceholderMessage}
                             className="white"
                             autoSize={{ minRows: 1, maxRows: 6 }}
                             maxLength={MAX_COMMENT_LENGTH}
+                            onKeyDown={handleKeyDown}
+                            onKeyUp={(event) => {handleKeyUp(event, form)}}
                         />
                     </Form.Item>
                     <Button
