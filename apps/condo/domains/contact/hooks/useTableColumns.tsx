@@ -1,3 +1,5 @@
+import { isEmpty } from 'lodash'
+import { Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
@@ -5,8 +7,6 @@ import React, { useMemo } from 'react'
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { Highliter } from '@condo/domains/common/components/Highliter'
-import { isEmpty } from 'lodash'
-import { Typography } from 'antd'
 import { colors } from '@condo/domains/common/constants/style'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
