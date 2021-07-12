@@ -71,9 +71,6 @@ const CommentStyle = css`
 
           .ant-comment-content-author-time > div > span {
             color: ${grey[2]};
-            position: absolute;
-            transition: opacity 0.2s linear;
-            will-change: opacity;
           }
         }
         .ant-comment-actions {
@@ -206,23 +203,9 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
                     onMouseOut={() => setDateShowMode('created')}
                     onMouseOver={() => setDateShowMode('updated')}
                 >
-                    <span
-                        style={{
-                            opacity: dateShowMode === 'created' ? 1 : 0,
-                        }}
-
-                    >
-                        {formatDate(intl, comment.createdAt)}
-                    </span>
-                    <span
-                        style={{
-                            opacity: dateShowMode === 'updated' ? 1 : 0,
-                        }}
-                        title={MetaUpdatedText}
-
-                    >
-                        {formatDate(intl, comment.updatedAt)}
-                    </span>
+                    <Typography.Text>
+                        {dateShowMode === 'created' ?  formatDate(intl, comment.createdAt) : formatDate(intl, comment.updatedAt)}
+                    </Typography.Text>
                 </div>
             }
             actions={actions}
