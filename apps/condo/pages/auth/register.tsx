@@ -346,7 +346,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
         },
     }
 
-    const [isPhoneVisible, setisPhoneVisible] = useState(false)
+    const [isPhoneVisible, setIsPhoneVisible] = useState(false)
     const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'Hide' }) : intl.formatMessage({ id: 'Show' })
     const { token, phone, handleReCaptchaVerify } = useContext(RegisterContext)
     const [showPhone, setShowPhone] = useState(phone)
@@ -398,8 +398,15 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
         if (smsCode.toString().length < SMS_CODE_LENGTH) {
             return
         }
-        await confirmPhone()
-        onFinish()
+        if (smsCode.toString().length > SMS_CODE_LENGTH) {
+            return setPhoneValidateError(SMSCodeMismatchError)
+        }
+        try {
+            await confirmPhone()
+            onFinish()
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     return (
@@ -408,7 +415,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
                 <FormattedMessage
                     id='pages.auth.register.info.SmsCodeSent'
                     values={{
-                        phone: <span>{showPhone} <a style={LINK_STYLE} onClick={() => setisPhoneVisible(!isPhoneVisible)}>({PhoneToggleLabel})</a></span>,
+                        phone: <span>{showPhone} <a style={LINK_STYLE} onClick={() => setIsPhoneVisible(!isPhoneVisible)}>({PhoneToggleLabel})</a></span>,
                     }}
                 />
             </Typography.Paragraph>
