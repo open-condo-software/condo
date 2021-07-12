@@ -9,6 +9,7 @@ const { TICKET_STATUS_TYPES: ticketStatusTypes } = require('@condo/domains/ticke
 const PERIOD_TYPES = ['week', 'month', 'quarter']
 const TICKET_TYPES = ['default', 'paid', 'emergency']
 const CHART_VIEW_MODES = ['bar', 'line', 'pie']
+const DATE_FORMAT = 'DD.MM.YYYY'
 
 const countTicketsByStatuses = async (context, dateStart, dateEnd, organizationId) => {
     const answer = {}
@@ -74,7 +75,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
         },
         {
             access: true,
-            type: 'input TicketReportAnalyticsInput { dateFrom: String!, dateTo: String!, groupBy: String!, userOrganizationId: String!, ticketType: TicketType!, viewMode: ChartViewMode! }',
+            type: 'input TicketReportAnalyticsInput { dateFrom: String!, dateTo: String!, groupBy: String!, userOrganizationId: String!, ticketType: TicketType!, viewMode: ChartViewMode!, addressList: [ String! ] }',
         },
         {
             access: true,
@@ -126,25 +127,43 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
             access: true,
             schema: 'ticketReportAnalyticsData(data: TicketReportAnalyticsInput!): TicketReportAnalyticsOutput',
             resolver: async (parent, args, context, info, extra) => {
-                const { dateFrom, dateTo, groupBy, userOrganizationId, ticketType, viewMode } = args.data
+                const { dateFrom, dateTo, groupBy, userOrganizationId, ticketType, viewMode, addressList } = args.data
                 const statuses = await getOrganizationStatuses(context, userOrganizationId)
                 const statusesMap = Object.fromEntries(statuses.map(({ type, name }) => ([type, name])))
                 const userProperties = await getOrganizationProperties(context, userOrganizationId)
                 const userPropertiesMap = Object.fromEntries(userProperties.map(({ id, address }) => ([id, address])))
-                const daysCount = moment(dateTo).diff(moment(dateFrom), 'days')
+                const daysCount = moment(dateTo).diff(moment(dateFrom), 'days') + 1
                 const daysMap = Array.from({ length: daysCount }, (_, day) => moment(dateFrom).add(day, 'days'))
                 const labels = viewMode ===  'line' ? statusesMap : userPropertiesMap
 
                 const result = {}
-                const tableData = Array.from({ length: daysCount }, (_, day) => ({
-                    date: daysMap[day].format('DD.MM.YYYY'),
-                    address: 'Все адреса',
-                }))
+                // TODO: collect for addressList, now selecting all
+                const listViewDataMapper = (_, index) => {
+                    if (viewMode === 'line') {
+                        return {
+                            date: daysMap[index].format(DATE_FORMAT),
+                            address: null,
+                        }
+                    }
+                    if (viewMode === 'bar' && addressList.length) {
+                        return {
+                            address: userPropertiesMap[index],
+                        }
+                    }
+                    // Address filter is empty, return summary info
+                    return {
+                        address: null,
+                    }
+                }
+                const tableData = Array.from({
+                    length: viewMode === 'line' ? daysCount : (!addressList.length ? 1 : addressList.length),
+                }, listViewDataMapper)
+
                 if (viewMode === 'line') {
                     for (const type of ticketStatusTypes) {
                         result[type] = {}
                         for (const day of daysMap) {
-                            const date = day.format('DD.MM.YYYY')
+                            const date = day.format(DATE_FORMAT)
                             const query = [
                                 { createdAt_gte: day.startOf('day').toISOString() },
                                 { createdAt_lte: day.endOf('day').toISOString() },
@@ -159,6 +178,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                         }
                     }
                 } else {
+                    // TODO: apply user properties from filter
                     for (const property of userProperties) {
                         const { id } = property
                         result[id] = {}
@@ -170,12 +190,23 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                                 { isPaid: ticketType === 'paid', isEmergency: ticketType === 'emergency' },
                                 { property: { id } },
                             ]
-                            result[id][type] = await Ticket.count(context, { AND: query })
+                            const ticketCount = await Ticket.count(context, { AND: query })
+                            const status = statusesMap[type]
+                            result[id][type] = ticketCount
+                            // TODO: apply user properties from filter
+                            const tableDataStatusCount = tableData.find(tableObj => tableObj.address === null)
+                            if (tableDataStatusCount[status] === undefined) {
+                                tableDataStatusCount[status] = ticketCount
+                            } else {
+                                tableDataStatusCount[status] += ticketCount
+                            }
                         }
                     }
                 }
-                const axisLabels = viewMode === 'line' ? daysMap.map(e => e.format('DD.MM.YYYY')) : Object.values(userPropertiesMap)
-                return { data: { result, labels, axisLabels, tableData } }
+                const axisLabels = viewMode === 'line' ?
+                    daysMap.map(e => e.format(DATE_FORMAT)) :
+                    Object.values(statusesMap)
+                return { data: { result, labels, axisLabels, tableData, tableColumns: statusesMap } }
             },
         },
     ],

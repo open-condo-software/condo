@@ -1,53 +1,54 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { Col, Radio, Row, Space, Table, Typography, Tabs, Skeleton, Divider, Select, TableColumnsType } from 'antd'
-import { useRouter } from 'next/router'
+import {
+    Col,
+    Radio,
+    Row,
+    Space,
+    Table,
+    Typography,
+    Tabs,
+    Skeleton,
+    Divider,
+    Select,
+    TableColumnsType,
+    Tooltip,
+} from 'antd'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
-import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
-import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
-import debounce from 'lodash/debounce'
-import qs from 'qs'
-import pickBy from 'lodash/pickBy'
 import ReactECharts from 'echarts-for-react'
 import { colors } from '@condo/domains/common/constants/style'
 import { GET_TICKET_ANALYTICS_REPORT_DATA } from '@condo/domains/ticket/gql'
 import { useLazyQuery } from '@core/next/apollo'
 
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { getPageSizeFromQuery, queryToSorter, filtersToQuery, getSortStringFromQuery, sorterToQuery, getPageIndexFromQuery, IFilters } from '@condo/domains/ticket/utils/helpers'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { SortTicketsBy } from '../../schema'
 import moment from 'moment'
 import { BarChartIcon, LinearChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
-import { Loader } from '@condo/domains/common/components/Loader'
+import { Button } from '@condo/domains/common/components/Button'
+import { PlusCircleFilled } from '@ant-design/icons'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
 type viewModeTypes = 'bar' | 'line' | 'pie'
-interface ITicketAnalyticsPageChartViewProps {
+interface ITicketAnalyticsPageWidgetProps {
     data: null | any;
     viewMode: viewModeTypes;
     loading?: boolean;
-}
-interface ITicketAnalyticsPageListViewProps {
-    data: null | any;
-    loading?: boolean;
-    viewMode: viewModeTypes;
 }
 type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
 type ticketSelectTypes = 'default' | 'paid' | 'emergency'
-// TODO: grab selectedPeriod from filter component
-const SELECTED_PERIOD = [moment().subtract(25, 'days'), moment().add(1, 'day')]
+// TODO: get selectedPeriod from filter component
+const SELECTED_PERIOD = [moment().subtract(1, 'week'), moment()]
+// TODO: get addressList from filter component
+const ADDRESS_LIST = []
 const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5], colors.green[7], colors.sberGrey[7], colors.blue[4]]
 
-const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartViewProps> = ({ children, data, viewMode, loading = false }) => {
+const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageWidgetProps> = ({ children, data, viewMode, loading = false }) => {
     if (data === null) {
-        return <Loader />
+        return <Skeleton loading={loading} active paragraph={{ rows: 6 }} />
     }
     const series = []
     const isLineChart = viewMode === 'line'
@@ -76,7 +77,7 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartViewProps>
     const option = {
         color: COLOR_SET,
         tooltip: {
-            trigger: 'axis',
+            trigger: isLineChart ? 'axis' : 'item',
             axisPointer: {
                 type: 'line',
             },
@@ -85,7 +86,7 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartViewProps>
             data: legend,
             x: 'left',
             top: 10,
-            padding: 1,
+            padding: [5, 135, 0, 0],
             icon: 'circle',
             itemWidth: 7,
             itemHeight: 7,
@@ -110,30 +111,39 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartViewProps>
     </div>
 }
 
-const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageListViewProps> = ({ loading = false, data, viewMode }) => {
+const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = ({ loading = false, data, viewMode }) => {
     const intl = useIntl()
-    const tableTitle = intl.formatMessage({ id: 'Table' })
-    const dateTitle = intl.formatMessage({ id: 'Date' })
-    const addressTitle = intl.formatMessage({ id: 'field.Address' })
+    const TableTitle = intl.formatMessage({ id: 'Table' })
+    const DateTitle = intl.formatMessage({ id: 'Date' })
+    const AddressTitle = intl.formatMessage({ id: 'field.Address' })
+    const AllAddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses' })
     if (data === null) {
-        return <Loader size='large' />
+        return <Skeleton loading={loading} active paragraph={{ rows: 10 }} />
     }
-    const { labels, tableData } = data
+    const { tableColumns: fetchedTableColumns, tableData } = data
     const tableColumns = [
-        { title: dateTitle, dataIndex: 'date', key: 'date' },
-        { title: addressTitle, dataIndex: 'address', key: 'address' },
-        ...Object.entries(labels).map(([key, value]) => ({ title: value, dataIndex: value, key })),
+        { title: AddressTitle, dataIndex: 'address', key: 'address', sort: true },
+        ...Object.entries(fetchedTableColumns).map(([key, value]) => (
+            // @ts-ignore
+            { title: value, dataIndex: value, key, sorter: (a, b) => a[value] - b[value] }
+        )),
     ]
+    if (viewMode === 'line') {
+        // @ts-ignore
+        tableColumns.unshift({ title: DateTitle, dataIndex: 'date', key: 'date' })
+    }
 
     return (
         <>
-            <Typography.Title level={4} style={{ marginBottom: 20 }}>{tableTitle}</Typography.Title>
+            <Typography.Title level={4} style={{ marginBottom: 20 }}>{TableTitle}</Typography.Title>
             <Table
                 bordered
                 tableLayout={'fixed'}
                 scroll={{ scrollToFirstRowOnChange: false }}
                 loading={loading}
-                dataSource={tableData}
+                dataSource={tableData.map(({ address, ...rest }) => (
+                    { address: address === null ? AllAddressTitle : address, ...rest }
+                ))}
                 columns={tableColumns as TableColumnsType}
                 pagination={false}
             />
@@ -159,16 +169,18 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const [loading, setLoading] = useState<boolean>(false)
     const [ticketType, setTicketType] = useState<ticketSelectTypes>('default')
 
-    const pageTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' })
-    const viewModeTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ViewModeTitle' })
-    const statusFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Status' })
-    const propertyFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Property' })
-    const categoryFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })
-    const userFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.User' })
-    const responsibleFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Responsible' })
-    const ticketTypeDefault = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Default' })
-    const ticketTypePaid = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Paid' })
-    const ticketTypeEmergency = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency' })
+    const PageTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' })
+    const HeaderButtonTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.HeaderButtonTitle' })
+    const ViewModeTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ViewModeTitle' })
+    const StatusFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Status' })
+    const PropertyFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Property' })
+    const CategoryFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })
+    const UserFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.User' })
+    const ResponsibleFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Responsible' })
+    const TicketTypeDefault = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Default' })
+    const TicketTypePaid = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Paid' })
+    const TicketTypeEmergency = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency' })
+    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const selectedPeriod = SELECTED_PERIOD.map(e => e.format('DD.MM.YYYY')).join(' - ')
 
 
@@ -177,10 +189,9 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
             console.log(error)
             setLoading(false)
         },
-        fetchPolicy: 'network-only',
+        fetchPolicy: 'cache-and-network',
         onCompleted: response => {
             const { result: { data } } = response
-            console.log(data)
             setAnalyticsData(data)
             setLoading(false)
         },
@@ -196,17 +207,27 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                 userOrganizationId,
                 ticketType,
                 viewMode,
+                addressList: ADDRESS_LIST,
             } } } )
     }, [groupTicketsBy, userOrganizationId, ticketType, viewMode])
 
     return <>
         <Head>
-            <title>{pageTitle}</title>
+            <title>{PageTitle}</title>
         </Head>
         <PageWrapper>
-            <PageHeader title={<Typography.Title>{pageTitle}</Typography.Title>} />
             <OrganizationRequired>
                 <PageContent>
+                    <Row gutter={[0, 40]}>
+                        <Col span={18}>
+                            <PageHeader style={{ width: '100%' }} title={<Typography.Title>{PageTitle}</Typography.Title>} />
+                        </Col>
+                        <Col span={6} style={{ textAlign: 'right', marginTop: 4 }}>
+                            <Tooltip title={NotImplementedYetMessage}>
+                                <Button icon={<PlusCircleFilled />} type='sberPrimary' secondary>{HeaderButtonTitle}</Button>
+                            </Tooltip>
+                        </Col>
+                    </Row>
                     <Row gutter={[0, 40]} align={'top'} justify={'space-between'}>
                         <Col span={24}>
                             <Tabs
@@ -214,11 +235,11 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                                 activeKey={groupTicketsBy}
                                 onChange={(key) => setGroupTicketsBy(key as groupTicketsByTypes)}
                             >
-                                <Tabs.TabPane key='status' tab={statusFilterLabel} />
-                                <Tabs.TabPane disabled key='property' tab={propertyFilterLabel} />
-                                <Tabs.TabPane disabled key='category' tab={categoryFilterLabel} />
-                                <Tabs.TabPane disabled key='user' tab={userFilterLabel} />
-                                <Tabs.TabPane disabled key='responsible' tab={responsibleFilterLabel} />
+                                <Tabs.TabPane key='status' tab={StatusFilterLabel} />
+                                <Tabs.TabPane disabled key='property' tab={PropertyFilterLabel} />
+                                <Tabs.TabPane disabled key='category' tab={CategoryFilterLabel} />
+                                <Tabs.TabPane disabled key='user' tab={UserFilterLabel} />
+                                <Tabs.TabPane disabled key='responsible' tab={ResponsibleFilterLabel} />
                             </Tabs>
                         </Col>
                         <Col span={24}>
@@ -226,7 +247,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                             <Divider />
                         </Col>
                         <Col span={14}>
-                            <Typography.Title level={3}>{viewModeTitle} {selectedPeriod}</Typography.Title>
+                            <Typography.Title level={3}>{ViewModeTitle} {selectedPeriod}</Typography.Title>
                         </Col>
                         <Col span={4} style={{ textAlign: 'right', flexWrap: 'nowrap' }}>
                             <Radio.Group
@@ -250,9 +271,9 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                                     onChange={(e) => setTicketType(e)}
                                     style={{ position: 'absolute', top: 0, right: 0, minWidth: '132px' }}
                                 >
-                                    <Select.Option value='default'>{ticketTypeDefault}</Select.Option>
-                                    <Select.Option value='paid'>{ticketTypePaid}</Select.Option>
-                                    <Select.Option value='emergency'>{ticketTypeEmergency}</Select.Option>
+                                    <Select.Option value='default'>{TicketTypeDefault}</Select.Option>
+                                    <Select.Option value='paid'>{TicketTypePaid}</Select.Option>
+                                    <Select.Option value='emergency'>{TicketTypeEmergency}</Select.Option>
                                 </Select>
                             </TicketAnalyticsPageChartView>
                         </Col>
@@ -268,16 +289,17 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
 
 const HeaderAction = () => {
     const intl = useIntl()
+    const TicketAnalytics = intl.formatMessage({ id: 'menu.TicketAnalytics' })
 
     return (
         <Space>
-            <Typography.Text style={{ fontSize: '12px' }}>
-                {intl.formatMessage({ id: 'menu.TicketAnalytics' })}
-            </Typography.Text>
+            <Typography.Text style={{ fontSize: '12px' }}>{TicketAnalytics}</Typography.Text>
         </Space>
     )
 }
 
 TicketAnalyticsPage.headerAction = <HeaderAction />
+TicketAnalyticsPage.whyDidYouRender = false
+
 
 export default TicketAnalyticsPage
