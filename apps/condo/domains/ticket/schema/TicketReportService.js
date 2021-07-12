@@ -134,7 +134,12 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                 const daysCount = moment(dateTo).diff(moment(dateFrom), 'days')
                 const daysMap = Array.from({ length: daysCount }, (_, day) => moment(dateFrom).add(day, 'days'))
                 const labels = viewMode ===  'line' ? statusesMap : userPropertiesMap
+
                 const result = {}
+                const tableData = Array.from({ length: daysCount }, (_, day) => ({
+                    date: daysMap[day].format('DD.MM.YYYY'),
+                    address: 'Все адреса',
+                }))
                 if (viewMode === 'line') {
                     for (const type of ticketStatusTypes) {
                         result[type] = {}
@@ -146,7 +151,11 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                                 { status: { type } }, { organization: { id: userOrganizationId } },
                                 { isPaid: ticketType === 'paid', isEmergency: ticketType === 'emergency' },
                             ]
-                            result[type][date] = await Ticket.count(context, { AND: query })
+
+                            const ticketCount = await Ticket.count(context, { AND: query })
+                            const status = statusesMap[type]
+                            result[type][date] = ticketCount
+                            tableData.find((tableObj) => tableObj.date === date)[status] = ticketCount
                         }
                     }
                 } else {
@@ -166,7 +175,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                     }
                 }
                 const axisLabels = viewMode === 'line' ? daysMap.map(e => e.format('DD.MM.YYYY')) : Object.values(userPropertiesMap)
-                return { data: { result, labels, axisLabels } }
+                return { data: { result, labels, axisLabels, tableData } }
             },
         },
     ],
