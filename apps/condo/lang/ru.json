@@ -44,6 +44,7 @@
   "Edited": "Отредактировано",
   "Email": "Email",
   "Emergency": "Аварийная",
+  "PropertyNotFound": "Объект не указан",
   "EnterPhoneNumber": "Введите номер телефона",
   "EnterVerificationCode": "Введите код подтверждения",
   "errors.fileUploadError": "При загрузке файла произошла ошибка, попробуйте повторить попытку",

@@ -44,6 +44,7 @@
   "Edited": "Edited",
   "Email": "Email",
   "Emergency": "Emergency",
+  "PropertyNotFound": "Unknown property",
   "EnterPhoneNumber": "Enter phone number",
   "EnterVerificationCode": "Enter verification code",
   "errors.fileUploadError": "An error occurred while uploading the file, please try again",

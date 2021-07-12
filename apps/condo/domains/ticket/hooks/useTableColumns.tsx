@@ -34,6 +34,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
     const ShortFlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const ResponsibleMessage = intl.formatMessage({ id: 'field.Responsible' })
+    const NoPropertyMessage = intl.formatMessage({ id: 'PropertyNotFound' })
 
     const sorterMap = createSorterMap(sort)
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
@@ -196,7 +197,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 render: (record) => {
                     const unitName = get(record, 'unitName')
                     const property = get(record, 'property')
-                    const text = get(property, 'address')
+                    const text = get(property, 'address', NoPropertyMessage) 
                     const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
 
                     if (!isEmpty(search)) {
