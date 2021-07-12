@@ -1,0 +1,3 @@
+[submodule "apps/asterix_bot"]
+	path = apps/asterix_bot
+	url = git@github.com:open-condo-software/asterix_bot.git
