@@ -3,7 +3,7 @@ import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { Col, Radio, Row, Space, Table, Typography, Tabs, Skeleton, Divider, Select } from 'antd'
+import { Col, Radio, Row, Space, Table, Typography, Tabs, Skeleton, Divider, Select, TableColumnsType } from 'antd'
 import { useRouter } from 'next/router'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
@@ -23,6 +23,7 @@ import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { SortTicketsBy } from '../../schema'
 import moment from 'moment'
 import { BarChartIcon, LinearChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
+import { Loader } from '@condo/domains/common/components/Loader'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
@@ -33,15 +34,20 @@ interface ITicketAnalyticsPageChartViewProps {
     viewMode: viewModeTypes;
     loading?: boolean;
 }
+interface ITicketAnalyticsPageListViewProps {
+    data: null | any;
+    loading?: boolean;
+    viewMode: viewModeTypes;
+}
 type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
 type ticketSelectTypes = 'default' | 'paid' | 'emergency'
 // TODO: grab selectedPeriod from filter component
-const SELECTED_PERIOD = [moment().subtract(25, 'days'), moment()]
+const SELECTED_PERIOD = [moment().subtract(25, 'days'), moment().add(1, 'day')]
 const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5], colors.green[7], colors.sberGrey[7], colors.blue[4]]
 
 const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartViewProps> = ({ children, data, viewMode, loading = false }) => {
     if (data === null) {
-        return null
+        return <Loader />
     }
     const series = []
     const isLineChart = viewMode === 'line'
@@ -104,107 +110,33 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartViewProps>
     </div>
 }
 
-const TicketAnalyticsPageListView: React.FC = () => {
+const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageListViewProps> = ({ loading = false, data, viewMode }) => {
     const intl = useIntl()
-    const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
-    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
-
-    const router = useRouter()
-    const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
-    const offsetFromQuery = getPageIndexFromQuery(router.query)
-    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-    const pagesizeFromQuey: number = getPageSizeFromQuery(router.query)
-
-    const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
-
-    const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC'
-    const where = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
-
-    const {
-        fetchMore,
-        loading,
-        count: total,
-        objs: tickets,
-    } = Ticket.useObjects({
-        sortBy: sortBy as SortTicketsBy[],
-        where,
-        skip: (offsetFromQuery * pagesizeFromQuey) - pagesizeFromQuey,
-        first: pagesizeFromQuey,
-    }, {
-        fetchPolicy: 'network-only',
-    })
-
-    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery)
-
-    const handleRowAction = useCallback((record) => {
-        return {
-            onClick: () => {
-                router.push(`/ticket/${record.id}/`)
-            },
-        }
-    }, [])
-
-    const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
-        const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
-        const { current, pageSize } = nextPagination
-        const offset = current * pageSize - pageSize
-        const sort = sorterToQuery(nextSorter)
-        const filters = filtersToQuery(nextFilters)
-        if (!loading) {
-            fetchMore({
-                // @ts-ignore
-                sortBy: sort,
-                where: filters,
-                skip: offset,
-                first: current * pageSize,
-            }).then(() => {
-                const query = qs.stringify(
-                    {
-                        ...router.query,
-                        sort,
-                        offset,
-                        filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })),
-                    },
-                    { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-                )
-                router.push(router.route + query)
-            })
-        }
-    }, 400), [loading])
-
+    const tableTitle = intl.formatMessage({ id: 'Table' })
+    const dateTitle = intl.formatMessage({ id: 'Date' })
+    const addressTitle = intl.formatMessage({ id: 'field.Address' })
+    if (data === null) {
+        return <Loader size='large' />
+    }
+    const { labels, tableData } = data
+    const tableColumns = [
+        { title: dateTitle, dataIndex: 'date', key: 'date' },
+        { title: addressTitle, dataIndex: 'address', key: 'address' },
+        ...Object.entries(labels).map(([key, value]) => ({ title: value, dataIndex: value, key })),
+    ]
 
     return (
         <>
-            {
-                (!tickets.length && !filtersFromQuery) ?
-                    <EmptyListView
-                        label={EmptyListLabel}
-                        message={EmptyListMessage}
-                        createRoute='/ticket/create'
-                        createLabel={CreateTicket} /> :
-                    <Table
-                        bordered
-                        tableLayout={'fixed'}
-                        scroll={{
-                            scrollToFirstRowOnChange: false,
-                        }}
-                        loading={loading}
-                        dataSource={tickets}
-                        columns={tableColumns}
-                        onRow={handleRowAction}
-                        onChange={handleTableChange}
-                        rowKey={record => record.id}
-                        pagination={{
-                            showSizeChanger: false,
-                            total,
-                            current: offsetFromQuery,
-                            pageSize: pagesizeFromQuey,
-                            position: ['bottomLeft'],
-                        }}
-                    />
-            }
+            <Typography.Title level={4} style={{ marginBottom: 20 }}>{tableTitle}</Typography.Title>
+            <Table
+                bordered
+                tableLayout={'fixed'}
+                scroll={{ scrollToFirstRowOnChange: false }}
+                loading={loading}
+                dataSource={tableData}
+                columns={tableColumns as TableColumnsType}
+                pagination={false}
+            />
         </>
     )
 }
@@ -324,9 +256,9 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                                 </Select>
                             </TicketAnalyticsPageChartView>
                         </Col>
-                        {/*<Col span={24}>*/}
-                        {/*    <TicketAnalyticsPageListView />*/}
-                        {/*</Col>*/}
+                        <Col span={24}>
+                            <TicketAnalyticsPageListView data={analyticsData} loading={loading} viewMode={viewMode} />
+                        </Col>
                     </Row>
                 </PageContent>
             </OrganizationRequired>
