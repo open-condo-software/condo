@@ -12,7 +12,12 @@ NODE_ENV=development
 DISABLE_LOGGING=true
 COOKIE_SECRET=random
 SERVER_URL=http://localhost:3000
+
 TESTS_FAKE_CLIENT_MODE=true
+TESTS_FAKE_WORKER_MODE=true
+TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS=true
+NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
+DEBUG=knex:query,knex:tx
 
 # production docker deploy envs!
 DOCKER_FILE_INSTALL_COMMAND="python3 -m pip install 'psycopg2-binary>=2.8.5' && python3 -m pip install 'Django>=3.0.6'"
