@@ -1,8 +1,9 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
+const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 import { Col, Row, Modal, Collapse, notification } from 'antd'
 import React, { useState } from 'react'
-import { ShareAltOutlined, RightOutlined } from '@ant-design/icons'
+import { ShareAltOutlined, RightOutlined, CloseCircleFilled } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
 import { green } from '@ant-design/colors'
 import Link from 'next/link'
@@ -10,7 +11,7 @@ import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
 import { TICKET_SHARE_MUTATION } from '@condo/domains/ticket/gql'
 import { useOrganization } from '@core/next/organization'
-import { searchEmployee } from '@condo/domains/ticket/utils/clientSchema/search'
+import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import styled from '@emotion/styled'
 import { colors } from '@condo/domains/common/constants/style'
@@ -108,6 +109,56 @@ const ShareButton = styled.span`
   }
 `
 
+const declOfNum = (number, words) => words[(number % 100 > 4 && number % 100 < 20) ? 2 : [2, 0, 1, 1, 1, 2][(number % 10 < 5) ? Math.abs(number) % 10 : 5]]
+
+const Warning = (props) => {
+    const intl = useIntl()
+    const EmployeesMessage = intl.formatMessage({ id: 'menu.Employees' })
+    const ShareWarningEmailMessage = intl.formatMessage({ id: 'ticket.shareWarningEmail' }, {
+        link: <Link href='/employee'>{EmployeesMessage}</Link>,
+        employees: `${props.children[0]} ${props.children[1] ? (`\n${props.children[1]}`) : ''}`,
+    })
+    const length = props.children.length - 2
+    const WarningContainer = styled.div`
+        background: #FFF1F0;
+        border-radius: 2px;
+        padding: 9px 16px 11px 42px;
+        position: relative;
+        margin-top: 8px;
+        white-space: pre-wrap;
+        font-size: 14px;
+        line-height: 22px;
+
+        & a {
+            color: ${green[6]};
+            &:hover,
+            &:focus,
+            &:active {
+                color: ${green[5]};
+            }
+        }
+    `
+    return (
+        <WarningContainer>
+            <CloseCircleFilled css={css`
+                border-radius: 7px;
+                color: #F5222D;
+                background: #FFF;
+                position: absolute;
+                left: 17px;
+                top: 14px;
+                height: 14px;
+                width: 14px;
+            `} />
+
+            {ShareWarningEmailMessage}
+            {length > 0 && (intl.locale === RU_LOCALE
+                ? `… и еще ${length} ${length >= 1 ? declOfNum(length, ['сотрудник', 'сотрудника', 'сотрудников']) : ''}`
+                : `… and more ${length} employee${length > 1 ? 's' : ''}`)}
+        </WarningContainer>
+    )
+}
+
 interface ITicketShareModalProps {
     description: string,
 }
@@ -121,7 +172,13 @@ export const TicketShareModal: React.FC<ITicketShareModalProps> = (props) => {
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const WhatsappMessage = intl.formatMessage({ id: 'WhatsApp' })
     const TelegramMessage = intl.formatMessage({ id: 'Telegram' })
+    const ShareHeaderMessage = intl.formatMessage({ id: 'ticket.shareHeader' })
     const ShareMessage = intl.formatMessage({ id: 'Share' })
+
+    const OKMessage = intl.formatMessage({ id: 'OK' })
+    const ShareSentMessage = intl.formatMessage({ id: 'ticket.shareSent' })
+    const ShareSentToEmailMessage = intl.formatMessage({ id: 'ticket.shareSentToEmail' })
+
     const { query } = useRouter()
     const { organization } = useOrganization()
     const [ticketShare] = useMutation(TICKET_SHARE_MUTATION)
@@ -131,12 +188,15 @@ export const TicketShareModal: React.FC<ITicketShareModalProps> = (props) => {
         href = window.location.href
     }
 
-    const [usersIds, setUsersIds] = useState([])
+    const [value, setValue] = useState([])
     const [loading, setLoading] = useState(false)
-    const [visible, setVisible] = useState(false)
+    const [shareVisible, setShareVisible] = useState(false)
+    const [okVisible, setOkVisible] = useState(false)
+    const [usersWoEmail, setUsersWoEmail] = useState([])
 
-    function handleSelect (userIds) {
-        setUsersIds(userIds)
+    function handleSelect (value) {
+        setUsersWoEmail(value.map(JSON.parse).filter(item => !item.value.hasEmail).map(item => item.text))
+        setValue(value)
     }
 
     async function handleClick () {
@@ -145,12 +205,17 @@ export const TicketShareModal: React.FC<ITicketShareModalProps> = (props) => {
         const { data, error } = await ticketShare({ variables: {
             data: {
                 sender,
-                users: usersIds,
+                users: value
+                    .map(item=>JSON.parse(item))
+                    .filter(item=> item.value.hasEmail)
+                    .map(item=>item.value.id),
                 ticketId: query.id,
             } },
         })
         if (data && data.obj) {
-            setUsersIds([])
+            setValue([])
+            setShareVisible(false)
+            setOkVisible(true)
         }
         if (error) {
             console.error(error)
@@ -163,11 +228,15 @@ export const TicketShareModal: React.FC<ITicketShareModalProps> = (props) => {
     }
 
     function handleCancel () {
-        setVisible(false)
+        setShareVisible(false)
     }
 
     function handleShow () {
-        setVisible(true)
+        setShareVisible(true)
+    }
+
+    function handleClickSecond () {
+        setOkVisible(false)
     }
 
     return (
@@ -181,12 +250,28 @@ export const TicketShareModal: React.FC<ITicketShareModalProps> = (props) => {
                 {ShareMessage}
             </Button>
             <Modal
-                visible={visible}
+                visible={okVisible}
+                footer={<Button
+                    type='sberPrimary'
+                    size='large'
+                    onClick={handleClickSecond}
+                >
+                    {OKMessage}
+                </Button>}
+                onCancel={handleCancel}
+                title={
+                    <ModalHeader>{ShareSentMessage}</ModalHeader>
+                }
+            >
+                {ShareSentToEmailMessage}
+            </Modal>
+            <Modal
+                visible={shareVisible}
                 footer={null}
                 onCancel={handleCancel}
                 title={
                     <ModalHeader>
-                        {ShareMessage}
+                        {ShareHeaderMessage}
                     </ModalHeader>
                 }
             >
@@ -215,15 +300,16 @@ export const TicketShareModal: React.FC<ITicketShareModalProps> = (props) => {
                         <Collapse expandIconPosition='right' css={collapse}>
                             <Collapse.Panel key='1' header={ToEmployeesEmailMessage}>
                                 <GraphQlSearchInput
-                                    search={searchEmployee(organization.id)}
+                                    search={getEmployeeWithEmail(organization.id)}
                                     showArrow={false}
                                     mode='multiple'
                                     css={search}
                                     onChange={handleSelect}
-                                    value={usersIds}
+                                    value={value}
                                     placeholder={EmployeesNameMessage}
                                 />
-                                {usersIds.length ? <Button
+                                {usersWoEmail.length ? <Warning>{usersWoEmail}</Warning> : null}
+                                {value.length ? <Button
                                     type='sberPrimary'
                                     size='large'
                                     onClick={handleClick}
