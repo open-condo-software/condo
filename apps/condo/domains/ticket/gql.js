@@ -153,7 +153,7 @@ const GET_ALL_TICKET_FOR_XLS_EXPORT = gql`
             createdAt
             clientName
         }
-  }
+    }
 `
 
 const GET_TICKET_WIDGET_REPORT_DATA = gql`
