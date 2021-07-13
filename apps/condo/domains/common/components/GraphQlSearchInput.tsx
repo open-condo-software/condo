@@ -35,9 +35,10 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         if (formatLabel) {
             optionLabel = formatLabel(option)
         }
+        const value = ['String', 'Number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
 
         return (
-            <Select.Option key={option.key || option.value} value={option.value} title={option.text}>
+            <Select.Option key={option.key || value } value={value} title={option.text}>
                 {optionLabel}
             </Select.Option>
         )

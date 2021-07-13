@@ -3,7 +3,8 @@ const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/c
 const { SHARE_TICKET_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
-const access = require('@condo/domains/ticket/access/TicketReportService')
+const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const access = require('@condo/domains/ticket/access/Ticket')
 
 const TicketShareService = new GQLCustomSchema('TicketShareService', {
     types: [
@@ -18,13 +19,17 @@ const TicketShareService = new GQLCustomSchema('TicketShareService', {
     ],
     mutations: [
         {
-            access: access.canReadTicketReportWidgetData,
+            access: access.canReadTickets,
             schema: 'ticketShare(data: TicketShareInput!): TicketShareOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { users, ticketId, sender } = data
                 const [ticket] = await Ticket.getAll(context, { id: ticketId })
 
+                const hasAccess = await checkOrganizationPermission(context.authedItem.id, ticket.organization.id, 'canManageTickets')
+                if (!hasAccess) {
+                    throw new Error('[error] you do not have access to this organization')
+                }
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
 
                 await Promise.all(users.map( id => sendMessage(context, {
