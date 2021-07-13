@@ -19,12 +19,23 @@ const {{ name }} = new GQLCustomSchema('{{ name }}', {
             type: 'type {{ name.replace("Service", "") }}Output { id }',
         },
     ],
+    queries: [
+        {
+            access: access.canExecute{{ name }},
+            schema: 'execute{{ name.replace("Service", "") }} (data: {{ name.replace("Service", "") }}Input!): {{ name.replace("Service", "") }}Output',
+            resolver: async (parent, args, context, info, extra = {}) => {
+                const {data} = args
+                // TODO(codegen): write logic here
+            }
+        },
+    ],
     mutations: [
         {
             access: access.can{{ name.replace('Service', '') }},
             schema: '{{ convertFirstLetterToLower(name.replace("Service", "")) }}(data: {{ name.replace("Service", "") }}Input!): {{ name.replace("Service", "") }}Output',
             resolver: async (parent, args, context, info, extra = {}) => {
                 // TODO(codegen): write {{ name }} logic!
+                const {data} = args
                 return {
                     id: null,
                 }

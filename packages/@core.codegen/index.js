@@ -190,7 +190,7 @@ async function generate (templateDirectory, targetDirectory, ctx) {
     await renderTemplates(templateDirectory, tmpDirectory, ctx)
     await renaming(templateDirectory, tmpDirectory, ctx)
 
-    const isPatchFile = (name) => !name.endsWith('.patch') && !name.endsWith('.default')
+    const isPatchFile = (name) => !name.endsWith('.patch') && !name.endsWith('.default') && !name.includes('.example.')
     await copy(tmpDirectory, targetDirectory, { filter: isPatchFile })
     await patching(tmpDirectory, targetDirectory, ctx)
     await rmdir(tmpDirectory, { recursive: true })
