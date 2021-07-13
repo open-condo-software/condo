@@ -424,5 +424,8 @@
   "Comments.actions.delete.confirm.okText": "Да",
   "Comments.actions.delete.confirm.cancelText": "Ой, нет",
   "Comments.deleted": "Комментарий был удалён",
-  "Comments.meta.updated": "Обновлено"
+  "Comments.meta.updated": "Обновлено",
+  "Contact.NotFound.Title": "Контакт не найден",
+  "Contact.NotFound.Message": "Контакта с данным ID не существует",
+  "Contact": "Житель"
 }

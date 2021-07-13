@@ -28,17 +28,6 @@ import { SortContactsBy } from '../../schema'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 
-// TODO (SavelevMatthew): Remove this when Contact page will be done
-const ToolTipRow: React.FC = (props) => {
-    const intl = useIntl()
-    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
-    return (
-        <Tooltip title={NotImplementedYetMessage}>
-            <tr {...props} />
-        </Tooltip>
-    )
-}
-
 const ContactPage = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.contact.PageTitle' })
@@ -75,12 +64,11 @@ const ContactPage = () => {
     const [filtersApplied, setFiltersApplied] = useState(false)
     const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
 
-    // TODO (SavelevMatthew): uncomment this, when Contact page will be done
     const handleRowAction = useCallback((record) => {
         return {
-            // onClick: () => {
-            //     router.push(`/contact/${record.id}/`)
-            // },
+            onClick: () => {
+                router.push(`/contact/${record.id}/`)
+            },
         }
     }, [])
 
@@ -181,11 +169,6 @@ const ContactPage = () => {
                                             rowKey={record =>  record.id}
                                             onRow={handleRowAction}
                                             onChange={handleTableChange}
-                                            components={{
-                                                body: {
-                                                    row: ToolTipRow,
-                                                },
-                                            }}
                                             pagination={{
                                                 total,
                                                 current: offsetFromQuery,
