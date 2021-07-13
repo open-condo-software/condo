@@ -11,15 +11,13 @@ const access = require('@condo/domains/property/access/PropertyResident')
 
 
 const PropertyResident = new GQLListSchema('PropertyResident', {
-    // TODO(codegen): write doc for the PropertyResident domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Person, that resides in a specified property and unit',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
         organization: {
-            // TODO(codegen): write doc for PropertyResident.organization field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Organization, that manages specified property and unit',
             type: Relationship,
             ref: 'Organization',
             isRequired: true,
@@ -28,8 +26,7 @@ const PropertyResident = new GQLListSchema('PropertyResident', {
         },
 
         property: {
-            // TODO(codegen): write doc for PropertyResident.property field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Property, in which this person resides',
             type: Relationship,
             ref: 'Property',
             isRequired: true,
@@ -38,29 +35,25 @@ const PropertyResident = new GQLListSchema('PropertyResident', {
         },
 
         unitName: {
-            // TODO(codegen): write doc for PropertyResident.unitName field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Unit of the property, in which this person resides',
             type: Text,
             isRequired: true,
         },
 
         name: {
-            // TODO(codegen): write doc for PropertyResident.name field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Full name of resident person',
             type: Text,
             isRequired: true,
         },
 
         email: {
-            // TODO(codegen): write doc for PropertyResident.email field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Contact email of resident person, can be specific to related property unit',
             type: Text,
             isRequired: true,
         },
 
         phone: {
-            // TODO(codegen): write doc for PropertyResident.phone field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Contact phone of resident person, can be specific to related property unit',
             type: Text,
             isRequired: true,
         },
