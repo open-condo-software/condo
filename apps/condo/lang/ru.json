@@ -383,6 +383,7 @@
   "placeholder.Address": "Улица, дом",
   "placeholder.Description": "Опишите суть проблемы как можно подробнее",
   "Print": "Распечатать",
+  "Excel": "Выгрузить в Excel",
   "Problem": "Проблема",
   "property.Break": "Прервать",
   "property.Continue": "Продолжить",

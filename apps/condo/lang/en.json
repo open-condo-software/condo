@@ -383,6 +383,7 @@
   "placeholder.Address": "Street, house",
   "placeholder.Description": "Describe the problem in as much detail as possible",
   "Print": "Print",
+  "Excel": "Upload to Excel",
   "Problem": "Problem",
   "property.Break": "Break",
   "property.Continue": "Proceed",
