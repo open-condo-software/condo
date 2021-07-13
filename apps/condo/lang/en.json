@@ -426,6 +426,6 @@
   "Comments.deleted": "Comment was deleted",
   "Comments.meta.updated": "Updated",
   "Contact.NotFound.Title": "Contact not found",
-  "Contact.NotFound.Message": "There is no contact with this ID",
+  "Contact.NotFound.Message": "There is no contact with this ID or it doesn't belong to this organization",
   "Contact": "Contact"
 }

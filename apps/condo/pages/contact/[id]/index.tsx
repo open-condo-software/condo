@@ -16,6 +16,7 @@ import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { Button } from '@condo/domains/common/components/Button'
+import { useOrganization } from '@core/next/organization'
 
 
 const FieldPairRow = (props) => {
@@ -51,8 +52,10 @@ const ContactInfoPage = () => {
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
 
     const { query } = useRouter()
-
     const contactId = get(query, 'id', '')
+
+    const { organization } = useOrganization()
+
     const {
         obj: contact,
         loading,
@@ -60,6 +63,9 @@ const ContactInfoPage = () => {
     } = Contact.useObject({
         where: {
             id: String(contactId),
+            organization: {
+                id: String(organization.id),
+            },
         },
     })
 
@@ -72,6 +78,7 @@ const ContactInfoPage = () => {
     // TODO (SavelevMatthew): more complex logic for enabling Contact editing?
     const isContactEditable = true
     const contactName = get(contact, 'name')
+    console.log(contact.organization)
 
     return (
         <>
