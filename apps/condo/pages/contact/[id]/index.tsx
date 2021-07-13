@@ -50,6 +50,8 @@ const ContactInfoPage = () => {
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+    const UnitShortMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
     const { query } = useRouter()
     const contactId = get(query, 'id', '')
@@ -78,7 +80,9 @@ const ContactInfoPage = () => {
     // TODO (SavelevMatthew): more complex logic for enabling Contact editing?
     const isContactEditable = true
     const contactName = get(contact, 'name')
-    console.log(contact.organization)
+    const contactUnitName = get(contact, 'unitName')
+    const unitSuffix = contactUnitName ? `${UnitShortMessage} ${contactUnitName}` : ''
+    const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
 
     return (
         <>
@@ -111,7 +115,7 @@ const ContactInfoPage = () => {
                                                 <Row gutter={[0, 24]}>
                                                     <FieldPairRow
                                                         fieldTitle={AddressLabel}
-                                                        fieldValue={get(contact, ['property', 'address'])}
+                                                        fieldValue={contactAddress}
                                                     />
                                                     <FieldPairRow
                                                         fieldTitle={PhoneLabel}
