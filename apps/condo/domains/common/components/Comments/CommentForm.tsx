@@ -1,11 +1,13 @@
 import React from 'react'
 import { FormWithAction } from '../containers/FormList'
-import { Form, Input } from 'antd'
+import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import Icon from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
 import { SendMessage } from '../icons/SendMessage'
+import { colors } from '@condo/domains/common/constants/style'
+import { useState } from 'react'
 
 const Holder = styled.div`
   position: relative;
@@ -32,9 +34,8 @@ export const MAX_COMMENT_LENGTH = 300
 
 const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldName }) => {
     const intl = useIntl()
-    const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' }, {
-        maxLength: MAX_COMMENT_LENGTH,
-    })
+    const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
+    const [commentLength, setCommentLength] = useState<number>(0)
 
     const handleKeyUp = (event, form) => {
         if (event.keyCode === 13 && !event.shiftKey) {
@@ -61,38 +62,45 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
     }
 
     return (
-        <FormWithAction
-            initialValues={{
-                [fieldName]: initialValue,
-            }}
-            action={action}
-            resetOnComplete={true}
-        >
-            {({ handleSave, isLoading, form }) => (
-                <Holder>
-                    <Form.Item
-                        name={fieldName}
-                        rules={validations.comment}
-                    >
-                        <Input.TextArea
-                            placeholder={PlaceholderMessage}
-                            className="white"
-                            autoSize={{ minRows: 1, maxRows: 6 }}
-                            maxLength={MAX_COMMENT_LENGTH}
-                            onKeyDown={handleKeyDown}
-                            onKeyUp={(event) => {handleKeyUp(event, form)}}
+        <>
+            <FormWithAction
+                initialValues={{
+                    [fieldName]: initialValue,
+                }}
+                action={action}
+                resetOnComplete={true}
+            >
+                {({ handleSave, isLoading, form }) => (
+                    <Holder>
+                        <Form.Item
+                            name={fieldName}
+                            rules={validations.comment}
+                        >
+                            <Input.TextArea
+                                placeholder={PlaceholderMessage}
+                                className="white"
+                                autoSize={{ minRows: 1, maxRows: 6 }}
+                                maxLength={MAX_COMMENT_LENGTH}
+                                onKeyDown={handleKeyDown}
+                                onKeyUp={(event) => {handleKeyUp(event, form)}}
+                                onChange={e => setCommentLength(e.target.value.length)}
+                            />
+                        </Form.Item>
+                        <Button
+                            type="sberPrimary"
+                            size="middle"
+                            icon={<Icon component={SendMessage} style={{ color: 'white' }}/>}
+                            onClick={handleSave}
+                            loading={isLoading}
                         />
-                    </Form.Item>
-                    <Button
-                        type="sberPrimary"
-                        size="middle"
-                        icon={<Icon component={SendMessage} style={{ color: 'white' }}/>}
-                        onClick={handleSave}
-                        loading={isLoading}
-                    />
-                </Holder>
-            )}
-        </FormWithAction>
+                    </Holder>
+                )}
+            </FormWithAction>
+            <Typography.Text style={{ color: colors.sberGrey[5], float: 'right' }}>
+                {commentLength}/{MAX_COMMENT_LENGTH}
+            </Typography.Text>
+        </>
+
     )
 }
 
