@@ -3,6 +3,17 @@ Quick start
 
 To spin-up your development project instance, do the following.
 
+Install prerequisites for Mac users:
+
+```
+brew install nvm
+nvm install v14.16.0
+nvm alias default v14.16.0
+node --version
+npm --version
+npm install -g yarn
+```
+
 Declare environment variables:
 
 ```shell
@@ -67,17 +78,4 @@ Run dev server:
 
 ```shell
 yarn workspace @app/condo dev
-```
-
-## Mac users
-
-Install prerequisites:
-
-```
-brew install nvm
-nvm install v14.16.0
-nvm alias default v14.16.0
-node --version
-npm --version
-npm install -g yarn
 ```
