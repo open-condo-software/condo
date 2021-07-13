@@ -7,7 +7,9 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const access = require('@condo/domains/property/access/PropertyResident')
+const { PropertyResident: PropertyResidentAPI } = require('../utils/serverSchema')
 
 
 const PropertyResident = new GQLListSchema('PropertyResident', {
@@ -16,14 +18,7 @@ const PropertyResident = new GQLListSchema('PropertyResident', {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        organization: {
-            schemaDoc: 'Organization, that manages specified property and unit',
-            type: Relationship,
-            ref: 'Organization',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
-        },
+        organization: ORGANIZATION_OWNED_FIELD,
 
         property: {
             schemaDoc: 'Property, in which this person resides',
@@ -31,7 +26,7 @@ const PropertyResident = new GQLListSchema('PropertyResident', {
             ref: 'Property',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
         unitName: {
@@ -60,6 +55,25 @@ const PropertyResident = new GQLListSchema('PropertyResident', {
 
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    hooks: {
+        validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
+            const { property, unitName, phone } = resolvedData
+            const [resident] = await PropertyResidentAPI.getAll(context, {
+                property: { id: property },
+                unitName,
+                phone,
+            })
+            if (operation === 'create') {
+                if (resident) {
+                    return addValidationError('Cannot create resident, because another resident with the same provided set of "property", "unitName", "phone"')
+                }
+            } else if (operation === 'update') {
+                if (resident && resident.id !== existingItem.id) {
+                    return addValidationError('Cannot update resident, because another resident already exists with the same provided set of "property", "unitName", "phone"')
+                }
+            }
+        },
+    },
     access: {
         read: access.canReadPropertyResidents,
         create: access.canManagePropertyResidents,
