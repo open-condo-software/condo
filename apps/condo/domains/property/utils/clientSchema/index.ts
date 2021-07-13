@@ -5,4 +5,5 @@
 
 export * as Property from './Property'
 
+export * as PropertyResident from './PropertyResident'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
