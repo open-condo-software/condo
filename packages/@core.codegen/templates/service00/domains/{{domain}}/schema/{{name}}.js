@@ -26,7 +26,7 @@ const {{ name }} = new GQLCustomSchema('{{ name }}', {
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
                 // TODO(codegen): write logic here
-            }
+            },
         },
     ],
     mutations: [
