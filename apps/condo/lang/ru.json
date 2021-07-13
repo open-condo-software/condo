@@ -417,7 +417,7 @@
   "Comments.prompt.title": "Добавляйте сюда комментарии",
   "Comments.prompt.description": "Их не увидят жители. Они будут доступны только сотрудникам вашей организации.",
   "Comments.list.description": "Жители не видят. Только для сотрудников вашей организации.",
-  "Comments.form.placeholder": "Ваш комментарий (макс {maxLength} символов)",
+  "Comments.form.placeholder": "Ваш комментарий",
   "Comments.cannotCreateComments": "Вы не можете писать комментарии",
   "Comments.actions.delete.confirm.title": "Точно удалить?",
   "Comments.actions.delete.confirm.okText": "Да",
