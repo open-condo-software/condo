@@ -1,3 +1,7 @@
+/* AUTOGENERATE MARKER <IMPORT> */
+const { {{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}_MUTATION } = require('@{{app}}/domains/{{ domain }}/gql')
+/**/
+
 /* AUTOGENERATE MARKER <FACTORY> */
 async function {{ convertFirstLetterToLower(name.replace("Service", "")) }}ByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
