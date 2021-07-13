@@ -13,12 +13,12 @@ async function {{ convertFirstLetterToLower(name.replace("Service", "")) }} (con
         query: {{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to {{ convertFirstLetterToLower(name.replace("Service", "")) }}',
-        dataPath: 'result',
+        dataPath: 'obj',
     })
 }
 
 /**/
 
 /* AUTOGENERATE MARKER <EXPORTS> */
-    {{ name }},
+    {{ convertFirstLetterToLower(name.replace("Service", "")) }},
 /**/
