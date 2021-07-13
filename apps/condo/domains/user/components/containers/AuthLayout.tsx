@@ -36,7 +36,7 @@ export interface AuthPage extends React.FC {
 
 const FOOTER_LINK_STYLE = { color: colors.sberPrimary[7] }
 const AUTH_PAGES_STYLE = { width: '100%', maxWidth: '500px', paddingLeft: '20px', paddingRight: '20px' }
-const HEADER_STYLE = { background: 'transparent', padding: '20px', margin: '0px', width: '100%' }
+const HEADER_STYLE = { background: colors.white, padding: '20px', margin: '0px', width: '100%' }
 const FOOTER_STYLE = { color: colors.lightGrey[7], backgroundColor: colors.white, fontSize: '12px', lineHeight: '20px',  padding: '20px' }
 
 const PageContent: React.FC = ({ children }) => {
@@ -130,7 +130,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                     <Global styles={formInputFixCss}></Global>
                     <Layout style={{ background: colors.white, height: '100vh' }}>
                         <AntPageHeader
-                            style={{ ...HEADER_STYLE, position: 'fixed' }}
+                            style={{ ...HEADER_STYLE }}
                             title={<Logo onClick={() => Router.push('/')} />}
                             extra={headerAction}
                         >
