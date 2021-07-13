@@ -63,6 +63,10 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageWidgetProps> = 
             symbol: 'none',
             stack: isLineChart ? ticketType : 'total',
             data: Object.values(dataObj),
+            emphasis: {
+                focus: isLineChart ? 'none' : 'series',
+                blurScore: isLineChart ? 'none' : 'series',
+            },
         })
     })
     const axisData = {
