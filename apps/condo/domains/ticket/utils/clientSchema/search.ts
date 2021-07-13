@@ -20,7 +20,7 @@ const GET_ALL_SOURCES_QUERY = gql`
 
 // TODO(pahaz): add organization relation to existing classifiers
 const GET_ALL_CLASSIFIERS_QUERY = gql`
-    query selectClassifiers ($value: String) {
+    query selectSource ($value: String) {
         objs: allTicketClassifiers(where: {name_contains_i: $value, organization_is_null: true, parent_is_null: true}) {
             id
             name
@@ -40,18 +40,6 @@ const GET_ALL_PROPERTIES_BY_VALUE_QUERY = gql`
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
     query selectOrgarnizationEmployee ($value: String, $organizationId: ID) {
         objs: allOrganizationEmployees(where: {name_contains_i: $value, organization: { id: $organizationId }}) {
-            name
-            id
-            user {
-                id
-            }
-        }
-    }
-`
-
-const GET_ALL_ORGANIZATION_EMPLOYEE_WITH_EMAIL_QUERY = gql`
-    query selectOrgarnizationEmployee ($value: [ID], $organizationId: ID) {
-        objs: allOrganizationEmployees(where: { user: { id_in: $value }, organization: { id: $organizationId }}) {
             name
             id
             user {
@@ -130,12 +118,12 @@ export function searchEmployee (organizationId) {
 
 export function getEmployeeWithEmail (organizationId) {
     return async function (client, value) {
-        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_WITH_EMAIL_QUERY, { value, organizationId })
+        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
         if (error) console.warn(error)
 
         return data.objs.map(object => {
             if (object.user) {
-                return ({ text: object.user.email, value: object.user.id, key: object.user.id })
+                return ({ text: object.name, value: { id: object.user.id, hasEmail: Boolean(object.user.email) } })
             }
         }).filter(Boolean)
     }

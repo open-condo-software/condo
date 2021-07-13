@@ -99,7 +99,7 @@ async function renderTemplate (transport, message) {
                         </tr>
                     </table>
                     <p>Hello!<br />
-                    Ticket #${ticketNumber} dated ${format(date, 'd MMMM Y', { locale: LOCALES[EN_LOCALE] })} has been shared with you.<br />
+                    Ticket #${ticketNumber} dated ${format(new Date(date), 'd MMMM Y', { locale: LOCALES[EN_LOCALE] })} has been shared with you.<br />
                     The text of the ticket: "${details}"</p>
                     <p>&nbsp;</p>
                     <div><!--[if mso]>
@@ -123,7 +123,7 @@ async function renderTemplate (transport, message) {
                         </tr>
                     </table>
                     <p>Добрый день!<br />
-                    С вами поделились заявкой №${ticketNumber} от ${format(date, 'd MMMM Y', { locale: LOCALES[RU_LOCALE] })}.<br />
+                    С вами поделились заявкой №${ticketNumber} от ${format(new Date(date), 'd MMMM Y', { locale: LOCALES[RU_LOCALE] })}.<br />
                     Текст заявки: «${details}»</p>
                     <p>&nbsp;</p>
                     <div><!--[if mso]>
