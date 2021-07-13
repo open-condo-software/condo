@@ -79,7 +79,11 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
         },
         {
             access: true,
-            type: 'type TicketReportAnalyticsOutput { data: JSON! }',
+            type: 'type TicketReportAnalyticsData { result: JSON!, labels: JSON!, axisLabels: [ String! ], tableData: [ JSON! ], tableColumns: JSON! }',
+        },
+        {
+            access: true,
+            type: 'type TicketReportAnalyticsOutput { data: TicketReportAnalyticsData! }',
         },
     ],
     queries: [
@@ -124,7 +128,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
             },
         },
         {
-            access: true,
+            access: access.canReadTicketReportAnalyticsData,
             schema: 'ticketReportAnalyticsData(data: TicketReportAnalyticsInput!): TicketReportAnalyticsOutput',
             resolver: async (parent, args, context, info, extra) => {
                 const { dateFrom, dateTo, groupBy, userOrganizationId, ticketType, viewMode, addressList } = args.data
