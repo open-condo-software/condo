@@ -9,6 +9,8 @@ const { buildingMapJson } = require('@condo/domains/property/constants/property'
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
+const { createTestEmail } = require('@condo/domains/user/utils/testSchema')
 
 const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('@condo/domains/property/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -68,13 +70,15 @@ async function createTestPropertyResident (client, organization, property, extra
     if (!property || !property.id) throw new Error('no property.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestPropertyResident logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
         property: { connect: { id: property.id } },
+        unitName: faker.random.alphaNumeric(3),
+        name: faker.name.firstName(),
+        email: createTestEmail(),
+        phone: createTestPhone(),
         ...extraAttrs,
     }
     const obj = await PropertyResident.create(client, attrs)
@@ -86,11 +90,13 @@ async function updateTestPropertyResident (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestPropertyResident logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
+        unitName: faker.random.alphaNumeric(3),
+        name: faker.name.firstName(),
+        email: createTestEmail(),
+        phone: createTestPhone(),
         ...extraAttrs,
     }
     const obj = await PropertyResident.update(client, id, attrs)
