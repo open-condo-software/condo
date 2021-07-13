@@ -47,7 +47,6 @@ export const EmployeeInfoPage = () => {
         {
             where: {
                 id: String(employeeId),
-                isRejected: false,
             },
         }
     )
