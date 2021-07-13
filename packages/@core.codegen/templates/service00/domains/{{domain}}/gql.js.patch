@@ -5,7 +5,6 @@ const {{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}_MUTATION = 
         result: {{ convertFirstLetterToLower(name.replace("Service", "")) }}(data: $data) { id }
     }
 `
-
 /**/
 
 /* AUTOGENERATE MARKER <EXPORTS> */
