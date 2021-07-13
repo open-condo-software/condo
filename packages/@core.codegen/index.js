@@ -15,6 +15,9 @@ const conf = require('@core/config')
 const DEFAULT_APPLICATION_TEMPLATE = 'app00'
 const DEFAULT_SCHEMA_TEMPLATE = 'schema00'
 const DEFAULT_SERVICE_TEMPLATE = 'service00'
+
+const SERVICE_TYPES = ['mutations', 'queries']
+
 const access = promisify(fs.access)
 const copy = promisify(ncp)
 const readdir = promisify(fs.readdir)
@@ -114,7 +117,7 @@ async function renderTemplate (templateFile, targetFile, ctx) {
 async function renderTemplates (templateDirectory, targetDirectory, templateContext) {
     return copy(templateDirectory, targetDirectory, {
         transform: async (readStream, writeStream, file) => {
-            if (['.jsx', '.js', '.json', '.ts', '.tsx', '.md'].some((x) => file.name.endsWith(x))) {
+            if (['.jsx', '.js', '.json', '.ts', '.tsx', '.md', ...SERVICE_TYPES.map(x=>'.' + x)].some((x) => file.name.endsWith(x))) {
                 const template = await streamToString(readStream)
                 const renderedTemplate = renderToString(file.name, template, templateContext)
                 const readable = Readable.from([renderedTemplate])
@@ -131,7 +134,8 @@ async function renaming (templateDirectory, targetDirectory, ctx) {
     const files = await readdir(targetDirectory, { withFileTypes: true })
     for (const file of files) {
         const filename = file.name
-        const renderedName = renderToString(filename, filename, ctx)
+        let renderedName = renderToString(filename, filename, ctx)
+        if (ctx.opts.type) renderedName = renderedName.replace('.' + ctx.opts.type, '')
         const templatePath = path.join(templateDirectory, filename)
         const isTemplateBasedPath = await exists(templatePath)
         if (isTemplateBasedPath) {
@@ -189,8 +193,9 @@ async function generate (templateDirectory, targetDirectory, ctx) {
 
     await renderTemplates(templateDirectory, tmpDirectory, ctx)
     await renaming(templateDirectory, tmpDirectory, ctx)
+    const forbiddenExtensions = ['.patch', '.default', ...SERVICE_TYPES.map(x=>'.' + x)]
+    const isPatchFile = (name) => !forbiddenExtensions.some(x => name.endsWith(x))
 
-    const isPatchFile = (name) => !name.endsWith('.patch') && !name.endsWith('.default') && !name.includes('.example.')
     await copy(tmpDirectory, targetDirectory, { filter: isPatchFile })
     await patching(tmpDirectory, targetDirectory, ctx)
     await rmdir(tmpDirectory, { recursive: true })
@@ -228,6 +233,7 @@ function createapp (argv) {
                 })
             },
             async (args) => {
+                const opts = {}
                 const force = args.force
                 const name = args.name
                 const greeting = chalk.white.bold(name)
@@ -247,7 +253,7 @@ function createapp (argv) {
                 if (isTargetDirExists && !force) throw new Error(`App '${name}' is already exists!`)
 
                 console.log(msgBox)
-                generate(templateDirectory, targetDirectory, { name })
+                generate(templateDirectory, targetDirectory, { name, opts })
             },
         )
 
@@ -320,6 +326,7 @@ function createschema (argv) {
                 })
             },
             async (args) => {
+                const opts = { }
                 const force = args.force
                 const [domain, name] = args.domainschema.split('.')
                 const signature = toFields(args.signature)
@@ -341,7 +348,7 @@ function createschema (argv) {
                 if (isTargetDirExists && !force) throw new Error(`Schema ${domain}.'${name}'.js is already exists!`)
 
                 console.log(msgBox)
-                generate(templateDirectory, targetDirectory, { app, domain, name, signature })
+                generate(templateDirectory, targetDirectory, { app, domain, name, signature, opts })
             },
         )
 
@@ -363,6 +370,12 @@ function createservice (argv) {
                 describe: 'create if exists',
                 type: 'boolean',
             },
+            'type': {
+                default: 'mutations',
+                descirbe: 'type of service: mutations or queries',
+                type: 'string',
+                choices: ['mutations', 'queries'],
+            },
         })
         .usage(
             '$0 <domain>.<schema> [--force]',
@@ -375,6 +388,7 @@ function createservice (argv) {
             },
             async (args) => {
                 const force = args.force
+                const opts = { type: args.type }
                 const [domain, name] = args.domainschema.split('.')
                 const greeting = chalk.blue.bold(domain) + chalk.green.bold('.') + chalk.red.bold(name)
                 const boxenOptions = {
@@ -394,7 +408,7 @@ function createservice (argv) {
                 if (isTargetDirExists && !force) throw new Error(`Service ${domain}.'${name}'.js is already exists!`)
 
                 console.log(msgBox)
-                generate(templateDirectory, targetDirectory, { app, domain, name })
+                generate(templateDirectory, targetDirectory, { app, domain, name, opts })
             },
         )
 
