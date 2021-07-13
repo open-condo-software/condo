@@ -96,7 +96,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                     </Holder>
                 )}
             </FormWithAction>
-            <Typography.Text style={{ color: colors.sberGrey[5], float: 'right' }}>
+            <Typography.Text style={{ color: colors.sberGrey[5], fontSize: '12px', float: 'right' }}>
                 {commentLength}/{MAX_COMMENT_LENGTH}
             </Typography.Text>
         </>
