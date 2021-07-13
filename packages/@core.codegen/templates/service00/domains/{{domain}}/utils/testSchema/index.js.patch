@@ -1,5 +1,5 @@
 /* AUTOGENERATE MARKER <FACTORY> */
-async function {{ convertFirstLetterToLower(name.replace("Service", "")) }}ByTestClient }}ByTestClient (client, extraAttrs = {}) {
+async function {{ convertFirstLetterToLower(name.replace("Service", "")) }}ByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -8,10 +8,12 @@ async function {{ convertFirstLetterToLower(name.replace("Service", "")) }}ByTes
         sender,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate({{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}, { data: attrs })
+    const { data, errors } = await client.mutate({{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+/**/
 
 /* AUTOGENERATE MARKER <EXPORTS> */
-{{ convertFirstLetterToLower(name.replace("Service", "")) }}ByTestClient }}
+{{ convertFirstLetterToLower(name.replace("Service", "")) }}ByTestClient
+/**/
