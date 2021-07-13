@@ -129,7 +129,7 @@ const GET_TICKET_WIDGET_REPORT_DATA = gql`
 
 const GET_TICKET_ANALYTICS_REPORT_DATA = gql`
     query getAnalyticsData ($data: TicketReportAnalyticsInput!) {
-        result: ticketReportAnalyticsData(data: $data) { data }
+        result: ticketReportAnalyticsData(data: $data) { data { result, labels, axisLabels, tableData, tableColumns } }
     }
 `
 
