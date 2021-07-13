@@ -27,7 +27,8 @@ import { useLazyQuery } from '@core/next/apollo'
 import moment from 'moment'
 import { BarChartIcon, LinearChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
 import { Button } from '@condo/domains/common/components/Button'
-import { PlusCircleFilled } from '@ant-design/icons'
+import { EditFilled, FilePdfFilled, PlusCircleFilled } from '@ant-design/icons'
+import ActionBar from '../../domains/common/components/ActionBar'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
@@ -40,6 +41,7 @@ interface ITicketAnalyticsPageWidgetProps {
 }
 type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
 type ticketSelectTypes = 'default' | 'paid' | 'emergency'
+const DATE_DISPLAY_FORMAT = 'DD.MM.YYYY'
 // TODO: get selectedPeriod from filter component
 const SELECTED_PERIOD = [moment().subtract(1, 'week'), moment()]
 // TODO: get addressList from filter component
@@ -122,15 +124,21 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = (
     }
     const { tableColumns: fetchedTableColumns, tableData } = data
     const tableColumns = [
-        { title: AddressTitle, dataIndex: 'address', key: 'address', sort: true },
+        { title: AddressTitle, dataIndex: 'address', key: 'address', sorter: (a, b) => a.title - b.title },
         ...Object.entries(fetchedTableColumns).map(([key, value]) => (
             // @ts-ignore
             { title: value, dataIndex: value, key, sorter: (a, b) => a[value] - b[value] }
         )),
     ]
     if (viewMode === 'line') {
-        // @ts-ignore
-        tableColumns.unshift({ title: DateTitle, dataIndex: 'date', key: 'date' })
+        tableColumns.unshift({
+            title: DateTitle,
+            dataIndex: 'date',
+            key: 'date',
+            // @ts-ignore
+            defaultSortOrder: 'descend',
+            sorter: (a, b) => moment(a.date, DATE_DISPLAY_FORMAT).unix() - moment(b.date, DATE_DISPLAY_FORMAT).unix(),
+        })
     }
 
     return (
@@ -181,7 +189,9 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const TicketTypePaid = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Paid' })
     const TicketTypeEmergency = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency' })
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
-    const selectedPeriod = SELECTED_PERIOD.map(e => e.format('DD.MM.YYYY')).join(' - ')
+    const PrintTitle = intl.formatMessage({ id: 'Print' })
+    const ExcelTitle = intl.formatMessage({ id: 'Excel' })
+    const selectedPeriod = SELECTED_PERIOD.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ')
 
 
     const [loadTicketAnalyticsData] = useLazyQuery(GET_TICKET_ANALYTICS_REPORT_DATA, {
@@ -280,6 +290,14 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                         <Col span={24}>
                             <TicketAnalyticsPageListView data={analyticsData} loading={loading} viewMode={viewMode} />
                         </Col>
+                        <ActionBar fullscreen>
+                            <Tooltip title={NotImplementedYetMessage}>
+                                <Button icon={<FilePdfFilled />} type='sberPrimary' secondary>{PrintTitle}</Button>
+                            </Tooltip>
+                            <Tooltip title={NotImplementedYetMessage}>
+                                <Button icon={<EditFilled />} type='sberPrimary' secondary>{ExcelTitle}</Button>
+                            </Tooltip>
+                        </ActionBar>
                     </Row>
                 </PageContent>
             </OrganizationRequired>

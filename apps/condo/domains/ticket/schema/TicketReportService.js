@@ -128,24 +128,25 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
             schema: 'ticketReportAnalyticsData(data: TicketReportAnalyticsInput!): TicketReportAnalyticsOutput',
             resolver: async (parent, args, context, info, extra) => {
                 const { dateFrom, dateTo, groupBy, userOrganizationId, ticketType, viewMode, addressList } = args.data
+                const isLineChart = viewMode === 'line'
                 const statuses = await getOrganizationStatuses(context, userOrganizationId)
                 const statusesMap = Object.fromEntries(statuses.map(({ type, name }) => ([type, name])))
                 const userProperties = await getOrganizationProperties(context, userOrganizationId)
                 const userPropertiesMap = Object.fromEntries(userProperties.map(({ id, address }) => ([id, address])))
                 const daysCount = moment(dateTo).diff(moment(dateFrom), 'days') + 1
                 const daysMap = Array.from({ length: daysCount }, (_, day) => moment(dateFrom).add(day, 'days'))
-                const labels = viewMode ===  'line' ? statusesMap : userPropertiesMap
+                const labels = isLineChart ? statusesMap : userPropertiesMap
 
                 const result = {}
                 // TODO: collect for addressList, now selecting all
                 const listViewDataMapper = (_, index) => {
-                    if (viewMode === 'line') {
+                    if (isLineChart) {
                         return {
                             date: daysMap[index].format(DATE_FORMAT),
                             address: null,
                         }
                     }
-                    if (viewMode === 'bar' && addressList.length) {
+                    if (!isLineChart && addressList.length) {
                         return {
                             address: userPropertiesMap[index],
                         }
@@ -156,43 +157,43 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                     }
                 }
                 const tableData = Array.from({
-                    length: viewMode === 'line' ? daysCount : (!addressList.length ? 1 : addressList.length),
+                    length: isLineChart ? daysCount : (!addressList.length ? 1 : addressList.length),
                 }, listViewDataMapper)
 
-                if (viewMode === 'line') {
-                    for (const type of ticketStatusTypes) {
-                        result[type] = {}
-                        for (const day of daysMap) {
-                            const date = day.format(DATE_FORMAT)
-                            const query = [
-                                { createdAt_gte: day.startOf('day').toISOString() },
-                                { createdAt_lte: day.endOf('day').toISOString() },
-                                { status: { type } }, { organization: { id: userOrganizationId } },
-                                { isPaid: ticketType === 'paid', isEmergency: ticketType === 'emergency' },
-                            ]
-
-                            const ticketCount = await Ticket.count(context, { AND: query })
-                            const status = statusesMap[type]
-                            result[type][date] = ticketCount
-                            tableData.find((tableObj) => tableObj.date === date)[status] = ticketCount
-                        }
-                    }
-                } else {
-                    // TODO: apply user properties from filter
-                    for (const property of userProperties) {
-                        const { id } = property
+                const stackTicketsField = isLineChart ? ticketStatusTypes : userProperties
+                for (const stackField of stackTicketsField) {
+                    if (isLineChart) {
+                        result[stackField] = {}
+                    } else {
+                        const { id } = stackField
                         result[id] = {}
-                        for (const type of ticketStatusTypes) {
-                            const query = [
-                                { createdAt_gte: dateFrom },
-                                { createdAt_lte: dateTo },
-                                { status: { type } }, { organization: { id: userOrganizationId } },
-                                { isPaid: ticketType === 'paid', isEmergency: ticketType === 'emergency' },
-                                { property: { id } },
-                            ]
-                            const ticketCount = await Ticket.count(context, { AND: query })
-                            const status = statusesMap[type]
-                            result[id][type] = ticketCount
+                    }
+                    const groupTicketsField = isLineChart ? daysMap : ticketStatusTypes
+                    for (const groupField of groupTicketsField) {
+                        const type = isLineChart ? stackField : groupField
+                        let query = [
+                            { status: { type } }, { organization: { id: userOrganizationId } },
+                            { isPaid: ticketType === 'paid', isEmergency: ticketType === 'emergency' },
+                        ]
+                        if (isLineChart) {
+                            query = query.concat([
+                                { createdAt_gte: groupField.startOf('day').toISOString() },
+                                { createdAt_lte: groupField.endOf('day').toISOString() },
+                            ])
+                        } else {
+                            const { id } = stackField
+                            query = query.concat([
+                                { property: { id } }, { createdAt_gte: dateFrom }, { createdAt_lte: dateTo },
+                            ])
+                        }
+                        const ticketCount = await Ticket.count(context, { AND: query })
+                        const status = statusesMap[type]
+                        const stackObjectKey = isLineChart ? stackField : stackField.id
+                        const groupObjectKey = isLineChart ? groupField.format(DATE_FORMAT) : status
+                        result[stackObjectKey][groupObjectKey] = ticketCount
+                        if (isLineChart) {
+                            tableData.find((tableObj) => tableObj.date === groupField.format(DATE_FORMAT))[status] = ticketCount
+                        } else {
                             // TODO: apply user properties from filter
                             const tableDataStatusCount = tableData.find(tableObj => tableObj.address === null)
                             if (tableDataStatusCount[status] === undefined) {
@@ -203,7 +204,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                         }
                     }
                 }
-                const axisLabels = viewMode === 'line' ?
+                const axisLabels = isLineChart ?
                     daysMap.map(e => e.format(DATE_FORMAT)) :
                     Object.values(statusesMap)
                 return { data: { result, labels, axisLabels, tableData, tableColumns: statusesMap } }

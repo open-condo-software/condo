@@ -16,9 +16,12 @@ const actionBar = css`
         border-radius: 8px;
     }  
 `
-const ActionBar: React.FC = ({ children }) => {
+interface IActionBarProps {
+    fullscreen?: boolean;
+}
+const ActionBar: React.FC<IActionBarProps> = ({ children, fullscreen = false }) => {
     return (
-        <Affix offsetBottom={24}>
+        <Affix offsetBottom={24} style={{ width: fullscreen ? '100%' : 'unset' }}>
             <div css={actionBar}>
                 <Space size={40}>
                     { children }
