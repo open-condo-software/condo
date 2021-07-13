@@ -15,6 +15,7 @@ const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('@condo/domains/prop
 
 const Property = generateGQLTestUtils(PropertyGQL)
 
+const PropertyResident = generateGQLTestUtils(PropertyResidentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestProperty (client, organization, extraAttrs = {}) {
@@ -59,6 +60,41 @@ async function makeClientWithProperty () {
     const [property] = await createTestProperty(client, client.organization, { map: buildingMapJson })
     client.property = property
     return client
+}
+
+async function createTestPropertyResident (client, organization, property, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!property || !property.id) throw new Error('no property.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestPropertyResident logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        property: { connect: { id: property.id } },
+        ...extraAttrs,
+    }
+    const obj = await PropertyResident.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestPropertyResident (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestPropertyResident logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await PropertyResident.update(client, id, attrs)
+    return [obj, attrs]
 }
 
 async function checkPropertyWithAddressExistByTestClient(client, extraAttrs = {}) {

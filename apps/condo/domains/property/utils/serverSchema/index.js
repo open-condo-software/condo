@@ -7,11 +7,14 @@
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
-
+const { PropertyResident: PropertyResidentGQL } = require('@condo/domains/property/gql')
+const { PropertyResident: PropertyResidentGQL } = require('@condo/domains/property/gql')
 const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('@condo/domains/property/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateServerUtils(PropertyGQL)
+const PropertyResident = generateServerUtils(PropertyResidentGQL)
+
 async function checkPropertyWithAddressExist (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
@@ -28,6 +31,7 @@ async function checkPropertyWithAddressExist (context, data) {
 
 module.exports = {
     Property,
+    PropertyResident,
     checkPropertyWithAddressExist,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
