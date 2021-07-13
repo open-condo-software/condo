@@ -426,6 +426,6 @@
   "Comments.deleted": "Комментарий был удалён",
   "Comments.meta.updated": "Обновлено",
   "Contact.NotFound.Title": "Контакт не найден",
-  "Contact.NotFound.Message": "Контакта с данным ID не существует",
+  "Contact.NotFound.Message": "Контакта с данным ID не существует или же это контакт не вашей огранизации",
   "Contact": "Житель"
 }
