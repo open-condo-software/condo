@@ -26,12 +26,12 @@ const FieldPairRow = (props) => {
     } = props
     return (
         <>
-            <Col span={4}>
+            <Col span={8}>
                 <Typography.Text type='secondary'>
                     {fieldTitle}
                 </Typography.Text>
             </Col>
-            <Col span={20} push={4}>
+            <Col span={16} style={{ width: '100%' }}>
                 <NotDefinedField value={fieldValue}/>
             </Col>
         </>
