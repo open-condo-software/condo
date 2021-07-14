@@ -116,7 +116,7 @@ const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
-    query exportToExcel ($data: TicketExportExcelInput!) {
+    query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
         result: exportTicketsToExcel(data: $data) { status, linkToFile }
     }
 `
