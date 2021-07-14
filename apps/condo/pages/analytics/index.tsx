@@ -214,6 +214,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
 
     useEffect(() => {
         setLoading(true)
+        setAnalyticsData(null)
         loadTicketAnalyticsData({ variables: {
             data: {
                 dateFrom: dateFrom.toISOString(),
