@@ -21,7 +21,7 @@ async function ensureNotExists (context, model, models, field, value) {
               }
             }
         `,
-        variables: { where: { [field]: value } },
+        variables: { where: { [field]: value, type: 'staff' } },
     })
 
     if (errors) {
@@ -49,23 +49,25 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 const { confirmPhoneActionToken, ...restUserData } = data
                 const userData = {
                     ...restUserData,
+                    type: 'staff',
                     isPhoneVerified: false,
                 }
+
                 if (confirmPhoneActionToken) {
-                    const [action] = await ConfirmPhoneAction.getAll(context.createContext({ skipAccessControl: true }), 
+                    const [action] = await ConfirmPhoneAction.getAll(context.createContext({ skipAccessControl: true }),
                         { token: confirmPhoneActionToken }
                     )
                     if (!action) {
-                        throw new Error('[error] Unable to find confirm phone action')    
+                        throw new Error('[error] Unable to find confirm phone action')
                     }
                     const { phone, isPhoneVerified } = action
                     if (!isPhoneVerified) {
-                        throw new Error('[error] Phone is not verified')    
+                        throw new Error('[error] Phone is not verified')
                     }
                     userData.phone = phone
                     userData.isPhoneVerified = isPhoneVerified
                 }
-              
+
                 await ensureNotExists(context, 'User', 'Users', 'phone', userData.phone)
                 await ensureNotExists(context, 'User', 'Users', 'email', userData.email)
 
