@@ -1,4 +1,3 @@
-const { v4: uuid } = require('uuid')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { SHARE_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 const { makeClient } = require('@core/keystone/test.utils')
@@ -10,11 +9,11 @@ describe('ShareTicketService', () => {
             const client = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
 
-            const res = await client.mutate(SHARE_TICKET_MUTATION, {
+            const { data: { obj: { status } } } = await client.mutate(SHARE_TICKET_MUTATION, {
                 data: { sender: client.userAttrs.sender, users: [client.user.id], ticketId: ticket.id },
             })
 
-            expect(res).toEqual({ data: { obj: { status: 'ok' } } })
+            expect(status).toBe('ok')
         })
 
         it('can not share ticked with another organization', async () => {
@@ -38,7 +37,7 @@ describe('ShareTicketService', () => {
             const [ticket] = await createTestTicket(client, client.organization, client.property)
 
             const { errors, data } = await client1.mutate(SHARE_TICKET_MUTATION, {
-                data: { sender: client.userAttrs.sender, users: [uuid()], ticketId: ticket.id },
+                data: { sender: client.userAttrs.sender, users: [client.user.id], ticketId: ticket.id },
             })
 
             expect(errors).toHaveLength(1)
