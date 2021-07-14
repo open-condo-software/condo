@@ -1,12 +1,24 @@
 /* AUTOGENERATE MARKER <CONST> */
 // TODO(codegen): write return type result!
+{% if type == "mutations" %}
 const {{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}_MUTATION = gql`
     mutation {{ convertFirstLetterToLower(name.replace("Service", "")) }} ($data: {{ name.replace("Service", "") }}Input!) {
         result: {{ convertFirstLetterToLower(name.replace("Service", "")) }}(data: $data) { id }
     }
 `
+{% else %} 
+const {{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}_BY_ID_QUERY = gql`
+    query get{{ name.replace("Service", "") }}ById ($data: {{ name.replace("Service", "") }}Input!) {
+        obj: {{ name.replace("Service", "") }}(where: {id: $id}) ${COMMON_FIELDS}
+    }
+`
+{% endif%}
 /**/
 
 /* AUTOGENERATE MARKER <EXPORTS> */
+{% if type == "mutations" %}
     {{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}_MUTATION,
+{% else %} 
+    {{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}_BY_ID_QUERY,
+{% endif %}
 /**/
