@@ -154,6 +154,18 @@ describe('PropertyResident', () => {
 
     })
 
+    describe('normalization', async () => {
+        it('converts phone to E.164 format without spaces', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const fields = {
+                phone: '+7 999 111-22-33',
+            }
+            const [obj] = await createTestPropertyResident(adminClient, userClient.organization, userClient.property, fields)
+            expect(obj.phone).toEqual('+79991112233')
+        })
+    })
+
     describe('Create', () => {
         it('can be created by admin', async () => {
             const userClient = await makeClientWithProperty()
