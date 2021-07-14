@@ -1,16 +1,16 @@
 const { v4: uuid } = require('uuid')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { TICKET_SHARE_MUTATION } = require('@condo/domains/ticket/gql')
+const { SHARE_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 const { makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
-describe('TicketShareService', () => {
+describe('ShareTicketService', () => {
     describe('User', () => {
         it('can share ticked with selected organization', async () => {
             const client = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
 
-            const res = await client.mutate(TICKET_SHARE_MUTATION, {
+            const res = await client.mutate(SHARE_TICKET_MUTATION, {
                 data: { sender: client.userAttrs.sender, users: [client.user.id], ticketId: ticket.id },
             })
 
@@ -22,7 +22,7 @@ describe('TicketShareService', () => {
             const client1 = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
 
-            const { errors, data }  = await client1.mutate(TICKET_SHARE_MUTATION, {
+            const { errors, data }  = await client1.mutate(SHARE_TICKET_MUTATION, {
                 data: { sender: client.userAttrs.sender, users: [client.user.id], ticketId: ticket.id },
             })
 
@@ -37,7 +37,7 @@ describe('TicketShareService', () => {
             const client1 = await makeClient()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
 
-            const { errors, data } = await client1.mutate(TICKET_SHARE_MUTATION, {
+            const { errors, data } = await client1.mutate(SHARE_TICKET_MUTATION, {
                 data: { sender: client.userAttrs.sender, users: [uuid()], ticketId: ticket.id },
             })
 
