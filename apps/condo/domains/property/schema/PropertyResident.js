@@ -9,6 +9,8 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const access = require('@condo/domains/property/access/PropertyResident')
+const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { PropertyResident: PropertyResidentAPI } = require('../utils/serverSchema')
 
 
@@ -65,6 +67,18 @@ const PropertyResident = new GQLListSchema('PropertyResident', {
             schemaDoc: 'Contact phone of resident person, can be specific to related property unit',
             type: Text,
             isRequired: true,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    const newValue = normalizePhone(resolvedData['phone'])
+                    return newValue || resolvedData['phone']
+                },
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                    const newValue = normalizePhone(resolvedData['phone'])
+                    if (resolvedData['phone'] && newValue !== resolvedData['phone']) {
+                        addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
+                    }
+                },
+            },
         },
 
     },
