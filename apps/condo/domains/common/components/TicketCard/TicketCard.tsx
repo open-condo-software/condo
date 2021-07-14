@@ -70,6 +70,8 @@ const TicketCard: React.FC<ITicketCardProps> = ({
             unitName: unitName,
         },
         first: TICKETS_ON_CARD,
+    }, {
+        fetchPolicy: 'network-only',
     })
 
     const moreTickets = (loading || total <= TICKETS_ON_CARD) ? 0 : total - TICKETS_ON_CARD
