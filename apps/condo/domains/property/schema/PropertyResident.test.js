@@ -159,7 +159,18 @@ describe('PropertyResident', () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
 
-            const [obj, attrs] = await createTestPropertyResident(adminClient, userClient.organization, userClient.property)
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [billingProperty] = await createTestBillingProperty(adminClient, context)
+            const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
+
+            const [contact] = await createTestContact(adminClient, userClient.organization, userClient.property)
+
+            const fields = {
+                contact: { connect: { id: contact.id } },
+                billingAccount: { connect: { id: billingAccount.id } },
+            }
+
+            const [obj, attrs] = await createTestPropertyResident(adminClient, userClient.organization, userClient.property, fields)
             expect(obj.id).toMatch(UUID_RE)
             expect(obj.dv).toEqual(1)
             expect(obj.sender).toEqual(attrs.sender)
@@ -172,6 +183,8 @@ describe('PropertyResident', () => {
             expect(obj.updatedAt).toMatch(DATETIME_RE)
             expect(obj.organization.id).toEqual(userClient.organization.id)
             expect(obj.property.id).toEqual(userClient.property.id)
+            expect(obj.contact.id).toEqual(contact.id)
+            expect(obj.billingAccount.id).toEqual(billingAccount.id)
         })
 
         it('can be created by user, who is employed in the same organization and has "canManagePropertyResidents" ability', async () => {
