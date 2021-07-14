@@ -6,21 +6,21 @@ const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const access = require('@condo/domains/ticket/access/Ticket')
 
-const TicketShareService = new GQLCustomSchema('TicketShareService', {
+const ShareTicketService = new GQLCustomSchema('ShareTicketService', {
     types: [
         {
             access: true,
-            type: 'input TicketShareInput { sender: JSON!,  users: [ID!]!, ticketId: ID! }',
+            type: 'input ShareTicketInput { sender: JSON!, users: [ID!]!, ticketId: ID! }',
         },
         {
             access: true,
-            type: 'type TicketShareOutput { status: String! }',
+            type: 'type ShareTicketOutput { status: String! }',
         },
     ],
     mutations: [
         {
             access: access.canReadTickets,
-            schema: 'ticketShare(data: TicketShareInput!): TicketShareOutput',
+            schema: 'shareTicket(data: ShareTicketInput!): ShareTicketOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { users, ticketId, sender } = data
@@ -57,5 +57,5 @@ const TicketShareService = new GQLCustomSchema('TicketShareService', {
 })
 
 module.exports = {
-    TicketShareService,
+    ShareTicketService,
 }

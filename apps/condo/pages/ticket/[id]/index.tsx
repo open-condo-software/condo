@@ -37,7 +37,7 @@ import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
-import { TicketShareModal } from '@condo/domains/ticket/components/TicketShareModal'
+import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
@@ -350,7 +350,7 @@ const TicketIdPage = () => {
                                                 {UpdateMessage}
                                             </Button>
                                         </Link>
-                                        <TicketShareModal
+                                        <ShareTicketModal
                                             description={ShareMessage}
                                         />
                                         <Button
