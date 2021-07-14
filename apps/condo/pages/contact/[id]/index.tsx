@@ -18,6 +18,7 @@ import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
 import  { TicketCard } from '@condo/domains/common/components/TicketCard/TicketCard'
+import { canManageContacts } from '@condo/domains/organization/permissions'
 
 
 const FieldPairRow = (props) => {
@@ -57,7 +58,7 @@ const ContactInfoPage = () => {
     const { query } = useRouter()
     const contactId = get(query, 'id', '')
 
-    const { organization } = useOrganization()
+    const { organization, link } = useOrganization()
 
     const {
         obj: contact,
@@ -78,8 +79,8 @@ const ContactInfoPage = () => {
     if (!contact) {
         return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
     }
-    // TODO (SavelevMatthew): more complex logic for enabling Contact editing?
-    const isContactEditable = true
+
+    const isContactEditable = canManageContacts(link, contact)
     const contactName = get(contact, 'name')
     const contactUnitName = get(contact, 'unitName')
     const unitSuffix = contactUnitName ? `${UnitShortMessage} ${contactUnitName}` : ''
