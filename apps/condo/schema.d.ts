@@ -4830,6 +4830,18 @@ export type ContactsUpdateInput = {
   data?: Maybe<ContactUpdateInput>;
 };
 
+export type ExportTicketsToExcelInput = {
+  where: TicketWhereInput;
+  sortBy?: Maybe<Array<SortTicketsBy>>;
+  timeZone: Scalars['String'];
+};
+
+export type ExportTicketsToExcelOutput = {
+  __typename?: 'ExportTicketsToExcelOutput';
+  status: Scalars['String'];
+  linkToFile: Scalars['String'];
+};
+
 export type File = {
   __typename?: 'File';
   id?: Maybe<Scalars['ID']>;
@@ -10370,7 +10382,7 @@ export type Query = {
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
-  exportTicketsToExcel?: Maybe<TicketExportExcelOutput>;
+  exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -11648,7 +11660,7 @@ export type QueryTicketReportWidgetDataArgs = {
 
 
 export type QueryExportTicketsToExcelArgs = {
-  data: TicketExportExcelInput;
+  data: ExportTicketsToExcelInput;
 };
 
 export type ReInviteOrganizationEmployeeInput = {
@@ -15411,17 +15423,6 @@ export type TicketCreateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
-};
-
-export type TicketExportExcelInput = {
-  where: TicketWhereInput;
-  sortBy?: Maybe<Array<SortTicketsBy>>;
-};
-
-export type TicketExportExcelOutput = {
-  __typename?: 'TicketExportExcelOutput';
-  status: Scalars['String'];
-  linkToFile: Scalars['String'];
 };
 
 /**  File attached to the ticket  */
