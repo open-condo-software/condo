@@ -35,6 +35,9 @@ const CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY = gql`
         result: checkPropertyWithAddressExist(data: $data) { isFound }
     }
 `
+const PROPERTY_RESIDENT_FIELDS = `{ organization { id } property { id } contact { id } unitName name email phone ${COMMON_FIELDS} }`
+const PropertyResident = generateGqlQueries('PropertyResident', PROPERTY_RESIDENT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
