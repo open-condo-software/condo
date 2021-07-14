@@ -1,143 +1,158 @@
+const { Ticket, TicketStatus, TicketClassifier } = require('@condo/domains/ticket/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { demoProperty } = require('./constants')
-const { Ticket, TicketStatus, TicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
-const { Property, createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { Organization } = require('@condo/domains/organization/utils/testSchema')
-const { User } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { User } = require('@condo/domains/user/utils/serverSchema')
 const moment = require('moment')
-const { Client } = require('pg')
-const client = new Client(process.env.DATABASE_URL)
-client.connect()
-
 const faker = require('faker')
-
+const path = require('path')
+const { Client } = require('pg')
 const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
+class TicketGenerator {
 
+    property = null
+    organization = null
+    user = null
 
-const Data = {
-    property: null,
-    organizationId: null,
-    propertyId: null,
-    userId: null,
-    statuses: {},
-    classifiers: {
-        lvlOne: {},
-        lvlTwo: {},
-        lvlThree: {},
-    },
-}
+    statuses = []
+    classifiers = []
 
-const createProperty = async (admin) => {
-    const [organization] = await Organization.getAll(admin)
-    Data.organizationId = organization.id
-    const [existedProperty] = await Property.getAll(admin)
-    if (existedProperty) {
-        return
+    ticketsByDay = {}
+    context = null
+
+    constructor ({ ticketsByDay = { min: 20, max: 50 } }) {
+        this.ticketsByDay = ticketsByDay
+        this.pg = new Client(process.env.DATABASE_URL)
+        this.pg.connect()
     }
-    const { address, addressMeta, map } = demoProperty
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    await createTestProperty(admin, organization, {
-        sender,
-        address,
-        addressMeta,
-        map,
-    })
-}
 
-const loadUser = async (admin) => {
-    const [user] = await User.getAll(admin, {
-        name_not_in: ['Admin', 'JustUser'],
-    })
-    console.log('user', user)
-    Data.userId = user.id
-}
-
-const loadModels = async (admin) => {
-    Data.statuses = await TicketStatus.getAll(admin)
-    const [property] = await Property.getAll(admin)
-    Data.propertyId = property.id
-    Data.property = property.map
-    const classifiers1 = await TicketClassifier.getAll(admin, { parent_is_null: true })
-    Data.classifiers.lvlOne = Object.fromEntries(classifiers1.map(({ id, name }) => ([ id, { id, name } ])))
-}
-
-const getUnit = () => {
-    const result = { section: null, floor: null, unit: null }
-    const section = Data.property.sections[faker.datatype.number({ min: 0, max: Data.property.sections.length - 1 })]
-    result.section = section.name
-    const floor = section.floors[faker.datatype.number({ min: 0, max: section.floors.length - 1 })]
-    result.floor = floor.name
-    const unit = floor.units[faker.datatype.number({ min: 0, max: floor.units.length - 1 })]
-    result.unit = unit.label
-    return result
-}
-
-const getProblem = () => {
-    const start = Object.values(Data.classifiers.lvlOne)
-    return start[faker.datatype.number({ min: 0, max: start.length - 1 })]
-}
-
-const generateTicket = async (client, dayStamp) => {
-    const unit = getUnit()
-    const problem = getProblem()
-    const status = Data.statuses[faker.datatype.number({ min: 0, max: Data.statuses.length - 1 })]
-    const data = {
-        dv: 1,
-        sender: { dv: 1, fingerprint: 'import' },
-        clientName: `${faker.name.firstName()} ${faker.name.lastName()}`,
-        clientEmail: faker.internet.email(),
-        clientPhone: faker.phone.phoneNumber(),
-        details: faker.lorem.sentence(),
-        entranceName: unit.section,
-        floorName: unit.floor,
-        unitName: unit.unit,
-        source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
-        classifier: { connect: { id: problem.id } },
-        // classifier: { connect: { id: problem.lvl1.id } },
-        operator: { connect: { id: Data.userId } },
-        assignee: { connect: { id: Data.userId } },
-        executor: { connect: { id: Data.userId } },
-        isEmergency: faker.datatype.boolean(),
-        isPaid: faker.datatype.boolean(),
-        organization: { connect: { id: Data.organizationId } },
-        property:  { connect: { id: Data.propertyId } },
-        status: { connect: { id: status.id } },
+    async connect () {
+        const resolved = path.resolve('./index.js')
+        const { distDir, keystone, apps } = require(resolved)
+        await keystone.prepare({ apps, distDir, dev: true })
+        await keystone.connect()
+        this.context = await keystone.createContext({ skipAccessControl: true })
     }
-    const result = await Ticket.create(client, data)
-    await setCreatedBy(result.id, dayStamp)
-}
 
+    async generate () {
+        await this.connect()
+        await this.prepareModels()
+        await this.generateTickets()
+    }
 
-const ticketsToGeneratePerDay = [20, 50]
+    async generateTickets () {
+        const dayStart = moment().utc().startOf('year')
+        const dayEnd = moment().utc()
+        let current = dayStart.add(6, 'hours')
+        let maxTickets = 10000
+        let counter = 0
+        do {
+            const arr = Array(faker.datatype.number(this.ticketsByDay)).fill('')
+            for (const _ of arr) {
+                await this.generateTicket(current.valueOf())
+                console.log(`ticket ${++counter} `)
+            }
+            current = current.add(1, 'day')
+        } while (--maxTickets > 0 && current < dayEnd)
+    }
 
-const setCreatedBy = async (id, date) => {
-    await client.query(' Update "Ticket" SET "createdAt" = $1 WHERE id=$2 ', [
-        moment(date).utc().format('YYYY-MM-DD HH:mm:ss'),
-        id,
-    ])
+    async generateTicket (timeStamp) {
+        const unit = this.unit
+        const data = {
+            dv: 1,
+            sender: { dv: 1, fingerprint: 'import' },
+            clientName: `${faker.name.firstName()} ${faker.name.lastName()}`,
+            clientEmail: faker.internet.email(),
+            clientPhone: faker.phone.phoneNumber('+7922#######'),
+            details: faker.lorem.sentence(),
+            sectionName: unit.section,
+            floorName: unit.floor,
+            unitName: unit.unit,
+            source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
+            classifier: { connect: { id: this.problem.id } },
+            operator: { connect: { id: this.user.id } },
+            assignee: { connect: { id: this.user.id } },
+            executor: { connect: { id: this.user.id } },
+            isEmergency: faker.datatype.boolean(),
+            isPaid: faker.datatype.boolean(),
+            organization: { connect: { id: this.organization.id } },
+            property:  { connect: { id: this.property.id } },
+            status: { connect: { id: this.status.id } },
+        }
+        const result = await Ticket.create(this.context, data)
+        await this.setCreatedAt(result.id, timeStamp)
+    }
+
+    async prepareModels () {
+        this.statuses = await TicketStatus.getAll(this.context, { organization_is_null: true })
+        this.classifiers = await TicketClassifier.getAll(this.context, { parent_is_null: true })
+        const [property] = await Property.getAll(this.context, {})
+        this.property = property
+        const [user] = await User.getAll(this.context, { name_not_in: ['Admin', 'JustUser'] })
+        this.user = user
+        const [organization] = await Organization.getAll(this.context, {})
+        this.organization = organization
+        if (!this.organization) {
+            throw new Error('Please create user with organization first')
+        }
+        if (!this.property) {
+            const { address, addressMeta, map } = demoProperty
+            const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+            const newProperty = await Property.create(this.context, {
+                dv: 1,
+                sender,
+                address,
+                type: 'building',
+                organization: { connect: { id: this.organization.id } },
+                addressMeta,
+                map,
+            })
+            this.property = newProperty
+        }
+        console.log(this.property)
+    }
+
+    get unit () {
+        const result = { section: null, floor: null, unit: null }
+        const section = this.property.map.sections[faker.datatype.number({ min: 0, max: this.property.map.sections.length - 1 })]
+        result.section = section.name
+        const floor = section.floors[faker.datatype.number({ min: 0, max: section.floors.length - 1 })]
+        result.floor = floor.name
+        const unit = floor.units[faker.datatype.number({ min: 0, max: floor.units.length - 1 })]
+        result.unit = unit.label
+        return result
+    }
+
+    get problem () {
+        return this.classifiers[faker.datatype.number({ min: 0, max: this.classifiers.length - 1 })]
+    }
+
+    get status () {
+        return this.statuses[faker.datatype.number({ min: 0, max: this.statuses.length - 1 })]
+    }
+
+    async setCreatedAt (ticketId, date) {
+        await this.pg.query(' Update "Ticket" SET "createdAt" = $1 WHERE id=$2 ', [
+            moment(date).utc().format('YYYY-MM-DD HH:mm:ss'),
+            ticketId,
+        ])
+    }
+
 }
 
 const createTickets = async () => {
-    let counter = 0
-    const admin = await makeLoggedInAdminClient()
-    await createProperty(admin)
-    await loadUser(admin)
-    await loadModels(admin)
-    const dayStart = moment().utc().startOf('year')
-    const dayEnd = moment().utc()
-    let current = dayStart.add(6, 'hours')
-    let emergencyBreak = 10000
-    do {
-        const arr = Array(faker.datatype.number({ min: ticketsToGeneratePerDay[0], max: ticketsToGeneratePerDay[1] })).fill('')
-        for (const _ of arr) {
-            await generateTicket(admin, current.valueOf())
-        }
-        current = current.add(1, 'day')
-    } while (--emergencyBreak > 0 && current < dayEnd)
+    const TicketManager = new TicketGenerator({ ticketsByDay: { min: 20, max: 50 } })
+    await TicketManager.generate()
+}
+
+if (process.env.NODE_ENV !== 'development') {
+    console.log('NODE_ENV needs to be set to "development"')
+    process.exit(1)
 }
 
 createTickets().then(() => {
     console.log('All done')
+    process.exit(0)
 }).catch(err => {
     console.error('Failed to done', err)
 })
