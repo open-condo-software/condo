@@ -9,7 +9,7 @@ import { green } from '@ant-design/colors'
 import Link from 'next/link'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
-import { TICKET_SHARE_MUTATION } from '@condo/domains/ticket/gql'
+import { SHARE_TICKET_MUTATION } from '@condo/domains/ticket/gql'
 import { useOrganization } from '@core/next/organization'
 import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
@@ -159,11 +159,11 @@ const Warning = (props) => {
     )
 }
 
-interface ITicketShareModalProps {
+interface IShareTicketModalProps {
     description: string,
 }
 
-export const TicketShareModal: React.FC<ITicketShareModalProps> = (props) => {
+export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const { description } = props
     const intl = useIntl()
     const SendTicketToEmailMessage = intl.formatMessage({ id: 'SendTicketToEmail' })
@@ -181,7 +181,7 @@ export const TicketShareModal: React.FC<ITicketShareModalProps> = (props) => {
 
     const { query } = useRouter()
     const { organization } = useOrganization()
-    const [ticketShare] = useMutation(TICKET_SHARE_MUTATION)
+    const [shareTicket] = useMutation(SHARE_TICKET_MUTATION)
 
     let href = null
     if (typeof window !== 'undefined') {
@@ -202,7 +202,7 @@ export const TicketShareModal: React.FC<ITicketShareModalProps> = (props) => {
     async function handleClick () {
         setLoading(true)
         const sender = getClientSideSenderInfo()
-        const { data, error } = await ticketShare({ variables: {
+        const { data, error } = await shareTicket({ variables: {
             data: {
                 sender,
                 users: value
