@@ -16,7 +16,7 @@ const {{ name }} = new GQLCustomSchema('{{ name }}', {
         {
             access: true,
             // TODO(codegen): write {{ name }} output !
-            type: 'type {{ name.replace("Service", "") }}Output { id }',
+            type: 'type {{ name.replace("Service", "") }}Output { id: String! }',
         },
     ],
     {% if type == "mutations" %}
