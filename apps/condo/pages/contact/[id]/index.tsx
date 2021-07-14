@@ -2,7 +2,7 @@ import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { ArrowLeftOutlined, EditFilled } from '@ant-design/icons'
-import { Col, Row, Space, Typography } from 'antd'
+import { Affix, Col, Row, Space, Typography } from 'antd'
 import Head from 'next/head'
 import Link from 'next/link'
 import { colors } from '@condo/domains/common/constants/style'
@@ -17,6 +17,7 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
+import  { TicketCard } from '@condo/domains/common/components/TicketCard/TicketCard'
 
 
 const FieldPairRow = (props) => {
@@ -97,7 +98,7 @@ const ContactInfoPage = () => {
                         </Col>
                         <Col span={20} push={1}>
                             <Row gutter={[0, 60]}>
-                                <Col span={16}>
+                                <Col span={15}>
                                     <Row gutter={[0, 40]}>
                                         <Col span={24}>
                                             <Typography.Title>
@@ -146,6 +147,18 @@ const ContactInfoPage = () => {
                                             </Col>
                                         )}
                                     </Row>
+                                </Col>
+                                <Col span={1}/>
+                                <Col span={8}>
+                                    <Affix offsetTop={40}>
+                                        <TicketCard
+                                            organizationId={String(organization.id)}
+                                            contactId={String(contactId)}
+                                            contactName={contactName}
+                                            address={get(contact, ['property', 'address'])}
+                                            unitName={contactUnitName}
+                                        />
+                                    </Affix>
                                 </Col>
                             </Row>
                         </Col>

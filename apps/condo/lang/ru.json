@@ -427,5 +427,7 @@
   "Comments.meta.updated": "Обновлено",
   "Contact.NotFound.Title": "Контакт не найден",
   "Contact.NotFound.Message": "Контакта с данным ID не существует или же это контакт не вашей огранизации",
-  "Contact": "Житель"
+  "Contact": "Житель",
+  "TicketsByContact": "Заявки от жителя",
+  "MoreTicketsLeft": "Ещё {ticketsLeft, plural, one {# заявка} few {# заявки} many {# заявок} "
 }
