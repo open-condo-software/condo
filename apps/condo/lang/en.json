@@ -427,5 +427,7 @@
   "Comments.meta.updated": "Updated",
   "Contact.NotFound.Title": "Contact not found",
   "Contact.NotFound.Message": "There is no contact with this ID or it doesn't belong to this organization",
-  "Contact": "Contact"
+  "Contact": "Contact",
+  "TicketsByContact": "Contact's tickets",
+  "MoreTicketsLeft": "And {ticketsLeft, plural, one {# more ticket} other {# more tickets}}"
 }
