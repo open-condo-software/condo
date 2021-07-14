@@ -429,5 +429,6 @@
   "Contact.NotFound.Message": "Контакта с данным ID не существует или же это контакт не вашей огранизации",
   "Contact": "Житель",
   "TicketsByContact": "Заявки от жителя",
-  "MoreTicketsLeft": "Ещё {ticketsLeft, plural, one {# заявка} few {# заявки} many {# заявок} "
+  "MoreTicketsLeft": "Ещё {ticketsLeft, plural, one {# заявка} few {# заявки} many {# заявок} ",
+  "Contact.NoTicketOnAddress": "Заявок от жителя по этому адресу нет"
 }

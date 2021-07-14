@@ -52,6 +52,7 @@ const TicketCard: React.FC<ITicketCardProps> = ({
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const TicketsByContactMessage = intl.formatMessage({ id: 'TicketsByContact' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const NoTicketsOnAddressMessage = intl.formatMessage({ id: 'Contact.NoTicketOnAddress' })
 
     const unitSuffix = unitName ? `, ${UnitShortMessage} ${unitName}` : ''
     const addressPrefix = address ? address : DeletedMessage
@@ -118,11 +119,19 @@ const TicketCard: React.FC<ITicketCardProps> = ({
                             </Typography.Text>
                             :
                             <>
-                                <Typography.Title
-                                    level={5}
-                                >
-                                    {TicketsByContactMessage}
-                                </Typography.Title>
+                                {tickets.length > 0
+                                    ?
+                                    <Typography.Title
+                                        level={5}
+                                    >
+                                        {TicketsByContactMessage}
+                                    </Typography.Title>
+                                    :
+                                    <Typography.Text style={{ fontSize: 16 }}>
+                                        {NoTicketsOnAddressMessage}
+                                    </Typography.Text>
+                                }
+
                                 {
                                     tickets.map((ticket) => {
                                         return <TicketOverview
