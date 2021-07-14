@@ -40,6 +40,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
     const handleKeyUp = (event, form) => {
         if (event.keyCode === 13 && !event.shiftKey) {
             form.submit()
+            setCommentLength(0)
         }
     }
 
@@ -90,7 +91,10 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                             type="sberPrimary"
                             size="middle"
                             icon={<Icon component={SendMessage} style={{ color: 'white' }}/>}
-                            onClick={handleSave}
+                            onClick={(e) => {
+                                handleSave(e)
+                                setCommentLength(0)
+                            }}
                             loading={isLoading}
                         />
                     </Holder>
