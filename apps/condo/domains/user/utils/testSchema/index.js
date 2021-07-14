@@ -79,6 +79,7 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
         name,
         email,
         phone,
+        type: 'staff',
         password, meta,
         ...extraAttrs,
     }

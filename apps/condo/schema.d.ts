@@ -13209,6 +13209,8 @@ export enum SortUserHistoryRecordsBy {
   NameDesc = 'name_DESC',
   PasswordAsc = 'password_ASC',
   PasswordDesc = 'password_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
   IsActiveAsc = 'isActive_ASC',
   IsActiveDesc = 'isActive_DESC',
   IsAdminAsc = 'isAdmin_ASC',
@@ -13246,6 +13248,8 @@ export enum SortUsersBy {
   DvDesc = 'dv_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
   IsActiveAsc = 'isActive_ASC',
   IsActiveDesc = 'isActive_DESC',
   IsAdminAsc = 'isAdmin_ASC',
@@ -17349,6 +17353,8 @@ export type User = {
   name?: Maybe<Scalars['String']>;
   /**  Password. Update only  */
   password_is_set?: Maybe<Scalars['Boolean']>;
+  /**  Field that allows you to distinguish CRM users from mobile app users  */
+  type?: Maybe<UserTypeType>;
   /**  Can logged in?  */
   isActive?: Maybe<Scalars['Boolean']>;
   /**  Superuser access to service data  */
@@ -17384,6 +17390,7 @@ export type UserCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
+  type?: Maybe<UserTypeType>;
   isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
@@ -17418,6 +17425,7 @@ export type UserHistoryRecord = {
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
@@ -17446,6 +17454,7 @@ export type UserHistoryRecordCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
@@ -17479,6 +17488,7 @@ export type UserHistoryRecordUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
@@ -17552,6 +17562,24 @@ export type UserHistoryRecordWhereInput = {
   password_not_ends_with_i?: Maybe<Scalars['String']>;
   password_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   password_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_contains?: Maybe<Scalars['String']>;
+  type_not_contains?: Maybe<Scalars['String']>;
+  type_starts_with?: Maybe<Scalars['String']>;
+  type_not_starts_with?: Maybe<Scalars['String']>;
+  type_ends_with?: Maybe<Scalars['String']>;
+  type_not_ends_with?: Maybe<Scalars['String']>;
+  type_i?: Maybe<Scalars['String']>;
+  type_not_i?: Maybe<Scalars['String']>;
+  type_contains_i?: Maybe<Scalars['String']>;
+  type_not_contains_i?: Maybe<Scalars['String']>;
+  type_starts_with_i?: Maybe<Scalars['String']>;
+  type_not_starts_with_i?: Maybe<Scalars['String']>;
+  type_ends_with_i?: Maybe<Scalars['String']>;
+  type_not_ends_with_i?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isActive?: Maybe<Scalars['Boolean']>;
   isActive_not?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
@@ -17717,11 +17745,17 @@ export type UserRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+export enum UserTypeType {
+  Staff = 'staff',
+  Resident = 'resident'
+}
+
 export type UserUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
+  type?: Maybe<UserTypeType>;
   isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
@@ -17775,6 +17809,10 @@ export type UserWhereInput = {
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   password_is_set?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<UserTypeType>;
+  type_not?: Maybe<UserTypeType>;
+  type_in?: Maybe<Array<Maybe<UserTypeType>>>;
+  type_not_in?: Maybe<Array<Maybe<UserTypeType>>>;
   isActive?: Maybe<Scalars['Boolean']>;
   isActive_not?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;

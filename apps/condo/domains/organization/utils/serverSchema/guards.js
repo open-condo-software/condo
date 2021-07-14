@@ -47,7 +47,7 @@ const checkUserExistency = async (context, email, phone) => {
         return usersByEmail[0]
     }
 
-    const usersByPhone = await User.getAll(context, { phone })
+    const usersByPhone = await User.getAll(context, { phone, type: 'staff' })
 
     if (usersByPhone.length > 1) throw new Error('[error] more than one user found')
 
