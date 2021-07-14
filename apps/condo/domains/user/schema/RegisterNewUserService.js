@@ -5,31 +5,19 @@ const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { MIN_PASSWORD_LENGTH_ERROR } = require('@condo/domains/user/constants/errors')
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
+const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
+const {
+    CONFIRM_PHONE_ACTION_EXPIRED,
+} = require('@condo/domains/user/constants/errors')
 
-async function ensureNotExists (context, model, models, field, value) {
+async function ensureNotExists (context, field, value) {
     if (isEmpty(value)) {
         throw new Error(`[error] Unable to check field ${field} uniques because the passed value is empty`)
     }
-    const { errors, data } = await context.executeGraphQL({
-        context: context.createContext({ skipAccessControl: true }),
-        query: `
-            query find($where: ${model}WhereInput!) {
-              objs: all${models}(where: $where) {
-                id
-              }
-            }
-        `,
-        variables: { where: { [field]: value, type: 'staff' } },
-    })
-
-    if (errors) {
-        throw new Error(`[error] Unable to check field ${field} uniques`)
-    }
-
-    if (data.objs.length !== 0) {
-        throw new Error(`[unique:${field}:multipleFound] ${models} with this ${field} is already exists`)
+    const existed = await User.getAll(context, { [field]: value, type: 'staff' })
+    if (existed.length !== 0) {
+        throw new Error(`[unique:${field}:multipleFound] user with this ${field} is already exists`)
     }
 }
 
@@ -52,54 +40,39 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     type: 'staff',
                     isPhoneVerified: false,
                 }
-
+                let confirmPhoneActionId = null
                 if (confirmPhoneActionToken) {
-                    const [action] = await ConfirmPhoneAction.getAll(context.createContext({ skipAccessControl: true }),
-                        { token: confirmPhoneActionToken }
+                    const [action] = await ConfirmPhoneAction.getAll(context,
+                        {
+                            token: confirmPhoneActionToken,
+                            completedAt: null,
+                            isPhoneVerified: true,
+                        }
                     )
                     if (!action) {
-                        throw new Error('[error] Unable to find confirm phone action')
+                        throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] Unable to find confirm phone action`)
                     }
+                    confirmPhoneActionId = action.id
                     const { phone, isPhoneVerified } = action
-                    if (!isPhoneVerified) {
-                        throw new Error('[error] Phone is not verified')
-                    }
                     userData.phone = phone
                     userData.isPhoneVerified = isPhoneVerified
                 }
 
-                await ensureNotExists(context, 'User', 'Users', 'phone', userData.phone)
-                await ensureNotExists(context, 'User', 'Users', 'email', userData.email)
+                await ensureNotExists(context, 'phone', userData.phone)
+                await ensureNotExists(context, 'email', userData.email)
 
                 if (userData.password.length < MIN_PASSWORD_LENGTH) {
                     throw new Error(`${MIN_PASSWORD_LENGTH_ERROR}] Password length less then ${MIN_PASSWORD_LENGTH} character`)
                 }
-                const { data: createData, errors: createErrors } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
-                        mutation create($data: UserCreateInput!) {
-                          user: createUser(data: $data) {
-                            id
-                            name
-                            email
-                            isAdmin
-                            isActive
-                          }
-                        }
-                    `,
-                    variables: { data: userData },
-                })
-                if (createErrors) {
-                    const msg = '[error] Unable to create user'
-                    throw new Error(msg)
-                }
+                const user = await User.create(context, userData)
+                await ConfirmPhoneAction.update(context, confirmPhoneActionId, { completedAt: new Date().toISOString() })
                 // TODO(Dimitreee): use locale from .env
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
                 await sendMessage(context, {
                     lang,
                     to: {
                         user: {
-                            id: createData.user.id,
+                            id: user.id,
                         },
                     },
                     type: REGISTER_NEW_USER_MESSAGE_TYPE,
@@ -110,7 +83,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     },
                     sender: data.sender,
                 })
-                return createData.user
+                return user
             },
         },
     ],
