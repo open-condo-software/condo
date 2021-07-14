@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import React, { useCallback, useEffect, useState } from 'react'
-import { Card as AntCard, CardProps, Col, Dropdown, Menu, Row, Skeleton, Space, Tooltip } from 'antd'
+import { Card as AntCard, CardProps, Col, Dropdown, Menu, Row, Skeleton, Space } from 'antd'
 import { DownOutlined, RightOutlined } from '@ant-design/icons'
 import { Button } from './Button'
 import Router from 'next/router'
@@ -36,7 +36,6 @@ const Card: React.FC<CardProps> = (props) => {
 export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, loading = false, onFilterChange, dependencyArray }) => {
     const intl = useIntl()
     const extraTitle = intl.formatMessage({ id: 'component.statscard.ExtraTitle' })
-    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const SELECTED_PERIOD = {
         week: intl.formatMessage({ id: 'component.statscard.periodtypes.Week' }),
         month: intl.formatMessage({ id: 'component.statscard.periodtypes.Month' }),
@@ -71,11 +70,9 @@ export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, lo
     )
 
     const cardExtra = (
-        <Tooltip title={NotImplementedYetMessage}>
-            <Button style={{ fontSize: 16, fontWeight: 700 }} type={'inlineLink'} onClick={linkClick}>
-                {extraTitle}{<RightOutlined />}
-            </Button>
-        </Tooltip>
+        <Button style={{ fontSize: 16, fontWeight: 700 }} type={'inlineLink'} onClick={linkClick}>
+            {extraTitle}{<RightOutlined />}
+        </Button>
     )
 
     return (
