@@ -135,7 +135,6 @@ async function renaming (templateDirectory, targetDirectory, ctx) {
     for (const file of files) {
         const filename = file.name
         let renderedName = renderToString(filename, filename, ctx)
-        if (ctx.opts.type) renderedName = renderedName.replace('.' + ctx.opts.type, '')
         const templatePath = path.join(templateDirectory, filename)
         const isTemplateBasedPath = await exists(templatePath)
         if (isTemplateBasedPath) {
@@ -193,8 +192,7 @@ async function generate (templateDirectory, targetDirectory, ctx) {
 
     await renderTemplates(templateDirectory, tmpDirectory, ctx)
     await renaming(templateDirectory, tmpDirectory, ctx)
-    const forbiddenExtensions = ['.patch', '.default', ...SERVICE_TYPES.map(x=>'.' + x)]
-    const isPatchFile = (name) => !forbiddenExtensions.some(x => name.endsWith(x))
+    const isPatchFile = (name) => !name.endsWith('.default') && !name.endsWith('.patch')
 
     await copy(tmpDirectory, targetDirectory, { filter: isPatchFile })
     await patching(tmpDirectory, targetDirectory, ctx)
@@ -233,7 +231,6 @@ function createapp (argv) {
                 })
             },
             async (args) => {
-                const opts = {}
                 const force = args.force
                 const name = args.name
                 const greeting = chalk.white.bold(name)
@@ -253,7 +250,7 @@ function createapp (argv) {
                 if (isTargetDirExists && !force) throw new Error(`App '${name}' is already exists!`)
 
                 console.log(msgBox)
-                generate(templateDirectory, targetDirectory, { name, opts })
+                generate(templateDirectory, targetDirectory, { name })
             },
         )
 
@@ -326,7 +323,6 @@ function createschema (argv) {
                 })
             },
             async (args) => {
-                const opts = { }
                 const force = args.force
                 const [domain, name] = args.domainschema.split('.')
                 const signature = toFields(args.signature)
@@ -348,7 +344,7 @@ function createschema (argv) {
                 if (isTargetDirExists && !force) throw new Error(`Schema ${domain}.'${name}'.js is already exists!`)
 
                 console.log(msgBox)
-                generate(templateDirectory, targetDirectory, { app, domain, name, signature, opts })
+                generate(templateDirectory, targetDirectory, { app, domain, name, signature })
             },
         )
 
@@ -388,7 +384,7 @@ function createservice (argv) {
             },
             async (args) => {
                 const force = args.force
-                const opts = { type: args.type }
+                const type = args.type
                 const [domain, name] = args.domainschema.split('.')
                 const greeting = chalk.blue.bold(domain) + chalk.green.bold('.') + chalk.red.bold(name)
                 const boxenOptions = {
@@ -408,7 +404,7 @@ function createservice (argv) {
                 if (isTargetDirExists && !force) throw new Error(`Service ${domain}.'${name}'.js is already exists!`)
 
                 console.log(msgBox)
-                generate(templateDirectory, targetDirectory, { app, domain, name, opts })
+                generate(templateDirectory, targetDirectory, { app, domain, name, type })
             },
         )
 

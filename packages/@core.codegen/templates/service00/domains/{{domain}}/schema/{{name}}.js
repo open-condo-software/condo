@@ -19,6 +19,7 @@ const {{ name }} = new GQLCustomSchema('{{ name }}', {
             type: 'type {{ name.replace("Service", "") }}Output { id }',
         },
     ],
+    {% if type == "mutations" %}
     mutations: [
         {
             access: access.can{{ name.replace('Service', '') }},
@@ -32,6 +33,18 @@ const {{ name }} = new GQLCustomSchema('{{ name }}', {
             },
         },
     ],
+    {% else %}
+    queries: [
+        {
+            access: access.can{{ name.replace('Service', '') }},
+            schema: 'execute{{ name.replace("Service", "") }} (data: {{ name.replace("Service", "") }}Input!): {{ name.replace("Service", "") }}Output',
+            resolver: async (parent, args, context, info, extra = {}) => {
+                const { data } = args
+                // TODO(codegen): write logic here
+            },
+        },
+    ],
+    {% endif %}
 })
 
 module.exports = {
