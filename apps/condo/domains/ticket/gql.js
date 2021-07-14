@@ -137,25 +137,6 @@ const EXPORT_TICKETS_TO_EXCEL =  gql`
     }
 `
 
-const XLS_EXPORT_LIMIT = 100
-// If there is no limit - error "maxTotalResults","limit":1000 - will take place
-// TODO(zuch): Xls export on server side and make xls exports look better
-
-const GET_ALL_TICKET_FOR_XLS_EXPORT = gql`
-    query GetAllTicketsForXLS ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!]) {
-        tickets: allTickets(where: $where, sortBy: $sortBy, first: ${XLS_EXPORT_LIMIT}) {
-            number
-            status { id name }
-            details
-            property { id name }
-            assignee { id name }
-            executor { id name }
-            createdAt
-            clientName
-        }
-    }
-`
-
 const GET_TICKET_WIDGET_REPORT_DATA = gql`
     query getWidgetData ($data: TicketReportWidgetInput!) {
         result: ticketReportWidgetData(data: $data) { data { statusName, currentValue, growth, statusType } }
