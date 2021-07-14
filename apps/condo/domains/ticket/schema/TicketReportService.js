@@ -129,7 +129,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
         },
         {
             access: access.canReadTicketReportAnalyticsData,
-            schema: 'ticketReportAnalyticsData(data: TicketReportAnalyticsInput!): TicketReportAnalyticsOutput',
+            schema: 'getTicketReportAnalyticsData(data: TicketReportAnalyticsInput!): TicketReportAnalyticsOutput',
             resolver: async (parent, args, context, info, extra) => {
                 const { dateFrom, dateTo, groupBy, userOrganizationId, ticketType, viewMode, addressList } = args.data
                 const isLineChart = viewMode === 'line'
