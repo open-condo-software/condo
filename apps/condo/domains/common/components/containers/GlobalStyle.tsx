@@ -201,16 +201,6 @@ const radioGroupCss = css`
   .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before{
     background-color:${colors.black};
   }
-  .sberRadioGroupIcon .ant-radio-button-wrapper {
-    height: 36px;
-    width: 56px;
-    text-align: center;
-  }
-  .sberRadioGroup .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked) path,
-  .sberRadioGroup .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked) rect {
-    fill: black;
-  }
-
   .sberRadioGroup .ant-radio-inner::after {
     background-color: ${colors.green[6]};
   }

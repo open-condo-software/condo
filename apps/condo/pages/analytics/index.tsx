@@ -28,7 +28,8 @@ import moment from 'moment'
 import { BarChartIcon, LinearChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
 import { Button } from '@condo/domains/common/components/Button'
 import { EditFilled, FilePdfFilled, PlusCircleFilled } from '@ant-design/icons'
-import ActionBar from '../../domains/common/components/ActionBar'
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithIcon'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
@@ -264,8 +265,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                             <Typography.Title level={3}>{ViewModeTitle} {selectedPeriod}</Typography.Title>
                         </Col>
                         <Col span={4} style={{ textAlign: 'right', flexWrap: 'nowrap' }}>
-                            <Radio.Group
-                                className={'sberRadioGroup sberRadioGroupIcon'}
+                            <RadioGroupWithIcon
                                 value={viewMode}
                                 size={'small'}
                                 buttonStyle='outline'
@@ -276,7 +276,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                                 <Radio.Button value='bar'>
                                     <BarChartIcon height={32} width={24} />
                                 </Radio.Button>
-                            </Radio.Group>
+                            </RadioGroupWithIcon>
                         </Col>
                         <Col span={24}>
                             <TicketAnalyticsPageChartView data={analyticsData} loading={loading} viewMode={viewMode}>
