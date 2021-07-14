@@ -49,7 +49,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
-
+    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const offsetFromQuery = getPageIndexFromQuery(router.query)
@@ -185,7 +185,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
                                                     icon={<DatabaseFilled />}
                                                     loading={isXlsLoading}
                                                     onClick={
-                                                        () => exportToExcel({ variables: { data: { where: where, sortBy: sortBy } } })
+                                                        () => exportToExcel({ variables: { data: { where: where, sortBy: sortBy, timeZone } } })
                                                     }>{ExportAsExcel}
                                                 </Button>
                                         }
