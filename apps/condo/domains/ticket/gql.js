@@ -20,9 +20,9 @@ const TicketSource = generateGqlQueries('TicketSource', TICKET_SOURCE_FIELDS)
 const TICKET_CLASSIFIER_FIELDS = `{ organization { id } parent { id name parent { id name } } fullName name ${COMMON_FIELDS} }`
 const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIER_FIELDS)
 
-const TICKET_SHARE_MUTATION = gql`
-    mutation ticketShare($data: TicketShareInput!) {
-        obj: ticketShare(data: $data) { status }
+const SHARE_TICKET_MUTATION = gql`
+    mutation shareTicket($data: ShareTicketInput!) {
+        obj: shareTicket(data: $data) { status }
     }
 `
 
@@ -144,6 +144,6 @@ module.exports = {
     EXPORT_TICKETS_TO_EXCEL,
     GET_TICKET_WIDGET_REPORT_DATA,
     TicketComment,
-    TICKET_SHARE_MUTATION,
+    SHARE_TICKET_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
