@@ -77,7 +77,7 @@ const search = css`
 `
 
 const ModalHeader = styled.span`
-    fontWeight: 700;
+    font-weight: 700;
     line-height: 32px;
     font-size: 24px;
 `
