@@ -6,7 +6,6 @@ const { makeLoggedInClient } = require('../../user/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithProperty } = require('../../property/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { createResidentTicketByTestClient } = require('@condo/domains/ticket/utils/testSchema')
 

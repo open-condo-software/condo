@@ -1,7 +1,6 @@
-import { IPropertyUIState } from '../../property/utils/clientSchema/Property'
 const { get } = require('lodash')
 
-function getSectionAndFloorByUnitName (property: IPropertyUIState, unitName: string): { sectionName: string, floorName: string } {
+function getSectionAndFloorByUnitName (property, unitName) {
     const res = {
         sectionName: null,
         floorName: null,
