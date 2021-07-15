@@ -5,12 +5,17 @@
 const get = require('lodash/get')
 const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
- 
 
-async function canReadTicketFiles ({ authentication: { item: user } }) {
+
+async function canReadTicketFiles ({ authentication: { item: user }, originalInput }) {
     if (!user) return false
     if (user.isAdmin) {
         return {}
+    }
+    if (user.type === 'resident') {
+        if (user.id === get(originalInput, ['createdBy', 'id'])) {
+            return true
+        }
     }
     return { organization: { employees_some: { user: { id: user.id }, isBlocked: false } } }
 }
@@ -20,6 +25,10 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
     if (user.isAdmin) return true
     if (operation === 'create') {
         const organizationIdFromTicketFile = get(originalInput, ['organization', 'connect', 'id'])
+        // TODO(zuch): need to check connection from resident to organization
+        if (user.type === 'resident' ) {
+            return true
+        }
         if (!organizationIdFromTicketFile) {
             return false
         }
@@ -33,6 +42,9 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
         const { ticket, createdBy, organization } = ticketFile
         if (!ticket) {
             // Temp file that wasn't connected to ticket
+            return (createdBy === user.id)
+        }
+        if (user.type === 'resident' ) {
             return (createdBy === user.id)
         }
         if (!organization) {
