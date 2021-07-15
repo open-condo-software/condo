@@ -10,6 +10,7 @@ import { OrganizationEmployeeRole } from '../utils/clientSchema'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
 import { isEmpty } from 'lodash'
 import { Highliter } from '../../common/components/Highliter'
+import { EmptyTableCell } from '@condo/domains/common/components/EmptyTableCell'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
@@ -26,9 +27,9 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
     const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
     const search = getFilteredValue(filters, 'search')
     const render = (text) => {
-        if (!text) return '—'
-        if (!isEmpty(search)) {
-            return (
+        let result = text
+        if (!isEmpty(search) && text) {
+            result = (
                 <Highliter
                     text={String(text)}
                     search={String(search)}
@@ -40,7 +41,7 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
                 />
             )
         }
-        return text
+        return (<EmptyTableCell>{result}</EmptyTableCell>)
     }
     const columns = useMemo(() => {
         return [

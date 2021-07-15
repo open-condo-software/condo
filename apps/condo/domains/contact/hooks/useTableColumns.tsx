@@ -8,6 +8,7 @@ import { createSorterMap, IFilters } from '../utils/helpers'
 import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { Highliter } from '@condo/domains/common/components/Highliter'
 import { colors } from '@condo/domains/common/constants/style'
+import { EmptyTableCell } from '@condo/domains/common/components/EmptyTableCell'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
@@ -23,9 +24,9 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
 
     const search = getFilteredValue(filters, 'search')
     const render = (text) => {
-        if (!text) return '—'
-        if (!isEmpty(search)) {
-            return (
+        let result = text
+        if (!isEmpty(search) && text) {
+            result = (
                 <Highliter
                     text={String(text)}
                     search={String(search)}
@@ -37,7 +38,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 />
             )
         }
-        return text
+        return (<EmptyTableCell>{result}</EmptyTableCell>)
     }
 
     return useMemo(() => {
