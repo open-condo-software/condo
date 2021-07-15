@@ -1,4 +1,6 @@
-const { generate, grey, green, gold, blue, red } = require('@ant-design/colors')
+const {
+    generate, grey, green, gold, blue, red, volcano, purple, lime, magenta, cyan, geekblue, yellow,
+} = require('@ant-design/colors')
 
 const generateCustomColorPalette = (primaryColor, secondaryColor) => {
     const colorPalette = generate(primaryColor)
@@ -40,6 +42,13 @@ const colors = {
     red,
     blue,
     green,
+    volcano,
+    purple,
+    lime,
+    magenta,
+    cyan,
+    geekblue,
+    yellow,
     ultraLightGrey,
     inputBorderGrey,
     whiteTranslucent,
