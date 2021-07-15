@@ -4,7 +4,8 @@ const { Ticket, TicketComment, TicketChange, TicketStatus } = require('@condo/do
 const moment = require('moment')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { has, get } = require('lodash')
-
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
+const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/ticket/constants/errors')
 const CHUNK_SIZE = 20
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
@@ -26,7 +27,8 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
             access: access.canExportTicketsToExcel,
             schema: 'exportTicketsToExcel(data: ExportTicketsToExcelInput!): ExportTicketsToExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { where, sortBy, timeZone } = args.data
+                const { where, sortBy, timeZone: timeZoneFromUser } = args.data
+                const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
                 const formatDate = (date) => moment(date).tz(timeZone).format(DATE_FORMAT)
                 let skip = 0
                 let maxCount = 1000
@@ -50,17 +52,21 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                     indexedComments[comment.ticket.id].push(comment.content)
                 })
                 const statuses = await TicketStatus.getAll(context, { type_in: ['processing', 'canceled', 'completed'] })
-                const statusesIndexed = Object.fromEntries(statuses.map(({ id, type }) => ([id, type])))
-                const statusChanges = await TicketChange.getAll(context, { ticket: { id_in: ticketIds }, statusIdTo_in: Object.keys(statusesIndexed) }, { sortBy: 'createdAt_ASC' })
+                const indexedStatuses = Object.fromEntries(statuses.map(({ id, type }) => ([id, type])))
+                const statusChanges = await TicketChange.getAll(context, { ticket: { id_in: ticketIds }, statusIdTo_in: Object.keys(indexedStatuses) }, { sortBy: 'createdAt_ASC' })
                 const statusDateByTickets = {}
                 statusChanges.forEach(statusChange => {
                     if (!has(statusDateByTickets, statusChange.ticket.id)){
                         statusDateByTickets[statusChange.ticket.id] = {}
                     }
-                    statusDateByTickets[statusChange.ticket.id][statusesIndexed[statusChange.statusIdTo]] = statusChange.createdAt
+                    statusDateByTickets[statusChange.ticket.id][indexedStatuses[statusChange.statusIdTo]] = statusChange.createdAt
                 })
                 const excelRows = allTickets.map(ticket => {
-                    const inWork = get(statusDateByTickets, `${ticket.id}.processing`, '')
+                    let inWork = get(statusDateByTickets, `${ticket.id}.processing`, '')
+                    // When ticket created with assigner it will aoutomatically get processing status on creation
+                    if (ticket.status.type !== 'new_or_reopened' && !inWork) {
+                        inWork = ticket.createdAt
+                    }
                     const completed = get(statusDateByTickets, `${ticket.id}.completed`) ||  get(statusDateByTickets, `${ticket.id}.canceled`, '')
                     return {
                         number: ticket.number,
