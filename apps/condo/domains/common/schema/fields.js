@@ -1,6 +1,7 @@
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { Integer } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
+const { JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 
 const DV_FIELD = {
     type: Integer,
@@ -30,7 +31,31 @@ const SENDER_FIELD = {
     },
 }
 
+
+const ADDRESS_META_FIELD = {
+    schemaDoc: 'Property address components',
+    type: Json,
+    isRequired: true,
+    kmigratorOptions: { null: false },
+    hooks: {
+        validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+            if (!resolvedData.hasOwnProperty(fieldPath)) return addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${fieldPath}] Value is required`)
+            const value = resolvedData[fieldPath]
+            if (typeof value !== 'object' || value === null) { return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`) }
+            const { dv } = value
+            if (dv === 1) {
+                // TODO(pahaz): need to checkIt!
+            } else {
+                // TODO(zuch): Turn on error after finishing add property
+                console.error(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+                // return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+            }
+        },
+    },
+}
+
 module.exports = {
     DV_FIELD,
     SENDER_FIELD,
+    ADDRESS_META_FIELD,
 }
