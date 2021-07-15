@@ -221,7 +221,6 @@ const Ticket = new GQLListSchema('Ticket', {
             knexOptions: { isNotNullable: true }, // Relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
-
         sectionName: {
             schemaDoc: 'Section name/number of an apartment building (property). You need to take from Property.map',
             type: Text,

@@ -235,13 +235,19 @@ async function getAllResidentTicketsByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
-async function createResidentTicketByTestClient(client, extraAttrs = {}) {
+async function createResidentTicketByTestClient(client, organization, classifier, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
-        // dv: 1,
-        // sender,
+        dv: 1,
+        sender,
+        organizationId: organization.id,
+        details: 'asdasdqwdakkdskkdkdkkskskaklkaskldalksdlkakldlkasld',
+        classifierId: classifier.id,
+        propertyId: property.id,
+        unitName: '2',
+        sourceId: TICKET_OTHER_SOURCE_ID,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(CREATE_RESIDENT_TICKET_MUTATION, { data: attrs })
