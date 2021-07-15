@@ -4,11 +4,13 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const {throwIfError} = require("@condo/domains/common/utils/codegeneration/generate.test.utils");
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
+const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_MUTATION } = require('@condo/domains/property/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateGQLTestUtils(PropertyGQL)
@@ -59,6 +61,16 @@ async function makeClientWithProperty () {
     return client
 }
 
+async function checkPropertyWithAddressExistByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const attrs = {
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.query(CHECK_PROPERTY_WITH_ADDRESS_EXIST_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -66,5 +78,6 @@ module.exports = {
     createTestProperty,
     updateTestProperty,
     makeClientWithProperty,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    checkPropertyWithAddressExistByTestClient
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

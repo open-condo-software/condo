@@ -4,16 +4,30 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 
+const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_MUTATION } = require('@condo/domains/property/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateServerUtils(PropertyGQL)
+async function checkPropertyWithAddressExist (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+
+    return await execGqlWithoutAccess(context, {
+        query: CHECK_PROPERTY_WITH_ADDRESS_EXIST_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to checkPropertyWithAddressExist',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Property,
+    checkPropertyWithAddressExist,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
