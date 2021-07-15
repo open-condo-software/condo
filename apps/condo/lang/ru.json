@@ -384,6 +384,7 @@
   "ticketsTable.ResidentName": "Фио Жителя",
   "Title": "Заголовок",
   "profile.Update": "Редактирование профиля",
+  "profile.Employee.Update": "Редактирование профиля",
   "profile.ChangePasswordModalTitle": "Изменение пароля",
   "profile.ChangePassword": "Сбросить пароль",
   "profile.PasswordResetTimeout": "(сбросить ещё раз можно через 00: {countdown} секунд)",

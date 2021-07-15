@@ -28,7 +28,7 @@ const INPUT_LAYOUT_PROPS = {
 export const EmployeeProfileForm = () => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-    const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
+    const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Employee.Update' })
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
