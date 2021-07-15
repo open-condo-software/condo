@@ -18,6 +18,7 @@ async function canManagePropertyResidents ({ authentication: { item: user }, ori
     if (user.isAdmin) return true
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+        if (!organizationId) return false
         const canManagePropertyResidents = await checkOrganizationPermission(user.id, organizationId, 'canManagePropertyResidents')
         return canManagePropertyResidents
     } else if (operation === 'update') {
