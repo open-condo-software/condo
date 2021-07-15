@@ -49,14 +49,14 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
             schema: 'createResidentTicket(data: CreateResidentTicketInput!): CreateResidentTicketOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { organizationId, details, classifierId, propertyId, unitName, sourceId } = data
+                const { dv, sender, organizationId, details, classifierId, propertyId, unitName, sourceId } = data
                 const property = (await Property.getAll(context, { id: propertyId }))[0]
                 const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
                 const client = context.req.user
 
                 const ticket = await Ticket.create(context, {
-                    dv: 1,
-                    sender: client.sender,
+                    dv,
+                    sender,
                     organization: { connect: { id: organizationId } },
                     client: { connect: { id: client.id } },
                     classifier: { connect: { id: classifierId } },
