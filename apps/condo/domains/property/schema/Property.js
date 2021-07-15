@@ -15,6 +15,7 @@ const { DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR, JSON_SCHEMA_VALIDA
 const { GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 const Ajv = require('ajv')
+const { ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
 
@@ -39,27 +40,7 @@ const Property = new GQLListSchema('Property', {
             isRequired: true,
         },
 
-        addressMeta: {
-            schemaDoc: 'Property address components',
-            type: Json,
-            isRequired: true,
-            kmigratorOptions: { null: false },
-            hooks: {
-                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
-                    if (!resolvedData.hasOwnProperty(fieldPath)) return addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${fieldPath}] Value is required`)
-                    const value = resolvedData[fieldPath]
-                    if (typeof value !== 'object' || value === null) { return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`) }
-                    const { dv } = value
-                    if (dv === 1) {
-                        // TODO(pahaz): need to checkIt!
-                    } else {
-                        // TODO(zuch): Turn on error after finishing add property
-                        console.error(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
-                        // return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
-                    }
-                },
-            },
-        },
+        addressMeta: ADDRESS_META_FIELD,
 
         type: {
             schemaDoc: 'Common property type',
