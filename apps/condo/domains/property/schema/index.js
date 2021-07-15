@@ -4,9 +4,11 @@
  */
 
 const { Property } = require('./Property')
+const { CheckPropertyWithAddressExistService } = require('./CheckPropertyWithAddressExistService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Property,
+    CheckPropertyWithAddressExistService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
