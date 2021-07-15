@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Contact as ContactGQL } from '@condo/domains/contact/gql'
 import { Contact, ContactUpdateInput, QueryAllContactsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'property', 'name', 'phone', 'unitName', 'email']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'property', 'name', 'phone', 'unitName', 'email', 'organization']
 const RELATIONS = ['organization', 'property']
 
 export interface IContactUIState extends Contact {
