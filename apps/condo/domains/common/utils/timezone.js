@@ -1,7 +1,7 @@
-const moment = require('moment')
+const moment = require('moment-timezone')
 
 const normalizeTimeZone = (timeZone) => {
-    const isValid = moment.tz.zone(timeZone) != null
+    const isValid = moment.tz.zone(timeZone) !== null
     if (isValid) {
         return timeZone
     }
