@@ -30,24 +30,29 @@ import { Button } from '@condo/domains/common/components/Button'
 import { EditFilled, FilePdfFilled, PlusCircleFilled } from '@ant-design/icons'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithIcon'
+import { TicketReportAnalyticsOutput } from '../../schema'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
 type viewModeTypes = 'bar' | 'line' | 'pie'
 interface ITicketAnalyticsPageWidgetProps {
-    data: null | any;
+    data: null | TicketReportAnalyticsOutput['data'];
     viewMode: viewModeTypes;
     loading?: boolean;
 }
 type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
 type ticketSelectTypes = 'default' | 'paid' | 'emergency'
 const DATE_DISPLAY_FORMAT = 'DD.MM.YYYY'
-// TODO: get selectedPeriod from filter component
+// TODO(sitozzz): get selectedPeriod from filter component
 const SELECTED_PERIOD = [moment().subtract(1, 'week'), moment()]
-// TODO: get addressList from filter component
+// TODO(sitozzz): get addressList from filter component
 const ADDRESS_LIST = []
-const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5], colors.green[7], colors.sberGrey[7], colors.blue[4]]
+const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5], colors.volcano[5], colors.purple[5],
+    colors.lime[7], colors.sberGrey[7], colors.magenta[5], colors.blue[4], colors.gold[6], colors.cyan[6],
+    colors.blue[7], colors.volcano[6], colors.green[5], colors.geekblue[7], colors.sberGrey[7], colors.gold[7],
+    colors.magenta[7], colors.yellow[5], colors.lime[7], colors.blue[8], colors.cyan[5], colors.yellow[6],
+    colors.purple[7], colors.lime[8], colors.red[6] ]
 
 const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageWidgetProps> = ({ children, data, viewMode, loading = false }) => {
     if (data === null) {
@@ -154,8 +159,8 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = (
                 tableLayout={'fixed'}
                 scroll={{ scrollToFirstRowOnChange: false }}
                 loading={loading}
-                dataSource={tableData.map(({ address, ...rest }) => (
-                    { address: address === null ? AllAddressTitle : address, ...rest }
+                dataSource={tableData.map(({ address, ...rest }, key) => (
+                    { key, address: address === null ? AllAddressTitle : address, ...rest }
                 ))}
                 columns={tableColumns as TableColumnsType}
                 pagination={false}
