@@ -21,6 +21,7 @@ import { useContactsEditorHook } from '@condo/domains/contact/components/Contact
 import { useOrganization } from '@core/next/organization'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { normalizeText } from '@condo/domains/common/utils/text'
+import { InputWithCounter } from '../../../common/components/InputWithCounter'
 
 const { TabPane } = Tabs
 
@@ -77,6 +78,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
     const selectedUnitNameRef = useRef(selectedUnitName)
+
+    const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(0)
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
@@ -279,7 +282,15 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     </Col>
                                                                     <Col span={24}>
                                                                         <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
-                                                                            <Input.TextArea rows={3} placeholder={DescriptionPlaceholder} disabled={disableUserInteraction} />
+                                                                            <InputWithCounter
+                                                                                InputComponent={Input.TextArea}
+                                                                                currentLength={currentDetailsLength}
+                                                                                maxLength={500}
+                                                                                onChange={e => setCurrentDetailsLength(e.target.value.length)}
+                                                                                autoSize={{ minRows: 1, maxRows: 6 }}
+                                                                                placeholder={DescriptionPlaceholder}
+                                                                                disabled={disableUserInteraction}
+                                                                            />
                                                                         </Form.Item>
                                                                     </Col>
                                                                     <Col flex={0}>
