@@ -96,6 +96,12 @@ const SIGNIN_OR_REGISTER_RESIDENT_MUTATION = gql`
         result: signinOrRegisterResident(data: $data) { user, token }
     }
 `
+// TODO(codegen): write return type result!
+const CHANGE_PHONE_NUMBER_RESIDENT_MUTATION = gql`
+    mutation changePhoneNumberResident ($data: ChangePhoneNumberResidentInput!) {
+        result: changePhoneNumberResident(data: $data) { id }
+    }
+`
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -115,5 +121,6 @@ module.exports = {
     ForgotPasswordAction,
     CHECK_PASSWORD_RECOVERY_TOKEN,
     SIGNIN_OR_REGISTER_RESIDENT_MUTATION,
+    CHANGE_PHONE_NUMBER_RESIDENT_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
