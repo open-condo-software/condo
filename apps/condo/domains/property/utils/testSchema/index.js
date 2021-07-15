@@ -70,6 +70,14 @@ async function createTestPropertyResident (client, organization, property, extra
     if (!property || !property.id) throw new Error('no property.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
+    const address = faker.address.streetAddress(true)
+    const addressMeta = {
+        dv: 1, city: faker.address.city(), zipCode: faker.address.zipCode(),
+        street: faker.address.streetName(), number: faker.address.secondaryAddress(),
+        county: faker.address.county(),
+        address,
+    }
+
     const attrs = {
         dv: 1,
         sender,
@@ -79,6 +87,8 @@ async function createTestPropertyResident (client, organization, property, extra
         name: faker.name.firstName(),
         email: createTestEmail(),
         phone: createTestPhone(),
+        address,
+        addressMeta,
         ...extraAttrs,
     }
     const obj = await PropertyResident.create(client, attrs)
