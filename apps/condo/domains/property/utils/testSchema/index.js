@@ -13,6 +13,8 @@ const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const { createTestEmail } = require('@condo/domains/user/utils/testSchema')
 
 const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('@condo/domains/property/gql')
+const { PropertyResident: PropertyResidentGQL } = require('@condo/domains/property/gql')
+const { REGISTER_MY_PROPERTY_RESIDENT_MUTATION } = require('@condo/domains/property/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateGQLTestUtils(PropertyGQL)
@@ -123,13 +125,29 @@ async function checkPropertyWithAddressExistByTestClient(client, extraAttrs = {}
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function registerMyPropertyResidentByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_MY_PROPERTY_RESIDENT_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     Property,
+    PropertyResident, createTestPropertyResident, updateTestPropertyResident,
     createTestProperty,
     updateTestProperty,
     makeClientWithProperty,
-    checkPropertyWithAddressExistByTestClient
+    checkPropertyWithAddressExistByTestClient,
+    registerMyPropertyResidentByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
