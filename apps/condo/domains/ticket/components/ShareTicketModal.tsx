@@ -109,8 +109,6 @@ const ShareButton = styled.span`
   }
 `
 
-const declOfNum = (number, words) => words[(number % 100 > 4 && number % 100 < 20) ? 2 : [2, 0, 1, 1, 1, 2][(number % 10 < 5) ? Math.abs(number) % 10 : 5]]
-
 const Warning = (props) => {
     const intl = useIntl()
     const EmployeesMessage = intl.formatMessage({ id: 'menu.Employees' })
@@ -153,7 +151,7 @@ const Warning = (props) => {
 
             {ShareWarningEmailMessage}
             {length > 0 && (intl.locale === RU_LOCALE
-                ? `… и еще ${length} ${length >= 1 ? declOfNum(length, ['сотрудник', 'сотрудника', 'сотрудников']) : ''}`
+                ? `… и ещё сотрудников ${length}`
                 : `… and more ${length} employee${length > 1 ? 's' : ''}`)}
         </WarningContainer>
     )
