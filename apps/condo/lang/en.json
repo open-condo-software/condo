@@ -332,6 +332,8 @@
   "pages.condo.analytics.TicketAnalyticsPage.ticketType.Paid": "Paid",
   "pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency": "Emergency",
   "pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses": "All addresses",
+  "pages.condo.analytics.TicketAnalyticsPage.AllAddresses": "for all addresses",
+  "pages.condo.analytics.TicketAnalyticsPage.AllCategories": "by every category",
   "pages.organizations.CreateOrganizationButtonLabel": "Create new organization",
   "pages.organizations.CreateOrganizationModalTitle": "New organization form",
   "pages.organizations.EditOrganizationModalTitle": "Edit organization form",
