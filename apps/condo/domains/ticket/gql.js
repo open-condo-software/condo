@@ -115,16 +115,15 @@ const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name } content ${COMMON
 const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 
 
-// TODO(codegen): write return type result!
 const GET_ALL_RESIDENT_TICKETS_MUTATION = gql`
-    query getAllResidentTickets {
-        result: getAllResidentTickets ${TICKET_FIELDS}
+    query getAllResidentTickets ($where: TicketWhereInput!, $skip: Int!, $limit: Int!) {
+        result: getAllResidentTickets (where: $where, skip: $skip, limit: $limit) ${TICKET_FIELDS}
     }
 `
-// TODO(codegen): write return type result!
+
 const CREATE_RESIDENT_TICKET_MUTATION = gql`
     mutation createResidentTicket ($data: CreateResidentTicketInput!) {
-        result: createResidentTicket(data: $data) { id }
+        result: createResidentTicket (data: $data) { id }
     }
 `
 /* AUTOGENERATE MARKER <CONST> */

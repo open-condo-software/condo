@@ -222,19 +222,18 @@ async function updateTestTicketComment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function getAllResidentTicketsByTestClient(client, extraAttrs = {}) {
+async function getAllResidentTicketsByTestClient(client, where = {}, skip, limit, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
-        dv: 1,
-        sender,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(GET_ALL_RESIDENT_TICKETS_MUTATION, { data: attrs })
+    const { data, errors } = await client.query(GET_ALL_RESIDENT_TICKETS_MUTATION, { data: attrs, where, skip, limit })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
 async function createResidentTicketByTestClient(client, organization, classifier, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
