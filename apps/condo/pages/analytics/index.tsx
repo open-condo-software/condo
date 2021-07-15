@@ -113,7 +113,7 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageWidgetProps> = 
     }
 
     return <div style={{ position: 'relative' }}>
-        <ReactECharts showLoading={loading} option={option} />
+        <ReactECharts notMerge showLoading={loading} option={option} />
         {children}
     </div>
 }
@@ -214,7 +214,6 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
 
     useEffect(() => {
         setLoading(true)
-        setAnalyticsData(null)
         loadTicketAnalyticsData({ variables: {
             data: {
                 dateFrom: dateFrom.toISOString(),
