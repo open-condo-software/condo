@@ -11,6 +11,7 @@ import { Typography } from 'antd'
 import { isEmpty } from 'lodash'
 import { Highliter } from '@condo/domains/common/components/Highliter'
 import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
+import { EmptyTableCell } from '@condo/domains/common/components/EmptyTableCell'
 
 interface ITableColumn {
     title: string,
@@ -35,6 +36,24 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
         const UnitsCountMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.UnitsCount' })
         const TasksInWorkMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.TasksInWorkCount' })
         const sorterMap = createSorterMap(sort)
+        const search = getFilteredValue(filters, 'search')
+        const render = (text) => {
+            let result = text
+            if (!isEmpty(search) && text) {
+                result = (
+                    <Highliter
+                        text={String(text)}
+                        search={String(search)}
+                        renderPart={(part) => (
+                            <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                {part}
+                            </Typography.Text>
+                        )}
+                    />
+                )
+            }
+            return (<EmptyTableCell>{result}</EmptyTableCell>)
+        }
         return [
             {
                 title: AddressMessage,
@@ -45,23 +64,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 key: 'address',
                 sorter: true,
                 width: '50%',
-                render: (text) => {
-                    const search = getFilteredValue(filters, 'search')
-                    if (!isEmpty(search)) {
-                        return (
-                            <Highliter
-                                text={text}
-                                search={String(search)}
-                                renderPart={(part) => (
-                                    <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                                        {part}
-                                    </Typography.Text>
-                                )}
-                            />
-                        )
-                    }
-                    return text
-                },
+                render,
                 filterDropdown: getTextFilterDropdown(AddressMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
@@ -71,14 +74,14 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 dataIndex: 'unitsCount',
                 key: 'unitsCount',
                 width: '25%',
-            },       
+            },
             {
                 title: TasksInWorkMessage,
                 ellipsis: true,
                 dataIndex: 'ticketsInWork',
                 key: 'ticketsInWork',
                 width: '25%',
-            },                 
+            },
         ]
     }, [sort, filters, intl])
 

@@ -13,6 +13,7 @@ import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketSta
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { TicketStatus } from '../utils/clientSchema'
 import { Highliter } from '@condo/domains/common/components/Highliter'
+import { EmptyTableCell } from '@condo/domains/common/components/EmptyTableCell'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
 
 
@@ -40,9 +41,9 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
     const search = getFilteredValue(filters, 'search')
 
     const render = (text) => {
-        if (!text) return '—'
-        if (!isEmpty(search)) {
-            return (
+        let result = text
+        if (!isEmpty(search) && text) {
+            result = (
                 <Highliter
                     text={String(text)}
                     search={String(search)}
@@ -54,7 +55,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 />
             )
         }
-        return text
+        return (<EmptyTableCell>{result}</EmptyTableCell>)
     }
 
     return useMemo(() => {
