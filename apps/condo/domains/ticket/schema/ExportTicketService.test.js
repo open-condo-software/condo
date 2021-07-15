@@ -5,6 +5,7 @@ const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { EXPORT_TICKETS_TO_EXCEL } = require('@condo/domains/ticket/gql')
 const { makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 
 // TODO(zuch): remove after tests will have obs configuration in .env
 const isObsConfigured = () => {
@@ -21,7 +22,7 @@ describe('ExportTicketService', () => {
                 const client = await makeClientWithProperty()
                 await createTestTicket(client, client.organization, client.property)
                 const { data: { result: { status, linkToFile } } }  = await client.query(EXPORT_TICKETS_TO_EXCEL, {
-                    data: { where: { organization: { id: client.organization.id } }, sortBy: 'id_ASC', timeZone: 'Europe/Moscow' },
+                    data: { where: { organization: { id: client.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
                 })
                 expect(status).toBe('ok')
                 expect(linkToFile).not.toHaveLength(0)
@@ -35,7 +36,7 @@ describe('ExportTicketService', () => {
             const client2 = await makeClientWithProperty()
             await createTestTicket(client2, client2.organization, client2.property)
             const { data: { result }, errors } = await client.query(EXPORT_TICKETS_TO_EXCEL, {
-                data: { where: { organization: { id: client2.organization.id } }, sortBy: 'id_ASC', timeZone: 'Europe/Moscow' },
+                data: { where: { organization: { id: client2.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
             })
             expect(result).toBeNull()
             expect(errors).toHaveLength(1)
@@ -49,7 +50,7 @@ describe('ExportTicketService', () => {
             const client2 = await makeClientWithProperty()
             await createTestTicket(client2, client2.organization, client2.property)
             const { data: { result }, errors } = await client.query(EXPORT_TICKETS_TO_EXCEL, {
-                data: { where: { organization: { id: client2.organization.id } }, sortBy: 'id_ASC', timeZone: 'Europe/Moscow' },
+                data: { where: { organization: { id: client2.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
             })
             expect(result).toBeNull()
             expect(errors).toHaveLength(1)
