@@ -27,6 +27,7 @@ const ANT_LOCALES = {
 }
 import { useAntdMediaQuery } from '@condo/domains/common/utils/mediaQuery.utils'
 import getConfig from 'next/config'
+import styled from '@emotion/styled'
 const { publicRuntimeConfig: { googleCaptcha } } = getConfig()
 
 export interface AuthPage extends React.FC {
@@ -39,13 +40,28 @@ const AUTH_PAGES_STYLE = { width: '100%', maxWidth: '500px', paddingLeft: '20px'
 const HEADER_STYLE = { background: colors.white, padding: '20px', margin: '0px', width: '100%' }
 const FOOTER_STYLE = { color: colors.lightGrey[7], backgroundColor: colors.white, fontSize: '12px', lineHeight: '20px',  padding: '20px' }
 
+const AdaptiveContent = styled(Content)`
+  display: flex;
+  justify-content: center;
+  @media screen and (max-height: 630px) {
+      margin-top: 81px;
+      align-items: start;
+  }
+  @media screen and (max-width: 380px) {
+    margin-top: 120px;
+  }
+  @media screen and (min-height: 630px) {
+      align-items: center;
+  }
+`
+
 const PageContent: React.FC = ({ children }) => {
     return (
-        <Content style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <AdaptiveContent>
             <div style={AUTH_PAGES_STYLE}>
                 {children}
             </div>
-        </Content>
+        </AdaptiveContent>
     )
 }
 
@@ -130,7 +146,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                     <Global styles={formInputFixCss}></Global>
                     <Layout style={{ background: colors.white, height: '100vh' }}>
                         <AntPageHeader
-                            style={{ ...HEADER_STYLE }}
+                            style={{ ...HEADER_STYLE, position: 'fixed' }}
                             title={<Logo onClick={() => Router.push('/')} />}
                             extra={headerAction}
                         >
