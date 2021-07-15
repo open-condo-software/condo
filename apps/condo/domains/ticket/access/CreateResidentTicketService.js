@@ -3,9 +3,9 @@
  */
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 async function canCreateResidentTicket ({ authentication: { item: user } }) {
+    // TODO think about access
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
-    return false
+    return true
 }
 
 /*

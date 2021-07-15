@@ -12,7 +12,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
     types: [
         {
             access: true,
-            type: 'input CreateResidentTicketInput { organizationId: String!, details: String!,' +
+            type: 'input CreateResidentTicketInput { dv: Int!, sender: JSON!, organizationId: String!, details: String!,' +
                 ' classifierId: String!, propertyId: String!, unitName: String, sourceId: String! }',
         },
         {
