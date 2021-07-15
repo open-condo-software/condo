@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -31,6 +31,8 @@ import { EditFilled, FilePdfFilled, PlusCircleFilled } from '@ant-design/icons'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithIcon'
 import { TicketReportAnalyticsOutput } from '../../schema'
+import { useRouter } from 'next/router'
+import qs from 'qs'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
@@ -40,6 +42,12 @@ interface ITicketAnalyticsPageWidgetProps {
     data: null | TicketReportAnalyticsOutput['data'];
     viewMode: viewModeTypes;
     loading?: boolean;
+}
+
+interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps {
+    onChartReady?: () => void;
+    animationEnabled?: boolean;
+    chartHeight?: number;
 }
 type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
 type ticketSelectTypes = 'default' | 'paid' | 'emergency'
@@ -54,7 +62,14 @@ const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5
     colors.magenta[7], colors.yellow[5], colors.lime[7], colors.blue[8], colors.cyan[5], colors.yellow[6],
     colors.purple[7], colors.lime[8], colors.red[6] ]
 
-const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageWidgetProps> = ({ children, data, viewMode, loading = false }) => {
+const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
+    children,
+    data,
+    viewMode,
+    loading = false,
+    onChartReady,
+    animationEnabled = false,
+    chartHeight }) => {
     if (data === null) {
         return <Skeleton loading={loading} active paragraph={{ rows: 6 }} />
     }
@@ -87,6 +102,7 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageWidgetProps> = 
     }
 
     const option = {
+        animation: animationEnabled,
         color: COLOR_SET,
         tooltip: {
             trigger: isLineChart ? 'axis' : 'item',
@@ -117,15 +133,20 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageWidgetProps> = 
         series,
     }
 
-    return <div style={{ position: 'relative' }}>
-        <ReactECharts notMerge showLoading={loading} option={option} />
+    return <Typography.Paragraph style={{ position: 'relative' }}>
+        <ReactECharts
+            opts={{ renderer: 'svg', height: chartHeight ? chartHeight : 'auto' }}
+            onChartReady={onChartReady}
+            notMerge
+            showLoading={loading}
+            style={{ height: chartHeight ? 'unset' : 300 }}
+            option={option}/>
         {children}
-    </div>
+    </Typography.Paragraph>
 }
 
 const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = ({ loading = false, data, viewMode }) => {
     const intl = useIntl()
-    const TableTitle = intl.formatMessage({ id: 'Table' })
     const DateTitle = intl.formatMessage({ id: 'Date' })
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const AllAddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses' })
@@ -153,7 +174,6 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = (
 
     return (
         <>
-            <Typography.Title level={4} style={{ marginBottom: 20 }}>{TableTitle}</Typography.Title>
             <Table
                 bordered
                 tableLayout={'fixed'}
@@ -198,6 +218,9 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const TicketTypeDefault = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Default' })
     const TicketTypePaid = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Paid' })
     const TicketTypeEmergency = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency' })
+    const AllAddresses = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllAddresses' })
+    const AllCategories = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllCategories' })
+    const TableTitle = intl.formatMessage({ id: 'Table' })
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const PrintTitle = intl.formatMessage({ id: 'Print' })
     const ExcelTitle = intl.formatMessage({ id: 'Excel' })
@@ -230,6 +253,22 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                 addressList: ADDRESS_LIST,
             } } } )
     }, [groupTicketsBy, userOrganizationId, ticketType, viewMode])
+
+    const router = useRouter()
+    const printPdf = useCallback(
+        () => {
+            router.push('/analytics/pdf?' + qs.stringify({
+                dateFrom: dateFrom.toISOString(),
+                dateTo: dateTo.toISOString(),
+                groupBy: groupTicketsBy,
+                ticketType,
+                viewMode,
+                addressList: JSON.stringify(ADDRESS_LIST),
+            }))
+        },
+        [ticketType, viewMode, ADDRESS_LIST, dateFrom, dateTo, groupTicketsBy],
+    )
+
 
     return <>
         <Head>
@@ -267,7 +306,9 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                             <Divider />
                         </Col>
                         <Col span={14}>
-                            <Typography.Title level={3}>{ViewModeTitle} {selectedPeriod}</Typography.Title>
+                            <Typography.Title level={3}>
+                                {ViewModeTitle} {selectedPeriod} {AllAddresses} {AllCategories}
+                            </Typography.Title>
                         </Col>
                         <Col span={4} style={{ textAlign: 'right', flexWrap: 'nowrap' }}>
                             <RadioGroupWithIcon
@@ -284,7 +325,12 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                             </RadioGroupWithIcon>
                         </Col>
                         <Col span={24}>
-                            <TicketAnalyticsPageChartView data={analyticsData} loading={loading} viewMode={viewMode}>
+                            <TicketAnalyticsPageChartView
+                                data={analyticsData}
+                                loading={loading}
+                                viewMode={viewMode}
+                                animationEnabled
+                            >
                                 <Select
                                     value={ticketType}
                                     onChange={(e) => setTicketType(e)}
@@ -297,12 +343,13 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                             </TicketAnalyticsPageChartView>
                         </Col>
                         <Col span={24}>
+                            <Typography.Title level={4} style={{ marginBottom: 20 }}>{TableTitle}</Typography.Title>
                             <TicketAnalyticsPageListView data={analyticsData} loading={loading} viewMode={viewMode} />
                         </Col>
                         <ActionBar fullscreen>
-                            <Tooltip title={NotImplementedYetMessage}>
-                                <Button icon={<FilePdfFilled />} type='sberPrimary' secondary>{PrintTitle}</Button>
-                            </Tooltip>
+                            <Button onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
+                                {PrintTitle}
+                            </Button>
                             <Tooltip title={NotImplementedYetMessage}>
                                 <Button icon={<EditFilled />} type='sberPrimary' secondary>{ExcelTitle}</Button>
                             </Tooltip>
@@ -330,3 +377,4 @@ TicketAnalyticsPage.whyDidYouRender = false
 
 
 export default TicketAnalyticsPage
+export { TicketAnalyticsPageChartView, TicketAnalyticsPageListView }
