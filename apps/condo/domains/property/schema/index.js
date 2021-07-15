@@ -4,11 +4,15 @@
  */
 
 const { Property } = require('./Property')
+const { PropertyResident } = require('./PropertyResident')
 const { CheckPropertyWithAddressExistService } = require('./CheckPropertyWithAddressExistService')
+const { RegisterMyPropertyResidentService } = require('./RegisterMyPropertyResidentService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Property,
+    PropertyResident,
     CheckPropertyWithAddressExistService,
+    RegisterMyPropertyResidentService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

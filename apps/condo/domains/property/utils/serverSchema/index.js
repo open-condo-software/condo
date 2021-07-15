@@ -5,11 +5,10 @@
  */
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
-
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { PropertyResident: PropertyResidentGQL } = require('@condo/domains/property/gql')
-const { PropertyResident: PropertyResidentGQL } = require('@condo/domains/property/gql')
 const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('@condo/domains/property/gql')
+const { REGISTER_MY_PROPERTY_RESIDENT_MUTATION } = require('@condo/domains/property/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateServerUtils(PropertyGQL)
@@ -27,11 +26,26 @@ async function checkPropertyWithAddressExist (context, data) {
     })
 }
 
+async function registerMyPropertyResident (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write registerMyPropertyResident serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_MY_PROPERTY_RESIDENT_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to registerMyPropertyResident',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Property,
     PropertyResident,
     checkPropertyWithAddressExist,
+    registerMyPropertyResident,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
