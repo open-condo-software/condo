@@ -40,7 +40,9 @@ export const canManageContacts = (organizationLink?: OrganizationToUserLink, con
     if (!organizationLink || !contact) {
         return false
     }
-    // TODO (SavelevMatthew): this method called only if org. matches, so can skip redundant check?
-    // const isOrganizationEqual = get(organizationLink, ['organization', 'id']) === get(contact, ['organization', 'id'])
-    return get(organizationLink, ['role', 'canManageContacts'])
+    const isOrganizationEqual = get(organizationLink, ['organization', 'id']) === get(contact, ['organization', 'id'])
+    if (isOrganizationEqual) {
+        return get(organizationLink, ['role', 'canManageContacts'])
+    }
+    return false
 }
