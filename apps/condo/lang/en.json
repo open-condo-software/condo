@@ -384,6 +384,7 @@
   "ticketsTable.ResidentName": "Resident Name",
   "Title": "Title",
   "profile.Update": "Editing my profile",
+  "profile.Employee.Update": "Editing profile",
   "profile.ChangePasswordModalTitle": "change Password",
   "profile.ChangePassword": "Reset password",
   "profile.PasswordResetTimeout": "(you can reset it again after 00: {countdown} seconds)",
