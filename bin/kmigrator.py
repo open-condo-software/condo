@@ -199,7 +199,6 @@ const entryFile = '__KEYSTONE_ENTRY_PATH__'
 const knexSchemaFile = '__KNEX_SCHEMA_PATH__'
 const knexConnectionFile = '__KNEX_CONNECTION_PATH__'
 const knexMigrationsDir = '__KNEX_MIGRATION_DIR__'
-
 const { asyncForEach } = require('@keystonejs/utils')
 const path = require('path')
 const fs = require('fs')
@@ -476,7 +475,7 @@ class KProblem(Exception):
 
 def _inject_ctx(data, ctx):
     for k, v in ctx.items():
-        data = data.replace(str(k), str(v))
+        data = data.replace(str(k), str(v).replace('\\', '/'))
     return data
 
 
