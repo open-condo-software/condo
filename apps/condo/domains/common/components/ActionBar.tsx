@@ -19,6 +19,7 @@ const actionBar = css`
 interface IActionBarProps {
     fullscreen?: boolean;
 }
+
 const ActionBar: React.FC<IActionBarProps> = ({ children, fullscreen = false }) => {
     return (
         <Affix offsetBottom={24} style={{ width: fullscreen ? '100%' : 'unset' }}>
