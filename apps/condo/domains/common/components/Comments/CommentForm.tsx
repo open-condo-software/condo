@@ -8,13 +8,14 @@ import styled from '@emotion/styled'
 import { SendMessage } from '../icons/SendMessage'
 import { colors } from '@condo/domains/common/constants/style'
 import { useState } from 'react'
+import { InputWithCounter } from '../InputWithCounter'
 
 const Holder = styled.div`
   position: relative;
   button.ant-btn {
     position: absolute;
     right: 4px;
-    bottom: 4px;
+    bottom: 23px;
   }
   .ant-form-item-explain {
     display: none;
@@ -77,11 +78,13 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                             name={fieldName}
                             rules={validations.comment}
                         >
-                            <Input.TextArea
+                            <InputWithCounter
+                                InputComponent={Input.TextArea}
+                                currentLength={commentLength}
+                                maxLength={MAX_COMMENT_LENGTH}
                                 placeholder={PlaceholderMessage}
                                 className="white"
                                 autoSize={{ minRows: 1, maxRows: 6 }}
-                                maxLength={MAX_COMMENT_LENGTH}
                                 onKeyDown={handleKeyDown}
                                 onKeyUp={(event) => {handleKeyUp(event, form)}}
                                 onChange={e => setCommentLength(e.target.value.length)}
@@ -100,9 +103,6 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                     </Holder>
                 )}
             </FormWithAction>
-            <Typography.Text style={{ color: colors.sberGrey[5], fontSize: '12px', float: 'right' }}>
-                {commentLength}/{MAX_COMMENT_LENGTH}
-            </Typography.Text>
         </>
 
     )
