@@ -142,7 +142,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                 const labels = isLineChart ? statusesMap : userPropertiesMap
 
                 const result = {}
-                // TODO: collect for addressList, now selecting all
+                // TODO(sitozzz): collect for addressList, now selecting all
                 const listViewDataMapper = (_, index) => {
                     if (isLineChart) {
                         return {
@@ -198,7 +198,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                         if (isLineChart) {
                             tableData.find((tableObj) => tableObj.date === groupField.format(DATE_FORMAT))[status] = ticketCount
                         } else {
-                            // TODO: apply user properties from filter
+                            // TODO(sitozzz): apply user properties from filter
                             const tableDataStatusCount = tableData.find(tableObj => tableObj.address === null)
                             if (tableDataStatusCount[status] === undefined) {
                                 tableDataStatusCount[status] = ticketCount
