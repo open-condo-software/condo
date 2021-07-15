@@ -5,7 +5,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 
 describe('ShareTicketService', () => {
     describe('User', () => {
-        it('can share ticked with selected organization', async () => {
+        it('can share ticked with same organization', async () => {
             const client = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
 
@@ -41,7 +41,7 @@ describe('ShareTicketService', () => {
             })
 
             expect(errors).toHaveLength(1)
-            expect(errors[0].name).toEqual('AccessDeniedError')
+            expect(errors[0].name).toBe('AuthenticationError')
             expect(data).toEqual({ obj: null })
         })
     })
