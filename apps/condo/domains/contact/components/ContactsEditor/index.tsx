@@ -159,7 +159,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
             [fields.phone]: contact.phone,
         })
         setValue(contact)
-        const isNew = !has(contact, 'id')
+        const isNew = !contact.id
         onChange && onChange(contact, isNew)
     }
 
