@@ -7,12 +7,14 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/CreateResidentTicketService')
 const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
 
+const TICKET_MOBILE_SOURCE_ID = '3068d49a-a45c-4c3a-a02d-ea1a53e1febb'
+
 const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketService', {
     types: [
         {
             access: true,
             type: 'input CreateResidentTicketInput { dv: Int!, sender: JSON!, details: String!,' +
-                ' classifierId: String!, propertyId: String!, unitName: String, sourceId: String! }',
+                ' classifierId: String!, propertyId: String!, unitName: String }',
         },
         {
             access: true,
@@ -32,7 +34,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
             schema: 'createResidentTicket(data: CreateResidentTicketInput!): ResidentTicketOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { dv: newTicketDv, sender: newTicketSender, details, classifierId, propertyId, unitName, sourceId } = data
+                const { dv: newTicketDv, sender: newTicketSender, details, classifierId, propertyId, unitName } = data
                 const property = (await Property.getAll(context, { id: propertyId }))[0]
                 const organizationId = property.organization.id
                 const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
@@ -48,7 +50,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                     unitName,
                     sectionName,
                     floorName,
-                    source: { connect: { id: sourceId } },
+                    source: { connect: { id: TICKET_MOBILE_SOURCE_ID } },
                     details,
                 })
 

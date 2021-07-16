@@ -245,7 +245,6 @@ async function createResidentTicketByTestClient(client, classifier, property, ex
         classifierId: classifier.id,
         propertyId: property.id,
         unitName: '2',
-        sourceId: TICKET_OTHER_SOURCE_ID,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(CREATE_RESIDENT_TICKET_MUTATION, { data: attrs })
