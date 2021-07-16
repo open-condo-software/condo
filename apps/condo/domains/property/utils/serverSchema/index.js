@@ -4,21 +4,19 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
-const { PropertyResident: PropertyResidentGQL } = require('@condo/domains/property/gql')
-<<<<<<< HEAD
+
+const { Resident: ResidentGQL } = require('@condo/domains/property/gql')
 const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('@condo/domains/property/gql')
-const { REGISTER_MY_PROPERTY_RESIDENT_MUTATION } = require('@condo/domains/property/gql')
-=======
 const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/property/gql')
->>>>>>> f0d53f0a (SBERDOMA-721 renamed `RegisterMyPropertyResidentService` to `RegisterResidentService`)
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateServerUtils(PropertyGQL)
-const PropertyResident = generateServerUtils(PropertyResidentGQL)
+const Resident = generateServerUtils(ResidentGQL)
 
-<<<<<<< HEAD
 async function checkPropertyWithAddressExist (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
@@ -31,10 +29,7 @@ async function checkPropertyWithAddressExist (context, data) {
     })
 }
 
-async function registerMyPropertyResident (context, data) {
-=======
 async function registerResident (context, data) {
->>>>>>> f0d53f0a (SBERDOMA-721 renamed `RegisterMyPropertyResidentService` to `RegisterResidentService`)
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
@@ -52,12 +47,8 @@ async function registerResident (context, data) {
 
 module.exports = {
     Property,
-    PropertyResident,
-<<<<<<< HEAD
-    checkPropertyWithAddressExist,
-    registerMyPropertyResident,
-=======
+    Resident,
     registerResident,
->>>>>>> f0d53f0a (SBERDOMA-721 renamed `RegisterMyPropertyResidentService` to `RegisterResidentService`)
+    checkPropertyWithAddressExist,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
