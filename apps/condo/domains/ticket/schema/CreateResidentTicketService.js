@@ -50,8 +50,8 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                     source: { connect: { id: sourceId } },
                     details,
                 })
+
                 const { statusReopenedCounter, watchers, meta, sourceMeta, v, dv, sender,   ...residentTicketFields } = ticket
-                // console.log(residentTicketFields)
                 return residentTicketFields
             },
         },
