@@ -30,7 +30,9 @@ describe('TicketReportService', () => {
                 canManageEmployees: true,
             })
             const managerClient = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [employee] = await createTestOrganizationEmployee(admin, organization, managerClient.user, role, { isBlocked: false })
+            const [employee] = await createTestOrganizationEmployee(admin, organization, managerClient.user, role, {
+                isBlocked: false, isAccepted: true, isRejected: false,
+            })
             const { data: { result: { data } } } = await managerClient.query(GET_TICKET_WIDGET_REPORT_DATA, {
                 data: { userOrganizationId: employee.organization.id, periodType: 'week' } }
             )
