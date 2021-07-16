@@ -12,7 +12,7 @@ const COMMON_FIELDS = 'id dv sender v deletedAt organization { id name} newId cr
 const PROPERTY_FIELDS = `{ name address addressMeta type ticketsInWork ticketsClosed unitsCount map ${COMMON_FIELDS} }`
 const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
 
-const PROPERTY_RESIDENT_FIELDS = `{ organization { id } property { id } contact { id } billingAccount { id } unitName name email phone ${COMMON_FIELDS} }`
+const PROPERTY_RESIDENT_FIELDS = `{ organization { id } property { id } contact { id } billingAccount { id } address addressMeta unitName name email phone ${COMMON_FIELDS} }`
 const PropertyResident = generateGqlQueries('PropertyResident', PROPERTY_RESIDENT_FIELDS)
 
 const GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY = gql`
@@ -38,7 +38,7 @@ const CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY = gql`
 // TODO(codegen): write return type result!
 const REGISTER_MY_PROPERTY_RESIDENT_MUTATION = gql`
     mutation registerMyPropertyResident ($data: RegisterMyPropertyResidentInput!) {
-        result: registerMyPropertyResident(data: $data) { id }
+        result: registerMyPropertyResident(data: $data) { id v dv sender address addressMeta unitName name email phone }
     }
 `
 /* AUTOGENERATE MARKER <CONST> */

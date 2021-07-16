@@ -4,32 +4,35 @@
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/property/access/RegisterMyPropertyResidentService')
+const { PropertyResident } = require('../utils/serverSchema/index')
 
 
 const RegisterMyPropertyResidentService = new GQLCustomSchema('RegisterMyPropertyResidentService', {
     types: [
         {
             access: true,
-            // TODO(codegen): write RegisterMyPropertyResidentService input !
-            type: 'input RegisterMyPropertyResidentInput { dv: Int!, sender: JSON! }',
-        },
-        {
-            access: true,
-            // TODO(codegen): write RegisterMyPropertyResidentService output !
-            type: 'type RegisterMyPropertyResidentOutput { id: String! }',
+            type: 'input RegisterMyPropertyResidentInput { dv: Int!, sender: JSON!, address: String!, addressMeta: JSON!, unitName: String! }',
         },
     ],
     
     mutations: [
         {
             access: access.canRegisterMyPropertyResident,
-            schema: 'registerMyPropertyResident(data: RegisterMyPropertyResidentInput!): RegisterMyPropertyResidentOutput',
+            schema: 'registerMyPropertyResident(data: RegisterMyPropertyResidentInput!): PropertyResident',
             resolver: async (parent, args, context, info, extra = {}) => {
-                // TODO(codegen): write RegisterMyPropertyResidentService logic!
-                const { data } = args
-                return {
-                    id: null,
-                }
+                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
+                const { data: { dv, sender, address, addressMeta, unitName } } = args
+                const { name, phone } = context.authedItem
+                const resident = await PropertyResident.create(context, {
+                    dv,
+                    sender,
+                    name,
+                    phone,
+                    address,
+                    addressMeta,
+                    unitName,
+                })
+                return resident
             },
         },
     ],
