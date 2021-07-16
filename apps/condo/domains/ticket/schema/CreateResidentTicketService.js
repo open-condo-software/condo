@@ -11,7 +11,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
     types: [
         {
             access: true,
-            type: 'input CreateResidentTicketInput { dv: Int!, sender: JSON!, organizationId: String!, details: String!,' +
+            type: 'input CreateResidentTicketInput { dv: Int!, sender: JSON!, details: String!,' +
                 ' classifierId: String!, propertyId: String!, unitName: String, sourceId: String! }',
         },
         {
@@ -32,13 +32,14 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
             schema: 'createResidentTicket(data: CreateResidentTicketInput!): ResidentTicketOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { dv: newTicektDv, sender: newTicketSender, organizationId, details, classifierId, propertyId, unitName, sourceId } = data
+                const { dv: newTicketDv, sender: newTicketSender, details, classifierId, propertyId, unitName, sourceId } = data
                 const property = (await Property.getAll(context, { id: propertyId }))[0]
+                const organizationId = property.organization.id
                 const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
                 const client = context.req.user
 
                 const ticket = await Ticket.create(context, {
-                    dv: newTicektDv,
+                    dv: newTicketDv,
                     sender: newTicketSender,
                     organization: { connect: { id: organizationId } },
                     client: { connect: { id: client.id } },

@@ -14,10 +14,10 @@ describe('GetAllResidentTicketsService', () => {
         const client = await makeClientWithProperty()
         const admin = await makeLoggedInAdminClient()
         const [classifier] = await createTestTicketClassifier(admin)
-        await createResidentTicketByTestClient(client, client.organization, classifier, client.property)
+        await createResidentTicketByTestClient(client, classifier, client.property)
 
         const [data] = await getAllResidentTicketsByTestClient(client, {}, 1, 0)
-        expect(data).toHaveLength(1)
+        expect(data.length).toBeGreaterThan(0)
     })
  
     test('anonymous: didn\'t get resident ticket', async () => {
@@ -35,9 +35,9 @@ describe('GetAllResidentTicketsService', () => {
         const [organization] = await createTestOrganization(admin)
         const [property] = await createTestProperty(admin, organization)
         const [classifier] = await createTestTicketClassifier(admin)
-        await createResidentTicketByTestClient(admin, organization, classifier, property)
+        await createResidentTicketByTestClient(admin, classifier, property)
 
         const [data] = await getAllResidentTicketsByTestClient(admin, {}, 1, 0)
-        expect(data).toHaveLength(1)
+        expect(data.length).toBeGreaterThan(0)
     })
 })
