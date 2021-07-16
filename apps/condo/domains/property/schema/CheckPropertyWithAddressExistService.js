@@ -15,7 +15,7 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
         },
         {
             access: true,
-            type: 'type CheckPropertyWithAddressExistOutput { find: Boolean! }',
+            type: 'type CheckPropertyWithAddressExistOutput { isFound: Boolean! }',
         },
     ],
     
@@ -26,11 +26,11 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
             resolver: async (parent, args, context = {}) => {
                 const { data } = args
                 const { address } = data
-                const foundAmount = await Property.count(context, {
+                const count = await Property.count(context, {
                     address,
                 })
                 return {
-                    find: foundAmount > 0,
+                    isFound: count > 0,
                 }
             },
         },

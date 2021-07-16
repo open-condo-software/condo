@@ -10,7 +10,7 @@ const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegenera
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
-const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_MUTATION } = require('@condo/domains/property/gql')
+const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('@condo/domains/property/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateGQLTestUtils(PropertyGQL)
@@ -67,7 +67,7 @@ async function checkPropertyWithAddressExistByTestClient(client, extraAttrs = {}
     const attrs = {
         ...extraAttrs,
     }
-    const { data, errors } = await client.query(CHECK_PROPERTY_WITH_ADDRESS_EXIST_MUTATION, { data: attrs })
+    const { data, errors } = await client.query(CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
