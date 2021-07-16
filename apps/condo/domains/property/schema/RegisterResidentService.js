@@ -4,7 +4,7 @@
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/property/access/RegisterResidentService')
-const { PropertyResident } = require('../utils/serverSchema/index')
+const { Resident } = require('../utils/serverSchema/index')
 
 
 const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
@@ -18,12 +18,12 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
     mutations: [
         {
             access: access.canRegisterResident,
-            schema: 'registerResident(data: RegisterResidentInput!): PropertyResident',
+            schema: 'registerResident(data: RegisterResidentInput!): Resident',
             resolver: async (parent, args, context, info, extra = {}) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data: { dv, sender, address, addressMeta, unitName } } = args
                 const { name, phone } = context.authedItem
-                const resident = await PropertyResident.create(context, {
+                const resident = await Resident.create(context, {
                     dv,
                     sender,
                     name,

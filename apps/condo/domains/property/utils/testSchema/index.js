@@ -5,7 +5,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-const {throwIfError} = require("@condo/domains/common/utils/codegeneration/generate.test.utils");
+const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
@@ -14,14 +14,13 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const { createTestEmail } = require('@condo/domains/user/utils/testSchema')
 
-const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('@condo/domains/property/gql')
-const { PropertyResident: PropertyResidentGQL } = require('@condo/domains/property/gql')
+const { Resident: ResidentGQL } = require('@condo/domains/property/gql')
 const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/property/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateGQLTestUtils(PropertyGQL)
 
-const PropertyResident = generateGQLTestUtils(PropertyResidentGQL)
+const Resident = generateGQLTestUtils(ResidentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestProperty (client, organization, extraAttrs = {}) {
@@ -63,7 +62,7 @@ async function makeClientWithProperty () {
     return client
 }
 
-async function createTestPropertyResident (client, organization, property, extraAttrs = {}) {
+async function createTestResident (client, organization, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!property || !property.id) throw new Error('no property.id')
@@ -90,11 +89,11 @@ async function createTestPropertyResident (client, organization, property, extra
         addressMeta,
         ...extraAttrs,
     }
-    const obj = await PropertyResident.create(client, attrs)
+    const obj = await Resident.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestPropertyResident (client, id, extraAttrs = {}) {
+async function updateTestResident (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -108,7 +107,7 @@ async function updateTestPropertyResident (client, id, extraAttrs = {}) {
         phone: createTestPhone(),
         ...extraAttrs,
     }
-    const obj = await PropertyResident.update(client, id, attrs)
+    const obj = await Resident.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -145,11 +144,13 @@ async function registerResidentByTestClient(client, extraAttrs = {}) {
 
 module.exports = {
     Property,
-    PropertyResident, createTestPropertyResident, updateTestPropertyResident,
+    Resident,
     createTestProperty,
     updateTestProperty,
     makeClientWithProperty,
     checkPropertyWithAddressExistByTestClient,
-    registerResidentByTestClient,
+    createTestResident,
+    updateTestResident,
+    registerResidentByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
