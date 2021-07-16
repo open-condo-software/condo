@@ -33,6 +33,7 @@ const GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY = gql`
 const CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY = gql`
     query checkPropertyWithAddressExist ($data: CheckPropertyWithAddressExistInput!) {
         result: checkPropertyWithAddressExist(data: $data) { isFound }
+    }
 `
 
 const REGISTER_RESIDENT_MUTATION = gql`
