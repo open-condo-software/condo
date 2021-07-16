@@ -16,24 +16,30 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
         },
         {
             access: true,
-            type: 'type CreateResidentTicketOutput { id: String! }',
+            type: 'type ResidentTicketOutput { organization: Organization!, property: Property!, unitName: String!,' +
+            'sectionName: String, floorName: String, status: TicketStatus!,' +
+            'statusUpdatedAt: String, statusReason: String, number: Int!, client: User!, clientName: String,' +
+            'clientEmail: String, clientPhone: String, contact: Contact, operator: User, assignee: User, executor: User,' +
+            'classifier: TicketClassifier, details: String!, related: Ticket, isEmergency: Boolean,' +
+            'isPaid: Boolean, source: TicketSource!, id: String!, createdBy: User!, createdAt: String!,' +
+            'updatedAt: String, updatedBy: User }',
         },
     ],
 
     mutations: [
         {
             access: access.canCreateResidentTicket,
-            schema: 'createResidentTicket(data: CreateResidentTicketInput!): CreateResidentTicketOutput',
+            schema: 'createResidentTicket(data: CreateResidentTicketInput!): ResidentTicketOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { dv, sender, organizationId, details, classifierId, propertyId, unitName, sourceId } = data
+                const { dv: newTicektDv, sender: newTicketSender, organizationId, details, classifierId, propertyId, unitName, sourceId } = data
                 const property = (await Property.getAll(context, { id: propertyId }))[0]
                 const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
                 const client = context.req.user
 
                 const ticket = await Ticket.create(context, {
-                    dv,
-                    sender,
+                    dv: newTicektDv,
+                    sender: newTicketSender,
                     organization: { connect: { id: organizationId } },
                     client: { connect: { id: client.id } },
                     classifier: { connect: { id: classifierId } },
@@ -44,10 +50,9 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                     source: { connect: { id: sourceId } },
                     details,
                 })
-
-                return {
-                    id: ticket.id,
-                }
+                const { statusReopenedCounter, watchers, meta, sourceMeta, v, dv, sender,   ...residentTicketFields } = ticket
+                // console.log(residentTicketFields)
+                return residentTicketFields
             },
         },
     ],

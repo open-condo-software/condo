@@ -222,14 +222,14 @@ async function updateTestTicketComment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function getAllResidentTicketsByTestClient(client, where = {}, skip, limit, extraAttrs = {}) {
+async function getAllResidentTicketsByTestClient(client, where = {}, first, skip, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         ...extraAttrs,
     }
-    const { data, errors } = await client.query(GET_ALL_RESIDENT_TICKETS_MUTATION, { data: attrs, where, skip, limit })
+    const { data, errors } = await client.query(GET_ALL_RESIDENT_TICKETS_MUTATION, { data: attrs, where, first, skip })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
@@ -242,7 +242,7 @@ async function createResidentTicketByTestClient(client, organization, classifier
         dv: 1,
         sender,
         organizationId: organization.id,
-        details: 'asdasdqwdakkdskkdkdkkskskaklkaskldalksdlkakldlkasld',
+        details: faker.lorem.words(),
         classifierId: classifier.id,
         propertyId: property.id,
         unitName: '2',
@@ -250,6 +250,7 @@ async function createResidentTicketByTestClient(client, organization, classifier
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(CREATE_RESIDENT_TICKET_MUTATION, { data: attrs })
+    console.log(data, errors)
     throwIfError(data, errors)
     return [data.result, attrs]
 }

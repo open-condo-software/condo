@@ -3,7 +3,7 @@
  */
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 async function canCreateResidentTicket ({ authentication: { item: user } }) {
-    // TODO think about access
+    // TODO(nomerdvadcatpyat): There will be a check for user type == 'resident' (after my pull request is accepted to master)
     if (!user) return throwAuthenticationError()
     return true
 }
