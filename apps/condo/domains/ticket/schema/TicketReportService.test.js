@@ -61,7 +61,7 @@ describe('TicketReportService', () => {
             // It causes getByCondition return multiple values error
             const { admin, organization } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee()
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canManageEmployees: true,
+                canManageTickets: true,
             })
             const managerClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const userRejectOrganizationInvite = { isBlocked: false, isAccepted: false, isRejected: true }
