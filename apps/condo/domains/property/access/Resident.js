@@ -19,15 +19,15 @@ async function canManageResidents ({ authentication: { item: user }, originalInp
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
-        const canManagePropertyResidents = await checkOrganizationPermission(user.id, organizationId, 'canManagePropertyResidents')
-        return canManagePropertyResidents
+        const canManageResidents = await checkOrganizationPermission(user.id, organizationId, 'canManageResidents')
+        return canManageResidents
     } else if (operation === 'update') {
         const [resident] = await Resident.getAll(context, { id: itemId })
         if (!resident) {
             return false
         }
-        const canManagePropertyResidents = await checkOrganizationPermission(user.id, resident.organization.id, 'canManagePropertyResidents')
-        return canManagePropertyResidents
+        const canManageResidents = await checkOrganizationPermission(user.id, resident.organization.id, 'canManageResidents')
+        return canManageResidents
     }
     return false
 }
