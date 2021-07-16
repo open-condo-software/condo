@@ -224,12 +224,12 @@ async function updateTestTicketComment (client, id, extraAttrs = {}) {
 
 async function getAllResidentTicketsByTestClient(client, where = {}, first, skip, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         ...extraAttrs,
     }
     const { data, errors } = await client.query(GET_ALL_RESIDENT_TICKETS_MUTATION, { data: attrs, where, first, skip })
+    console.log()
     throwIfError(data, errors)
     return [data.result, attrs]
 }
@@ -250,7 +250,6 @@ async function createResidentTicketByTestClient(client, organization, classifier
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(CREATE_RESIDENT_TICKET_MUTATION, { data: attrs })
-    console.log(data, errors)
     throwIfError(data, errors)
     return [data.result, attrs]
 }
