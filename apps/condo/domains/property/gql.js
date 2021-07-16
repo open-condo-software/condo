@@ -35,10 +35,9 @@ const CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY = gql`
         result: checkPropertyWithAddressExist(data: $data) { isFound }
 `
 
-// TODO(codegen): write return type result!
-const REGISTER_MY_PROPERTY_RESIDENT_MUTATION = gql`
-    mutation registerMyPropertyResident ($data: RegisterMyPropertyResidentInput!) {
-        result: registerMyPropertyResident(data: $data) { id v dv sender address addressMeta unitName name email phone }
+const REGISTER_RESIDENT_MUTATION = gql`
+    mutation registerResident ($data: RegisterResidentInput!) {
+        result: registerResident(data: $data) { id v dv sender address addressMeta unitName name email phone }
     }
 `
 /* AUTOGENERATE MARKER <CONST> */
@@ -49,6 +48,6 @@ module.exports = {
     GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
     GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
     CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY,
-    REGISTER_MY_PROPERTY_RESIDENT_MUTATION,
+    REGISTER_RESIDENT_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
