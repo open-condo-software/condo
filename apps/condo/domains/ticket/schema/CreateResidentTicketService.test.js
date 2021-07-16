@@ -41,6 +41,7 @@ describe('CreateResidentTicketService', () => {
         const [classifier] = await createTestTicketClassifier(admin)
         const [property] = await createTestProperty(admin, organization)
         const [data] = await createResidentTicketByTestClient(admin, organization, classifier, property)
+        console.log('data', data)
         expect(data.id).toBeDefined()
     })
 })

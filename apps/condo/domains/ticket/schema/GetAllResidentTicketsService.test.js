@@ -9,7 +9,7 @@ const { getAllResidentTicketsByTestClient } = require('@condo/domains/ticket/uti
 describe('GetAllResidentTicketsService', () => {
     test('user: get resident ticket', async () => {
         const client = await makeLoggedInClient()
-        const [data] = await getAllResidentTicketsByTestClient(client, {}, 0, 100)
+        const [data] = await getAllResidentTicketsByTestClient(client, {}, 0, 1)
         expect(data.length).toBeGreaterThan(0)
     })
  
