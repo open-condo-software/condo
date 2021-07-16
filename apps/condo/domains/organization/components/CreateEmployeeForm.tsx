@@ -28,7 +28,7 @@ const INPUT_LAYOUT_PROPS = {
     },
 }
 
-export const CreateEmployeeForm: React.FC = () => {
+export const CreateEmployeeForm: React.FC = (props) => {
     const intl = useIntl()
     const InviteEmployeeLabel = intl.formatMessage({ id: 'employee.InviteEmployee' })
 
@@ -162,7 +162,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                     </Col>
                                     <Col span={24}>
                                         <Form.Item name={'role'} label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'}>
-                                            <EmployeeRoleSelect organizationId={get(organization, 'id')} />
+                                            <EmployeeRoleSelect organizationId={get(organization, 'id')} onSelect={(_, option)=> props.onRoleSelect && props.onRoleSelect(option.title)}/>
                                         </Form.Item>
                                     </Col>
                                 </Row>
