@@ -105,16 +105,16 @@ export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-export const expectToThrowAuthenticationErrorToObjects = async (testFunc) => {
+export const expectToThrowAuthenticationError = async (testFunc, path='objs') => {
     await catchErrorFrom(testFunc, ({ errors, data }) => {
         expect(errors[0]).toMatchObject({
             'message': 'No or incorrect authentication credentials',
             'name': 'AuthenticationError',
-            'path': ['objs'],
+            'path': [path],
             'extensions': {
                 'code': 'UNAUTHENTICATED'
             }
         })
-        expect(data).toEqual({ 'objs': null })
+        expect(data).toEqual({ [path]: null })
     })
 }
