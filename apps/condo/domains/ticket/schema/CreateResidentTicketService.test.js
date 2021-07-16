@@ -7,14 +7,15 @@ const { createTestTicketClassifier } = require('@condo/domains/ticket/utils/test
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { createResidentTicketByTestClient } = require('@condo/domains/ticket/utils/testSchema')
+const { UUID_RE } = require('@core/keystone/test.utils')
 
 describe('CreateResidentTicketService', () => {
     test('user: create resident ticket', async () => {
         const admin = await makeLoggedInAdminClient()
         const client = await makeClientWithProperty()
         const [classifier] = await createTestTicketClassifier(admin)
-        const [data] = await createResidentTicketByTestClient(client, client.organization, classifier, client.property)
-        expect(data.id).toBeDefined()
+        const [data] = await createResidentTicketByTestClient(client, classifier, client.property)
+        expect(data.id).toMatch(UUID_RE)
     })
 
     test('anonymous: create resident ticket', async () => {
@@ -25,7 +26,7 @@ describe('CreateResidentTicketService', () => {
         const [property] = await createTestProperty(admin, organization)
 
         try {
-            await createResidentTicketByTestClient(anon, organization, classifier, property)
+            await createResidentTicketByTestClient(anon, classifier, property)
         } catch (error) {
             expect(error.errors).toHaveLength(1)
             expect(error.errors[0].name).toEqual('AuthenticationError')
@@ -37,7 +38,7 @@ describe('CreateResidentTicketService', () => {
         const [organization] = await createTestOrganization(admin)
         const [classifier] = await createTestTicketClassifier(admin)
         const [property] = await createTestProperty(admin, organization)
-        const [data] = await createResidentTicketByTestClient(admin, organization, classifier, property)
-        expect(data.id).toBeDefined()
+        const [data] = await createResidentTicketByTestClient(admin, classifier, property)
+        expect(data.id).toMatch(UUID_RE)
     })
 })
