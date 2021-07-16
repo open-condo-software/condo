@@ -209,12 +209,12 @@ describe('Resident', () => {
             expect(obj.billingAccount.id).toEqual(billingAccount.id)
         })
 
-        it('can be created by user, who is employed in the same organization and has "canManagePropertyResidents" ability', async () => {
+        it('can be created by user, who is employed in the same organization and has "canManageResidents" ability', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManagePropertyResidents: true,
+                canManageResidents: true,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
@@ -237,13 +237,13 @@ describe('Resident', () => {
             expect(obj.updatedAt).toMatch(DATETIME_RE)
         })
 
-        it('cannot be created by user, who is employed in the same organization and does not have "canManagePropertyResidents" ability', async () => {
+        it('cannot be created by user, who is employed in the same organization and does not have "canManageResidents" ability', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
             const [anotherOrganization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManagePropertyResidents: false,
+                canManageResidents: false,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
@@ -334,12 +334,12 @@ describe('Resident', () => {
             expect(objUpdated.phone).toEqual(attrs.phone)
         })
 
-        it('can be updated by user, who is employed in the same organization and does have "canManagePropertyResidents" ability', async () => {
+        it('can be updated by user, who is employed in the same organization and does have "canManageResidents" ability', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManagePropertyResidents: true,
+                canManageResidents: true,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
@@ -363,12 +363,12 @@ describe('Resident', () => {
             expect(objUpdated.phone).toEqual(attrs.phone)
         })
 
-        it('cannot be updated by user, who is employed in organization and does not have "canManagePropertyResidents" ability', async () => {
+        it('cannot be updated by user, who is employed in organization and does not have "canManageResidents" ability', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManagePropertyResidents: false,
+                canManageResidents: false,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
@@ -384,7 +384,7 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManagePropertyResidents: true,
+                canManageResidents: true,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
