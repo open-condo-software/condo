@@ -98,7 +98,11 @@ describe('TicketReportService', () => {
                 canManageEmployees: true,
             })
             const managerClient = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [employee] = await createTestOrganizationEmployee(admin, organization, managerClient.user, role, { isBlocked: false })
+            const userAcceptOrganizationInvite = { isBlocked: false, isAccepted: true, isRejected: false }
+
+            const [employee] = await createTestOrganizationEmployee(
+                admin, organization, managerClient.user, role, { ...userAcceptOrganizationInvite }
+            )
 
             const { data: { result: { data: { result, axisLabels, labels, tableColumns, tableData } } } } = await managerClient
                 .query(GET_TICKET_ANALYTICS_REPORT_DATA, {
@@ -142,12 +146,12 @@ describe('TicketReportService', () => {
             })
             const managerClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const userRejectOrganizationInvite = { isBlocked: false, isAccepted: false, isRejected: true }
-            const userAcceptOrganizationInveite = { isBlocked: false, isAccepted: true, isRejected: false }
+            const userAcceptOrganizationInvite = { isBlocked: false, isAccepted: true, isRejected: false }
             await createTestOrganizationEmployee(
                 admin, organization, managerClient.user, role, { ...userRejectOrganizationInvite }
             )
             const [employee] = await createTestOrganizationEmployee(
-                admin, organization, managerClient.user, role, { ...userAcceptOrganizationInveite }
+                admin, organization, managerClient.user, role, { ...userAcceptOrganizationInvite }
             )
             const { data: { result: { data } } } = await managerClient.query(GET_TICKET_WIDGET_REPORT_DATA, {
                 data: { userOrganizationId: employee.organization.id, periodType: 'week' } }
