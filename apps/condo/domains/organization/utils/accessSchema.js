@@ -6,9 +6,6 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
         organization: { id: organizationId },
         user: { id: userId },
         deletedAt: null,
-        isAccepted: true,
-        isBlocked: false,
-        isRejected: false,
     })
 
     if (!employee || !employee.role) {

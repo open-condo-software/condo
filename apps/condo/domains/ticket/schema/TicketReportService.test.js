@@ -55,6 +55,33 @@ describe('TicketReportService', () => {
             expect(errors).toHaveLength(1)
             expect(result).toBeNull()
         })
+
+        it('can get ticket report with multiple organization invites',  async () => {
+            // Test checks for an error when the user first declined the invitation and then accepted it
+            // It causes getByCondition return multiple values error
+            const { admin, organization } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee()
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canManageEmployees: true,
+            })
+            const managerClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userRejectOrganizationInvite = { isBlocked: false, isAccepted: false, isRejected: true }
+            const userAcceptOrganizationInveite = { isBlocked: false, isAccepted: true, isRejected: false }
+            await createTestOrganizationEmployee(
+                admin, organization, managerClient.user, role, { ...userRejectOrganizationInvite }
+            )
+            const [employee] = await createTestOrganizationEmployee(
+                admin, organization, managerClient.user, role, { ...userAcceptOrganizationInveite }
+            )
+            const { data: { result: { data } } } = await managerClient.query(GET_TICKET_WIDGET_REPORT_DATA, {
+                data: { userOrganizationId: employee.organization.id, periodType: 'week' } }
+            )
+            expect(data).toBeInstanceOf(Array)
+            expect(data.length).toBeGreaterThanOrEqual(1)
+            const clientTicket = data.find(e => e.statusType === NEW_OR_REOPENED_STATUS_TYPE)
+            expect(clientTicket).toBeDefined()
+            expect(clientTicket.currentValue).toEqual(0)
+            expect(clientTicket.growth).toEqual(0)
+        })
     })
 
     describe('Anonymous', () => {
