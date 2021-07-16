@@ -27,9 +27,9 @@ const GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY = gql`
   }
 `
 
-const CHECK_PROPERTY_WITH_ADDRESS_EXIST_MUTATION = gql`
+const CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY = gql`
     query checkPropertyWithAddressExist ($data: CheckPropertyWithAddressExistInput!) {
-        result: checkPropertyWithAddressExist(data: $data) { find }
+        result: checkPropertyWithAddressExist(data: $data) { isFound }
     }
 `
 /* AUTOGENERATE MARKER <CONST> */
@@ -38,6 +38,6 @@ module.exports = {
     Property,
     GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
     GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
-    CHECK_PROPERTY_WITH_ADDRESS_EXIST_MUTATION,
+    CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -8,7 +8,7 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/co
 
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 
-const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_MUTATION } = require('@condo/domains/property/gql')
+const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('@condo/domains/property/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateServerUtils(PropertyGQL)
@@ -17,7 +17,7 @@ async function checkPropertyWithAddressExist (context, data) {
     if (!data) throw new Error('no data')
 
     return await execGqlWithoutAccess(context, {
-        query: CHECK_PROPERTY_WITH_ADDRESS_EXIST_MUTATION,
+        query: CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to checkPropertyWithAddressExist',
         dataPath: 'obj',

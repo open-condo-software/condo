@@ -12,9 +12,10 @@ describe('CheckPropertyWithAddressExistService', () => {
             address: client.property.address,
         }
         const expectedResult = {
-            find: true,
+            isFound: true,
         }
         const [result] = await checkPropertyWithAddressExistByTestClient(client, payload)
+        console.log(result)
         expect(result).toStrictEqual(expectedResult)
     })
     test('user: execute on non-existent address', async () => {
@@ -23,7 +24,7 @@ describe('CheckPropertyWithAddressExistService', () => {
             address: 'address',
         }
         const expectedResult = {
-            find: false,
+            isFound: false,
         }
         const [result] = await checkPropertyWithAddressExistByTestClient(client, payload)
         expect(result).toStrictEqual(expectedResult)
