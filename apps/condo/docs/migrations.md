@@ -109,7 +109,7 @@ It's better to roll back your migration and recreate it. But sometimes you shoul
 docker-compose run app python apps/condo/.kmigrator/manage.py makemigrations --merge
 ```
 
-If the util ask You to provide a default value, it expects it in Python syntax.
+If the util asks You to provide a default value, it expects it in Python 3 syntax.
 
 
 ### UnicodeDecodeError
