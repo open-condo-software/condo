@@ -22,15 +22,27 @@ const PropertyResident = new GQLListSchema('PropertyResident', {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        organization: ORGANIZATION_OWNED_FIELD,
+        organization: {
+            schemaDoc: 'Organization, that provides service to this resident. Can be missing, when a resident has been registered, but there is no Organization, that serves specified address in our system yet',
+            type: Relationship,
+            ref: 'Organization',
+            isRequired: false,
+            knexOptions: { isNotNullable: false }, // Relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
+        },
 
         property: {
-            schemaDoc: 'Property, in which this person resides',
+            schemaDoc: 'Property, in which this person resides. Can be missing, when a resident has been registered, but there is no Property in our system yet',
             type: Relationship,
             ref: 'Property',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            isRequired: false,
+            knexOptions: { isNotNullable: false }, // Required relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         contact: {
