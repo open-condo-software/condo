@@ -575,7 +575,13 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     labelAlign='left'
                     style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }}
-                    rules={[{ required: true, message: PleaseInputYourNameMsg, whitespace: true }]}
+                    rules={[{
+                        required: true,
+                        message: PleaseInputYourNameMsg,
+                        whitespace: true,
+                        pattern: /^[a-zA-Zа-яА-ЯЁё\s]+$/,
+                        type: 'string',
+                    }]}
                 >
                     <Input placeholder={ExampleNameMsg} style={INPUT_STYLE} />
                 </Form.Item>
