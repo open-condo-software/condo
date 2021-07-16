@@ -110,3 +110,26 @@ docker-compose run app python apps/condo/.kmigrator/manage.py makemigrations --m
 ```
 
 If the util ask You to provide a default value, it expects it in Python syntax.
+
+
+### UnicodeDecodeError
+
+By running `makemigrations` util, it can crash with following error:
+
+> UnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 3131: invalid start byte
+
+The reason can be a `.DS_Store` file, added by macOS ;)
+
+```shell
+➜  condo git:(master) ls -la apps/condo/migrations 
+total 752
+drwxr-xr-x  31 antonal  staff     992 16 июл 10:15 .
+drwxr-xr-x  29 antonal  staff     928 16 июл 10:15 ..
+-rw-r--r--@  1 antonal  staff    6148 15 июл 13:22 .DS_Store
+```
+
+Remove it:
+
+```shell
+rm apps/condo/migrations .DS_Store
+```
