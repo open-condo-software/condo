@@ -6,6 +6,9 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
         organization: { id: organizationId },
         user: { id: userId },
         deletedAt: null,
+        isAccepted: true,
+        isBlocked: false,
+        isRejected: false,
     })
 
     if (!employee || !employee.role) {
@@ -33,6 +36,9 @@ async function checkUserBelongsToOrganization (userId, organizationId) {
     const employee = await getByCondition('OrganizationEmployee', {
         organization: { id: organizationId },
         user: { id: userId },
+        isAccepted: true,
+        isBlocked: false,
+        isRejected: false,
     })
 
     if (!employee) {
