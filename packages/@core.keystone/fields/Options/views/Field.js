@@ -11,13 +11,18 @@ const Checkbox = ({ label, value, onChange }) => {
     const checked = value || false
     const htmlID = `ks-input-${label}`
     return (
-        <div css={css`display: flex; align-items: center;`}>
+        <div
+            css={css`
+                display: flex;
+                align-items: center;
+            `}
+        >
             <label htmlFor={htmlID}>{label}</label>
             <FieldInput css={{ height: 35, order: '-1' }}>
                 <CheckboxPrimitive
                     autoFocus={false}
                     checked={checked}
-                    onChange={event => onChange({ [label]: event.target.checked })}
+                    onChange={(event) => onChange({ [label]: event.target.checked })}
                     id={htmlID}
                 />
             </FieldInput>
@@ -32,13 +37,11 @@ const OptionsField = ({ onChange, autoFocus, field, value, errors }) => {
         onChange(values)
     }, [values, onChange])
 
-    const handleChange = newValue => {
+    const handleChange = (newValue) => {
         setValues({ ...values, ...newValue })
     }
 
-    const accessError = (errors || []).find(
-        error => error instanceof Error && error.name === 'AccessDeniedError',
-    )
+    const accessError = (errors || []).find((error) => error instanceof Error && error.name === 'AccessDeniedError')
 
     return (
         <FieldContainer>
@@ -55,13 +58,11 @@ const OptionsField = ({ onChange, autoFocus, field, value, errors }) => {
             >
                 {field.label}
             </div>
-            {accessError ? (
-                <ShieldIcon title={accessError.message} css={{ color: colors.N20, marginRight: '1em' }}/>
-            ) : null}
+            {accessError ? <ShieldIcon title={accessError.message} css={{ color: colors.N20, marginRight: '1em' }} /> : null}
             {field.config.isRequired ? <Lozenge appearance="primary"> Required </Lozenge> : null}
             {field.config.adminDoc && <FieldDescription>{field.config.adminDoc}</FieldDescription>}
             <div>
-                {field.config.options.map(label => (
+                {field.config.options.map((label) => (
                     <Checkbox
                         key={`ks-input-${label}`}
                         autoFocus={autoFocus}

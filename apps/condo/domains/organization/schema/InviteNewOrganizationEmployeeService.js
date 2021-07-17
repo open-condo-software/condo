@@ -76,7 +76,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const employee = await createOrganizationEmployee(context, {
                     user: { connect: { id: user.id } },
                     organization: { connect: { id: userOrganization.id } },
-                    ...role && { role: { connect: { id: role.id } } },
+                    ...(role && { role: { connect: { id: role.id } } }),
                     position,
                     email,
                     name,

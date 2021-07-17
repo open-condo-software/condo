@@ -4,8 +4,16 @@
 
 const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
-const { ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction, createTestUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
+} = require('@condo/domains/common/utils/testSchema')
+const {
+    ForgotPasswordAction,
+    createTestForgotPasswordAction,
+    updateTestForgotPasswordAction,
+    createTestUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 describe('ForgotPasswordAction', () => {
     describe('User', () => {
@@ -91,4 +99,3 @@ describe('ForgotPasswordAction', () => {
         })
     })
 })
-

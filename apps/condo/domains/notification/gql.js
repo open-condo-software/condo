@@ -13,20 +13,27 @@ const MESSAGE_FIELDS = `{ organization { id } user { id email phone } email phon
 const Message = generateGqlQueries('Message', MESSAGE_FIELDS)
 
 const SEND_MESSAGE = gql`
-    mutation sendMessage ($data: SendMessageInput!) {
-        result: sendMessage(data: $data) { status id }
+    mutation sendMessage($data: SendMessageInput!) {
+        result: sendMessage(data: $data) {
+            status
+            id
+        }
     }
 `
 
 const RESEND_MESSAGE = gql`
-    mutation resendMessage ($data: ResendMessageInput!) {
-        result: resendMessage(data: $data) { status id }
+    mutation resendMessage($data: ResendMessageInput!) {
+        result: resendMessage(data: $data) {
+            status
+            id
+        }
     }
 `
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Message,
-    SEND_MESSAGE, RESEND_MESSAGE,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    SEND_MESSAGE,
+    RESEND_MESSAGE,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

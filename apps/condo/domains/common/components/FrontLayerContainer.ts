@@ -7,11 +7,13 @@ interface IFrontLayerContainerProps {
 }
 
 export const FrontLayerContainer = styled.div<IFrontLayerContainerProps>`
-  margin: 0 -24px;
-  padding: 0 24px 24px;
-  position: relative;
-  user-select: none;
-  ${(props) => get(props, 'showLayer', false) && `
+    margin: 0 -24px;
+    padding: 0 24px 24px;
+    position: relative;
+    user-select: none;
+    ${(props) =>
+        get(props, 'showLayer', false) &&
+        `
     &:before {
         content: '';
         position: absolute;

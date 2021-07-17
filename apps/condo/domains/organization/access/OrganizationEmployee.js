@@ -4,7 +4,7 @@
 const { getByCondition } = require('@core/keystone/schema')
 const { getById } = require('@core/keystone/schema')
 
-async function canReadOrganizationEmployees ({ authentication: { item: user } }) {
+async function canReadOrganizationEmployees({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
     return {
@@ -13,7 +13,7 @@ async function canReadOrganizationEmployees ({ authentication: { item: user } })
     }
 }
 
-async function canManageOrganizationEmployees ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageOrganizationEmployees({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {

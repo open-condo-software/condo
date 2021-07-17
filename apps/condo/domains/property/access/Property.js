@@ -5,14 +5,13 @@ const get = require('lodash/get')
 const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadProperties ({ authentication: { item: user } }) {
+async function canReadProperties({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
     return { organization: { employees_some: { user: { id: user.id }, isBlocked: false } } }
 }
 
-
-async function canManageProperties ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageProperties({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
@@ -35,7 +34,7 @@ async function canManageProperties ({ authentication: { item: user }, originalIn
         const { organization: organizationId } = property
 
         return await checkOrganizationPermission(user.id, organizationId, 'canManageProperties')
-    } 
+    }
     return false
 }
 

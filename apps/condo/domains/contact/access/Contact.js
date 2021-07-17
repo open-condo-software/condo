@@ -6,7 +6,7 @@ const { checkOrganizationPermission } = require('@condo/domains/organization/uti
 const get = require('lodash/get')
 const { Contact } = require('../utils/serverSchema')
 
-async function canReadContacts ({ authentication: { item: user } }) {
+async function canReadContacts({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
     return {
@@ -14,7 +14,7 @@ async function canReadContacts ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageContacts ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageContacts({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {

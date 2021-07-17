@@ -11,7 +11,7 @@ import { useIntl } from '@core/next/intl'
 import { isFunction } from '../../utils/ecmascript.utils'
 import { Loader } from '../Loader'
 
-function RedirectToLogin () {
+function RedirectToLogin() {
     const intl = useIntl()
     const RedirectingMessage = intl.formatMessage({ id: 'Redirecting' })
 
@@ -25,10 +25,19 @@ function RedirectToLogin () {
             clearTimeout(clearHandle)
         }
     })
-    return <Typography.Text css={css`display: block; text-align: center;`}>{RedirectingMessage}</Typography.Text>
+    return (
+        <Typography.Text
+            css={css`
+                display: block;
+                text-align: center;
+            `}
+        >
+            {RedirectingMessage}
+        </Typography.Text>
+    )
 }
 
-export function AuthRequired ({ children }) {
+export function AuthRequired({ children }) {
     const intl = useIntl()
     const SignInRequiredMessage = intl.formatMessage({ id: 'SignInRequired' })
 
@@ -36,14 +45,23 @@ export function AuthRequired ({ children }) {
     const { isAuthenticated, isLoading } = auth
 
     if (isLoading) {
-        return <Loader/>
+        return <Loader />
     }
 
     if (!isAuthenticated) {
-        return <>
-            <Typography.Title css={css`display: block; text-align: center;`}>{SignInRequiredMessage}</Typography.Title>
-            <RedirectToLogin/>
-        </>
+        return (
+            <>
+                <Typography.Title
+                    css={css`
+                        display: block;
+                        text-align: center;
+                    `}
+                >
+                    {SignInRequiredMessage}
+                </Typography.Title>
+                <RedirectToLogin />
+            </>
+        )
     }
 
     if (isFunction(children)) {

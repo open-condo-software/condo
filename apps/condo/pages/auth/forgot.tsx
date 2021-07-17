@@ -16,10 +16,8 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { LOCK_TIMEOUT } from '@condo/domains/user/constants/common'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 
-
 const LINK_STYLE = { color: colors.sberPrimary[7] }
 const INPUT_STYLE = { width: '20em' }
-
 
 const ResetPage: AuthPage = () => {
     const [form] = Form.useForm()
@@ -46,17 +44,19 @@ const ResetPage: AuthPage = () => {
         },
     }
     if (isLoading) {
-        return <LoadingOrErrorPage title={ResetTitle} loading={isLoading} error={null}/>
+        return <LoadingOrErrorPage title={ResetTitle} loading={isLoading} error={null} />
     }
     if (isSuccessMessage) {
         return (
             <div style={{ textAlign: 'left' }}>
                 <Typography.Title>{CheckEmailMsg}</Typography.Title>
                 <Typography.Paragraph>
-                    <FormattedMessage id='pages.auth.reset.ResetSuccessMessage' values={{ email: form.getFieldValue('email') }} />
+                    <FormattedMessage id="pages.auth.reset.ResetSuccessMessage" values={{ email: form.getFieldValue('email') }} />
                 </Typography.Paragraph>
                 <Typography.Paragraph>
-                    <a style={LINK_STYLE} onClick={() => Router.push('/auth/signin')}>{ReturnToLoginPage}</a>
+                    <a style={LINK_STYLE} onClick={() => Router.push('/auth/signin')}>
+                        {ReturnToLoginPage}
+                    </a>
                 </Typography.Paragraph>
             </div>
         )
@@ -81,7 +81,7 @@ const ResetPage: AuthPage = () => {
             intl,
             form,
             ErrorToFormFieldMsgMapping,
-        }).catch(err => {
+        }).catch((err) => {
             console.error(err)
             setIsLoading(false)
         })
@@ -93,7 +93,7 @@ const ResetPage: AuthPage = () => {
             <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>
             <Form
                 form={form}
-                name='forgot-password'
+                name="forgot-password"
                 validateTrigger={['onBlur', 'onSubmit']}
                 initialValues={initialValues}
                 colon={false}
@@ -101,7 +101,7 @@ const ResetPage: AuthPage = () => {
                 requiredMark={false}
             >
                 <Form.Item
-                    name='email'
+                    name="email"
                     label={EmailMsg}
                     rules={[
                         {
@@ -113,10 +113,10 @@ const ResetPage: AuthPage = () => {
                             message: PleaseInputYourEmailMsg,
                         },
                     ]}
-                    labelAlign='left'
+                    labelAlign="left"
                     labelCol={{ flex: 1 }}
                 >
-                    <Input placeholder={EmailPlaceholder}  style={INPUT_STYLE}/>
+                    <Input placeholder={EmailPlaceholder} style={INPUT_STYLE} />
                 </Form.Item>
                 <Form.Item style={{ textAlign: 'left', marginTop: '36px' }}>
                     <CountDownTimer action={forgotAction} id={'FORGOT_ACTION'} timeout={LOCK_TIMEOUT}>
@@ -125,16 +125,18 @@ const ResetPage: AuthPage = () => {
                             return (
                                 <Button
                                     onClick={() => {
-                                        form.validateFields().then(() => {
-                                            runAction()
-                                        }).catch(_ => {
-                                            // validation check failed - don't invoke runAction
-                                        })
+                                        form.validateFields()
+                                            .then(() => {
+                                                runAction()
+                                            })
+                                            .catch((_) => {
+                                                // validation check failed - don't invoke runAction
+                                            })
                                     }}
                                     type={isCountDownActive ? 'sberGrey' : 'sberPrimary'}
                                     disabled={isCountDownActive}
                                     loading={isLoading}
-                                    htmlType='submit'
+                                    htmlType="submit"
                                     style={{ marginTop: '24px' }}
                                 >
                                     {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
@@ -154,9 +156,9 @@ const HeaderAction = (): React.ReactElement => {
     const { isMobile } = useContext(AuthLayoutContext)
     return (
         <Button
-            key='submit'
+            key="submit"
             onClick={() => Router.push('/auth/register')}
-            type='sberPrimary'
+            type="sberPrimary"
             secondary={true}
             size={isMobile ? 'middle' : 'large'}
         >

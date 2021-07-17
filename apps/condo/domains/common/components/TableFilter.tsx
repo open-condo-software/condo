@@ -18,34 +18,26 @@ export const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
         <div style={{ padding: 16 }}>
             <Space size={8} direction={'vertical'} align={'center'}>
                 {props.children}
-                {
-                    props.showClearButton && (
-                        <Button
-                            size={'small'}
-                            onClick={() => props.clearFilters()}
-                            type={'inlineLink'}
-                        >
-                            {ResetLabel}
-                        </Button>
-                    )
-                }
+                {props.showClearButton && (
+                    <Button size={'small'} onClick={() => props.clearFilters()} type={'inlineLink'}>
+                        {ResetLabel}
+                    </Button>
+                )}
             </Space>
         </div>
     )
 }
 
-export const getFilterIcon = filtered => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
+export const getFilterIcon = (filtered) => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 
-export const getTextFilterDropdown = (columnName: string,
-    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
-
+export const getTextFilterDropdown = (columnName: string, setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         return (
             <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
                 <Input
                     placeholder={columnName}
                     value={selectedKeys}
-                    onChange={e => {
+                    onChange={(e) => {
                         setSelectedKeys(e.target.value)
                         setFiltersApplied(true)
                         confirm({ closeDropdown: false })

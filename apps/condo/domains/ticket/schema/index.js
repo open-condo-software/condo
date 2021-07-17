@@ -24,5 +24,5 @@ module.exports = {
     TicketChange,
     TicketComment,
     ExportTicketsService,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

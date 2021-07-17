@@ -1,6 +1,6 @@
 const { getByCondition } = require('@core/keystone/schema')
 
-async function checkOrganizationPermission (userId, organizationId, permission) {
+async function checkOrganizationPermission(userId, organizationId, permission) {
     if (!userId || !organizationId) return false
     const employee = await getByCondition('OrganizationEmployee', {
         organization: { id: organizationId },
@@ -28,7 +28,7 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
     return employeeRole[permission] || false
 }
 
-async function checkUserBelongsToOrganization (userId, organizationId) {
+async function checkUserBelongsToOrganization(userId, organizationId) {
     if (!userId || !organizationId) return false
     const employee = await getByCondition('OrganizationEmployee', {
         organization: { id: organizationId },

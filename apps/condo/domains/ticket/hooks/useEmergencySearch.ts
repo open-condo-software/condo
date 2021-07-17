@@ -11,14 +11,17 @@ export const useEmergencySearch = <F>(loading): [boolean, (e: CheckboxChangeEven
     const searchValue = get(filtersFromQuery, 'isEmergency') === true
     const [isEmergency, setIsEmergency] = useState(searchValue)
 
-    const searchChange = useCallback(debounce((e) => {
-        const query = qs.stringify(
-            { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, isEmergency: e })) },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
+    const searchChange = useCallback(
+        debounce((e) => {
+            const query = qs.stringify(
+                { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, isEmergency: e })) },
+                { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+            )
 
-        router.push(router.route + query)
-    }, 400), [loading])
+            router.push(router.route + query)
+        }, 400),
+        [loading],
+    )
 
     const handleEmergencyChange = (e: CheckboxChangeEvent): void => {
         setIsEmergency(e.target.checked)

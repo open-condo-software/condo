@@ -2,10 +2,17 @@ import { PASSWORD_TOO_SHORT, RESET_TOKEN_NOT_FOUND } from '@condo/domains/user/c
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { createTestForgotPasswordAction, updateTestForgotPasswordAction, createTestUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    createTestForgotPasswordAction,
+    updateTestForgotPasswordAction,
+    createTestUser,
+} = require('@condo/domains/user/utils/testSchema')
 
-const { START_PASSWORD_RECOVERY_MUTATION, CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN } = require('@condo/domains/user/gql')
-
+const {
+    START_PASSWORD_RECOVERY_MUTATION,
+    CHANGE_PASSWORD_WITH_TOKEN_MUTATION,
+    CHECK_PASSWORD_RECOVERY_TOKEN,
+} = require('@condo/domains/user/gql')
 
 describe('ForgotPasswordAction Service', () => {
     describe('User', () => {
@@ -47,7 +54,7 @@ describe('ForgotPasswordAction Service', () => {
             expect(result.errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find token`)
         })
 
-        it('cannot change password to a shorter one', async () =>  {
+        it('cannot change password to a shorter one', async () => {
             const admin = await makeLoggedInAdminClient()
             const [user, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)

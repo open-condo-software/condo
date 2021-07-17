@@ -8,7 +8,7 @@ const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 
-async function ensureNotExists (context, model, models, field, value) {
+async function ensureNotExists(context, model, models, field, value) {
     if (isEmpty(value)) {
         throw new Error(`[error] Unable to check field ${field} uniques because the passed value is empty`)
     }
@@ -52,20 +52,20 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     isPhoneVerified: false,
                 }
                 if (confirmPhoneActionToken) {
-                    const [action] = await ConfirmPhoneAction.getAll(context.createContext({ skipAccessControl: true }), 
-                        { token: confirmPhoneActionToken }
-                    )
+                    const [action] = await ConfirmPhoneAction.getAll(context.createContext({ skipAccessControl: true }), {
+                        token: confirmPhoneActionToken,
+                    })
                     if (!action) {
-                        throw new Error('[error] Unable to find confirm phone action')    
+                        throw new Error('[error] Unable to find confirm phone action')
                     }
                     const { phone, isPhoneVerified } = action
                     if (!isPhoneVerified) {
-                        throw new Error('[error] Phone is not verified')    
+                        throw new Error('[error] Phone is not verified')
                     }
                     userData.phone = phone
                     userData.isPhoneVerified = isPhoneVerified
                 }
-              
+
                 await ensureNotExists(context, 'User', 'Users', 'phone', userData.phone)
                 await ensureNotExists(context, 'User', 'Users', 'email', userData.email)
 

@@ -128,7 +128,13 @@ describe('InviteNewOrganizationEmployeeService', () => {
                             email: createTestEmail(),
                         }
 
-                        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {}, { raw: true })
+                        const { errors } = await inviteNewOrganizationEmployee(
+                            client,
+                            client.organization,
+                            secondUserAttrs,
+                            {},
+                            { raw: true },
+                        )
 
                         expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
                     })
@@ -147,7 +153,13 @@ describe('InviteNewOrganizationEmployeeService', () => {
                             phone: createTestPhone(),
                         }
 
-                        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {}, { raw: true })
+                        const { errors } = await inviteNewOrganizationEmployee(
+                            client,
+                            client.organization,
+                            secondUserAttrs,
+                            {},
+                            { raw: true },
+                        )
 
                         expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
                     })
@@ -161,12 +173,20 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         const [employee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
                         const [acceptedInvite] = await acceptOrRejectOrganizationInviteById(client2, employee)
 
-                        expect(acceptedInvite).toEqual(expect.objectContaining({
-                            isAccepted: true,
-                            isRejected: false,
-                        }))
+                        expect(acceptedInvite).toEqual(
+                            expect.objectContaining({
+                                isAccepted: true,
+                                isRejected: false,
+                            }),
+                        )
 
-                        const { errors } = await reInviteNewOrganizationEmployee(client1, client1.organization, employee, {}, { raw: true })
+                        const { errors } = await reInviteNewOrganizationEmployee(
+                            client1,
+                            client1.organization,
+                            employee,
+                            {},
+                            { raw: true },
+                        )
 
                         expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
                     })

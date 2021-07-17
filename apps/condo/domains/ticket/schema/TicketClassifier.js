@@ -10,7 +10,8 @@ const access = require('@condo/domains/ticket/access/TicketClassifier')
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 
 const TicketClassifier = new GQLListSchema('TicketClassifier', {
-    schemaDoc: 'Ticket typification/classification. We have a organization specific classification. We check the ticket attrs differently depending on the classifier',
+    schemaDoc:
+        'Ticket typification/classification. We have a organization specific classification. We check the ticket attrs differently depending on the classifier',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
@@ -19,7 +20,7 @@ const TicketClassifier = new GQLListSchema('TicketClassifier', {
         fullName: {
             schemaDoc: 'Multi level name',
             type: Virtual,
-            resolver: item => `${item.parent} -- ${item.name}`,
+            resolver: (item) => `${item.parent} -- ${item.name}`,
         },
         name: {
             schemaDoc: 'This level name',
@@ -32,7 +33,6 @@ const TicketClassifier = new GQLListSchema('TicketClassifier', {
             ref: 'TicketClassifier',
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

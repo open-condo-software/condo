@@ -49,14 +49,14 @@ export const CreateEmployeeForm: React.FC = () => {
     const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const UserAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
 
-    const {
-        objs: employee,
-    } = OrganizationEmployee.useObjects({
-        where: { organization: { id: organization.id } },
-    }, {
-        fetchPolicy: 'network-only',
-    })
-
+    const { objs: employee } = OrganizationEmployee.useObjects(
+        {
+            where: { organization: { id: organization.id } },
+        },
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
 
     const validations: { [key: string]: Rule[] } = {
         phone: [
@@ -66,7 +66,7 @@ export const CreateEmployeeForm: React.FC = () => {
             },
             {
                 validator: (_, value) => {
-                    if (employee.find(emp => emp.phone === value)) return Promise.reject(UserAlreadyInListMsg)
+                    if (employee.find((emp) => emp.phone === value)) return Promise.reject(UserAlreadyInListMsg)
                     const v = normalizePhone(value)
                     if (!v) return Promise.reject(PhoneIsNotValidMsg)
                     return Promise.resolve()
@@ -84,7 +84,7 @@ export const CreateEmployeeForm: React.FC = () => {
             },
             {
                 validator: (_, value) => {
-                    if (employee.find(emp => emp.email === value)) return Promise.reject(UserAlreadyInListMsg)
+                    if (employee.find((emp) => emp.email === value)) return Promise.reject(UserAlreadyInListMsg)
                     return Promise.resolve()
                 },
             },
@@ -112,92 +112,86 @@ export const CreateEmployeeForm: React.FC = () => {
                 return values
             }}
         >
-            {
-                ({ handleSave, isLoading }) => {
+            {({ handleSave, isLoading }) => {
+                return (
+                    <Row gutter={[0, 40]}>
+                        <Col span={24}>
+                            <Row gutter={[0, 24]}>
+                                <Col span={24}>
+                                    <Form.Item name={'name'} label={FullNameLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'}>
+                                        <Input placeholder={FullNamePlaceholder} />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item
+                                        name={'position'}
+                                        label={PositionLabel}
+                                        {...INPUT_LAYOUT_PROPS}
+                                        labelAlign={'left'}
+                                    >
+                                        <Input />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item
+                                        name={'phone'}
+                                        label={PhoneLabel}
+                                        labelAlign={'left'}
+                                        required
+                                        validateFirst
+                                        rules={validations.phone}
+                                        {...INPUT_LAYOUT_PROPS}
+                                    >
+                                        <PhoneInput placeholder={ExamplePhoneMsg} style={{ width: '100%' }} />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item
+                                        name={'email'}
+                                        label={EmailLabel}
+                                        labelAlign={'left'}
+                                        required
+                                        validateFirst
+                                        rules={validations.email}
+                                        {...INPUT_LAYOUT_PROPS}
+                                    >
+                                        <Input />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item name={'role'} label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'}>
+                                        <EmployeeRoleSelect organizationId={get(organization, 'id')} />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item noStyle dependencies={['phone', 'email']}>
+                                {({ getFieldsValue }) => {
+                                    const { phone, email } = getFieldsValue(['phone', 'email'])
 
-                    return (
-                        <Row gutter={[0, 40]}>
-                            <Col span={24}>
-                                <Row gutter={[0, 24]}>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            name={'name'}
-                                            label={FullNameLabel}
-                                            {...INPUT_LAYOUT_PROPS}
-                                            labelAlign={'left'}
-                                        >
-                                            <Input placeholder={FullNamePlaceholder}/>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Form.Item name={'position'} label={PositionLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'}>
-                                            <Input/>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            name={'phone'}
-                                            label={PhoneLabel}
-                                            labelAlign={'left'}
-                                            required
-                                            validateFirst
-                                            rules={validations.phone}
-                                            {...INPUT_LAYOUT_PROPS}
-                                        >
-                                            <PhoneInput placeholder={ExamplePhoneMsg} style={{ width: '100%' }}/>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            name={'email'}
-                                            label={EmailLabel}
-                                            labelAlign={'left'}
-                                            required
-                                            validateFirst
-                                            rules={validations.email}
-                                            {...INPUT_LAYOUT_PROPS}
-                                        >
-                                            <Input/>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Form.Item name={'role'} label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'}>
-                                            <EmployeeRoleSelect organizationId={get(organization, 'id')} />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item noStyle dependencies={['phone', 'email']}>
-                                    {
-                                        ({ getFieldsValue }) => {
-                                            const { phone, email } = getFieldsValue(['phone', 'email'])
-
-                                            return (
-                                                <Row gutter={[0, 24]}>
-                                                    <ErrorsContainer phone={phone} email={email}/>
-                                                    <Col span={24}>
-                                                        <Button
-                                                            key='submit'
-                                                            onClick={handleSave}
-                                                            type='sberPrimary'
-                                                            loading={isLoading}
-                                                            disabled={!phone || !email}
-                                                        >
-                                                            {InviteEmployeeLabel}
-                                                        </Button>
-                                                    </Col>
-                                                </Row>
-                                            )
-                                        }
-                                    }
-                                </Form.Item>
-                            </Col>
-                        </Row>
-
-                    )
-                }
-            }
+                                    return (
+                                        <Row gutter={[0, 24]}>
+                                            <ErrorsContainer phone={phone} email={email} />
+                                            <Col span={24}>
+                                                <Button
+                                                    key="submit"
+                                                    onClick={handleSave}
+                                                    type="sberPrimary"
+                                                    loading={isLoading}
+                                                    disabled={!phone || !email}
+                                                >
+                                                    {InviteEmployeeLabel}
+                                                </Button>
+                                            </Col>
+                                        </Row>
+                                    )
+                                }}
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                )
+            }}
         </FormWithAction>
     )
 }

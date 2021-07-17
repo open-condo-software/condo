@@ -50,7 +50,8 @@ const TicketStatus = new GQLListSchema('TicketStatus', {
         },
 
         colors: {
-            schemaDoc: 'Status colors, includes primary (font color), secondary (background color), additional (border color), all colors presented in HEX',
+            schemaDoc:
+                'Status colors, includes primary (font color), secondary (background color), additional (border color), all colors presented in HEX',
             type: Virtual,
             extendGraphQLTypes: ['type TicketStatusColor { primary: String, secondary: String, additional: String }'],
             graphQLReturnType: 'JSON',
@@ -65,7 +66,7 @@ const TicketStatus = new GQLListSchema('TicketStatus', {
                     throw new Error('Error while trying to find ticket status color: no ticketStatus colors found')
                 }
 
-                if (!ticketStatusColorsJsonValidator(statusColors)){
+                if (!ticketStatusColorsJsonValidator(statusColors)) {
                     throw new Error(`${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure`)
                 }
 

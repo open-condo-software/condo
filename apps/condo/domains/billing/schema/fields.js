@@ -18,7 +18,8 @@ const IMPORT_ID_FIELD = {
 }
 
 const RAW_DATA_FIELD = {
-    schemaDoc: 'Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`.',
+    schemaDoc:
+        'Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`.',
     type: Json,
     isRequired: true,
 }

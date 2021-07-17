@@ -38,12 +38,12 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
     useEffect(() => {
         initialFormState.current = form.getFieldsValue()
         // Todo(zuch): find a better way to turn off Prompt on form submit
-        const oldFormSubmit = form.submit 
+        const oldFormSubmit = form.submit
         form.submit = () => {
             isIgnoringPrompt.current = true
             oldFormSubmit.call(form)
-        }        
-        const onRouteChange = url => {
+        }
+        const onRouteChange = (url) => {
             if (!isIgnoringPrompt.current) {
                 if (isFormChanged()) {
                     setNext(url)
@@ -65,23 +65,18 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
         <Modal
             visible={isModalVisible}
             onCancel={hideModal}
-            title={
-                <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
-                    {title}
-                </Typography.Title>
-            }
+            title={<Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>{title}</Typography.Title>}
             footer={[
-                <Button key="back" type='sberDanger' style={{ margin: '16px' }} onClick={handleCancel}>
+                <Button key="back" type="sberDanger" style={{ margin: '16px' }} onClick={handleCancel}>
                     {LeaveLabel}
                 </Button>,
-                <Button key="submit" type='sberPrimary' onClick={handleSave}>
+                <Button key="submit" type="sberPrimary" onClick={handleSave}>
                     {SaveLabel}
                 </Button>,
             ]}
         >
             {children}
         </Modal>
-
     )
 }
 

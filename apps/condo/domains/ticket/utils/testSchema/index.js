@@ -18,7 +18,7 @@ const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket
 const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
+const TICKET_OPEN_STATUS_ID = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 const TICKET_UNKNOWN_CLASSIFIER_ID = '4f4b43d5-0951-425c-9428-945dc6193361'
 const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
 
@@ -31,7 +31,7 @@ const TicketClassifier = generateGQLTestUtils(TicketClassifierGQL)
 const TicketComment = generateGQLTestUtils(TicketCommentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestTicket (client, organization, property, extraAttrs = {}) {
+async function createTestTicket(client, organization, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!property || !property.id) throw new Error('no property.id')
@@ -53,7 +53,7 @@ async function createTestTicket (client, organization, property, extraAttrs = {}
     return [obj, attrs]
 }
 
-async function updateTestTicket (client, id, extraAttrs = {}) {
+async function updateTestTicket(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -67,12 +67,12 @@ async function updateTestTicket (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function ticketStatusByType (client) {
+async function ticketStatusByType(client) {
     const statuses = await TicketStatus.getAll(client)
-    return Object.fromEntries(statuses.map(status => [status.type, status.id]))
+    return Object.fromEntries(statuses.map((status) => [status.type, status.id]))
 }
 
-async function createTestTicketStatus (client, extraAttrs = {}) {
+async function createTestTicketStatus(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.random.alphaNumeric(8)
@@ -81,14 +81,15 @@ async function createTestTicketStatus (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        name, type,
+        name,
+        type,
         ...extraAttrs,
     }
     const obj = await TicketStatus.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestTicketStatus (client, id, extraAttrs = {}) {
+async function updateTestTicketStatus(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -102,7 +103,7 @@ async function updateTestTicketStatus (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestTicketChange (client, ticket, extraAttrs = {}) {
+async function createTestTicketChange(client, ticket, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!ticket || !ticket.id) throw new Error('no ticket.id')
 
@@ -115,7 +116,7 @@ async function createTestTicketChange (client, ticket, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestTicketChange (client, id, extraAttrs = {}) {
+async function updateTestTicketChange(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -129,11 +130,10 @@ async function updateTestTicketChange (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-
-async function createTestTicketFile (client, organization, ticket, extraAttrs = {}) {
+async function createTestTicketFile(client, organization, ticket, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
-    const ticketConnection = (ticket && ticket.id) ? { ticket: { connect: { id: ticket.id } } } : {}
+    const ticketConnection = ticket && ticket.id ? { ticket: { connect: { id: ticket.id } } } : {}
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const attrs = {
         dv: 1,
@@ -146,7 +146,7 @@ async function createTestTicketFile (client, organization, ticket, extraAttrs = 
     return [obj, attrs]
 }
 
-async function updateTestTicketFile (client, id, extraAttrs = {}) {
+async function updateTestTicketFile(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -159,7 +159,7 @@ async function updateTestTicketFile (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestTicketClassifier (client, extraAttrs = {}) {
+async function createTestTicketClassifier(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const attrs = {
@@ -172,7 +172,7 @@ async function createTestTicketClassifier (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestTicketClassifier (client, id, extraAttrs = {}) {
+async function updateTestTicketClassifier(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -185,7 +185,7 @@ async function updateTestTicketClassifier (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestTicketComment (client, ticket, user, extraAttrs = {}) {
+async function createTestTicketComment(client, ticket, user, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!ticket || !ticket.id) throw new Error('no ticket.id')
     if (!user || !user.id) throw new Error('no user.id')
@@ -205,7 +205,7 @@ async function createTestTicketComment (client, ticket, user, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestTicketComment (client, id, extraAttrs = {}) {
+async function updateTestTicketComment(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -222,7 +222,7 @@ async function updateTestTicketComment (client, id, extraAttrs = {}) {
 
 /* AUTOGENERATE MARKER <FACTORY> */
 
-async function makeClientWithTicket () {
+async function makeClientWithTicket() {
     const client = await makeClientWithProperty()
     const [ticket] = await createTestTicket(client, client.organization, client.property)
     client.ticket = ticket
@@ -245,7 +245,11 @@ module.exports = {
     createTestTicketChange,
     updateTestTicketChange,
     makeClientWithTicket,
-    TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier,
-    TicketComment, createTestTicketComment, updateTestTicketComment,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    TicketClassifier,
+    createTestTicketClassifier,
+    updateTestTicketClassifier,
+    TicketComment,
+    createTestTicketComment,
+    updateTestTicketComment,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

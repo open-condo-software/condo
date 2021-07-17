@@ -17,12 +17,12 @@ export const EmployeeUpdatePage = () => {
     return (
         <>
             <Head>
-                <title>{ UpdateEmployeeMessage }</title>
+                <title>{UpdateEmployeeMessage}</title>
             </Head>
             <PageWrapper>
                 <OrganizationRequired>
                     <PageContent>
-                        <EmployeeProfileForm/>
+                        <EmployeeProfileForm />
                     </PageContent>
                 </OrganizationRequired>
             </PageWrapper>
@@ -36,15 +36,12 @@ const HeaderAction = () => {
     const { query } = useRouter()
 
     return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={`/employee/${get(query, 'id')}/`}
-        >
+        <LinkWithIcon icon={<ArrowLeftOutlined style={{ color: colors.white }} />} path={`/employee/${get(query, 'id')}/`}>
             {BackButtonLabel}
         </LinkWithIcon>
     )
 }
 
-EmployeeUpdatePage.headerAction = <HeaderAction/>
+EmployeeUpdatePage.headerAction = <HeaderAction />
 
 export default EmployeeUpdatePage

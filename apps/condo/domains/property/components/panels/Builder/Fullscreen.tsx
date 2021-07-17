@@ -4,31 +4,31 @@ import { colors } from '@condo/domains/common/constants/style'
 import styled from '@emotion/styled'
 
 export const FullscreenWrapper = styled.div<{
-    mode?: 'view' | 'edit';
+    mode?: 'view' | 'edit'
 }>`
-  margin: -24px;
-  border-radius: 8px;
-  padding: 24px;
-  background: ${colors.white};
+    margin: -24px;
+    border-radius: 8px;
+    padding: 24px;
+    background: ${colors.white};
 
-  &.fullscreen {
-    ${({ mode }) => `padding: ${mode === 'view' ? '96px 24px 84px' : '218px 24px 84px'};`}
-    box-sizing: padding-box;
-    overflow: auto;
+    &.fullscreen {
+        ${({ mode }) => `padding: ${mode === 'view' ? '96px 24px 84px' : '218px 24px 84px'};`}
+        box-sizing: padding-box;
+        overflow: auto;
 
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100wv;
-    height: 100hv;
-    right: 0;
-    bottom: 0;
-    z-index: 20;
-  }
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100wv;
+        height: 100hv;
+        right: 0;
+        bottom: 0;
+        z-index: 20;
+    }
 
-  &.fullscreen .scroll-container {
-    overflow: initial !important;
-  }
+    &.fullscreen .scroll-container {
+        overflow: initial !important;
+    }
 `
 
 export const FullscreenHeader = styled.div<{
@@ -36,11 +36,14 @@ export const FullscreenHeader = styled.div<{
 }>`
     margin: -24px -24px 0;
     padding: 12px 24px 0px 24px;
-    ${({ edit }) => (!edit ? `
+    ${({ edit }) =>
+        !edit
+            ? `
         display: none;
         width: 100%;
         padding-bottom: 12px;
-    ` : '')}
+    `
+            : ''}
 
     div.fullscreen & {
         border-bottom: 1px solid ${colors.lightGrey[5]};
@@ -56,7 +59,9 @@ export const FullscreenHeader = styled.div<{
         padding-right: 11px;
     }
 
-    ${({ edit }) => (edit ? `
+    ${({ edit }) =>
+        edit
+            ? `
         &>div:first-child {
             display: none;
         }
@@ -64,7 +69,8 @@ export const FullscreenHeader = styled.div<{
         div.fullscreen>&>div:first-child {
             display: flex;
         }
-    ` : '')}
+    `
+            : ''}
 `
 
 export const FullscreenFooter = css`
@@ -83,4 +89,4 @@ export const FullscreenFooter = css`
         margin-right: -21px;
         margin-bottom: 0;
     }
- `
+`

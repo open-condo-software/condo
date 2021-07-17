@@ -12,7 +12,7 @@ const isObsConfigured = () => {
     const S3Config = {
         ...(process.env.SBERCLOUD_OBS_CONFIG ? JSON.parse(process.env.SBERCLOUD_OBS_CONFIG) : {}),
     }
-    return !!(S3Config.bucket)
+    return !!S3Config.bucket
 }
 
 describe('ExportTicketService', () => {
@@ -21,8 +21,16 @@ describe('ExportTicketService', () => {
             if (isObsConfigured()) {
                 const client = await makeClientWithProperty()
                 await createTestTicket(client, client.organization, client.property)
-                const { data: { result: { status, linkToFile } } }  = await client.query(EXPORT_TICKETS_TO_EXCEL, {
-                    data: { where: { organization: { id: client.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
+                const {
+                    data: {
+                        result: { status, linkToFile },
+                    },
+                } = await client.query(EXPORT_TICKETS_TO_EXCEL, {
+                    data: {
+                        where: { organization: { id: client.organization.id } },
+                        sortBy: 'id_ASC',
+                        timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+                    },
                 })
                 expect(status).toBe('ok')
                 expect(linkToFile).not.toHaveLength(0)
@@ -35,13 +43,19 @@ describe('ExportTicketService', () => {
             const client = await makeLoggedInClient(userAttrs)
             const client2 = await makeClientWithProperty()
             await createTestTicket(client2, client2.organization, client2.property)
-            const { data: { result }, errors } = await client.query(EXPORT_TICKETS_TO_EXCEL, {
-                data: { where: { organization: { id: client2.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
+            const {
+                data: { result },
+                errors,
+            } = await client.query(EXPORT_TICKETS_TO_EXCEL, {
+                data: {
+                    where: { organization: { id: client2.organization.id } },
+                    sortBy: 'id_ASC',
+                    timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+                },
             })
             expect(result).toBeNull()
             expect(errors).toHaveLength(1)
         })
-
     })
 
     describe('Anonymous', () => {
@@ -49,8 +63,15 @@ describe('ExportTicketService', () => {
             const client = await makeClient()
             const client2 = await makeClientWithProperty()
             await createTestTicket(client2, client2.organization, client2.property)
-            const { data: { result }, errors } = await client.query(EXPORT_TICKETS_TO_EXCEL, {
-                data: { where: { organization: { id: client2.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
+            const {
+                data: { result },
+                errors,
+            } = await client.query(EXPORT_TICKETS_TO_EXCEL, {
+                data: {
+                    where: { organization: { id: client2.organization.id } },
+                    sortBy: 'id_ASC',
+                    timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+                },
             })
             expect(result).toBeNull()
             expect(errors).toHaveLength(1)

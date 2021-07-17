@@ -8,13 +8,27 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { OrganizationEmployee as OrganizationEmployeeGQL } from '@condo/domains/organization/gql'
-import {
-    OrganizationEmployee,
-    OrganizationEmployeeUpdateInput,
-    QueryAllOrganizationEmployeesArgs,
-} from '../../../../schema'
+import { OrganizationEmployee, OrganizationEmployeeUpdateInput, QueryAllOrganizationEmployeesArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'isBlocked', 'updatedBy', 'organization', 'user', 'inviteCode', 'name', 'email', 'phone', 'role', 'position', 'isAccepted', 'isRejected']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'isBlocked',
+    'updatedBy',
+    'organization',
+    'user',
+    'inviteCode',
+    'name',
+    'email',
+    'phone',
+    'role',
+    'position',
+    'isAccepted',
+    'isRejected',
+]
 const RELATIONS = ['organization', 'user', 'role']
 
 export interface IOrganizationEmployeeUIState extends OrganizationEmployee {
@@ -22,7 +36,7 @@ export interface IOrganizationEmployeeUIState extends OrganizationEmployee {
     // TODO(codegen): write IOrganizationEmployeeUIState or extends it from
 }
 
-function convertToUIState (item: OrganizationEmployee): IOrganizationEmployeeUIState {
+function convertToUIState(item: OrganizationEmployee): IOrganizationEmployeeUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IOrganizationEmployeeUIState
 }
@@ -33,17 +47,17 @@ export interface IOrganizationEmployeeFormState {
     // TODO(codegen): write IOrganizationEmployeeUIFormState or extends it from
 }
 
-function convertToUIFormState (state: IOrganizationEmployeeUIState): IOrganizationEmployeeFormState | undefined {
+function convertToUIFormState(state: IOrganizationEmployeeUIState): IOrganizationEmployeeFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IOrganizationEmployeeFormState
 }
 
-function convertGQLItemToFormSelectState (item: OrganizationEmployee): { value: string, label: string } | undefined {
+function convertGQLItemToFormSelectState(item: OrganizationEmployee): { value: string; label: string } | undefined {
     const userOrganization = get(item, 'organization')
     if (!userOrganization) {
         return
@@ -54,7 +68,7 @@ function convertGQLItemToFormSelectState (item: OrganizationEmployee): { value: 
     return { value: item.id, label: name }
 }
 
-function convertToGQLInput (state: IOrganizationEmployeeFormState): OrganizationEmployeeUpdateInput {
+function convertToGQLInput(state: IOrganizationEmployeeFormState): OrganizationEmployeeUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
 
@@ -89,14 +103,13 @@ function convertToGQLInput (state: IOrganizationEmployeeFormState): Organization
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    useSoftDelete,
-} = generateReactHooks<OrganizationEmployee, OrganizationEmployeeUpdateInput, IOrganizationEmployeeFormState, IOrganizationEmployeeUIState, QueryAllOrganizationEmployeesArgs>(OrganizationEmployeeGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete, useSoftDelete } = generateReactHooks<
+    OrganizationEmployee,
+    OrganizationEmployeeUpdateInput,
+    IOrganizationEmployeeFormState,
+    IOrganizationEmployeeUIState,
+    QueryAllOrganizationEmployeesArgs
+>(OrganizationEmployeeGQL, { convertToGQLInput, convertToUIState })
 
 export {
     useObject,

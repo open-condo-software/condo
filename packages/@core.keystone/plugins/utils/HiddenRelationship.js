@@ -1,30 +1,27 @@
 const { Implementation, Text } = require('@keystonejs/fields')
 
 class HiddenRelationshipImplementation extends Implementation {
-    gqlQueryInputFields () {
-        return [
-            ...this.equalityInputFields('String'),
-            ...this.inInputFields('String'),
-        ]
+    gqlQueryInputFields() {
+        return [...this.equalityInputFields('String'), ...this.inInputFields('String')]
     }
 
-    gqlOutputFields () {
+    gqlOutputFields() {
         return [`${this.path}: String`]
     }
 
-    gqlOutputFieldResolvers () {
-        return { [`${this.path}`]: item => (item[this.path]) ? String(item[this.path]) : item[this.path] }
+    gqlOutputFieldResolvers() {
+        return { [`${this.path}`]: (item) => (item[this.path] ? String(item[this.path]) : item[this.path]) }
     }
 
-    gqlUpdateInputFields () {
+    gqlUpdateInputFields() {
         return [`${this.path}: String`]
     }
 
-    gqlCreateInputFields () {
+    gqlCreateInputFields() {
         return [`${this.path}: String`]
     }
 
-    async resolveInput ({ resolvedData }) {
+    async resolveInput({ resolvedData }) {
         let value = resolvedData[this.path]
         if (typeof value === 'number') value = String(value)
         return value
@@ -32,14 +29,14 @@ class HiddenRelationshipImplementation extends Implementation {
 }
 
 class HiddenKnexRelationshipInterface extends Text.adapters.knex {
-    constructor () {
+    constructor() {
         super(...arguments)
         const [refListKey, refFieldPath] = this.config.ref.split('.')
         this.refListKey = refListKey
         this.refFieldPath = refFieldPath
     }
 
-    addToTableSchema (table, rels) {
+    addToTableSchema(table, rels) {
         const refList = this.getListByKey(this.refListKey)
         const refId = refList.getPrimaryKey()
         const foreignKeyConfig = {

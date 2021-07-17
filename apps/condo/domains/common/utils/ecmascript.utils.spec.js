@@ -8,13 +8,13 @@ describe('Function objects', () => {
     const asyncFunctionExpression = async () => {}
     const asyncFunctionStatementExpression = async function () {}
 
-    function functionDefinition () {}
+    function functionDefinition() {}
 
-    async function asyncFunctionDefinition () {}
+    async function asyncFunctionDefinition() {}
 
-    function * generator () {}
+    function* generator() {}
 
-    async function * asyncGenerator () {}
+    async function* asyncGenerator() {}
 
     test.skip('isFunction()', () => {
         expect(isFunction(functionDefinition)).toBeTruthy()

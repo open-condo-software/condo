@@ -5,8 +5,7 @@ const { getItem } = require('@keystonejs/server-side-graphql-client')
 const { isEmpty } = require('lodash')
 
 class SberCloudObsAcl {
-
-    constructor (config) {
+    constructor(config) {
         if (!isEmpty(config.bucket)) {
             this.bucket = config.bucket
             this.s3 = new ObsClient(config.s3Options)
@@ -16,8 +15,8 @@ class SberCloudObsAcl {
         }
     }
 
-    async getMeta (filename) {
-        const result  = await this.s3.getObjectMetadata({
+    async getMeta(filename) {
+        const result = await this.s3.getObjectMetadata({
             Bucket: this.bucket,
             Key: filename,
         })
@@ -28,32 +27,33 @@ class SberCloudObsAcl {
         }
     }
 
-    async setMeta (filename, newMeta = {} ) {
+    async setMeta(filename, newMeta = {}) {
         const result = await this.s3.setObjectMetadata({
             Bucket: this.bucket,
             Key: filename,
             Metadata: newMeta,
             MetadataDirective: 'REPLACE_NEW',
         })
-        const  { CommonMsg: { Status } } = result
+        const {
+            CommonMsg: { Status },
+        } = result
         return Status < 300
     }
     // createSignedUrlSync is executed without request to obs, so there is no need to cache result
-    generateUrl (filename, ttl = 300) { // obs default
+    generateUrl(filename, ttl = 300) {
+        // obs default
         const { SignedUrl } = this.s3.createSignedUrlSync({
             Method: 'GET',
-            Bucket : this.bucket,
-            Key : filename,
+            Bucket: this.bucket,
+            Key: filename,
             Expires: ttl,
         })
         return SignedUrl
     }
-
 }
 
 class SberCloudFileAdapter {
-
-    constructor (config) {
+    constructor(config) {
         this.bucket = config.bucket
         this.s3 = new ObsClient(config.s3Options)
         this.server = config.s3Options.server
@@ -61,7 +61,7 @@ class SberCloudFileAdapter {
         this.acl = new SberCloudObsAcl(config)
     }
 
-    save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
+    save({ stream, filename, id, mimetype, encoding, meta = {} }) {
         return new Promise((resolve, reject) => {
             const fileData = {
                 id,
@@ -86,28 +86,27 @@ class SberCloudFileAdapter {
                         resolve({ ...fileData, _meta: data })
                     }
                     stream.destroy()
-                }
+                },
             )
         })
     }
 
-    delete (file, options = {}) {
+    delete(file, options = {}) {
         if (file) {
-            return this.s3
-                .deleteObject({
-                    Bucket: this.bucket,
-                    Key: `${this.folder}/${file.filename}`,
-                    ...options,
-                })
+            return this.s3.deleteObject({
+                Bucket: this.bucket,
+                Key: `${this.folder}/${file.filename}`,
+                ...options,
+            })
         }
         return Promise.reject(new Error('Missing required argument file.'))
     }
 
-    getFilename ({ id, originalFilename }) {
+    getFilename({ id, originalFilename }) {
         return `${id}${path.extname(originalFilename)}` // will skip adding originalFilename
     }
 
-    publicUrl ({ filename }) {
+    publicUrl({ filename }) {
         // It is possible to sign public URL here and to return the signed URL with access token without using middleware.
         // We are using middleware on the following reasons
         // 1. we want file urls to point to our server
@@ -118,7 +117,7 @@ class SberCloudFileAdapter {
         return `${SERVER_URL}/api/files/${this.folder}/${filename}`
     }
 
-    uploadParams ({ meta = {} }) {
+    uploadParams({ meta = {} }) {
         return {
             Metadata: meta,
         }
@@ -131,7 +130,6 @@ class SberCloudFileAdapter {
 // 3. Generates time-limited token to the obs file
 // 4. Redirects to obs file with the access token
 const obsRouterHandler = ({ keystone }) => {
-
     const obsConfig = SBERCLOUD_OBS_CONFIG ? JSON.parse(SBERCLOUD_OBS_CONFIG) : {}
     const Acl = new SberCloudObsAcl(obsConfig)
 
@@ -167,7 +165,6 @@ const obsRouterHandler = ({ keystone }) => {
         return res.redirect(url)
     }
 }
-
 
 module.exports = {
     SberCloudFileAdapter,

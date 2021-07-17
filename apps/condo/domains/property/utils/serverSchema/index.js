@@ -15,5 +15,5 @@ const Property = generateServerUtils(PropertyGQL)
 
 module.exports = {
     Property,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

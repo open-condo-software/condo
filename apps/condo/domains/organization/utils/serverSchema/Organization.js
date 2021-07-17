@@ -3,7 +3,7 @@ const { Organization, OrganizationEmployee } = require('../../gql')
 const { OrganizationEmployeeRole } = require('./index')
 const { execGqlWithoutAccess } = require('./utils')
 
-async function createOrganization (context, data) {
+async function createOrganization(context, data) {
     return await execGqlWithoutAccess(context, {
         query: Organization.CREATE_OBJ_MUTATION,
         variables: { data },
@@ -12,7 +12,7 @@ async function createOrganization (context, data) {
     })
 }
 
-async function createOrganizationEmployee (context, data) {
+async function createOrganizationEmployee(context, data) {
     return await execGqlWithoutAccess(context, {
         query: OrganizationEmployee.CREATE_OBJ_MUTATION,
         variables: { data },
@@ -21,7 +21,7 @@ async function createOrganizationEmployee (context, data) {
     })
 }
 
-async function updateOrganizationEmployee (context, id, data) {
+async function updateOrganizationEmployee(context, id, data) {
     return await execGqlWithoutAccess(context, {
         query: OrganizationEmployee.UPDATE_OBJ_MUTATION,
         variables: { id, data },
@@ -30,8 +30,7 @@ async function updateOrganizationEmployee (context, id, data) {
     })
 }
 
-
-async function createDefaultRoles (context, organization, data) {
+async function createDefaultRoles(context, organization, data) {
     if (!context) throw new Error('no context')
     if (!organization.id) throw new Error('wrong organization.id argument')
     if (!organization.country) throw new Error('wrong organization.country argument')
@@ -97,11 +96,11 @@ async function createDefaultRoles (context, organization, data) {
             organization: { connect: { id: organization.id } },
             ...roleInfo,
             ...data,
-        }).then(x => ({ [roleId]: x }))
+        }).then((x) => ({ [roleId]: x })),
     )
-    return await Promise.all(tasks).then(r => r.reduce((d, c) => ({ ...d, ...c })))
+    return await Promise.all(tasks).then((r) => r.reduce((d, c) => ({ ...d, ...c })))
 }
-async function createConfirmedEmployee (context, organization, user, role, data) {
+async function createConfirmedEmployee(context, organization, user, role, data) {
     if (!context) throw new Error('no context')
     if (!organization.id) throw new Error('wrong organization.id argument')
     if (!organization.country) throw new Error('wrong organization.country argument')
@@ -128,7 +127,7 @@ async function createConfirmedEmployee (context, organization, user, role, data)
     })
 }
 
-async function findOrganizationEmployee (context, query) {
+async function findOrganizationEmployee(context, query) {
     if (!context) throw new Error('no context')
     if (!query) throw new Error('no query')
     return await execGqlWithoutAccess(context, {

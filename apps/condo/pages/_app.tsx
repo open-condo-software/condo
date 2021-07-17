@@ -28,7 +28,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     })
 }
 
-function menuDataRender () {
+function menuDataRender() {
     return [
         {
             path: '/',
@@ -66,24 +66,21 @@ const MyApp = ({ Component, pageProps }) => {
         <GlobalErrorBoundary>
             <CacheProvider value={cache}>
                 <Head>
-                    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
-                    <meta
-                        name="viewport"
-                        content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
-                    />
+                    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
                 </Head>
-                <GlobalStyle/>
+                <GlobalStyle />
                 <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
                     <Component {...pageProps} />
                 </LayoutComponent>
-                <GoogleAnalytics/>
-                <BehaviorRecorder engine="plerdy"/>
+                <GoogleAnalytics />
+                <BehaviorRecorder engine="plerdy" />
             </CacheProvider>
         </GlobalErrorBoundary>
     )
 }
 
-async function messagesImporter (locale) {
+async function messagesImporter(locale) {
     const locale_data = await import(`../lang/${locale}`)
     return { ...locale_data.default }
 }
@@ -99,11 +96,13 @@ async function messagesImporter (locale) {
  */
 const apolloCacheConfig = {}
 
-export default (
-    withApollo({ ssr: true, apolloCacheConfig })(
-        withIntl({ ssr: true, messagesImporter })(
-            withAuth({ ssr: true })(
-                withOrganization({
-                    ssr: true,
-                    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
-                })(MyApp)))))
+export default withApollo({ ssr: true, apolloCacheConfig })(
+    withIntl({ ssr: true, messagesImporter })(
+        withAuth({ ssr: true })(
+            withOrganization({
+                ssr: true,
+                GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
+            })(MyApp),
+        ),
+    ),
+)

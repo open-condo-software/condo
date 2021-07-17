@@ -20,8 +20,7 @@ generates:
       - typescript
 `
 
-
-async function getGraphQLSchema (keystoneModule) {
+async function getGraphQLSchema(keystoneModule) {
     const { keystone } = await prepareKeystoneExpressApp(keystoneModule)
     const internalSchema = keystone._schemas['internal']
     const result = printSchema(internalSchema)
@@ -30,13 +29,13 @@ async function getGraphQLSchema (keystoneModule) {
     return result
 }
 
-async function generate ({ name, namePath }) {
+async function generate({ name, namePath }) {
     await writeFile(path.join(namePath, 'codegen.yaml'), CODEGEN_CONFIG)
     const schema = await getGraphQLSchema(require(path.join(namePath, 'index')))
     await writeFile(path.join(namePath, 'schema.graphql'), schema)
 }
 
-async function createGraphQLSchema () {
+async function createGraphQLSchema() {
     const name = path.basename(process.cwd())
     const namePath = path.join(__dirname, '..', 'apps', name)
     const greeting = chalk.white.bold(name)
@@ -52,7 +51,9 @@ async function createGraphQLSchema () {
     await generate({ name, namePath })
 }
 
-createGraphQLSchema().then(() => {
-    console.log('createGraphQLSchema completed')
-    process.exit(0)
-}).catch(console.error)
+createGraphQLSchema()
+    .then(() => {
+        console.log('createGraphQLSchema completed')
+        process.exit(0)
+    })
+    .catch(console.error)

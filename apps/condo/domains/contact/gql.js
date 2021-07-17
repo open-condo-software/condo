@@ -15,5 +15,5 @@ const Contact = generateGqlQueries('Contact', CONTACT_FIELDS)
 
 module.exports = {
     Contact,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

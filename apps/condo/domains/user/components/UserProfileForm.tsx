@@ -59,16 +59,13 @@ export const UserProfileForm = () => {
                     <Row>
                         <Col span={3}>
                             <Form.Item name={'avatar'}>
-                                <UserAvatar borderRadius={24}/>
+                                <UserAvatar borderRadius={24} />
                             </Form.Item>
                         </Col>
                         <Col span={20} push={1}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
-                                    <Typography.Title
-                                        level={1}
-                                        style={{ margin: 0, fontWeight: 'bold' }}
-                                    >
+                                    <Typography.Title level={1} style={{ margin: 0, fontWeight: 'bold' }}>
                                         {ProfileUpdateTitle}
                                     </Typography.Title>
                                 </Col>
@@ -87,7 +84,7 @@ export const UserProfileForm = () => {
                                             },
                                         ]}
                                     >
-                                        <Input/>
+                                        <Input />
                                     </Form.Item>
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
@@ -105,22 +102,14 @@ export const UserProfileForm = () => {
                                             },
                                         ]}
                                     >
-                                        <Input/>
+                                        <Input />
                                     </Form.Item>
                                     <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign={'left'} label={PasswordLabel}>
-                                        <UserPasswordResetButton/>
+                                        <UserPasswordResetButton />
                                     </Form.Item>
                                     <Space size={40} style={{ paddingTop: '36px' }}>
-                                        <FormResetButton
-                                            type={'sberPrimary'}
-                                            secondary
-                                        />
-                                        <Button
-                                            key={'submit'}
-                                            onClick={handleSave}
-                                            type={'sberPrimary'}
-                                            loading={isLoading}
-                                        >
+                                        <FormResetButton type={'sberPrimary'} secondary />
+                                        <Button key={'submit'} onClick={handleSave} type={'sberPrimary'} loading={isLoading}>
                                             {ApplyChangesMessage}
                                         </Button>
                                     </Space>
@@ -133,4 +122,3 @@ export const UserProfileForm = () => {
         </FormWithAction>
     )
 }
-

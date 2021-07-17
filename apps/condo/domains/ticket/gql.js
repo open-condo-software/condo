@@ -105,7 +105,9 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'watchersDisplayNamesTo',
 ]
 
-const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } } id dv sender v createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
+const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } } id dv sender v createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS.join(
+    ' ',
+)} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
 
 const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
@@ -115,15 +117,25 @@ const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name } content ${COMMON
 const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
-const EXPORT_TICKETS_TO_EXCEL =  gql`
-    query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
-        result: exportTicketsToExcel(data: $data) { status, linkToFile }
+const EXPORT_TICKETS_TO_EXCEL = gql`
+    query exportTicketsToExcel($data: ExportTicketsToExcelInput!) {
+        result: exportTicketsToExcel(data: $data) {
+            status
+            linkToFile
+        }
     }
 `
 
 const GET_TICKET_WIDGET_REPORT_DATA = gql`
-    query getWidgetData ($data: TicketReportWidgetInput!) {
-        result: ticketReportWidgetData(data: $data) { data { statusName, currentValue, growth, statusType } }
+    query getWidgetData($data: TicketReportWidgetInput!) {
+        result: ticketReportWidgetData(data: $data) {
+            data {
+                statusName
+                currentValue
+                growth
+                statusType
+            }
+        }
     }
 `
 
@@ -138,5 +150,5 @@ module.exports = {
     EXPORT_TICKETS_TO_EXCEL,
     GET_TICKET_WIDGET_REPORT_DATA,
     TicketComment,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

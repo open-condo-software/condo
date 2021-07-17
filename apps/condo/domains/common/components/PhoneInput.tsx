@@ -6,18 +6,18 @@ import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 
 interface IPhoneInputProps extends InputProps {
-    autoFormat?: boolean,
+    autoFormat?: boolean
     /*
         Make this component compatible with `AutoComplete` component, when used as a custom input.
      */
-    compatibilityWithAntAutoComplete?: boolean,
+    compatibilityWithAntAutoComplete?: boolean
 }
 
 type PhoneInputRef = {
     numberInputRef: {
-        focus: () => void,
-    } & ComponentProps<'input'>,
-} 
+        focus: () => void
+    } & ComponentProps<'input'>
+}
 
 export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, ref) => {
     const { value, placeholder, style, disabled, ...otherProps } = props

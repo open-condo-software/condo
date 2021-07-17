@@ -7,7 +7,6 @@ import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/comp
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { TicketsWidget } from '@condo/domains/ticket/components/TicketsWidget'
 
-
 const IndexPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.index.PageTitle' })
@@ -18,7 +17,7 @@ const IndexPage = () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>{PageTitleMsg}</Typography.Title>}/>
+                <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>{PageTitleMsg}</Typography.Title>} />
                 <OrganizationRequired>
                     <PageContent>
                         <TicketsWidget />
@@ -34,9 +33,7 @@ const HeaderAction = () => {
     const menuTitle = intl.formatMessage({ id: 'menu.Analytics' })
     return (
         <Space>
-            <Typography.Text style={{ fontSize: '12px' }}>
-                {menuTitle}
-            </Typography.Text>
+            <Typography.Text style={{ fontSize: '12px' }}>{menuTitle}</Typography.Text>
         </Space>
     )
 }

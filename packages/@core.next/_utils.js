@@ -4,7 +4,7 @@ let errors = {}
 const DEBUG_RERENDERS = false
 const DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER = false
 
-function preventInfinityLoop (ctx) {
+function preventInfinityLoop(ctx) {
     const inAppContext = Boolean(ctx.ctx)
     if (inAppContext && ctx.router.route === '/_error' && !ctx.router.asPath.startsWith('/404')) {
         // prevent infinity loop: https://github.com/zeit/next.js/issues/6973
@@ -16,7 +16,7 @@ function preventInfinityLoop (ctx) {
             if (url) {
                 errors[url] = (errors[url] || 0) + 1
                 if (errors[url] >= 10) {
-                    const msg = 'preventInfinityLoop(): catch loop! Probably you don\'t have some URL'
+                    const msg = "preventInfinityLoop(): catch loop! Probably you don't have some URL"
                     console.dir(ctx.router)
                     throw new Error(msg)
                 }
@@ -25,7 +25,7 @@ function preventInfinityLoop (ctx) {
     }
 }
 
-async function getContextIndependentWrappedInitialProps (PageComponent, ctx) {
+async function getContextIndependentWrappedInitialProps(PageComponent, ctx) {
     const inAppContext = Boolean(ctx.ctx)
     let pageProps = {}
     if (PageComponent.getInitialProps) {

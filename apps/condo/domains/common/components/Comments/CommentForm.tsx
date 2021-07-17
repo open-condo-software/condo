@@ -10,18 +10,18 @@ import { colors } from '@condo/domains/common/constants/style'
 import { useState } from 'react'
 
 const Holder = styled.div`
-  position: relative;
-  button.ant-btn {
-    position: absolute;
-    right: 4px;
-    bottom: 4px;
-  }
-  .ant-form-item-explain {
-    display: none;
-  }
-  textarea {
-    padding-right: 45px;
-  }
+    position: relative;
+    button.ant-btn {
+        position: absolute;
+        right: 4px;
+        bottom: 4px;
+    }
+    .ant-form-item-explain {
+        display: none;
+    }
+    textarea {
+        padding-right: 45px;
+    }
 `
 
 interface ICommentFormProps {
@@ -73,24 +73,23 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
             >
                 {({ handleSave, isLoading, form }) => (
                     <Holder>
-                        <Form.Item
-                            name={fieldName}
-                            rules={validations.comment}
-                        >
+                        <Form.Item name={fieldName} rules={validations.comment}>
                             <Input.TextArea
                                 placeholder={PlaceholderMessage}
                                 className="white"
                                 autoSize={{ minRows: 1, maxRows: 6 }}
                                 maxLength={MAX_COMMENT_LENGTH}
                                 onKeyDown={handleKeyDown}
-                                onKeyUp={(event) => {handleKeyUp(event, form)}}
-                                onChange={e => setCommentLength(e.target.value.length)}
+                                onKeyUp={(event) => {
+                                    handleKeyUp(event, form)
+                                }}
+                                onChange={(e) => setCommentLength(e.target.value.length)}
                             />
                         </Form.Item>
                         <Button
                             type="sberPrimary"
                             size="middle"
-                            icon={<Icon component={SendMessage} style={{ color: 'white' }}/>}
+                            icon={<Icon component={SendMessage} style={{ color: 'white' }} />}
                             onClick={(e) => {
                                 handleSave(e)
                                 setCommentLength(0)
@@ -104,7 +103,6 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                 {commentLength}/{MAX_COMMENT_LENGTH}
             </Typography.Text>
         </>
-
     )
 }
 
@@ -113,6 +111,4 @@ CommentForm.defaultProps = {
     initialValue: '',
 }
 
-export {
-    CommentForm,
-}
+export { CommentForm }

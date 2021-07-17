@@ -25,7 +25,6 @@ const permissions = {
   all or no items are available) or a set of filters that limit the available items
 */
 const rules = {
-
     /*
 
       Organization
@@ -80,7 +79,12 @@ const rules = {
             // ],
         }
     },
-    canManageBillingIntegrationOrganizationContexts: async ({ authentication: { item: user }, originalInput, operation, itemId }) => {
+    canManageBillingIntegrationOrganizationContexts: async ({
+        authentication: { item: user },
+        originalInput,
+        operation,
+        itemId,
+    }) => {
         if (!user) return false
         if (user.isAdmin) return true
         if (operation === 'create') {

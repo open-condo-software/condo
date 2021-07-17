@@ -22,7 +22,6 @@ import React, { useCallback, useState } from 'react'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { colors } from '@condo/domains/common/constants/style'
 
-
 export const EmployeeInfoPage = () => {
     const intl = useIntl()
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
@@ -43,13 +42,16 @@ export const EmployeeInfoPage = () => {
     const { link } = useOrganization()
 
     const employeeId = get(query, 'id', '')
-    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
-        {
-            where: {
-                id: String(employeeId),
-            },
-        }
-    )
+    const {
+        obj: employee,
+        loading,
+        error,
+        refetch,
+    } = OrganizationEmployee.useObject({
+        where: {
+            id: String(employeeId),
+        },
+    })
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
     const softDeleteAction = OrganizationEmployee.useSoftDelete({}, () => Router.push('/employee/'))
 
@@ -61,7 +63,7 @@ export const EmployeeInfoPage = () => {
     const handleCancel = () => setIsConfirmVisible(false)
 
     if (error || loading) {
-        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
+        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null} />
     }
 
     const isEmployeeEditable = canManageEmployee(link, employee)
@@ -88,17 +90,14 @@ export const EmployeeInfoPage = () => {
                     <PageContent>
                         <Row gutter={[0, 40]}>
                             <Col span={3}>
-                                <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked}/>
+                                <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked} />
                             </Col>
                             <Col span={20} push={1}>
                                 <Row gutter={[0, 60]}>
                                     <Col span={24}>
                                         <Row gutter={[0, 40]}>
                                             <Col span={24}>
-                                                <Typography.Title
-                                                    level={1}
-                                                    style={{ margin: 0, fontWeight: 'bold' }}
-                                                >
+                                                <Typography.Title level={1} style={{ margin: 0, fontWeight: 'bold' }}>
                                                     {name}
                                                 </Typography.Title>
                                                 <NotDefinedField
@@ -115,13 +114,17 @@ export const EmployeeInfoPage = () => {
                                                 />
                                             </Col>
                                             {isEmployeeReinvitable && (
-                                                <Alert showIcon type='warning' message={
-                                                    <>
-                                                        {EmployeeDidntEnteredMessage}
-                                                        .&nbsp;
-                                                        <EmployeeInviteRetryButton employee={employee}/>
-                                                    </>
-                                                }/>
+                                                <Alert
+                                                    showIcon
+                                                    type="warning"
+                                                    message={
+                                                        <>
+                                                            {EmployeeDidntEnteredMessage}
+                                                            .&nbsp;
+                                                            <EmployeeInviteRetryButton employee={employee} />
+                                                        </>
+                                                    }
+                                                />
                                             )}
                                             {isEmployeeEditable && (
                                                 <Col span={24}>
@@ -131,7 +134,7 @@ export const EmployeeInfoPage = () => {
                                                                 onChange={handleEmployeeBlock}
                                                                 defaultChecked={isEmployeeBlocked}
                                                             />
-                                                            <Typography.Text type='danger' style={{ fontSize: '16px' }}>
+                                                            <Typography.Text type="danger" style={{ fontSize: '16px' }}>
                                                                 {BlockUserMessage}
                                                             </Typography.Text>
                                                         </Space>
@@ -142,37 +145,27 @@ export const EmployeeInfoPage = () => {
                                                 <FrontLayerContainer showLayer={isEmployeeBlocked}>
                                                     <Row gutter={[0, 24]}>
                                                         <Col span={3}>
-                                                            <Typography.Text type='secondary'>
-                                                                {PhoneMessage}
-                                                            </Typography.Text>
+                                                            <Typography.Text type="secondary">{PhoneMessage}</Typography.Text>
                                                         </Col>
                                                         <Col span={19} push={2}>
-                                                            <NotDefinedField value={get(employee, 'phone')}/>
+                                                            <NotDefinedField value={get(employee, 'phone')} />
                                                         </Col>
 
                                                         <Col span={3}>
-                                                            <Typography.Text type='secondary'>
-                                                                {RoleMessage}
-                                                            </Typography.Text>
+                                                            <Typography.Text type="secondary">{RoleMessage}</Typography.Text>
                                                         </Col>
                                                         <Col span={19} push={2}>
                                                             <NotDefinedField
                                                                 value={get(employee, ['role', 'name'])}
-                                                                render={
-                                                                    (roleName) => (
-                                                                        <Tag color='default'>{roleName}</Tag>
-                                                                    )
-                                                                }
+                                                                render={(roleName) => <Tag color="default">{roleName}</Tag>}
                                                             />
                                                         </Col>
 
                                                         <Col span={3}>
-                                                            <Typography.Text type='secondary'>
-                                                                {EmailMessage}
-                                                            </Typography.Text>
+                                                            <Typography.Text type="secondary">{EmailMessage}</Typography.Text>
                                                         </Col>
                                                         <Col span={19} push={2}>
-                                                            <NotDefinedField value={get(employee, 'email')}/>
+                                                            <NotDefinedField value={get(employee, 'email')} />
                                                         </Col>
                                                     </Row>
                                                 </FrontLayerContainer>
@@ -190,10 +183,7 @@ export const EmployeeInfoPage = () => {
                                                                 {UpdateMessage}
                                                             </Button>
                                                         </Link>
-                                                        <Button
-                                                            type='sberDanger'
-                                                            secondary
-                                                            onClick={showConfirm}>
+                                                        <Button type="sberDanger" secondary onClick={showConfirm}>
                                                             <DeleteFilled />
                                                         </Button>
                                                     </Space>
@@ -213,20 +203,12 @@ export const EmployeeInfoPage = () => {
                             visible={isConfirmVisible}
                             onCancel={handleCancel}
                             footer={[
-                                <Button
-                                    key='submit'
-                                    type='sberDanger'
-                                    secondary
-                                    onClick={handleOk}
-                                    style={{ margin: '15px' }}
-                                >
+                                <Button key="submit" type="sberDanger" secondary onClick={handleOk} style={{ margin: '15px' }}>
                                     {DeletePropertyLabel}
                                 </Button>,
                             ]}
                         >
-                            <Typography.Text>
-                                {ConfirmDeleteMessage}
-                            </Typography.Text>
+                            <Typography.Text>{ConfirmDeleteMessage}</Typography.Text>
                         </Modal>
                     </PageContent>
                 </OrganizationRequired>
@@ -240,15 +222,12 @@ const HeaderAction = () => {
     const BackButtonLabel = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
 
     return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={'/employee/'}
-        >
+        <LinkWithIcon icon={<ArrowLeftOutlined style={{ color: colors.white }} />} path={'/employee/'}>
             {BackButtonLabel}
         </LinkWithIcon>
     )
 }
 
-EmployeeInfoPage.headerAction = <HeaderAction/>
+EmployeeInfoPage.headerAction = <HeaderAction />
 
 export default EmployeeInfoPage

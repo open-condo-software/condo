@@ -27,10 +27,12 @@ const CreateContactPage: IPageWithHeaderAction = () => {
                     <PageContent>
                         <Row gutter={[12, 40]}>
                             <Col span={24}>
-                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitle}</Typography.Title>
+                                <Typography.Title level={1} style={{ margin: 0 }}>
+                                    {PageTitle}
+                                </Typography.Title>
                             </Col>
                             <Col span={24}>
-                                <CreateContactForm/>
+                                <CreateContactForm />
                             </Col>
                         </Row>
                     </PageContent>
@@ -42,16 +44,14 @@ const CreateContactPage: IPageWithHeaderAction = () => {
 
 const HeaderAction = () => {
     const intl = useIntl()
-    const sectionTitle = intl.formatMessage({ id:'pages.condo.contact.PageTitle' })
+    const sectionTitle = intl.formatMessage({ id: 'pages.condo.contact.PageTitle' })
     return (
-        <LinkWithIcon
-            path={'/contact'}
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}>
+        <LinkWithIcon path={'/contact'} icon={<ArrowLeftOutlined style={{ color: colors.white }} />}>
             {sectionTitle}
         </LinkWithIcon>
     )
 }
 
-CreateContactPage.headerAction = <HeaderAction/>
+CreateContactPage.headerAction = <HeaderAction />
 
 export default CreateContactPage

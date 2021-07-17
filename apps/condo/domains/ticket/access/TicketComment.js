@@ -6,7 +6,7 @@ const { checkOrganizationPermission } = require('@condo/domains/organization/uti
 const { Ticket, TicketComment } = require('../utils/serverSchema')
 const get = require('lodash/get')
 
-async function canReadTicketComments ({ authentication: { item: user } }) {
+async function canReadTicketComments({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
     return {
@@ -14,7 +14,14 @@ async function canReadTicketComments ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageTicketComments ({ authentication: { item: user }, originalInput, existingItem, operation, context, itemId }) {
+async function canManageTicketComments({
+    authentication: { item: user },
+    originalInput,
+    existingItem,
+    operation,
+    context,
+    itemId,
+}) {
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
@@ -45,8 +52,8 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
     return false
 }
 
-async function canSetUserField ({ authentication: { item: user }, originalInput, addFieldValidationError }) {
-    if (!user) return false    
+async function canSetUserField({ authentication: { item: user }, originalInput, addFieldValidationError }) {
+    if (!user) return false
     if (user.isAdmin) return true
     if (get(originalInput, ['user', 'connect', 'id']) === user.id) {
         return true

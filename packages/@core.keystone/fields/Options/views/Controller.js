@@ -1,12 +1,12 @@
 import FieldController from '@keystonejs/fields/Controller'
 
 class OptionsController extends FieldController {
-    constructor (config, ...args) {
+    constructor(config, ...args) {
         const defaultValue = config.defaultValue
         super({ ...config, defaultValue }, ...args)
     }
 
-    deserialize = data => {
+    deserialize = (data) => {
         const { path } = this
         if (!data || !data[path]) {
             // Forcibly return null if empty string
@@ -15,7 +15,7 @@ class OptionsController extends FieldController {
         return this.config.options.reduce((prev, next) => ({ ...prev, [next]: data[path][next] }), {})
     }
 
-    serialize = data => {
+    serialize = (data) => {
         const { path } = this
         if (!data || !data[path]) {
             // Forcibly return null if empty string
@@ -33,7 +33,9 @@ class OptionsController extends FieldController {
     }
 
     // For simplicity let's disable filtering on this field (PRs welcome)
-    getFilterTypes = () => { return [] }
+    getFilterTypes = () => {
+        return []
+    }
 }
 
 export default OptionsController

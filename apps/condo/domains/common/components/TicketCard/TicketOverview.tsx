@@ -6,24 +6,16 @@ import { LOCALES } from '../../constants/locale'
 import { useIntl } from '@core/next/intl'
 
 type TTicket = {
-    id: string,
-    details: string,
-    createdAt: string,
-    number: number,
+    id: string
+    details: string
+    createdAt: string
+    number: number
     status: string
 }
 
-export const TicketOverview: React.FC<TTicket> = ({
-    id,
-    details,
-    createdAt,
-    number, status }) => {
+export const TicketOverview: React.FC<TTicket> = ({ id, details, createdAt, number, status }) => {
     const intl = useIntl()
-    const formattedCreatedAt = format(
-        new Date(createdAt),
-        'dd MMMM Y',
-        { locale: LOCALES[intl.locale] }
-    )
+    const formattedCreatedAt = format(new Date(createdAt), 'dd MMMM Y', { locale: LOCALES[intl.locale] })
     const topLine = `№ ${number} ${status}`.toLowerCase()
     const ticketRef = `/ticket/${id}`
 
@@ -31,9 +23,7 @@ export const TicketOverview: React.FC<TTicket> = ({
         <Row>
             <Col span={24}>
                 <Link href={ticketRef}>
-                    <Typography.Link style={{ color: '#389E0D', fontSize: 14 }}>
-                        {topLine}
-                    </Typography.Link>
+                    <Typography.Link style={{ color: '#389E0D', fontSize: 14 }}>{topLine}</Typography.Link>
                 </Link>
             </Col>
             <Col span={24}>

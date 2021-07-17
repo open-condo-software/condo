@@ -15,7 +15,7 @@ interface IPageWithHeaderAction extends React.FC {
 
 const CreateEmployeePage: IPageWithHeaderAction = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'employee.AddEmployee' })
+    const PageTitleMsg = intl.formatMessage({ id: 'employee.AddEmployee' })
 
     return (
         <>
@@ -27,10 +27,12 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
                     <PageContent>
                         <Row gutter={[12, 40]}>
                             <Col span={24}>
-                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                                <Typography.Title level={1} style={{ margin: 0 }}>
+                                    {PageTitleMsg}
+                                </Typography.Title>
                             </Col>
                             <Col span={10}>
-                                <CreateEmployeeForm/>
+                                <CreateEmployeeForm />
                             </Col>
                         </Row>
                     </PageContent>
@@ -45,15 +47,12 @@ const HeaderAction = () => {
     const AllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
 
     return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={'/employee/'}
-        >
+        <LinkWithIcon icon={<ArrowLeftOutlined style={{ color: colors.white }} />} path={'/employee/'}>
             {AllPropertiesMessage}
         </LinkWithIcon>
     )
 }
 
-CreateEmployeePage.headerAction = <HeaderAction/>
+CreateEmployeePage.headerAction = <HeaderAction />
 
 export default CreateEmployeePage
