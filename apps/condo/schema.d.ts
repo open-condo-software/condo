@@ -4830,6 +4830,14 @@ export type ContactsUpdateInput = {
   data?: Maybe<ContactUpdateInput>;
 };
 
+export type CreateResidentTicketInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  details: Scalars['String'];
+  propertyId: Scalars['String'];
+  unitName?: Maybe<Scalars['String']>;
+};
+
 export type ExportTicketsToExcelInput = {
   where: TicketWhereInput;
   sortBy?: Maybe<Array<SortTicketsBy>>;
@@ -6453,6 +6461,7 @@ export type Mutation = {
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
+  createResidentTicket?: Maybe<ResidentTicketOutput>;
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
@@ -8071,6 +8080,11 @@ export type MutationAcceptOrRejectOrganizationInviteByIdArgs = {
 export type MutationAcceptOrRejectOrganizationInviteByCodeArgs = {
   inviteCode: Scalars['String'];
   data: AcceptOrRejectOrganizationInviteInput;
+};
+
+
+export type MutationCreateResidentTicketArgs = {
+  data: CreateResidentTicketInput;
 };
 
 
@@ -10383,6 +10397,7 @@ export type Query = {
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
+  getAllResidentTickets?: Maybe<Array<Maybe<ResidentTicketOutput>>>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -11663,6 +11678,13 @@ export type QueryExportTicketsToExcelArgs = {
   data: ExportTicketsToExcelInput;
 };
 
+
+export type QueryGetAllResidentTicketsArgs = {
+  where?: Maybe<TicketWhereInput>;
+  first: Scalars['Int'];
+  skip: Scalars['Int'];
+};
+
 export type ReInviteOrganizationEmployeeInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -11713,6 +11735,37 @@ export type ResendMessageOutput = {
   __typename?: 'ResendMessageOutput';
   status: Scalars['String'];
   id: Scalars['String'];
+};
+
+export type ResidentTicketOutput = {
+  __typename?: 'ResidentTicketOutput';
+  organization: Organization;
+  property: Property;
+  unitName: Scalars['String'];
+  sectionName?: Maybe<Scalars['String']>;
+  floorName?: Maybe<Scalars['String']>;
+  status: TicketStatus;
+  statusUpdatedAt?: Maybe<Scalars['String']>;
+  statusReason?: Maybe<Scalars['String']>;
+  number: Scalars['Int'];
+  client: User;
+  clientName?: Maybe<Scalars['String']>;
+  clientEmail?: Maybe<Scalars['String']>;
+  clientPhone?: Maybe<Scalars['String']>;
+  contact?: Maybe<Contact>;
+  operator?: Maybe<User>;
+  assignee?: Maybe<User>;
+  executor?: Maybe<User>;
+  details: Scalars['String'];
+  related?: Maybe<Ticket>;
+  isEmergency?: Maybe<Scalars['Boolean']>;
+  isPaid?: Maybe<Scalars['Boolean']>;
+  source: TicketSource;
+  id: Scalars['String'];
+  createdBy: User;
+  createdAt: Scalars['String'];
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<User>;
 };
 
 export type SendMessageInput = {
