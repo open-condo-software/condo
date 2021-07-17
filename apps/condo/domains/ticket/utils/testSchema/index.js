@@ -234,7 +234,7 @@ async function getAllResidentTicketsByTestClient(client, where = {}, first, skip
     return [data.result, attrs]
 }
 
-async function createResidentTicketByTestClient(client, classifier, property, extraAttrs = {}) {
+async function createResidentTicketByTestClient(client, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -242,7 +242,6 @@ async function createResidentTicketByTestClient(client, classifier, property, ex
         dv: 1,
         sender,
         details: faker.lorem.words(),
-        classifierId: classifier.id,
         propertyId: property.id,
         unitName: '2',
         ...extraAttrs,

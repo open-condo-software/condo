@@ -4,7 +4,6 @@
 const { makeClientWithProperty } =  require('@condo/domains/property/utils/testSchema')
 const { createResidentTicketByTestClient } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { getAllResidentTicketsByTestClient } = require('@condo/domains/ticket/utils/testSchema')
@@ -12,9 +11,7 @@ const { getAllResidentTicketsByTestClient } = require('@condo/domains/ticket/uti
 describe('GetAllResidentTicketsService', () => {
     test('user: get resident ticket', async () => {
         const client = await makeClientWithProperty()
-        const admin = await makeLoggedInAdminClient()
-        const [classifier] = await createTestTicketClassifier(admin)
-        await createResidentTicketByTestClient(client, classifier, client.property)
+        await createResidentTicketByTestClient(client, client.property)
 
         const [data] = await getAllResidentTicketsByTestClient(client, {}, 1, 0)
         expect(data.length).toBeGreaterThan(0)
@@ -34,8 +31,7 @@ describe('GetAllResidentTicketsService', () => {
         const admin = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(admin)
         const [property] = await createTestProperty(admin, organization)
-        const [classifier] = await createTestTicketClassifier(admin)
-        await createResidentTicketByTestClient(admin, classifier, property)
+        await createResidentTicketByTestClient(admin, property)
 
         const [data] = await getAllResidentTicketsByTestClient(admin, {}, 1, 0)
         expect(data.length).toBeGreaterThan(0)

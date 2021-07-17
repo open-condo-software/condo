@@ -4,6 +4,7 @@
 const { Property } = require('../../property/utils/serverSchema')
 const { Ticket } = require('../utils/serverSchema')
 const { GQLCustomSchema } = require('@core/keystone/schema')
+const { mapTicketToResidentTicket } = require('../utils/serverSchema')
 const access = require('@condo/domains/ticket/access/CreateResidentTicketService')
 const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
 
@@ -14,7 +15,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
         {
             access: true,
             type: 'input CreateResidentTicketInput { dv: Int!, sender: JSON!, details: String!,' +
-                ' classifierId: String!, propertyId: String!, unitName: String }',
+                'propertyId: String!, unitName: String }',
         },
         {
             access: true,
@@ -22,7 +23,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
             'sectionName: String, floorName: String, status: TicketStatus!,' +
             'statusUpdatedAt: String, statusReason: String, number: Int!, client: User!, clientName: String,' +
             'clientEmail: String, clientPhone: String, contact: Contact, operator: User, assignee: User, executor: User,' +
-            'classifier: TicketClassifier, details: String!, related: Ticket, isEmergency: Boolean,' +
+            'details: String!, related: Ticket, isEmergency: Boolean,' +
             'isPaid: Boolean, source: TicketSource!, id: String!, createdBy: User!, createdAt: String!,' +
             'updatedAt: String, updatedBy: User }',
         },
@@ -34,7 +35,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
             schema: 'createResidentTicket(data: CreateResidentTicketInput!): ResidentTicketOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { dv: newTicketDv, sender: newTicketSender, details, classifierId, propertyId, unitName } = data
+                const { dv: newTicketDv, sender: newTicketSender, details, propertyId, unitName } = data
                 const property = (await Property.getAll(context, { id: propertyId }))[0]
                 const organizationId = property.organization.id
                 const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
@@ -45,7 +46,6 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                     sender: newTicketSender,
                     organization: { connect: { id: organizationId } },
                     client: { connect: { id: client.id } },
-                    classifier: { connect: { id: classifierId } },
                     property: { connect: { id: propertyId } },
                     unitName,
                     sectionName,
@@ -54,8 +54,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                     details,
                 })
 
-                const { statusReopenedCounter, watchers, meta, sourceMeta, v, dv, sender,   ...residentTicketFields } = ticket
-                return residentTicketFields
+                return mapTicketToResidentTicket(ticket)
             },
         },
     ],

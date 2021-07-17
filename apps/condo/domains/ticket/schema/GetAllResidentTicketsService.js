@@ -4,6 +4,7 @@
 const { Ticket } = require('../utils/serverSchema')
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/GetAllResidentTicketsService')
+const { mapTicketToResidentTicket } = require('../utils/serverSchema')
 
 const GetAllResidentTicketsService = new GQLCustomSchema('GetAllResidentTicketsService', {
     queries: [
@@ -18,10 +19,7 @@ const GetAllResidentTicketsService = new GQLCustomSchema('GetAllResidentTicketsS
                     skip,
                 })
 
-                return tickets.map(ticket => {
-                    const { statusReopenedCounter, watchers, meta, sourceMeta, v, dv, sender,  ...residentTicketFields } = ticket
-                    return residentTicketFields
-                })
+                return tickets.map(mapTicketToResidentTicket)
             },
         },
     ],
