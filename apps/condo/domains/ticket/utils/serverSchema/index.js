@@ -54,6 +54,11 @@ async function createResidentTicket (context, data) {
     })
 }
 
+function mapTicketToResidentTicket (ticket) {
+    const { statusReopenedCounter, watchers, meta, sourceMeta, v, dv, sender, classifier,  ...residentTicketFields } = ticket
+    return residentTicketFields
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -66,5 +71,6 @@ module.exports = {
     TicketSource,
     getAllResidentTickets,
     createResidentTicket,
+    mapTicketToResidentTicket,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
