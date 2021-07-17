@@ -11,7 +11,8 @@
   ],
   "scripts": {
     "lint": "yarn run eslint . --ext .js,.jsx,.ts,.tsx",
-    "createapp": "node ./bin/createapp"
+    "createapp": "node ./bin/createapp",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^1.21.2",
@@ -22,7 +23,10 @@
     "eslint": "^7.13.0",
     "eslint-plugin-jest": "^24.1.0",
     "eslint-plugin-react": "^7.21.5",
-    "eslint-plugin-react-hooks": "^4.2.0"
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "husky": "^7.0.1",
+    "lint-staged": "^11.0.1",
+    "prettier": "2.3.2"
   },
   "eslintConfig": {
     "env": {
@@ -151,5 +155,8 @@
         }
       ]
     }
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   }
 }
