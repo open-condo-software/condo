@@ -73,18 +73,15 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
     const meta = {
         dv: 1, city: faker.address.city(), county: faker.address.county(),
     }
-
     const attrs = {
         dv: 1,
         sender,
         name,
         email,
         phone,
-        type: 'staff',
         password, meta,
         ...extraAttrs,
     }
-
     const { data, errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, {
         data: attrs,
     })
