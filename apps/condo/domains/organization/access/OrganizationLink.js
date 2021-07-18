@@ -12,15 +12,7 @@ async function canReadOrganizationLinks ({ authentication: { item: user } }) {
 
 async function canManageOrganizationLinks ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return false
-    if (user.isAdmin) return true
-    if (operation === 'create') {
-        // TODO(codegen): write canManageOrganizationLinks create logic!
-        return true
-    } else if (operation === 'update') {
-        // TODO(codegen): write canManageOrganizationLinks update logic!
-        return true
-    }
-    return false
+    return !!user.isAdmin
 }
 
 /*

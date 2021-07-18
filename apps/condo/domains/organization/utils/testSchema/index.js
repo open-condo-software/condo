@@ -175,8 +175,6 @@ async function createTestOrganizationLink (client, from, to, extraAttrs = {}) {
     if (!to || !to.id) throw new Error('no to.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestOrganizationLink logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
