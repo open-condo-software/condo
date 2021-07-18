@@ -12,20 +12,19 @@ describe('ChangePhoneNumberResidentUserService', () => {
     })
     describe('User', () => {
         it('can not change phone if current phone is not confirmed', async () => {
-
+            //
         })
         it('can change phone with valid token', async () => {
-
+            //
         })
         it('can not change phone if token is used', async () => {
-
+            //
         })
         it('can not change phone if token is not confirmed', async () => {
-
+            //
         })
         it('can not change phone if token is expired', async () => {
-
+            //
         })
-
     })
 })

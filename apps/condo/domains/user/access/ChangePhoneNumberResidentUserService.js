@@ -14,5 +14,5 @@ async function canChangePhoneNumberResidentUser ({ authentication: { item: user 
   all or no items are available) or a set of filters that limit the available items.
 */
 module.exports = {
-  canChangePhoneNumberResidentUser,
+    canChangePhoneNumberResidentUser,
 }
