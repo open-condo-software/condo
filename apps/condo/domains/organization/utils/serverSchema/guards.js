@@ -38,7 +38,7 @@ const checkEmployeeExistency = async (context, organization, email, phone, user)
     }
 }
 
-const checkUserExistency = async (context, email, phone) => {
+const checkStaffUserExistency = async (context, email, phone) => {
     const usersByEmail = await User.getAll(context, { email })
 
     if (usersByEmail.length > 1) throw new Error('[error] more than one user found')
@@ -58,5 +58,5 @@ const checkUserExistency = async (context, email, phone) => {
 
 module.exports = {
     checkEmployeeExistency,
-    checkUserExistency,
+    checkStaffUserExistency,
 }
