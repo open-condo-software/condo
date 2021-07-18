@@ -15,19 +15,19 @@ describe('SigninOrRegisterResidentUserService', () => {
     })
     describe('Anonymous', () => {
         it('can register with valid token', async () => {
-
+            //
         })
         it('can signin with valid token if already existed', async () => {
-
+            //
         })
         it('can not signin if token is used', async () => {
-
+            //
         })
         it('can not signin if token is not confirmed', async () => {
-
+            //
         })
         it('can not signin if token is expired', async () => {
-
+            //
         })
 
     })
