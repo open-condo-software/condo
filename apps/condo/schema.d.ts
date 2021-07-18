@@ -3879,6 +3879,17 @@ export type ChangePasswordWithTokenOutput = {
   status: Scalars['String'];
 };
 
+export type ChangePhoneNumberResidentInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  token: Scalars['String'];
+};
+
+export type ChangePhoneNumberResidentOutput = {
+  __typename?: 'ChangePhoneNumberResidentOutput';
+  status: Scalars['String'];
+};
+
 export type CheckPasswordRecoveryTokenInput = {
   token: Scalars['String'];
 };
@@ -6448,6 +6459,8 @@ export type Mutation = {
   startConfirmPhoneAction?: Maybe<StartConfirmPhoneActionOutput>;
   resendConfirmPhoneActionSms?: Maybe<ResendConfirmPhoneActionSmsOutput>;
   completeConfirmPhoneAction?: Maybe<CompleteConfirmPhoneActionOutput>;
+  signinOrRegisterResident?: Maybe<SigninOrRegisterResidentOutput>;
+  changePhoneNumberResident?: Maybe<ChangePhoneNumberResidentOutput>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
@@ -8044,6 +8057,16 @@ export type MutationResendConfirmPhoneActionSmsArgs = {
 
 export type MutationCompleteConfirmPhoneActionArgs = {
   data: CompleteConfirmPhoneActionInput;
+};
+
+
+export type MutationSigninOrRegisterResidentArgs = {
+  data: SigninOrRegisterResidentInput;
+};
+
+
+export type MutationChangePhoneNumberResidentArgs = {
+  data: ChangePhoneNumberResidentInput;
 };
 
 
@@ -11749,6 +11772,18 @@ export enum SendMessageType {
   ResetPassword = 'RESET_PASSWORD',
   SmsVerify = 'SMS_VERIFY'
 }
+
+export type SigninOrRegisterResidentInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  token: Scalars['String'];
+};
+
+export type SigninOrRegisterResidentOutput = {
+  __typename?: 'SigninOrRegisterResidentOutput';
+  item?: Maybe<User>;
+  token: Scalars['String'];
+};
 
 export enum SortBillingAccountHistoryRecordsBy {
   DvAsc = 'dv_ASC',

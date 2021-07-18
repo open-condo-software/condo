@@ -515,8 +515,13 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
     const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
     const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
+    const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
 
     const ErrorToFormFieldMsgMapping = {
+        [CONFIRM_PHONE_ACTION_EXPIRED]: {
+            name: 'phone',
+            errors: [ConfirmActionExpiredError],
+        },
         [PHONE_ALREADY_REGISTERED_ERROR]: {
             name: 'phone',
             errors: [PhoneIsAlreadyRegisteredMsg],
