@@ -84,7 +84,7 @@ const User = new GQLListSchema('User', {
             defaultValue: false,
             access: access.canAccessToIsEmailVerifiedField,
         },
-        // Phone needs to be uniq together with type field. Keystone do not support multi fields indexex
+        // Phone needs to be uniq together with type field. Keystone do not support multi fields indexes
         phone: {
             schemaDoc: 'Phone. In international E.164 format without spaces',
             type: Text,

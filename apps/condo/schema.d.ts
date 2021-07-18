@@ -3879,14 +3879,14 @@ export type ChangePasswordWithTokenOutput = {
   status: Scalars['String'];
 };
 
-export type ChangePhoneNumberResidentInput = {
+export type ChangePhoneNumberResidentUserInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
   token: Scalars['String'];
 };
 
-export type ChangePhoneNumberResidentOutput = {
-  __typename?: 'ChangePhoneNumberResidentOutput';
+export type ChangePhoneNumberResidentUserOutput = {
+  __typename?: 'ChangePhoneNumberResidentUserOutput';
   status: Scalars['String'];
 };
 
@@ -6459,8 +6459,8 @@ export type Mutation = {
   startConfirmPhoneAction?: Maybe<StartConfirmPhoneActionOutput>;
   resendConfirmPhoneActionSms?: Maybe<ResendConfirmPhoneActionSmsOutput>;
   completeConfirmPhoneAction?: Maybe<CompleteConfirmPhoneActionOutput>;
-  signinOrRegisterResident?: Maybe<SigninOrRegisterResidentOutput>;
-  changePhoneNumberResident?: Maybe<ChangePhoneNumberResidentOutput>;
+  signinOrRegisterResidentUser?: Maybe<SigninOrRegisterResidentUserOutput>;
+  changePhoneNumberResidentUser?: Maybe<ChangePhoneNumberResidentUserOutput>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
@@ -8060,13 +8060,13 @@ export type MutationCompleteConfirmPhoneActionArgs = {
 };
 
 
-export type MutationSigninOrRegisterResidentArgs = {
-  data: SigninOrRegisterResidentInput;
+export type MutationSigninOrRegisterResidentUserArgs = {
+  data: SigninOrRegisterResidentUserInput;
 };
 
 
-export type MutationChangePhoneNumberResidentArgs = {
-  data: ChangePhoneNumberResidentInput;
+export type MutationChangePhoneNumberResidentUserArgs = {
+  data: ChangePhoneNumberResidentUserInput;
 };
 
 
@@ -11773,14 +11773,14 @@ export enum SendMessageType {
   SmsVerify = 'SMS_VERIFY'
 }
 
-export type SigninOrRegisterResidentInput = {
+export type SigninOrRegisterResidentUserInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
   token: Scalars['String'];
 };
 
-export type SigninOrRegisterResidentOutput = {
-  __typename?: 'SigninOrRegisterResidentOutput';
+export type SigninOrRegisterResidentUserOutput = {
+  __typename?: 'SigninOrRegisterResidentUserOutput';
   item?: Maybe<User>;
   token: Scalars['String'];
 };

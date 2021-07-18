@@ -10,7 +10,7 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const USER_FIELDS = `{ name avatar { publicUrl } meta importId ${COMMON_FIELDS} }`
+const USER_FIELDS = `{ name avatar { publicUrl } meta type isPhoneVerified importId ${COMMON_FIELDS} }`
 const User = generateGqlQueries('User', USER_FIELDS)
 const UserAdmin = generateGqlQueries('User', '{ id isAdmin isSupport email isEmailVerified phone isPhoneVerified }')
 
@@ -91,15 +91,15 @@ const ForgotPasswordAction = generateGqlQueries('ForgotPasswordAction', FORGOT_P
 
 
 // TODO(codegen): write return type result!
-const SIGNIN_OR_REGISTER_RESIDENT_MUTATION = gql`
-    mutation signinOrRegisterResident ($data: SigninOrRegisterResidentInput!) {
-        result: signinOrRegisterResident(data: $data) { user, token }
+const SIGNIN_OR_REGISTER_RESIDENT_USER_MUTATION = gql`
+    mutation signinOrRegisterResidentUser ($data: SigninOrRegisterResidentUserInput!) {
+        result: signinOrRegisterResidentUser(data: $data) { user, token }
     }
 `
 // TODO(codegen): write return type result!
-const CHANGE_PHONE_NUMBER_RESIDENT_MUTATION = gql`
-    mutation changePhoneNumberResident ($data: ChangePhoneNumberResidentInput!) {
-        result: changePhoneNumberResident(data: $data) { id }
+const CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION = gql`
+    mutation changePhoneNumberResidentUser ($data: ChangePhoneNumberResidentUserInput!) {
+        result: changePhoneNumberResidentUser(data: $data) { status }
     }
 `
 /* AUTOGENERATE MARKER <CONST> */
@@ -120,7 +120,7 @@ module.exports = {
     ConfirmPhoneAction,
     ForgotPasswordAction,
     CHECK_PASSWORD_RECOVERY_TOKEN,
-    SIGNIN_OR_REGISTER_RESIDENT_MUTATION,
-    CHANGE_PHONE_NUMBER_RESIDENT_MUTATION,
+    SIGNIN_OR_REGISTER_RESIDENT_USER_MUTATION,
+    CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
