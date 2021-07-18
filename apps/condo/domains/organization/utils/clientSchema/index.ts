@@ -79,6 +79,7 @@ export {
     Organization,
     OrganizationEmployee,
     OrganizationEmployeeRole,
+    OrganizationLink,
 }
 
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
