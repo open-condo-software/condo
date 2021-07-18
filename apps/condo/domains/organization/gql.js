@@ -70,12 +70,16 @@ const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION = gql`
         obj: acceptOrRejectOrganizationInviteByCode(inviteCode: $inviteCode, data: $data) ${ORGANIZATION_EMPLOYEE_FIELDS}
     }
 `
+const ORGANIZATION_LINK_FIELDS = `{ from { id } to { id } ${COMMON_FIELDS} }`
+const OrganizationLink = generateGqlQueries('OrganizationLink', ORGANIZATION_LINK_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Organization,
     OrganizationEmployeeRole,
     OrganizationEmployee,
+    OrganizationLink,
     GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
     UPDATE_ORGANIZATION_BY_ID_MUTATION,
     GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY,
