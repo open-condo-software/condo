@@ -3,6 +3,7 @@
  */
 
 async function canReadOrganizationLinks ({ authentication: { item: user } }) {
+    // TODO (nomerdvadcatpyat): think about permissions there
     if (!user) return false
     if (user.isAdmin || user.isSupport) return {}
     return {}
