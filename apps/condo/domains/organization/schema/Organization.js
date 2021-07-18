@@ -58,6 +58,11 @@ const Organization = new GQLListSchema('Organization', {
             ref: 'OrganizationEmployee.organization',
             many: true,
         },
+        relatedOrganizations: {
+            type: Relationship,
+            ref: 'OrganizationLink.to',
+            many: true,
+        },
         statusTransitions: {
             schemaDoc: 'Graph of possible transitions for statuses. If there is no transition in this graph, ' +
                 'it is impossible to change status if the user in the role has the right to do so.',

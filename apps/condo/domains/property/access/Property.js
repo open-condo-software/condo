@@ -9,7 +9,12 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 async function canReadProperties ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
-    return { organization: { employees_some: { user: { id: user.id }, isBlocked: false } } }
+    return {
+        OR: [
+            { organization: { employees_some: { user: { id: user.id }, isBlocked: false } } },
+            { organization: { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id }, isBlocked: false } } } } },
+        ],
+    }
 }
 
 
