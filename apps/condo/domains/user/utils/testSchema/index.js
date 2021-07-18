@@ -42,6 +42,7 @@ async function createTestUser (client, extraAttrs = {}) {
         sender,
         name, email, phone,
         password, meta,
+        type: 'staff',
         ...extraAttrs,
     }
     const obj = await User.create(client, attrs)
