@@ -26,7 +26,7 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
     if (operation === 'create') {
         const organizationIdFromTicketFile = get(originalInput, ['organization', 'connect', 'id'])
         // TODO(zuch): need to check connection from resident to organization
-        if (user.type === 'resident' ) {
+        if (user.type === 'resident') {
             return true
         }
         if (!organizationIdFromTicketFile) {
@@ -44,7 +44,7 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
             // Temp file that wasn't connected to ticket
             return (createdBy === user.id)
         }
-        if (user.type === 'resident' ) {
+        if (user.type === 'resident') {
             return (createdBy === user.id)
         }
         if (!organization) {
