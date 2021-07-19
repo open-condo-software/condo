@@ -16,7 +16,6 @@ const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 const { TicketFile: TicketFileGQL } = require('@condo/domains/ticket/gql')
 const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
-const { GET_ALL_RESIDENT_TICKETS_MUTATION } = require('@condo/domains/ticket/gql')
 const { CREATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -222,18 +221,6 @@ async function updateTestTicketComment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function getAllResidentTicketsByTestClient(client, where = {}, first, skip, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-
-    const attrs = {
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.query(GET_ALL_RESIDENT_TICKETS_MUTATION, { data: attrs, where, first, skip })
-    console.log()
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
-
 async function createResidentTicketByTestClient(client, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -277,7 +264,6 @@ module.exports = {
     makeClientWithTicket,
     TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier,
     TicketComment, createTestTicketComment, updateTestTicketComment,
-    getAllResidentTicketsByTestClient,
     createResidentTicketByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
