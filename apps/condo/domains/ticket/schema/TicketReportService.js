@@ -34,11 +34,11 @@ const getOrganizationStatuses = async (context, userOrganizationId) => {
         { organization_is_null: true },
     ] })
 
-    return statuses.filter(status =>
-        !(!status.organization && statuses
-            .find(organizationStatus => organizationStatus.organization !== null
-                && organizationStatus.type === status.type))
-    )
+    return statuses.filter(status => {
+        if (!status.organization) { return true }
+        return !statuses
+            .find(organizationStatus => organizationStatus.organization !== null && organizationStatus.type === status.type)
+    })
 }
 
 const getOrganizationProperties = async (context, userOrganizationId) => {
