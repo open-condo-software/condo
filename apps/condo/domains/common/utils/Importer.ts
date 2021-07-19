@@ -153,7 +153,7 @@ export class Importer implements IImporter {
                     })
             })
             .then(() => {
-                return this.updateProgress()
+                this.updateProgress()
             })
             .then(() => {
                 return sleep(SLEEP_INTERVAL_BEFORE_QUERIES)
