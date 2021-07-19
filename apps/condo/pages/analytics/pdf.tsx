@@ -19,6 +19,10 @@ const PdfView = () => {
     const PageTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' })
     const AllAddresses = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllAddresses' })
     const AllCategories = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllCategories' })
+    const DefaultTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.DefaultTickets' })
+    const PaidTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PaidTickets' })
+    const EmergencyTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.EmergencyTickets' })
+
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
     const userOrganization = useOrganization()
@@ -67,13 +71,16 @@ const PdfView = () => {
     if (queryParamsRef.current === null) {
         return null
     }
-    const { dateFrom, dateTo, viewMode } = queryParamsRef.current
+    let ticketTypeTitle = DefaultTickets
+    const { dateFrom, dateTo, viewMode, ticketType } = queryParamsRef.current
+    ticketType === 'paid' && (ticketTypeTitle = PaidTickets)
+    ticketType === 'emergency' && (ticketTypeTitle = EmergencyTickets)
     return <>
         <Row ref={containerRef} gutter={[0, 40]}>
             <Col span={24}>
                 <Typography.Title level={3}>{PageTitle}</Typography.Title>
                 <Typography.Title level={4}>
-                    Обычные заявки за {moment(dateFrom).format('DD.MM.YYYY')} - {moment(dateTo).format('DD.MM.YYYY')} {AllAddresses} {AllCategories}
+                    {ticketTypeTitle} {moment(dateFrom).format('DD.MM.YYYY')} - {moment(dateTo).format('DD.MM.YYYY')} {AllAddresses} {AllCategories}
                 </Typography.Title>
                 <TicketAnalyticsPageChartView
                     data={data}

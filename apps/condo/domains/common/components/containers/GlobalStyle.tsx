@@ -201,12 +201,6 @@ const radioGroupCss = css`
   .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before{
     background-color:${colors.black};
   }
-  .sberRadioGroup .ant-radio-inner::after {
-    background-color: ${colors.green[6]};
-  }
-  .sberRadioGroup .ant-radio-checked .ant-radio-inner {
-    border-color: ${colors.green[6]};
-  }
 `
 
 
