@@ -4834,7 +4834,7 @@ export type CreateResidentTicketInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
   details: Scalars['String'];
-  propertyId: Scalars['String'];
+  propertyId?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
 };
 
@@ -10397,7 +10397,6 @@ export type Query = {
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
-  getAllResidentTickets?: Maybe<Array<Maybe<ResidentTicketOutput>>>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -11676,13 +11675,6 @@ export type QueryTicketReportWidgetDataArgs = {
 
 export type QueryExportTicketsToExcelArgs = {
   data: ExportTicketsToExcelInput;
-};
-
-
-export type QueryGetAllResidentTicketsArgs = {
-  where?: Maybe<TicketWhereInput>;
-  first: Scalars['Int'];
-  skip: Scalars['Int'];
 };
 
 export type ReInviteOrganizationEmployeeInput = {
