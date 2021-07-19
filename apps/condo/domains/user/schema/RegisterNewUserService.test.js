@@ -5,33 +5,6 @@ const { EMAIL_ALREADY_REGISTERED_ERROR, PHONE_ALREADY_REGISTERED_ERROR } = requi
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
 
-describe('RegisterNewUserService createdAt bug', () => {
-    test('register new user with confirm phone action token', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const phone = createTestPhone()
-        const [token] = await createTestConfirmPhoneAction(admin, {
-            phone,
-            isPhoneVerified: true,
-        })
-        console.log('token', token)
-        const client = await makeClient()
-        const { errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, {
-            data: {
-                dv: 1,
-                sender: { dv: 1, fingerprint: 'tests' },
-                name: faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}'),
-                phone,
-                password: faker.internet.password(),
-                email: createTestEmail(),
-                confirmPhoneActionToken: token.token,
-            },
-        })
-        console.log('ERRORS: ', errors)
-        console.log('user: user')
-    })
-})
-
-
 describe('RegisterNewUserService', () => {
     test('register new user', async () => {
         const client = await makeClient()
