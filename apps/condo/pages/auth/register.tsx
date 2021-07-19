@@ -500,6 +500,9 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
     const PhoneIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsAlreadyRegistered' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
     const PleaseInputYourNameMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourName' })
+    const NameContainsOnlyMsg = intl.formatMessage({ id: 'pages.auth.NameContainsOnly' })
+    const NameMustContainMsg = intl.formatMessage({ id: 'pages.auth.NameMustContain' })
+    const NameMustNotStartOrAndMsg = intl.formatMessage({ id: 'pages.auth.NameMustNotStartOrAnd' })
     const EmailIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
     const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
@@ -579,8 +582,16 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                         required: true,
                         message: PleaseInputYourNameMsg,
                         whitespace: true,
-                        pattern: /^[a-zA-Zа-яА-ЯЁё\s]+$/,
                         type: 'string',
+                    }, {
+                        message: NameContainsOnlyMsg,
+                        pattern: /^([a-zA-Zа-яА-ЯЁё\s][-'’`]?)+$/,
+                    }, {
+                        message: NameMustContainMsg,
+                        pattern: /[a-zA-Zа-яА-ЯЁё]+/,
+                    }, {
+                        message: NameMustNotStartOrAndMsg,
+                        validator: (_, value) => !/^[-'’`]|[-'’`]$/.test(value && value.trim()) ? Promise.resolve() : Promise.reject(),
                     }]}
                 >
                     <Input placeholder={ExampleNameMsg} style={INPUT_STYLE} />
