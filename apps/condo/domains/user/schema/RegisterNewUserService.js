@@ -64,7 +64,29 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 if (userData.password.length < MIN_PASSWORD_LENGTH) {
                     throw new Error(`${MIN_PASSWORD_LENGTH_ERROR}] Password length less then ${MIN_PASSWORD_LENGTH} character`)
                 }
-                const user = await UserServerUtils.create(context, userData)
+                // TODO(zuch): fix bug when user can not be created becaues of createAt and updatedAt fields
+                // const user = await UserServerUtils.create(context, userData)
+                const { data: { result: user }, errors: createErrors } = await context.executeGraphQL({
+                    context: context.createContext({ skipAccessControl: true }),
+                    query: `
+                        mutation create($data: UserCreateInput!) {
+                          result: createUser(data: $data) {
+                            id
+                            name
+                            email
+                            isAdmin
+                            isActive
+                          }
+                        }
+                    `,
+                    variables: { data: userData },
+                })
+                if (createErrors) {
+                    const msg = '[error] Unable to create user'
+                    throw new Error(msg)
+                }
+                console.log('Mutation result: user', user)
+                // end
                 await ConfirmPhoneActionServerUtils.update(context, confirmPhoneActionId, { completedAt: new Date().toISOString() })
 
                 // TODO(Dimitreee): use locale from .env
