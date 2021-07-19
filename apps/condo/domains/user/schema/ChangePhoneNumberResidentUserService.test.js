@@ -15,7 +15,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
             await createTestUser(admin, { phone: token.phone, type: 'resident' })
             const data = {
                 dv: 1,
-                sender: { dv: 1, fingerprint: 'test' },
+                sender: { dv: 1, fingerprint: 'tests' },
                 token: token.token,
             }
             const { errors: [error] } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
@@ -32,7 +32,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
                 const client = await makeLoggedInClient(userAttrs)
                 const data = {
                     dv: 1,
-                    sender: { dv: 1, fingerprint: 'test' },
+                    sender: { dv: 1, fingerprint: 'tests' },
                     token: token.token,
                 }
                 const { data: { result: { status } } } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
@@ -47,7 +47,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
                 const client = await makeLoggedInClient(userAttrs)
                 const data = {
                     dv: 1,
-                    sender: { dv: 1, fingerprint: 'test' },
+                    sender: { dv: 1, fingerprint: 'tests' },
                     token: token.token,
                 }
                 const { errors: [error] } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
@@ -60,7 +60,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
                 const client = await makeLoggedInClient(userAttrs)
                 const data = {
                     dv: 1,
-                    sender: { dv: 1, fingerprint: 'test' },
+                    sender: { dv: 1, fingerprint: 'tests' },
                     token: token.token,
                 }
                 const { errors: [error] } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
@@ -75,7 +75,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
                 const client = await makeLoggedInClient(userAttrs)
                 const data = {
                     dv: 1,
-                    sender: { dv: 1, fingerprint: 'test' },
+                    sender: { dv: 1, fingerprint: 'tests' },
                     token: token.token,
                 }
                 const { errors: [error] } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
@@ -93,7 +93,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
                 const client = await makeLoggedInClient(userAttrs)
                 const data = {
                     dv: 1,
-                    sender: { dv: 1, fingerprint: 'test' },
+                    sender: { dv: 1, fingerprint: 'tests' },
                     token: token.token,
                 }
                 const { errors: [error] } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
@@ -108,7 +108,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
                 await createTestUser(admin, { phone: token.phone, type: 'staff', isPhoneVerified: false })
                 const data = {
                     dv: 1,
-                    sender: { dv: 1, fingerprint: 'test' },
+                    sender: { dv: 1, fingerprint: 'tests' },
                     token: token.token,
                 }
                 const { errors: [error] } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })

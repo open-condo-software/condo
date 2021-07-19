@@ -11781,7 +11781,7 @@ export type SigninOrRegisterResidentUserInput = {
 
 export type SigninOrRegisterResidentUserOutput = {
   __typename?: 'SigninOrRegisterResidentUserOutput';
-  item?: Maybe<User>;
+  user?: Maybe<User>;
   token: Scalars['String'];
 };
 
