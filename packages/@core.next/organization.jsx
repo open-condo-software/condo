@@ -20,6 +20,9 @@ const organizationToUserFragment = `
       avatar {
         publicUrl
       }
+      relatedOrganizations {
+        id
+      }
     }
     user {
       id
