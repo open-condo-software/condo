@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Col, Form, Input, Row, Space, Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
@@ -73,6 +73,42 @@ export const EditContactForm: React.FC = () => {
         })
     })
 
+    const validations: { [key: string]: Rule[] } = useMemo(() => {
+        return {
+            phone: [
+                {
+                    required: true,
+                    message: FieldIsRequiredMessage,
+                },
+                {
+                    validator: (_, value) => {
+                        const v = normalizePhone(value)
+                        if (!v) return Promise.reject(PhoneIsNotValidMessage)
+                        return Promise.resolve()
+                    },
+                },
+            ],
+            email: [
+                {
+                    type: 'email',
+                    message: EmailErrorMessage,
+                },
+            ],
+            name: [
+                {
+                    required: true,
+                    message: FullNameRequiredMessage,
+                },
+                {
+                    validator: (_, value) => {
+                        if (value.trim().length === 0) return Promise.reject(FullNameRequiredMessage)
+                        return Promise.resolve()
+                    },
+                },
+            ],
+        }
+    }, [FieldIsRequiredMessage, PhoneIsNotValidMessage, EmailErrorMessage, FullNameRequiredMessage])
+
     if (error) {
         return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
     }
@@ -96,58 +132,6 @@ export const EditContactForm: React.FC = () => {
         name: get(contact, 'name'),
         phone: get(contact, 'phone'),
         email: get(contact, 'email'),
-    }
-
-    const validations: { [key: string]: Rule[] } = {
-        phone: [
-            {
-                required: true,
-                message: FieldIsRequiredMessage,
-            },
-            {
-                validator: (_, value) => {
-                    const v = normalizePhone(value)
-                    if (!v) return Promise.reject(PhoneIsNotValidMessage)
-                    return Promise.resolve()
-                },
-            },
-        ],
-        email: [
-            {
-                type: 'email',
-                message: EmailErrorMessage,
-            },
-        ],
-        name: [
-            {
-                required: true,
-                message: FullNameRequiredMessage,
-            },
-            {
-                validator: (_, value) => {
-                    if (value.trim().length === 0) return Promise.reject(FullNameRequiredMessage)
-                    return Promise.resolve()
-                },
-            },
-        ],
-    }
-
-    const getFieldPair = (label, name, required, validations, inputComponent) => {
-        const validationFields = validations ? { validateFirst: true, rules: validations } : {}
-        return (
-            <Col span={24}>
-                <Form.Item
-                    {...INPUT_LAYOUT_PROPS}
-                    labelAlign={'left'}
-                    name={name}
-                    label={label}
-                    required={required}
-                    {...validationFields}
-                >
-                    {inputComponent}
-                </Form.Item>
-            </Col>
-        )
     }
 
     return (
@@ -175,21 +159,45 @@ export const EditContactForm: React.FC = () => {
                                                 {ProfileUpdateTitle}
                                             </Typography.Title>
                                         </Col>
-                                        {
-                                            getFieldPair(
-                                                NameLabel, 'name', true,
-                                                validations.name, <Input placeholder={FullNamePlaceholderMessage}/>)
-                                        }
-                                        {
-                                            getFieldPair(
-                                                PhoneLabel, 'phone', true,
-                                                validations.phone,
-                                                <PhoneInput placeholder={ExamplePhoneMessage} style={{ width: '100%' }}/>)
-                                        }
-                                        {
-                                            getFieldPair(EmailLabel, 'email', false,
-                                                validations.email, <Input/>)
-                                        }
+                                        <Col span={24}>
+                                            <Form.Item
+                                                {...INPUT_LAYOUT_PROPS}
+                                                labelAlign={'left'}
+                                                name={'name'}
+                                                label={NameLabel}
+                                                required={true}
+                                                validateFirst
+                                                rules={validations.name}
+                                            >
+                                                <Input placeholder={FullNamePlaceholderMessage}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                {...INPUT_LAYOUT_PROPS}
+                                                labelAlign={'left'}
+                                                name={'phone'}
+                                                label={PhoneLabel}
+                                                required={true}
+                                                validateFirst
+                                                rules={validations.phone}
+                                            >
+                                                <PhoneInput placeholder={ExamplePhoneMessage} style={{ width: '100%' }}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                {...INPUT_LAYOUT_PROPS}
+                                                labelAlign={'left'}
+                                                name={'email'}
+                                                label={EmailLabel}
+                                                required={false}
+                                                validateFirst
+                                                rules={validations.email}
+                                            >
+                                                <Input/>
+                                            </Form.Item>
+                                        </Col>
                                         <Space size={40} style={{ paddingTop: '36px' }}>
                                             <FormResetButton
                                                 type={'sberPrimary'}
