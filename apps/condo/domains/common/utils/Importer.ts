@@ -121,6 +121,7 @@ export class Importer implements IImporter {
             const newProgress = this.progress.current + step
             this.progress.current = Math.min(newProgress, 100)
         }
+        this.progressUpdateHandler(this.progress.current)
     }
 
     // Converting table row to db row
