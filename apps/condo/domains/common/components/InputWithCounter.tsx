@@ -1,9 +1,11 @@
 import React from 'react'
-import { Col, InputProps, Space, Typography } from 'antd'
+import { Col, InputProps, Typography } from 'antd'
 import { colors } from '../constants/style'
 import { TextAreaProps } from 'antd/es/input'
 
-type InputWithCounterProps = (InputProps | TextAreaProps) & {
+type AntdInputProps = InputProps | TextAreaProps
+
+type InputWithCounterProps = AntdInputProps & {
     InputComponent: React.FC<InputProps | TextAreaProps>,
     currentLength: number
 }
