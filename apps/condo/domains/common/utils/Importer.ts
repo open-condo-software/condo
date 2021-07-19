@@ -1,7 +1,11 @@
 import isEqual from 'lodash/isEqual'
 import cloneDeep from 'lodash/cloneDeep'
 
-type TableRow = Array<Record<'value', string | number>>
+export type TableRow = Array<Record<'value', string | number>>
+export type ProcessedRow = {
+    row: TableRow
+    addons: { [name: string]: any }
+}
 
 export type ProgressUpdateHandler = (progress: number) => void
 export type FinishHandler = () => void
@@ -15,7 +19,7 @@ interface IImporter {
     break: () => void
 }
 
-interface ColumnInfo {
+export interface ColumnInfo {
     name: string
     type: 'string' | 'number'
 }
@@ -25,9 +29,9 @@ const SLEEP_INTERVAL_BEFORE_QUERIES = 300
 export class Importer implements IImporter {
     constructor (
         columnsTemplate: Array<ColumnInfo>,
-        rowNormalizer: (row: TableRow) => Promise<TableRow>,
-        rowValidator: (row: TableRow) => Promise<boolean>,
-        objectCreator: (row: TableRow) => Promise<void>,
+        rowNormalizer: (row: TableRow) => Promise<ProcessedRow | null>,
+        rowValidator: (row: ProcessedRow) => Promise<boolean>,
+        objectCreator: (row: ProcessedRow) => Promise<void>,
     ) {
         this.columnsNames = columnsTemplate.map(column => column.name.trim().toLowerCase())
         this.columnsTypes = columnsTemplate.map(column => column.type)
@@ -48,9 +52,9 @@ export class Importer implements IImporter {
     private errorHandler: ErrorHandler
     private readonly columnsNames: Array<string>
     private readonly columnsTypes: Array<'string' | 'number'>
-    private readonly rowNormalizer: (row: TableRow) => Promise<TableRow>
-    private readonly rowValidator: (row: TableRow) => Promise<boolean>
-    private readonly objectCreator: (row: TableRow) => Promise<void>
+    private readonly rowNormalizer: (row: TableRow) => Promise<ProcessedRow | null>
+    private readonly rowValidator: (row: ProcessedRow) => Promise<boolean>
+    private readonly objectCreator: (row: ProcessedRow) => Promise<void>
 
     // Handle importing table
     public import (data: Array<TableRow>): Promise<void> {
