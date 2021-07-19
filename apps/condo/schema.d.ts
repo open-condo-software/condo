@@ -9475,7 +9475,7 @@ export type OrganizationHistoryRecordsUpdateInput = {
   data?: Maybe<OrganizationHistoryRecordUpdateInput>;
 };
 
-/**  communication between an organization and organizations in which it can view internal information (tickets)  */
+/**  Link between an organization and organizations in which it can view internal information (tickets)  */
 export type OrganizationLink = {
   __typename?: 'OrganizationLink';
   /**
@@ -9506,7 +9506,7 @@ export type OrganizationLink = {
 };
 
 
-/**  communication between an organization and organizations in which it can view internal information (tickets)  */
+/**  Link between an organization and organizations in which it can view internal information (tickets)  */
 export type OrganizationLinkToArgs = {
   where?: Maybe<OrganizationWhereInput>;
   search?: Maybe<Scalars['String']>;
@@ -9517,7 +9517,7 @@ export type OrganizationLinkToArgs = {
 };
 
 
-/**  communication between an organization and organizations in which it can view internal information (tickets)  */
+/**  Link between an organization and organizations in which it can view internal information (tickets)  */
 export type OrganizationLink_ToMetaArgs = {
   where?: Maybe<OrganizationWhereInput>;
   search?: Maybe<Scalars['String']>;
