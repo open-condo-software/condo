@@ -79,7 +79,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
     const selectedUnitNameRef = useRef(selectedUnitName)
 
-    const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(0)
+    const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(initialValues.details ? initialValues.details.length : 0)
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
@@ -287,7 +287,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                 currentLength={currentDetailsLength}
                                                                                 maxLength={500}
                                                                                 onChange={e => setCurrentDetailsLength(e.target.value.length)}
-                                                                                autoSize={{ minRows: 1, maxRows: 6 }}
                                                                                 placeholder={DescriptionPlaceholder}
                                                                                 disabled={disableUserInteraction}
                                                                             />
