@@ -93,7 +93,7 @@ const ForgotPasswordAction = generateGqlQueries('ForgotPasswordAction', FORGOT_P
 // TODO(codegen): write return type result!
 const SIGNIN_OR_REGISTER_RESIDENT_USER_MUTATION = gql`
     mutation signinOrRegisterResidentUser ($data: SigninOrRegisterResidentUserInput!) {
-        result: signinOrRegisterResidentUser(data: $data) { user, token }
+        result: signinOrRegisterResidentUser(data: $data) { user { id name }, token }
     }
 `
 // TODO(codegen): write return type result!
