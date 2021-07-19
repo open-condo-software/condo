@@ -15,7 +15,6 @@ describe('CheckPropertyWithAddressExistService', () => {
             isFound: true,
         }
         const [result] = await checkPropertyWithAddressExistByTestClient(client, payload)
-        console.log(result)
         expect(result).toStrictEqual(expectedResult)
     })
     test('user: execute on non-existent address', async () => {
