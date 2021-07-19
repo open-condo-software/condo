@@ -396,7 +396,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
     async function handleVerifyCode () {
         setPhoneValidateError(null)
         let smsCode = form.getFieldValue('smsCode') || ''
-        smsCode = smsCode.replace(/_/g, '')
+        smsCode = smsCode.trim()
         if (smsCode.toString().length < SMS_CODE_LENGTH) {
             return
         }
@@ -456,7 +456,8 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
                 >
                     <MaskedInput
                         mask='1111'
-                        placeholder='1234'
+                        placeholder=''
+                        placeholderChar=' '
                         onChange={handleVerifyCode}
                         style={INPUT_STYLE}
                     />
