@@ -1,9 +1,10 @@
 import React from 'react'
-import { Row, Col, Typography } from 'antd'
+import { Row, Col, Typography, Space } from 'antd'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { LOCALES } from '../../constants/locale'
 import { useIntl } from '@core/next/intl'
+import { green } from '@ant-design/colors'
 
 type TTicket = {
     id: string,
@@ -31,21 +32,23 @@ export const TicketOverview: React.FC<TTicket> = ({
         <Row>
             <Col span={24}>
                 <Link href={ticketRef}>
-                    <Typography.Link style={{ color: '#389E0D', fontSize: 14 }}>
+                    <Typography.Link style={{ color: `${green[6]}`, fontSize: 14 }}>
                         {topLine}
                     </Typography.Link>
                 </Link>
             </Col>
-            <Col span={24}>
-                <Typography.Text type={'secondary'} style={{ fontSize: 12 }}>
-                    {formattedCreatedAt}
-                </Typography.Text>
-            </Col>
-            <Col span={24}>
-                <Typography.Paragraph style={{ fontSize: 14, marginTop: 4 }} ellipsis>
-                    {details}
-                </Typography.Paragraph>
-            </Col>
+            <Space direction={'vertical'} size={4}>
+                <Col span={24}>
+                    <Typography.Text type={'secondary'} style={{ fontSize: 12 }}>
+                        {formattedCreatedAt}
+                    </Typography.Text>
+                </Col>
+                <Col span={24}>
+                    <Typography.Paragraph style={{ fontSize: 14 }} ellipsis>
+                        {details}
+                    </Typography.Paragraph>
+                </Col>
+            </Space>
         </Row>
     )
 }
