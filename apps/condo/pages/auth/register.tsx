@@ -1,4 +1,5 @@
 import { useIntl } from '@core/next/intl'
+import { MaskedInput } from 'antd-mask-input'
 import { FormattedMessage } from 'react-intl'
 import Router, { useRouter } from 'next/router'
 import { Form, Input, Typography } from 'antd'
@@ -394,7 +395,8 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
 
     async function handleVerifyCode () {
         setPhoneValidateError(null)
-        const smsCode = form.getFieldValue('smsCode') || ''
+        let smsCode = form.getFieldValue('smsCode') || ''
+        smsCode = smsCode.replace(/_/g, '')
         if (smsCode.toString().length < SMS_CODE_LENGTH) {
             return
         }
@@ -452,7 +454,12 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
                         }),
                     ]}
                 >
-                    <Input onChange={handleVerifyCode} style={INPUT_STYLE} />
+                    <MaskedInput
+                        mask='1111'
+                        placeholder='1234'
+                        onChange={handleVerifyCode}
+                        style={INPUT_STYLE}
+                    />
                 </Form.Item>
             </Form>
             <CountDownTimer action={resendSms} id={'RESEND_SMS'} timeout={SMS_CODE_TTL} autostart={true}>
