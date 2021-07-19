@@ -9,6 +9,7 @@ import { TicketOverview } from './TicketOverview'
 import Link from 'next/link'
 import qs from 'qs'
 import { pickBy } from 'lodash'
+import { green } from '@ant-design/colors'
 
 const Container = styled.aside`
   border: 1px solid ${colors.inputBorderGrey};
@@ -131,7 +132,6 @@ const TicketCard: React.FC<ITicketCardProps> = ({
                                         {NoTicketsOnAddressMessage}
                                     </Typography.Text>
                                 }
-
                                 {
                                     tickets.map((ticket) => {
                                         return <TicketOverview
@@ -146,7 +146,7 @@ const TicketCard: React.FC<ITicketCardProps> = ({
                                 {moreTickets > 0 &&
                                 <Col span={24}>
                                     <Link href={`/ticket/${query}`}>
-                                        <Typography.Link style={{ fontSize: 12, marginTop: 16, color: '#389E0D' }}>
+                                        <Typography.Link style={{ fontSize: 12, marginTop: 16, color: `${green[6]}` }}>
                                             {MoreTicketsLeftMessage}
                                         </Typography.Link>
                                     </Link>
