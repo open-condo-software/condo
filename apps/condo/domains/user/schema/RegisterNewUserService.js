@@ -85,10 +85,10 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     const msg = '[error] Unable to create user'
                     throw new Error(msg)
                 }
-                console.log('Mutation result: user', user)
                 // end
-                await ConfirmPhoneActionServerUtils.update(context, confirmPhoneActionId, { completedAt: new Date().toISOString() })
-
+                if (confirmPhoneActionToken) {
+                    await ConfirmPhoneActionServerUtils.update(context, confirmPhoneActionId, { completedAt: new Date().toISOString() })
+                }
                 // TODO(Dimitreee): use locale from .env
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
                 await sendMessage(context, {
