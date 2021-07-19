@@ -4,8 +4,15 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canChangePhoneNumberResidentUser ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-    if (!user.isPhoneVerified || !user.type === 'resident') return false
+    if (!user) {
+        return throwAuthenticationError()
+    }
+    if (!user.isPhoneVerified) {
+        return false
+    }
+    if (user.type !== 'resident') {
+        return false
+    }
     return true
 }
 
