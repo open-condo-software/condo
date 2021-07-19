@@ -19,6 +19,10 @@ export const useImporter = (onFinish, onError) => {
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
+    const createPropertyAction = Property.useCreate({
+        organization: userOrganizationId,
+    }, () => Promise.resolve())
+
     const columns: Array<ColumnInfo> = [
         { name: 'address', type: 'string' },
         { name: 'units', type: 'number' },
@@ -27,7 +31,6 @@ export const useImporter = (onFinish, onError) => {
     ]
 
     const propertyNormalizer = (row: TableRow) => {
-        console.log(row)
         const [address] = row
         return addressApi.getSuggestions(String(address.value)).then((result) => {
             const suggestion = get(result, ['suggestions', 0])
@@ -40,14 +43,13 @@ export const useImporter = (onFinish, onError) => {
     }
 
     const propertyValidator = (row: ProcessedRow | null) => {
-        console.log(row)
         if (!row) return Promise.resolve(false)
-        const [address] = row.row
+        const address = get(row.addons, ['suggestion', 'value'])
         const where = {
-            address_contains_i: address.value,
+            address_contains_i: address,
             organization: { id: userOrganizationId },
         }
-        return searchProperty(client, where, [])
+        return searchProperty(client, where, undefined)
             .then((res) => {
                 return res.length === 0
             })
@@ -88,19 +90,16 @@ export const useImporter = (onFinish, onError) => {
         const [, units, sections, floors] = row.row
         const property = get(row.addons, ['suggestion'])
         const { value } = property
-
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        return Property.useCreate({
-            organization: userOrganizationId,
+        const map = createPropertyUnitsMap(units.value, sections.value, floors.value)
+        return createPropertyAction({
             // @ts-ignore
             dv: 1,
             type: 'building',
             name: String(value),
             address: String(value),
             addressMeta: { ...property, dv: 1 },
-            map: createPropertyUnitsMap(units.value, sections.value, floors.value),
-        }, () => Promise.resolve())
-
+            map,
+        })
     }
 
     const importData = useCallback((data) => {
