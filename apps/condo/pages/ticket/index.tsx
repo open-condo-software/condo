@@ -29,6 +29,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
 import { SortTicketsBy } from '../../schema'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { Organization } from '../../domains/organization/utils/clientSchema'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
@@ -62,6 +63,17 @@ const TicketsPage: IPageWithHeaderAction = () => {
 
     const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC' //TODO(Dimitreee):Find cleanest solution
     const where = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
+
+    const {
+        objs: organization,
+    } = Organization.useObjects({
+        where: { id: userOrganizationId },
+    }, {
+        fetchPolicy: 'network-only',
+    })
+
+    console.log(userOrganization)
+    console.log(organization)
 
     const {
         fetchMore,
