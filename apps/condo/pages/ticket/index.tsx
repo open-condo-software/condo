@@ -9,7 +9,9 @@ import {
     filtersToQuery,
     getPageIndexFromQuery,
     getSortStringFromQuery,
-    sorterToQuery, queryToSorter, getPageSizeFromQuery,
+    sorterToQuery,
+    queryToSorter,
+    getPageSizeFromQuery,
 } from '@condo/domains/ticket/utils/helpers'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
@@ -59,7 +61,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC' //TODO(Dimitreee):Find cleanest solution
+    const sortBy = sortFromQuery.length > 0 ? sortFromQuery : 'createdAt_DESC' //TODO(Dimitreee):Find cleanest solution
     const where = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
 
     const {
@@ -67,30 +69,27 @@ const TicketsPage: IPageWithHeaderAction = () => {
         loading,
         count: total,
         objs: tickets,
-    } = Ticket.useObjects({
-        sortBy: sortBy as SortTicketsBy[],
-        where,
-        skip: (offsetFromQuery * pagesizeFromQuey) - pagesizeFromQuey,
-        first: pagesizeFromQuey,
-    }, {
-        fetchPolicy: 'network-only',
-    })
-    const [downloadLink, setDownloadLink] = useState(null)
-
-    const [
-        exportToExcel,
-        { loading: isXlsLoading },
-    ] = useLazyQuery(
-        EXPORT_TICKETS_TO_EXCEL,
+    } = Ticket.useObjects(
         {
-            onError: error => {
-                notification.error(error)
-            },
-            onCompleted: data => {
-                setDownloadLink(data.result.linkToFile)
-            },
+            sortBy: sortBy as SortTicketsBy[],
+            where,
+            skip: offsetFromQuery * pagesizeFromQuey - pagesizeFromQuey,
+            first: pagesizeFromQuey,
+        },
+        {
+            fetchPolicy: 'network-only',
         },
     )
+    const [downloadLink, setDownloadLink] = useState(null)
+
+    const [exportToExcel, { loading: isXlsLoading }] = useLazyQuery(EXPORT_TICKETS_TO_EXCEL, {
+        onError: (error) => {
+            notification.error(error)
+        },
+        onCompleted: (data) => {
+            setDownloadLink(data.result.linkToFile)
+        },
+    })
 
     const [filtersApplied, setFiltersApplied] = useState(false)
     const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
@@ -103,35 +102,38 @@ const TicketsPage: IPageWithHeaderAction = () => {
         }
     }, [])
 
-    const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
-        const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
-        const { current, pageSize } = nextPagination
-        const offset = filtersApplied ? 0 : current * pageSize - pageSize
-        const sort = sorterToQuery(nextSorter)
-        const filters = filtersToQuery(nextFilters)
-        setFiltersApplied(false)
-        if (!loading) {
-            fetchMore({
-                // @ts-ignore
-                sortBy: sort,
-                where: filters,
-                skip: offset,
-                first: current * pageSize,
-            }).then(() => {
-                const query = qs.stringify(
-                    {
-                        ...router.query,
-                        sort,
-                        offset,
-                        filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })),
-                    },
-                    { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-                )
-                setDownloadLink(null)
-                router.push(router.route + query)
-            })
-        }
-    }, 400), [loading])
+    const handleTableChange = useCallback(
+        debounce((...tableChangeArguments) => {
+            const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
+            const { current, pageSize } = nextPagination
+            const offset = filtersApplied ? 0 : current * pageSize - pageSize
+            const sort = sorterToQuery(nextSorter)
+            const filters = filtersToQuery(nextFilters)
+            setFiltersApplied(false)
+            if (!loading) {
+                fetchMore({
+                    // @ts-ignore
+                    sortBy: sort,
+                    where: filters,
+                    skip: offset,
+                    first: current * pageSize,
+                }).then(() => {
+                    const query = qs.stringify(
+                        {
+                            ...router.query,
+                            sort,
+                            offset,
+                            filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })),
+                        },
+                        { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+                    )
+                    setDownloadLink(null)
+                    router.push(router.route + query)
+                })
+            }
+        }, 400),
+        [loading],
+    )
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
@@ -143,75 +145,82 @@ const TicketsPage: IPageWithHeaderAction = () => {
             </Head>
             <PageWrapper>
                 <OrganizationRequired>
-                    <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
+                    <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>} />
                     <PageContent>
-                        {
-                            !tickets.length && !filtersFromQuery
-                                ? <EmptyListView
-                                    label={EmptyListLabel}
-                                    message={EmptyListMessage}
-                                    createRoute='/ticket/create'
-                                    createLabel={CreateTicket} />
-                                : <Row gutter={[0, 40]} align={'middle'}>
-                                    <Col span={6}>
-                                        <Input
-                                            placeholder={SearchPlaceholder}
-                                            onChange={(e)=>{handleSearchChange(e.target.value)}}
-                                            value={search}
-                                        />
-                                    </Col>
-                                    <Col span={4} offset={1}>
-                                        <Checkbox
-                                            onChange={handleEmergencyChange}
-                                            checked={emergency}
-                                            style={{ paddingLeft: '0px', fontSize: '16px' }}
-                                        >{EmergencyLabel}</Checkbox>
-                                    </Col>
-                                    <Col span={6} push={1}>
-                                        {
-                                            downloadLink
-                                                ?
-                                                <Button
-                                                    type={'inlineLink'}
-                                                    icon={<DatabaseFilled />}
-                                                    loading={isXlsLoading}
-                                                    target='_blank'
-                                                    href={downloadLink}
-                                                    rel='noreferrer'>{DownloadExcelLabel}
-                                                </Button>
-                                                :
-                                                <Button
-                                                    type={'inlineLink'}
-                                                    icon={<DatabaseFilled />}
-                                                    loading={isXlsLoading}
-                                                    onClick={
-                                                        () => exportToExcel({ variables: { data: { where: where, sortBy: sortBy, timeZone } } })
-                                                    }>{ExportAsExcel}
-                                                </Button>
-                                        }
-                                    </Col>
-                                    <Col span={24}>
-                                        <Table
-                                            bordered
-                                            css={verticalAlign}
-                                            tableLayout={'fixed'}
-                                            loading={loading}
-                                            dataSource={tickets}
-                                            columns={tableColumns}
-                                            onRow={handleRowAction}
-                                            onChange={handleTableChange}
-                                            rowKey={record => record.id}
-                                            pagination={{
-                                                showSizeChanger: false,
-                                                total,
-                                                current: offsetFromQuery,
-                                                pageSize: pagesizeFromQuey,
-                                                position: ['bottomLeft'],
-                                            }}
-                                        />
-                                    </Col>
-                                </Row>
-                        }
+                        {!tickets.length && !filtersFromQuery ? (
+                            <EmptyListView
+                                label={EmptyListLabel}
+                                message={EmptyListMessage}
+                                createRoute="/ticket/create"
+                                createLabel={CreateTicket}
+                            />
+                        ) : (
+                            <Row gutter={[0, 40]} align={'middle'}>
+                                <Col span={6}>
+                                    <Input
+                                        placeholder={SearchPlaceholder}
+                                        onChange={(e) => {
+                                            handleSearchChange(e.target.value)
+                                        }}
+                                        value={search}
+                                    />
+                                </Col>
+                                <Col span={4} offset={1}>
+                                    <Checkbox
+                                        onChange={handleEmergencyChange}
+                                        checked={emergency}
+                                        style={{ paddingLeft: '0px', fontSize: '16px' }}
+                                    >
+                                        {EmergencyLabel}
+                                    </Checkbox>
+                                </Col>
+                                <Col span={6} push={1}>
+                                    {downloadLink ? (
+                                        <Button
+                                            type={'inlineLink'}
+                                            icon={<DatabaseFilled />}
+                                            loading={isXlsLoading}
+                                            target="_blank"
+                                            href={downloadLink}
+                                            rel="noreferrer"
+                                        >
+                                            {DownloadExcelLabel}
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            type={'inlineLink'}
+                                            icon={<DatabaseFilled />}
+                                            loading={isXlsLoading}
+                                            onClick={() =>
+                                                exportToExcel({ variables: { data: { where: where, sortBy: sortBy, timeZone } } })
+                                            }
+                                        >
+                                            {ExportAsExcel}
+                                        </Button>
+                                    )}
+                                </Col>
+                                <Col span={24}>
+                                    <Table
+                                        bordered
+                                        css={verticalAlign}
+                                        tableLayout={'fixed'}
+                                        loading={loading}
+                                        dataSource={tickets}
+                                        columns={tableColumns}
+                                        onRow={handleRowAction}
+                                        onChange={handleTableChange}
+                                        rowKey={(record) => record.id}
+                                        pagination={{
+                                            showSizeChanger: false,
+                                            total,
+                                            current: offsetFromQuery,
+                                            pageSize: pagesizeFromQuey,
+                                            position: ['bottomLeft'],
+                                        }}
+                                    />
+                                </Col>
+                            </Row>
+                        )}
                     </PageContent>
                 </OrganizationRequired>
             </PageWrapper>
@@ -224,13 +233,11 @@ const HeaderAction = () => {
 
     return (
         <Space>
-            <Typography.Text style={{ fontSize: '12px' }}>
-                {intl.formatMessage({ id: 'menu.ControlRoom' })}
-            </Typography.Text>
+            <Typography.Text style={{ fontSize: '12px' }}>{intl.formatMessage({ id: 'menu.ControlRoom' })}</Typography.Text>
         </Space>
     )
 }
 
-TicketsPage.headerAction = <HeaderAction/>
+TicketsPage.headerAction = <HeaderAction />
 
 export default TicketsPage

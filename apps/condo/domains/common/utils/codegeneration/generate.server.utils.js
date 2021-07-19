@@ -6,7 +6,10 @@ const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
 const isNotUndefined = (x) => typeof x !== 'undefined'
 
-async function execGqlWithoutAccess (context, { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj' }) {
+async function execGqlWithoutAccess(
+    context,
+    { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj' },
+) {
     if (!context) throw new Error('wrong context argument')
     if (!context.executeGraphQL) throw new Error('wrong context argument: no executeGraphQL')
     if (!context.createContext) throw new Error('wrong context argument: no createContext')
@@ -19,8 +22,8 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
     })
 
     if (errors) {
-        if (errors.some(e => e.originalError && e.originalError.data)) {
-            if (IS_DEBUG) console.warn(errors.map((err) => (err.originalError && err.originalError.data)))
+        if (errors.some((e) => e.originalError && e.originalError.data)) {
+            if (IS_DEBUG) console.warn(errors.map((err) => err.originalError && err.originalError.data))
         }
         if (IS_DEBUG) console.error(errors)
         const error = new Error(errorMessage)
@@ -35,34 +38,40 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
     return get(data, dataPath)
 }
 
-function generateServerUtils (gql) {
-    async function getAll (context, where, { sortBy, first, skip } = {}) {
+function generateServerUtils(gql) {
+    async function getAll(context, where, { sortBy, first, skip } = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
         return await execGqlWithoutAccess(context, {
             query: gql.GET_ALL_OBJS_QUERY,
             variables: {
-                where, sortBy, first, skip,
+                where,
+                sortBy,
+                first,
+                skip,
             },
             errorMessage: `[error] Unable to query ${gql.PLURAL_FORM}`,
             dataPath: 'objs',
         })
     }
 
-    async function count (context, where, { sortBy, first, skip } = {}) {
+    async function count(context, where, { sortBy, first, skip } = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
         return await execGqlWithoutAccess(context, {
             query: gql.GET_COUNT_OBJS_QUERY,
             variables: {
-                where, sortBy, first, skip,
+                where,
+                sortBy,
+                first,
+                skip,
             },
             errorMessage: `[error] Unable to query ${gql.PLURAL_FORM}`,
             dataPath: 'meta.count',
         })
     }
 
-    async function create (context, data) {
+    async function create(context, data) {
         if (!context) throw new Error('no context')
         if (!data) throw new Error('no data')
         return await execGqlWithoutAccess(context, {
@@ -73,7 +82,7 @@ function generateServerUtils (gql) {
         })
     }
 
-    async function update (context, id, data) {
+    async function update(context, id, data) {
         if (!context) throw new Error('no context')
         if (!id) throw new Error('no id')
         if (!data) throw new Error('no data')
@@ -85,7 +94,7 @@ function generateServerUtils (gql) {
         })
     }
 
-    async function delete_ (context, id) {
+    async function delete_(context, id) {
         if (!context) throw new Error('no context')
         if (!id) throw new Error('no id')
         return await execGqlWithoutAccess(context, {
@@ -98,8 +107,10 @@ function generateServerUtils (gql) {
 
     return {
         gql,
-        getAll, count,
-        create, update,
+        getAll,
+        count,
+        create,
+        update,
         delete: delete_,
     }
 }

@@ -3,7 +3,7 @@ import { ParsedUrlQuery } from 'querystring'
 /**
  * Formats a phone, convert it from number string to string with dividers
  * for example: 01234567890 -> 0 (123) 456-78-90
-*/
+ */
 export const formatPhone = (phone?: string): string => {
     if (!phone) {
         return phone

@@ -41,7 +41,7 @@ describe('Ticket', () => {
         expect(obj.isEmergency).toEqual(false)
         expect(obj.meta).toEqual(null)
         expect(obj.client).toEqual(null)
-        expect(obj.contact).toEqual(expect.objectContaining({ id: attrs.contact.connect.id } ))
+        expect(obj.contact).toEqual(expect.objectContaining({ id: attrs.contact.connect.id }))
         expect(obj.operator).toEqual(null)
         expect(obj.assignee).toEqual(null)
         expect(obj.executor).toEqual(null)
@@ -125,7 +125,7 @@ describe('Ticket', () => {
         // TODO(pahaz): check others fields ...
     })
 
-    test('user: set ticket assignee', async ()  => {
+    test('user: set ticket assignee', async () => {
         const client = await makeClientWithProperty()
         const [objCreated] = await createTestTicket(client, client.organization, client.property)
 

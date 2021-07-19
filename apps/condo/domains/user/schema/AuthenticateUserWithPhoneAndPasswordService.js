@@ -31,16 +31,20 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 }
                 const user = await getById('User', users[0].id)
 
-                const { keystone } = await getSchemaCtx(AuthenticateUserWithPhoneAndPasswordService)  
+                const { keystone } = await getSchemaCtx(AuthenticateUserWithPhoneAndPasswordService)
 
-                const { auth: { User: { password: PasswordStrategy } } } = keystone
+                const {
+                    auth: {
+                        User: { password: PasswordStrategy },
+                    },
+                } = keystone
 
                 const { success, message } = await PasswordStrategy.validate({ email: user.email, password })
-                
+
                 if (!success) {
                     throw new Error(`${WRONG_PASSWORD_ERROR}] ${message}`)
                 }
-                
+
                 const token = await context.startAuthedSession({ item: users[0], list: keystone.lists['User'] })
                 const result = {
                     item: user,

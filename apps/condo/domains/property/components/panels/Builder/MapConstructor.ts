@@ -21,7 +21,7 @@ export enum MapTypesList {
 export type BuildingUnit = {
     id: string
     type: MapTypesList.Unit
-    name?: string,
+    name?: string
     label: string
     preview?: boolean
 }
@@ -40,7 +40,7 @@ export type BuildingSection = {
     name: string
     type: MapTypesList.Section
     floors: BuildingFloor[]
-    preview?: boolean    
+    preview?: boolean
 }
 
 export type BuildingMap = {
@@ -48,7 +48,7 @@ export type BuildingMap = {
     sections: BuildingSection[]
     type: MapTypesList
 }
-export type BuildingSectionArg =  BuildingSection & {
+export type BuildingSectionArg = BuildingSection & {
     minFloor?: number
     maxFloor?: number
     unitsOnFloor?: number
@@ -72,38 +72,40 @@ type IndexLocation = {
     unit: number
 }
 
-
 class Map {
     public isMapValid: boolean
     public validationErrors: null | string[]
 
     protected autoincrement: number
 
-    constructor (public map: Maybe<BuildingMap>) {
-        this.map = map ? cloneDeep(map) : cloneDeep(buildingEmptyMapJson) as BuildingMap
+    constructor(public map: Maybe<BuildingMap>) {
+        this.map = map ? cloneDeep(map) : (cloneDeep(buildingEmptyMapJson) as BuildingMap)
         this.autoincrement = 0
         this.isMapValid = this.validate()
         if (!this.isMapValid) {
-            this.repairMapStructure() 
+            this.repairMapStructure()
             this.isMapValid = this.validate()
         }
         this.setAutoincrement()
     }
-    
 
-    public getMap (): BuildingMap {
+    public getMap(): BuildingMap {
         return this.map
     }
-    
-    private setAutoincrement () {
-        this.autoincrement = Math.max(0, ...this.map.sections
-            .map(section => section.floors
-                .map(floor => floor.units
-                    .map(unit => !isNaN(Number(unit.id)) ? Number(unit.id) : 0)))
-            .flat(2)) + 1
+
+    private setAutoincrement() {
+        this.autoincrement =
+            Math.max(
+                0,
+                ...this.map.sections
+                    .map((section) =>
+                        section.floors.map((floor) => floor.units.map((unit) => (!isNaN(Number(unit.id)) ? Number(unit.id) : 0))),
+                    )
+                    .flat(2),
+            ) + 1
     }
 
-    private repairMapStructure (): void {
+    private repairMapStructure(): void {
         this.autoincrement = 0
         if (!has(this.map, 'dv')) {
             this.map.dv = 1
@@ -127,7 +129,7 @@ class Map {
                 if (!has(floor, 'name')) {
                     floor.name = String(floorIndex)
                 }
-                floor.units.forEach(unit => {
+                floor.units.forEach((unit) => {
                     unit.type = MapTypesList.Unit
                     unit.id = String(++this.autoincrement)
                     if (!has(unit, 'label')) {
@@ -138,90 +140,73 @@ class Map {
         })
     }
 
-    public validate (): boolean {
+    public validate(): boolean {
         return this.validateSchema() && this.validateUniqueIds()
     }
-    
-    public validateSchema (): boolean {
-        // TODO(zuch): check if json schema can validate unique id field 
+
+    public validateSchema(): boolean {
+        // TODO(zuch): check if json schema can validate unique id field
         this.validationErrors = null
         const check = validator(this.map)
-        if (!check){
-            this.validationErrors = validator.errors.map(err => JSON.stringify(err, null, 2))
+        if (!check) {
+            this.validationErrors = validator.errors.map((err) => JSON.stringify(err, null, 2))
             return false
-        }        
+        }
         return true
-    }    
+    }
 
-    public validateUniqueIds (): boolean {
+    public validateUniqueIds(): boolean {
         const ids = this.sectionIds.concat(this.floorIds).concat(this.unitIds)
         const uniqArray = uniq(compact(ids))
-        if (ids.length !== uniqArray.length){
+        if (ids.length !== uniqArray.length) {
             this.validationErrors = ['ID field must be unique']
             return false
         }
         return true
     }
 
-    get sectionIds (): string[] {
-        return this.map.sections.map(section => section.id)
+    get sectionIds(): string[] {
+        return this.map.sections.map((section) => section.id)
     }
 
-    get floorIds (): string[] {
-        return this.map.sections
-            .map(section => section.floors
-                .map(floor => floor.id))
-            .flat()
-    }
- 
-    get unitIds (): string[] {
-        return this.map.sections
-            .map(section => section.floors
-                .map(floor => floor.units
-                    .map(unit => unit.id)))
-            .flat(2)
+    get floorIds(): string[] {
+        return this.map.sections.map((section) => section.floors.map((floor) => floor.id)).flat()
     }
 
+    get unitIds(): string[] {
+        return this.map.sections.map((section) => section.floors.map((floor) => floor.units.map((unit) => unit.id))).flat(2)
+    }
 }
 
-
 class MapView extends Map {
-    constructor (map: Maybe<BuildingMap>) {
+    constructor(map: Maybe<BuildingMap>) {
         super(map)
         if (!this.isMapValid) {
             console.log('Invalid JSON for property:map', this.validationErrors)
         }
-        this.setVisibleSections(this.sections.map(section => section.id))
-    }    
+        this.setVisibleSections(this.sections.map((section) => section.id))
+    }
 
     // view or hide sections
     public visibleSections: CheckboxValueType[]
 
-    public setVisibleSections (ids: CheckboxValueType[]): void {
+    public setVisibleSections(ids: CheckboxValueType[]): void {
         this.visibleSections = ids
     }
 
-    public isSectionVisible (id: string): boolean {
+    public isSectionVisible(id: string): boolean {
         return this.visibleSections.includes(id)
     }
 
-    get maxFloor (): number {
-        return Math.max(...this.map.sections
-            .map(section => section.floors
-                .map(floor => floor.index))
-            .flat()
-        )
+    get maxFloor(): number {
+        return Math.max(...this.map.sections.map((section) => section.floors.map((floor) => floor.index)).flat())
     }
-    
-    get minFloor (): number {
-        return Math.min(...this.map.sections
-            .map(section => section.floors
-                .map(floor => floor.index))
-            .flat()
-        )
-    }    
 
-    get possibleFloors (): number[] {
+    get minFloor(): number {
+        return Math.min(...this.map.sections.map((section) => section.floors.map((floor) => floor.index)).flat())
+    }
+
+    get possibleFloors(): number[] {
         const floors = []
         for (let floorIndex = this.minFloor; floorIndex <= this.maxFloor; floorIndex++) {
             if (floorIndex !== 0) {
@@ -231,29 +216,28 @@ class MapView extends Map {
         return floors
     }
 
-    get possibleChosenFloors (): number[] {
+    get possibleChosenFloors(): number[] {
         const allIndexes = this.map.sections
-            .filter(section => this.visibleSections.includes(section.id))
-            .map(section => section.floors
-                .map(floor => floor.index))
+            .filter((section) => this.visibleSections.includes(section.id))
+            .map((section) => section.floors.map((floor) => floor.index))
             .flat()
-        const uniqueIndexes = [...new Set(allIndexes)].sort((a, b) => (b - a))
+        const uniqueIndexes = [...new Set(allIndexes)].sort((a, b) => b - a)
         return uniqueIndexes
     }
 
-    get isEmpty (): boolean {
+    get isEmpty(): boolean {
         return this.map.sections.length === 0
     }
 
-    get sections (): BuildingSection[] {
+    get sections(): BuildingSection[] {
         return this.map.sections
     }
-    
-    protected getUnitIndex (unitId: string): IndexLocation {
+
+    protected getUnitIndex(unitId: string): IndexLocation {
         const result = { section: -1, floor: -1, unit: -1 }
         this.map.sections.forEach((section, sectionIdx) => {
             section.floors.forEach((floor, floorIdx) => {
-                const unitIdx = floor.units.findIndex(unit => unit.id === unitId)
+                const unitIdx = floor.units.findIndex((unit) => unit.id === unitId)
                 if (unitIdx !== -1) {
                     result.section = sectionIdx
                     result.floor = floorIdx
@@ -264,7 +248,7 @@ class MapView extends Map {
         return result
     }
 
-    public getUnitInfo (id: string): BuildingUnitArg {
+    public getUnitInfo(id: string): BuildingUnitArg {
         const newUnit: BuildingUnitArg = { id: '', label: '', floor: '', section: '', type: MapTypesList.Unit }
         if (!id) {
             return newUnit
@@ -276,105 +260,111 @@ class MapView extends Map {
         const { label, type } = this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit]
         return {
             id,
-            label, 
+            label,
             type,
             section: this.map.sections[unitIndex.section].id,
             floor: this.map.sections[unitIndex.section].floors[unitIndex.floor].id,
         }
     }
 
-    public  getSectionOptions (): BuildingSelectOption[] {
-        const options = this.sections.map(section => ({ id: section.id, label: section.name }))
+    public getSectionOptions(): BuildingSelectOption[] {
+        const options = this.sections.map((section) => ({ id: section.id, label: section.name }))
         return options
     }
-    
-    public getSectionFloorOptions (id: string): BuildingSelectOption[] {
-        const foundSection = this.map.sections.find(section => section.id === id)
+
+    public getSectionFloorOptions(id: string): BuildingSelectOption[] {
+        const foundSection = this.map.sections.find((section) => section.id === id)
         if (!foundSection) {
             return []
         }
-        const options = foundSection.floors.map(floor => ({ id: floor.id, label: floor.name }))
+        const options = foundSection.floors.map((floor) => ({ id: floor.id, label: floor.name }))
         return options
     }
-    
 }
 
-
 class MapEdit extends MapView {
-
     public previewSectionId: string
     public previewUnitId: string
 
-    constructor (map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>) {
+    constructor(map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>) {
         super(map)
-    }   
+    }
 
-    get nextUnitNumber (): number {
-        const result = Math.max(0, ...this.map.sections
-            .map(section => section.floors
-                .map(floor => floor.units
-                    .map(unit => !isNaN(Number(unit.label)) ? Number(unit.label) : 0)))
-            .flat(2)) + 1
+    get nextUnitNumber(): number {
+        const result =
+            Math.max(
+                0,
+                ...this.map.sections
+                    .map((section) =>
+                        section.floors.map((floor) =>
+                            floor.units.map((unit) => (!isNaN(Number(unit.label)) ? Number(unit.label) : 0)),
+                        ),
+                    )
+                    .flat(2),
+            ) + 1
         return result
     }
 
-    private updateUnitNumbers (unitFrom: BuildingUnit): void {
+    private updateUnitNumbers(unitFrom: BuildingUnit): void {
         const { id, label } = unitFrom
         if (isNaN(Number(label))) {
             return
         }
         let started = false
         let next = Number(label) + 1
-        this.map.sections.forEach(section => {
-            section.floors.slice().reverse().forEach(floor => {
-                floor.units.forEach(unit => {
-                    if (started) {
-                        if (unit.name) {
-                            if (!isNaN(Number(unit.name))) {
-                                next = Number(unit.name) + 1
-                            } 
-                        } else {
-                            if (!isNaN(Number(unit.label))) {
-                                unit.label = String(next++)
+        this.map.sections.forEach((section) => {
+            section.floors
+                .slice()
+                .reverse()
+                .forEach((floor) => {
+                    floor.units.forEach((unit) => {
+                        if (started) {
+                            if (unit.name) {
+                                if (!isNaN(Number(unit.name))) {
+                                    next = Number(unit.name) + 1
+                                }
+                            } else {
+                                if (!isNaN(Number(unit.label))) {
+                                    unit.label = String(next++)
+                                }
                             }
                         }
-                    }
-                    if (unit.id === id) {
-                        started = true
-                    }
+                        if (unit.id === id) {
+                            started = true
+                        }
+                    })
                 })
-            })
         })
     }
 
-    private mode = 'addSection'   
+    private mode = 'addSection'
 
-    get editMode (): string {
+    get editMode(): string {
         return this.mode
     }
 
-    set editMode (mode: string) {
+    set editMode(mode: string) {
         switch (mode) {
             case 'addSection':
                 this.removePreviewUnit()
                 this.selectedUnit = null
                 this.selectedSection = null
-                break              
+                break
             case 'editSection':
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnit = null
-                break        
+                break
             case 'addUnit':
                 this.removePreviewSection()
                 this.selectedSection = null
                 this.selectedUnit = null
-                break        
+                break
             case 'editUnit':
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedSection = null
-                break        
+                break
             default:
                 this.mode = 'addSection'
         }
@@ -383,59 +373,59 @@ class MapEdit extends MapView {
 
     private selectedSection: BuildingSection
 
-    public setSelectedSection (section: BuildingSection): void{
+    public setSelectedSection(section: BuildingSection): void {
         if (this.isSectionSelected(section.id)) {
             this.selectedSection = null
             this.editMode = 'addSection'
         } else {
             this.selectedSection = section
             this.editMode = 'editSection'
-        }        
+        }
     }
 
-    public getSelectedSection (): BuildingSection {
+    public getSelectedSection(): BuildingSection {
         return this.selectedSection
     }
 
-    public isSectionSelected (id: string): boolean {
+    public isSectionSelected(id: string): boolean {
         return this.selectedSection && this.selectedSection.id === id
     }
 
-    private selectedUnit: BuildingUnit    
+    private selectedUnit: BuildingUnit
 
-    public setSelectedUnit (unit: BuildingUnit): void {
+    public setSelectedUnit(unit: BuildingUnit): void {
         if (this.isUnitSelected(unit.id)) {
             this.editMode = 'addSection'
             this.selectedUnit = null
         } else {
             this.selectedUnit = unit
             this.editMode = 'editUnit'
-        }        
+        }
     }
 
-    public getSelectedUnit (): BuildingUnitArg {
+    public getSelectedUnit(): BuildingUnitArg {
         return this.selectedUnit ? this.getUnitInfo(this.selectedUnit.id) : null
-    } 
+    }
 
-    public isUnitSelected (id: string): boolean {
+    public isUnitSelected(id: string): boolean {
         return this.selectedUnit && this.selectedUnit.id === id
     }
 
-    public removePreviewSection (): void {
+    public removePreviewSection(): void {
         if (this.previewSectionId) {
             this.removeSection(this.previewSectionId)
             this.previewSectionId = null
         }
     }
 
-    public removePreviewUnit (): void {
+    public removePreviewUnit(): void {
         if (this.previewUnitId) {
             this.removeUnit(this.previewUnitId)
             this.previewUnitId = null
         }
     }
 
-    private generateSection (section: Partial<BuildingSectionArg>): BuildingSection {
+    private generateSection(section: Partial<BuildingSectionArg>): BuildingSection {
         let unitNumber = this.nextUnitNumber
         const { name, minFloor, maxFloor, unitsOnFloor } = section
         const newSection = {
@@ -474,56 +464,58 @@ class MapEdit extends MapView {
         return newSection
     }
 
-    public addPreviewSection (section: Partial<BuildingSectionArg>): void {
+    public addPreviewSection(section: Partial<BuildingSectionArg>): void {
         this.removePreviewSection()
         const newSection = this.generateSection(section)
         newSection.preview = true
-        newSection.floors.forEach(floor => floor.units.map(unit => {
-            unit.preview = true
-            return unit
-        }))
+        newSection.floors.forEach((floor) =>
+            floor.units.map((unit) => {
+                unit.preview = true
+                return unit
+            }),
+        )
         this.previewSectionId = newSection.id
         this.map.sections.push(newSection)
         this.visibleSections.push(newSection.id)
     }
 
-    public addSection (section: Partial<BuildingSectionArg>): void {
+    public addSection(section: Partial<BuildingSectionArg>): void {
         const newSection = this.generateSection(section)
         this.map.sections.push(newSection)
         this.visibleSections.push(newSection.id)
         this.notifyUpdater()
     }
-    
-    public updateSection (section: BuildingSection): void {
-        const sectionIndex = this.map.sections.findIndex(mapSection => section.id === mapSection.id)
+
+    public updateSection(section: BuildingSection): void {
+        const sectionIndex = this.map.sections.findIndex((mapSection) => section.id === mapSection.id)
         if (sectionIndex !== -1) {
             this.map.sections[sectionIndex].name = section.name
         }
         this.editMode = 'addSection'
         this.notifyUpdater()
     }
-    
-    public removeSection (id: string): void {
-        const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === id)
+
+    public removeSection(id: string): void {
+        const sectionIndex = this.map.sections.findIndex((mapSection) => mapSection.id === id)
         this.map.sections.splice(sectionIndex, 1)
         this.editMode = 'addSection'
         this.notifyUpdater()
     }
-    
-    public addPreviewUnit (unit: Partial<BuildingUnitArg>): void {
+
+    public addPreviewUnit(unit: Partial<BuildingUnitArg>): void {
         this.removePreviewUnit()
         const { id, section, floor, label } = unit
-        const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === section)
+        const sectionIndex = this.map.sections.findIndex((mapSection) => mapSection.id === section)
         if (sectionIndex === -1) {
             return
         }
-        const floorIndex = this.map.sections[sectionIndex].floors.findIndex(sectionFloor => sectionFloor.id === floor)
+        const floorIndex = this.map.sections[sectionIndex].floors.findIndex((sectionFloor) => sectionFloor.id === floor)
         if (floorIndex === -1) {
             return
         }
         const newUnit = {
             id,
-            label, 
+            label,
             type: null,
             preview: true,
         }
@@ -535,20 +527,20 @@ class MapEdit extends MapView {
         this.previewUnitId = newUnit.id
     }
 
-    public addUnit (unit: Partial<BuildingUnitArg>): void {
+    public addUnit(unit: Partial<BuildingUnitArg>): void {
         const { id, section, floor, label } = unit
-        const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === section)
+        const sectionIndex = this.map.sections.findIndex((mapSection) => mapSection.id === section)
         if (sectionIndex === -1) {
             return
         }
-        const floorIndex = this.map.sections[sectionIndex].floors.findIndex(sectionFloor => sectionFloor.id === floor)
+        const floorIndex = this.map.sections[sectionIndex].floors.findIndex((sectionFloor) => sectionFloor.id === floor)
         if (floorIndex === -1) {
             return
         }
         const newUnit = {
             id,
             name: label,
-            label, 
+            label,
             type: null,
         }
         newUnit.type = MapTypesList.Unit
@@ -561,22 +553,28 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    private getNextUnit (id: string): BuildingUnit {
-        const units = this.map.sections.map(section => section.floors.slice(0).reverse().map(floor => floor.units)).flat(2)
-        const unitIndex = units.findIndex(unit => unit.id === id)
+    private getNextUnit(id: string): BuildingUnit {
+        const units = this.map.sections
+            .map((section) =>
+                section.floors
+                    .slice(0)
+                    .reverse()
+                    .map((floor) => floor.units),
+            )
+            .flat(2)
+        const unitIndex = units.findIndex((unit) => unit.id === id)
         const nextIndex = unitIndex + 1
         return units[nextIndex] || null
     }
 
-
-    private removeFloor (sectionIdx: number, floorIndex: number): void {
-        if (!get(this.map, `sections[${sectionIdx}].floors[${floorIndex}]`, false)){
+    private removeFloor(sectionIdx: number, floorIndex: number): void {
+        if (!get(this.map, `sections[${sectionIdx}].floors[${floorIndex}]`, false)) {
             return
         }
         const floorToRemove = this.map.sections[sectionIdx].floors[floorIndex]
         this.map.sections[sectionIdx].floors.splice(floorIndex, 1)
-        this.map.sections[sectionIdx].floors.map(floor => {
-            if (floorToRemove.index < floor.index){
+        this.map.sections[sectionIdx].floors.map((floor) => {
+            if (floorToRemove.index < floor.index) {
                 floor.index--
                 floor.name = floor.index.toString()
             }
@@ -584,7 +582,7 @@ class MapEdit extends MapView {
         })
     }
 
-    public removeUnit (id: string): void {
+    public removeUnit(id: string): void {
         const unitIndex = this.getUnitIndex(id)
         const nextUnit = this.getNextUnit(id)
         if (unitIndex.unit !== -1) {
@@ -596,21 +594,21 @@ class MapEdit extends MapView {
             if (nextUnit) {
                 nextUnit.label = removedUnit.label
                 this.updateUnitNumbers(nextUnit)
-            }            
+            }
         }
         this.selectedUnit = null
         this.editMode = 'addUnit'
         this.notifyUpdater()
     }
 
-    public updateUnit (unit: BuildingUnitArg): void {
+    public updateUnit(unit: BuildingUnitArg): void {
         const unitIndex = this.getUnitIndex(unit.id)
         if (unitIndex.unit === -1) {
             return
         }
         const oldSection = this.map.sections[unitIndex.section].id
         const oldFloor = this.map.sections[unitIndex.section].floors[unitIndex.floor].id
-        
+
         if (oldFloor !== unit.floor || oldSection !== unit.section) {
             this.removeUnit(unit.id)
             this.addUnit(unit)
@@ -623,16 +621,11 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    private notifyUpdater () {
+    private notifyUpdater() {
         if (this.updateMap) {
             this.updateMap(this.map)
         }
     }
-
 }
 
-
-export {
-    MapView,
-    MapEdit,
-}
+export { MapView, MapEdit }

@@ -20,5 +20,5 @@ module.exports = {
     Organization,
     OrganizationEmployee,
     OrganizationEmployeeRole,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

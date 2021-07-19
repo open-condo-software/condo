@@ -7,18 +7,27 @@ const { get } = require('lodash')
 const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item: user } }) {
+async function canReadBillingIntegrationOrganizationContexts({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return true
     return {
         OR: [
-            { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true }, isBlocked: false } } },
+            {
+                organization: {
+                    employees_some: { user: { id: user.id }, role: { canManageIntegrations: true }, isBlocked: false },
+                },
+            },
             { integration: { accessRights_some: { user: { id: user.id } } } },
         ],
     }
 }
 
-async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageBillingIntegrationOrganizationContexts({
+    authentication: { item: user },
+    originalInput,
+    operation,
+    itemId,
+}) {
     if (!user) return false
     if (user.isAdmin) return true
     let organizationId

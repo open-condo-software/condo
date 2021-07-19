@@ -3,24 +3,21 @@ import Document, { Html, Head, Main, NextScript } from 'next/document'
 import { extractCritical } from 'emotion-server'
 
 export default class MyDocument extends Document {
-    static getInitialProps ({ renderPage }) {
+    static getInitialProps({ renderPage }) {
         const page = renderPage()
         const styles = extractCritical(page.html)
         return { ...page, ...styles }
     }
 
-    render () {
+    render() {
         const innerHtml = { __html: this.props.css }
         return (
             <Html>
-                <Head/>
+                <Head />
                 <body>
-                    <Main/>
-                    <NextScript/>
-                    <style
-                        data-emotion-css={this.props.ids.join(' ')}
-                        dangerouslySetInnerHTML={innerHtml}
-                    />
+                    <Main />
+                    <NextScript />
+                    <style data-emotion-css={this.props.ids.join(' ')} dangerouslySetInnerHTML={innerHtml} />
                 </body>
             </Html>
         )

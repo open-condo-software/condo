@@ -24,24 +24,20 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const { loading: isInvitesLoading } = useOrganizationInvites()
     const { isMobile, toggleSideMenuCollapsed } = props
     if (isLoading || auth.isLoading || isInvitesLoading) {
-        return (
-            <Loader fill='false' />
-        )
+        return <Loader fill="false" />
     }
     return (
         <>
             {props.headerAction && props.headerAction}
-            {
-                isMobile && (
-                    <TopMenuItem onClick={toggleSideMenuCollapsed}>
-                        <MenuUnfoldOutlined style={menuIconStyles}/>
-                    </TopMenuItem>
-                )
-            }
+            {isMobile && (
+                <TopMenuItem onClick={toggleSideMenuCollapsed}>
+                    <MenuUnfoldOutlined style={menuIconStyles} />
+                </TopMenuItem>
+            )}
             <Space direction={'horizontal'} size={40} style={{ marginLeft: 'auto' }}>
-                <BellFilled style={{ ...menuIconStyles, marginLeft: 'auto' }}/>
-                <OrganizationSelect/>
-                <UserMenu/>
+                <BellFilled style={{ ...menuIconStyles, marginLeft: 'auto' }} />
+                <OrganizationSelect />
+                <UserMenu />
             </Space>
         </>
     )

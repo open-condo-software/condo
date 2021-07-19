@@ -14,22 +14,25 @@ import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/comp
 import { EmptyTableCell } from '@condo/domains/common/components/EmptyTableCell'
 
 interface ITableColumn {
-    title: string,
-    ellipsis?: boolean,
-    sortOrder?: string,
-    filteredValue?: FilterValue,
-    dataIndex?: string,
-    key?: string,
-    sorter?: boolean,
-    width?: string,
-    filterDropdown?: unknown,
+    title: string
+    ellipsis?: boolean
+    sortOrder?: string
+    filteredValue?: FilterValue
+    dataIndex?: string
+    key?: string
+    sorter?: boolean
+    width?: string
+    filterDropdown?: unknown
     filterIcon?: unknown
 }
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
-export const useTableColumns = (sort: Array<string>, filters: IFilters,
-    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>): Array<ITableColumn> => {
+export const useTableColumns = (
+    sort: Array<string>,
+    filters: IFilters,
+    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>,
+): Array<ITableColumn> => {
     const intl = useIntl()
     const columns = useMemo(() => {
         const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Address' })
@@ -45,14 +48,12 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                         text={String(text)}
                         search={String(search)}
                         renderPart={(part) => (
-                            <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                                {part}
-                            </Typography.Text>
+                            <Typography.Text style={{ backgroundColor: colors.markColor }}>{part}</Typography.Text>
                         )}
                     />
                 )
             }
-            return (<EmptyTableCell>{result}</EmptyTableCell>)
+            return <EmptyTableCell>{result}</EmptyTableCell>
         }
         return [
             {

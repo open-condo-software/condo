@@ -5,7 +5,7 @@ const get = require('lodash/get')
 const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadTickets ({ authentication: { item: user } }) {
+async function canReadTickets({ authentication: { item: user } }) {
     if (!user) return false
 
     if (user.isAdmin) {
@@ -15,7 +15,7 @@ async function canReadTickets ({ authentication: { item: user } }) {
     return { organization: { employees_some: { user: { id: user.id }, isBlocked: false } } }
 }
 
-async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput }) {
+async function canManageTickets({ authentication: { item: user }, operation, itemId, originalInput }) {
     if (!user) return false
     if (user.isAdmin) return true
 

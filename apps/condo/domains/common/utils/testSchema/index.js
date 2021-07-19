@@ -54,13 +54,13 @@ export const catchErrorFrom = async (testFunc, inspect) => {
  * @return {Promise<void>}
  */
 export const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
-    await catchErrorFrom(testFunc, ({errors, data}) => {
+    await catchErrorFrom(testFunc, ({ errors, data }) => {
         expect(errors[0]).toMatchObject({
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
-            'path': ['obj'],
+            message: 'You do not have access to this resource',
+            name: 'AccessDeniedError',
+            path: ['obj'],
         })
-        expect(data).toEqual({ 'obj': null })
+        expect(data).toEqual({ obj: null })
     })
 }
 
@@ -80,13 +80,13 @@ export const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
  * @return {Promise<void>}
  */
 export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
-    await catchErrorFrom(testFunc, ({errors, data}) => {
+    await catchErrorFrom(testFunc, ({ errors, data }) => {
         expect(errors[0]).toMatchObject({
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
-            'path': ['objs'],
+            message: 'You do not have access to this resource',
+            name: 'AccessDeniedError',
+            path: ['objs'],
         })
-        expect(data).toEqual({ 'objs': null })
+        expect(data).toEqual({ objs: null })
     })
 }
 
@@ -108,13 +108,13 @@ export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
 export const expectToThrowAuthenticationErrorToObjects = async (testFunc) => {
     await catchErrorFrom(testFunc, ({ errors, data }) => {
         expect(errors[0]).toMatchObject({
-            'message': 'No or incorrect authentication credentials',
-            'name': 'AuthenticationError',
-            'path': ['objs'],
-            'extensions': {
-                'code': 'UNAUTHENTICATED'
-            }
+            message: 'No or incorrect authentication credentials',
+            name: 'AuthenticationError',
+            path: ['objs'],
+            extensions: {
+                code: 'UNAUTHENTICATED',
+            },
         })
-        expect(data).toEqual({ 'objs': null })
+        expect(data).toEqual({ objs: null })
     })
 }

@@ -1,27 +1,26 @@
 import TelegramBot from 'node-telegram-bot-api'
 
 export class BotController {
-    constructor (private token?: string) {
-    }
+    constructor(private token?: string) {}
 
-    public init (): void {
+    public init(): void {
         const token = this.token || BotController.getToken()
         this.bot = new TelegramBot(token, { polling: true })
         this.addListeners()
     }
 
-    public sendMessage (message: string): void {
+    public sendMessage(message: string): void {
         this.chatIds.forEach((id) => {
             this.bot.sendMessage(id, message)
         })
     }
 
-    public getUsers (): Array<[string, string]> {
+    public getUsers(): Array<[string, string]> {
         return Array.from(this.users)
     }
 
-    private addListeners (): void {
-        this.bot.on('message', message => {
+    private addListeners(): void {
+        this.bot.on('message', (message) => {
             const { text } = message
             const command = text.split(' ')[0]
 
@@ -37,12 +36,18 @@ export class BotController {
                     const formattedMessage = text.split(' ')
 
                     if (formattedMessage.length != 3 || formattedMessage[1] !== 'as') {
-                        this.bot.sendMessage(message.chat.id, '/join wrong username, please follow pattern: \'as {{ github_username }}\'')
+                        this.bot.sendMessage(
+                            message.chat.id,
+                            "/join wrong username, please follow pattern: 'as {{ github_username }}'",
+                        )
                         return
                     }
 
                     this.users.set(message.from.username, formattedMessage[2])
-                    this.bot.sendMessage(message.chat.id, `@${message.from.username} successfully joined as ${formattedMessage[2]}.`)
+                    this.bot.sendMessage(
+                        message.chat.id,
+                        `@${message.from.username} successfully joined as ${formattedMessage[2]}.`,
+                    )
                     break
                 case '/leave':
                     this.users.delete(message.from.username)
@@ -52,7 +57,7 @@ export class BotController {
         })
     }
 
-    private static getToken (): string {
+    private static getToken(): string {
         return process.env.NOTIFICATION_BOT_CONFIG && JSON.parse(process.env.NOTIFICATION_BOT_CONFIG)?.auth_token
     }
 

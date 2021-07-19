@@ -9,5 +9,5 @@ interface IPropertyFormProps {
 }
 
 export const PropertyForm: React.FC<IPropertyFormProps> = ({ id }) => {
-    return ( id ? <UpdatePropertyForm id={id}/> : <CreatePropertyForm/> )
+    return id ? <UpdatePropertyForm id={id} /> : <CreatePropertyForm />
 }

@@ -7,7 +7,6 @@ test('on empty query => false', () => {
 })
 
 test('on simple query without deletedAt => false', () => {
-
     const SIMPLE_QUERY = {
         foo: 'bar',
     }

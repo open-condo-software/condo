@@ -8,9 +8,9 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegration')
 
-
 const BillingIntegration = new GQLListSchema('BillingIntegration', {
-    schemaDoc: 'Identification of the `integration component` which responsible for getting data from the `billing data source` and delivering the data to `this API`. Examples: tap-1c, ... ',
+    schemaDoc:
+        'Identification of the `integration component` which responsible for getting data from the `billing data source` and delivering the data to `this API`. Examples: tap-1c, ... ',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,

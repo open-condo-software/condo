@@ -33,7 +33,7 @@ describe('SMS adapters', () => {
             }
         })
     })
-    
+
     describe('SMSC.ru adapter', () => {
         it('should reject bad formatted phones', async () => {
             const Adapter = new SMSAdapter('SMSC')

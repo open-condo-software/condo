@@ -62,7 +62,7 @@ const SignInForm = (): React.ReactElement => {
         },
     }
 
-    const onFormSubmit = values => {
+    const onFormSubmit = (values) => {
         setIsLoading(true)
         return runMutation({
             mutation: signinByPhoneAndPassword,
@@ -77,7 +77,7 @@ const SignInForm = (): React.ReactElement => {
             intl,
             form,
             ErrorToFormFieldMsgMapping,
-        }).catch(error => {
+        }).catch((error) => {
             setIsLoading(false)
         })
     }
@@ -94,7 +94,7 @@ const SignInForm = (): React.ReactElement => {
             <Form.Item
                 name="phone"
                 label={PhoneMsg}
-                labelAlign='left'
+                labelAlign="left"
                 labelCol={{ flex: 1 }}
                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
             >
@@ -104,7 +104,7 @@ const SignInForm = (): React.ReactElement => {
             <Form.Item
                 name="password"
                 label={PasswordMsg}
-                labelAlign='left'
+                labelAlign="left"
                 labelCol={{ flex: 1 }}
                 style={{ marginTop: '24px' }}
                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
@@ -114,8 +114,8 @@ const SignInForm = (): React.ReactElement => {
 
             <div style={{ paddingTop: '4em', display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                 <Button
-                    key='submit'
-                    type='sberPrimary'
+                    key="submit"
+                    type="sberPrimary"
                     htmlType="submit"
                     style={{ justifySelf: 'flex-start' }}
                     loading={isLoading}
@@ -123,11 +123,15 @@ const SignInForm = (): React.ReactElement => {
                     {SignInMsg}
                 </Button>
 
-                <Typography.Text type='secondary'>
+                <Typography.Text type="secondary">
                     <FormattedMessage
-                        id='pages.auth.signin.ResetPasswordLink'
+                        id="pages.auth.signin.ResetPasswordLink"
                         values={{
-                            link: <a style={LINK_STYLE} onClick={() => Router.push('/auth/forgot')}>{ResetMsg}</a>,
+                            link: (
+                                <a style={LINK_STYLE} onClick={() => Router.push('/auth/forgot')}>
+                                    {ResetMsg}
+                                </a>
+                            ),
                         }}
                     />
                 </Typography.Text>
@@ -142,9 +146,9 @@ const HeaderAction: React.FunctionComponent = () => {
     const { isMobile } = useContext(AuthLayoutContext)
     return (
         <Button
-            key='submit'
+            key="submit"
             onClick={() => Router.push('/auth/register')}
-            type='sberPrimary'
+            type="sberPrimary"
             secondary={true}
             size={isMobile ? 'middle' : 'large'}
         >

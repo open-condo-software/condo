@@ -5,7 +5,7 @@ const { JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/
 const { JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const { REQUIRED_NO_VALUE_ERROR } = require('@condo/domains/common/constants/errors')
 
-function hasRequestAndDbFields (requestRequired, databaseRequired, resolvedData, existingItem, addFieldValidationError) {
+function hasRequestAndDbFields(requestRequired, databaseRequired, resolvedData, existingItem, addFieldValidationError) {
     if (typeof resolvedData === 'undefined') throw new Error('unexpected undefined resolvedData arg')
     if (typeof existingItem === 'undefined') existingItem = {}
     let hasAllFields = true
@@ -26,7 +26,7 @@ function hasRequestAndDbFields (requestRequired, databaseRequired, resolvedData,
     return hasAllFields
 }
 
-function hasOneOfFields (requestRequired, resolvedData, existingItem, addFieldValidationError) {
+function hasOneOfFields(requestRequired, resolvedData, existingItem, addFieldValidationError) {
     if (typeof resolvedData === 'undefined') throw new Error('unexpected undefined resolvedData arg')
     if (requestRequired.length < 1) throw new Error('unexpected requestRequired list length')
     if (typeof existingItem === 'undefined') existingItem = {}
@@ -43,14 +43,15 @@ function hasOneOfFields (requestRequired, resolvedData, existingItem, addFieldVa
     return hasOneField
 }
 
-function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints) {
+function hasValidJsonStructure(args, isRequired, dataVersion, fieldsConstraints) {
     const { resolvedData, fieldPath, addFieldValidationError } = args
     if (isRequired && !resolvedData.hasOwnProperty(fieldPath)) {
         addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${fieldPath}] Value is required`)
         return false
     }
     const value = resolvedData[fieldPath]
-    if (typeof value !== 'object' || value === null) return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] Expect JSON Object`)
+    if (typeof value !== 'object' || value === null)
+        return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] Expect JSON Object`)
     const { dv, ...data } = value
     if (dv === dataVersion) {
         const errors = validate(data, fieldsConstraints)

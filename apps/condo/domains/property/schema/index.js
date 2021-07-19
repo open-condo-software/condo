@@ -8,5 +8,5 @@ const { Property } = require('./Property')
 
 module.exports = {
     Property,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

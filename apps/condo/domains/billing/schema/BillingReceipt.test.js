@@ -11,7 +11,10 @@ const { createTestBillingProperty } = require('../utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
+} = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingReceipt', () => {
     test('admin: create BillingReceipt', async () => {
@@ -197,4 +200,3 @@ describe('BillingReceipt', () => {
         })
     })
 })
-

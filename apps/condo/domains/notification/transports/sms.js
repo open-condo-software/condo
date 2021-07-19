@@ -3,7 +3,7 @@ const { renderTemplate } = require('../templates')
 
 const { SMSAdapter } = require('@condo/domains/notification/adapters/smsAdapter')
 
-async function prepareMessageToSend (message) {
+async function prepareMessageToSend(message) {
     const phone = message.phone || (message.user && message.user.phone) || null
     if (!phone) throw new Error('on phone to send')
 
@@ -21,7 +21,7 @@ async function prepareMessageToSend (message) {
  * @typedef {[boolean, Object]} StatusAndMetadata
  * @return {StatusAndMetadata} Status and delivery Metadata (debug only)
  */
-async function send ({ phone, message } = {}) {
+async function send({ phone, message } = {}) {
     const Adapter = new SMSAdapter()
     const result = await Adapter.send({ phone, message })
     return result

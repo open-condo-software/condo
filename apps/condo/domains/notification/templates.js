@@ -1,16 +1,16 @@
 const conf = require('@core/config')
 const { RU_LOCALE, EN_LOCALE } = require('@condo/domains/common/constants/locale')
 
-const { 
+const {
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
     DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
-    MESSAGE_TRANSPORTS, 
-    REGISTER_NEW_USER_MESSAGE_TYPE, 
+    MESSAGE_TRANSPORTS,
+    REGISTER_NEW_USER_MESSAGE_TYPE,
     RESET_PASSWORD_MESSAGE_TYPE,
     SMS_VERIFY_CODE_MESSAGE_TYPE,
 } = require('./constants')
 
-async function renderTemplate (transport, message) {
+async function renderTemplate(transport, message) {
     if (!MESSAGE_TRANSPORTS.includes(transport)) throw new Error('unexpected transport argument')
 
     // TODO(pahaz): we need to decide where to store templates! HArDCODE!
@@ -26,13 +26,15 @@ async function renderTemplate (transport, message) {
         if (message.lang === EN_LOCALE) {
             return {
                 subject: 'You are invited to join organization as employee',
-                text: `Organization "${organizationName}" invited you as employee.\n` +
+                text:
+                    `Organization "${organizationName}" invited you as employee.\n` +
                     `Click to the link to join: ${serverUrl}/auth/invite/${inviteCode}`,
             }
         } else if (message.lang === RU_LOCALE) {
             return {
                 subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
-                text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
+                text:
+                    `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
                     `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/invite/${inviteCode}`,
             }
         }
@@ -44,13 +46,15 @@ async function renderTemplate (transport, message) {
         if (message.lang === EN_LOCALE) {
             return {
                 subject: 'You are invited to join organization as employee',
-                text: `Organization "${organizationName}" invited you as employee.\n` +
+                text:
+                    `Organization "${organizationName}" invited you as employee.\n` +
                     `Click to the link to join: ${serverUrl}/auth/signin`,
             }
         } else if (message.lang === RU_LOCALE) {
             return {
                 subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
-                text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
+                text:
+                    `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
                     `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/signin`,
             }
         }
@@ -88,7 +92,7 @@ async function renderTemplate (transport, message) {
         if (message.lang === 'en') {
             return {
                 subject: 'You are trying to reset password',
-                text:  `Click to the link to set new password: ${serverUrl}/auth/change-password?token=${token}`,
+                text: `Click to the link to set new password: ${serverUrl}/auth/change-password?token=${token}`,
             }
         } else if (message.lang === 'ru') {
             return {
@@ -101,7 +105,7 @@ async function renderTemplate (transport, message) {
             }
         }
     }
-        
+
     if (message.type === SMS_VERIFY_CODE_MESSAGE_TYPE) {
         const { smsCode } = message.meta
         if (message.lang === 'en') {

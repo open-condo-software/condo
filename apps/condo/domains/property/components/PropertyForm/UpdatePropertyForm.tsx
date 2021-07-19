@@ -16,7 +16,6 @@ interface IUpdatePropertyForm {
     id: string
 }
 
-
 export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     const intl = useIntl()
     const ApplyChangesLabel = intl.formatMessage({ id: 'ApplyChanges' })
@@ -39,21 +38,18 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     }
     const handleCancel = () => setIsConfirmVisible(false)
 
-
-    function handleDelete ({ item }) {
-        return runMutation(
-            {
-                action: () => {
-                    return softDeleteAction({}, item)
-                },
-                onError: (e) => {
-                    console.log(e)
-                    console.log(e.friendlyDescription)
-                    throw e
-                },
-                intl,
+    function handleDelete({ item }) {
+        return runMutation({
+            action: () => {
+                return softDeleteAction({}, item)
             },
-        )
+            onError: (e) => {
+                console.log(e)
+                console.log(e.friendlyDescription)
+                throw e
+            },
+            intl,
+        })
     }
 
     useEffect(() => {
@@ -63,8 +59,8 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     if (error || loading) {
         return (
             <>
-                {(loading) ? <Loader size={'large'} fill/> : null}
-                {(error) ? <Typography.Title>{error}</Typography.Title> : null}
+                {loading ? <Loader size={'large'} fill /> : null}
+                {error ? <Typography.Title>{error}</Typography.Title> : null}
             </>
         )
     }
@@ -74,72 +70,60 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
             action={updateAction}
             initialValues={initialValues}
             organization={organization}
-            type='building'
+            type="building"
             address={property.address}
         >
             {({ handleSave, isLoading }) => {
                 return (
                     <Form.Item noStyle dependencies={['address']}>
-                        {
-                            ({ getFieldsValue }) => {
-                                const { address } = getFieldsValue(['address'])
-                                return (
-                                    <>
-                                        <Modal
-                                            title={
-                                                <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
-                                                    {ConfirmDeleteTitle}
-                                                </Typography.Title>
-                                            }
-                                            visible={isConfirmVisible}
-                                            onCancel={handleCancel}
-                                            footer={[
-                                                <Button
-                                                    key="submit"
-                                                    type='sberDanger'
-                                                    onClick={handleOk}
-                                                    style={{ margin: '15px' }}
-                                                >
-                                                    {DeletePropertyLabel}
-                                                </Button>,
-                                            ]}
-                                        >
-                                            <Typography.Text>
-                                                {ConfirmDeleteMessage}
-                                            </Typography.Text>
-                                        </Modal>
-                                        <ActionBar>
-                                            <FormResetButton
-                                                type={'sberPrimary'}
-                                                secondary
-                                            />
-                                            <Space size={12}>
-                                                <Button
-                                                    key='submit'
-                                                    onClick={handleSave}
-                                                    type='sberPrimary'
-                                                    loading={isLoading}
-                                                    disabled={!address}
-                                                >
-                                                    {ApplyChangesLabel}
-                                                </Button>
-                                                <ErrorsContainer address={address} />
-                                            </Space>
-                                            <Button
-                                                key='submit'
-                                                onClick={showConfirm}
-                                                type='sberDanger'
-                                                loading={isLoading}
-                                                secondary
-                                                style={{ position: 'absolute', right: '0px', top: '24px' }}
-                                            >
+                        {({ getFieldsValue }) => {
+                            const { address } = getFieldsValue(['address'])
+                            return (
+                                <>
+                                    <Modal
+                                        title={
+                                            <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
+                                                {ConfirmDeleteTitle}
+                                            </Typography.Title>
+                                        }
+                                        visible={isConfirmVisible}
+                                        onCancel={handleCancel}
+                                        footer={[
+                                            <Button key="submit" type="sberDanger" onClick={handleOk} style={{ margin: '15px' }}>
                                                 {DeletePropertyLabel}
+                                            </Button>,
+                                        ]}
+                                    >
+                                        <Typography.Text>{ConfirmDeleteMessage}</Typography.Text>
+                                    </Modal>
+                                    <ActionBar>
+                                        <FormResetButton type={'sberPrimary'} secondary />
+                                        <Space size={12}>
+                                            <Button
+                                                key="submit"
+                                                onClick={handleSave}
+                                                type="sberPrimary"
+                                                loading={isLoading}
+                                                disabled={!address}
+                                            >
+                                                {ApplyChangesLabel}
                                             </Button>
-                                        </ActionBar>
-                                    </>
-                                )
-                            }
-                        }
+                                            <ErrorsContainer address={address} />
+                                        </Space>
+                                        <Button
+                                            key="submit"
+                                            onClick={showConfirm}
+                                            type="sberDanger"
+                                            loading={isLoading}
+                                            secondary
+                                            style={{ position: 'absolute', right: '0px', top: '24px' }}
+                                        >
+                                            {DeletePropertyLabel}
+                                        </Button>
+                                    </ActionBar>
+                                </>
+                            )
+                        }}
                     </Form.Item>
                 )
             }}

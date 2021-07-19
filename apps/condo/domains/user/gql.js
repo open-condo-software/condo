@@ -36,12 +36,14 @@ const SIGNIN_MUTATION = gql`
 
 const CHANGE_PASSWORD_WITH_TOKEN_MUTATION = gql`
     mutation changePasswordWithToken($data: ChangePasswordWithTokenInput!) {
-        result: changePasswordWithToken(data: $data) { status }
+        result: changePasswordWithToken(data: $data) {
+            status
+        }
     }
 `
 
 const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
-    mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
+    mutation authenticateUserWithPhoneAndPassword($phone: String!, $password: String!) {
         obj: authenticateUserWithPhoneAndPassword(data: { phone: $phone, password: $password }) {
             item {
                 id
@@ -51,44 +53,55 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
 `
 const START_PASSWORD_RECOVERY_MUTATION = gql`
     mutation startPasswordRecovery($data: StartPasswordRecoveryInput!) {
-        result: startPasswordRecovery(data: $data) { status }
+        result: startPasswordRecovery(data: $data) {
+            status
+        }
     }
 `
-
 
 const CHECK_PASSWORD_RECOVERY_TOKEN = gql`
     query checkPasswordRecoveryToken($data: CheckPasswordRecoveryTokenInput!) {
-        result: checkPasswordRecoveryToken(data: $data) { status }
+        result: checkPasswordRecoveryToken(data: $data) {
+            status
+        }
     }
 `
 
-
 const START_CONFIRM_PHONE_MUTATION = gql`
     mutation startConfirmPhoneAction($data: StartConfirmPhoneActionInput!) {
-        result: startConfirmPhoneAction(data: $data) { token }
+        result: startConfirmPhoneAction(data: $data) {
+            token
+        }
     }
 `
 const RESEND_CONFIRM_PHONE_SMS_MUTATION = gql`
     mutation resendConfirmPhoneActionSms($data: ResendConfirmPhoneActionSmsInput!) {
-        result: resendConfirmPhoneActionSms(data: $data) { status }
+        result: resendConfirmPhoneActionSms(data: $data) {
+            status
+        }
     }
 `
 const COMPLETE_CONFIRM_PHONE_MUTATION = gql`
     mutation completeConfirmPhoneAction($data: CompleteConfirmPhoneActionInput!) {
-        result: completeConfirmPhoneAction(data: $data) { status }
+        result: completeConfirmPhoneAction(data: $data) {
+            status
+        }
     }
 `
 const GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY = gql`
     query getPhoneByConfirmPhoneActionToken($data: GetPhoneByConfirmPhoneActionTokenInput!) {
-        result: getPhoneByConfirmPhoneActionToken(data: $data) { phone, isPhoneVerified }
+        result: getPhoneByConfirmPhoneActionToken(data: $data) {
+            phone
+            isPhoneVerified
+        }
     }
 `
 
-const CONFIRM_PHONE_ACTION_FIELDS = '{ id dv sender deletedAt phone token smsCode smsCodeRequestedAt smsCodeExpiresAt retries isPhoneVerified requestedAt expiresAt completedAt }'
+const CONFIRM_PHONE_ACTION_FIELDS =
+    '{ id dv sender deletedAt phone token smsCode smsCodeRequestedAt smsCodeExpiresAt retries isPhoneVerified requestedAt expiresAt completedAt }'
 const ConfirmPhoneAction = generateGqlQueries('ConfirmPhoneAction', CONFIRM_PHONE_ACTION_FIELDS)
 const FORGOT_PASSWORD_ACTION_FIELDS = `{ user { id } token requestedAt expiresAt usedAt ${COMMON_FIELDS} }`
 const ForgotPasswordAction = generateGqlQueries('ForgotPasswordAction', FORGOT_PASSWORD_ACTION_FIELDS)
-
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -108,5 +121,5 @@ module.exports = {
     ConfirmPhoneAction,
     ForgotPasswordAction,
     CHECK_PASSWORD_RECOVERY_TOKEN,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

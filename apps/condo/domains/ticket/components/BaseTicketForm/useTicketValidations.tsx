@@ -5,7 +5,7 @@ type IFormFieldsRuleMap = {
     [key: string]: Rule[]
 }
 
-export function useTicketValidations (): IFormFieldsRuleMap {
+export function useTicketValidations(): IFormFieldsRuleMap {
     const intl = useIntl()
 
     return {

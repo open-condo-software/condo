@@ -15,12 +15,7 @@ type UploadDataItem = {
     value: number | string
 }
 
-type OnUpload = (
-    data: {
-        cols: Array<UploadCols>,
-        data: Array<Array<UploadDataItem>>,
-    }
-) => void
+type OnUpload = (data: { cols: Array<UploadCols>; data: Array<Array<UploadDataItem>> }) => void
 
 const useUploadConfig = (onUpload: OnUpload) => {
     const intl = useIntl()
@@ -72,10 +67,12 @@ const useUploadConfig = (onUpload: OnUpload) => {
 }
 
 interface IDataImporterProps {
-    onUpload: OnUpload,
+    onUpload: OnUpload
 }
 
-const FILE_EXTENSIONS = TABLE_UPLOAD_ACCEPT_FILES.map(function (x) { return '.' + x }).join(',')
+const FILE_EXTENSIONS = TABLE_UPLOAD_ACCEPT_FILES.map(function (x) {
+    return '.' + x
+}).join(',')
 
 export const DataImporter: React.FC<IDataImporterProps> = (props) => {
     const intl = useIntl()
@@ -85,10 +82,7 @@ export const DataImporter: React.FC<IDataImporterProps> = (props) => {
 
     return (
         <Tooltip title={ImportFromExcelMessage}>
-            <Upload
-                { ...uploadConfig }
-                accept={FILE_EXTENSIONS}
-            >
+            <Upload {...uploadConfig} accept={FILE_EXTENSIONS}>
                 {props.children}
             </Upload>
         </Tooltip>

@@ -1,6 +1,18 @@
 import { notification } from 'antd'
 
-function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
+function runMutation({
+    action,
+    mutation,
+    variables,
+    onCompleted,
+    onError,
+    onFinally,
+    intl,
+    form,
+    ErrorToFormFieldMsgMapping,
+    OnErrorMsg,
+    OnCompletedMsg,
+}) {
     if (!intl) throw new Error('intl prop required')
     if (!mutation && !action) throw new Error('mutation or action prop required')
     if (action && mutation) throw new Error('impossible to pass mutation and action prop')
@@ -17,7 +29,7 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
     const DoneMsg = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
-    action = (action) ? action : () => mutation({ variables })
+    action = action ? action : () => mutation({ variables })
 
     return action()
         .then(
@@ -80,12 +92,11 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
                 if (notificationContext) notification.error(notificationContext)
                 if (onError) return onError(e)
                 else throw e
-            })
+            },
+        )
         .finally(() => {
             if (onFinally) return onFinally()
         })
 }
 
-export {
-    runMutation,
-}
+export { runMutation }

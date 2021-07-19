@@ -8,13 +8,7 @@ interface ITimerArguments {
 }
 
 export const timer = (args: ITimerArguments) => {
-    const {
-        onStart,
-        onUpdate,
-        onFinish,
-        duration,
-        step = 1000,
-    } = args
+    const { onStart, onUpdate, onFinish, duration, step = 1000 } = args
 
     const nextDate = new Date()
     nextDate.setSeconds(nextDate.getSeconds() + duration)

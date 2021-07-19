@@ -15,7 +15,7 @@ const { SEND_MESSAGE, RESEND_MESSAGE } = require('../../gql')
 
 const Message = generateServerUtils(MessageGQL)
 
-async function sendMessage (context, data) {
+async function sendMessage(context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
@@ -33,7 +33,7 @@ async function sendMessage (context, data) {
     })
 }
 
-async function resendMessage (context, data) {
+async function resendMessage(context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.message || !data.message.id) throw new Error('no data.message')
@@ -49,6 +49,8 @@ async function resendMessage (context, data) {
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-    Message, sendMessage, resendMessage,
+    Message,
+    sendMessage,
+    resendMessage,
     /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -22,7 +22,7 @@ export const UserInfoPage = () => {
             <PageWrapper>
                 <AuthRequired>
                     <PageContent>
-                        <UserProfileForm/>
+                        <UserProfileForm />
                     </PageContent>
                 </AuthRequired>
             </PageWrapper>
@@ -35,15 +35,12 @@ const HeaderAction = () => {
     const AllTicketsMessage = intl.formatMessage({ id: 'Back' })
 
     return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={'/user/'}
-        >
+        <LinkWithIcon icon={<ArrowLeftOutlined style={{ color: colors.white }} />} path={'/user/'}>
             {AllTicketsMessage}
         </LinkWithIcon>
     )
 }
 
-UserInfoPage.headerAction = <HeaderAction/>
+UserInfoPage.headerAction = <HeaderAction />
 
 export default UserInfoPage

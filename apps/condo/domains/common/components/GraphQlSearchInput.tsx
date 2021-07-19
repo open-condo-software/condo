@@ -16,7 +16,7 @@ interface ISearchInputProps extends SelectProps {
     disabled?: boolean
     autoFocus?: boolean
     initialValue?: string
-    formatLabel?: (option: { value: string, text: string }) => JSX.Element
+    formatLabel?: (option: { value: string; text: string }) => JSX.Element
 }
 
 export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
@@ -44,15 +44,15 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         handleSearch('')
     }, [])
 
-    async function handleSearch (value) {
+    async function handleSearch(value) {
         setLoading(true)
-        const data = await search(client, (selected) ? selected + ' ' + value : value)
+        const data = await search(client, selected ? selected + ' ' + value : value)
         setLoading(false)
         if (data.length) setData(data)
         setValue(value)
     }
 
-    function handleSelect (value, option) {
+    function handleSelect(value, option) {
         setSelected(option.children)
 
         if (onSelect) {
@@ -60,7 +60,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         }
     }
 
-    function handleClear () {
+    function handleClear() {
         setSelected('')
     }
 

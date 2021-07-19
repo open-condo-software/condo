@@ -1,6 +1,6 @@
 const phone = require('phone')
 
-function normalizePhone (data) {
+function normalizePhone(data) {
     if (!data) return
     if (!data.startsWith('+')) return
     const result = phone(data)

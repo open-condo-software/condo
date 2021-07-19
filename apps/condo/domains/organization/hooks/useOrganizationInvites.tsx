@@ -8,9 +8,7 @@ import { useIntl } from '@core/next/intl'
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { useMutation } from '@core/next/apollo'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import {
-    ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
-} from '@condo/domains/organization/gql'
+import { ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION } from '@condo/domains/organization/gql'
 
 interface IOrganizationInvitesHookResult {
     loading: boolean
@@ -24,9 +22,13 @@ export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const { user } = useAuth()
     const { selectLink } = useOrganization()
-    const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects(
-        { where: user ? { user: { id: user.id }, isAccepted: false, isRejected: false, isBlocked: false } : {} },
-    )
+    const {
+        objs: userInvites,
+        refetch,
+        loading,
+    } = OrganizationEmployee.useObjects({
+        where: user ? { user: { id: user.id }, isAccepted: false, isRejected: false, isBlocked: false } : {},
+    })
     const { addNotification } = useLayoutContext()
     const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION)
     const handleAcceptOrReject = async (item, action) => {
@@ -51,7 +53,7 @@ export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
         await refetch()
     }
     if (userInvites) {
-        userInvites.forEach(invite => {
+        userInvites.forEach((invite) => {
             addNotification({
                 actions: [
                     {
@@ -60,15 +62,16 @@ export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
                         secondary: true,
                     },
                     {
-                        action: () => handleAcceptOrReject(invite, 'accept').then(() => {
-                            selectLink({ id: invite.id })
-                        }),
+                        action: () =>
+                            handleAcceptOrReject(invite, 'accept').then(() => {
+                                selectLink({ id: invite.id })
+                            }),
                         title: AcceptMessage,
                     },
                 ],
                 message: (
                     <FormattedMessage
-                        id='pages.users.InviteMessageTitle'
+                        id="pages.users.InviteMessageTitle"
                         values={{
                             name: invite.organization.name,
                         }}

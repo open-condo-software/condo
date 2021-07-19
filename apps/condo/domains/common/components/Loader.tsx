@@ -8,12 +8,12 @@ import styled from '@emotion/styled'
 const DEFAULT_DELAY = 200 // milliseconds
 
 const FilledLoaderContainer = styled.section`
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-        `
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+`
 
 interface ILoaderProps extends SpinProps {
     fill?: boolean
@@ -38,7 +38,7 @@ export const Loader: React.FC<ILoaderProps> = (props) => {
 
     return (
         <section css={coloredSpinnerStyles}>
-            <Spin {...other}/>
+            <Spin {...other} />
         </section>
     )
 }

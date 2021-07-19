@@ -12,7 +12,7 @@ import { colors } from '@condo/domains/common/constants/style'
 
 const TicketUpdatePage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.EditTicketModalTitle' })
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.EditTicketModalTitle' })
 
     const { query } = useRouter()
 
@@ -26,9 +26,11 @@ const TicketUpdatePage = () => {
                     <PageContent>
                         <Row gutter={[0, 40]} style={{ height: '100%' }}>
                             <Col span={24}>
-                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                                <Typography.Title level={1} style={{ margin: 0 }}>
+                                    {PageTitleMsg}
+                                </Typography.Title>
                             </Col>
-                            <TicketForm id={query.id as string}/>
+                            <TicketForm id={query.id as string} />
                         </Row>
                     </PageContent>
                 </OrganizationRequired>
@@ -43,15 +45,12 @@ const HeaderAction = () => {
     const BackMessage = inl.formatMessage({ id: 'Back' })
 
     return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={`/ticket/${query.id}`}
-        >
+        <LinkWithIcon icon={<ArrowLeftOutlined style={{ color: colors.white }} />} path={`/ticket/${query.id}`}>
             {BackMessage}
         </LinkWithIcon>
     )
 }
 
-TicketUpdatePage.headerAction = <HeaderAction/>
+TicketUpdatePage.headerAction = <HeaderAction />
 
 export default TicketUpdatePage

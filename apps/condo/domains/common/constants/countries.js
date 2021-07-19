@@ -9,7 +9,7 @@ const COUNTRIES = {
             dispatcher: 'Dispatcher',
             manager: 'Manager',
             foreman: 'Foreman',
-            technician : 'Technician',
+            technician: 'Technician',
         },
         // statusTransitions: {},  // TODO(pahaz): write logic for transitions
         phonePattern: /^[+]1[0-9-. ()]{7,}[0-9]$/gi,
@@ -21,7 +21,7 @@ const COUNTRIES = {
             dispatcher: 'Диспетчер',
             manager: 'Управляющий',
             foreman: 'Мастер участка',
-            technician : 'Техник',
+            technician: 'Техник',
         },
         // statusTransitions: {},  // TODO(pahaz): write logic for transitions
         phonePattern: /^[+]?[0-9-. ()]{7,}[0-9]$/gi,
@@ -30,6 +30,7 @@ const COUNTRIES = {
 }
 
 module.exports = {
-    DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY,
+    DEFAULT_ENGLISH_COUNTRY,
+    RUSSIA_COUNTRY,
     COUNTRIES,
 }

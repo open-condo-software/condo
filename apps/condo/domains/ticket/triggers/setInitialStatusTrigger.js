@@ -20,9 +20,9 @@ const setInitialStatusTrigger = {
                     value: undefined,
                 },
                 /*
-                *   TODO(Dimitreee): add custom fact which will fetch all organization statuses and get only new_or_reopened type
-                *   see: https://github.com/CacheControl/json-rules-engine/blob/master/docs/facts.md
-                * */
+                 *   TODO(Dimitreee): add custom fact which will fetch all organization statuses and get only new_or_reopened type
+                 *   see: https://github.com/CacheControl/json-rules-engine/blob/master/docs/facts.md
+                 * */
                 {
                     fact: 'data',
                     path: '$.existingItem.status',

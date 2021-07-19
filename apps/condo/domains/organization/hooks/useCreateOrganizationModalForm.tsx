@@ -3,12 +3,8 @@ import { useState, Dispatch, SetStateAction } from 'react'
 import { useIntl } from '@core/next/intl'
 import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
-import {
-    REGISTER_NEW_ORGANIZATION_MUTATION,
-} from '@condo/domains/organization/gql'
-import {
-    convertUIStateToGQLItem,
-} from '@condo/domains/organization/utils/clientSchema'
+import { REGISTER_NEW_ORGANIZATION_MUTATION } from '@condo/domains/organization/gql'
+import { convertUIStateToGQLItem } from '@condo/domains/organization/utils/clientSchema'
 import { INN_LENGTH } from '@condo/domains/organization/constants/common'
 import { EMPTY_NAME_ERROR, INN_TOO_SHORT_ERROR } from '@condo/domains/organization/constants/errors'
 
@@ -21,7 +17,9 @@ interface ICreateOrganizationModalFormResult {
     setVisible: Dispatch<SetStateAction<boolean>>
 }
 
-export const useCreateOrganizationModalForm = ({ onFinish }: ICreateOrganizationModalFormArguments): ICreateOrganizationModalFormResult => {
+export const useCreateOrganizationModalForm = ({
+    onFinish,
+}: ICreateOrganizationModalFormArguments): ICreateOrganizationModalFormResult => {
     const intl = useIntl()
     const ValueIsTooShortMsg = intl.formatMessage({ id: 'ValueIsTooShort' })
     const CreateOrganizationModalTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationModalTitle' })
@@ -67,18 +65,12 @@ export const useCreateOrganizationModalForm = ({ onFinish }: ICreateOrganization
             showCancelButton={false}
             validateTrigger={['onBlur', 'onSubmit']}
         >
-            <Typography.Paragraph>
-                {CreateOrganizationModalMsg}
-            </Typography.Paragraph>
-            <Form.Item
-                name='name'
-                label={NameMsg}
-                rules={[{ required: true, message: FieldIsRequiredMsg }]}
-            >
+            <Typography.Paragraph>{CreateOrganizationModalMsg}</Typography.Paragraph>
+            <Form.Item name="name" label={NameMsg} rules={[{ required: true, message: FieldIsRequiredMsg }]}>
                 <Input />
             </Form.Item>
             <Form.Item
-                name='inn'
+                name="inn"
                 style={{ width: '50%' }}
                 label={InnMessage}
                 rules={[

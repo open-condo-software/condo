@@ -1,6 +1,6 @@
 import cookie from 'js-cookie'
 
-function makeId (length) {
+function makeId(length) {
     let result = ''
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     const charactersLength = characters.length
@@ -10,7 +10,7 @@ function makeId (length) {
     return result
 }
 
-function getCurrentUserId () {
+function getCurrentUserId() {
     let current = cookie.get('userId')
     if (!current) {
         current = makeId(12)
@@ -19,14 +19,11 @@ function getCurrentUserId () {
     return current
 }
 
-function getClientSideSenderInfo () {
+function getClientSideSenderInfo() {
     return {
         dv: 1,
         fingerprint: getCurrentUserId(),
     }
 }
 
-export {
-    getCurrentUserId,
-    getClientSideSenderInfo,
-}
+export { getCurrentUserId, getClientSideSenderInfo }

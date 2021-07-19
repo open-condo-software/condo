@@ -8,12 +8,16 @@ const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
 const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { OrganizationEmployee, createTestOrganizationEmployee, updateTestOrganizationEmployee, softDeleteTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const {
+    OrganizationEmployee,
+    createTestOrganizationEmployee,
+    updateTestOrganizationEmployee,
+    softDeleteTestOrganizationEmployee,
+} = require('@condo/domains/organization/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 
 describe('OrganizationEmployee', () => {
     describe('user: create OrganizationEmployee', () => {
-
         test('cannot without granted "canManageEmployees" permission', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
@@ -47,7 +51,6 @@ describe('OrganizationEmployee', () => {
             expect(obj.createdAt).toMatch(DATETIME_RE)
             expect(obj.updatedAt).toMatch(DATETIME_RE)
         })
-
     })
 
     test('anonymous: create OrganizationEmployee', async () => {
@@ -94,7 +97,6 @@ describe('OrganizationEmployee', () => {
     })
 
     describe('user: update OrganizationEmployee', () => {
-
         test('cannot without granted "canManageEmployees" permission', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
@@ -134,7 +136,6 @@ describe('OrganizationEmployee', () => {
             expect(obj.createdAt).toMatch(DATETIME_RE)
             expect(obj.updatedAt).toMatch(DATETIME_RE)
         })
-
     })
 
     test('anonymous: update OrganizationEmployee', async () => {
@@ -148,7 +149,6 @@ describe('OrganizationEmployee', () => {
     })
 
     describe('user: softDelete OrganizationEmployee', () => {
-
         test('cannot without granted "canManageEmployees" permission', async () => {
             const { employee, admin, organization } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee()
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
@@ -172,7 +172,7 @@ describe('OrganizationEmployee', () => {
 
             await createTestOrganizationEmployee(admin, organization, managerClient.user, role, { isBlocked: false })
 
-            const [ obj ] = await softDeleteTestOrganizationEmployee(managerClient, employee.id)
+            const [obj] = await softDeleteTestOrganizationEmployee(managerClient, employee.id)
 
             expect(obj.id).toBeDefined()
 
@@ -180,7 +180,6 @@ describe('OrganizationEmployee', () => {
 
             expect(objs).toHaveLength(0)
         })
-
     })
 
     test('anonymous: delete OrganizationEmployee', async () => {

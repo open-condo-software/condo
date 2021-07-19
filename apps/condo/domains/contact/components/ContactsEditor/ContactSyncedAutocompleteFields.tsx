@@ -21,19 +21,19 @@ const { TextArea } = Input
  *
  * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
  */
-function escapeRegex (string) {
+function escapeRegex(string) {
     return string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
 interface IContactSyncedAutocompleteFieldsProps {
-    initialValue?: TContact,
-    onChange: (contact: ContactValue) => void,
-    onChecked?: () => void,
-    checked?: boolean,
+    initialValue?: TContact
+    onChange: (contact: ContactValue) => void
+    onChecked?: () => void
+    checked?: boolean
     // Used for autocomplete
-    contacts: TContact[],
-    displayMinusButton?: boolean,
-    onClickMinusButton?: () => void,
+    contacts: TContact[]
+    displayMinusButton?: boolean
+    onClickMinusButton?: () => void
 }
 
 /**
@@ -42,24 +42,32 @@ interface IContactSyncedAutocompleteFieldsProps {
  * And vise-versa.
  * When value in fields are typed, not selected, `onChange` callback will be fired.
  */
-const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({ initialValue, onChange, onChecked, checked, contacts, displayMinusButton, onClickMinusButton }) => {
+const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({
+    initialValue,
+    onChange,
+    onChecked,
+    checked,
+    contacts,
+    displayMinusButton,
+    onClickMinusButton,
+}) => {
     const [value, setValue] = useState(initialValue)
     const [contactsByPhone, setContactsByPhone] = useState([])
     const [contactsByName, setContactsByName] = useState([])
 
     const searchContactBy = useCallback(
         (field) => async (query) => {
-            return contacts.filter(c => c[field].match(escapeRegex(query)))
+            return contacts.filter((c) => c[field].match(escapeRegex(query)))
         },
-        []
+        [],
     )
 
     const searchContactByPhone = useCallback((query) => {
-        setContactsByPhone(contacts.filter(c => c.phone.match(escapeRegex(query))))
+        setContactsByPhone(contacts.filter((c) => c.phone.match(escapeRegex(query))))
     }, [])
 
     const searchContactByName = useCallback((query) => {
-        setContactsByName(contacts.filter(c => c.name.match(escapeRegex(query))))
+        setContactsByName(contacts.filter((c) => c.name.match(escapeRegex(query))))
     }, [])
 
     const handleSelectContact = (value: string, option: OptionProps) => {
@@ -101,12 +109,14 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
         onChecked && onChecked()
     }
 
-    const renderOptionsBy = useCallback((prop, items) =>
-        items.map(item => ({
-            value: item[prop],
-            item,
-        }))
-    , [])
+    const renderOptionsBy = useCallback(
+        (prop, items) =>
+            items.map((item) => ({
+                value: item[prop],
+                item,
+            })),
+        [],
+    )
 
     return (
         <>
@@ -121,12 +131,8 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
                     onClear={handleClearContact}
                     style={{ width: '100%' }}
                 >
-                    <PhoneInput
-                        style={{ width: '100%', height: '40px' }}
-                        compatibilityWithAntAutoComplete={true}
-                    />
+                    <PhoneInput style={{ width: '100%', height: '40px' }} compatibilityWithAntAutoComplete={true} />
                 </AutoComplete>
-
             </Col>
             <Col span={10}>
                 <BaseSearchInput
@@ -140,15 +146,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
                     style={{ width: '100%' }}
                 />
             </Col>
-            <Col span={2}>
-                {onChecked && (
-                    <Radio
-                        onClick={handleChecked}
-                        checked={checked}
-                        style={{ marginTop: '8px' }}
-                    />
-                )}
-            </Col>
+            <Col span={2}>{onChecked && <Radio onClick={handleChecked} checked={checked} style={{ marginTop: '8px' }} />}</Col>
             <Col span={2}>
                 {displayMinusButton && (
                     <MinusCircleFilled
@@ -172,6 +170,4 @@ ContactSyncedAutocompleteFields.defaultProps = {
     onClickMinusButton: () => {},
 }
 
-export {
-    ContactSyncedAutocompleteFields,
-}
+export { ContactSyncedAutocompleteFields }

@@ -17,10 +17,7 @@ import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import {
-    getTicketCreateMessage,
-    getTicketTitleMessage,
-} from '@condo/domains/ticket/utils/helpers'
+import { getTicketCreateMessage, getTicketTitleMessage } from '@condo/domains/ticket/utils/helpers'
 import { LETTERS_AND_NUMBERS } from '@condo/domains/common/constants/regexps'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
@@ -50,13 +47,11 @@ const TicketDescriptionField: React.FC<ITicketDescriptionFieldProps> = ({ title,
     const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
 
     return (
-        <Space
-            direction={'vertical'}
-            size={8}
-            style={{ maxWidth: '100%' }}
-        >
+        <Space direction={'vertical'} size={8} style={{ maxWidth: '100%' }}>
             <Typography.Text type={'secondary'}>{title}</Typography.Text>
-            <Typography.Text {...{ type }} style={{ fontSize: '16px' }}>{value || NotDefinedMessage}</Typography.Text>
+            <Typography.Text {...{ type }} style={{ fontSize: '16px' }}>
+                {value || NotDefinedMessage}
+            </Typography.Text>
         </Space>
     )
 }
@@ -133,23 +128,25 @@ const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
         <Col style={{ paddingRight: '10px' }}>
             <Typography.Text type={'secondary'}>{props.title}</Typography.Text>
             <Col style={{ fontSize: '16px', margin: '0' }}>
-                {userInfo.name
-                    ? (
-                        <UserNameField user={{ name: userInfo.name, id: props.user.id }}>
-                            {({ name, postfix }) => (
-                                <Typography.Paragraph ellipsis={true} title={name} style={{ margin: '5px 0' }}>
-                                    {name}
-                                    {postfix && <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>}
-                                </Typography.Paragraph>
-                            )}
-                        </UserNameField>
-                    )
-                    : NotDefinedMessage
-                }
-                {userInfo.phone
-                    ? (<Typography.Text>{PhoneShortMessage} <Typography.Text>{userInfo.phone}</Typography.Text></Typography.Text>)
-                    : `${PhoneShortMessage} ${PhoneNotDefinedMessage}`
-                }
+                {userInfo.name ? (
+                    <UserNameField user={{ name: userInfo.name, id: props.user.id }}>
+                        {({ name, postfix }) => (
+                            <Typography.Paragraph ellipsis={true} title={name} style={{ margin: '5px 0' }}>
+                                {name}
+                                {postfix && <Typography.Text type="secondary">&nbsp;{postfix}</Typography.Text>}
+                            </Typography.Paragraph>
+                        )}
+                    </UserNameField>
+                ) : (
+                    NotDefinedMessage
+                )}
+                {userInfo.phone ? (
+                    <Typography.Text>
+                        {PhoneShortMessage} <Typography.Text>{userInfo.phone}</Typography.Text>
+                    </Typography.Text>
+                ) : (
+                    `${PhoneShortMessage} ${PhoneNotDefinedMessage}`
+                )}
                 {showPersonalInfoButtonControl && (
                     <Typography.Paragraph>
                         (
@@ -165,8 +162,8 @@ const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
 }
 
 const TicketTag = styled(Tag)`
-  font-size: 16px;
-  line-height: 24px;
+    font-size: 16px;
+    line-height: 24px;
 `
 
 const TicketIdPage = () => {
@@ -194,28 +191,44 @@ const TicketIdPage = () => {
     const auth = useAuth() as { user: { id: string } }
 
     // NOTE: cast `string | string[]` to `string`
-    const { query: { id } } = router as { query: { [key: string]: string } }
+    const {
+        query: { id },
+    } = router as { query: { [key: string]: string } }
 
-    const { refetch: refetchTicket, loading, obj: ticket, error } = Ticket.useObject({
-        where: { id },
-    }, {
-        fetchPolicy: 'network-only',
-    })
-    const { objs: files } = TicketFile.useObjects({
-        where: { ticket: { id: id } },
-    }, {
-        fetchPolicy: 'network-only',
-    })
+    const {
+        refetch: refetchTicket,
+        loading,
+        obj: ticket,
+        error,
+    } = Ticket.useObject(
+        {
+            where: { id },
+        },
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
+    const { objs: files } = TicketFile.useObjects(
+        {
+            where: { ticket: { id: id } },
+        },
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
     // TODO(antonal): get rid of separate GraphQL query for TicketChanges
-    const ticketChangesResult = TicketChange.useObjects({
-        where: { ticket: { id } },
-        // TODO(antonal): fix "Module not found: Can't resolve '@condo/schema'"
-        // sortBy: [SortTicketChangesBy.CreatedAtDesc],
-        // @ts-ignore
-        sortBy: ['createdAt_DESC'],
-    }, {
-        fetchPolicy: 'network-only',
-    })
+    const ticketChangesResult = TicketChange.useObjects(
+        {
+            where: { ticket: { id } },
+            // TODO(antonal): fix "Module not found: Can't resolve '@condo/schema'"
+            // sortBy: [SortTicketChangesBy.CreatedAtDesc],
+            // @ts-ignore
+            sortBy: ['createdAt_DESC'],
+        },
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
 
     const { objs: comments, refetch: refetchComments } = TicketComment.useObjects({
         where: { ticket: { id } },
@@ -225,10 +238,15 @@ const TicketIdPage = () => {
     const updateComment = TicketComment.useUpdate({}, () => {})
     const deleteComment = TicketComment.useSoftDelete({}, () => {})
 
-    const createCommentAction = TicketComment.useCreate({
-        ticket: id,
-        user: auth.user.id,
-    }, () => { refetchComments() })
+    const createCommentAction = TicketComment.useCreate(
+        {
+            ticket: id,
+            user: auth.user.id,
+        },
+        () => {
+            refetchComments()
+        },
+    )
 
     const { link } = useOrganization()
 
@@ -236,14 +254,15 @@ const TicketIdPage = () => {
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
     if (!ticket) {
-        return (
-            <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={error ? ServerErrorMessage : null}/>
-        )
+        return <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={error ? ServerErrorMessage : null} />
     }
 
-    const ticketAddress = get(ticket, ['property', 'address'])
-        + (ticket.sectionName && ticket.floorName ? `, ${SectionName} ${ticket.sectionName}, ${FloorName} ${ticket.floorName}` : '')
-        + (ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : '')
+    const ticketAddress =
+        get(ticket, ['property', 'address']) +
+        (ticket.sectionName && ticket.floorName
+            ? `, ${SectionName} ${ticket.sectionName}, ${FloorName} ${ticket.floorName}`
+            : '') +
+        (ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : '')
     const isEmergency = get(ticket, 'isEmergency')
     const isPaid = get(ticket, 'isPaid')
 
@@ -269,19 +288,35 @@ const TicketIdPage = () => {
                                                 <Row align={'top'}>
                                                     <Space size={8} direction={'vertical'}>
                                                         <Space align={'center'}>
-                                                            <Typography.Title level={1} style={{ margin: 0 }}>{TicketTitleMessage}</Typography.Title>
+                                                            <Typography.Title level={1} style={{ margin: 0 }}>
+                                                                {TicketTitleMessage}
+                                                            </Typography.Title>
                                                             <Space direction={'vertical'}>
-                                                                {isEmergency && <TicketTag color={'red'}>{EmergencyMessage.toLowerCase()}</TicketTag>}
-                                                                {isPaid && <TicketTag color={'orange'}>{PaidMessage.toLowerCase()}</TicketTag>}
+                                                                {isEmergency && (
+                                                                    <TicketTag color={'red'}>
+                                                                        {EmergencyMessage.toLowerCase()}
+                                                                    </TicketTag>
+                                                                )}
+                                                                {isPaid && (
+                                                                    <TicketTag color={'orange'}>
+                                                                        {PaidMessage.toLowerCase()}
+                                                                    </TicketTag>
+                                                                )}
                                                             </Space>
                                                         </Space>
                                                         <Typography.Text>
-                                                            <Typography.Text type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
+                                                            <Typography.Text type="secondary">
+                                                                {TicketCreationDate}, {TicketAuthorMessage}{' '}
+                                                            </Typography.Text>
                                                             <UserNameField user={get(ticket, ['createdBy'])}>
                                                                 {({ name, postfix }) => (
                                                                     <Typography.Text>
                                                                         <Typography.Text ellipsis>{name}</Typography.Text>
-                                                                        {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
+                                                                        {postfix && (
+                                                                            <Typography.Text type="secondary" ellipsis>
+                                                                                &nbsp;{postfix}
+                                                                            </Typography.Text>
+                                                                        )}
                                                                     </Typography.Text>
                                                                 )}
                                                             </UserNameField>
@@ -291,7 +326,11 @@ const TicketIdPage = () => {
                                             </Col>
                                             <Col span={12}>
                                                 <Row justify={'end'}>
-                                                    <TicketStatusSelect ticket={ticket} onUpdate={handleTicketStatusChanged} loading={loading}/>
+                                                    <TicketStatusSelect
+                                                        ticket={ticket}
+                                                        onUpdate={handleTicketStatusChanged}
+                                                        loading={loading}
+                                                    />
                                                 </Row>
                                             </Col>
                                         </Row>
@@ -310,17 +349,11 @@ const TicketIdPage = () => {
                                                     value={get(ticket, ['classifier', 'name'])}
                                                 />
                                             </Col>
-                                            <Col span={6} >
-                                                <TicketUserInfoField
-                                                    title={ExecutorMessage}
-                                                    user={get(ticket, ['executor'])}
-                                                />
+                                            <Col span={6}>
+                                                <TicketUserInfoField title={ExecutorMessage} user={get(ticket, ['executor'])} />
                                             </Col>
                                             <Col span={6}>
-                                                <TicketUserInfoField
-                                                    title={AssigneeMessage}
-                                                    user={get(ticket, ['assignee'])}
-                                                />
+                                                <TicketUserInfoField title={AssigneeMessage} user={get(ticket, ['assignee'])} />
                                             </Col>
                                         </Row>
                                     </Col>
@@ -350,21 +383,24 @@ const TicketIdPage = () => {
                                                             />
                                                         </Col>
                                                         <Col span={6}>
-                                                            <TicketDescriptionField title={EmailMessage} value={ticket.clientEmail}/>
+                                                            <TicketDescriptionField
+                                                                title={EmailMessage}
+                                                                value={ticket.clientEmail}
+                                                            />
                                                         </Col>
                                                     </Row>
                                                 </Col>
                                                 <Row gutter={[0, 8]} style={{ maxWidth: '100%' }}>
                                                     <Col span={24}>
-                                                        <Typography.Title level={5} style={{ margin: 0 }}>{TicketInfoMessage}</Typography.Title>
+                                                        <Typography.Title level={5} style={{ margin: 0 }}>
+                                                            {TicketInfoMessage}
+                                                        </Typography.Title>
                                                     </Col>
                                                     <Col span={24}>
-                                                        <Typography.Text style={{ fontSize: '24px', wordWrap: 'break-word' }}>{ticket.details}</Typography.Text>
-                                                        {
-                                                            !isEmpty(files) && (
-                                                                <TicketFileList files={files} />
-                                                            )
-                                                        }
+                                                        <Typography.Text style={{ fontSize: '24px', wordWrap: 'break-word' }}>
+                                                            {ticket.details}
+                                                        </Typography.Text>
+                                                        {!isEmpty(files) && <TicketFileList files={files} />}
                                                     </Col>
                                                 </Row>
                                             </Row>
@@ -372,12 +408,7 @@ const TicketIdPage = () => {
                                     </FocusContainer>
                                     <ActionBar>
                                         <Link href={`/ticket/${ticket.id}/update`}>
-                                            <Button
-                                                color={'green'}
-                                                type={'sberPrimary'}
-                                                secondary
-                                                icon={<EditFilled />}
-                                            >
+                                            <Button color={'green'} type={'sberPrimary'} secondary icon={<EditFilled />}>
                                                 {UpdateMessage}
                                             </Button>
                                         </Link>
@@ -398,16 +429,17 @@ const TicketIdPage = () => {
                                     />
                                 </Row>
                             </Col>
-                            <Col span={1}>
-                            </Col>
+                            <Col span={1}></Col>
                             <Col span={7}>
                                 <Affix offsetTop={40}>
                                     <Comments
                                         // @ts-ignore
                                         createAction={createCommentAction}
                                         comments={comments}
-                                        canCreateComments={get(auth, ['user', 'isAdmin']) || get(link, ['role', 'canManageTicketComments'])}
-                                        actionsFor={comment => {
+                                        canCreateComments={
+                                            get(auth, ['user', 'isAdmin']) || get(link, ['role', 'canManageTicketComments'])
+                                        }
+                                        actionsFor={(comment) => {
                                             const isAuthor = comment.user.id === auth.user.id
                                             const isAdmin = get(auth, ['user', 'isAdmin'])
                                             return {
@@ -431,15 +463,12 @@ const HeaderAction = () => {
     const AllTicketsMessage = intl.formatMessage({ id: 'menu.AllTickets' })
 
     return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={'/ticket/'}
-        >
+        <LinkWithIcon icon={<ArrowLeftOutlined style={{ color: colors.white }} />} path={'/ticket/'}>
             {AllTicketsMessage}
         </LinkWithIcon>
     )
 }
 
-TicketIdPage.headerAction = <HeaderAction/>
+TicketIdPage.headerAction = <HeaderAction />
 
 export default TicketIdPage

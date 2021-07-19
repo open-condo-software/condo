@@ -41,7 +41,7 @@ describe('BillingMeterResource', () => {
     test('admin: read BillingMeterResource', async () => {
         const admin = await makeLoggedInAdminClient()
         const [obj] = await createTestBillingMeterResource(admin)
-        const objs = await BillingMeterResource.getAll(admin, { id : obj.id })
+        const objs = await BillingMeterResource.getAll(admin, { id: obj.id })
 
         expect(objs).toHaveLength(1)
     })
@@ -50,7 +50,7 @@ describe('BillingMeterResource', () => {
         const admin = await makeLoggedInAdminClient()
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const [obj] = await createTestBillingMeterResource(admin)
-        const objs = await BillingMeterResource.getAll(client, { id : obj.id })
+        const objs = await BillingMeterResource.getAll(client, { id: obj.id })
 
         expect(objs).toHaveLength(1)
     })
@@ -61,8 +61,7 @@ describe('BillingMeterResource', () => {
         const [obj] = await createTestBillingMeterResource(admin)
 
         await expectToThrowAccessDeniedErrorToObjects(async () => {
-            await BillingMeterResource.getAll(client, { id : obj.id })
+            await BillingMeterResource.getAll(client, { id: obj.id })
         })
     })
 })
-

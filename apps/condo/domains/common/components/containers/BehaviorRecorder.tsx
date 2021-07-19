@@ -5,7 +5,7 @@ import _ from 'lodash'
 type BehaviourRecordingEngine = 'plerdy'
 
 type Props = {
-    engine: BehaviourRecordingEngine;
+    engine: BehaviourRecordingEngine
 }
 
 /**
@@ -21,7 +21,7 @@ type Props = {
 const BehaviorRecorder = ({ engine }: Props) => {
     const { publicRuntimeConfig } = getConfig()
     // Don't know yet, what type comes here, will check it below ;)
-    const { behaviorRecorder }  = publicRuntimeConfig
+    const { behaviorRecorder } = publicRuntimeConfig
 
     if (!_.get(behaviorRecorder, engine) || !_.get(parseParamsFor, engine) || !_.get(htmlFor, engine)) {
         return null
@@ -30,16 +30,17 @@ const BehaviorRecorder = ({ engine }: Props) => {
     const params = parseParamsFor[engine](behaviorRecorder[engine])
 
     return (
-        <div dangerouslySetInnerHTML={{
-            __html: htmlFor[engine](params),
-        }}>
-        </div>
+        <div
+            dangerouslySetInnerHTML={{
+                __html: htmlFor[engine](params),
+            }}
+        ></div>
     )
 }
 
 type PlerdyParams = {
-    site_hash_code: string;
-    suid: number;
+    site_hash_code: string
+    suid: number
 }
 
 export const parseParamsFor = {
@@ -71,11 +72,9 @@ export const parseParamsFor = {
     },
 }
 
-
 export const htmlFor = {
-    plerdy: ({ site_hash_code, suid }: PlerdyParams) => (
-        `<script type="text/javascript" defer>var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");var _site_hash_code = "${site_hash_code}";var _suid = ${suid};</script><script type="text/javascript" defer src="https://a.plerdy.com/public/js/click/main.js"></script>`
-    ),
+    plerdy: ({ site_hash_code, suid }: PlerdyParams) =>
+        `<script type="text/javascript" defer>var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");var _site_hash_code = "${site_hash_code}";var _suid = ${suid};</script><script type="text/javascript" defer src="https://a.plerdy.com/public/js/click/main.js"></script>`,
 }
 
 export default BehaviorRecorder

@@ -6,20 +6,29 @@ const { get } = require('lodash')
 const { checkBillingIntegrationAccessRight } = require('../utils/accessSchema')
 const { getById } = require('@core/keystone/schema')
 
-async function canReadBillingIntegrationLogs ({ authentication: { item: user } }) {
+async function canReadBillingIntegrationLogs({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return true
     return {
         context: {
             OR: [
-                { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true }, deletedAt: null, isBlocked: false } } },
+                {
+                    organization: {
+                        employees_some: {
+                            user: { id: user.id },
+                            role: { canManageIntegrations: true },
+                            deletedAt: null,
+                            isBlocked: false,
+                        },
+                    },
+                },
                 { integration: { accessRights_some: { user: { id: user.id } } } },
             ],
         },
     }
 }
 
-async function canManageBillingIntegrationLogs ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageBillingIntegrationLogs({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin) return true
     let contextId

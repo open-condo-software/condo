@@ -18,7 +18,7 @@ export interface IBillingIntegrationLogUIState extends BillingIntegrationLog {
     // TODO(codegen): write IBillingIntegrationLogUIState or extends it from
 }
 
-function convertToUIState (item: BillingIntegrationLog): IBillingIntegrationLogUIState {
+function convertToUIState(item: BillingIntegrationLog): IBillingIntegrationLogUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IBillingIntegrationLogUIState
 }
@@ -28,39 +28,32 @@ export interface IBillingIntegrationLogFormState {
     // TODO(codegen): write IBillingIntegrationLogUIFormState or extends it from
 }
 
-function convertToUIFormState (state: IBillingIntegrationLogUIState): IBillingIntegrationLogFormState | undefined {
+function convertToUIFormState(state: IBillingIntegrationLogUIState): IBillingIntegrationLogFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IBillingIntegrationLogFormState
 }
 
-function convertToGQLInput (state: IBillingIntegrationLogFormState): BillingIntegrationLogUpdateInput {
+function convertToGQLInput(state: IBillingIntegrationLogFormState): BillingIntegrationLogUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<BillingIntegrationLog, BillingIntegrationLogUpdateInput, IBillingIntegrationLogFormState, IBillingIntegrationLogUIState, QueryAllBillingIntegrationLogsArgs>(BillingIntegrationLogGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    BillingIntegrationLog,
+    BillingIntegrationLogUpdateInput,
+    IBillingIntegrationLogFormState,
+    IBillingIntegrationLogUIState,
+    QueryAllBillingIntegrationLogsArgs
+>(BillingIntegrationLogGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

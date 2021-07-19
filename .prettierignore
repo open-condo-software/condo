@@ -1,0 +1,44 @@
+node_modules
+dist
+out
+.next
+.idea
+.env
+.kmigrator
+.DS_Store
+.docker-cache-warming
+.expo
+.expo-shared
+web-build
+coverage
+__generated__
+__media
+_example.js
+codegen.yaml
+schema.graphql
+
+migrations
+.github
+*.json
+*.md
+*.yml
+*.yaml
+
+# ESLint ignorePatterns
+dist
+packages/@core.codegen/templates/**/*
+schema.d.ts
+
+# yarn + npm
+yarn-error.log
+npm-debug.*
+
+# mobile
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+.kmigratorknex.connection.json
+.kmigratorknex.schema.json

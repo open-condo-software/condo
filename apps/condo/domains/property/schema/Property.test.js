@@ -6,7 +6,12 @@ import { catchErrorFrom } from '@condo/domains/common/utils/testSchema'
 
 const { makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { Property, createTestProperty, updateTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const {
+    Property,
+    createTestProperty,
+    updateTestProperty,
+    makeClientWithProperty,
+} = require('@condo/domains/property/utils/testSchema')
 
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@condo/domains/ticket/utils/testSchema')
@@ -14,7 +19,6 @@ const { buildingMapJson } = require('@condo/domains/property/constants/property'
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 
 describe('Property', () => {
-
     test('user: can use soft delete', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const [obj] = await createTestProperty(client, client.organization)
@@ -33,7 +37,7 @@ describe('Property', () => {
         expect(count).toEqual(1)
     })
 
-    test('user: can read and restore soft deleted objects', async  () => {
+    test('user: can read and restore soft deleted objects', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const [obj] = await createTestProperty(client, client.organization)
         await updateTestProperty(client, obj.id, { deletedAt: 'true' })
@@ -43,13 +47,13 @@ describe('Property', () => {
         expect(count).toEqual(1)
     })
 
-    test('user: can read all objects', async  () => {
+    test('user: can read all objects', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const [obj] = await createTestProperty(client, client.organization)
         await createTestProperty(client, client.organization)
         await updateTestProperty(client, obj.id, { deletedAt: 'true' })
 
-        const count = await Property.count(client, { OR: [{ deletedAt_not: null }, { deletedAt: null }] } )
+        const count = await Property.count(client, { OR: [{ deletedAt_not: null }, { deletedAt: null }] })
         expect(count).toEqual(2)
     })
 
@@ -64,7 +68,7 @@ describe('Property', () => {
             expect(errors[0]).toMatchObject({
                 message: 'Already deleted',
                 name: 'GraphQLError',
-                path: [ 'obj' ],
+                path: ['obj'],
             })
         })
     })

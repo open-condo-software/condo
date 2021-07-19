@@ -7,7 +7,6 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/user/access/ForgotPasswordAction')
 
-
 const ForgotPasswordAction = new GQLListSchema('ForgotPasswordAction', {
     schemaDoc: 'Forgot password actions is used for anonymous user password recovery procedure',
     fields: {

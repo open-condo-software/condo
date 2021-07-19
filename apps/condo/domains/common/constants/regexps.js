@@ -9,7 +9,6 @@ const ESCAPE_REGEX = (text) => {
     return text.replace(/[-[\]{}()*+?.,\\/^$|#\s]/g, '\\$&')
 }
 
-
 module.exports = {
     ALPHANUMERIC_REGEXP,
     UPPER_CASE_ALPHANUMERIC_REGEXP,

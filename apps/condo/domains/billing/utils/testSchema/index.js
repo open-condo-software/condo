@@ -3,16 +3,16 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const { makeLoggedInAdminClient } = require("@core/keystone/test.utils");
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const {
     createTestOrganizationEmployee,
-    createTestOrganizationEmployeeRole
-} = require("@condo/domains/organization/utils/testSchema");
-const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
+    createTestOrganizationEmployeeRole,
+} = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const faker = require('faker')
 const { makeClient } = require('@core/keystone/test.utils')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { createTestOrganization } = require("@condo/domains/organization/utils/testSchema");
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeLoggedInClient, registerNewUser } = require('@condo/domains/user/utils/testSchema')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
@@ -39,7 +39,7 @@ const BillingAccountMeterReading = generateGQLTestUtils(BillingAccountMeterReadi
 const BillingReceipt = generateGQLTestUtils(BillingReceiptGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestBillingIntegration (client, extraAttrs = {}) {
+async function createTestBillingIntegration(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST INTEGRATION'
@@ -54,7 +54,7 @@ async function createTestBillingIntegration (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestBillingIntegration (client, id, extraAttrs = {}) {
+async function updateTestBillingIntegration(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -68,7 +68,7 @@ async function updateTestBillingIntegration (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBillingIntegrationAccessRight (client, integration, user, extraAttrs = {}) {
+async function createTestBillingIntegrationAccessRight(client, integration, user, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!integration || !integration.id) throw new Error('no integration')
     if (!user || !user.id) throw new Error('no user')
@@ -85,7 +85,7 @@ async function createTestBillingIntegrationAccessRight (client, integration, use
     return [obj, attrs]
 }
 
-async function updateTestBillingIntegrationAccessRight (client, id, extraAttrs = {}) {
+async function updateTestBillingIntegrationAccessRight(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -99,7 +99,7 @@ async function updateTestBillingIntegrationAccessRight (client, id, extraAttrs =
     return [obj, attrs]
 }
 
-async function createTestBillingIntegrationOrganizationContext (client, organization, integration, extraAttrs = {}) {
+async function createTestBillingIntegrationOrganizationContext(client, organization, integration, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!integration || !integration.id) throw new Error('no integration.id')
@@ -120,7 +120,7 @@ async function createTestBillingIntegrationOrganizationContext (client, organiza
     return [obj, attrs]
 }
 
-async function updateTestBillingIntegrationOrganizationContext (client, id, extraAttrs = {}) {
+async function updateTestBillingIntegrationOrganizationContext(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -134,7 +134,7 @@ async function updateTestBillingIntegrationOrganizationContext (client, id, extr
     return [obj, attrs]
 }
 
-async function createTestBillingIntegrationLog (client, context, extraAttrs = {}) {
+async function createTestBillingIntegrationLog(client, context, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const type = faker.lorem.words().replace(/[ ]/g, '_').toUpperCase()
@@ -145,14 +145,16 @@ async function createTestBillingIntegrationLog (client, context, extraAttrs = {}
         dv: 1,
         sender,
         context: { connect: { id: context.id } },
-        type, message, meta,
+        type,
+        message,
+        meta,
         ...extraAttrs,
     }
     const obj = await BillingIntegrationLog.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestBillingIntegrationLog (client, id, extraAttrs = {}) {
+async function updateTestBillingIntegrationLog(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -166,7 +168,7 @@ async function updateTestBillingIntegrationLog (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBillingProperty (client, context, extraAttrs = {}) {
+async function createTestBillingProperty(client, context, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -188,7 +190,7 @@ async function createTestBillingProperty (client, context, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestBillingProperty (client, id, extraAttrs = {}) {
+async function updateTestBillingProperty(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -204,7 +206,7 @@ async function updateTestBillingProperty (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBillingAccount (client, context, property, extraAttrs = {}) {
+async function createTestBillingAccount(client, context, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -228,7 +230,7 @@ async function createTestBillingAccount (client, context, property, extraAttrs =
     return [obj, attrs]
 }
 
-async function updateTestBillingAccount (client, id, extraAttrs = {}) {
+async function updateTestBillingAccount(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -244,7 +246,7 @@ async function updateTestBillingAccount (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBillingMeterResource (client, extraAttrs = {}) {
+async function createTestBillingMeterResource(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -260,7 +262,7 @@ async function createTestBillingMeterResource (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestBillingMeterResource (client, id, extraAttrs = {}) {
+async function updateTestBillingMeterResource(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -276,7 +278,7 @@ async function updateTestBillingMeterResource (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBillingAccountMeter (client, context, property, account, resource, extraAttrs = {}) {
+async function createTestBillingAccountMeter(client, context, property, account, resource, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -299,7 +301,7 @@ async function createTestBillingAccountMeter (client, context, property, account
     return [obj, attrs]
 }
 
-async function updateTestBillingAccountMeter (client, id, extraAttrs = {}) {
+async function updateTestBillingAccountMeter(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -315,7 +317,7 @@ async function updateTestBillingAccountMeter (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBillingAccountMeterReading (client, context, property, account, meter, extraAttrs = {}) {
+async function createTestBillingAccountMeterReading(client, context, property, account, meter, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -340,7 +342,7 @@ async function createTestBillingAccountMeterReading (client, context, property, 
     return [obj, attrs]
 }
 
-async function updateTestBillingAccountMeterReading (client, id, extraAttrs = {}) {
+async function updateTestBillingAccountMeterReading(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -356,7 +358,7 @@ async function updateTestBillingAccountMeterReading (client, id, extraAttrs = {}
     return [obj, attrs]
 }
 
-async function createTestBillingReceipt (client, context, property, account, extraAttrs = {}) {
+async function createTestBillingReceipt(client, context, property, account, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -370,7 +372,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
         account: { connect: { id: account.id } },
         raw: { foo: faker.lorem.words() },
         period: '2021-07-11',
-        toPay: "123",
+        toPay: '123',
         services: {
             dv: 1,
         },
@@ -383,7 +385,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
     return [obj, attrs]
 }
 
-async function updateTestBillingReceipt (client, id, extraAttrs = {}) {
+async function updateTestBillingReceipt(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -401,7 +403,7 @@ async function updateTestBillingReceipt (client, id, extraAttrs = {}) {
 
 /* AUTOGENERATE MARKER <FACTORY> */
 
-async function makeClientWithIntegrationAccess () {
+async function makeClientWithIntegrationAccess() {
     const admin = await makeLoggedInAdminClient()
     const [integration, integrationAttrs] = await createTestBillingIntegration(admin)
 
@@ -444,20 +446,38 @@ async function createOrganizationIntegrationManager() {
 }
 
 module.exports = {
-    BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration,
-    BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight,
+    BillingIntegration,
+    createTestBillingIntegration,
+    updateTestBillingIntegration,
+    BillingIntegrationAccessRight,
+    createTestBillingIntegrationAccessRight,
+    updateTestBillingIntegrationAccessRight,
     makeClientWithIntegrationAccess,
-    BillingIntegrationOrganizationContext, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext,
-    BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog,
-    BillingProperty, createTestBillingProperty, updateTestBillingProperty,
-    BillingAccount, createTestBillingAccount, updateTestBillingAccount,
-    BillingMeterResource, createTestBillingMeterResource, updateTestBillingMeterResource,
-    BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter,
-    BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading,
-    BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt,
+    BillingIntegrationOrganizationContext,
+    createTestBillingIntegrationOrganizationContext,
+    updateTestBillingIntegrationOrganizationContext,
+    BillingIntegrationLog,
+    createTestBillingIntegrationLog,
+    updateTestBillingIntegrationLog,
+    BillingProperty,
+    createTestBillingProperty,
+    updateTestBillingProperty,
+    BillingAccount,
+    createTestBillingAccount,
+    updateTestBillingAccount,
+    BillingMeterResource,
+    createTestBillingMeterResource,
+    updateTestBillingMeterResource,
+    BillingAccountMeter,
+    createTestBillingAccountMeter,
+    updateTestBillingAccountMeter,
+    BillingAccountMeterReading,
+    createTestBillingAccountMeterReading,
+    updateTestBillingAccountMeterReading,
+    BillingReceipt,
+    createTestBillingReceipt,
+    updateTestBillingReceipt,
     makeContextWithOrganizationAndIntegrationAsAdmin: createContextWithOrganizationAndIntegrationAsAdmin,
-    makeOrganizationIntegrationManager: createOrganizationIntegrationManager
+    makeOrganizationIntegrationManager: createOrganizationIntegrationManager,
     /* AUTOGENERATE MARKER <EXPORTS> */
 }
-
-

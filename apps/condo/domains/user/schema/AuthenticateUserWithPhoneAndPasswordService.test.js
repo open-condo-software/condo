@@ -5,9 +5,8 @@ const { WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR } = require('@condo/domains/user
 const { gql } = require('graphql-tag')
 
 describe('Auth by phone and password', () => {
-
     const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION_WITH_TOKEN = gql`
-        mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
+        mutation authenticateUserWithPhoneAndPassword($phone: String!, $password: String!) {
             obj: authenticateUserWithPhoneAndPassword(data: { phone: $phone, password: $password }) {
                 item {
                     id
@@ -15,8 +14,7 @@ describe('Auth by phone and password', () => {
                 token
             }
         }
-    ` 
-
+    `
 
     test('valid password', async () => {
         const admin = await makeLoggedInAdminClient()
@@ -43,8 +41,7 @@ describe('Auth by phone and password', () => {
         const [, userAttrs] = await createTestUser(admin)
         const { phone, password } = userAttrs
         const client = await makeClient()
-        const res1 = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone: phone + Math.random(), password })        
+        const res1 = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone: phone + Math.random(), password })
         expect(JSON.stringify(res1.errors)).toContain(WRONG_EMAIL_ERROR)
     })
-
 })
