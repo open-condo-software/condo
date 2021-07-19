@@ -242,7 +242,7 @@ async function createResidentTicketByTestClient(client, property, extraAttrs = {
         dv: 1,
         sender,
         details: faker.lorem.words(),
-        propertyId: property.id,
+        propertyId: property ? property.id : null,
         unitName: '2',
         ...extraAttrs,
     }

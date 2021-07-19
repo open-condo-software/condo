@@ -14,8 +14,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
     types: [
         {
             access: true,
-            type: 'input CreateResidentTicketInput { dv: Int!, sender: JSON!, details: String!,' +
-                'propertyId: String!, unitName: String }',
+            type: 'input CreateResidentTicketInput { dv: Int!, sender: JSON!, details: String!, propertyId: String, unitName: String }',
         },
         {
             access: true,
@@ -36,6 +35,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
                 const { dv: newTicketDv, sender: newTicketSender, details, propertyId, unitName } = data
+                if (!propertyId) throw Error('reserved for government organizations')
                 const property = (await Property.getAll(context, { id: propertyId }))[0]
                 const organizationId = property.organization.id
                 const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
