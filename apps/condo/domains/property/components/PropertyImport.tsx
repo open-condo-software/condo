@@ -3,82 +3,12 @@
 import { DiffOutlined } from '@ant-design/icons'
 import { Alert, Modal, Progress } from 'antd'
 import get from 'lodash/get'
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { useOrganization } from '@core/next/organization'
-import { useAuth } from '@core/next/auth'
-import { useApolloClient } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
-import { useAddressApi } from '../../common/components/AddressApi'
-import { Button } from '../../common/components/Button'
-import { DataImporter } from '../../common/components/DataImporter'
-import { searchProperty } from '../../ticket/utils/clientSchema/search'
-import { Property } from '../utils/clientSchema'
-import { PropertyImporter } from '../utils/PropertyImporter'
-
-// TODO(Dimitreee): add interface
-const useImporter = (onFinish, onError) => {
-    const [progress, setProgress] = useState(0)
-    const [error, setError] = useState(null)
-    const [isImported, setIsImported] = useState(false)
-    const userOrganization = useOrganization()
-    const client = useApolloClient()
-    const importer = useRef(null)
-    const { addressApi } = useAddressApi()
-
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
-
-    const createProperty = Property.useCreate(
-        {
-            organization: userOrganizationId,
-        },
-        () => Promise.resolve()
-    )
-
-    const validateProperty = (address) => {
-        const where = {
-            address_contains_i: address,
-            organization: { id: userOrganizationId },
-        }
-
-        return searchProperty(client, where)
-            .then((res) => {
-                return res.length === 0
-            })
-    }
-
-    const importData = useCallback((data) => {
-        importer.current = null
-        // reset hook state
-        setIsImported(false)
-        setError(null)
-        setProgress(0)
-
-        importer.current = new PropertyImporter(createProperty, validateProperty, addressApi)
-        importer.current.onProgressUpdate(setProgress)
-        importer.current.onError((e) => {
-            importer.current = null
-            setError(e)
-
-            onError()
-        })
-        importer.current.onFinish(() => {
-            importer.current = null
-            setIsImported(true)
-
-            onFinish()
-        })
-        importer.current.import(data)
-    }, [])
-
-    const breakImport = () => {
-        if (importer) {
-            importer.current.break()
-        }
-    }
-
-    return [importData, progress, error, isImported, breakImport]
-}
-
+import { Button } from '@condo/domains/common/components/Button'
+import { DataImporter } from '@condo/domains/common/components/DataImporter'
+import { useImporter } from '../hooks/useImporter'
 const ModalContext = React.createContext({ progress: 0, error: null, isImported: false })
 
 const getPropertyUploadInfoModalConfig = (intl, onButtonClick) => {
