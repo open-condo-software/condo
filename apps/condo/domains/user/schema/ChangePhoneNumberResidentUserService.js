@@ -31,6 +31,7 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
                 const userId = context.authedItem.id
                 const [action] = await ConfirmPhoneAction.getAll(context,
                     {
+                        expiresAt_gte: new Date().toISOString(),
                         token,
                         completedAt: null,
                         isPhoneVerified: true,
