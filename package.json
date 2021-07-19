@@ -90,7 +90,7 @@
       "space-before-function-paren": "off",
       "@typescript-eslint/space-before-function-paren": [
         "error",
-        "always"
+        "never"
       ],
       "comma-dangle": "off",
       "@typescript-eslint/comma-dangle": [
