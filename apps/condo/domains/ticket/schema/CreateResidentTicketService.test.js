@@ -15,6 +15,15 @@ describe('CreateResidentTicketService', () => {
         expect(data.id).toMatch(UUID_RE)
     })
 
+    test('user: cannot create resident ticket without property', async () => {
+        const client = await makeClientWithProperty()
+        try {
+            await createResidentTicketByTestClient(client)
+        } catch (error) {
+            expect(error.errors[0].message).toEqual('reserved for government organizations')
+        }
+    })
+
     test('anonymous: create resident ticket', async () => {
         const anon = await makeClient()
         const admin = await makeLoggedInAdminClient()
