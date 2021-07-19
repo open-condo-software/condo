@@ -154,10 +154,9 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = (
         return <Skeleton loading={loading} active paragraph={{ rows: 10 }} />
     }
     const { tableColumns: fetchedTableColumns, tableData } = data
-    const tableColumns = [
-        { title: AddressTitle, dataIndex: 'address', key: 'address', sorter: (a, b) => a.title - b.title },
-        ...Object.entries(fetchedTableColumns).map(([key, value]) => (
-            // @ts-ignore
+    const tableColumns: TableColumnsType = [
+        { title: AddressTitle, dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
+        ...Object.entries(fetchedTableColumns).map(([key, value]: [string, number]) => (
             { title: value, dataIndex: value, key, sorter: (a, b) => a[value] - b[value] }
         )),
     ]
@@ -166,9 +165,8 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = (
             title: DateTitle,
             dataIndex: 'date',
             key: 'date',
-            // @ts-ignore
             defaultSortOrder: 'descend',
-            sorter: (a, b) => moment(a.date, DATE_DISPLAY_FORMAT).unix() - moment(b.date, DATE_DISPLAY_FORMAT).unix(),
+            sorter: (a, b) => moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
         })
     }
 
