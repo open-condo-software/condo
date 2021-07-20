@@ -10,7 +10,7 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const ORGANIZATION_FIELDS = `{ country name description avatar { publicUrl } meta statusTransitions defaultEmployeeRoleStatusTransitions ${COMMON_FIELDS} }`
+const ORGANIZATION_FIELDS = `{ country name description avatar { publicUrl } relatedOrganizations { id } meta statusTransitions defaultEmployeeRoleStatusTransitions ${COMMON_FIELDS} }`
 const Organization = generateGqlQueries('Organization', ORGANIZATION_FIELDS)
 
 const ORGANIZATION_EMPLOYEE_ROLE_FIELDS = '{ organization { id } name statusTransitions canManageOrganization canManageEmployees canManageRoles canManageIntegrations canManageProperties canManageTickets canManageContacts canManageTicketComments id dv sender v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
@@ -70,12 +70,20 @@ const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION = gql`
         obj: acceptOrRejectOrganizationInviteByCode(inviteCode: $inviteCode, data: $data) ${ORGANIZATION_EMPLOYEE_FIELDS}
     }
 `
+const ORGANIZATION_LINK_FIELDS = `{ from { id } to { id } ${COMMON_FIELDS} }`
+const OrganizationLink = generateGqlQueries('OrganizationLink', ORGANIZATION_LINK_FIELDS)
+
+const ORGANIZATION_LINK_EMPLOYEE_ACCESS_FIELDS = `{ link { id } employee { id } canManageEmployees canManageRoles canManageIntegrations canManageProperties canManageTickets ${COMMON_FIELDS} }`
+const OrganizationLinkEmployeeAccess = generateGqlQueries('OrganizationLinkEmployeeAccess', ORGANIZATION_LINK_EMPLOYEE_ACCESS_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Organization,
     OrganizationEmployeeRole,
     OrganizationEmployee,
+    OrganizationLink,
+    OrganizationLinkEmployeeAccess,
     GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
     UPDATE_ORGANIZATION_BY_ID_MUTATION,
     GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY,

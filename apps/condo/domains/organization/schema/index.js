@@ -9,6 +9,8 @@ const { OrganizationEmployeeRole } = require('./OrganizationEmployeeRole')
 const { RegisterNewOrganizationService } = require('./RegisterNewOrganizationService')
 const { InviteNewOrganizationEmployeeService } = require('./InviteNewOrganizationEmployeeService')
 const { AcceptOrRejectOrganizationInviteService } = require('./AcceptOrRejectOrganizationInviteService')
+const { OrganizationLink } = require('./OrganizationLink')
+const { OrganizationLinkEmployeeAccess } = require('./OrganizationLinkEmployeeAccess')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -18,5 +20,7 @@ module.exports = {
     RegisterNewOrganizationService,
     InviteNewOrganizationEmployeeService,
     AcceptOrRejectOrganizationInviteService,
+    OrganizationLink,
+    OrganizationLinkEmployeeAccess,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

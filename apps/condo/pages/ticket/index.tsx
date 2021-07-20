@@ -28,6 +28,7 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
 import { SortTicketsBy } from '../../schema'
+import { Organization } from '../../domains/organization/utils/clientSchema'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element

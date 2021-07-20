@@ -11,11 +11,15 @@ const { getRandomString } = require('@core/keystone/test.utils')
 
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { Organization: OrganizationGQL, OrganizationEmployee: OrganizationEmployeeGQL, OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@condo/domains/organization/gql')
+const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql')
+const { OrganizationLinkEmployeeAccess: OrganizationLinkEmployeeAccessGQL } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
 const Organization = generateGQLTestUtils(OrganizationGQL)
 const OrganizationEmployee = generateGQLTestUtils(OrganizationEmployeeGQL)
+const OrganizationLink = generateGQLTestUtils(OrganizationLinkGQL)
+const OrganizationLinkEmployeeAccess = generateGQLTestUtils(OrganizationLinkEmployeeAccessGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestOrganization (client, extraAttrs = {}) {
@@ -167,6 +171,74 @@ async function updateTestOrganizationEmployeeRole (client, id, extraAttrs = {}) 
     return [obj, attrs]
 }
 
+async function createTestOrganizationLink (client, from, to, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!from || !from.id) throw new Error('no from.id')
+    if (!to || !to.id) throw new Error('no to.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        from: { connect: { id: from.id } },
+        to: { connect: { id: to.id } },
+        ...extraAttrs,
+    }
+    const obj = await OrganizationLink.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestOrganizationLink (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestOrganizationLink logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await OrganizationLink.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestOrganizationLinkEmployeeAccess (client, link, employee, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!link || !link.id) throw new Error('no link.id')
+    if (!employee || !employee.id) throw new Error('no employee.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestOrganizationLinkEmployeeAccess logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        link: { connect: { id: link.id } },
+        employee: { connect: { id: employee.id } },
+        ...extraAttrs,
+    }
+    const obj = await OrganizationLinkEmployeeAccess.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestOrganizationLinkEmployeeAccess (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestOrganizationLinkEmployeeAccess logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await OrganizationLinkEmployeeAccess.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -181,5 +253,9 @@ module.exports = {
     softDeleteTestOrganizationEmployee,
     makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
     updateTestOrganizationEmployee,
+    OrganizationLink, createTestOrganizationLink, updateTestOrganizationLink,
+    OrganizationLinkEmployeeAccess, createTestOrganizationLinkEmployeeAccess, updateTestOrganizationLinkEmployeeAccess,
+
 }
-/* AUTOGENERATE MARKER <EXPORTS> */
+
+    /* AUTOGENERATE MARKER <EXPORTS> */
