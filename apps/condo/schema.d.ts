@@ -9631,7 +9631,7 @@ export type OrganizationHistoryRecordsUpdateInput = {
   data?: Maybe<OrganizationHistoryRecordUpdateInput>;
 };
 
-/**  Link between an organization and organizations in which it can view internal information (tickets)  */
+/**  A relationship between organizations that allows employees of one organization to interact as employees of another.  */
 export type OrganizationLink = {
   __typename?: 'OrganizationLink';
   /**
@@ -9646,11 +9646,10 @@ export type OrganizationLink = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
-  /**  Organization that can view internal information of organizations from the field "to"  */
+  /**  Organization that gives access  */
   from?: Maybe<Organization>;
-  /**  Organizations whose internal information can be viewed by an organization from the field "from"  */
-  to: Array<Organization>;
-  _toMeta?: Maybe<_QueryMeta>;
+  /**  Organization that gets access  */
+  to?: Maybe<Organization>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -9661,33 +9660,11 @@ export type OrganizationLink = {
   newId?: Maybe<Scalars['String']>;
 };
 
-
-/**  Link between an organization and organizations in which it can view internal information (tickets)  */
-export type OrganizationLinkToArgs = {
-  where?: Maybe<OrganizationWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortOrganizationsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  Link between an organization and organizations in which it can view internal information (tickets)  */
-export type OrganizationLink_ToMetaArgs = {
-  where?: Maybe<OrganizationWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortOrganizationsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
 export type OrganizationLinkCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   from?: Maybe<OrganizationRelateToOneInput>;
-  to?: Maybe<OrganizationRelateToManyInput>;
+  to?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9711,6 +9688,7 @@ export type OrganizationLinkHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   from?: Maybe<Scalars['String']>;
+  to?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -9728,6 +9706,7 @@ export type OrganizationLinkHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   from?: Maybe<Scalars['String']>;
+  to?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9750,6 +9729,7 @@ export type OrganizationLinkHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   from?: Maybe<Scalars['String']>;
+  to?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9781,6 +9761,10 @@ export type OrganizationLinkHistoryRecordWhereInput = {
   from_not?: Maybe<Scalars['String']>;
   from_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   from_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  to?: Maybe<Scalars['String']>;
+  to_not?: Maybe<Scalars['String']>;
+  to_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  to_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -9871,7 +9855,7 @@ export type OrganizationLinkUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   from?: Maybe<OrganizationRelateToOneInput>;
-  to?: Maybe<OrganizationRelateToManyInput>;
+  to?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9898,12 +9882,8 @@ export type OrganizationLinkWhereInput = {
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   from?: Maybe<OrganizationWhereInput>;
   from_is_null?: Maybe<Scalars['Boolean']>;
-  /**  condition must be true for all nodes  */
-  to_every?: Maybe<OrganizationWhereInput>;
-  /**  condition must be true for at least 1 node  */
-  to_some?: Maybe<OrganizationWhereInput>;
-  /**  condition must be false for all nodes  */
-  to_none?: Maybe<OrganizationWhereInput>;
+  to?: Maybe<OrganizationWhereInput>;
+  to_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -9961,13 +9941,6 @@ export type OrganizationLinksCreateInput = {
 export type OrganizationLinksUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<OrganizationLinkUpdateInput>;
-};
-
-export type OrganizationRelateToManyInput = {
-  create?: Maybe<Array<Maybe<OrganizationCreateInput>>>;
-  connect?: Maybe<Array<Maybe<OrganizationWhereUniqueInput>>>;
-  disconnect?: Maybe<Array<Maybe<OrganizationWhereUniqueInput>>>;
-  disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
 export type OrganizationRelateToOneInput = {

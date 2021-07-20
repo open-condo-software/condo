@@ -34,9 +34,7 @@ describe('OrganizationLink', () => {
             to: { connect: { id: organizationTo2.id } },
         })
 
-        expect(updatedLink.to).toHaveLength(2)
-        expect(updatedLink.to[0].id).toEqual(organizationTo1.id)
-        expect(updatedLink.to[1].id).toEqual(organizationTo2.id)
+        expect(updatedLink.to.id).toEqual(organizationTo2.id)
     })
 
     test('user: create OrganizationLink', async () => {
@@ -75,10 +73,8 @@ describe('OrganizationLink', () => {
         await createTestTicket(admin, organizationTo1, propertyTo1)
         await createTestTicket(admin, organizationTo2, propertyTo2)
 
-        const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo1)
-        await updateTestOrganizationLink(admin, link.id, {
-            to: { connect: { id: organizationTo2.id } },
-        })
+        await createTestOrganizationLink(admin, organizationFrom, organizationTo1)
+        await createTestOrganizationLink(admin, organizationFrom, organizationTo2)
 
         const tickets = await Ticket.getAll(clientFrom, { organization: { OR: [{ id: organizationTo1.id }, { id: organizationTo2.id }] } })
         expect(tickets).toHaveLength(2)

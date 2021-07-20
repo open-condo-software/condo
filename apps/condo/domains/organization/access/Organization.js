@@ -9,8 +9,8 @@ async function canReadOrganizations ({ authentication: { item: user } }) {
     if (user.isAdmin) return {}
     return {
         OR: [
-            { employees_some: { user: { id: user.id } } },
-            { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id }, isBlocked: false } } } },
+            { employees_some: { user: { id: user.id }, isBlocked: false, deletedAt: null } },
+            { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id }, isBlocked: false, deletedAt: null } } } },
         ],
     }
 }

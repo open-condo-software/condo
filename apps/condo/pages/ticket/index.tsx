@@ -62,14 +62,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC' //TODO(Dimitreee):Find cleanest solution
-    const where = { ...filtersToQuery(filtersFromQuery),
-        organization: {
-            OR: [
-                { id: userOrganizationId },
-                { relatedOrganizations_some: { from: { id: userOrganizationId } } },
-            ],
-        },
-    }
+    const where = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
 
     const {
         fetchMore,
