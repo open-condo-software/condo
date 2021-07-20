@@ -112,9 +112,13 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
             symbol: 'none',
             stack: isLineChart ? ticketType : 'total',
             data: Object.values(dataObj),
+            zlevel: 1,
             emphasis: {
                 focus: isLineChart ? 'none' : 'series',
                 blurScore: isLineChart ? 'none' : 'series',
+                itemStyle: {
+                    color: '#000',
+                },
             },
         })
     })
@@ -156,6 +160,7 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
             bottom: '3%',
             containLabel: true,
             borderWidth: 1,
+            zlevel:0,
         },
         ...axisData,
         series,
