@@ -77,7 +77,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                         </PageContent>
                         <Footer>
                             <Row>
-                                <Col span={7} push={14}>
+                                <Col push={13} lg={8} md={24}>
                                     <FormattedMessage
                                         id='pages.auth.FooterText'
                                         values={{
