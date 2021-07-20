@@ -8,6 +8,11 @@ const { Resident } = require('../utils/serverSchema')
 async function canReadResidents ({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
+    if (user.type === 'resident') {
+        return {
+            user: { id: user.id },
+        }
+    }
     return {
         organization: { employees_some: { user: { id: user.id }, isBlocked: false } },
     }
