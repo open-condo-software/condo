@@ -1,5 +1,15 @@
-import { InputProps } from 'antd'
-import React, { useRef, useImperativeHandle, useEffect, ComponentProps } from 'react'
+import { ConfigProvider, InputProps } from 'antd'
+import { SizeType } from 'antd/es/config-provider/SizeContext'
+import React, {
+    useRef,
+    useImperativeHandle,
+    useEffect,
+    ComponentProps,
+    useContext,
+    useCallback,
+    useMemo,
+    forwardRef,
+} from 'react'
 import ReactPhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import { useOrganization } from '@core/next/organization'
@@ -17,11 +27,25 @@ type PhoneInputRef = {
     numberInputRef: {
         focus: () => void,
     } & ComponentProps<'input'>,
-} 
+}
 
-export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, ref) => {
+const getPhoneInputStyles = (style, size: SizeType) => {
+    let height = '32px'
+
+    if (size === 'large') {
+        height = '40px'
+    } else if (size === 'small') {
+        height = '22px'
+    }
+
+    return { ...style, height }
+}
+
+export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) => {
     const { value, placeholder, style, disabled, ...otherProps } = props
+    const configSize = useContext<SizeType>(ConfigProvider.SizeContext)
     const { organization } = useOrganization()
+    const userOrganizationCountry = get(organization, 'country', 'ru')
     const inputRef = useRef<PhoneInputRef>()
 
     // `AutoComplete` component needs `focus` method of it's direct child component (custom input)
@@ -30,13 +54,13 @@ export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, r
             inputRef.current.numberInputRef.focus()
         },
     }))
+
     useEffect(() => {
         inputRef.current.numberInputRef.tabIndex = props.tabIndex
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-    const userOrganizationCountry = get(organization, 'country', 'ru')
 
-    const onChange = (value) => {
+    const onChange = useCallback((value) => {
         const formattedValue = value ? '+' + value : value
         if (props.compatibilityWithAntAutoComplete) {
             /*
@@ -57,7 +81,11 @@ export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, r
         } else {
             props.onChange(formattedValue)
         }
-    }
+    }, [props.onChange])
+
+    const inputStyles = useMemo(() => {
+        return getPhoneInputStyles(style, configSize)
+    }, [style, configSize])
 
     return (
         <ReactPhoneInput
@@ -69,7 +97,7 @@ export const PhoneInput: React.FC<IPhoneInputProps> = React.forwardRef((props, r
             country={userOrganizationCountry}
             onChange={onChange}
             disabled={disabled}
-            inputStyle={style}
+            inputStyle={inputStyles}
             placeholder={placeholder}
         />
     )
