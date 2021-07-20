@@ -80,7 +80,8 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
             mutation: registerMutation,
             variables: { data },
             onCompleted: () => {
-                signInByPhone(form.getFieldsValue(['phone', 'password'])).then(() => { Router.push('/') }, console.error)
+                signInByPhone(form.getFieldsValue(['phone', 'password']))
+                    .then(() => { Router.push('/billing/trial') }, console.error)
             },
             onFinally: () => {
                 setIsLoading(false)
@@ -121,7 +122,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                         label={PhoneMsg}
                                         rules={validators.phone}
                                     >
-                                        <PhoneInput disabled={true} placeholder={ExamplePhoneMsg}/>
+                                        <PhoneInput disabled={true} placeholder={ExamplePhoneMsg} style={{ width: '100%' }}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
