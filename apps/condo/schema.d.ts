@@ -9767,7 +9767,7 @@ export type OrganizationLinkCreateInput = {
   newId?: Maybe<Scalars['String']>;
 };
 
-/**  TODO DOC!  */
+/**  Organization employee "from" access rights for managing organization "to"  */
 export type OrganizationLinkEmployeeAccess = {
   __typename?: 'OrganizationLinkEmployeeAccess';
   /**
@@ -9782,9 +9782,9 @@ export type OrganizationLinkEmployeeAccess = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
-  /**  TODO DOC!  */
+  /**  Relationship between organizations  */
   link?: Maybe<OrganizationLink>;
-  /**  TODO DOC!  */
+  /**  Employee from "from" relationship organization  */
   employee?: Maybe<OrganizationEmployee>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
