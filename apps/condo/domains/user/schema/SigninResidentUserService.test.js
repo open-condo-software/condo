@@ -1,13 +1,13 @@
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
 const { SIGNIN_OR_REGISTER_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
-const { createTestUser, createTestConfirmPhoneAction, User: UserTestUtils, ConfirmPhoneAction: ConfirmPhoneActionTestUtils } = require('@condo/domains/user/utils/testSchema')
+const { createTestUser, createTestConfirmPhoneAction, ConfirmPhoneAction: ConfirmPhoneActionTestUtils } = require('@condo/domains/user/utils/testSchema')
 const {
     CONFIRM_PHONE_ACTION_EXPIRED,
 } = require('@condo/domains/user/constants/errors')
 
 
-describe('SigninOrRegisterResidentUserService', () => {
+describe('SigninResidentUserService', () => {
     describe('Anonymous', () => {
         it('can register with confirmed phone token', async () => {
             const admin = await makeLoggedInAdminClient()
