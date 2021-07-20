@@ -269,7 +269,7 @@ describe('Resident', () => {
         })
     })
 
-    describe('Read', async () => {
+    describe('Read', () => {
         it('can be read by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
@@ -283,6 +283,17 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.organization, userClient.property)
+            const objs = await Resident.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
+            expect(objs).toHaveLength(1)
+            expect(objs[0].id).toMatch(obj.id)
+        })
+
+        it('user with type "resident" can read only own residents', async () => {
+            const userClient = await makeClientWithProperty()
+            const anotherUserClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const [obj] = await createTestResident(adminClient, userClient.organization, userClient.property)
+            await createTestResident(adminClient, anotherUserClient.organization, userClient.property)
             const objs = await Resident.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs).toHaveLength(1)
             expect(objs[0].id).toMatch(obj.id)
