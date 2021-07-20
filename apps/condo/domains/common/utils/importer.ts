@@ -4,7 +4,7 @@ import cloneDeep from 'lodash/cloneDeep'
 export type TableRow = Array<Record<'value', string | number>>
 export type ProcessedRow = {
     row: TableRow
-    addons: { [name: string]: JSON }
+    addons?: { [id: string]: any }
 }
 
 export type ProgressUpdateHandler = (progress: number) => void
@@ -32,16 +32,14 @@ const SLEEP_INTERVAL_BEFORE_QUERIES = 300
 
 export class Importer implements IImporter {
     constructor (
-        columnsTemplate: Array<ColumnInfo>,
-        rowNormalizer: RowNormalizer,
-        rowValidator: RowValidator,
-        objectCreator: ObjectCreator,
+        columnsTemplate: Columns,
+        private rowNormalizer: RowNormalizer,
+        private rowValidator: RowValidator,
+        private objectCreator: ObjectCreator,
+        private sleepInterval: number = SLEEP_INTERVAL_BEFORE_QUERIES
     ) {
         this.columnsNames = columnsTemplate.map(column => column.name.trim().toLowerCase())
         this.columnsTypes = columnsTemplate.map(column => column.type)
-        this.rowNormalizer = rowNormalizer
-        this.rowValidator = rowValidator
-        this.objectCreator = objectCreator
     }
     // Initial values of importer
     private progress = {
@@ -56,9 +54,6 @@ export class Importer implements IImporter {
     private errorHandler: ErrorHandler
     private readonly columnsNames: Array<string>
     private readonly columnsTypes: Array<'string' | 'number'>
-    private readonly rowNormalizer: RowNormalizer
-    private readonly rowValidator: RowValidator
-    private readonly objectCreator: ObjectCreator
 
     // Handle importing table
     public import (data: Array<TableRow>): Promise<void> {
@@ -125,7 +120,9 @@ export class Importer implements IImporter {
             const newProgress = this.progress.current + step
             this.progress.current = Math.min(newProgress, 100)
         }
-        this.progressUpdateHandler(this.progress.current)
+        if (this.progressUpdateHandler) {
+            this.progressUpdateHandler(this.progress.current)
+        }
     }
 
     // Converting table row to db row
@@ -146,7 +143,6 @@ export class Importer implements IImporter {
             // TODO (savelevmatthew) Inform users later
             return this.createRecord(table, index++)
         }
-
         return this.rowNormalizer(row)
             .then(normalizedRow => {
                 return this.rowValidator(normalizedRow)
@@ -161,7 +157,7 @@ export class Importer implements IImporter {
                 this.updateProgress()
             })
             .then(() => {
-                return sleep(SLEEP_INTERVAL_BEFORE_QUERIES)
+                return sleep(this.sleepInterval)
             })
             .then(() => {
                 return this.createRecord(table, index++)
