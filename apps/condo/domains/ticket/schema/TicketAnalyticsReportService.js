@@ -3,31 +3,72 @@
  */
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
-const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
-
+// const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
+const { Ticket: TicketServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
+const CHUNK_SIZE = 20
+const moment = require('moment')
+const { get, uniq } = require('lodash')
 
 const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportService', {
     types: [
         {
             access: true,
-            type: 'input TicketAnalyticsReportInput { dv: Int!, sender: JSON!, where: TicketWhereInput!  }',
+            type: 'input TicketAnalyticsReportInput { where: TicketWhereInput!, groupBy: [String]! }',
         },
         {
             access: true,
-            type: 'type TicketAnalyticsReportOutput { id: String! }',
+            type: 'type TicketAnalyticsReportOutput { result: JSON! }',
         },
     ],
 
     mutations: [
         {
-            access: access.canTicketAnalyticsReport,
-            schema: 'ticketAnalyticsReport(data: TicketAnalyticsReportInput!): TicketAnalyticsReportOutput',
+            access: true, // access.canTicketAnalyticsReport,
+            schema: 'ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                // TODO(codegen): write TicketAnalyticsReportService logic!
-                const { data } = args
-                return {
-                    id: null,
+                const { data: { where = {}, groupBy = [] } } = args
+                let skip = 0
+                let maxCount = 1000
+                let newchunk = []
+                let allTickets = []
+                do {
+                    newchunk = await TicketServerUtils.getAll(context, where, { first: CHUNK_SIZE, skip: skip })
+                    allTickets = allTickets.concat(newchunk)
+                    skip += newchunk.length
+                } while (--maxCount > 0 && newchunk.length)
+                allTickets = allTickets.map( ticket => {
+                    ticket.interval = {
+                        day: moment(ticket.createdAt).format('DD.MM.YYYY'),
+                        week: moment(ticket.createdAt).endOf('week').format('DD.MM.YYYY'),
+                        month: moment(ticket.createdAt).format('MM.YYYY'),
+                    }
+                    return ticket
+                })
+                const groupByFields = {
+                    status: 'status.type',
+                    property: 'property.id',
+                    day: 'interval.day',
+                    week: 'interval.week',
+                    month: 'interval.month',
                 }
+                // TODO(zuch): rewrite if there will be more then 2 groups
+                const [firstGroupBy, secondGroupBy] = groupBy
+                const uniqFirstValues =  uniq(allTickets.map(ticket => get(ticket, groupByFields[firstGroupBy])))
+                const uniqSecondValues =  uniq(allTickets.map(ticket => get(ticket, groupByFields[secondGroupBy])))
+                const grouppedCounters = {}
+                uniqFirstValues.forEach(firstGroup => {
+                    if (!grouppedCounters[firstGroup]){
+                        grouppedCounters[firstGroup] = {}
+                    }
+                    uniqSecondValues.forEach(secondGroup => {
+                        grouppedCounters[firstGroup][secondGroup] = allTickets.filter(
+                            ticket =>
+                                get(ticket, groupByFields[firstGroupBy]) === firstGroup &&
+                                get(ticket, groupByFields[secondGroupBy]) === secondGroup
+                        ).length
+                    })
+                })
+                return { result: grouppedCounters }
             },
         },
     ],

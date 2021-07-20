@@ -4,9 +4,78 @@
 
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { TICKET_ANALYTICS_REPORT_MUTATION } = require(('@condo/domains/ticket/gql'))
+const moment = require('moment')
 
+test.skip('Groupped counts [day, status]', async () => {
+    const client = await makeClient()
+    const dateStart = moment().startOf('week')
+    const dateEnd = moment().endOf('week')
+    const { data: { result } } = await client.mutate(TICKET_ANALYTICS_REPORT_MUTATION, {
+        dv: 1,
+        sender: { dv: 1, fingerprint: 'tests' },
+        data: {
+            where: {
+                AND: [
+                    { organization: { id: 'a3a82e2f-8db8-4e50-bfdb-fe2deed42db2' } },
+                    { createdAt_gte: dateStart.toISOString() },
+                    { createdAt_lte: dateEnd.toISOString() },
+                ],
+            },
+            groupBy: [ 'day', 'status' ],
+        },
+    })
+    console.log(result)
+})
+test.skip('Groupped counts [status, day]', async () => {
+    const client = await makeClient()
+    const dateStart = moment().startOf('week')
+    const dateEnd = moment().endOf('week')
+    const { data: { result } } = await client.mutate(TICKET_ANALYTICS_REPORT_MUTATION, {
+        dv: 1,
+        sender: { dv: 1, fingerprint: 'tests' },
+        data: {
+            where: {
+                AND: [
+                    { organization: { id: 'a3a82e2f-8db8-4e50-bfdb-fe2deed42db2' } },
+                    { createdAt_gte: dateStart.toISOString() },
+                    { createdAt_lte: dateEnd.toISOString() },
+                    { isEmergency: true },
+                ],
+            },
+            groupBy: [ 'status', 'day' ],
+        },
+    })
+    console.log(result)
+})
+test('Groupped counts [property, status]', async () => {
+    const client = await makeClient()
+    const dateStart = moment().startOf('week')
+    const dateEnd = moment().endOf('week')
+    const { data: { result } } = await client.mutate(TICKET_ANALYTICS_REPORT_MUTATION, {
+        dv: 1,
+        sender: { dv: 1, fingerprint: 'tests' },
+        data: {
+            where: {
+                AND: [
+                    { organization: { id: 'a3a82e2f-8db8-4e50-bfdb-fe2deed42db2' } },
+                    { createdAt_gte: dateStart.toISOString() },
+                    { createdAt_lte: dateEnd.toISOString() },
+                    { isEmergency: false },
+                    { isPaid: false },
+                ],
+            },
+            groupBy: [ 'property', 'status' ],
+        },
+    })
+    console.log(result)
+})
+
+
+
+/*
 const { ticketAnalyticsReportByTestClient } = require('@condo/domains/ticket/utils/testSchema')
- 
+
 describe('TicketAnalyticsReportService', () => {
     test('user: execute', async () => {
         const client = await makeClient()  // TODO(codegen): use truly useful client!
@@ -15,14 +84,14 @@ describe('TicketAnalyticsReportService', () => {
         // TODO(codegen): write user expect logic
         throw new Error('Not implemented yet')
     })
- 
+
     test('anonymous: execute', async () => {
         const client = await makeClient()
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await ticketAnalyticsReportByTestClient(client)
         })
     })
- 
+
     test('admin: execute', async () => {
         const admin = await makeLoggedInAdminClient()
         const payload = {}  // TODO(codegen): change the 'user: update TicketAnalyticsReportService' payload
@@ -31,3 +100,4 @@ describe('TicketAnalyticsReportService', () => {
         throw new Error('Not implemented yet')
     })
 })
+*/
