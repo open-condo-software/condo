@@ -203,16 +203,15 @@ describe('Ticket:permissions', () => {
 
     test('organization "from" employee: can create organization "to" tickets', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [organizationFrom] = await createTestOrganization(admin)
-        const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom)
-        const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [employeeFrom] = await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, role)
+        const clientFrom = await makeClientWithProperty()
+        const [role] = await createTestOrganizationEmployeeRole(admin, clientFrom.organization)
+        const [employeeFrom] = await createTestOrganizationEmployee(admin, clientFrom.organization, clientFrom.user, role)
 
         const [organizationTo] = await createTestOrganization(admin)
         const [propertyTo] = await createTestProperty(admin, organizationTo)
         await createTestTicket(admin, organizationTo, propertyTo)
 
-        const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo)
+        const [link] = await createTestOrganizationLink(admin, clientFrom.organization, organizationTo)
         await createTestOrganizationLinkEmployeeAccess(admin, link, employeeFrom, {
             canManageTickets: true,
         })
@@ -224,25 +223,19 @@ describe('Ticket:permissions', () => {
 
     test('organization "to" employee: cannot create organization "from" tickets', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [organizationFrom] = await createTestOrganization(admin)
-        const [propertyFrom] = await createTestProperty(admin, organizationFrom)
-        const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom)
-        const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [employeeFrom] = await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, role)
+        const clientFrom = await makeClientWithProperty()
+        const [role] = await createTestOrganizationEmployeeRole(admin, clientFrom.organization)
+        const [employeeFrom] = await createTestOrganizationEmployee(admin, clientFrom.organization, clientFrom.user, role)
 
-        const [organizationTo] = await createTestOrganization(admin)
-        const [propertyTo] = await createTestProperty(admin, organizationTo)
-        const clientTo = await makeClientWithNewRegisteredAndLoggedInUser()
-        await createTestOrganizationEmployee(admin, organizationTo, clientTo.user, role)
+        const clientTo = await makeClientWithProperty()
+        await createTestOrganizationEmployee(admin, clientTo.organization, clientTo.user, role)
 
-        await createTestTicket(admin, organizationFrom, propertyFrom)
-
-        const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo)
+        const [link] = await createTestOrganizationLink(admin, clientFrom.organization, clientTo.organization)
         await createTestOrganizationLinkEmployeeAccess(admin, link, employeeFrom, {
             canManageTickets: true,
         })
 
-        const [ticket] = await createTestTicket(clientFrom, organizationTo, propertyTo)
+        const [ticket] = await createTestTicket(clientFrom, clientTo.organization, clientTo.property)
 
         expect(ticket.id).toMatch(UUID_RE)
     })

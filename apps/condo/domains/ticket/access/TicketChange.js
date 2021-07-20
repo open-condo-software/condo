@@ -8,7 +8,14 @@ async function canReadTicketChanges ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
     return {
-        ticket: { organization: { employees_some: { user: { id: user.id }, isBlocked: false } } },
+        ticket: {
+            organization: {
+                OR: [
+                    { employees_some: { user: { id: user.id }, isBlocked: false, deletedAt: null } },
+                    { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id }, isBlocked: false, deletedAt: null } } } },
+                ],
+            },
+        },
     }
 }
 
