@@ -1,3 +1,5 @@
+import { OrganizationLink } from './serverSchema'
+
 const { getByCondition } = require('@core/keystone/schema')
 
 async function checkOrganizationPermission (userId, organizationId, permission) {
@@ -28,6 +30,24 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
     return employeeRole[permission] || false
 }
 
+async function checkRelatedOrganizationPermission (userId, organizationId, permission) {
+    if (!userId || !organizationId) return false
+
+    const organizationLink = await getByCondition('OrganizationLink', {
+        from: { employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } },
+        to: { id: organizationId },
+    })
+
+    const organizationLinkEmployeeAccess = await getByCondition('OrganizationLinkEmployeeAccess', {
+        link: { id: organizationLink.id },
+        employee: { user: { id: userId } },
+    })
+
+    if (!organizationLinkEmployeeAccess) return false
+    return organizationLinkEmployeeAccess[permission] || false
+}
+
+
 async function checkUserBelongsToOrganization (userId, organizationId) {
     if (!userId || !organizationId) return false
     const employee = await getByCondition('OrganizationEmployee', {
@@ -52,4 +72,5 @@ async function checkUserBelongsToOrganization (userId, organizationId) {
 module.exports = {
     checkOrganizationPermission,
     checkUserBelongsToOrganization,
+    checkRelatedOrganizationPermission,
 }
