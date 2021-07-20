@@ -20,6 +20,12 @@ const TicketSource = generateGqlQueries('TicketSource', TICKET_SOURCE_FIELDS)
 const TICKET_CLASSIFIER_FIELDS = `{ organization { id } parent { id name parent { id name } } fullName name ${COMMON_FIELDS} }`
 const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIER_FIELDS)
 
+const SHARE_TICKET_MUTATION = gql`
+    mutation shareTicket($data: ShareTicketInput!) {
+        obj: shareTicket(data: $data) { status }
+    }
+`
+
 /*
     We cannot use generated fields from TicketChange here, because we will have circular dependency,
     by requiring something from ./schema modules, that will cause all required items to be undefined.
@@ -138,5 +144,6 @@ module.exports = {
     EXPORT_TICKETS_TO_EXCEL,
     GET_TICKET_WIDGET_REPORT_DATA,
     TicketComment,
+    SHARE_TICKET_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -6453,6 +6453,7 @@ export type Mutation = {
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
+  shareTicket?: Maybe<ShareTicketOutput>;
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
@@ -8071,6 +8072,11 @@ export type MutationAcceptOrRejectOrganizationInviteByIdArgs = {
 export type MutationAcceptOrRejectOrganizationInviteByCodeArgs = {
   inviteCode: Scalars['String'];
   data: AcceptOrRejectOrganizationInviteInput;
+};
+
+
+export type MutationShareTicketArgs = {
+  data: ShareTicketInput;
 };
 
 
@@ -11747,8 +11753,20 @@ export enum SendMessageType {
   DirtyInviteNewEmployee = 'DIRTY_INVITE_NEW_EMPLOYEE',
   RegisterNewUser = 'REGISTER_NEW_USER',
   ResetPassword = 'RESET_PASSWORD',
-  SmsVerify = 'SMS_VERIFY'
+  SmsVerify = 'SMS_VERIFY',
+  ShareTicket = 'SHARE_TICKET'
 }
+
+export type ShareTicketInput = {
+  sender: Scalars['JSON'];
+  users: Array<Scalars['ID']>;
+  ticketId: Scalars['ID'];
+};
+
+export type ShareTicketOutput = {
+  __typename?: 'ShareTicketOutput';
+  status: Scalars['String'];
+};
 
 export enum SortBillingAccountHistoryRecordsBy {
   DvAsc = 'dv_ASC',
