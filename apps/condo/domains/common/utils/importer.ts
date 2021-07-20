@@ -11,8 +11,9 @@ export type ProgressUpdateHandler = (progress: number) => void
 export type FinishHandler = () => void
 export type ErrorHandler = (error: Error) => void
 export type RowNormalizer = (row: TableRow) => Promise<ProcessedRow | null>
-export type RowValidator = (row: ProcessedRow) => Promise<boolean>
-export type ObjectCreator = (row: ProcessedRow) => Promise<void>
+export type RowValidator = (row: ProcessedRow | null) => Promise<boolean>
+export type ObjectCreator = (row: ProcessedRow | null) => Promise<unknown>
+export type Columns = Array<ColumnInfo>
 
 interface IImporter {
     import: (data: Array<TableRow>) => Promise<void>
@@ -55,9 +56,9 @@ export class Importer implements IImporter {
     private errorHandler: ErrorHandler
     private readonly columnsNames: Array<string>
     private readonly columnsTypes: Array<'string' | 'number'>
-    private readonly rowNormalizer: (row: TableRow) => Promise<ProcessedRow | null>
-    private readonly rowValidator: (row: ProcessedRow) => Promise<boolean>
-    private readonly objectCreator: (row: ProcessedRow) => Promise<void>
+    private readonly rowNormalizer: RowNormalizer
+    private readonly rowValidator: RowValidator
+    private readonly objectCreator: ObjectCreator
 
     // Handle importing table
     public import (data: Array<TableRow>): Promise<void> {
