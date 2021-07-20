@@ -114,6 +114,12 @@ const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
 const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name } content ${COMMON_FIELDS} }`
 const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 
+// TODO(codegen): write return type result!
+const TICKET_ANALYTICS_REPORT_MUTATION = gql`
+    mutation ticketAnalyticsReport ($data: TicketAnalyticsReportInput!) {
+        result: ticketAnalyticsReport(data: $data) { id }
+    }
+`
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
@@ -145,5 +151,6 @@ module.exports = {
     GET_TICKET_WIDGET_REPORT_DATA,
     TicketComment,
     GET_TICKET_ANALYTICS_REPORT_DATA,
+    TICKET_ANALYTICS_REPORT_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
