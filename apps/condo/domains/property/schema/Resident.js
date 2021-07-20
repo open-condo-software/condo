@@ -14,7 +14,7 @@ const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { Resident: ResidentAPI } = require('../utils/serverSchema')
-
+const { Property } = require('../utils/serverSchema')
 
 const Resident = new GQLListSchema('Resident', {
     schemaDoc: 'Person, that resides in a specified property and unit',
@@ -43,6 +43,17 @@ const Resident = new GQLListSchema('Resident', {
             isRequired: false,
             knexOptions: { isNotNullable: false }, // Required relationship only!
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            hooks: {
+                validateInput: async ({ context, resolvedData, existingItem, addFieldValidationError }) => {
+                    const newOrExistingPropertyId = resolvedData.property || existingItem.property
+                    if (!newOrExistingPropertyId) return
+                    const [property] = await Property.getAll(context, { id: newOrExistingPropertyId })
+                    const newOrExistingAddress = resolvedData.address || existingItem.address
+                    if (property.address !== newOrExistingAddress) {
+                        return addFieldValidationError('Cannot connect property, because its address differs from address of resident')
+                    }
+                },
+            },
         },
 
         contact: {
