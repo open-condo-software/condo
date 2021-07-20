@@ -11,25 +11,27 @@ const access = require('@condo/domains/organization/access/OrganizationLink')
 
 
 const OrganizationLink = new GQLListSchema('OrganizationLink', {
-    schemaDoc: 'Link between an organization and organizations in which it can view internal information (tickets)',
+    schemaDoc: 'A relationship between organizations that allows employees of one organization to interact as employees of another.',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
         from: {
-            schemaDoc: 'Organization that can view internal information of organizations from the field "to"',
+            schemaDoc: 'Organization that gives access',
             type: Relationship,
             ref: 'Organization',
             isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
+            knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
         to: {
-            schemaDoc: 'Organizations whose internal information can be viewed by an organization from the field "from"',
+            schemaDoc: 'Organization that gets access',
             type: Relationship,
             ref: 'Organization.relatedOrganizations',
-            many: true,
+            isRequired: true,
+            knexOptions: { isNotNullable: true },
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
