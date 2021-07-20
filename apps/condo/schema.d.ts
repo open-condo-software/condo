@@ -3879,6 +3879,12 @@ export type ChangePasswordWithTokenOutput = {
   status: Scalars['String'];
 };
 
+export enum ChartViewMode {
+  Bar = 'bar',
+  Line = 'line',
+  Pie = 'pie'
+}
+
 export type CheckPasswordRecoveryTokenInput = {
   token: Scalars['String'];
 };
@@ -10382,6 +10388,7 @@ export type Query = {
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
+  getTicketReportAnalyticsData?: Maybe<TicketReportAnalyticsOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
@@ -11656,6 +11663,11 @@ export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
 
 export type QueryTicketReportWidgetDataArgs = {
   data: TicketReportWidgetInput;
+};
+
+
+export type QueryGetTicketReportAnalyticsDataArgs = {
+  data: TicketReportAnalyticsInput;
 };
 
 
@@ -16206,6 +16218,30 @@ export type TicketRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+export type TicketReportAnalyticsData = {
+  __typename?: 'TicketReportAnalyticsData';
+  result: Scalars['JSON'];
+  labels: Scalars['JSON'];
+  axisLabels?: Maybe<Array<Scalars['String']>>;
+  tableData?: Maybe<Array<Scalars['JSON']>>;
+  tableColumns: Scalars['JSON'];
+};
+
+export type TicketReportAnalyticsInput = {
+  dateFrom: Scalars['String'];
+  dateTo: Scalars['String'];
+  groupBy: Scalars['String'];
+  userOrganizationId: Scalars['String'];
+  ticketType: TicketType;
+  viewMode: ChartViewMode;
+  addressList?: Maybe<Array<Scalars['String']>>;
+};
+
+export type TicketReportAnalyticsOutput = {
+  __typename?: 'TicketReportAnalyticsOutput';
+  data: TicketReportAnalyticsData;
+};
+
 export type TicketReportData = {
   __typename?: 'TicketReportData';
   statusName: Scalars['String'];
@@ -17008,6 +17044,12 @@ export type TicketStatusesUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<TicketStatusUpdateInput>;
 };
+
+export enum TicketType {
+  Default = 'default',
+  Paid = 'paid',
+  Emergency = 'emergency'
+}
 
 export type TicketUpdateInput = {
   dv?: Maybe<Scalars['Int']>;

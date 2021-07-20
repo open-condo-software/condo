@@ -53,6 +53,8 @@
     "classnames": "^2.2.6",
     "date-fns": "^2.20.1",
     "dd-trace": "^0.32.0",
+    "echarts": "^5.1.2",
+    "echarts-for-react": "^3.0.1",
     "emotion": "^10.0.27",
     "emotion-server": "^10.0.27",
     "esdk-obs-nodejs": "3.21.3",
@@ -92,6 +94,7 @@
   },
   "devDependencies": {
     "@testing-library/react": "^11.2.5",
+    "@types/echarts": "^4.9.9",
     "@types/jest": "^26.0.20",
     "@types/node": "^14.14.25",
     "@types/react": "^17.0.1",
