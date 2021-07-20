@@ -233,7 +233,7 @@ describe('Ticket:permissions', () => {
         const [organizationTo] = await createTestOrganization(admin)
         const [propertyTo] = await createTestProperty(admin, organizationTo)
         const clientTo = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [employeeTo] = await createTestOrganizationEmployee(admin, organizationTo, clientTo.user, role)
+        await createTestOrganizationEmployee(admin, organizationTo, clientTo.user, role)
 
         await createTestTicket(admin, organizationFrom, propertyFrom)
 
