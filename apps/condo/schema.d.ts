@@ -6475,6 +6475,7 @@ export type Mutation = {
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
+  ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
@@ -8103,6 +8104,11 @@ export type MutationAcceptOrRejectOrganizationInviteByIdArgs = {
 export type MutationAcceptOrRejectOrganizationInviteByCodeArgs = {
   inviteCode: Scalars['String'];
   data: AcceptOrRejectOrganizationInviteInput;
+};
+
+
+export type MutationTicketAnalyticsReportArgs = {
+  data?: Maybe<TicketAnalyticsReportInput>;
 };
 
 
@@ -13467,6 +13473,16 @@ export type Ticket_WatchersMetaArgs = {
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
+};
+
+export type TicketAnalyticsReportInput = {
+  where: TicketWhereInput;
+  groupBy: Array<Maybe<Scalars['String']>>;
+};
+
+export type TicketAnalyticsReportOutput = {
+  __typename?: 'TicketAnalyticsReportOutput';
+  result: Scalars['JSON'];
 };
 
 /**  Incremental changes of Ticket  */
