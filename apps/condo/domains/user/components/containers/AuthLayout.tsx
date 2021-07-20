@@ -63,12 +63,12 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                         />
                         <PageContent>
                             <Row>
-                                <Col lg={12} md={24}>
+                                <Col lg={11} md={24}>
                                     <PosterWrapper>
                                         <Poster src={'/auth_poster.png'}/>
                                     </PosterWrapper>
                                 </Col>
-                                <Col lg={7} push={2} md={24}>
+                                <Col lg={8} push={2} md={24}>
                                     <ChildrenWrapper>
                                         {children}
                                     </ChildrenWrapper>

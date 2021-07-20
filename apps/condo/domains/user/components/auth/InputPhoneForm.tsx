@@ -79,7 +79,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
         }).catch(() => {
             setIsLoading(false)
         })
-    }, [intl, form])
+    }, [intl, form, handleReCaptchaVerify])
 
     return (
         <Form
