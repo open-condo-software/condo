@@ -1,6 +1,6 @@
 import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
+import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import Router from 'next/router'
@@ -15,11 +15,10 @@ import { WRONG_EMAIL_ERROR } from '@condo/domains/user/constants/errors'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { LOCK_TIMEOUT } from '@condo/domains/user/constants/common'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
-
+import { AuthLayoutContext } from '../../domains/user/components/containers/AuthLayoutContext'
 
 const LINK_STYLE = { color: colors.sberPrimary[7] }
 const INPUT_STYLE = { width: '20em' }
-
 
 const ResetPage: AuthPage = () => {
     const [form] = Form.useForm()
