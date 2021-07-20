@@ -59,7 +59,10 @@ export class Importer implements IImporter {
     public import (data: Array<TableRow>): Promise<void> {
         this.tableData = data
         const [columns, ...body] = this.tableData
-
+        if (!columns) {
+            this.finishHandler()
+            return
+        }
         if (!this.isColumnsValid(columns)) {
             // TODO (savelevmatthew): Add correct code / translations?
             this.errorHandler(new Error('Invalid columns name!'))
