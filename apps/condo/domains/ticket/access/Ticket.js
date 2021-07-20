@@ -42,9 +42,17 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
         }
 
         const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationIdFromTicket, 'canManageTickets')
+        if (canManageRelatedOrganizationTickets) {
+            return true
+        }
+        const organizationIdFromProperty = get(property, 'organization')
         const canManageTickets = await checkOrganizationPermission(user.id, organizationIdFromTicket, 'canManageTickets')
+        if (!canManageTickets) {
+            return false
+        }
 
-        return canManageTickets || canManageRelatedOrganizationTickets
+        return organizationIdFromTicket === organizationIdFromProperty
+
     } else if (operation === 'update') {
         if (!itemId) {
             return false
@@ -57,6 +65,10 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
 
         const { organization: organizationIdFromTicket } = ticket
 
+        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationIdFromTicket, 'canManageTickets')
+        if (canManageRelatedOrganizationTickets) {
+            return true
+        }
         const canManageTickets = await checkOrganizationPermission(user.id, organizationIdFromTicket, 'canManageTickets')
         if (!canManageTickets) {
             return false
