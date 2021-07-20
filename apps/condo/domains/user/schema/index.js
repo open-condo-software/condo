@@ -9,7 +9,7 @@ const { AuthenticateUserWithPhoneAndPasswordService } = require('./AuthenticateU
 const { ForgotPasswordAction  } = require('./ForgotPasswordAction')
 const { ForgotPasswordService } = require('./ForgotPasswordService')
 const { ConfirmPhoneAction, ConfirmPhoneActionService } = require('./ConfirmPhoneAction')
-const { SigninOrRegisterResidentUserService } = require('./SigninOrRegisterResidentUserService')
+const { SigninResidentUserService } = require('./SigninResidentUserService')
 const { ChangePhoneNumberResidentUserService } = require('./ChangePhoneNumberResidentUserService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
@@ -21,7 +21,7 @@ module.exports = {
     ForgotPasswordService,
     ConfirmPhoneAction,
     ConfirmPhoneActionService,
-    SigninOrRegisterResidentUserService,
+    SigninResidentUserService,
     ChangePhoneNumberResidentUserService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

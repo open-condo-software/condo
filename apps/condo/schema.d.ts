@@ -3899,6 +3899,15 @@ export type CheckPasswordRecoveryTokenOutput = {
   status: Scalars['String'];
 };
 
+export type CheckPropertyWithAddressExistInput = {
+  address: Scalars['String'];
+};
+
+export type CheckPropertyWithAddressExistOutput = {
+  __typename?: 'CheckPropertyWithAddressExistOutput';
+  isFound: Scalars['Boolean'];
+};
+
 export type CompleteConfirmPhoneActionInput = {
   token: Scalars['String'];
   smsCode: Scalars['Int'];
@@ -6459,7 +6468,7 @@ export type Mutation = {
   startConfirmPhoneAction?: Maybe<StartConfirmPhoneActionOutput>;
   resendConfirmPhoneActionSms?: Maybe<ResendConfirmPhoneActionSmsOutput>;
   completeConfirmPhoneAction?: Maybe<CompleteConfirmPhoneActionOutput>;
-  signinOrRegisterResidentUser?: Maybe<SigninOrRegisterResidentUserOutput>;
+  signinResidentUser?: Maybe<SigninResidentUserOutput>;
   changePhoneNumberResidentUser?: Maybe<ChangePhoneNumberResidentUserOutput>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
@@ -8060,8 +8069,8 @@ export type MutationCompleteConfirmPhoneActionArgs = {
 };
 
 
-export type MutationSigninOrRegisterResidentUserArgs = {
-  data: SigninOrRegisterResidentUserInput;
+export type MutationSigninResidentUserArgs = {
+  data: SigninResidentUserInput;
 };
 
 
@@ -10404,6 +10413,7 @@ export type Query = {
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
+  checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
   /** The version of the Keystone application serving this API. */
@@ -11677,6 +11687,11 @@ export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
 };
 
 
+export type QueryCheckPropertyWithAddressExistArgs = {
+  data: CheckPropertyWithAddressExistInput;
+};
+
+
 export type QueryTicketReportWidgetDataArgs = {
   data: TicketReportWidgetInput;
 };
@@ -11773,14 +11788,14 @@ export enum SendMessageType {
   SmsVerify = 'SMS_VERIFY'
 }
 
-export type SigninOrRegisterResidentUserInput = {
+export type SigninResidentUserInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
   token: Scalars['String'];
 };
 
-export type SigninOrRegisterResidentUserOutput = {
-  __typename?: 'SigninOrRegisterResidentUserOutput';
+export type SigninResidentUserOutput = {
+  __typename?: 'SigninResidentUserOutput';
   user?: Maybe<User>;
   token: Scalars['String'];
 };
