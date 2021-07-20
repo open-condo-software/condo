@@ -12,8 +12,8 @@ async function canReadProperties ({ authentication: { item: user } }) {
     return {
         organization: {
             OR: [
-                { employees_some: { user: { id: user.id }, isBlocked: false } },
-                { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id }, isBlocked: false } } } },
+                { employees_some: { user: { id: user.id }, isBlocked: false, deletedAt: null } },
+                { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id }, isBlocked: false, deletedAt: null } } } },
             ],
         },
     }

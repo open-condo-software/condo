@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Organization as OrganizationGQL } from '@condo/domains/organization/gql'
 import { Organization, OrganizationUpdateInput, QueryAllOrganizationsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'country', 'name', 'description', 'avatar', 'meta', 'employees', 'relatedOrganizations', 'statusTransitions', 'defaultEmployeeRoleStatusTransitions']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'country', 'name', 'description', 'avatar', 'meta', 'employees', 'statusTransitions', 'defaultEmployeeRoleStatusTransitions']
 const RELATIONS = []
 
 export interface IOrganizationUIState extends Organization {
