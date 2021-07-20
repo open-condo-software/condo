@@ -27,3 +27,5 @@ Check imports, that should be from absolute paths, like following:
 import { something } from '@app/condo/domains/…' // correct
 import { something } from '../../..//domains/…' // incorrect
 ```
+
+Process all `svg` files via [SVGO](https://jakearchibald.github.io/svgomg/)
