@@ -8,7 +8,6 @@ const { buildingMapJson } = require('../constants/property')
 const { createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
-const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
@@ -62,47 +61,6 @@ describe('Resident', () => {
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
                 expect(errors[0].data.messages[0]).toMatch('Cannot update resident, because another resident already exists with the same provided set of "property", "unitName", "phone"')
-                expect(data).toEqual({ 'obj': null })
-            })
-        })
-
-        it('throws error, when trying to connect new resident to contact, that is connected to another resident', async () => {
-            const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
-            const [contact] = await createTestContact(adminClient, userClient.organization, userClient.property)
-
-            const contactConnection = {
-                contact: { connect: { id: contact.id } },
-            }
-
-            await createTestResident(adminClient, userClient.organization, userClient.property, contactConnection)
-
-            await catchErrorFrom(async () => {
-                await createTestResident(adminClient, userClient.organization, userClient.property, contactConnection)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Specified contact is already connected with another resident')
-                expect(data).toEqual({ 'obj': null })
-            })
-        })
-
-        it('throws error, when trying to connect existing resident to contact, that is connected to another resident', async () => {
-            const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
-            const [contact] = await createTestContact(adminClient, userClient.organization, userClient.property)
-
-            const contactConnection = {
-                contact: { connect: { id: contact.id } },
-            }
-
-            await createTestResident(adminClient, userClient.organization, userClient.property, contactConnection)
-            const [resident] = await createTestResident(adminClient, userClient.organization, userClient.property)
-
-            await catchErrorFrom(async () => {
-                await updateTestResident(adminClient, resident.id, contactConnection)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Specified contact is already connected with another resident')
                 expect(data).toEqual({ 'obj': null })
             })
         })
@@ -242,10 +200,7 @@ describe('Resident', () => {
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
 
-            const [contact] = await createTestContact(adminClient, userClient.organization, userClient.property)
-
             const fields = {
-                contact: { connect: { id: contact.id } },
                 billingAccount: { connect: { id: billingAccount.id } },
             }
 
@@ -262,7 +217,6 @@ describe('Resident', () => {
             expect(obj.updatedAt).toMatch(DATETIME_RE)
             expect(obj.organization.id).toEqual(userClient.organization.id)
             expect(obj.property.id).toEqual(userClient.property.id)
-            expect(obj.contact.id).toEqual(contact.id)
             expect(obj.billingAccount.id).toEqual(billingAccount.id)
         })
 
