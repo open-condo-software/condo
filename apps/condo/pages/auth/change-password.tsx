@@ -12,10 +12,10 @@ import { useLazyQuery, useMutation } from '@core/next/apollo'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN } from '@condo/domains/user/gql'
 import { useAuth } from '@core/next/auth'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { AuthLayoutContext } from '../../domains/user/components/containers/AuthLayoutContext'
 import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useContext } from 'react'
-import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
 
 const INPUT_STYLE = { width: '20em' }
