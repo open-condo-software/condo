@@ -10,6 +10,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import {
     EMAIL_ALREADY_REGISTERED_ERROR,
     MIN_PASSWORD_LENGTH_ERROR,
+    CONFIRM_PHONE_ACTION_EXPIRED,
     PHONE_ALREADY_REGISTERED_ERROR,
 } from '@condo/domains/user/constants/errors'
 import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
@@ -41,10 +42,15 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const PhoneIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsAlreadyRegistered' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
+    const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
 
     const validators = useRegisterFormValidators()
     const ErrorToFormFieldMsgMapping = useMemo(() => {
         return {
+            [CONFIRM_PHONE_ACTION_EXPIRED]: {
+                name: 'phone',
+                errors: [ConfirmActionExpiredError],
+            },
             [PHONE_ALREADY_REGISTERED_ERROR]: {
                 name: 'phone',
                 errors: [PhoneIsAlreadyRegisteredMsg],

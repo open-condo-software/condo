@@ -1,4 +1,5 @@
 import { Col, Form, Input, Row, Space, Typography } from 'antd'
+import MaskedInput from 'antd-mask-input'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
 import { useMutation } from '@core/next/apollo'
@@ -111,7 +112,8 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
 
     const handleVerifyCode = useCallback(async () => {
         setPhoneValidateError(null)
-        const smsCode = form.getFieldValue('smsCode') || ''
+        let smsCode = form.getFieldValue('smsCode') || ''
+        smsCode = smsCode.trim()
         if (smsCode.toString().length < SMS_CODE_LENGTH) {
             return
         }
@@ -182,7 +184,12 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
                             }),
                         ]}
                     >
-                        <Input onChange={handleVerifyCode} />
+                        <MaskedInput
+                            mask='1111'
+                            placeholder=''
+                            placeholderChar=' '
+                            onChange={handleVerifyCode}
+                        />
                     </Form.Item>
                 </Col>
                 <Col span={24}>
