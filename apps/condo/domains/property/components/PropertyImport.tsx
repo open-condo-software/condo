@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import { DiffOutlined } from '@ant-design/icons'
 import { Alert, Modal, Progress } from 'antd'
 import get from 'lodash/get'
@@ -8,7 +6,9 @@ import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { DataImporter } from '@condo/domains/common/components/DataImporter'
-import { useImporter } from '../hooks/useImporter'
+import { useImporterFunctions } from '../hooks/useImporterFunctions'
+import { useImporter } from '@condo/domains/common/hooks/useImporter'
+
 const ModalContext = React.createContext({ progress: 0, error: null, isImported: false })
 
 const getPropertyUploadInfoModalConfig = (intl, onButtonClick) => {
@@ -109,7 +109,9 @@ export const PropertyImport: React.FC<IPropertyImport> = (props) => {
         }
     }
 
+    const [columns, propertyNormalizer, propertyValidator, propertyCreator] = useImporterFunctions()
     const [importData, progress, error, isImported, breakImport] = useImporter(
+        columns, propertyNormalizer, propertyValidator, propertyCreator,
         () => {
             destroyActiveModal()
             const config = getPropertyUploadSuccessModalConfig(intl)
@@ -133,6 +135,7 @@ export const PropertyImport: React.FC<IPropertyImport> = (props) => {
                 props.onFinish()
             }
         )
+        // @ts-ignore
         activeModal.current = modal.info(config)
 
         importData(file.data)
