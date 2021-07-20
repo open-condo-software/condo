@@ -1,6 +1,6 @@
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
-const { SIGNIN_OR_REGISTER_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
+const { SIGNIN_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
 const { createTestUser, createTestConfirmPhoneAction, ConfirmPhoneAction: ConfirmPhoneActionTestUtils } = require('@condo/domains/user/utils/testSchema')
 const {
     CONFIRM_PHONE_ACTION_EXPIRED,
@@ -18,7 +18,7 @@ describe('SigninResidentUserService', () => {
                 sender: { dv: 1, fingerprint: 'tests' },
                 token: token.token,
             }
-            const { data: { result: { user, token: authToken } } } = await client.mutate(SIGNIN_OR_REGISTER_RESIDENT_USER_MUTATION, { data })
+            const { data: { result: { user, token: authToken } } } = await client.mutate(SIGNIN_RESIDENT_USER_MUTATION, { data })
             expect(user.id).toMatch(UUID_RE)
             expect(user.name).toBe(null)
             expect(authToken).not.toHaveLength(0)
@@ -35,7 +35,7 @@ describe('SigninResidentUserService', () => {
                 sender: { dv: 1, fingerprint: 'tests' },
                 token: token.token,
             }
-            const { data: { result: { user, token: authToken } } } = await client.mutate(SIGNIN_OR_REGISTER_RESIDENT_USER_MUTATION, { data })
+            const { data: { result: { user, token: authToken } } } = await client.mutate(SIGNIN_RESIDENT_USER_MUTATION, { data })
             expect(user.id).toMatch(UUID_RE)
             expect(user.name).toMatch(createdUser.name)
             expect(authToken).not.toHaveLength(0)
@@ -51,7 +51,7 @@ describe('SigninResidentUserService', () => {
                 sender: { dv: 1, fingerprint: 'tests' },
                 token: token.token,
             }
-            const { errors: [error] } = await client.mutate(SIGNIN_OR_REGISTER_RESIDENT_USER_MUTATION, { data })
+            const { errors: [error] } = await client.mutate(SIGNIN_RESIDENT_USER_MUTATION, { data })
             expect(error.message).toContain(CONFIRM_PHONE_ACTION_EXPIRED)
         })
         it('can not register with used phone token', async () => {
@@ -63,7 +63,7 @@ describe('SigninResidentUserService', () => {
                 sender: { dv: 1, fingerprint: 'tests' },
                 token: token.token,
             }
-            const { errors: [error] } = await client.mutate(SIGNIN_OR_REGISTER_RESIDENT_USER_MUTATION, { data })
+            const { errors: [error] } = await client.mutate(SIGNIN_RESIDENT_USER_MUTATION, { data })
             expect(error.message).toContain(CONFIRM_PHONE_ACTION_EXPIRED)
         })
         it('can not register with not confirmed phone token', async () => {
@@ -75,7 +75,7 @@ describe('SigninResidentUserService', () => {
                 sender: { dv: 1, fingerprint: 'tests' },
                 token: token.token,
             }
-            const { errors: [error] } = await client.mutate(SIGNIN_OR_REGISTER_RESIDENT_USER_MUTATION, { data })
+            const { errors: [error] } = await client.mutate(SIGNIN_RESIDENT_USER_MUTATION, { data })
             expect(error.message).toContain(CONFIRM_PHONE_ACTION_EXPIRED)
         })
     })
