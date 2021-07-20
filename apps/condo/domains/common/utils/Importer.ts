@@ -4,12 +4,15 @@ import cloneDeep from 'lodash/cloneDeep'
 export type TableRow = Array<Record<'value', string | number>>
 export type ProcessedRow = {
     row: TableRow
-    addons: { [name: string]: any }
+    addons: { [name: string]: JSON }
 }
 
 export type ProgressUpdateHandler = (progress: number) => void
 export type FinishHandler = () => void
 export type ErrorHandler = (error: Error) => void
+export type RowNormalizer = (row: TableRow) => Promise<ProcessedRow | null>
+export type RowValidator = (row: ProcessedRow) => Promise<boolean>
+export type ObjectCreator = (row: ProcessedRow) => Promise<void>
 
 interface IImporter {
     import: (data: Array<TableRow>) => Promise<void>
@@ -29,9 +32,9 @@ const SLEEP_INTERVAL_BEFORE_QUERIES = 300
 export class Importer implements IImporter {
     constructor (
         columnsTemplate: Array<ColumnInfo>,
-        rowNormalizer: (row: TableRow) => Promise<ProcessedRow | null>,
-        rowValidator: (row: ProcessedRow) => Promise<boolean>,
-        objectCreator: (row: ProcessedRow) => Promise<void>,
+        rowNormalizer: RowNormalizer,
+        rowValidator: RowValidator,
+        objectCreator: ObjectCreator,
     ) {
         this.columnsNames = columnsTemplate.map(column => column.name.trim().toLowerCase())
         this.columnsTypes = columnsTemplate.map(column => column.type)
