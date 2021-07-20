@@ -4,7 +4,7 @@ import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
+import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 import React, { useState, useContext, useEffect } from 'react'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
@@ -13,6 +13,7 @@ import { useLazyQuery, useMutation } from '@core/next/apollo'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN } from '@condo/domains/user/gql'
 import { useAuth } from '@core/next/auth'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { AuthLayoutContext } from '../../domains/user/components/containers/AuthLayoutContext'
 
 const INPUT_STYLE = { width: '20em' }
 
