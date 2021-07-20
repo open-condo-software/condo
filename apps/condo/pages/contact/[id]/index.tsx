@@ -139,7 +139,6 @@ const ContactInfoPage = () => {
                                                             type={'sberPrimary'}
                                                             secondary
                                                             icon={<EditFilled />}
-                                                            disabled
                                                         >
                                                             {UpdateMessage}
                                                         </Button>

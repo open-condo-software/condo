@@ -433,5 +433,7 @@
   "Contact": "Contact",
   "TicketsByContact": "Contact's tickets",
   "MoreTicketsLeft": "And {ticketsLeft, plural, one {# more ticket} other {# more tickets}}",
-  "Contact.NoTicketOnAddress": "There is no tickets from the contact at this address"
+  "Contact.NoTicketOnAddress": "There is no tickets from the contact at this address",
+  "EditingContact": "Editing contact",
+  "EditingContactNoPermission": "You have no permissions to edit this contact"
 }

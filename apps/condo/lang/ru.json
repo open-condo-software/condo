@@ -433,5 +433,7 @@
   "Contact": "Житель",
   "TicketsByContact": "Заявки от жителя",
   "MoreTicketsLeft": "Ещё {ticketsLeft, plural, one {# заявка} few {# заявки} many {# заявок} ",
-  "Contact.NoTicketOnAddress": "Заявок от жителя по этому адресу нет"
+  "Contact.NoTicketOnAddress": "Заявок от жителя по этому адресу нет",
+  "EditingContact": "Редактирование жителя",
+  "EditingContactNoPermission": "У вас нет прав для редактирования данного контакта"
 }
