@@ -4,8 +4,8 @@ import { useAddressApi } from '../../common/components/AddressApi'
 import get from 'lodash/get'
 import { Property } from '../utils/clientSchema'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-import { TableRow, ProcessedRow, ColumnInfo } from '@condo/domains/common/utils/Importer'
 import { MapEdit, MapTypesList } from '../components/panels/Builder/MapConstructor'
+import { TableRow, Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
 
 const createPropertyUnitsMap = (units, sections, floors) => {
     const unitsOnFloor = Math.floor(units / (floors * sections))
@@ -35,8 +35,7 @@ const createPropertyUnitsMap = (units, sections, floors) => {
     return mapEditor.getMap()
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useImporterFunctions = () => {
+export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const userOrganization = useOrganization()
     const client = useApolloClient()
     const { addressApi } = useAddressApi()
@@ -47,14 +46,14 @@ export const useImporterFunctions = () => {
         organization: userOrganizationId,
     }, () => Promise.resolve())
 
-    const columns: Array<ColumnInfo> = [
+    const columns: Columns = [
         { name: 'address', type: 'string' },
         { name: 'units', type: 'number' },
         { name: 'sections', type: 'number' },
         { name: 'floors', type: 'number' },
     ]
 
-    const propertyNormalizer = (row: TableRow) => {
+    const propertyNormalizer: RowNormalizer = (row: TableRow) => {
         const [address] = row
         return addressApi.getSuggestions(String(address.value)).then((result) => {
             const suggestion = get(result, ['suggestions', 0])
@@ -66,7 +65,7 @@ export const useImporterFunctions = () => {
         })
     }
 
-    const propertyValidator = (row: ProcessedRow | null) => {
+    const propertyValidator: RowValidator = (row) => {
         if (!row) return Promise.resolve(false)
         const address = get(row.addons, ['suggestion', 'value'])
         const where = {
@@ -79,11 +78,11 @@ export const useImporterFunctions = () => {
             })
     }
 
-    const propertyCreator = (row: ProcessedRow | null) => {
+    const propertyCreator: ObjectCreator = (row) => {
         if (!row) return Promise.resolve()
         const [, units, sections, floors] = row.row
         const property = get(row.addons, ['suggestion'])
-        const { value } = property
+        const value = get(property, 'value')
         const map = createPropertyUnitsMap(units.value, sections.value, floors.value)
         return createPropertyAction({
             // @ts-ignore

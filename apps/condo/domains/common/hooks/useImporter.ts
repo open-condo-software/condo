@@ -1,8 +1,14 @@
 import { useCallback, useRef, useState } from 'react'
-import { Importer } from '@condo/domains/common/utils/Importer'
+import { Importer, RowNormalizer, RowValidator, ObjectCreator, ColumnInfo } from '@condo/domains/common/utils/importer'
+
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useImporter = (columns, rowNormalizer, rowValidator, objectCreator, onFinish, onError) => {
+export const useImporter = (columns: Array<ColumnInfo>,
+    rowNormalizer: RowNormalizer,
+    rowValidator: RowValidator,
+    objectCreator: ObjectCreator,
+    onFinish: () => void,
+    onError: () => void) => {
     const [progress, setProgress] = useState(0)
     const [error, setError] = useState(null)
     const [isImported, setIsImported] = useState(false)
