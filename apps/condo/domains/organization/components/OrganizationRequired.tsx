@@ -10,6 +10,7 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { isFunction } from '@condo/domains/common/utils/ecmascript.utils'
 import { Loader } from '@condo/domains/common/components/Loader'
+import React from 'react'
 
 const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions }) => {
     const intl = useIntl()
