@@ -16,6 +16,7 @@ const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 const { TicketFile: TicketFileGQL } = require('@condo/domains/ticket/gql')
 const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
+const { TICKET_ANALYTICS_REPORT_MUTATION } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -220,6 +221,19 @@ async function updateTestTicketComment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function ticketAnalyticsReportByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(TICKET_ANALYTICS_REPORT_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -247,5 +261,6 @@ module.exports = {
     makeClientWithTicket,
     TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier,
     TicketComment, createTestTicketComment, updateTestTicketComment,
+ticketAnalyticsReportByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
