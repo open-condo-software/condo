@@ -91,7 +91,7 @@ const ForgotPasswordAction = generateGqlQueries('ForgotPasswordAction', FORGOT_P
 
 
 // TODO(codegen): write return type result!
-const SIGNIN_OR_REGISTER_RESIDENT_USER_MUTATION = gql`
+const SIGNIN_RESIDENT_USER_MUTATION = gql`
     mutation signinResidentUser ($data: SigninResidentUserInput!) {
         result: signinResidentUser(data: $data) { user { id name }, token }
     }
@@ -120,7 +120,7 @@ module.exports = {
     ConfirmPhoneAction,
     ForgotPasswordAction,
     CHECK_PASSWORD_RECOVERY_TOKEN,
-    SIGNIN_OR_REGISTER_RESIDENT_USER_MUTATION,
+    SIGNIN_RESIDENT_USER_MUTATION,
     CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
