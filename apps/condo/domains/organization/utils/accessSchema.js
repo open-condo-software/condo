@@ -1,9 +1,10 @@
-import { OrganizationLink } from './serverSchema'
-
+const { OrganizationLinkEmployeeAccess } = require('@condo/domains/organization/utils/serverSchema')
+const { OrganizationLink } = require('./serverSchema')
 const { getByCondition } = require('@core/keystone/schema')
 
 async function checkOrganizationPermission (userId, organizationId, permission) {
     if (!userId || !organizationId) return false
+
     const employee = await getByCondition('OrganizationEmployee', {
         organization: { id: organizationId },
         user: { id: userId },
@@ -30,17 +31,23 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
     return employeeRole[permission] || false
 }
 
-async function checkRelatedOrganizationPermission (userId, organizationId, permission) {
-    if (!userId || !organizationId) return false
+async function checkRelatedOrganizationPermission (context, userId, organizationId, permission) {
+    if (!context || !userId || !organizationId) return false
 
-    const organizationLink = await getByCondition('OrganizationLink', {
-        from: { employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } },
-        to: { id: organizationId },
+    const [organizationLink] = await OrganizationLink.getAll(context, {
+        AND: [
+            { from: { employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } } },
+            { to: { id: organizationId } },
+        ],
     })
 
-    const organizationLinkEmployeeAccess = await getByCondition('OrganizationLinkEmployeeAccess', {
-        link: { id: organizationLink.id },
-        employee: { user: { id: userId } },
+    if (!organizationLink) return false
+
+    const [organizationLinkEmployeeAccess] = await OrganizationLinkEmployeeAccess.getAll(context, {
+        AND: [
+            { link: { id: organizationLink.id } },
+            { employee: { user: { id: userId } } },
+        ],
     })
 
     if (!organizationLinkEmployeeAccess) return false

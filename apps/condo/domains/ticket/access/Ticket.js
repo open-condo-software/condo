@@ -23,7 +23,7 @@ async function canReadTickets ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput }) {
+async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput, context }) {
     if (!user) return false
     if (user.isAdmin) return true
 
@@ -40,9 +40,7 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
             return false
         }
 
-        const organizationIdFromProperty = get(property, 'organization')
-        console.log(organizationIdFromProperty)
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(user.id, organizationIdFromTicket, 'canManageTickets')
+        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationIdFromTicket, 'canManageTickets')
         const canManageTickets = await checkOrganizationPermission(user.id, organizationIdFromTicket, 'canManageTickets')
 
         return canManageTickets || canManageRelatedOrganizationTickets

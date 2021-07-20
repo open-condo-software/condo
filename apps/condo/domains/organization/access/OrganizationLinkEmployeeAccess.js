@@ -7,9 +7,10 @@ async function canReadOrganizationLinkEmployeeAccesses ({ authentication: { item
     if (user.isAdmin || user.isSupport) return true
 }
 
-async function canManageOrganizationLinkEmployeeAccesses ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageOrganizationLinkEmployeeAccesses ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return false
     if (user.isAdmin || user.isSupport) return true
+    // добавить проверку что эмплои есть во фром
 }
 
 /*
