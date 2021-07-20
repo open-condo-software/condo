@@ -21,6 +21,7 @@ import { useContactsEditorHook } from '@condo/domains/contact/components/Contact
 import { useOrganization } from '@core/next/organization'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { normalizeText } from '@condo/domains/common/utils/text'
+import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit'
 
 const { TabPane } = Tabs
 
@@ -130,18 +131,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     )
 
     const updateSectionAndFloor = (form, unitName) => {
-        if (unitName) {
-            const sections = get(property, ['map', 'sections'], [])
-            for (const section of sections) {
-                for (const floor of section.floors) {
-                    for (const unit of floor.units) {
-                        if (unit.label === unitName) {
-                            return form.setFieldsValue({ sectionName: section.name, floorName: floor.name })
-                        }
-                    }
-                }
-            }
+        const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
+        if (sectionName && floorName) {
+            return form.setFieldsValue({ sectionName, floorName })
         }
+
         form.setFieldsValue({ sectionName: null, floorName: null })
     }
 

@@ -114,6 +114,13 @@ const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
 const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name } content ${COMMON_FIELDS} }`
 const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 
+const RESIDENT_TICKET_FIELDS = '{ organization { id name } property { id name address } unitName sectionName floorName status { id name type organization { id } colors } statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name } operator { id name } assignee { id name } executor { id name } details related { id details } isEmergency isPaid source { id name type } id createdBy { id name } updatedBy { id name } createdAt updatedAt }'
+
+const CREATE_RESIDENT_TICKET_MUTATION = gql`
+    mutation createResidentTicket ($data: CreateResidentTicketInput!) {
+        result: createResidentTicket (data: $data) ${RESIDENT_TICKET_FIELDS}
+    }
+`
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
@@ -138,5 +145,6 @@ module.exports = {
     EXPORT_TICKETS_TO_EXCEL,
     GET_TICKET_WIDGET_REPORT_DATA,
     TicketComment,
+    CREATE_RESIDENT_TICKET_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
