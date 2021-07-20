@@ -1,4 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react'
+/** @jsx jsx */
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { jsx } from '@emotion/core'
+import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -15,52 +18,77 @@ import {
     Divider,
     Select,
     TableColumnsType,
-    Tooltip,
+    Tooltip, Form,
 } from 'antd'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import ReactECharts from 'echarts-for-react'
 import { colors } from '@condo/domains/common/constants/style'
 import { GET_TICKET_ANALYTICS_REPORT_DATA } from '@condo/domains/ticket/gql'
 import { useLazyQuery } from '@core/next/apollo'
 
-import moment from 'moment'
+import moment, { Moment } from 'moment'
 import { BarChartIcon, LinearChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
 import { Button } from '@condo/domains/common/components/Button'
 import { EditFilled, FilePdfFilled, PlusCircleFilled } from '@ant-design/icons'
 import ActionBar from '@condo/domains/common/components/ActionBar'
-import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithIcon'
+import RadioGroupWithIcon, { radioButtonBorderlessCss } from '@condo/domains/common/components/RadioGroupWithIcon'
 import { TicketReportAnalyticsOutput } from '../../schema'
 import { useRouter } from 'next/router'
 import qs from 'qs'
+import DateRangePicker from '@condo/domains/common/components/DateRangePicker'
+import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
 type viewModeTypes = 'bar' | 'line' | 'pie'
+type specificationTypes = 'days' | 'weeks'
 interface ITicketAnalyticsPageWidgetProps {
     data: null | TicketReportAnalyticsOutput['data'];
     viewMode: viewModeTypes;
     loading?: boolean;
 }
-
 interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps {
     onChartReady?: () => void;
     animationEnabled?: boolean;
     chartHeight?: number;
 }
+type ITicketAnalyticsPageFilters = {
+    range: [Moment, Moment];
+    specification: specificationTypes;
+}
+interface ITicketAnalyticsPageFilterProps {
+    onChange?: ({ range, specification }: ITicketAnalyticsPageFilters) => void
+}
+const FORM_ITEM_STYLE = {
+    labelCol: {
+        span: 24,
+    },
+    wrapperCol: {
+        span: 24,
+    },
+}
+const DATE_RANGE_PRESETS = {
+    week: [moment().subtract(1, 'week'), moment()],
+    month: [moment().subtract(1, 'month'), moment()],
+    quarter: [moment().subtract(1, 'quarter'), moment()],
+    year: [moment().subtract(1, 'year'), moment()],
+}
 type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
 type ticketSelectTypes = 'default' | 'paid' | 'emergency'
 const DATE_DISPLAY_FORMAT = 'DD.MM.YYYY'
-// TODO(sitozzz): get selectedPeriod from filter component
+// TODO (sitozzz): get selectedPeriod from filter component
 const SELECTED_PERIOD = [moment().subtract(1, 'week'), moment()]
-// TODO(sitozzz): get addressList from filter component
+// TODO (sitozzz): get addressList from filter component
 const ADDRESS_LIST = []
 const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5], colors.volcano[5], colors.purple[5],
     colors.lime[7], colors.sberGrey[7], colors.magenta[5], colors.blue[4], colors.gold[6], colors.cyan[6],
     colors.blue[7], colors.volcano[6], colors.green[5], colors.geekblue[7], colors.sberGrey[7], colors.gold[7],
     colors.magenta[7], colors.yellow[5], colors.lime[7], colors.blue[8], colors.cyan[5], colors.yellow[6],
     colors.purple[7], colors.lime[8], colors.red[6] ]
+const SPECIFICATIONS = ['days', 'weeks']
 
 const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     children,
@@ -188,9 +216,100 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = (
 }
 
 
-const TicketAnalyticsPageFilter: React.FC = () => (
-    <Skeleton loading={true} />
-)
+const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ onChange }) => {
+    const router = useRouter()
+    const intl = useIntl()
+    const PeriodTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodTitle' })
+    const SpecificationTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.SpecificationTitle' })
+    const SpecificationDays = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.Specification.Days' })
+    const SpecificationWeeks = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.Specification.Weeks' })
+    const AllAddressesPlaceholder = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllAddressesPlaceholder' })
+    const AddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AddressTitle' })
+    const ApplyButtonTitle = intl.formatMessage({ id: 'Show' })
+    const PresetWeek = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Week' })
+    const PresetMonth = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Month' })
+    const PresetQuarter = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Quarter' })
+    const PresetYear = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Year' })
+
+    const [dateRange, setDateRange] = useState<[Moment, Moment]>([moment().subtract(1, 'week'), moment()])
+    const [dateRangePreset, setDateRangePreset] = useState<null | string>(null)
+    const [specification, setSpecification] = useState<specificationTypes>(SPECIFICATIONS[0] as specificationTypes)
+
+    const updateUrlFilters = useCallback(() => {
+        const [startDate, endDate] = dateRange
+        router.push('/analytics?' + qs.stringify({
+            createdAt_lte: startDate.toISOString(),
+            createdAt_gte: endDate.toISOString(),
+            specification,
+        }))
+    }, [dateRange, specification])
+
+    useEffect(() => {
+        const queryParams = getQueryParams()
+        const startDate = get(queryParams, 'createdAt_lte')
+        const endDate = get(queryParams, 'createdAt_gte')
+        const specificationUrl = get(queryParams, 'specification')
+        if (startDate && endDate && specification) {
+            setDateRange([moment(startDate), moment(endDate)])
+            setSpecification(specificationUrl)
+        }
+        isEmpty(queryParams) && updateUrlFilters()
+        onChange({ range: dateRange, specification })
+    }, [])
+
+    useEffect(() => {
+        dateRangePreset !== null && setDateRange(DATE_RANGE_PRESETS[dateRangePreset])
+    }, [dateRangePreset])
+
+    const applyFilters = () => {
+        updateUrlFilters()
+        onChange({ range: dateRange, specification })
+    }
+
+    return (
+        <Form>
+            <Row gutter={[40, 25]} wrap>
+                <Col flex={0}>
+                    <Form.Item label={PeriodTitle} {...FORM_ITEM_STYLE}>
+                        <DateRangePicker
+                            value={dateRange}
+                            onChange={(range) => setDateRange(range)}
+                        />
+                        <Typography.Paragraph>
+                            <Radio.Group
+                                css={radioButtonBorderlessCss}
+                                size={'small'}
+                                onChange={preset => setDateRangePreset(preset.target.value)}
+                            >
+                                <Radio.Button value={'week'}>{PresetWeek}</Radio.Button>
+                                <Radio.Button value={'month'}>{PresetMonth}</Radio.Button>
+                                <Radio.Button value={'quarter'}>{PresetQuarter}</Radio.Button>
+                                <Radio.Button value={'year'}>{PresetYear}</Radio.Button>
+                            </Radio.Group>
+                        </Typography.Paragraph>
+                    </Form.Item>
+                </Col>
+                <Col flex={0}>
+                    <Form.Item label={SpecificationTitle} {...FORM_ITEM_STYLE} >
+                        <Select value={specification} onChange={(e) => setSpecification(e)} >
+                            <Select.Option value={'days'}>{SpecificationDays}</Select.Option>
+                            <Select.Option value={'weeks'}>{SpecificationWeeks}</Select.Option>
+                        </Select>
+                    </Form.Item>
+                </Col>
+                <Col flex={1}>
+                    <Form.Item label={AddressTitle} {...FORM_ITEM_STYLE}>
+                        {/* TODO (sitozzz): add value state & change to multiple mode */}
+                        <PropertyAddressSearchInput placeholder={AllAddressesPlaceholder} />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Button onClick={applyFilters} type={'sberPrimary'}>{ApplyButtonTitle}</Button>
+                </Col>
+            </Row>
+        </Form>
+    )
+}
 
 
 const TicketAnalyticsPage: IPageWithHeaderAction = () => {
@@ -198,6 +317,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const [dateFrom, dateTo] = SELECTED_PERIOD
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const filtersRef = useRef(null)
 
     const [groupTicketsBy, setGroupTicketsBy] = useState<groupTicketsByTypes>('status')
     const [viewMode, setViewMode] = useState<viewModeTypes>('line')
@@ -224,7 +344,6 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const ExcelTitle = intl.formatMessage({ id: 'Excel' })
     const selectedPeriod = SELECTED_PERIOD.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ')
 
-
     const [loadTicketAnalyticsData] = useLazyQuery(GET_TICKET_ANALYTICS_REPORT_DATA, {
         onError: error => {
             console.log(error)
@@ -240,6 +359,8 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
 
     useEffect(() => {
         setLoading(true)
+        // TODO (sitozzz): pass filters data from filtersRef.current
+        console.log(filtersRef.current)
         loadTicketAnalyticsData({ variables: {
             data: {
                 dateFrom: dateFrom.toISOString(),
@@ -285,7 +406,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                             </Tooltip>
                         </Col>
                     </Row>
-                    <Row gutter={[0, 40]} align={'top'} justify={'space-between'}>
+                    <Row gutter={[0, 20]} align={'top'} justify={'space-between'}>
                         <Col span={24}>
                             <Tabs
                                 defaultActiveKey='status'
@@ -300,7 +421,12 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                             </Tabs>
                         </Col>
                         <Col span={24}>
-                            <TicketAnalyticsPageFilter />
+                            <TicketAnalyticsPageFilter
+                                onChange={(filters) => {
+                                    filtersRef.current = filters
+                                    // TODO (sitozzz): call loadTicketAnalyticsData with this filters
+                                }}
+                            />
                             <Divider />
                         </Col>
                         <Col span={14}>

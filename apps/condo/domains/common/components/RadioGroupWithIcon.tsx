@@ -16,10 +16,31 @@ const radioButtonCss = css`
   }
 `
 
+const radioButtonBorderlessCss = css`
+  & {
+    margin-top: 5px;
+    display: flex;
+    flex-wrap: nowrap;
+  }
+  & .ant-radio-button-wrapper {
+    border: none;
+  }
+  & .ant-radio-button-wrapper.ant-radio-button-wrapper-checked,
+  & .ant-radio-button-wrapper:hover {
+    color: ${colors.green[5]};
+  }
+  & .ant-radio-button-wrapper::after,
+  & .ant-radio-button-wrapper::before {
+    display: none;
+  }
+`
+
 const RadioGroupWithIcon: React.FC<RadioGroupProps> = ({ children, ...radioButtonGroupProps }) => {
     return <Radio.Group className={'sberRadioGroup'} css={radioButtonCss} {...radioButtonGroupProps}>
         {children}
     </Radio.Group>
 }
+
+export { radioButtonBorderlessCss }
 
 export default RadioGroupWithIcon
