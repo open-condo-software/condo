@@ -71,6 +71,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const { phone, token } = useContext(RegisterContext)
     const { signInByPhone } = useContext(AuthLayoutContext)
     const [registerMutation] = useMutation(REGISTER_NEW_USER_MUTATION)
+
     const registerComplete = useCallback(async () => {
         const registerExtraData = {
             dv: 1,
@@ -98,7 +99,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
         }).catch(() => {
             setIsLoading(false)
         })
-    }, [intl, form])
+    }, [intl, form, signInByPhone, token])
 
     const initialValues = { phone }
 
