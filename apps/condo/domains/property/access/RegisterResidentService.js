@@ -4,7 +4,9 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canRegisterResident ({ authentication: { item: user } }) {
-    if (user) return true
+    if (!user) throwAuthenticationError()
+    if (user.type === 'resident') return true
+    if (user.isAdmin) return true
     return throwAuthenticationError()
 }
 
