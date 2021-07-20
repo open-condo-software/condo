@@ -221,4 +221,29 @@ describe('Ticket:permissions', () => {
 
         expect(ticket.id).toMatch(UUID_RE)
     })
+
+    test('organization "to" employee: cannot create organization "from" tickets', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [organizationFrom] = await createTestOrganization(admin)
+        const [propertyFrom] = await createTestProperty(admin, organizationFrom)
+        const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom)
+        const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [employeeFrom] = await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, role)
+
+        const [organizationTo] = await createTestOrganization(admin)
+        const [propertyTo] = await createTestProperty(admin, organizationTo)
+        const clientTo = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [employeeTo] = await createTestOrganizationEmployee(admin, organizationTo, clientTo.user, role)
+
+        await createTestTicket(admin, organizationFrom, propertyFrom)
+
+        const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo)
+        await createTestOrganizationLinkEmployeeAccess(admin, link, employeeFrom, {
+            canManageTickets: true,
+        })
+
+        const [ticket] = await createTestTicket(clientFrom, organizationTo, propertyTo)
+
+        expect(ticket.id).toMatch(UUID_RE)
+    })
 })
