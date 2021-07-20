@@ -14,10 +14,12 @@ async function canReadTickets ({ authentication: { item: user } }) {
     }
 
     return {
-        OR: [
-            { organization: { employees_some: { user: { id: user.id }, isBlocked: false } } },
-            { organization: { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id }, isBlocked: false } } } } },
-        ],
+        organization: {
+            OR: [
+                { employees_some: { user: { id: user.id }, isBlocked: false } },
+                { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id }, isBlocked: false } } } },
+            ],
+        },
     }
 }
 
