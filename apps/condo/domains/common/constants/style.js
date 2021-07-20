@@ -79,7 +79,6 @@ const antGlobalVariables = {
     '@border-radius-base': '4px',
     '@white': white,
     '@black': black,
-    // TOOD(Dimitreee):find cleanest solution to override default large form styles without !important 22px !important
     '@form-item-label-height': '@input-height-base',
     '@label-color': grey[2],
     '@input-border-color': inputBorderGrey,
