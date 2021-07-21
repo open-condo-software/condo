@@ -45,7 +45,7 @@ class RedisGuard {
         const ip = rawIp.split(':').pop()
         const byPhoneCounter = await this.incrementDayCounter(phone)
         if (byPhoneCounter > MAX_SMS_FOR_PHONE_BY_DAY && !phoneWhiteList.includes(phone)) {
-            throw new Error(`${SMS_FOR_PHONE_DAY_LIMIT_REACHED}] too many sms requests for this phone number. Try again tomorrow `)
+            throw new Error(`${SMS_FOR_PHONE_DAY_LIMIT_REACHED}] too many sms requests for this phone number. Try again tomorrow`)
         }
         const byIpCounter = await this.incrementDayCounter(ip)
         if (byIpCounter > MAX_SMS_FOR_IP_BY_DAY && !ipWhiteList.includes(ip)) {
