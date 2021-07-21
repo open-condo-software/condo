@@ -7,6 +7,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 const { expectToThrowAuthenticationError } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/property/utils/testSchema')
+const { getById } = require('@core/keystone/schema')
 
 describe('RegisterResidentService', () => {
     test('can be executed by user with "resident" type', async () => {
@@ -18,6 +19,9 @@ describe('RegisterResidentService', () => {
         expect(obj.v).toEqual(1)
         expect(obj.address).toEqual(attrs.address)
         expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
+        // TODO(antonal): Custom mutation `registerResident` does not returns nested fields
+        const resident = await getById('Resident', obj.id)
+        expect(resident.user).toEqual(userClient.user.id)
     })
 
     test('cannot be executed by user', async () => {
@@ -43,5 +47,8 @@ describe('RegisterResidentService', () => {
         expect(obj.v).toEqual(1)
         expect(obj.address).toEqual(attrs.address)
         expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
+        // TODO(antonal): Custom mutation `registerResident` does not returns nested fields
+        const resident = await getById('Resident', obj.id)
+        expect(resident.user).toEqual(adminClient.user.id)
     })
 })
