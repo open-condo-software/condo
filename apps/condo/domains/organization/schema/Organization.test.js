@@ -3,6 +3,7 @@
  */
 const { catchErrorFrom, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationLinkWithTwoOrganizations } = require('@condo/domains/organization/utils/testSchema')
 const { DEFAULT_STATUS_TRANSITIONS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
 const { createTestOrganizationEmployee } = require('../utils/testSchema')
@@ -257,34 +258,23 @@ describe('Organization', () => {
     })
 
     test('employee from "from" related organization: can read organization', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [organizationFrom] = await createTestOrganization(admin)
-        const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom)
-        const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
-        await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, role)
+        const { clientWithPropertyFrom, clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
 
-        const [organizationTo1] = await createTestOrganization(admin)
-
-        await createTestOrganizationLink(admin, organizationFrom, organizationTo1)
-
-        const properties = await Organization.getAll(clientFrom, { id: organizationTo1.id })
+        const properties = await Organization.getAll(clientWithPropertyFrom, { id: clientWithPropertyTo.organization.id })
         expect(properties).toHaveLength(1)
     })
 
-    test('employee from "to" related organization: can\'t read organization from "from"', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [organizationFrom] = await createTestOrganization(admin)
-        const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom)
-        const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
-        await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, role)
+    test('employee from "to" related organization: cannot read organization from "from"', async () => {
+        const { clientWithPropertyFrom, clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
 
-        const [organizationTo] = await createTestOrganization(admin)
-        const clientTo = await makeClientWithNewRegisteredAndLoggedInUser()
-        await createTestOrganizationEmployee(admin, organizationTo, clientTo.user, role)
+        const properties = await Organization.getAll(clientWithPropertyTo, { id: clientWithPropertyFrom.organization.id })
+        expect(properties).toHaveLength(0)
+    })
 
-        await createTestOrganizationLink(admin, organizationFrom, organizationTo)
-
-        const properties = await Organization.getAll(clientTo, { id: organizationFrom.id })
+    test('user: cannot read not his own organizations', async () => {
+        await createTestOrganizationLinkWithTwoOrganizations()
+        const user = await makeClientWithNewRegisteredAndLoggedInUser()
+        const properties = await Organization.getAll(user)
         expect(properties).toHaveLength(0)
     })
 
