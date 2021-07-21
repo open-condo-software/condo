@@ -48,7 +48,7 @@ Our primary focus is startup developers and hackaton teams
 * Organization entity
   * Management of organization members
   * Invite users
-  * Index users from excel
+  * Import users from excel
 * Ant design based frontend
 * A lot of examples — check /apps
 * Pluggable — use only what you need
