@@ -408,6 +408,7 @@
   "ImportError": "An error occurred while processing the document, check the correctness of the data provided or contact the support service",
   "ImportSuccess": "{objects} added",
   "ImportProcessing": "Data is being processed, do not close the browser tab or turn off the computer",
+  "ImportRequiredColumnsFormat": "Column names must be:",
   "ReadMore": "Expand",
   "Redirecting": "Redirecting ...",
   "Register": "Register",

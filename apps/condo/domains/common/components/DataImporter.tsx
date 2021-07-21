@@ -1,4 +1,4 @@
-import { Tooltip, Upload, message } from 'antd'
+import { Upload, message } from 'antd'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
 import XLSX from 'xlsx'
@@ -78,19 +78,14 @@ interface IDataImporterProps {
 const FILE_EXTENSIONS = TABLE_UPLOAD_ACCEPT_FILES.map(function (x) { return '.' + x }).join(',')
 
 export const DataImporter: React.FC<IDataImporterProps> = (props) => {
-    const intl = useIntl()
-    const ImportFromExcelMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
-
     const uploadConfig = useUploadConfig(props.onUpload)
 
     return (
-        <Tooltip title={ImportFromExcelMessage}>
-            <Upload
-                { ...uploadConfig }
-                accept={FILE_EXTENSIONS}
-            >
-                {props.children}
-            </Upload>
-        </Tooltip>
+        <Upload
+            { ...uploadConfig }
+            accept={FILE_EXTENSIONS}
+        >
+            {props.children}
+        </Upload>
     )
 }

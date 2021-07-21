@@ -1,10 +1,15 @@
 import React, { useCallback, useRef } from 'react'
 import { Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
-import { Modal } from 'antd'
+import { Modal, Popover, Typography, Space } from 'antd'
 import { useImporter } from '@condo/domains/common/hooks/useImporter'
 import { useIntl } from '@core/next/intl'
 import { ModalContext, getUploadSuccessModalConfig, getUploadErrorModalConfig, getUploadProgressModalConfig } from './ModalConfigs'
 import { DataImporter } from '../DataImporter'
+import styled from '@emotion/styled'
+
+interface IColumnsInfoBoxProps {
+    columns: Columns
+}
 
 interface IImportProps {
     objectsName: string
@@ -16,8 +21,48 @@ interface IImportProps {
     objectCreator: ObjectCreator
 }
 
+const InfoBoxContainer = styled.div`
+  max-width: 300px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+`
+
+const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns }) => {
+    const intl = useIntl()
+    const ColumnsFormatMessage = intl.formatMessage({ id: 'ImportRequiredColumnsFormat' })
+    return (
+        <Space direction={'vertical'} size={10}>
+            <Typography.Text>
+                {ColumnsFormatMessage}
+            </Typography.Text>
+            <InfoBoxContainer>
+                {
+                    columns.map((column, index) => {
+                        return (
+                            <>
+                                {index !== 0 && ', '}
+                                <Typography.Text keyboard key={column.name}>
+                                    {column.name}
+                                </Typography.Text>
+                            </>
+                        )
+                    })
+                }
+            </InfoBoxContainer>
+        </Space>
+    )
+}
+
 export const ImportWrapper: React.FC<IImportProps> = (props) => {
-    const { objectsName, accessCheck, columns, rowNormalizer, rowValidator, objectCreator, onFinish } = props
+    const {
+        objectsName,
+        accessCheck,
+        columns,
+        rowNormalizer,
+        rowValidator,
+        objectCreator,
+        onFinish } = props
     const intl = useIntl()
     const ImportTitle = intl.formatMessage({ id:'Import' })
     const ImportSuccessMessage = intl.formatMessage({ id: 'ImportSuccess' },  { objects: objectsName })
@@ -65,7 +110,9 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
         accessCheck && (
             <ModalContext.Provider value={{ progress, error, isImported }}>
                 <DataImporter onUpload={handleUpload}>
-                    {props.children}
+                    <Popover title={ImportTitle} content={<ColumnsInfoBox columns={columns}/>}>
+                        {props.children}
+                    </Popover>
                 </DataImporter>
                 {contextHolder}
             </ModalContext.Provider>

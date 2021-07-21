@@ -220,6 +220,7 @@ const PropertyPageViewTable = (): React.FC => {
                             <Space size={16}>
                                 <ImportWrapper
                                     objectsName={PropertiesMessage}
+                                    bypassGuide={false}
                                     accessCheck={canManageProperties}
                                     onFinish={refetch}
                                     columns={columns}
