@@ -90,7 +90,7 @@ async function createDefaultRoles (context, organization, data) {
         },
     }
     Object.keys(defaultRoles).forEach((roleId) => {
-        defaultRoles[roleId].name = langDict.roleNames[roleId]
+        defaultRoles[roleId].name = langDict[`role.${roleId}.name`]
     })
     const tasks = Object.entries(defaultRoles).map(([roleId, roleInfo]) =>
         OrganizationEmployeeRole.create(context, {
