@@ -21,9 +21,6 @@ const {
     CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED,
     CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED,
     CAPTCHA_CHECK_FAILED,
-    SMS_FOR_IP_DAY_LIMIT_REACHED,
-    SMS_FOR_PHONE_DAY_LIMIT_REACHED,
-    TOO_MANY_REQUESTS,
 } = require('@condo/domains/user/constants/errors')
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 
@@ -36,32 +33,7 @@ const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
     CONFIRM_PHONE_SMS_MAX_RETRIES,
-    MAX_SMS_FOR_IP_BY_DAY,
-    MAX_SMS_FOR_PHONE_BY_DAY,
 } = require('@condo/domains/user/constants/common')
-
-const conf = require('@core/config')
-const phoneWhiteList = Object.keys(conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {})
-const ipWhiteList = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
-
-const checkDayLimitCounters = async (phone, rawIp) => {
-    const ip = rawIp.split(':').pop()
-    const byPhoneCounter = await redisGuard.incrementDayCounter(phone)
-    if (byPhoneCounter > MAX_SMS_FOR_PHONE_BY_DAY && !phoneWhiteList.includes(phone)) {
-        throw new Error(`${SMS_FOR_PHONE_DAY_LIMIT_REACHED}] too many sms requests for this phone number. Try again tomorrow `)
-    }
-    const byIpCounter = await redisGuard.incrementDayCounter(ip)
-    if (byIpCounter > MAX_SMS_FOR_IP_BY_DAY && !ipWhiteList.includes(ip)) {
-        throw new Error(`${SMS_FOR_IP_DAY_LIMIT_REACHED}] too many sms requests from this ip address. Try again tomorrow`)
-    }
-}
-
-const checkLock = async (phone, action) => {
-    const isLocked = await redisGuard.isLocked(phone, action)
-    if (isLocked) {
-        throw new Error(`${TOO_MANY_REQUESTS}] resend timeout not expired`)
-    }
-}
 
 const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
     schemaDoc: 'User confirm phone actions is used before registration starts',
@@ -213,8 +185,8 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 if (!phone) {
                     throw new Error(`${PHONE_WRONG_FORMAT_ERROR}]: not valid phone number provided`)
                 }
-                await checkDayLimitCounters(phone, context.req.ip)
-                await checkLock(phone, 'sendsms')
+                await redisGuard.checkDayLimitCounters(phone, context.req.ip)
+                await redisGuard.checkLock(phone, 'sendsms')
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
                 const token = uuid()
                 const now = extra.extraNow || Date.now()
@@ -268,8 +240,8 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] unable to find confirm phone action by token`)
                 }
                 const { id, phone } = actions[0]
-                await checkDayLimitCounters(phone, context.req.ip)
-                await checkLock(phone, 'sendsms')
+                await redisGuard.checkDayLimitCounters(phone, context.req.ip)
+                await redisGuard.checkLock(phone, 'sendsms')
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
                 const newSmsCode = generateSmsCode(phone)
                 await ConfirmPhoneActionUtils.update(context, id, {
@@ -309,7 +281,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 if (isEmpty(actions)) {
                     throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] unable to find confirm phone action`)
                 }
-                await checkLock(token, 'confirm')
+                await redisGuard.checkLock(token, 'confirm')
                 await redisGuard.lock(token, 'confirm', LOCK_TIMEOUT)
                 const { id, smsCode: actionSmsCode, retries, smsCodeExpiresAt } = actions[0]
                 const isExpired = (new Date(smsCodeExpiresAt) < new Date(now))
