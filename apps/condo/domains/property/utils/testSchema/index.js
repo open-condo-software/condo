@@ -82,9 +82,6 @@ async function createTestResident (client, organization, property, extraAttrs = 
         organization: { connect: { id: organization.id } },
         property: { connect: { id: property.id } },
         unitName: faker.random.alphaNumeric(3),
-        name: faker.name.firstName(),
-        email: createTestEmail(),
-        phone: createTestPhone(),
         address,
         addressMeta,
         ...extraAttrs,
@@ -102,9 +99,6 @@ async function updateTestResident (client, id, extraAttrs = {}) {
         dv: 1,
         sender,
         unitName: faker.random.alphaNumeric(3),
-        name: faker.name.firstName(),
-        email: createTestEmail(),
-        phone: createTestPhone(),
         ...extraAttrs,
     }
     const obj = await Resident.update(client, id, attrs)
