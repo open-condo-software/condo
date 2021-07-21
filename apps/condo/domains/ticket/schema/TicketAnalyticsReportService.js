@@ -7,7 +7,9 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const { Ticket: TicketServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
 const CHUNK_SIZE = 20
 const moment = require('moment')
-const { get, uniq } = require('lodash')
+const get = require('lodash/get')
+const { createCountersStructure, DATE_FORMATS } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
+
 
 const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportService', {
     types: [
@@ -38,9 +40,9 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 } while (--maxCount > 0 && newchunk.length)
                 allTickets = allTickets.map( ticket => {
                     ticket.interval = {
-                        day: moment(ticket.createdAt).format('DD.MM.YYYY'),
-                        week: moment(ticket.createdAt).endOf('week').format('DD.MM.YYYY'),
-                        month: moment(ticket.createdAt).format('MM.YYYY'),
+                        day: moment(ticket.createdAt).format(DATE_FORMATS.day),
+                        week: moment(ticket.createdAt).endOf('week').format(DATE_FORMATS.week),
+                        month: moment(ticket.createdAt).format(DATE_FORMATS.month),
                     }
                     return ticket
                 })
@@ -51,24 +53,29 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                     week: 'interval.week',
                     month: 'interval.month',
                 }
-                // TODO(zuch): rewrite if there will be more then 2 groups
-                const [firstGroupBy, secondGroupBy] = groupBy
-                const uniqFirstValues =  uniq(allTickets.map(ticket => get(ticket, groupByFields[firstGroupBy])))
-                const uniqSecondValues =  uniq(allTickets.map(ticket => get(ticket, groupByFields[secondGroupBy])))
-                const grouppedCounters = {}
-                uniqFirstValues.forEach(firstGroup => {
-                    if (!grouppedCounters[firstGroup]){
-                        grouppedCounters[firstGroup] = {}
-                    }
-                    uniqSecondValues.forEach(secondGroup => {
-                        grouppedCounters[firstGroup][secondGroup] = allTickets.filter(
-                            ticket =>
-                                get(ticket, groupByFields[firstGroupBy]) === firstGroup &&
-                                get(ticket, groupByFields[secondGroupBy]) === secondGroup
-                        ).length
-                    })
+                const allDates = allTickets.map(ticket => new Date(ticket.createdAt))
+                const { grouppedCounters, translates } = await createCountersStructure({
+                    context,
+                    organization: where.organization,
+                    groups: groupBy,
+                    datesRange: {
+                        min: new Date(Math.min.apply(null, allDates)),
+                        max: new Date(Math.max.apply(null, allDates)),
+                    },
                 })
-                return { result: grouppedCounters }
+                const result = {}
+                const [group1Name, group2Name] = groupBy
+                for (const group1Option in grouppedCounters) {
+                    result[translates[group1Name][group1Option]] = {}
+                    for (const group2Option in grouppedCounters[group1Option]) {
+                        result[translates[group1Name][group1Option]][translates[group2Name][group2Option]] = allTickets.filter(
+                            ticket =>
+                                get(ticket, groupByFields[group1Name]) === group1Option &&
+                                get(ticket, groupByFields[group2Name]) === group2Option
+                        ).length
+                    }
+                }
+                return { result }
             },
         },
     ],
