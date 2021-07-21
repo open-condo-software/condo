@@ -11771,10 +11771,11 @@ export type ResidentTicketOutput = {
   __typename?: 'ResidentTicketOutput';
   organization: Organization;
   property: Property;
-  unitName: Scalars['String'];
+  unitName?: Maybe<Scalars['String']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   status: TicketStatus;
+  statusReopenedCounter?: Maybe<Scalars['Int']>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   statusReason?: Maybe<Scalars['String']>;
   number: Scalars['Int'];
@@ -11796,6 +11797,15 @@ export type ResidentTicketOutput = {
   createdAt: Scalars['String'];
   updatedAt?: Maybe<Scalars['String']>;
   updatedBy?: Maybe<User>;
+  watchers?: Maybe<Array<Maybe<User>>>;
+  classifier?: Maybe<TicketClassifier>;
+  meta?: Maybe<Scalars['JSON']>;
+  sourceMeta?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
 };
 
 export type SendMessageInput = {
