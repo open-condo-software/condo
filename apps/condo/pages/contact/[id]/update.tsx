@@ -10,7 +10,7 @@ import { ArrowLeftOutlined } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
 import get from 'lodash/get'
 
-const ContactUpdatePage: React.FC = () => {
+const ContactUpdatePage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'EditingContact' })
 
