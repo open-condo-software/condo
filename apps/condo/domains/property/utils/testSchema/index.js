@@ -62,8 +62,9 @@ async function makeClientWithProperty () {
     return client
 }
 
-async function createTestResident (client, organization, property, extraAttrs = {}) {
+async function createTestResident (client, user, organization, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!property || !property.id) throw new Error('no property.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -79,6 +80,7 @@ async function createTestResident (client, organization, property, extraAttrs = 
     const attrs = {
         dv: 1,
         sender,
+        user: { connect: { id: user.id } },
         organization: { connect: { id: organization.id } },
         property: { connect: { id: property.id } },
         unitName: faker.random.alphaNumeric(3),

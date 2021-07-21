@@ -28,6 +28,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     address,
                     addressMeta,
                     unitName,
+                    user: { connect: { id: context.authedItem.id } },
                 })
                 return resident
             },
