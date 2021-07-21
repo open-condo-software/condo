@@ -6020,30 +6020,6 @@ export type Mutation = {
   deleteProperty?: Maybe<Property>;
   /**  Delete multiple Property items by ID.  */
   deleteProperties?: Maybe<Array<Maybe<Property>>>;
-  /**  Create a single ResidentHistoryRecord item.  */
-  createResidentHistoryRecord?: Maybe<ResidentHistoryRecord>;
-  /**  Create multiple ResidentHistoryRecord items.  */
-  createResidentHistoryRecords?: Maybe<Array<Maybe<ResidentHistoryRecord>>>;
-  /**  Update a single ResidentHistoryRecord item by ID.  */
-  updateResidentHistoryRecord?: Maybe<ResidentHistoryRecord>;
-  /**  Update multiple ResidentHistoryRecord items by ID.  */
-  updateResidentHistoryRecords?: Maybe<Array<Maybe<ResidentHistoryRecord>>>;
-  /**  Delete a single ResidentHistoryRecord item by ID.  */
-  deleteResidentHistoryRecord?: Maybe<ResidentHistoryRecord>;
-  /**  Delete multiple ResidentHistoryRecord items by ID.  */
-  deleteResidentHistoryRecords?: Maybe<Array<Maybe<ResidentHistoryRecord>>>;
-  /**  Create a single Resident item.  */
-  createResident?: Maybe<Resident>;
-  /**  Create multiple Resident items.  */
-  createResidents?: Maybe<Array<Maybe<Resident>>>;
-  /**  Update a single Resident item by ID.  */
-  updateResident?: Maybe<Resident>;
-  /**  Update multiple Resident items by ID.  */
-  updateResidents?: Maybe<Array<Maybe<Resident>>>;
-  /**  Delete a single Resident item by ID.  */
-  deleteResident?: Maybe<Resident>;
-  /**  Delete multiple Resident items by ID.  */
-  deleteResidents?: Maybe<Array<Maybe<Resident>>>;
   /**  Create a single BillingIntegrationHistoryRecord item.  */
   createBillingIntegrationHistoryRecord?: Maybe<BillingIntegrationHistoryRecord>;
   /**  Create multiple BillingIntegrationHistoryRecord items.  */
@@ -6476,6 +6452,30 @@ export type Mutation = {
   deleteContact?: Maybe<Contact>;
   /**  Delete multiple Contact items by ID.  */
   deleteContacts?: Maybe<Array<Maybe<Contact>>>;
+  /**  Create a single ResidentHistoryRecord item.  */
+  createResidentHistoryRecord?: Maybe<ResidentHistoryRecord>;
+  /**  Create multiple ResidentHistoryRecord items.  */
+  createResidentHistoryRecords?: Maybe<Array<Maybe<ResidentHistoryRecord>>>;
+  /**  Update a single ResidentHistoryRecord item by ID.  */
+  updateResidentHistoryRecord?: Maybe<ResidentHistoryRecord>;
+  /**  Update multiple ResidentHistoryRecord items by ID.  */
+  updateResidentHistoryRecords?: Maybe<Array<Maybe<ResidentHistoryRecord>>>;
+  /**  Delete a single ResidentHistoryRecord item by ID.  */
+  deleteResidentHistoryRecord?: Maybe<ResidentHistoryRecord>;
+  /**  Delete multiple ResidentHistoryRecord items by ID.  */
+  deleteResidentHistoryRecords?: Maybe<Array<Maybe<ResidentHistoryRecord>>>;
+  /**  Create a single Resident item.  */
+  createResident?: Maybe<Resident>;
+  /**  Create multiple Resident items.  */
+  createResidents?: Maybe<Array<Maybe<Resident>>>;
+  /**  Update a single Resident item by ID.  */
+  updateResident?: Maybe<Resident>;
+  /**  Update multiple Resident items by ID.  */
+  updateResidents?: Maybe<Array<Maybe<Resident>>>;
+  /**  Delete a single Resident item by ID.  */
+  deleteResident?: Maybe<Resident>;
+  /**  Delete multiple Resident items by ID.  */
+  deleteResidents?: Maybe<Array<Maybe<Resident>>>;
   registerNewUser?: Maybe<User>;
   authenticateUserWithPhoneAndPassword?: Maybe<AuthenticateUserWithPhoneAndPasswordOutput>;
   startPasswordRecovery?: Maybe<StartPasswordRecoveryOutput>;
@@ -6490,9 +6490,9 @@ export type Mutation = {
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
-  registerResident?: Maybe<Resident>;
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
+  registerResident?: Maybe<Resident>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -6930,68 +6930,6 @@ export type MutationDeletePropertyArgs = {
 
 
 export type MutationDeletePropertiesArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateResidentHistoryRecordArgs = {
-  data?: Maybe<ResidentHistoryRecordCreateInput>;
-};
-
-
-export type MutationCreateResidentHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<ResidentHistoryRecordsCreateInput>>>;
-};
-
-
-export type MutationUpdateResidentHistoryRecordArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<ResidentHistoryRecordUpdateInput>;
-};
-
-
-export type MutationUpdateResidentHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<ResidentHistoryRecordsUpdateInput>>>;
-};
-
-
-export type MutationDeleteResidentHistoryRecordArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteResidentHistoryRecordsArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateResidentArgs = {
-  data?: Maybe<ResidentCreateInput>;
-};
-
-
-export type MutationCreateResidentsArgs = {
-  data?: Maybe<Array<Maybe<ResidentsCreateInput>>>;
-};
-
-
-export type MutationUpdateResidentArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<ResidentUpdateInput>;
-};
-
-
-export type MutationUpdateResidentsArgs = {
-  data?: Maybe<Array<Maybe<ResidentsUpdateInput>>>;
-};
-
-
-export type MutationDeleteResidentArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteResidentsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -8112,6 +8050,68 @@ export type MutationDeleteContactsArgs = {
 };
 
 
+export type MutationCreateResidentHistoryRecordArgs = {
+  data?: Maybe<ResidentHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateResidentHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<ResidentHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateResidentHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<ResidentHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateResidentHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<ResidentHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteResidentHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteResidentHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateResidentArgs = {
+  data?: Maybe<ResidentCreateInput>;
+};
+
+
+export type MutationCreateResidentsArgs = {
+  data?: Maybe<Array<Maybe<ResidentsCreateInput>>>;
+};
+
+
+export type MutationUpdateResidentArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<ResidentUpdateInput>;
+};
+
+
+export type MutationUpdateResidentsArgs = {
+  data?: Maybe<Array<Maybe<ResidentsUpdateInput>>>;
+};
+
+
+export type MutationDeleteResidentArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteResidentsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
 export type MutationRegisterNewUserArgs = {
   data: RegisterNewUserInput;
 };
@@ -8184,11 +8184,6 @@ export type MutationAcceptOrRejectOrganizationInviteByCodeArgs = {
 };
 
 
-export type MutationRegisterResidentArgs = {
-  data: RegisterResidentInput;
-};
-
-
 export type MutationSendMessageArgs = {
   data: SendMessageInput;
 };
@@ -8196,6 +8191,11 @@ export type MutationSendMessageArgs = {
 
 export type MutationResendMessageArgs = {
   data: ResendMessageInput;
+};
+
+
+export type MutationRegisterResidentArgs = {
+  data: RegisterResidentInput;
 };
 
 
@@ -8659,7 +8659,6 @@ export type OrganizationEmployeeRole = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canManageResidents?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -8681,7 +8680,6 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canManageResidents?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8713,7 +8711,6 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canManageResidents?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -8739,7 +8736,6 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canManageResidents?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8770,7 +8766,6 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canManageResidents?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8838,8 +8833,6 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageContacts_not?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageTicketComments_not?: Maybe<Scalars['Boolean']>;
-  canManageResidents?: Maybe<Scalars['Boolean']>;
-  canManageResidents_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -8927,7 +8920,6 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canManageResidents?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8986,8 +8978,6 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageContacts_not?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageTicketComments_not?: Maybe<Scalars['Boolean']>;
-  canManageResidents?: Maybe<Scalars['Boolean']>;
-  canManageResidents_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -10214,22 +10204,6 @@ export type Query = {
   _allPropertiesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the Property list.  */
   _PropertiesMeta?: Maybe<_ListMeta>;
-  /**  Search for all ResidentHistoryRecord items which match the where clause.  */
-  allResidentHistoryRecords?: Maybe<Array<Maybe<ResidentHistoryRecord>>>;
-  /**  Search for the ResidentHistoryRecord item with the matching ID.  */
-  ResidentHistoryRecord?: Maybe<ResidentHistoryRecord>;
-  /**  Perform a meta-query on all ResidentHistoryRecord items which match the where clause.  */
-  _allResidentHistoryRecordsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the ResidentHistoryRecord list.  */
-  _ResidentHistoryRecordsMeta?: Maybe<_ListMeta>;
-  /**  Search for all Resident items which match the where clause.  */
-  allResidents?: Maybe<Array<Maybe<Resident>>>;
-  /**  Search for the Resident item with the matching ID.  */
-  Resident?: Maybe<Resident>;
-  /**  Perform a meta-query on all Resident items which match the where clause.  */
-  _allResidentsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the Resident list.  */
-  _ResidentsMeta?: Maybe<_ListMeta>;
   /**  Search for all BillingIntegrationHistoryRecord items which match the where clause.  */
   allBillingIntegrationHistoryRecords?: Maybe<Array<Maybe<BillingIntegrationHistoryRecord>>>;
   /**  Search for the BillingIntegrationHistoryRecord item with the matching ID.  */
@@ -10518,6 +10492,22 @@ export type Query = {
   _allContactsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the Contact list.  */
   _ContactsMeta?: Maybe<_ListMeta>;
+  /**  Search for all ResidentHistoryRecord items which match the where clause.  */
+  allResidentHistoryRecords?: Maybe<Array<Maybe<ResidentHistoryRecord>>>;
+  /**  Search for the ResidentHistoryRecord item with the matching ID.  */
+  ResidentHistoryRecord?: Maybe<ResidentHistoryRecord>;
+  /**  Perform a meta-query on all ResidentHistoryRecord items which match the where clause.  */
+  _allResidentHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the ResidentHistoryRecord list.  */
+  _ResidentHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all Resident items which match the where clause.  */
+  allResidents?: Maybe<Array<Maybe<Resident>>>;
+  /**  Search for the Resident item with the matching ID.  */
+  Resident?: Maybe<Resident>;
+  /**  Perform a meta-query on all Resident items which match the where clause.  */
+  _allResidentsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the Resident list.  */
+  _ResidentsMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
@@ -10874,56 +10864,6 @@ export type Query_AllPropertiesMetaArgs = {
   where?: Maybe<PropertyWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortPropertiesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllResidentHistoryRecordsArgs = {
-  where?: Maybe<ResidentHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortResidentHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryResidentHistoryRecordArgs = {
-  where: ResidentHistoryRecordWhereUniqueInput;
-};
-
-
-export type Query_AllResidentHistoryRecordsMetaArgs = {
-  where?: Maybe<ResidentHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortResidentHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllResidentsArgs = {
-  where?: Maybe<ResidentWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortResidentsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryResidentArgs = {
-  where: ResidentWhereUniqueInput;
-};
-
-
-export type Query_AllResidentsMetaArgs = {
-  where?: Maybe<ResidentWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortResidentsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -11830,6 +11770,56 @@ export type Query_AllContactsMetaArgs = {
 };
 
 
+export type QueryAllResidentHistoryRecordsArgs = {
+  where?: Maybe<ResidentHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortResidentHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryResidentHistoryRecordArgs = {
+  where: ResidentHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllResidentHistoryRecordsMetaArgs = {
+  where?: Maybe<ResidentHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortResidentHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllResidentsArgs = {
+  where?: Maybe<ResidentWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortResidentsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryResidentArgs = {
+  where: ResidentWhereUniqueInput;
+};
+
+
+export type Query_AllResidentsMetaArgs = {
+  where?: Maybe<ResidentWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortResidentsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type Query_KsListsMetaArgs = {
   where?: Maybe<_KsListsMetaInput>;
 };
@@ -11929,12 +11919,12 @@ export type Resident = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
+  /**  Mobile user account  */
+  user?: Maybe<User>;
   /**  Organization, that provides service to this resident. Can be missing, when a resident has been registered, but there is no Organization, that serves specified address in our system yet  */
   organization?: Maybe<Organization>;
   /**  Property, in which this person resides. Can be missing, when a resident has been registered, but there is no Property in our system yet  */
   property?: Maybe<Property>;
-  /**  Contact will be associated, when it will get a verified billing account  */
-  contact?: Maybe<Contact>;
   /**  System-wide billing account, that will allow to pay for all services from all organizations  */
   billingAccount?: Maybe<BillingAccount>;
   /**  Normalized address  */
@@ -11943,12 +11933,6 @@ export type Resident = {
   addressMeta?: Maybe<Scalars['JSON']>;
   /**  Unit of the property, in which this person resides  */
   unitName?: Maybe<Scalars['String']>;
-  /**  Full name of resident person  */
-  name?: Maybe<Scalars['String']>;
-  /**  Contact email of resident person, can be specific to related property unit  */
-  email?: Maybe<Scalars['String']>;
-  /**  Contact phone of resident person, can be specific to related property unit  */
-  phone?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -11962,16 +11946,13 @@ export type Resident = {
 export type ResidentCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  user?: Maybe<UserRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
-  contact?: Maybe<ContactRelateToOneInput>;
   billingAccount?: Maybe<BillingAccountRelateToOneInput>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  email?: Maybe<Scalars['String']>;
-  phone?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11994,16 +11975,13 @@ export type ResidentHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  user?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
-  contact?: Maybe<Scalars['String']>;
   billingAccount?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  email?: Maybe<Scalars['String']>;
-  phone?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12020,16 +11998,13 @@ export type ResidentHistoryRecord = {
 export type ResidentHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  user?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
-  contact?: Maybe<Scalars['String']>;
   billingAccount?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  email?: Maybe<Scalars['String']>;
-  phone?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12051,16 +12026,13 @@ export enum ResidentHistoryRecordHistoryActionType {
 export type ResidentHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  user?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
-  contact?: Maybe<Scalars['String']>;
   billingAccount?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  email?: Maybe<Scalars['String']>;
-  phone?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12088,6 +12060,10 @@ export type ResidentHistoryRecordWhereInput = {
   sender_not?: Maybe<Scalars['JSON']>;
   sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization?: Maybe<Scalars['String']>;
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -12096,10 +12072,6 @@ export type ResidentHistoryRecordWhereInput = {
   property_not?: Maybe<Scalars['String']>;
   property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  contact?: Maybe<Scalars['String']>;
-  contact_not?: Maybe<Scalars['String']>;
-  contact_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  contact_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   billingAccount?: Maybe<Scalars['String']>;
   billingAccount_not?: Maybe<Scalars['String']>;
   billingAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -12144,60 +12116,6 @@ export type ResidentHistoryRecordWhereInput = {
   unitName_not_ends_with_i?: Maybe<Scalars['String']>;
   unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  name?: Maybe<Scalars['String']>;
-  name_not?: Maybe<Scalars['String']>;
-  name_contains?: Maybe<Scalars['String']>;
-  name_not_contains?: Maybe<Scalars['String']>;
-  name_starts_with?: Maybe<Scalars['String']>;
-  name_not_starts_with?: Maybe<Scalars['String']>;
-  name_ends_with?: Maybe<Scalars['String']>;
-  name_not_ends_with?: Maybe<Scalars['String']>;
-  name_i?: Maybe<Scalars['String']>;
-  name_not_i?: Maybe<Scalars['String']>;
-  name_contains_i?: Maybe<Scalars['String']>;
-  name_not_contains_i?: Maybe<Scalars['String']>;
-  name_starts_with_i?: Maybe<Scalars['String']>;
-  name_not_starts_with_i?: Maybe<Scalars['String']>;
-  name_ends_with_i?: Maybe<Scalars['String']>;
-  name_not_ends_with_i?: Maybe<Scalars['String']>;
-  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  email?: Maybe<Scalars['String']>;
-  email_not?: Maybe<Scalars['String']>;
-  email_contains?: Maybe<Scalars['String']>;
-  email_not_contains?: Maybe<Scalars['String']>;
-  email_starts_with?: Maybe<Scalars['String']>;
-  email_not_starts_with?: Maybe<Scalars['String']>;
-  email_ends_with?: Maybe<Scalars['String']>;
-  email_not_ends_with?: Maybe<Scalars['String']>;
-  email_i?: Maybe<Scalars['String']>;
-  email_not_i?: Maybe<Scalars['String']>;
-  email_contains_i?: Maybe<Scalars['String']>;
-  email_not_contains_i?: Maybe<Scalars['String']>;
-  email_starts_with_i?: Maybe<Scalars['String']>;
-  email_not_starts_with_i?: Maybe<Scalars['String']>;
-  email_ends_with_i?: Maybe<Scalars['String']>;
-  email_not_ends_with_i?: Maybe<Scalars['String']>;
-  email_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  email_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  phone?: Maybe<Scalars['String']>;
-  phone_not?: Maybe<Scalars['String']>;
-  phone_contains?: Maybe<Scalars['String']>;
-  phone_not_contains?: Maybe<Scalars['String']>;
-  phone_starts_with?: Maybe<Scalars['String']>;
-  phone_not_starts_with?: Maybe<Scalars['String']>;
-  phone_ends_with?: Maybe<Scalars['String']>;
-  phone_not_ends_with?: Maybe<Scalars['String']>;
-  phone_i?: Maybe<Scalars['String']>;
-  phone_not_i?: Maybe<Scalars['String']>;
-  phone_contains_i?: Maybe<Scalars['String']>;
-  phone_not_contains_i?: Maybe<Scalars['String']>;
-  phone_starts_with_i?: Maybe<Scalars['String']>;
-  phone_not_starts_with_i?: Maybe<Scalars['String']>;
-  phone_ends_with_i?: Maybe<Scalars['String']>;
-  phone_not_ends_with_i?: Maybe<Scalars['String']>;
-  phone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  phone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -12280,16 +12198,13 @@ export type ResidentHistoryRecordsUpdateInput = {
 export type ResidentUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  user?: Maybe<UserRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
-  contact?: Maybe<ContactRelateToOneInput>;
   billingAccount?: Maybe<BillingAccountRelateToOneInput>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  email?: Maybe<Scalars['String']>;
-  phone?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12314,12 +12229,12 @@ export type ResidentWhereInput = {
   sender_not?: Maybe<Scalars['JSON']>;
   sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   property?: Maybe<PropertyWhereInput>;
   property_is_null?: Maybe<Scalars['Boolean']>;
-  contact?: Maybe<ContactWhereInput>;
-  contact_is_null?: Maybe<Scalars['Boolean']>;
   billingAccount?: Maybe<BillingAccountWhereInput>;
   billingAccount_is_null?: Maybe<Scalars['Boolean']>;
   address?: Maybe<Scalars['String']>;
@@ -12362,60 +12277,6 @@ export type ResidentWhereInput = {
   unitName_not_ends_with_i?: Maybe<Scalars['String']>;
   unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  name?: Maybe<Scalars['String']>;
-  name_not?: Maybe<Scalars['String']>;
-  name_contains?: Maybe<Scalars['String']>;
-  name_not_contains?: Maybe<Scalars['String']>;
-  name_starts_with?: Maybe<Scalars['String']>;
-  name_not_starts_with?: Maybe<Scalars['String']>;
-  name_ends_with?: Maybe<Scalars['String']>;
-  name_not_ends_with?: Maybe<Scalars['String']>;
-  name_i?: Maybe<Scalars['String']>;
-  name_not_i?: Maybe<Scalars['String']>;
-  name_contains_i?: Maybe<Scalars['String']>;
-  name_not_contains_i?: Maybe<Scalars['String']>;
-  name_starts_with_i?: Maybe<Scalars['String']>;
-  name_not_starts_with_i?: Maybe<Scalars['String']>;
-  name_ends_with_i?: Maybe<Scalars['String']>;
-  name_not_ends_with_i?: Maybe<Scalars['String']>;
-  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  email?: Maybe<Scalars['String']>;
-  email_not?: Maybe<Scalars['String']>;
-  email_contains?: Maybe<Scalars['String']>;
-  email_not_contains?: Maybe<Scalars['String']>;
-  email_starts_with?: Maybe<Scalars['String']>;
-  email_not_starts_with?: Maybe<Scalars['String']>;
-  email_ends_with?: Maybe<Scalars['String']>;
-  email_not_ends_with?: Maybe<Scalars['String']>;
-  email_i?: Maybe<Scalars['String']>;
-  email_not_i?: Maybe<Scalars['String']>;
-  email_contains_i?: Maybe<Scalars['String']>;
-  email_not_contains_i?: Maybe<Scalars['String']>;
-  email_starts_with_i?: Maybe<Scalars['String']>;
-  email_not_starts_with_i?: Maybe<Scalars['String']>;
-  email_ends_with_i?: Maybe<Scalars['String']>;
-  email_not_ends_with_i?: Maybe<Scalars['String']>;
-  email_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  email_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  phone?: Maybe<Scalars['String']>;
-  phone_not?: Maybe<Scalars['String']>;
-  phone_contains?: Maybe<Scalars['String']>;
-  phone_not_contains?: Maybe<Scalars['String']>;
-  phone_starts_with?: Maybe<Scalars['String']>;
-  phone_not_starts_with?: Maybe<Scalars['String']>;
-  phone_ends_with?: Maybe<Scalars['String']>;
-  phone_not_ends_with?: Maybe<Scalars['String']>;
-  phone_i?: Maybe<Scalars['String']>;
-  phone_not_i?: Maybe<Scalars['String']>;
-  phone_contains_i?: Maybe<Scalars['String']>;
-  phone_not_contains_i?: Maybe<Scalars['String']>;
-  phone_starts_with_i?: Maybe<Scalars['String']>;
-  phone_not_starts_with_i?: Maybe<Scalars['String']>;
-  phone_ends_with_i?: Maybe<Scalars['String']>;
-  phone_not_ends_with_i?: Maybe<Scalars['String']>;
-  phone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  phone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -13291,8 +13152,6 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
   CanManageTicketCommentsDesc = 'canManageTicketComments_DESC',
-  CanManageResidentsAsc = 'canManageResidents_ASC',
-  CanManageResidentsDesc = 'canManageResidents_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -13330,8 +13189,6 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
   CanManageTicketCommentsDesc = 'canManageTicketComments_DESC',
-  CanManageResidentsAsc = 'canManageResidents_ASC',
-  CanManageResidentsDesc = 'canManageResidents_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -13500,12 +13357,6 @@ export enum SortResidentHistoryRecordsBy {
   AddressDesc = 'address_DESC',
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
-  NameAsc = 'name_ASC',
-  NameDesc = 'name_DESC',
-  EmailAsc = 'email_ASC',
-  EmailDesc = 'email_DESC',
-  PhoneAsc = 'phone_ASC',
-  PhoneDesc = 'phone_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -13525,24 +13376,18 @@ export enum SortResidentHistoryRecordsBy {
 export enum SortResidentsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
   PropertyAsc = 'property_ASC',
   PropertyDesc = 'property_DESC',
-  ContactAsc = 'contact_ASC',
-  ContactDesc = 'contact_DESC',
   BillingAccountAsc = 'billingAccount_ASC',
   BillingAccountDesc = 'billingAccount_DESC',
   AddressAsc = 'address_ASC',
   AddressDesc = 'address_DESC',
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
-  NameAsc = 'name_ASC',
-  NameDesc = 'name_DESC',
-  EmailAsc = 'email_ASC',
-  EmailDesc = 'email_DESC',
-  PhoneAsc = 'phone_ASC',
-  PhoneDesc = 'phone_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
