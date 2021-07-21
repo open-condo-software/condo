@@ -185,7 +185,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 if (!phone) {
                     throw new Error(`${PHONE_WRONG_FORMAT_ERROR}]: not valid phone number provided`)
                 }
-                await redisGuard.checkDayLimitCounters(phone, context.req.ip)
+                await redisGuard.checkSMSDayLimitCounters(phone, context.req.ip)
                 await redisGuard.checkLock(phone, 'sendsms')
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
                 const token = uuid()
@@ -240,7 +240,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] unable to find confirm phone action by token`)
                 }
                 const { id, phone } = actions[0]
-                await redisGuard.checkDayLimitCounters(phone, context.req.ip)
+                await redisGuard.checkSMSDayLimitCounters(phone, context.req.ip)
                 await redisGuard.checkLock(phone, 'sendsms')
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
                 const newSmsCode = generateSmsCode(phone)
