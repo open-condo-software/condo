@@ -17,7 +17,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
         },
         {
             access: true,
-            type: 'type ResidentTicketOutput { organization: Organization!, property: Property!, unitName: String!,' +
+            type: 'type ResidentTicketOutput { organization: Organization!, property: Property!, unitName: String,' +
             'sectionName: String, floorName: String, status: TicketStatus!, statusReopenedCounter: Int,' +
             'statusUpdatedAt: String, statusReason: String, number: Int!, client: User!, clientName: String,' +
             'clientEmail: String, clientPhone: String, contact: Contact, operator: User, assignee: User, executor: User,' +
@@ -39,7 +39,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                 const property = (await Property.getAll(context, { id: propertyId }))[0]
                 const organizationId = property.organization.id
                 const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
-                if (!sectionName || !floorName) throw Error('unitName is wrong')
+                if (unitName && (!sectionName || !floorName)) throw Error('unitName is wrong')
                 const client = context.req.user
 
                 return await Ticket.create(context, {

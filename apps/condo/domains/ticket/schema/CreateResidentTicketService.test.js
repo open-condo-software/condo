@@ -8,7 +8,6 @@ const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.uti
 const { createResidentTicketByTestClient } = require('@condo/domains/ticket/utils/testSchema')
 const { UUID_RE } = require('@core/keystone/test.utils')
 const faker = require('faker')
-const { CREATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('CreateResidentTicketService', () => {
@@ -25,6 +24,16 @@ describe('CreateResidentTicketService', () => {
             await createResidentTicketByTestClient(client, client.property, { unitName: faker.random.alphaNumeric(10) })
         } catch (error) {
             expect(error.errors[0].message).toEqual('unitName is wrong')
+        }
+    })
+
+    test('user: create resident ticket without details', async () => {
+        const client = await makeClientWithProperty()
+
+        try {
+            await createResidentTicketByTestClient(client, client.property, { details: null })
+        } catch (error) {
+            expect(error.errors).toHaveLength(1)
         }
     })
 
