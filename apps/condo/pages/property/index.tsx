@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from 'react'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Typography, Space, Radio, Row, Col, Input, Table } from 'antd'
-import { DatabaseFilled } from '@ant-design/icons'
+import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import Head from 'next/head'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { MapGL } from '@condo/domains/common/components/MapGL'
@@ -34,7 +34,8 @@ import { useTableColumns } from '@condo/domains/property/hooks/useTableColumns'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import debounce from 'lodash/debounce'
-import { PropertyImport } from '../../domains/property/components/PropertyImport'
+import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
+import { useImporterFunctions } from '@condo/domains/property/hooks/useImporterFunctions'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
@@ -79,6 +80,7 @@ const PropertyPageViewTable = (): React.FC => {
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const PropertiesMessage = intl.formatMessage({ id: 'menu.Property' })
     // EXCEL TABLE FIELDS
     const ExcelAddressLabel = intl.formatMessage({ id: 'field.Address' })
     const ExcelOrganizationLabel = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
@@ -183,12 +185,15 @@ const PropertyPageViewTable = (): React.FC => {
         }
     }, [router])
 
+    const [columns, propertyNormalizer, propertyValidator, propertyCreator] = useImporterFunctions()
+
     if (error) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
     }
 
     const isNoProperties = !properties.length && isEmpty(filtersFromQuery)
 
+    const canManageProperties = get(userOrganization, ['link', 'role', 'canManageProperties'], false)
 
     return (
         <>
@@ -213,7 +218,21 @@ const PropertyPageViewTable = (): React.FC => {
                         </Col>
                         <Col span={6} push={6} align={'right'}>
                             <Space size={16}>
-                                <PropertyImport onFinish={refetch}/>
+                                <ImportWrapper
+                                    objectsName={PropertiesMessage}
+                                    accessCheck={canManageProperties}
+                                    onFinish={refetch}
+                                    columns={columns}
+                                    rowNormalizer={propertyNormalizer}
+                                    rowValidator={propertyValidator}
+                                    objectCreator={propertyCreator}
+                                >
+                                    <Button
+                                        type={'sberPrimary'}
+                                        icon={<DiffOutlined />}
+                                        secondary
+                                    />
+                                </ImportWrapper>
                                 <Button type='sberPrimary' onClick={() => router.push(createRoute)}>
                                     {CreateLabel}
                                 </Button>
