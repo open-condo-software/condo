@@ -4,6 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const {makeClientWithProperty} = require("@condo/domains/property/utils/testSchema");
+const {createTestProperty} = require("@condo/domains/property/utils/testSchema");
 const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require ('@condo/domains/common/constants/countries');
 const { makeClientWithNewRegisteredAndLoggedInUser } = require ('../../../user/utils/testSchema');
 const { makeLoggedInAdminClient } = require ('@core/keystone/test.utils');
@@ -239,6 +241,24 @@ async function updateTestOrganizationLinkEmployeeAccess (client, id, extraAttrs 
     return [obj, attrs]
 }
 
+async function createTestOrganizationLinkWithTwoOrganizations () {
+    const admin = await makeLoggedInAdminClient()
+    const clientWithPropertyFrom = await makeClientWithProperty()
+    const [role] = await createTestOrganizationEmployeeRole(admin, clientWithPropertyFrom.organization)
+    const [employeeFrom] = await createTestOrganizationEmployee(admin, clientWithPropertyFrom.organization, clientWithPropertyFrom.user, role)
+
+    const clientWithPropertyTo = await makeClientWithProperty()
+    const [employeeTo] = await createTestOrganizationEmployee(admin, clientWithPropertyTo.organization, clientWithPropertyTo.user, role)
+
+    const [link] = await createTestOrganizationLink(admin, clientWithPropertyFrom.organization, clientWithPropertyTo.organization)
+
+    return {
+        clientWithPropertyFrom, employeeFrom,
+        clientWithPropertyTo, employeeTo,
+        link,
+    }
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -252,7 +272,7 @@ module.exports = {
     createTestOrganizationEmployee,
     softDeleteTestOrganizationEmployee,
     makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
-    updateTestOrganizationEmployee,
+    updateTestOrganizationEmployee, createTestOrganizationLinkWithTwoOrganizations,
     OrganizationLink, createTestOrganizationLink, updateTestOrganizationLink,
     OrganizationLinkEmployeeAccess, createTestOrganizationLinkEmployeeAccess, updateTestOrganizationLinkEmployeeAccess,
 

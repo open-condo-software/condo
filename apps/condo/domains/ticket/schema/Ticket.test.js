@@ -11,10 +11,11 @@ const { expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorT
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationLink, createTestOrganizationLinkWithTwoOrganizations } = require('@condo/domains/organization/utils/testSchema')
+const faker = require('faker')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('Ticket', () => {
     test('user: create Ticket', async () => {
@@ -201,42 +202,87 @@ describe('Ticket:permissions', () => {
         })
     })
 
-    test('organization "from" employee: can create organization "to" tickets', async () => {
+    test('employee from "from" organization: can read tickets from "to" organizations', async () => {
         const admin = await makeLoggedInAdminClient()
-        const clientFrom = await makeClientWithProperty()
-        const [role] = await createTestOrganizationEmployeeRole(admin, clientFrom.organization)
-        const [employeeFrom] = await createTestOrganizationEmployee(admin, clientFrom.organization, clientFrom.user, role)
+        const { clientWithPropertyFrom, clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const clientWithPropertyTo2 = await makeClientWithProperty()
 
-        const [organizationTo] = await createTestOrganization(admin)
-        const [propertyTo] = await createTestProperty(admin, organizationTo)
-        await createTestTicket(admin, organizationTo, propertyTo)
+        await createTestTicket(admin, clientWithPropertyTo.organization, clientWithPropertyTo.property)
+        await createTestTicket(admin, clientWithPropertyTo2.organization, clientWithPropertyTo2.property)
 
-        const [link] = await createTestOrganizationLink(admin, clientFrom.organization, organizationTo)
+        await createTestOrganizationLink(admin, clientWithPropertyFrom.organization, clientWithPropertyTo2.organization)
+
+        const tickets = await Ticket.getAll(clientWithPropertyFrom, { organization: { OR: [{ id: clientWithPropertyTo.organization.id }, { id: clientWithPropertyTo2.organization.id }] } })
+        expect(tickets).toHaveLength(2)
+    })
+
+    test('employee from "to" organization: cannot read tickets from "from" organization', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const { clientWithPropertyFrom, clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        await createTestTicket(admin, clientWithPropertyFrom.organization, clientWithPropertyFrom.property)
+
+        const tickets = await Ticket.getAll(clientWithPropertyTo, { organization: { id: clientWithPropertyFrom.id } })
+        expect(tickets).toHaveLength(0)
+    })
+
+    test('employee from "from" organization: cannot check not its own "to" organizations', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const { clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const { clientWithPropertyFrom: clientWithPropertyFrom2, clientWithPropertyTo: clientWithPropertyTo2 } = await createTestOrganizationLinkWithTwoOrganizations()
+
+        await createTestTicket(admin, clientWithPropertyTo.organization, clientWithPropertyTo.property)
+
+        const tickets = await Ticket.getAll(clientWithPropertyFrom2, { organization: { OR: [{ id: clientWithPropertyTo.organization.id }, { id: clientWithPropertyTo2.organization.id }] } })
+        expect(tickets).toHaveLength(0)
+    })
+
+    test('organization "from" employee with canManageTickets access: can create organization "to" tickets', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const { clientWithPropertyFrom, clientWithPropertyTo, employeeFrom, link } = await createTestOrganizationLinkWithTwoOrganizations()
         await createTestOrganizationLinkEmployeeAccess(admin, link, employeeFrom, {
             canManageTickets: true,
         })
 
-        const [ticket] = await createTestTicket(clientFrom, organizationTo, propertyTo)
-
+        const [ticket] = await createTestTicket(clientWithPropertyFrom, clientWithPropertyTo.organization, clientWithPropertyTo.property)
         expect(ticket.id).toMatch(UUID_RE)
     })
 
     test('organization "to" employee: cannot create organization "from" tickets', async () => {
+        const { clientWithPropertyFrom, clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestTicket(clientWithPropertyTo, clientWithPropertyFrom.organization, clientWithPropertyFrom.property)
+        })
+    })
+
+    test('user: cannot create tickets for "from" or "to" organizations', async () => {
         const admin = await makeLoggedInAdminClient()
-        const clientFrom = await makeClientWithProperty()
-        const [role] = await createTestOrganizationEmployeeRole(admin, clientFrom.organization)
-        const [employeeFrom] = await createTestOrganizationEmployee(admin, clientFrom.organization, clientFrom.user, role)
-
-        const clientTo = await makeClientWithProperty()
-        await createTestOrganizationEmployee(admin, clientTo.organization, clientTo.user, role)
-
-        const [link] = await createTestOrganizationLink(admin, clientFrom.organization, clientTo.organization)
+        const { clientWithPropertyFrom, clientWithPropertyTo, link, employeeFrom } = await createTestOrganizationLinkWithTwoOrganizations()
         await createTestOrganizationLinkEmployeeAccess(admin, link, employeeFrom, {
             canManageTickets: true,
         })
 
-        const [ticket] = await createTestTicket(clientFrom, clientTo.organization, clientTo.property)
+        const randomUser = await makeClientWithProperty()
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestTicket(randomUser, clientWithPropertyFrom.organization, clientWithPropertyFrom.property)
+        })
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestTicket(randomUser, clientWithPropertyTo.organization, clientWithPropertyTo.property)
+        })
+    })
 
-        expect(ticket.id).toMatch(UUID_RE)
+    test('organization "from" employee: can update organization "to" tickets', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const { clientWithPropertyFrom, clientWithPropertyTo, link, employeeFrom } = await createTestOrganizationLinkWithTwoOrganizations()
+        await createTestOrganizationLinkEmployeeAccess(admin, link, employeeFrom, {
+            canManageTickets: true,
+        })
+
+        const [ticket] = await createTestTicket(admin, clientWithPropertyTo.organization, clientWithPropertyTo.property)
+        const newDetails = faker.random.alphaNumeric(21)
+        const [updatedTicket] = await updateTestTicket(clientWithPropertyFrom, ticket.id, { details: newDetails })
+
+        expect(updatedTicket.id).toEqual(ticket.id)
+        expect(updatedTicket.details).toEqual(newDetails)
     })
 })
