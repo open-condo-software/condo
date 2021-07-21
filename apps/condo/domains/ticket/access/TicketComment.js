@@ -33,7 +33,7 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
             return false
         }
         const organizationId = get(ticket, ['organization', 'id'])
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationId, 'canManageTickets')
+        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationId, 'canManageTicketComments')
         if (canManageRelatedOrganizationTickets) {
             return true
         }
@@ -51,7 +51,7 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
             return false
         }
         const organizationId = get(ticket, ['organization', 'id'])
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationId, 'canManageTickets')
+        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationId, 'canManageTicketComments')
         if (canManageRelatedOrganizationTickets) {
             return true
         }

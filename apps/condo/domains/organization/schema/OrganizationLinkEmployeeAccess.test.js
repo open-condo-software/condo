@@ -3,9 +3,6 @@
  */
 
 const { createTestOrganizationLinkWithTwoOrganizations } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationLink, createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganizationLinkEmployeeAccess } = require('@condo/domains/organization/utils/testSchema')
@@ -35,40 +32,21 @@ describe('OrganizationLinkEmployeeAccess', () => {
         })
     })
 
-    test('anonymous: create OrganizationLinkEmployeeAccess', async () => {
+    test('anonymous: cannot create OrganizationLinkEmployeeAccess', async () => {
         const client = await makeClient()
+        const { employeeFrom, link } = await createTestOrganizationLinkWithTwoOrganizations()
 
-        const admin = await makeLoggedInAdminClient()
-        const [organizationFrom] = await createTestOrganization(admin)
-        const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom)
-        const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [employeeFrom] = await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, role)
-
-        const [organizationTo] = await createTestOrganization(admin)
-        const clientTo = await makeClientWithNewRegisteredAndLoggedInUser()
-        await createTestOrganizationEmployee(admin, organizationTo, clientTo.user, role)
-
-        const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo)
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestOrganizationLinkEmployeeAccess(client, link, employeeFrom)
         })
     })
 
-    test('user: create OrganizationLinkEmployeeAccess', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [organizationFrom] = await createTestOrganization(admin)
-        const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom)
-        const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [employeeFrom] = await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, role)
-
-        const [organizationTo] = await createTestOrganization(admin)
-        const clientTo = await makeClientWithNewRegisteredAndLoggedInUser()
-        await createTestOrganizationEmployee(admin, organizationTo, clientTo.user, role)
-
-        const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo)
+    test('user: cannot create OrganizationLinkEmployeeAccess', async () => {
+        const user = await makeClientWithNewRegisteredAndLoggedInUser()
+        const { employeeFrom, link } = await createTestOrganizationLinkWithTwoOrganizations()
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
-            await createTestOrganizationLinkEmployeeAccess(clientFrom, link, employeeFrom)
+            await createTestOrganizationLinkEmployeeAccess(user, link, employeeFrom)
         })
     })
 })

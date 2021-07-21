@@ -225,7 +225,7 @@ describe('Ticket:permissions', () => {
         expect(tickets).toHaveLength(0)
     })
 
-    test('employee from "from" organization: cannot check not its own "to" organizations', async () => {
+    test('employee from "from" organization: cannot read not its own "to" organizations', async () => {
         const admin = await makeLoggedInAdminClient()
         const { clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
         const { clientWithPropertyFrom: clientWithPropertyFrom2, clientWithPropertyTo: clientWithPropertyTo2 } = await createTestOrganizationLinkWithTwoOrganizations()
