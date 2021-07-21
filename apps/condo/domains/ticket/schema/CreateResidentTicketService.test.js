@@ -7,12 +7,25 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { createResidentTicketByTestClient } = require('@condo/domains/ticket/utils/testSchema')
 const { UUID_RE } = require('@core/keystone/test.utils')
+const faker = require('faker')
+const { CREATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
+const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('CreateResidentTicketService', () => {
     test('user: create resident ticket', async () => {
         const client = await makeClientWithProperty()
         const [data] = await createResidentTicketByTestClient(client, client.property)
         expect(data.id).toMatch(UUID_RE)
+    })
+
+    test('user: create resident ticket with wrong unitName', async () => {
+        const client = await makeClientWithProperty()
+
+        try {
+            await createResidentTicketByTestClient(client, client.property, { unitName: faker.random.alphaNumeric(10) })
+        } catch (error) {
+            expect(error.errors[0].message).toEqual('unitName is wrong')
+        }
     })
 
     test('user: cannot create resident ticket without property', async () => {
@@ -30,12 +43,9 @@ describe('CreateResidentTicketService', () => {
         const [organization] = await createTestOrganization(admin)
         const [property] = await createTestProperty(admin, organization)
 
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await createResidentTicketByTestClient(anon, property)
-        } catch (error) {
-            expect(error.errors).toHaveLength(1)
-            expect(error.errors[0].name).toEqual('AuthenticationError')
-        }
+        })
     })
 
     test('admin: create resident ticket', async () => {

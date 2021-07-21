@@ -116,7 +116,7 @@ const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 
 const CREATE_RESIDENT_TICKET_MUTATION = gql`
     mutation createResidentTicket ($data: CreateResidentTicketInput!) {
-        result: createResidentTicket (data: $data) ${TICKET_FIELDS}
+        obj: createResidentTicket (data: $data) ${TICKET_FIELDS}
     }
 `
 /* AUTOGENERATE MARKER <CONST> */
