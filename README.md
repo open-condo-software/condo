@@ -27,7 +27,7 @@ Javascript ecosystem is full of tutorials, open-source and helpful materials,
 but still, it's often **up to the developer** to implement such **basic** features like:
 * Authentication workflow (register-login-reset)
 * Permission mechanism
-* Index/Export
+* Import/Export
 * Logic reusability between web and mobile
 * And more
 
