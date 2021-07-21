@@ -65,6 +65,7 @@ export const EditContactForm: React.FC = () => {
         },
     })
 
+    // @ts-ignore
     const contactUpdateAction = Contact.useUpdate({}, () => {
         refetch().then(() => {
             push(`/contact/${contactId}`)
