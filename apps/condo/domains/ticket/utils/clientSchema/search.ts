@@ -44,6 +44,7 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
             id
             user {
                 id
+                name
             }
         }
     }
@@ -109,7 +110,7 @@ export function searchEmployee (organizationId) {
 
         return data.objs.map(object => {
             if (object.user) {
-                return ({ text: object.name, value: object.user.id })
+                return ({ text: object.user.name ? object.user.name : object.name, value: object.user.id })
             }
         }).filter(Boolean)
     }
