@@ -12,9 +12,6 @@ const COMMON_FIELDS = 'id dv sender v deletedAt organization { id name} newId cr
 const PROPERTY_FIELDS = `{ name address addressMeta type ticketsInWork ticketsClosed unitsCount map ${COMMON_FIELDS} }`
 const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
 
-const RESIDENT_FIELDS = `{ user { id name } organization { id } property { id } billingAccount { id } address addressMeta unitName ${COMMON_FIELDS} }`
-const Resident = generateGqlQueries('Resident', RESIDENT_FIELDS)
-
 const GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY = gql`
     query GetTicketInWorkCountForProperty ($propertyId: ID!) {
         inwork: _allTicketsMeta(where: { status: { type_not:  closed }, property: { id: $propertyId } }) {
@@ -35,20 +32,12 @@ const CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY = gql`
         result: checkPropertyWithAddressExist(data: $data) { isFound }
     }
 `
-
-const REGISTER_RESIDENT_MUTATION = gql`
-    mutation registerResident ($data: RegisterResidentInput!) {
-        result: registerResident(data: $data) { id v dv sender address addressMeta unitName }
-    }
-`
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Property,
-    Resident,
     GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
     GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
     CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY,
-    REGISTER_RESIDENT_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

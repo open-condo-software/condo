@@ -6,7 +6,7 @@ const { makeClientWithResidentUser } = require('../../user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { expectToThrowAuthenticationError } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { registerResidentByTestClient } = require('@condo/domains/property/utils/testSchema')
+const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { getById } = require('@core/keystone/schema')
 
 describe('RegisterResidentService', () => {
