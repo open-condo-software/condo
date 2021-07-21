@@ -4,6 +4,7 @@
 
 const { catchErrorFrom, expectToThrowAuthenticationErrorToObjects } = require('../../common/utils/testSchema')
 const faker = require('faker')
+const { createTestOrganizationLinkWithTwoOrganizations } = require('@condo/domains/organization/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { updateTestTicket } = require('../utils/testSchema')
@@ -351,5 +352,36 @@ describe('TicketChange', () => {
             // So, just inspect basic part of the message
             expect(errors[0].message).toMatch('Cannot query field "deleteTicketChange" on type "Mutation"')
         })
+    })
+
+    test('employee from "from" relation: can read ticket changes from his "to" relation organization', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const { clientWithPropertyFrom, clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const [ticket] = await createTestTicket(admin, clientWithPropertyTo.organization, clientWithPropertyTo.property)
+        const payload = {
+            details: faker.lorem.sentence(),
+        }
+        await updateTestTicket(admin, ticket.id, payload)
+
+        const objs = await TicketChange.getAll(clientWithPropertyFrom, {
+            ticket: { id: ticket.id },
+        })
+        expect(objs).toHaveLength(1)
+        expect(objs[0].ticket.id).toEqual(ticket.id)
+    })
+
+    test('employee from "to" relation: cannot read ticket changes from his "from" relation organization', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const { clientWithPropertyFrom, clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const [ticket] = await createTestTicket(admin, clientWithPropertyFrom.organization, clientWithPropertyFrom.property)
+        const payload = {
+            details: faker.lorem.sentence(),
+        }
+        await updateTestTicket(admin, ticket.id, payload)
+
+        const objs = await TicketChange.getAll(clientWithPropertyTo, {
+            ticket: { id: ticket.id },
+        })
+        expect(objs).toHaveLength(0)
     })
 })
