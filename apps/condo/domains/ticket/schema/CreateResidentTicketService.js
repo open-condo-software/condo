@@ -4,7 +4,6 @@
 const { Property } = require('../../property/utils/serverSchema')
 const { Ticket } = require('../utils/serverSchema')
 const { GQLCustomSchema } = require('@core/keystone/schema')
-const { mapTicketToResidentTicket } = require('../utils/serverSchema')
 const access = require('@condo/domains/ticket/access/CreateResidentTicketService')
 const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
 
@@ -40,9 +39,10 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                 const property = (await Property.getAll(context, { id: propertyId }))[0]
                 const organizationId = property.organization.id
                 const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
+                if (!sectionName || !floorName) throw Error('unitName is wrong')
                 const client = context.req.user
 
-                const ticket = await Ticket.create(context, {
+                return await Ticket.create(context, {
                     dv: newTicketDv,
                     sender: newTicketSender,
                     organization: { connect: { id: organizationId } },
@@ -54,8 +54,6 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                     source: { connect: { id: TICKET_MOBILE_SOURCE_ID } },
                     details,
                 })
-
-                return mapTicketToResidentTicket(ticket)
             },
         },
     ],
