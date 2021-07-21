@@ -7,7 +7,7 @@ const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/u
 const { TICKET_ANALYTICS_REPORT_MUTATION } = require(('@condo/domains/ticket/gql'))
 const moment = require('moment')
 
-test.skip('Groupped counts [day, status]', async () => {
+test('Groupped counts [day, status]', async () => {
     const client = await makeClient()
     const dateStart = moment().startOf('week')
     const dateEnd = moment().endOf('week')
@@ -27,7 +27,7 @@ test.skip('Groupped counts [day, status]', async () => {
     })
     console.log(result)
 })
-test.skip('Groupped counts [status, day]', async () => {
+test('Groupped counts [status, day]', async () => {
     const client = await makeClient()
     const dateStart = moment().startOf('week')
     const dateEnd = moment().endOf('week')
@@ -65,39 +65,8 @@ test('Groupped counts [property, status]', async () => {
                     { isPaid: false },
                 ],
             },
-            groupBy: [ 'property', 'status' ],
+            groupBy: [ 'status', 'property' ],
         },
     })
     console.log(result)
 })
-
-
-
-/*
-const { ticketAnalyticsReportByTestClient } = require('@condo/domains/ticket/utils/testSchema')
-
-describe('TicketAnalyticsReportService', () => {
-    test('user: execute', async () => {
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
-        const payload = {}  // TODO(codegen): change the 'user: update TicketAnalyticsReportService' payload
-        const [data, attrs] = await ticketAnalyticsReportByTestClient(client, payload)
-        // TODO(codegen): write user expect logic
-        throw new Error('Not implemented yet')
-    })
-
-    test('anonymous: execute', async () => {
-        const client = await makeClient()
-        await expectToThrowAccessDeniedErrorToObj(async () => {
-            await ticketAnalyticsReportByTestClient(client)
-        })
-    })
-
-    test('admin: execute', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const payload = {}  // TODO(codegen): change the 'user: update TicketAnalyticsReportService' payload
-        const [data, attrs] = await ticketAnalyticsReportByTestClient(admin, payload)
-        // TODO(codegen): write admin expect logic
-        throw new Error('Not implemented yet')
-    })
-})
-*/
