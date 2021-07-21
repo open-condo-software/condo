@@ -3,7 +3,7 @@
  */
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
-const access = require('@condo/domains/property/access/RegisterResidentService')
+const access = require('../access/RegisterResidentService')
 const { Resident } = require('../utils/serverSchema/index')
 
 
@@ -38,5 +38,5 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
 })
 
 module.exports = {
-    RegisterResidentService: RegisterResidentService,
+    RegisterResidentService,
 }

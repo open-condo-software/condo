@@ -11,16 +11,9 @@ const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegenera
 const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
-const { createTestEmail } = require('@condo/domains/user/utils/testSchema')
-
-const { Resident: ResidentGQL } = require('@condo/domains/property/gql')
-const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/property/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateGQLTestUtils(PropertyGQL)
-
-const Resident = generateGQLTestUtils(ResidentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestProperty (client, organization, extraAttrs = {}) {
@@ -62,51 +55,6 @@ async function makeClientWithProperty () {
     return client
 }
 
-async function createTestResident (client, user, organization, property, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!user || !user.id) throw new Error('no user.id')
-    if (!organization || !organization.id) throw new Error('no organization.id')
-    if (!property || !property.id) throw new Error('no property.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const address = property.address
-    const addressMeta = {
-        dv: 1, city: faker.address.city(), zipCode: faker.address.zipCode(),
-        street: faker.address.streetName(), number: faker.address.secondaryAddress(),
-        county: faker.address.county(),
-        address,
-    }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        user: { connect: { id: user.id } },
-        organization: { connect: { id: organization.id } },
-        property: { connect: { id: property.id } },
-        unitName: faker.random.alphaNumeric(3),
-        address,
-        addressMeta,
-        ...extraAttrs,
-    }
-    const obj = await Resident.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestResident (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        unitName: faker.random.alphaNumeric(3),
-        ...extraAttrs,
-    }
-    const obj = await Resident.update(client, id, attrs)
-    return [obj, attrs]
-}
-
 async function checkPropertyWithAddressExistByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
@@ -118,35 +66,13 @@ async function checkPropertyWithAddressExistByTestClient(client, extraAttrs = {}
     return [data.result, attrs]
 }
 
-async function registerResidentByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const address = faker.address.streetAddress(true)
-    const unitName = faker.random.alphaNumeric(3)
-
-    const attrs = {
-        dv: 1,
-        sender,
-        address,
-        addressMeta: buildFakeAddressMeta(address),
-        unitName,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(REGISTER_RESIDENT_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     Property,
-    Resident,
     createTestProperty,
     updateTestProperty,
     makeClientWithProperty,
     checkPropertyWithAddressExistByTestClient,
-    createTestResident,
-    updateTestResident,
-    registerResidentByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
