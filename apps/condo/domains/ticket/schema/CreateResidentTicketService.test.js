@@ -8,12 +8,26 @@ const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.uti
 const { createResidentTicketByTestClient } = require('@condo/domains/ticket/utils/testSchema')
 const { UUID_RE } = require('@core/keystone/test.utils')
 const faker = require('faker')
+const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
+const { createTestUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestConfirmPhoneAction } = require('@condo/domains/user/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('CreateResidentTicketService', () => {
     test('user: create resident ticket', async () => {
         const client = await makeClientWithProperty()
         const [data] = await createResidentTicketByTestClient(client, client.property)
+        expect(data.id).toMatch(UUID_RE)
+    })
+
+    test('resident: create resident ticket', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
+        const [_, userAttrs] = await createTestUser(admin, { phone: token.phone, type: 'resident' })
+        const client = await makeLoggedInClient(userAttrs)
+        const [organization] = await createTestOrganization(admin)
+        const [property] = await createTestProperty(admin, organization)
+        const [data] = await createResidentTicketByTestClient(client, property)
         expect(data.id).toMatch(UUID_RE)
     })
 
