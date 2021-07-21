@@ -11,9 +11,9 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { Rule } from 'rc-field-form/lib/interface'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { FormResetButton } from '../../common/components/FormResetButton'
-import { Button } from '../../common/components/Button'
-import { canManageContacts } from '../../organization/permissions'
+import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
+import { Button } from '@condo/domains/common/components/Button'
+import { canManageContacts } from '@condo/domains/organization/permissions'
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const INPUT_LAYOUT_PROPS = {
@@ -65,8 +65,6 @@ export const EditContactForm: React.FC = () => {
         },
     })
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     const contactUpdateAction = Contact.useUpdate({}, () => {
         refetch().then(() => {
             push(`/contact/${contactId}`)
