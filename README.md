@@ -27,7 +27,7 @@ Javascript ecosystem is full of tutorials, open-source and helpful materials,
 but still, it's often **up to the developer** to implement such **basic** features like:
 * Authentication workflow (register-login-reset)
 * Permission mechanism
-* Import/Export
+* Index/Export
 * Logic reusability between web and mobile
 * And more
 
@@ -48,7 +48,7 @@ Our primary focus is startup developers and hackaton teams
 * Organization entity
   * Management of organization members
   * Invite users
-  * Import users from excel
+  * Index users from excel
 * Ant design based frontend
 * A lot of examples — check /apps
 * Pluggable — use only what you need
