@@ -27,10 +27,10 @@ class RedisGuard {
         this.counterPrefix = 'guard_counter:'
     }
 
-    async checkLock (phone, action) {
-        const isLocked = await this.isLocked(phone, action)
+    async checkLock (lockName, action) {
+        const isLocked = await this.isLocked(lockName, action)
         if (isLocked) {
-            const timeRemain = await this.lockTimeRemain(phone, action)
+            const timeRemain = await this.lockTimeRemain(lockName, action)
             throw new ApolloError(`${TOO_MANY_REQUESTS}]`, {
                 message: `${TOO_MANY_REQUESTS}] resend timeout not expired`,
                 time_thrown: new Date().toISOString(),
@@ -41,7 +41,7 @@ class RedisGuard {
         }
     }
 
-    async checkDayLimitCounters (phone, rawIp) {
+    async checkSMSDayLimitCounters (phone, rawIp) {
         const ip = rawIp.split(':').pop()
         const byPhoneCounter = await this.incrementDayCounter(phone)
         if (byPhoneCounter > MAX_SMS_FOR_PHONE_BY_DAY && !phoneWhiteList.includes(phone)) {
