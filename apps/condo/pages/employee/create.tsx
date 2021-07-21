@@ -1,3 +1,4 @@
+/** @jsx jsx */
 import { Typography, Row, Col, Card } from 'antd'
 import Head from 'next/head'
 import React, { useMemo } from 'react'
@@ -9,22 +10,28 @@ import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { colors } from '@condo/domains/common/constants/style'
 import { CreateEmployeeForm } from '@condo/domains/organization/components/CreateEmployeeForm'
 import { useState } from 'react'
+import { Loader } from '../../domains/common/components/Loader'
+import { css, jsx } from '@emotion/core'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
-
+const CardCss = css`
+    width: 300px;
+    height: min-content;
+    box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12);
+`
 const CreateEmployeePage: IPageWithHeaderAction = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'employee.AddEmployee' }, {
         
     })
     
-    const [selectedRole, setSelectedRole] = useState<string>('Administrator')
-    const roleTranslations = useMemo(() => ({
+    const [selectedRole, setSelectedRole] = useState<string | null>(null)
+    const roleTranslations = useMemo(() => (selectedRole ? {
         title: intl.formatMessage({ id: `employee.role.title.${selectedRole}` }),
         description: intl.formatMessage({ id: `employee.role.description.${selectedRole}` }),
-    }),
+    } : null),
     [selectedRole])
 
     return (
@@ -42,14 +49,10 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
                             <Col span={10}>
                                 <CreateEmployeeForm onRoleSelect={(role) => setSelectedRole(role)} />
                             </Col>
-                            {roleTranslations.title && roleTranslations.description && <Card
+                            {roleTranslations ? <Card
                                 title={roleTranslations.title}
                                 bordered={false}
-                                style={{
-                                    width: 300,
-                                    height: 'min-content',
-                                    boxShadow: ' 0px 9px 28px 8px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12)',
-                                }}
+                                css={CardCss}
                                 headStyle={{
                                     color: colors.lightGrey[10],
                                     fontSize: 24,
@@ -57,7 +60,7 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
                                 }}
                             >
                                 {roleTranslations.description}
-                            </Card>}
+                            </Card> : <Loader />}
                         </Row>
                     </PageContent>
                 </OrganizationRequired>
