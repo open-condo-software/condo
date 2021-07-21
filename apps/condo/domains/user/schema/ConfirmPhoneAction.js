@@ -11,7 +11,7 @@ const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const isEmpty = require('lodash/isEmpty')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ConfirmPhoneAction: ConfirmPhoneActionUtils, generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
-const { RedisGuard } = require('@condo/domains/user/utils/redisGuard')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/redisGuard')
 const { captchaCheck } = require('@condo/domains/user/utils/googleRecaptcha3')
 const redisGuard = new RedisGuard()
 
