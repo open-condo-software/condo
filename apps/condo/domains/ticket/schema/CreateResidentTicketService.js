@@ -19,12 +19,13 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
         {
             access: true,
             type: 'type ResidentTicketOutput { organization: Organization!, property: Property!, unitName: String!,' +
-            'sectionName: String, floorName: String, status: TicketStatus!,' +
+            'sectionName: String, floorName: String, status: TicketStatus!, statusReopenedCounter: Int,' +
             'statusUpdatedAt: String, statusReason: String, number: Int!, client: User!, clientName: String,' +
             'clientEmail: String, clientPhone: String, contact: Contact, operator: User, assignee: User, executor: User,' +
             'details: String!, related: Ticket, isEmergency: Boolean,' +
             'isPaid: Boolean, source: TicketSource!, id: String!, createdBy: User!, createdAt: String!,' +
-            'updatedAt: String, updatedBy: User }',
+            'updatedAt: String, updatedBy: User, watchers: [User], classifier: TicketClassifier, meta: JSON, sourceMeta: JSON,' +
+            'dv: Int, sender: JSON, v: Int, deletedAt: String, newId: String }',
         },
     ],
 
