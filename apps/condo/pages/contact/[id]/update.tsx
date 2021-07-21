@@ -5,12 +5,12 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { EditContactForm } from '@condo/domains/contact/components/EditContactForm'
 import { useRouter } from 'next/router'
-import { LinkWithIcon } from '../../../domains/common/components/LinkWithIcon'
+import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { colors } from '../../../domains/common/constants/style'
+import { colors } from '@condo/domains/common/constants/style'
 import get from 'lodash/get'
 
-const ContactUpdatePage = () => {
+const ContactUpdatePage: React.FC = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'EditingContact' })
 
