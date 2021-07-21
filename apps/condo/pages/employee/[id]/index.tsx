@@ -18,7 +18,7 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { colors } from '@condo/domains/common/constants/style'
 
@@ -68,7 +68,9 @@ export const EmployeeInfoPage = () => {
     const isEmployeeReinvitable = canReinviteEmployee(link, employee)
     const isEmployeeBlocked = get(employee, 'isBlocked')
 
-    const name = get(employee, 'name')
+    const name = get(employee, ['user', 'name'], get(employee, 'name'))
+    const phone = get(employee, ['user', 'phone'], get(employee, 'phone'))
+    const email = get(employee, ['user', 'email'], get(employee, 'email'))
 
     const handleEmployeeBlock = (blocked) => {
         if (!isEmployeeEditable) {
@@ -147,7 +149,7 @@ export const EmployeeInfoPage = () => {
                                                             </Typography.Text>
                                                         </Col>
                                                         <Col span={19} push={2}>
-                                                            <NotDefinedField value={get(employee, 'phone')}/>
+                                                            <NotDefinedField value={phone}/>
                                                         </Col>
 
                                                         <Col span={3}>
@@ -172,7 +174,7 @@ export const EmployeeInfoPage = () => {
                                                             </Typography.Text>
                                                         </Col>
                                                         <Col span={19} push={2}>
-                                                            <NotDefinedField value={get(employee, 'email')}/>
+                                                            <NotDefinedField value={email}/>
                                                         </Col>
                                                     </Row>
                                                 </FrontLayerContainer>
