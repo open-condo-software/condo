@@ -18,7 +18,7 @@ interface IPageWithHeaderAction extends React.FC {
 }
 const CardCss = css`
     width: 300px;
-    height: min-content;
+    height: fit-content;
     box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12);
 `
 const CreateEmployeePage: IPageWithHeaderAction = () => {
