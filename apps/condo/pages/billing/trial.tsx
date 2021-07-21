@@ -38,6 +38,7 @@ const TrialPage: ITrialPage = () => {
     const intl = useIntl()
     const TrialTitle = intl.formatMessage({ id: 'trial.title' })
     const TrialSubTitle = intl.formatMessage({ id: 'trial.subTitle' })
+    const StartTrialPeriodLabel = intl.formatMessage({ id: 'trial.startPeriod' })
 
     // TODO(Dimitreee): prefetch options from server
     const options: Array<TrialOption> = useMemo(() => {
@@ -97,7 +98,7 @@ const TrialPage: ITrialPage = () => {
                 </Col>
                 <Col span={24} >
                     <Button type={'sberPrimary'} onClick={handleSubscribe}>
-                        Начать пробный период
+                        {StartTrialPeriodLabel}
                     </Button>
                 </Col>
             </Row>

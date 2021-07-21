@@ -13,7 +13,7 @@ import { useLazyQuery, useMutation } from '@core/next/apollo'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN } from '@condo/domains/user/gql'
 import { useAuth } from '@core/next/auth'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { AuthLayoutContext } from '../../domains/user/components/containers/AuthLayoutContext'
+import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 
 const INPUT_STYLE = { width: '20em' }
 
