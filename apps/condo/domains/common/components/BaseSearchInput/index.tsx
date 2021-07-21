@@ -95,7 +95,11 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
 
     useEffect(
         () => {
-            setSearchValue(restSelectProps.value)
+            // This input is usually controlled by form that is directly setting value, so we don't need to 
+            // bind in two way, as it causes input to force place careete to the end of text.
+            if (!onChange){
+                setSearchValue(restSelectProps.value)
+            }
         },
         [restSelectProps.value]
     )
