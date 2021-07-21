@@ -17,7 +17,7 @@ const OrganizationLink = new GQLListSchema('OrganizationLink', {
         sender: SENDER_FIELD,
 
         from: {
-            schemaDoc: 'Organization that gives access',
+            schemaDoc: 'Organization that gets access',
             type: Relationship,
             ref: 'Organization',
             isRequired: true,
@@ -26,7 +26,7 @@ const OrganizationLink = new GQLListSchema('OrganizationLink', {
         },
 
         to: {
-            schemaDoc: 'Organization that gets access',
+            schemaDoc: 'Organization that gives access',
             type: Relationship,
             ref: 'Organization.relatedOrganizations',
             isRequired: true,
