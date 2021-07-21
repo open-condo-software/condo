@@ -18,7 +18,6 @@ import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
-
 const LINK_STYLE = { color: colors.sberPrimary[7] }
 const INPUT_STYLE = { width: '20em' }
 
