@@ -13,7 +13,7 @@ const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } upda
 const ORGANIZATION_FIELDS = `{ country name description avatar { publicUrl } meta statusTransitions defaultEmployeeRoleStatusTransitions ${COMMON_FIELDS} }`
 const Organization = generateGqlQueries('Organization', ORGANIZATION_FIELDS)
 
-const ORGANIZATION_EMPLOYEE_ROLE_FIELDS = '{ organization { id } name statusTransitions canManageOrganization canManageEmployees canManageRoles canManageIntegrations canManageProperties canManageTickets canManageContacts canManageTicketComments canManageResidents id dv sender v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
+const ORGANIZATION_EMPLOYEE_ROLE_FIELDS = '{ organization { id } name statusTransitions canManageOrganization canManageEmployees canManageRoles canManageIntegrations canManageProperties canManageTickets canManageContacts canManageTicketComments id dv sender v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
 const OrganizationEmployeeRole = generateGqlQueries('OrganizationEmployeeRole', ORGANIZATION_EMPLOYEE_ROLE_FIELDS)
 
 const ORGANIZATION_EMPLOYEE_FIELDS = `{ organization ${ORGANIZATION_FIELDS} user { id name } name email phone role ${ORGANIZATION_EMPLOYEE_ROLE_FIELDS} isRejected isAccepted isBlocked id dv sender v createdBy { id name } updatedBy { id name } position createdAt deletedAt updatedAt }`

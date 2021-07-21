@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const { get } = require('lodash')
 const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
@@ -20,23 +21,25 @@ const Resident = generateGQLTestUtils(ResidentGQL)
 async function createTestResident (client, user, organization, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
-    if (!organization || !organization.id) throw new Error('no organization.id')
-    if (!property || !property.id) throw new Error('no property.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const address = property.address
-    const addressMeta = buildFakeAddressMeta(address)
+    const address = extraAttrs.address || get(property, 'address')
+    const addressMeta = address ? buildFakeAddressMeta(address) : null
 
     const attrs = {
         dv: 1,
         sender,
         user: { connect: { id: user.id } },
-        organization: { connect: { id: organization.id } },
-        property: { connect: { id: property.id } },
         unitName: faker.random.alphaNumeric(3),
         address,
         addressMeta,
         ...extraAttrs,
+    }
+    if (organization) {
+        attrs.organization = { connect: { id: organization.id } }
+    }
+    if (property) {
+        attrs.property = { connect: { id: property.id } }
     }
     const obj = await Resident.create(client, attrs)
     return [obj, attrs]

@@ -3,6 +3,8 @@
  */
 
 const faker = require('faker')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
@@ -38,29 +40,6 @@ describe('Resident', () => {
             })
         })
 
-        it('throws error on update record when another record exist with same set of fields: "property", "unitName"', async () => {
-            const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
-            const duplicatedFields = {
-                property: { connect: { id: userClient.property.id } },
-                unitName: faker.random.alphaNumeric(3),
-            }
-
-            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
-                property: { connect: { id: userClient.property.id } },
-                unitName: faker.random.alphaNumeric(3),
-            })
-
-            await catchErrorFrom(async () => {
-                await updateTestResident(adminClient, resident.id, duplicatedFields)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot update resident, because another resident already exists with the same provided set of "property", "unitName"')
-                expect(data).toEqual({ 'obj': null })
-            })
-        })
-
         it('throws error, when trying to connect new resident to billing account, that is connected to another resident', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
@@ -84,30 +63,6 @@ describe('Resident', () => {
             })
         })
 
-        it('throws error, when trying to connect existing resident to billing account, that is connected to another resident', async () => {
-            const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
-
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-            const [billingProperty] = await createTestBillingProperty(adminClient, context)
-            const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-
-            const billingAccountConnection = {
-                billingAccount: { connect: { id: billingAccount.id } },
-            }
-
-            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, billingAccountConnection)
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
-
-            await catchErrorFrom(async () => {
-                await updateTestResident(adminClient, resident.id, billingAccountConnection)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Specified billing account is already connected to another resident')
-                expect(data).toEqual({ 'obj': null })
-            })
-        })
-
         it('throws error, when trying to connect new resident to property with another address', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
@@ -120,49 +75,17 @@ describe('Resident', () => {
 
             const attrs = {
                 billingAccount: { connect: { id: billingAccount.id } },
-                property: { connect: { id: propertyWithAnotherAddress.id } },
                 address: userClient.property.address,
             }
 
             await catchErrorFrom(async () => {
-                await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, attrs)
+                await createTestResident(adminClient, userClient.user, userClient.organization, propertyWithAnotherAddress, attrs)
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
                 expect(errors[0].data.messages[0]).toMatch('Cannot connect property, because its address differs from address of resident')
                 expect(data).toEqual({ 'obj': null })
             })
         })
-
-        it('throws error, when trying to connect existing resident to property with another address', async () => {
-            const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
-
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-            const [billingProperty] = await createTestBillingProperty(adminClient, context)
-            const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-
-            const attrs = {
-                billingAccount: { connect: { id: billingAccount.id } },
-                property: { connect: { id: userClient.property.id } },
-            }
-
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, attrs)
-
-            const [propertyWithAnotherAddress] = await createTestProperty(userClient, userClient.organization, { map: buildingMapJson })
-
-            const payload = {
-                property: { connect: { id: propertyWithAnotherAddress.id } },
-            }
-
-            await catchErrorFrom(async () => {
-                await updateTestResident(adminClient, obj.id, payload)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot connect property, because its address differs from address of resident')
-                expect(data).toEqual({ 'obj': null })
-            })
-        })
-
     })
 
     describe('Create', () => {
@@ -195,22 +118,17 @@ describe('Resident', () => {
             expect(obj.billingAccount.id).toEqual(billingAccount.id)
         })
 
-        it('can be created by user, who is employed in the same organization and has "canManageResidents" ability', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeClientWithProperty()
-            const [organization] = await createTestOrganization(adminClient)
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManageResidents: true,
-            })
-            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+        it('can be created by user with type "resident"', async () => {
+            const userClient = await makeClientWithResidentUser()
+            const [organization] = await registerNewOrganization(userClient)
+            const [property] = await createTestProperty(userClient, organization, { map: buildingMapJson })
 
-            const [obj, attrs] = await createTestResident(userClient, userClient.user, organization, userClient.property)
+            const [obj, attrs] = await createTestResident(userClient, userClient.user, organization, property)
 
             expect(obj.id).toMatch(UUID_RE)
             expect(obj.dv).toEqual(1)
             expect(obj.sender).toEqual(attrs.sender)
             expect(obj.unitName).toMatch(attrs.unitName)
-            expect(obj.organization.id).toMatch(organization.id)
             expect(obj.v).toEqual(1)
             expect(obj.newId).toEqual(null)
             expect(obj.deletedAt).toEqual(null)
@@ -219,18 +137,15 @@ describe('Resident', () => {
             expect(obj.createdAt).toMatch(DATETIME_RE)
             expect(obj.updatedAt).toMatch(DATETIME_RE)
             expect(obj.user.id).toEqual(userClient.user.id)
-            expect(obj.organization.id).toEqual(organization.id)
-            expect(obj.property.id).toEqual(userClient.property.id)
+            expect(obj.organization.id).toMatch(organization.id)
         })
 
-        it('cannot be created by user, who is employed in the same organization and does not have "canManageResidents" ability', async () => {
+        it('cannot be created by other users', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
             const [anotherOrganization] = await createTestOrganization(adminClient)
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManageResidents: false,
-            })
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization)
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -326,66 +241,6 @@ describe('Resident', () => {
             expect(objUpdated.createdAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
-        })
-
-        it('can be updated by user, who is employed in the same organization and does have "canManageResidents" ability', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeClientWithProperty()
-            const [organization] = await createTestOrganization(adminClient)
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManageResidents: true,
-            })
-            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
-
-            const [obj] = await createTestResident(adminClient, userClient.user, organization, userClient.property)
-
-            const [objUpdated, attrs] = await updateTestResident(userClient, obj.id)
-
-            expect(objUpdated.id).toEqual(obj.id)
-            expect(objUpdated.dv).toEqual(1)
-            expect(objUpdated.sender).toEqual(attrs.sender)
-            expect(objUpdated.v).toEqual(2)
-            expect(objUpdated.newId).toEqual(null)
-            expect(objUpdated.deletedAt).toEqual(null)
-            expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
-            expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
-            expect(objUpdated.createdAt).toMatch(DATETIME_RE)
-            expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
-            expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
-        })
-
-        it('cannot be updated by user, who is employed in organization and does not have "canManageResidents" ability', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeClientWithProperty()
-            const [organization] = await createTestOrganization(adminClient)
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManageResidents: false,
-            })
-            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
-
-            const [obj] = await createTestResident(adminClient, userClient.user, organization, userClient.property)
-
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestResident(userClient, obj.id)
-            })
-        })
-
-        it('cannot be updated by user, who is not employed in organization, which manages associated property', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeClientWithProperty()
-            const [organization] = await createTestOrganization(adminClient)
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManageResidents: true,
-            })
-            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
-
-            const anotherUserClient = await makeClientWithProperty()
-
-            const [obj] = await createTestResident(adminClient, userClient.user, organization, userClient.property)
-
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestResident(anotherUserClient, obj.id)
-            })
         })
 
         it('cannot be updated by anonymous', async () => {
