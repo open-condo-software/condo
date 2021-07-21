@@ -50,7 +50,7 @@ const TicketsPage = () => {
         fetchMore,
         loading,
         count: total,
-        objs: tickets,
+        objs: employees,
     } = OrganizationEmployee.useObjects({
         sortBy: sortFromQuery.length > 0  ? sortFromQuery : ['createdAt_DESC'] as Array<SortOrganizationEmployeesBy>, //TODO(Dimitreee):Find cleanest solution
         where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
@@ -60,6 +60,18 @@ const TicketsPage = () => {
         fetchPolicy: 'network-only',
     })
     const [filtersApplied, setFiltersApplied] = useState(false)
+    
+    const tableData = employees.map(employee => {
+        if (employee.user) {
+            return {
+                ...employee,
+                name: employee.user.name ? employee.user.name : employee.name,
+                email: employee.user.email ? employee.user.email : employee.email,
+                phone: employee.user.phone ? employee.user.phone : employee.phone,
+            }
+        }
+        return employee
+    })
 
     const tableColumns = useTableColumns(userOrganizationId, sortFromQuery, filtersFromQuery, setFiltersApplied)
 
@@ -125,7 +137,7 @@ const TicketsPage = () => {
                 <OrganizationRequired>
                     <PageContent>
                         {
-                            !tickets.length && !filtersFromQuery
+                            !employees.length && !filtersFromQuery
                                 ? <EmptyListView
                                     label={EmptyListLabel}
                                     message={EmptyListMessage}
@@ -167,7 +179,7 @@ const TicketsPage = () => {
                                             bordered
                                             tableLayout={'fixed'}
                                             loading={loading}
-                                            dataSource={tickets}
+                                            dataSource={tableData}
                                             columns={tableColumns}
                                             onRow={handleRowAction}
                                             onChange={handleTableChange}
