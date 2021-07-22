@@ -37,6 +37,7 @@ function menuDataRender () {
             path: '/onboarding',
             icon: OnBoardingProgress,
             locale: 'menu.OnBoarding',
+            focus: true,
         },
         {
             path: '/analytics',
