@@ -58,6 +58,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                     },
                 })
                 const result = {}
+                // TODO(zuch): rewrite to support `n` levels of groupping
                 const [group1Name, group2Name] = groupBy
                 for (const group1Option in grouppedCounters) {
                     result[translates[group1Name][group1Option]] = {}
