@@ -377,7 +377,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
             {
                 id: faker.datatype.number().toString(),
                 name: faker.random.alphaNumeric(),
-                toPay: faker.datatype.number().toString(),
+                toPay: faker.datatype.number(),
                 toPayDetails: {
                     formula: "calc + recalc",
                     calc: faker.datatype.number().toString(),
