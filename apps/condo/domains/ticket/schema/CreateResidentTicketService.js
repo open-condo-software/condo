@@ -33,6 +33,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
             access: access.canCreateResidentTicket,
             schema: 'createResidentTicket(data: CreateResidentTicketInput!): ResidentTicketOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
+                // TODO (nomerdvadcatpyat): add binding ticket to property and organization after the opportunity arises
                 const { data } = args
                 const { dv: newTicketDv, sender: newTicketSender, details, propertyId, unitName } = data
                 if (!propertyId) throw Error('reserved for government organizations')

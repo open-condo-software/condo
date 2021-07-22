@@ -13,6 +13,7 @@ const { TicketChange } = require('./TicketChange')
 const { TicketComment } = require('./TicketComment')
 const { ExportTicketsService } = require('./ExportTicketsService')
 const { CreateResidentTicketService } = require('./CreateResidentTicketService')
+const { GetAllResidentTicketsService } = require('./GetAllResidentTicketsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -26,5 +27,6 @@ module.exports = {
     TicketComment,
     ExportTicketsService,
     CreateResidentTicketService,
+    GetAllResidentTicketsService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

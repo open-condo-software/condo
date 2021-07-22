@@ -119,6 +119,14 @@ const CREATE_RESIDENT_TICKET_MUTATION = gql`
         obj: createResidentTicket (data: $data) ${TICKET_FIELDS}
     }
 `
+// TODO(codegen): write return type result!
+
+const GET_ALL_RESIDENT_TICKETS_MUTATION = gql`
+    query getAllResidentTickets ($where: TicketWhereInput!, $first: Int!, $skip: Int!) {
+        objs: getAllResidentTickets (where: $where, first: $first, skip: $skip) ${TICKET_FIELDS}
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
@@ -144,5 +152,7 @@ module.exports = {
     GET_TICKET_WIDGET_REPORT_DATA,
     TicketComment,
     CREATE_RESIDENT_TICKET_MUTATION,
+    GET_ALL_RESIDENT_TICKETS_MUTATION,
+
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
