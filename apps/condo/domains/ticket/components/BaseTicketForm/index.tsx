@@ -171,6 +171,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                         <Col span={24}>
                                             <Form.Item name={'property'} label={AddressLabel} rules={validations.property}>
                                                 <PropertyAddressSearchInput
+                                                    autoFocus={true}
                                                     onSelect={(_, option) => {
                                                         form.setFieldsValue({ unitName: null, sectionName: null, floorName: null })
                                                         setSelectedPropertyId(option.key)
