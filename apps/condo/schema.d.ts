@@ -667,7 +667,7 @@ export type BillingAccountMeterReading = {
   account?: Maybe<BillingAccount>;
   /**  Billing account meter  */
   meter?: Maybe<BillingAccountMeter>;
-  /**  Period date (01.2020, 02.2020, ...)  */
+  /**  Period date: Generated on template 01_<month>_<year>  */
   period?: Maybe<Scalars['String']>;
   /**  Meter reading value of tariff 1  */
   value1?: Maybe<Scalars['Int']>;
@@ -3233,6 +3233,13 @@ export type BillingOrganizationHistoryRecordsUpdateInput = {
   data?: Maybe<BillingOrganizationHistoryRecordUpdateInput>;
 };
 
+export type BillingOrganizationRelateToOneInput = {
+  create?: Maybe<BillingOrganizationCreateInput>;
+  connect?: Maybe<BillingOrganizationWhereUniqueInput>;
+  disconnect?: Maybe<BillingOrganizationWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
 export type BillingOrganizationUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
@@ -3873,22 +3880,26 @@ export type BillingReceipt = {
   sender?: Maybe<Scalars['JSON']>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
-  /**  `billing data source` local object ID. Used only for the internal needs of the `integration component`  */
-  importId?: Maybe<Scalars['String']>;
-  /**  Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`.  */
-  raw?: Maybe<Scalars['JSON']>;
   /**  Billing property  */
   property?: Maybe<BillingProperty>;
+  /**  Billing organization  */
+  recipient?: Maybe<BillingOrganization>;
   /**  Billing account  */
   account?: Maybe<BillingAccount>;
-  /**  Period date (01.2020, 02.2020, ...)  */
+  /**  `billing data source` local object ID. Used only for the internal needs of the `integration component`  */
+  importId?: Maybe<Scalars['String']>;
+  /**  Period date: Generated on template 01_<month>_<year>  */
   period?: Maybe<Scalars['String']>;
-  /**  Total sum to pay. The sum of all services  */
+  /**  A number to print on the payment document.  */
+  printableNumber?: Maybe<Scalars['String']>;
+  /**  Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`.  */
+  raw?: Maybe<Scalars['JSON']>;
+  /**  Total sum to pay. Usually counts as the sum of all services. Detail level 1.  */
   toPay?: Maybe<Scalars['String']>;
-  /**  Structured items in the receipt obtained from the `billing data source`. Amount of payment is required for use in the `receipt template`. Structure example: {"Maintenance and repair": {"name": "maintenance-and-repair", "payment": "1129.17", "currency": "RUB", "formula": "payment = tariff * volume + recalculation + privilege + penalty", "tariff": "19.95", "volume": "56.6", "isByMeter": true, "recalculation": "0.0", "privilege": "0.0", "penalty": "0"}, ...}  */
+  /**  Sum to pay details. Detail level 2  */
+  toPayDetails?: Maybe<Scalars['JSON']>;
+  /**  Structured items in the receipt obtained from the `billing data source`. Amount of payment is required for use in the `receipt template`.  */
   services?: Maybe<Scalars['JSON']>;
-  /**  Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. Examples of data keys: `payer name`, `full address`, `living space`, `non-living space`, `registered residents`, `living residents`, `news message`  */
-  meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3903,14 +3914,16 @@ export type BillingReceiptCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
-  importId?: Maybe<Scalars['String']>;
-  raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<BillingPropertyRelateToOneInput>;
+  recipient?: Maybe<BillingOrganizationRelateToOneInput>;
   account?: Maybe<BillingAccountRelateToOneInput>;
+  importId?: Maybe<Scalars['String']>;
   period?: Maybe<Scalars['String']>;
+  printableNumber?: Maybe<Scalars['String']>;
+  raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
-  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3934,14 +3947,16 @@ export type BillingReceiptHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   context?: Maybe<Scalars['String']>;
-  importId?: Maybe<Scalars['String']>;
-  raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
+  recipient?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   period?: Maybe<Scalars['String']>;
+  printableNumber?: Maybe<Scalars['String']>;
+  raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
-  meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3959,14 +3974,16 @@ export type BillingReceiptHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   context?: Maybe<Scalars['String']>;
-  importId?: Maybe<Scalars['String']>;
-  raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
+  recipient?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   period?: Maybe<Scalars['String']>;
+  printableNumber?: Maybe<Scalars['String']>;
+  raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
-  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3989,14 +4006,16 @@ export type BillingReceiptHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   context?: Maybe<Scalars['String']>;
-  importId?: Maybe<Scalars['String']>;
-  raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
+  recipient?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   period?: Maybe<Scalars['String']>;
+  printableNumber?: Maybe<Scalars['String']>;
+  raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
-  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -4028,6 +4047,18 @@ export type BillingReceiptHistoryRecordWhereInput = {
   context_not?: Maybe<Scalars['String']>;
   context_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   context_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property?: Maybe<Scalars['String']>;
+  property_not?: Maybe<Scalars['String']>;
+  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recipient?: Maybe<Scalars['String']>;
+  recipient_not?: Maybe<Scalars['String']>;
+  recipient_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recipient_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  account?: Maybe<Scalars['String']>;
+  account_not?: Maybe<Scalars['String']>;
+  account_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  account_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   importId?: Maybe<Scalars['String']>;
   importId_not?: Maybe<Scalars['String']>;
   importId_contains?: Maybe<Scalars['String']>;
@@ -4046,18 +4077,6 @@ export type BillingReceiptHistoryRecordWhereInput = {
   importId_not_ends_with_i?: Maybe<Scalars['String']>;
   importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  raw?: Maybe<Scalars['JSON']>;
-  raw_not?: Maybe<Scalars['JSON']>;
-  raw_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  raw_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  property?: Maybe<Scalars['String']>;
-  property_not?: Maybe<Scalars['String']>;
-  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  account?: Maybe<Scalars['String']>;
-  account_not?: Maybe<Scalars['String']>;
-  account_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  account_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   period?: Maybe<Scalars['String']>;
   period_not?: Maybe<Scalars['String']>;
   period_lt?: Maybe<Scalars['String']>;
@@ -4066,6 +4085,28 @@ export type BillingReceiptHistoryRecordWhereInput = {
   period_gte?: Maybe<Scalars['String']>;
   period_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   period_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  printableNumber?: Maybe<Scalars['String']>;
+  printableNumber_not?: Maybe<Scalars['String']>;
+  printableNumber_contains?: Maybe<Scalars['String']>;
+  printableNumber_not_contains?: Maybe<Scalars['String']>;
+  printableNumber_starts_with?: Maybe<Scalars['String']>;
+  printableNumber_not_starts_with?: Maybe<Scalars['String']>;
+  printableNumber_ends_with?: Maybe<Scalars['String']>;
+  printableNumber_not_ends_with?: Maybe<Scalars['String']>;
+  printableNumber_i?: Maybe<Scalars['String']>;
+  printableNumber_not_i?: Maybe<Scalars['String']>;
+  printableNumber_contains_i?: Maybe<Scalars['String']>;
+  printableNumber_not_contains_i?: Maybe<Scalars['String']>;
+  printableNumber_starts_with_i?: Maybe<Scalars['String']>;
+  printableNumber_not_starts_with_i?: Maybe<Scalars['String']>;
+  printableNumber_ends_with_i?: Maybe<Scalars['String']>;
+  printableNumber_not_ends_with_i?: Maybe<Scalars['String']>;
+  printableNumber_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  printableNumber_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  raw?: Maybe<Scalars['JSON']>;
+  raw_not?: Maybe<Scalars['JSON']>;
+  raw_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  raw_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   toPay?: Maybe<Scalars['String']>;
   toPay_not?: Maybe<Scalars['String']>;
   toPay_contains?: Maybe<Scalars['String']>;
@@ -4084,14 +4125,14 @@ export type BillingReceiptHistoryRecordWhereInput = {
   toPay_not_ends_with_i?: Maybe<Scalars['String']>;
   toPay_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPay_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  toPayDetails?: Maybe<Scalars['JSON']>;
+  toPayDetails_not?: Maybe<Scalars['JSON']>;
+  toPayDetails_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  toPayDetails_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   services?: Maybe<Scalars['JSON']>;
   services_not?: Maybe<Scalars['JSON']>;
   services_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   services_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta?: Maybe<Scalars['JSON']>;
-  meta_not?: Maybe<Scalars['JSON']>;
-  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -4175,14 +4216,16 @@ export type BillingReceiptUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
-  importId?: Maybe<Scalars['String']>;
-  raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<BillingPropertyRelateToOneInput>;
+  recipient?: Maybe<BillingOrganizationRelateToOneInput>;
   account?: Maybe<BillingAccountRelateToOneInput>;
+  importId?: Maybe<Scalars['String']>;
   period?: Maybe<Scalars['String']>;
+  printableNumber?: Maybe<Scalars['String']>;
+  raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
-  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -4209,6 +4252,12 @@ export type BillingReceiptWhereInput = {
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   context?: Maybe<BillingIntegrationOrganizationContextWhereInput>;
   context_is_null?: Maybe<Scalars['Boolean']>;
+  property?: Maybe<BillingPropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
+  recipient?: Maybe<BillingOrganizationWhereInput>;
+  recipient_is_null?: Maybe<Scalars['Boolean']>;
+  account?: Maybe<BillingAccountWhereInput>;
+  account_is_null?: Maybe<Scalars['Boolean']>;
   importId?: Maybe<Scalars['String']>;
   importId_not?: Maybe<Scalars['String']>;
   importId_contains?: Maybe<Scalars['String']>;
@@ -4227,14 +4276,6 @@ export type BillingReceiptWhereInput = {
   importId_not_ends_with_i?: Maybe<Scalars['String']>;
   importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  raw?: Maybe<Scalars['JSON']>;
-  raw_not?: Maybe<Scalars['JSON']>;
-  raw_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  raw_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  property?: Maybe<BillingPropertyWhereInput>;
-  property_is_null?: Maybe<Scalars['Boolean']>;
-  account?: Maybe<BillingAccountWhereInput>;
-  account_is_null?: Maybe<Scalars['Boolean']>;
   period?: Maybe<Scalars['String']>;
   period_not?: Maybe<Scalars['String']>;
   period_lt?: Maybe<Scalars['String']>;
@@ -4243,6 +4284,28 @@ export type BillingReceiptWhereInput = {
   period_gte?: Maybe<Scalars['String']>;
   period_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   period_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  printableNumber?: Maybe<Scalars['String']>;
+  printableNumber_not?: Maybe<Scalars['String']>;
+  printableNumber_contains?: Maybe<Scalars['String']>;
+  printableNumber_not_contains?: Maybe<Scalars['String']>;
+  printableNumber_starts_with?: Maybe<Scalars['String']>;
+  printableNumber_not_starts_with?: Maybe<Scalars['String']>;
+  printableNumber_ends_with?: Maybe<Scalars['String']>;
+  printableNumber_not_ends_with?: Maybe<Scalars['String']>;
+  printableNumber_i?: Maybe<Scalars['String']>;
+  printableNumber_not_i?: Maybe<Scalars['String']>;
+  printableNumber_contains_i?: Maybe<Scalars['String']>;
+  printableNumber_not_contains_i?: Maybe<Scalars['String']>;
+  printableNumber_starts_with_i?: Maybe<Scalars['String']>;
+  printableNumber_not_starts_with_i?: Maybe<Scalars['String']>;
+  printableNumber_ends_with_i?: Maybe<Scalars['String']>;
+  printableNumber_not_ends_with_i?: Maybe<Scalars['String']>;
+  printableNumber_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  printableNumber_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  raw?: Maybe<Scalars['JSON']>;
+  raw_not?: Maybe<Scalars['JSON']>;
+  raw_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  raw_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   toPay?: Maybe<Scalars['String']>;
   toPay_not?: Maybe<Scalars['String']>;
   toPay_contains?: Maybe<Scalars['String']>;
@@ -4261,14 +4324,14 @@ export type BillingReceiptWhereInput = {
   toPay_not_ends_with_i?: Maybe<Scalars['String']>;
   toPay_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPay_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  toPayDetails?: Maybe<Scalars['JSON']>;
+  toPayDetails_not?: Maybe<Scalars['JSON']>;
+  toPayDetails_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  toPayDetails_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   services?: Maybe<Scalars['JSON']>;
   services_not?: Maybe<Scalars['JSON']>;
   services_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   services_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta?: Maybe<Scalars['JSON']>;
-  meta_not?: Maybe<Scalars['JSON']>;
-  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -13479,6 +13542,8 @@ export enum SortBillingReceiptHistoryRecordsBy {
   ImportIdDesc = 'importId_DESC',
   PeriodAsc = 'period_ASC',
   PeriodDesc = 'period_DESC',
+  PrintableNumberAsc = 'printableNumber_ASC',
+  PrintableNumberDesc = 'printableNumber_DESC',
   ToPayAsc = 'toPay_ASC',
   ToPayDesc = 'toPay_DESC',
   IdAsc = 'id_ASC',
@@ -13502,14 +13567,18 @@ export enum SortBillingReceiptsBy {
   DvDesc = 'dv_DESC',
   ContextAsc = 'context_ASC',
   ContextDesc = 'context_DESC',
-  ImportIdAsc = 'importId_ASC',
-  ImportIdDesc = 'importId_DESC',
   PropertyAsc = 'property_ASC',
   PropertyDesc = 'property_DESC',
+  RecipientAsc = 'recipient_ASC',
+  RecipientDesc = 'recipient_DESC',
   AccountAsc = 'account_ASC',
   AccountDesc = 'account_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
   PeriodAsc = 'period_ASC',
   PeriodDesc = 'period_DESC',
+  PrintableNumberAsc = 'printableNumber_ASC',
+  PrintableNumberDesc = 'printableNumber_DESC',
   ToPayAsc = 'toPay_ASC',
   ToPayDesc = 'toPay_DESC',
   IdAsc = 'id_ASC',
