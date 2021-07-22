@@ -109,23 +109,23 @@ describe('TicketComment', () => {
 
         it('can be created by employee from "from" relation organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientWithPropertyFrom, clientWithPropertyTo, link, employeeFrom } = await createTestOrganizationLinkWithTwoOrganizations()
+            const { clientFrom, organizationTo, propertyTo, link, employeeFrom } = await createTestOrganizationLinkWithTwoOrganizations()
             await createTestOrganizationLinkEmployeeAccess(admin, link, employeeFrom, {
                 canManageTicketComments: true,
             })
-            const [ticket] = await createTestTicket(admin, clientWithPropertyTo.organization, clientWithPropertyTo.property)
+            const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
 
-            const [ticketComment] = await createTestTicketComment(clientWithPropertyFrom, ticket, clientWithPropertyFrom.user)
+            const [ticketComment] = await createTestTicketComment(clientFrom, ticket, clientFrom.user)
             expect(ticketComment.id).toMatch(UUID_RE)
         })
 
         it('cannot be created by employee from "to" relation organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientWithPropertyTo, clientWithPropertyFrom } = await createTestOrganizationLinkWithTwoOrganizations()
-            const [ticket] = await createTestTicket(admin, clientWithPropertyFrom.organization, clientWithPropertyFrom.property)
+            const { clientTo, organizationFrom, propertyFrom } = await createTestOrganizationLinkWithTwoOrganizations()
+            const [ticket] = await createTestTicket(admin, organizationFrom, propertyFrom)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestTicketComment(clientWithPropertyTo, ticket, clientWithPropertyTo.user)
+                await createTestTicketComment(clientTo, ticket, clientTo.user)
             })
         })
     })
@@ -174,21 +174,21 @@ describe('TicketComment', () => {
 
         it('can be read by employee from "from" relation organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientWithPropertyFrom, clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
-            const [ticket] = await createTestTicket(admin, clientWithPropertyTo.organization, clientWithPropertyTo.property)
-            await createTestTicketComment(admin, ticket, clientWithPropertyFrom.user)
+            const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+            const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
+            await createTestTicketComment(admin, ticket, clientFrom.user)
 
-            const comments = await TicketComment.getAll(clientWithPropertyFrom)
+            const comments = await TicketComment.getAll(clientFrom)
             expect(comments).toHaveLength(1)
         })
 
         it('cannot be read by employee from "to" relation organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientWithPropertyTo, clientWithPropertyFrom } = await createTestOrganizationLinkWithTwoOrganizations()
-            const [ticket] = await createTestTicket(admin, clientWithPropertyFrom.organization, clientWithPropertyFrom.property)
-            await createTestTicketComment(admin, ticket, clientWithPropertyFrom.user)
+            const { clientFrom, clientTo, organizationFrom, propertyFrom } = await createTestOrganizationLinkWithTwoOrganizations()
+            const [ticket] = await createTestTicket(admin, organizationFrom, propertyFrom)
+            await createTestTicketComment(admin, ticket, clientFrom.user)
 
-            const comments = await TicketComment.getAll(clientWithPropertyTo)
+            const comments = await TicketComment.getAll(clientTo)
             expect(comments).toHaveLength(0)
         })
     })
@@ -307,16 +307,16 @@ describe('TicketComment', () => {
 
         it('can be updated by employee from "from" relation organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientWithPropertyFrom, clientWithPropertyTo, link, employeeFrom } = await createTestOrganizationLinkWithTwoOrganizations()
+            const { clientFrom, propertyTo, organizationTo, link, employeeFrom } = await createTestOrganizationLinkWithTwoOrganizations()
             await createTestOrganizationLinkEmployeeAccess(admin, link, employeeFrom, {
                 canManageTicketComments: true,
             })
-            const [ticket] = await createTestTicket(admin, clientWithPropertyTo.organization, clientWithPropertyTo.property)
-            const [comment] = await createTestTicketComment(admin, ticket, clientWithPropertyFrom.user)
+            const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
+            const [comment] = await createTestTicketComment(admin, ticket, clientFrom.user)
             const payload = {
                 content: faker.random.alphaNumeric(10),
             }
-            const [commentUpdated] = await updateTestTicketComment(clientWithPropertyFrom, comment.id, payload)
+            const [commentUpdated] = await updateTestTicketComment(clientFrom, comment.id, payload)
 
             expect(commentUpdated.id).toEqual(comment.id)
             expect(commentUpdated.content).toEqual(payload.content)
@@ -324,18 +324,18 @@ describe('TicketComment', () => {
 
         it('cannot be updated by employee from "to" relation organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientWithPropertyFrom, clientWithPropertyTo, link, employeeFrom } = await createTestOrganizationLinkWithTwoOrganizations()
+            const { clientFrom, clientTo, organizationFrom, propertyFrom, link, employeeFrom } = await createTestOrganizationLinkWithTwoOrganizations()
             await createTestOrganizationLinkEmployeeAccess(admin, link, employeeFrom, {
                 canManageTicketComments: true,
             })
-            const [ticket] = await createTestTicket(admin, clientWithPropertyFrom.organization, clientWithPropertyFrom.property)
-            const [comment] = await createTestTicketComment(admin, ticket, clientWithPropertyFrom.user)
+            const [ticket] = await createTestTicket(admin, organizationFrom, propertyFrom)
+            const [comment] = await createTestTicketComment(admin, ticket, clientFrom.user)
             const payload = {
                 content: faker.random.alphaNumeric(10),
             }
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestTicketComment(clientWithPropertyTo, comment.id, payload)
+                await updateTestTicketComment(clientTo, comment.id, payload)
             })
         })
     })

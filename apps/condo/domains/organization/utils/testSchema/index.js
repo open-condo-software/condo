@@ -243,18 +243,23 @@ async function updateTestOrganizationLinkEmployeeAccess (client, id, extraAttrs 
 
 async function createTestOrganizationLinkWithTwoOrganizations () {
     const admin = await makeLoggedInAdminClient()
-    const clientWithPropertyFrom = await makeClientWithProperty()
-    const [role] = await createTestOrganizationEmployeeRole(admin, clientWithPropertyFrom.organization)
-    const [employeeFrom] = await createTestOrganizationEmployee(admin, clientWithPropertyFrom.organization, clientWithPropertyFrom.user, role)
+    // createClientWithProperty creates an employee inside himself, this behavior is not needed here
+    const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
+    const [organizationFrom] = await createTestOrganization(admin)
+    const [propertyFrom] = await createTestProperty(admin, organizationFrom)
+    const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom)
+    const [employeeFrom] = await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, role)
 
-    const clientWithPropertyTo = await makeClientWithProperty()
-    const [employeeTo] = await createTestOrganizationEmployee(admin, clientWithPropertyTo.organization, clientWithPropertyTo.user, role)
+    const clientTo = await makeClientWithProperty()
+    const [organizationTo] = await createTestOrganization(admin)
+    const [propertyTo] = await createTestProperty(admin, organizationTo)
+    const [employeeTo] = await createTestOrganizationEmployee(admin, organizationTo, clientTo.user, role)
 
-    const [link] = await createTestOrganizationLink(admin, clientWithPropertyFrom.organization, clientWithPropertyTo.organization)
+    const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo)
 
     return {
-        clientWithPropertyFrom, employeeFrom,
-        clientWithPropertyTo, employeeTo,
+        clientFrom, propertyFrom, employeeFrom, organizationFrom,
+        clientTo, propertyTo, employeeTo, organizationTo,
         link,
     }
 }

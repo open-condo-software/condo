@@ -356,14 +356,14 @@ describe('TicketChange', () => {
 
     test('employee from "from" relation: can read ticket changes from his "to" relation organization', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { clientWithPropertyFrom, clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
-        const [ticket] = await createTestTicket(admin, clientWithPropertyTo.organization, clientWithPropertyTo.property)
+        const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
         const payload = {
             details: faker.lorem.sentence(),
         }
         await updateTestTicket(admin, ticket.id, payload)
 
-        const objs = await TicketChange.getAll(clientWithPropertyFrom, {
+        const objs = await TicketChange.getAll(clientFrom, {
             ticket: { id: ticket.id },
         })
         expect(objs).toHaveLength(1)
@@ -372,14 +372,14 @@ describe('TicketChange', () => {
 
     test('employee from "to" relation: cannot read ticket changes from his "from" relation organization', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { clientWithPropertyFrom, clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
-        const [ticket] = await createTestTicket(admin, clientWithPropertyFrom.organization, clientWithPropertyFrom.property)
+        const { organizationFrom, propertyFrom, clientTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const [ticket] = await createTestTicket(admin, organizationFrom, propertyFrom)
         const payload = {
             details: faker.lorem.sentence(),
         }
         await updateTestTicket(admin, ticket.id, payload)
 
-        const objs = await TicketChange.getAll(clientWithPropertyTo, {
+        const objs = await TicketChange.getAll(clientTo, {
             ticket: { id: ticket.id },
         })
         expect(objs).toHaveLength(0)

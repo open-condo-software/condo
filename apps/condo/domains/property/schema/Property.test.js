@@ -3,13 +3,9 @@
  */
 const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganizationLinkWithTwoOrganizations } = require('@condo/domains/organization/utils/testSchema')
-const { makeClient, UUID_RE, DATETIME_RE, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { Property, createTestProperty, updateTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@condo/domains/ticket/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
@@ -181,16 +177,16 @@ describe('Property', () => {
     })
 
     test('employee from "from" related organization: can read property', async () => {
-        const { clientWithPropertyFrom, clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const { clientFrom, propertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
 
-        const properties = await Property.getAll(clientWithPropertyFrom, { id: clientWithPropertyTo.property.id })
+        const properties = await Property.getAll(clientFrom, { id: propertyTo.id })
         expect(properties).toHaveLength(1)
     })
 
     test('employee from "to" related organization: cannot read property from "from"', async () => {
-        const { clientWithPropertyFrom, clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const { propertyFrom, clientTo } = await createTestOrganizationLinkWithTwoOrganizations()
 
-        const properties = await Property.getAll(clientWithPropertyTo, { id: clientWithPropertyFrom.property.id })
+        const properties = await Property.getAll(clientTo, { id: propertyFrom.id })
         expect(properties).toHaveLength(0)
     })
 
