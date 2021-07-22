@@ -28,8 +28,8 @@ const BILLING_ORGANIZATION_FIELD = {
     type: Relationship,
     ref: 'BillingOrganization',
     isRequired: true,
-    knexOptions: { isNotNullable: true }, // Relationship only!
-    kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+    knexOptions: { isNotNullable: false }, // Relationship only!
+    kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
 }
 
 
