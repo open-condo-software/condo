@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { Select, SelectProps } from 'antd'
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
-import { Loader } from '../../common/components/Loader'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { useEffect } from 'react'
 
 interface IEmployeeRoleSelectProps extends SelectProps<string> {
