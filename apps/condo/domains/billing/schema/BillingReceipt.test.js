@@ -115,15 +115,14 @@ describe('BillingReceipt', () => {
         const [obj] = await createTestBillingReceipt(admin, context, property, billingAccount)
         const text = faker.lorem.words()
         const payload = {
-            meta: {
-                dv: 1,
+            toPayDetails: {
                 text,
             },
         }
         const [objUpdated] = await updateTestBillingReceipt(admin, obj.id, payload)
 
         expect(obj.id).toEqual(objUpdated.id)
-        expect(objUpdated.meta.text).toEqual(text)
+        expect(objUpdated.toPayDetails.text).toEqual(text)
     })
 
     test('organization integration manager: update BillingReceipt', async () => {
@@ -134,15 +133,14 @@ describe('BillingReceipt', () => {
         const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
         const text = faker.lorem.words()
         const payload = {
-            meta: {
-                dv: 1,
+            toPayDetails: {
                 text,
             },
         }
         const [objUpdated] = await updateTestBillingReceipt(managerUserClient, obj.id, payload)
 
         expect(obj.id).toEqual(objUpdated.id)
-        expect(objUpdated.meta.text).toEqual(text)
+        expect(objUpdated.toPayDetails.text).toEqual(text)
     })
 
     test('user: update BillingReceipt', async () => {
