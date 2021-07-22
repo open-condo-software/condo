@@ -130,6 +130,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
     const handleRedirectToIndex = useCallback(() => {
         if (isAuthenticated)
             Router.push('/')
+        else Router.push('/auth/signin')
     }, [isAuthenticated])
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE}>
