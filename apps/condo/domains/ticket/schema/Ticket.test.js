@@ -10,6 +10,7 @@ const { expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorT
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganizationLink, createTestOrganizationLinkWithTwoOrganizations } = require('@condo/domains/organization/utils/testSchema')
 const faker = require('faker')
+const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 
 describe('Ticket', () => {
     test('user: create Ticket', async () => {
@@ -242,7 +243,7 @@ describe('Ticket:permissions', () => {
     })
 
     test('organization "to" employee: cannot create organization "from" tickets', async () => {
-        const { clientFrom, organizationFrom, propertyFrom, clientTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const { organizationFrom, propertyFrom, clientTo } = await createTestOrganizationLinkWithTwoOrganizations()
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestTicket(clientTo, organizationFrom, propertyFrom)
@@ -278,5 +279,46 @@ describe('Ticket:permissions', () => {
 
         expect(updatedTicket.id).toEqual(ticket.id)
         expect(updatedTicket.details).toEqual(newDetails)
+    })
+
+    test('blocked user: cannot read "to" tickets', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const { employeeFrom, clientFrom, organizationTo, propertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        await createTestTicket(admin, organizationTo, propertyTo)
+        await updateTestOrganizationEmployee(admin, employeeFrom.id, {
+            isBlocked: true,
+        })
+
+        const tickets = await Ticket.getAll(clientFrom)
+        expect(tickets).toHaveLength(0)
+    })
+
+
+    test('deleted user: cannot read "to" tickets', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const { employeeFrom, clientFrom, organizationFrom, propertyFrom } = await createTestOrganizationLinkWithTwoOrganizations()
+        await createTestTicket(admin, organizationFrom, propertyFrom)
+        await updateTestOrganizationEmployee(admin, employeeFrom.id, {
+            deletedAt: 'true',
+        })
+
+        const tickets = await Ticket.getAll(clientFrom)
+        expect(tickets).toHaveLength(0)
+    })
+
+    test('blocked user: cannot create "to" tickets', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const { employeeFrom, clientFrom, organizationTo, propertyTo, link } = await createTestOrganizationLinkWithTwoOrganizations()
+        await createTestOrganizationLinkEmployeeAccess(admin, link, employeeFrom, {
+            canManageTickets: true,
+        })
+        await createTestTicket(clientFrom, organizationTo, propertyTo)
+        await updateTestOrganizationEmployee(admin, employeeFrom.id, {
+            isBlocked: true,
+        })
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestTicket(clientFrom, organizationTo, propertyTo)
+        })
     })
 })
