@@ -8,6 +8,7 @@ import { MinusCircleFilled } from '@ant-design/icons'
 import { Contact as TContact } from '@condo/domains/contact/schema'
 import { ContactValue } from './index'
 import { PhoneInput } from '../../../common/components/PhoneInput'
+import { useIntl } from '@core/next/intl'
 
 const { TextArea } = Input
 
@@ -43,6 +44,8 @@ interface IContactSyncedAutocompleteFieldsProps {
  * When value in fields are typed, not selected, `onChange` callback will be fired.
  */
 const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({ initialValue, onChange, onChecked, checked, contacts, displayMinusButton, onClickMinusButton }) => {
+    const intl = useIntl()
+    const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
     const [value, setValue] = useState(initialValue)
     const [contactsByPhone, setContactsByPhone] = useState([])
     const [contactsByName, setContactsByName] = useState([])
@@ -130,6 +133,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
             </Col>
             <Col span={10}>
                 <BaseSearchInput
+                    placeholder={NamePlaceholder}
                     value={get(value, 'name')}
                     loadOptionsOnFocus={false}
                     search={searchContactBy('name')}
