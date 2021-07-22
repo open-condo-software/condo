@@ -36,6 +36,7 @@ services:
       - ./bin/:/home/app/bin
       - ./package.json:/home/app/package.json
     environment:
+      COOKIE_SECRET: ${DOCKER_COMPOSE_COOKIE_SECRET:?Environment DOCKER_COMPOSE_COOKIE_SECRET needs to be set (check READEME.md)!}
       DATABASE_URL: ${DOCKER_COMPOSE_DATABASE_URL:?Environment DOCKER_COMPOSE_DATABASE_URL needs to be set (check READEME.md)!}
       WORKER_REDIS_URL: ${DOCKER_COMPOSE_WORKER_REDIS_URL:?Environment DOCKER_COMPOSE_WORKER_REDIS_URL needs to be set (check READEME.md)!}
       SERVER_URL: ${DOCKER_COMPOSE_SERVER_URL:?Environment DOCKER_COMPOSE_SERVER_URL needs to be set (check READEME.md)!}
