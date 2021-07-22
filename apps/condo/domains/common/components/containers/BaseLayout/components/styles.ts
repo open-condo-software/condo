@@ -75,6 +75,7 @@ export const MenuItem = styled.span`
   cursor: pointer;
   padding: 16px 0;
   display: flex;
+  border-radius: 8px;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
