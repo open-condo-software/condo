@@ -496,6 +496,8 @@
   "employee.EmptyList.title": "Добавьте первого, это просто",
   "contact.EmptyList.header": "Список жителей пока пуст",
   "contact.EmptyList.title": "Добавьте первого, это просто",
+  "onboarding.title": "С чего начать",
+  "onboarding.subtitle": "Данные подсказки помогут вам быстрее познакомиться с продуктом",
   "Seconds": "Секунд",
   "Update": "Обновить",
   "Updated": "Обновлено",
