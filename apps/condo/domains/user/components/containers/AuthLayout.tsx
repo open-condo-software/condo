@@ -1,5 +1,5 @@
 import { PageHeader as AntPageHeader } from 'antd'
-import React, { createContext } from 'react'
+import React, { createContext, useCallback, useMemo } from 'react'
 import Router from 'next/router'
 import { FormattedMessage } from 'react-intl'
 import { ConfigProvider, Layout } from 'antd'
@@ -98,7 +98,7 @@ export const AuthLayoutContext = createContext<IAuthLayoutContext>({
 const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
     const intl = useIntl()
     const colSize = useAntdMediaQuery()
-    const { refetch } = useAuth()
+    const { refetch, isAuthenticated } = useAuth()
     const isMobile = (colSize === 'xs')
     const [signinByPhoneMutation] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
     const signInByPhone = ({ phone, password }) => {
@@ -127,6 +127,10 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
             console.error(error)
         })
     }
+    const handleRedirectToIndex = useCallback(() => {
+        if (isAuthenticated)
+            Router.push('/')
+    }, [isAuthenticated])
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE}>
             <GoogleReCaptchaProvider
@@ -147,7 +151,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                     <Layout style={{ background: colors.white, height: '100vh' }}>
                         <AntPageHeader
                             style={{ ...HEADER_STYLE, position: 'fixed' }}
-                            title={<Logo onClick={() => Router.push('/')} />}
+                            title={<Logo onClick={handleRedirectToIndex} />}
                             extra={headerAction}
                         >
                         </AntPageHeader>
