@@ -32,7 +32,7 @@ describe('OrganizationLink', () => {
         expect(updatedLink.to.id).toEqual(organizationTo2.id)
     })
 
-    test('user: create OrganizationLink', async () => {
+    test('user: cannot create OrganizationLink', async () => {
         const admin = await makeLoggedInAdminClient()
         const user = await makeClientWithNewRegisteredAndLoggedInUser()
         const [organizationFrom] = await createTestOrganization(admin)
@@ -43,7 +43,19 @@ describe('OrganizationLink', () => {
         })
     })
 
-    test('anonymous: create OrganizationLink', async () => {
+    test('user: cannot update OrganizationLink', async () => {
+        const user = await makeClientWithNewRegisteredAndLoggedInUser()
+        const admin = await makeLoggedInAdminClient()
+        const [organizationFrom] = await createTestOrganization(admin)
+        const [organizationTo] = await createTestOrganization(admin)
+        const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo)
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestOrganizationLink(user, link.id)
+        })
+    })
+
+    test('anonymous: cannot create OrganizationLink', async () => {
         const client = await makeClient()
         const admin = await makeLoggedInAdminClient()
         const [organizationFrom] = await createTestOrganization(admin)
@@ -51,6 +63,18 @@ describe('OrganizationLink', () => {
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestOrganizationLink(client, organizationFrom, organizationTo)
+        })
+    })
+
+    test('anonymous: cannot update OrganizationLink', async () => {
+        const client = await makeClient()
+        const admin = await makeLoggedInAdminClient()
+        const [organizationFrom] = await createTestOrganization(admin)
+        const [organizationTo] = await createTestOrganization(admin)
+        const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo)
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestOrganizationLink(client, link.id)
         })
     })
 })

@@ -256,16 +256,16 @@ describe('Organization', () => {
     })
 
     test('employee from "from" related organization: can read organization', async () => {
-        const { clientWithPropertyFrom, clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const { clientFrom, organizationTo } = await createTestOrganizationLinkWithTwoOrganizations()
 
-        const properties = await Organization.getAll(clientWithPropertyFrom, { id: clientWithPropertyTo.organization.id })
+        const properties = await Organization.getAll(clientFrom, { id: organizationTo.id })
         expect(properties).toHaveLength(1)
     })
 
     test('employee from "to" related organization: cannot read organization from "from"', async () => {
-        const { clientWithPropertyFrom, clientWithPropertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const { organizationFrom, clientTo } = await createTestOrganizationLinkWithTwoOrganizations()
 
-        const properties = await Organization.getAll(clientWithPropertyTo, { id: clientWithPropertyFrom.organization.id })
+        const properties = await Organization.getAll(clientTo, { id: organizationFrom.id })
         expect(properties).toHaveLength(0)
     })
 
