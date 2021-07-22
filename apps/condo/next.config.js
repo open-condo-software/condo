@@ -1,3 +1,4 @@
+// @ts-check
 const conf = require('@core/config')
 const withLess = require('@zeit/next-less')
 const withCSS = require('@zeit/next-css')

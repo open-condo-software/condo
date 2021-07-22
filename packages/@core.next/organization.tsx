@@ -35,13 +35,13 @@ let GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY = gql`
     }
 `
 
-let setCookieLinkId = (value) => {
+const setCookieLinkId = (value) => {
     if (typeof window !== 'undefined') {
         cookie.set('organizationLinkId', value, { expires: 365 })
     }
 }
 
-let getLinkId = () => {
+const getLinkId = () => {
     let state = null
     if (typeof window !== 'undefined') {
         try {
@@ -53,7 +53,7 @@ let getLinkId = () => {
     return state
 }
 
-let extractReqLinkId = (req) => {
+const extractReqLinkId = (req) => {
     try {
         return nextCookie({ req }).organizationLinkId || null
     } catch (e) {
@@ -163,10 +163,13 @@ const initOnRestore = async (ctx) => {
 
     return { link }
 }
-
-const withOrganization = ({ ssr = false, ...opts } = {}) => PageComponent => {
+type withOrganizationProps = {
+    ssr?: boolean
+    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY?: string
+}
+const withOrganization = ({ ssr = false, ...opts }: withOrganizationProps = {}) => (PageComponent: React.ComponentType) => {
     // TODO(pahaz): refactor it. No need to patch globals here!
-    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY = opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY ? opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY : GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY
+    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY = opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY ?? GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY
 
     const WithOrganization = ({ link, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithOrganization()', link)

@@ -1,0 +1,58 @@
+{
+	"roles": {
+		"Administrator": {
+			"canManageOrganization": true,
+			"canManageEmployees": true,
+			"canManageRoles": true,
+			"canManageIntegrations": true,
+			"canManageProperties": true,
+			"canManageTickets": true,
+			"canManageContacts": true,
+			"canManageTicketComments": true
+		},
+		"Dispatcher": {
+			"canManageOrganization": false,
+			"canManageEmployees": false,
+			"canManageRoles": false,
+			"canManageIntegrations": false,
+			"canManageProperties": true,
+			"canManageTickets": true,
+			"canManageContacts": true,
+			"canManageTicketComments": true
+		},
+		"Manager": {
+			"canManageOrganization": false,
+			"canManageEmployees": false,
+			"canManageRoles": false,
+			"canManageIntegrations": false,
+			"canManageProperties": true,
+			"canManageTickets": true,
+			"canManageContacts": true,
+			"canManageTicketComments": true
+		},
+		"Foreman": {
+			"canManageOrganization": false,
+			"canManageEmployees": false,
+			"canManageRoles": false,
+			"canManageIntegrations": false,
+			"canManageProperties": false,
+			"canManageTickets": true,
+			"canManageContacts": false,
+			"canManageTicketComments": true
+		},
+		"Technician": {
+			"canManageOrganization": false,
+			"canManageEmployees": false,
+			"canManageRoles": false,
+			"canManageIntegrations": false,
+			"canManageProperties": false,
+			"canManageTickets": true,
+			"canManageContacts": false,
+			"canManageTicketComments": true
+		}
+	},
+	"statuses": {},
+	"classifiers": {
+
+	}
+}

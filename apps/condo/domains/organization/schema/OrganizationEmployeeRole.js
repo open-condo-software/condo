@@ -26,6 +26,12 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         name: {
             type: Text,
             isRequired: true,
+            hooks: {
+                resolveInput: (data) => {
+                    console.log(data)
+                    return data.resolvedData.name
+                },
+            },
         },
 
         statusTransitions: {
