@@ -55,7 +55,7 @@ export const sideMenuMobileCss = css`
 `
 
 export const sideMenuDesktopCss = css`
-  padding: 40px 10px 0 40px;
+  padding: 40px 20px 0 40px;
   box-sizing: border-box;
   width: ${SIDE_MENU_WIDTH}px;
   height: 100%;
