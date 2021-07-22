@@ -72,7 +72,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "next": "^9.5.2",
-    "next-transpile-modules": "^4.1.0",
+    "next-transpile-modules": "7.3.0",
     "numeral": "2.0.6",
     "phone": "^2.4.21",
     "qs": "^6.9.6",
