@@ -22,6 +22,13 @@ class RedisGuard {
 
     constructor () {
         this.db = new IORedis(REDIS_URL)
+        this.db.on('error', (error) => {
+            if (error.code === 'ECONNREFUSED'){
+                console.log('Could not connect to redis:', error)
+                process.exit(0)
+            }
+            console.error('Redis error:', error)
+        })
         this.lockPrefix = 'guard_lock:'
         this.counterPrefix = 'guard_counter:'
     }
