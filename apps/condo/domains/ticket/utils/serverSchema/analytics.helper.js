@@ -13,7 +13,7 @@ const createDateRange = (start, end, tick) => {
     let stop = moment(end)
     let range = []
     let maxLength = 100
-    while (current < stop && --maxLength > 0) {
+    while (current <= stop && --maxLength > 0) {
         const value = current.format(DATE_FORMATS[tick])
         range.push({ label: value, value: value })
         current = current.add(1, tick)
@@ -37,9 +37,9 @@ const sortStatusesByType = (statuses) => {
     })
 }
 
-const createStatusRange = async (context, organization) => {
+const createStatusRange = async (context, organizationWhereInput) => {
     const statuses = await TicketStatusServerUtils.getAll(context, { OR: [
-        { organization: { id: organization } },
+        { organization: organizationWhereInput },
         { organization_is_null: true },
     ] })
     // We use organization specific statuses if they exists
@@ -54,8 +54,8 @@ const createStatusRange = async (context, organization) => {
     return sortStatusesByType(allStatuses).map(status => ({ label: status.name, value: status.type }))
 }
 
-const createPropertyRange = async (context, organization) => {
-    const properties = await PropertyServerUtils.getAll(context, { organization: { id: organization } })
+const createPropertyRange = async (context, organizationWhereInput) => {
+    const properties = await PropertyServerUtils.getAll(context, { organization:  organizationWhereInput  })
     return properties.map( property => ({ label: property.address, value: property.id }))
 }
 

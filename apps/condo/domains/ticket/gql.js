@@ -116,7 +116,7 @@ const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 
 // TODO(codegen): write return type result!
 const TICKET_ANALYTICS_REPORT_MUTATION = gql`
-    mutation ticketAnalyticsReport ($data: TicketAnalyticsReportInput!) {
+    query ticketAnalyticsReport ($data: TicketAnalyticsReportInput!) {
         result: ticketAnalyticsReport(data: $data) { result }
     }
 `

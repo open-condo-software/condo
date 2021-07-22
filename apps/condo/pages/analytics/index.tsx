@@ -18,14 +18,14 @@ import {
     Divider,
     Select,
     TableColumnsType,
-    Tooltip, Form,
+    Tooltip, Form, Tag,
 } from 'antd'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import ReactECharts from 'echarts-for-react'
 import { colors } from '@condo/domains/common/constants/style'
-import { GET_TICKET_ANALYTICS_REPORT_DATA } from '@condo/domains/ticket/gql'
+import { TICKET_ANALYTICS_REPORT_MUTATION } from '@condo/domains/ticket/gql'
 import { useLazyQuery } from '@core/next/apollo'
 
 import moment, { Moment } from 'moment'
@@ -34,7 +34,6 @@ import { Button } from '@condo/domains/common/components/Button'
 import { EditFilled, FilePdfFilled, PlusCircleFilled } from '@ant-design/icons'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import RadioGroupWithIcon, { radioButtonBorderlessCss } from '@condo/domains/common/components/RadioGroupWithIcon'
-import { TicketReportAnalyticsOutput } from '../../schema'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import DateRangePicker from '@condo/domains/common/components/DateRangePicker'
@@ -44,9 +43,9 @@ interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
 type viewModeTypes = 'bar' | 'line' | 'pie'
-type specificationTypes = 'days' | 'weeks'
+type specificationTypes = 'day' | 'week' | 'month'
 interface ITicketAnalyticsPageWidgetProps {
-    data: null | TicketReportAnalyticsOutput['data'];
+    data: null | any;
     viewMode: viewModeTypes;
     loading?: boolean;
 }
@@ -58,9 +57,10 @@ interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps
 type ITicketAnalyticsPageFilters = {
     range: [Moment, Moment];
     specification: specificationTypes;
+    addressList: string[];
 }
 interface ITicketAnalyticsPageFilterProps {
-    onChange?: ({ range, specification }: ITicketAnalyticsPageFilters) => void
+    onChange?: ({ range, specification, addressList }: ITicketAnalyticsPageFilters) => void
 }
 const FORM_ITEM_STYLE = {
     labelCol: {
@@ -79,16 +79,12 @@ const DATE_RANGE_PRESETS = {
 type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
 type ticketSelectTypes = 'default' | 'paid' | 'emergency'
 const DATE_DISPLAY_FORMAT = 'DD.MM.YYYY'
-// TODO (sitozzz): get selectedPeriod from filter component
-const SELECTED_PERIOD = [moment().subtract(1, 'week'), moment()]
-// TODO (sitozzz): get addressList from filter component
-const ADDRESS_LIST = []
 const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5], colors.volcano[5], colors.purple[5],
     colors.lime[7], colors.sberGrey[7], colors.magenta[5], colors.blue[4], colors.gold[6], colors.cyan[6],
     colors.blue[7], colors.volcano[6], colors.green[5], colors.geekblue[7], colors.sberGrey[7], colors.gold[7],
     colors.magenta[7], colors.yellow[5], colors.lime[7], colors.blue[8], colors.cyan[5], colors.yellow[6],
     colors.purple[7], colors.lime[8], colors.red[6] ]
-const SPECIFICATIONS = ['days', 'weeks']
+const SPECIFICATIONS = ['day', 'week']
 
 const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     children,
@@ -103,25 +99,22 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
     }
     const series = []
     const isLineChart = viewMode === 'line'
-    const { result, axisLabels, labels } = data
-    const legend = Object.values(labels)
-    Object.entries(result).map(([ticketType, dataObj]) => {
+    const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+    const legend = Object.keys(data)
+    Object.entries(data).map(([groupBy, dataObj]) => {
         series.push({
-            name: labels[ticketType],
+            name: groupBy,
             type: viewMode,
             symbol: 'none',
-            stack: isLineChart ? ticketType : 'total',
+            stack: isLineChart ? groupBy : 'total',
             data: Object.values(dataObj),
-            zlevel: 1,
             emphasis: {
-                focus: isLineChart ? 'none' : 'series',
-                blurScore: isLineChart ? 'none' : 'series',
-                itemStyle: {
-                    color: '#000',
-                },
+                focus: isLineChart ? 'none' : 'self',
+                blurScope: isLineChart ? 'none' : 'self',
             },
         })
     })
+
     const axisData = {
         yAxis: {
             type: isLineChart ? 'value' : 'category',
@@ -186,11 +179,11 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = (
     if (data === null) {
         return <Skeleton loading={loading} active paragraph={{ rows: 10 }} />
     }
-    const { tableColumns: fetchedTableColumns, tableData } = data
+    const dataSource = []
     const tableColumns: TableColumnsType = [
         { title: AddressTitle, dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
-        ...Object.entries(fetchedTableColumns).map(([key, value]: [string, number]) => (
-            { title: value, dataIndex: value, key, sorter: (a, b) => a[value] - b[value] }
+        ...Object.entries(data).map(([key, value]: [string, number]) => (
+            { title: key, dataIndex: key, key, sorter: (a, b) => a[value] - b[value] }
         )),
     ]
     if (viewMode === 'line') {
@@ -201,6 +194,28 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = (
             defaultSortOrder: 'descend',
             sorter: (a, b) => moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
         })
+        const uniqueDates = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+        uniqueDates.forEach((date, key) => {
+            const restProps = {}
+            Object.keys(data).forEach(ticketType => (restProps[ticketType] = data[ticketType][date]))
+            dataSource.push({
+                key,
+                address: AllAddressTitle,
+                date,
+                ...restProps,
+            })
+        })
+    } else {
+        const restProps = {}
+        Object.entries(data).forEach((rowEntry) => {
+            const [ticketType, dataObj] = rowEntry
+            restProps[ticketType] = Object.values(dataObj).reduce((a, b) => a + b)
+        })
+        dataSource.push({
+            key: 0,
+            address: AllAddressTitle,
+            ...restProps,
+        })
     }
 
     return (
@@ -210,9 +225,7 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = (
                 tableLayout={'fixed'}
                 scroll={{ scrollToFirstRowOnChange: false }}
                 loading={loading}
-                dataSource={tableData.map(({ address, ...rest }, key) => (
-                    { key, address: address === null ? AllAddressTitle : address, ...rest }
-                ))}
+                dataSource={dataSource}
                 columns={tableColumns as TableColumnsType}
                 pagination={false}
             />
@@ -238,6 +251,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
 
     const [dateRange, setDateRange] = useState<[Moment, Moment]>([moment().subtract(1, 'week'), moment()])
     const [dateRangePreset, setDateRangePreset] = useState<null | string>(null)
+    const [addressList, setAddressList] = useState([])
     const [specification, setSpecification] = useState<specificationTypes>(SPECIFICATIONS[0] as specificationTypes)
 
     const updateUrlFilters = useCallback(() => {
@@ -246,6 +260,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
             createdAt_lte: startDate.toISOString(),
             createdAt_gte: endDate.toISOString(),
             specification,
+            addressList: JSON.stringify(addressList),
         }))
     }, [dateRange, specification])
 
@@ -259,17 +274,25 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
             setSpecification(specificationUrl)
         }
         isEmpty(queryParams) && updateUrlFilters()
-        onChange({ range: dateRange, specification })
+        onChange({ range: dateRange, specification, addressList: addressList })
     }, [])
 
     useEffect(() => {
         dateRangePreset !== null && setDateRange(DATE_RANGE_PRESETS[dateRangePreset])
     }, [dateRangePreset])
 
-    const applyFilters = () => {
+    const applyFilters = useCallback(() => {
         updateUrlFilters()
-        onChange({ range: dateRange, specification })
-    }
+        onChange({ range: dateRange, specification, addressList })
+    }, [dateRange, specification, addressList])
+
+    const onSelect = useCallback((_, { key: addressId }) => {
+        setAddressList([addressId])
+    }, [addressList])
+
+    const onClear = useCallback(() => {
+        setAddressList([])
+    }, [])
 
     return (
         <Form>
@@ -297,15 +320,20 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                 <Col flex={0}>
                     <Form.Item label={SpecificationTitle} {...FORM_ITEM_STYLE} >
                         <Select value={specification} onChange={(e) => setSpecification(e)} >
-                            <Select.Option value={'days'}>{SpecificationDays}</Select.Option>
-                            <Select.Option value={'weeks'}>{SpecificationWeeks}</Select.Option>
+                            <Select.Option value={'day'}>{SpecificationDays}</Select.Option>
+                            <Select.Option value={'week'}>{SpecificationWeeks}</Select.Option>
                         </Select>
                     </Form.Item>
                 </Col>
-                <Col flex={1}>
+                <Col span={10}>
                     <Form.Item label={AddressTitle} {...FORM_ITEM_STYLE}>
-                        {/* TODO (sitozzz): add value state & change to multiple mode */}
-                        <PropertyAddressSearchInput placeholder={AllAddressesPlaceholder} />
+                        {/* TODO (sitozzz): change to multiple mode */}
+                        <PropertyAddressSearchInput
+                            placeholder={AllAddressesPlaceholder}
+                            onSelect={onSelect}
+                            onClear={onClear}
+                            style={{ width: '100%' }}
+                        />
                     </Form.Item>
                 </Col>
                 <Col span={24}>
@@ -319,7 +347,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
 
 const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const intl = useIntl()
-    const [dateFrom, dateTo] = SELECTED_PERIOD
+    const router = useRouter()
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const filtersRef = useRef(null)
@@ -347,38 +375,48 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const PrintTitle = intl.formatMessage({ id: 'Print' })
     const ExcelTitle = intl.formatMessage({ id: 'Excel' })
-    const selectedPeriod = SELECTED_PERIOD.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ')
+    const [dateFrom, dateTo] = filtersRef.current !== null ? filtersRef.current.range : []
+    const selectedPeriod = filtersRef.current !== null ? filtersRef.current.range.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
 
-    const [loadTicketAnalyticsData] = useLazyQuery(GET_TICKET_ANALYTICS_REPORT_DATA, {
+    const [loadTicketAnalytics] = useLazyQuery(TICKET_ANALYTICS_REPORT_MUTATION, {
         onError: error => {
             console.log(error)
             setLoading(false)
         },
-        fetchPolicy: 'cache-and-network',
+        fetchPolicy: 'network-only',
         onCompleted: response => {
-            const { result: { data } } = response
-            setAnalyticsData(data)
+            const { result: { result } } = response
+            setAnalyticsData(result)
             setLoading(false)
         },
     })
 
     useEffect(() => {
         setLoading(true)
-        // TODO (sitozzz): pass filters data from filtersRef.current
-        console.log(filtersRef.current)
-        loadTicketAnalyticsData({ variables: {
-            data: {
-                dateFrom: dateFrom.toISOString(),
-                dateTo: dateTo.toISOString(),
-                groupBy: groupTicketsBy,
-                userOrganizationId,
-                ticketType,
-                viewMode,
-                addressList: ADDRESS_LIST,
-            } } } )
-    }, [groupTicketsBy, userOrganizationId, ticketType, viewMode])
+        const groupBy = []
+        if (viewMode === 'line') {
+            groupBy.push(...['status', filtersRef.current.specification])
+        } else {
+            groupBy.push(...['status', 'property'])
+        }
+        loadTicketAnalytics({
+            variables: {
+                data: {
+                    where: {
+                        AND: [
+                            { organization: { id: userOrganizationId } },
+                            { createdAt_gte: filtersRef.current.range[0].toISOString() },
+                            { createdAt_lte: filtersRef.current.range[1].toISOString() },
+                            { isEmergency: ticketType === 'emergency' },
+                            { isPaid: ticketType === 'paid' },
+                        ],
+                    },
+                    groupBy,
+                },
+            },
+        })
+    }, [groupTicketsBy, userOrganizationId, ticketType, viewMode, router.asPath])
 
-    const router = useRouter()
     const printPdf = useCallback(
         () => {
             router.push('/analytics/pdf?' + qs.stringify({
@@ -387,12 +425,11 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                 groupBy: groupTicketsBy,
                 ticketType,
                 viewMode,
-                addressList: JSON.stringify(ADDRESS_LIST),
+                addressList: JSON.stringify(filtersRef.current.addressList),
             }))
         },
-        [ticketType, viewMode, ADDRESS_LIST, dateFrom, dateTo, groupTicketsBy],
+        [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy],
     )
-
 
     return <>
         <Head>
@@ -429,7 +466,27 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                             <TicketAnalyticsPageFilter
                                 onChange={(filters) => {
                                     filtersRef.current = filters
-                                    // TODO (sitozzz): call loadTicketAnalyticsData with this filters
+                                    const groupBy = []
+                                    if (viewMode === 'line') {
+                                        groupBy.push(...['status', filtersRef.current.specification])
+                                    } else {
+                                        groupBy.push(...['property', filtersRef.current.specification])
+                                    }
+                                    const where = {
+                                        AND: [
+                                            { organization: { id: userOrganizationId } },
+                                            { createdAt_gte: filtersRef.current.range[0].toISOString() },
+                                            { createdAt_lte: filtersRef.current.range[1].toISOString() },
+                                            { isEmergency: ticketType === 'emergency' },
+                                            { isPaid: ticketType === 'paid' },
+                                        ],
+                                    }
+
+                                    if (filtersRef.current.addressList.length) {
+                                        // @ts-ignore
+                                        where.AND.push({ property: { id_in: filtersRef.current.addressList } })
+                                    }
+                                    loadTicketAnalytics({ variables: { data: { where, groupBy } } })
                                 }}
                             />
                             <Divider />
@@ -442,7 +499,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                         <Col span={4} style={{ textAlign: 'right', flexWrap: 'nowrap' }}>
                             <RadioGroupWithIcon
                                 value={viewMode}
-                                size={'small'}
+                                size='small'
                                 buttonStyle='outline'
                                 onChange={(e) => setViewMode(e.target.value)}>
                                 <Radio.Button value='line'>

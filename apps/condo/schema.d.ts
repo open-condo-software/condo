@@ -6557,7 +6557,6 @@ export type Mutation = {
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
-  ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
   registerResident?: Maybe<Resident>;
@@ -8249,11 +8248,6 @@ export type MutationAcceptOrRejectOrganizationInviteByIdArgs = {
 export type MutationAcceptOrRejectOrganizationInviteByCodeArgs = {
   inviteCode: Scalars['String'];
   data: AcceptOrRejectOrganizationInviteInput;
-};
-
-
-export type MutationTicketAnalyticsReportArgs = {
-  data?: Maybe<TicketAnalyticsReportInput>;
 };
 
 

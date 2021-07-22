@@ -11,7 +11,7 @@ test('Groupped counts [day, status]', async () => {
     const client = await makeClient()
     const dateStart = moment().startOf('week')
     const dateEnd = moment().endOf('week')
-    const { data: { result } } = await client.mutate(TICKET_ANALYTICS_REPORT_MUTATION, {
+    const { data: { result } } = await client.query(TICKET_ANALYTICS_REPORT_MUTATION, {
         dv: 1,
         sender: { dv: 1, fingerprint: 'tests' },
         data: {
@@ -31,7 +31,7 @@ test('Groupped counts [status, day]', async () => {
     const client = await makeClient()
     const dateStart = moment().startOf('week')
     const dateEnd = moment().endOf('week')
-    const { data: { result } } = await client.mutate(TICKET_ANALYTICS_REPORT_MUTATION, {
+    const { data: { result } } = await client.query(TICKET_ANALYTICS_REPORT_MUTATION, {
         dv: 1,
         sender: { dv: 1, fingerprint: 'tests' },
         data: {
@@ -52,7 +52,7 @@ test('Groupped counts [property, status]', async () => {
     const client = await makeClient()
     const dateStart = moment().startOf('week')
     const dateEnd = moment().endOf('week')
-    const { data: { result } } = await client.mutate(TICKET_ANALYTICS_REPORT_MUTATION, {
+    const { data: { result } } = await client.query(TICKET_ANALYTICS_REPORT_MUTATION, {
         dv: 1,
         sender: { dv: 1, fingerprint: 'tests' },
         data: {
