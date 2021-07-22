@@ -27,22 +27,16 @@ const TicketClassifier = new GQLListSchema('TicketClassifier', {
             options: ['location', 'category', 'subject'],
             isRequired: true,
         },
-        locationClassifiers: {
+        dependantClassifiers: {
             schemaDoc: 'Each classifier can have multiple related locations',
             type: Relationship,
-            ref: 'TicketClassifier',
+            ref: 'TicketClassifier.dependsOnClassifiers',
             many: true,
         },
-        categoryClassifiers: {
+        dependsOnClassifiers: {
             schemaDoc: 'Each classifier can have multiple related categories',
             type: Relationship,
-            ref: 'TicketClassifier',
-            many: true,
-        },
-        subjectClassifiers: {
-            schemaDoc: 'Each classifier can have multiple related subjects',
-            type: Relationship,
-            ref: 'TicketClassifier',
+            ref: 'TicketClassifier.dependantClassifiers',
             many: true,
         },
     },

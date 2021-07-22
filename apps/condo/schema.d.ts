@@ -12978,12 +12978,10 @@ export enum SortTicketClassifiersBy {
   NameDesc = 'name_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
-  LocationClassifiersAsc = 'locationClassifiers_ASC',
-  LocationClassifiersDesc = 'locationClassifiers_DESC',
-  CategoryClassifiersAsc = 'categoryClassifiers_ASC',
-  CategoryClassifiersDesc = 'categoryClassifiers_DESC',
-  SubjectClassifiersAsc = 'subjectClassifiers_ASC',
-  SubjectClassifiersDesc = 'subjectClassifiers_DESC',
+  DependantClassifiersAsc = 'dependantClassifiers_ASC',
+  DependantClassifiersDesc = 'dependantClassifiers_DESC',
+  DependsOnClassifiersAsc = 'dependsOnClassifiers_ASC',
+  DependsOnClassifiersDesc = 'dependsOnClassifiers_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -14974,14 +14972,11 @@ export type TicketClassifier = {
   /**  Ticket classifier   */
   type?: Maybe<TicketClassifierTypeType>;
   /**  Each classifier can have multiple related locations  */
-  locationClassifiers: Array<TicketClassifier>;
-  _locationClassifiersMeta?: Maybe<_QueryMeta>;
+  dependantClassifiers: Array<TicketClassifier>;
+  _dependantClassifiersMeta?: Maybe<_QueryMeta>;
   /**  Each classifier can have multiple related categories  */
-  categoryClassifiers: Array<TicketClassifier>;
-  _categoryClassifiersMeta?: Maybe<_QueryMeta>;
-  /**  Each classifier can have multiple related subjects  */
-  subjectClassifiers: Array<TicketClassifier>;
-  _subjectClassifiersMeta?: Maybe<_QueryMeta>;
+  dependsOnClassifiers: Array<TicketClassifier>;
+  _dependsOnClassifiersMeta?: Maybe<_QueryMeta>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -14994,7 +14989,7 @@ export type TicketClassifier = {
 
 
 /**  Ticket typification/classification. We have a organization specific classification. We check the ticket attrs differently depending on the classifier  */
-export type TicketClassifierLocationClassifiersArgs = {
+export type TicketClassifierDependantClassifiersArgs = {
   where?: Maybe<TicketClassifierWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortTicketClassifiersBy>>;
@@ -15005,7 +15000,7 @@ export type TicketClassifierLocationClassifiersArgs = {
 
 
 /**  Ticket typification/classification. We have a organization specific classification. We check the ticket attrs differently depending on the classifier  */
-export type TicketClassifier_LocationClassifiersMetaArgs = {
+export type TicketClassifier_DependantClassifiersMetaArgs = {
   where?: Maybe<TicketClassifierWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortTicketClassifiersBy>>;
@@ -15016,7 +15011,7 @@ export type TicketClassifier_LocationClassifiersMetaArgs = {
 
 
 /**  Ticket typification/classification. We have a organization specific classification. We check the ticket attrs differently depending on the classifier  */
-export type TicketClassifierCategoryClassifiersArgs = {
+export type TicketClassifierDependsOnClassifiersArgs = {
   where?: Maybe<TicketClassifierWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortTicketClassifiersBy>>;
@@ -15027,29 +15022,7 @@ export type TicketClassifierCategoryClassifiersArgs = {
 
 
 /**  Ticket typification/classification. We have a organization specific classification. We check the ticket attrs differently depending on the classifier  */
-export type TicketClassifier_CategoryClassifiersMetaArgs = {
-  where?: Maybe<TicketClassifierWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortTicketClassifiersBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  Ticket typification/classification. We have a organization specific classification. We check the ticket attrs differently depending on the classifier  */
-export type TicketClassifierSubjectClassifiersArgs = {
-  where?: Maybe<TicketClassifierWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortTicketClassifiersBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  Ticket typification/classification. We have a organization specific classification. We check the ticket attrs differently depending on the classifier  */
-export type TicketClassifier_SubjectClassifiersMetaArgs = {
+export type TicketClassifier_DependsOnClassifiersMetaArgs = {
   where?: Maybe<TicketClassifierWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortTicketClassifiersBy>>;
@@ -15064,9 +15037,8 @@ export type TicketClassifierCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
   type?: Maybe<TicketClassifierTypeType>;
-  locationClassifiers?: Maybe<TicketClassifierRelateToManyInput>;
-  categoryClassifiers?: Maybe<TicketClassifierRelateToManyInput>;
-  subjectClassifiers?: Maybe<TicketClassifierRelateToManyInput>;
+  dependantClassifiers?: Maybe<TicketClassifierRelateToManyInput>;
+  dependsOnClassifiers?: Maybe<TicketClassifierRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -15307,9 +15279,8 @@ export type TicketClassifierUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
   type?: Maybe<TicketClassifierTypeType>;
-  locationClassifiers?: Maybe<TicketClassifierRelateToManyInput>;
-  categoryClassifiers?: Maybe<TicketClassifierRelateToManyInput>;
-  subjectClassifiers?: Maybe<TicketClassifierRelateToManyInput>;
+  dependantClassifiers?: Maybe<TicketClassifierRelateToManyInput>;
+  dependsOnClassifiers?: Maybe<TicketClassifierRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -15359,23 +15330,17 @@ export type TicketClassifierWhereInput = {
   type_in?: Maybe<Array<Maybe<TicketClassifierTypeType>>>;
   type_not_in?: Maybe<Array<Maybe<TicketClassifierTypeType>>>;
   /**  condition must be true for all nodes  */
-  locationClassifiers_every?: Maybe<TicketClassifierWhereInput>;
+  dependantClassifiers_every?: Maybe<TicketClassifierWhereInput>;
   /**  condition must be true for at least 1 node  */
-  locationClassifiers_some?: Maybe<TicketClassifierWhereInput>;
+  dependantClassifiers_some?: Maybe<TicketClassifierWhereInput>;
   /**  condition must be false for all nodes  */
-  locationClassifiers_none?: Maybe<TicketClassifierWhereInput>;
+  dependantClassifiers_none?: Maybe<TicketClassifierWhereInput>;
   /**  condition must be true for all nodes  */
-  categoryClassifiers_every?: Maybe<TicketClassifierWhereInput>;
+  dependsOnClassifiers_every?: Maybe<TicketClassifierWhereInput>;
   /**  condition must be true for at least 1 node  */
-  categoryClassifiers_some?: Maybe<TicketClassifierWhereInput>;
+  dependsOnClassifiers_some?: Maybe<TicketClassifierWhereInput>;
   /**  condition must be false for all nodes  */
-  categoryClassifiers_none?: Maybe<TicketClassifierWhereInput>;
-  /**  condition must be true for all nodes  */
-  subjectClassifiers_every?: Maybe<TicketClassifierWhereInput>;
-  /**  condition must be true for at least 1 node  */
-  subjectClassifiers_some?: Maybe<TicketClassifierWhereInput>;
-  /**  condition must be false for all nodes  */
-  subjectClassifiers_none?: Maybe<TicketClassifierWhereInput>;
+  dependsOnClassifiers_none?: Maybe<TicketClassifierWhereInput>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
