@@ -1,5 +1,8 @@
 const { TicketStatus: TicketStatusServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
 const { Property: PropertyServerUtils } = require('@condo/domains/property/utils/serverSchema')
+const { AnaliticsTicket: AnaliticsTicketServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
+
+const CHUNK_SIZE = 100
 const moment = require('moment')
 
 const DATE_FORMATS = {
@@ -12,7 +15,7 @@ const createDateRange = (start, end, tick) => {
     let current = moment(start)
     let stop = moment(end)
     let range = []
-    let maxLength = 100
+    let maxLength = 1000
     while (current <= stop && --maxLength > 0) {
         const value = current.format(DATE_FORMATS[tick])
         range.push({ label: value, value: value })
@@ -59,8 +62,8 @@ const createPropertyRange = async (context, organizationWhereInput) => {
     return properties.map( property => ({ label: property.address, value: property.id }))
 }
 
+// TODO(zuch): add support for groupping by classifier, assignee, executor
 const createCountersStructure = async ({ context, organization, groups, datesRange }) => {
-    const grouppedCounters = {}
     const translates = {}
     const { min, max } = datesRange
     const ranges = []
@@ -84,20 +87,35 @@ const createCountersStructure = async ({ context, organization, groups, datesRan
         translates[groupName] = Object.fromEntries(range.map(({ value, label }) => ([ value, label ])))
         ranges.push(range)
     }
-    // TODO(zuch): n levels of group (now only 2) Maybe, we never meet 3+ lvls
-    ranges[0].forEach(option => {
-        grouppedCounters[option.value] = {  }
-        ranges[1].forEach(subOption => {
-            grouppedCounters[option.value][subOption.value] = 0
-        })
-    })
+    // Transform [[a1, a2, a3], [b1, b2], [c1, c2]] to
+    // { a1: { b1: { c1: 0, c2: 0 }, b2: { c1: 0, c2: 0 } }, a2: { ... }}
+    console.log('ranges', ranges)
+    const grouppedCounters = ranges.reduceRight((previousValue, currentValue) =>
+        Object.fromEntries(currentValue.map(option =>
+            ([option.value, previousValue])))
+    , 0)
+    console.log('grouppedCounters', grouppedCounters)
     return {
         grouppedCounters,
         translates,
     }
 }
 
+const fetchTicketsForAnalitics = async (context, ticketWhereInput) => {
+    let skip = 0
+    let maxCount = 1000
+    let newchunk = []
+    let allTickets = []
+    do {
+        newchunk = await AnaliticsTicketServerUtils.getAll(context, ticketWhereInput, { first: CHUNK_SIZE, skip: skip })
+        allTickets = allTickets.concat(newchunk)
+        skip += newchunk.length
+    } while (--maxCount > 0 && newchunk.length)
+    return allTickets
+}
+
 module.exports = {
     DATE_FORMATS,
     createCountersStructure,
+    fetchTicketsForAnalitics,
 }
