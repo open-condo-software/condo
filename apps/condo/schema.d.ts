@@ -3898,7 +3898,7 @@ export type BillingReceipt = {
   toPay?: Maybe<Scalars['String']>;
   /**  Sum to pay details. Detail level 2  */
   toPayDetails?: Maybe<Scalars['JSON']>;
-  /**  Structured items in the receipt obtained from the `billing data source`. Amount of payment is required for use in the `receipt template`.  */
+  /**  Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4  */
   services?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
