@@ -371,13 +371,24 @@ async function createTestBillingReceipt (client, context, property, account, ext
         property: { connect: { id: property.id } },
         account: { connect: { id: account.id } },
         raw: { foo: faker.lorem.words() },
-        period: '2021-07-11',
-        toPay: "123",
-        services: {
-            dv: 1,
-        },
-        meta: {
-            dv: 1,
+        period: '2021-01-11',
+        toPay: faker.datatype.number().toString(),
+        services: [
+            {
+                id: faker.datatype.number().toString(),
+                name: faker.random.alphaNumeric(),
+                toPay: faker.datatype.number().toString(),
+                toPayDetails: {
+                    formula: "calc + recalc",
+                    calc: faker.datatype.number().toString(),
+                    recalc: faker.datatype.number().toString(),
+                }
+            },
+        ],
+        toPayDetails: {
+            formula: "calc + recalc",
+            calc: faker.datatype.number().toString(),
+            recalc: faker.datatype.number().toString(),
         },
         ...extraAttrs,
     }
