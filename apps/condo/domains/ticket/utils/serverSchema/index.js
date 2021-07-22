@@ -4,9 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
+const { AnaliticsTicket: AnaliticsTicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
 const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
 const { TicketFile: TicketFileGQL } = require('@condo/domains/ticket/gql')
@@ -16,11 +17,13 @@ const { TICKET_ANALYTICS_REPORT_MUTATION } = require('@condo/domains/ticket/gql'
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
+const AnaliticsTicket = generateServerUtils(AnaliticsTicketGQL)
 const TicketStatus = generateServerUtils(TicketStatusGQL)
 const TicketChange = generateServerUtils(TicketChangeGQL)
 const TicketFile = generateServerUtils(TicketFileGQL)
 const TicketClassifier = generateServerUtils(TicketClassifierGQL)
 const TicketComment = generateServerUtils(TicketCommentGQL)
+
 async function ticketAnalyticsReport (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
@@ -39,6 +42,7 @@ async function ticketAnalyticsReport (context, data) {
 
 module.exports = {
     Ticket,
+    AnaliticsTicket,
     TicketStatus,
     TicketChange,
     TicketFile,

@@ -4,18 +4,20 @@
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
 // const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
-const { Ticket: TicketServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
-const CHUNK_SIZE = 20
 const moment = require('moment')
 const get = require('lodash/get')
-const { createCountersStructure, DATE_FORMATS } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
+const { createCountersStructure, fetchTicketsForAnalitics, DATE_FORMATS } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
 
 
 const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportService', {
     types: [
         {
             access: true,
-            type: 'input TicketAnalyticsReportInput { where: TicketWhereInput!, groupBy: [String]! }',
+            type: 'enum TicketAnalyticsGroupBy { day week month status property }',
+        },
+        {
+            access: true,
+            type: 'input TicketAnalyticsReportInput { where: TicketWhereInput!, groupBy: [String!] }',
         },
         {
             access: true,
@@ -29,15 +31,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             schema: 'ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { where = {}, groupBy = [] } } = args
-                let skip = 0
-                let maxCount = 1000
-                let newchunk = []
-                let allTickets = []
-                do {
-                    newchunk = await TicketServerUtils.getAll(context, where, { first: CHUNK_SIZE, skip: skip })
-                    allTickets = allTickets.concat(newchunk)
-                    skip += newchunk.length
-                } while (--maxCount > 0 && newchunk.length)
+                let allTickets = await fetchTicketsForAnalitics(context, where)
                 allTickets = allTickets.map( ticket => {
                     ticket.interval = {
                         day: moment(ticket.createdAt).format(DATE_FORMATS.day),
