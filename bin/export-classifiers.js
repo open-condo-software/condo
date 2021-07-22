@@ -1,6 +1,11 @@
 const has = require('lodash/has')
 const { v4: uuid } = require('uuid')
-const CLASSIFIER_TEMPLATE = 'INSERT INTO "TicketClassifier" (dv, sender, name, type, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial"}\', \'{name}\', \'{type}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null, null);'
+
+
+
+const CLASSIFIER_TEMPLATE = 'INSERT INTO public."TicketClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy", "type") VALUES (1, \'{"dv": 1, "fingerprint": "initial"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null, \'{type}\');'
+const RELATION_TEMPLATE = 'INSERT INTO public."TicketClassifier_dependantClassifiers_TicketClassifier_dependsO" ("TicketClassifier_left_id", "TicketClassifier_right_id") VALUES(\'{uuid1}\', \'{uuid2}\');'
+
 // Example:
 // Чердаки, подвалы;Доступ;Ограничение доступа
 
@@ -12,14 +17,18 @@ const CLASSIFIER_TEMPLATE = 'INSERT INTO "TicketClassifier" (dv, sender, name, t
 
 // relations (6):
 
-// Чердаки, подвалы => category = Доступ
-// Чердаки, подвалы => subject = Ограничение доступа
+// Чердаки, подвалы => Доступ
+// Чердаки, подвалы => Ограничение доступа
+// Доступ => Чердаки, подвалы
+// Доступ => Ограничение доступа
+// Ограничение доступа => Чердаки, подвалы
+// Ограничение доступа => Доступ
 
-// Доступ  => location = Чердаки, подвалы
-// Доступ => subject = Ограничение доступа
-
-// Ограничение доступа => location = Чердаки, подвалы
-// Ограничение доступа => category = Доступ
+// or
+// relations (3): location > category > subject
+// Чердаки, подвалы => Доступ
+// Чердаки, подвалы => Ограничение доступа
+// Доступ => Чердаки, подвалы
 
 
 
@@ -420,14 +429,40 @@ class ClassifiersToSql {
         for (const subjectKey in this.subjects) {
             this.printClassifier({ name: this.subjects[subjectKey], uuid: this.uuids.subjects[subjectKey], type: 'subject' })
         }
-
     }
 
+    printRelation ({ uuid1, uuid2 }) {
+        process.stdout.write(
+            RELATION_TEMPLATE
+                .split('{uuid1}').join(uuid1)
+                .split('{uuid2}').join(uuid2)
+        )
+        process.stdout.write('\n')
+    }
+
+    printRelations () {
+        for (const uuid1 in this.relations.locations) {
+            this.relations.locations[uuid1].forEach(uuid2 => {
+                this.printRelation({ uuid1, uuid2 })
+            })
+        }
+        for (const uuid1 in this.relations.categories) {
+            this.relations.categories[uuid1].forEach(uuid2 => {
+                this.printRelation({ uuid1, uuid2 })
+            })
+        }
+        for (const uuid1 in this.relations.subjects) {
+            this.relations.subjects[uuid1].forEach(uuid2 => {
+                this.printRelation({ uuid1, uuid2 })
+            })
+        }
+    }
 
     printSqlsToOutput () {
         this.prepareData()
         this.printClassifiers()
         this.printRelations()
+        process.exit(0)
     }
 
 }
