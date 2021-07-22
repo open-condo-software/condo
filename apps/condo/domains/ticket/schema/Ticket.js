@@ -147,12 +147,13 @@ const Ticket = new GQLListSchema('Ticket', {
             ref: 'User',
             many: true,
         },
+
         // classifierMeta
         classifier: {
             schemaDoc: '[will be removed] Typification / classification / types of work',
             type: Relationship,
             ref: 'TicketClassifier',
-            isRequired: true,
+            isRequired: false,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
@@ -160,23 +161,27 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Information about where problem heppens',
             type: Relationship,
             ref: 'TicketClassifier',
-            many: true,
+            isRequired: false,
+            knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
         categoryClassifier: {
             schemaDoc: 'Information about what kind of problem heppens',
             type: Relationship,
             ref: 'TicketClassifier',
-            many: true,
+            isRequired: false,
+            knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
         subjectClassifier: {
             schemaDoc: 'Detailed information about the problem',
             type: Relationship,
             ref: 'TicketClassifier',
-            many: true,
+            isRequired: false,
+            knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
+
         // description / title
         details: {
             schemaDoc: 'Text description of the issue. Maybe written by a user or an operator',

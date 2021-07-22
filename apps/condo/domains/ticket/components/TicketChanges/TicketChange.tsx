@@ -152,7 +152,23 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             },
         },
         {
-            title: 'classifierDisplayName',
+            title: 'locationClassifierDisplayName',
+            messages: {
+                add: ClassifierAddMessage,
+                change: ClassifierChangeMessage,
+                remove: ClassifierRemoveMessage,
+            },
+        },
+        {
+            title: 'categoryClassifierDisplayName',
+            messages: {
+                add: ClassifierAddMessage,
+                change: ClassifierChangeMessage,
+                remove: ClassifierRemoveMessage,
+            },
+        },
+        {
+            title: 'subjectClassifierDisplayName',
             messages: {
                 add: ClassifierAddMessage,
                 change: ClassifierChangeMessage,
