@@ -8,13 +8,10 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingReceipt')
-const { validatePaymentDetails } = require('../utils/validation.utils')
-const { hasValidJsonStructure } = require(
-    '@condo/domains/common/utils/validation.utils')
+const { validatePaymentDetails, validateServices } = require('../utils/validation.utils')
 const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
-const { DV_UNKNOWN_VERSION_ERROR, JSON_EXPECT_OBJECT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD, BILLING_ORGANIZATION_FIELD } = require('./fields')
-const { BillingReceiptToPayDetailsSchema, BillingReceiptServicesSchema } = require('../utils/validation.utils.js')
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
     schemaDoc: 'Account monthly invoice document',
@@ -53,11 +50,11 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         },
 
         services: {
-            schemaDoc: 'Structured items in the receipt obtained from the `billing data source`. Amount of payment is required for use in the `receipt template`.',
+            schemaDoc: 'Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4',
             type: Json,
             isRequired: false,
             hooks: {
-                validateInput: vaidateServices
+                validateInput: validateServices,
             },
         },
     },

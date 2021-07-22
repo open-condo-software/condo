@@ -12,8 +12,16 @@ const PAYMENT_SCHEMA_JSON = {
 }
 
 const SERVICES_WITH_PAYMENT_SCHEMA_JSON = {
-    type: 'object',
-    items: PAYMENT_SCHEMA_JSON,
+    type: 'array',
+    items: {
+        type: 'object',
+        properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            toPay: { type: 'string' },
+            toPayDetails: PAYMENT_SCHEMA_JSON,
+        },
+    },
 }
 
 const _jsonPaymentObjectValidator = ajv.compile(PAYMENT_SCHEMA_JSON)
