@@ -90,15 +90,6 @@ export default function GlobalStyle () {
                 }
               }
               
-              .ant-select-allow-clear {
-                &:hover {
-                  .ant-select-selection-search {
-                    /* This value fits to any size of select */
-                    padding-right: 24px;
-                  }
-                }
-              }
-
               .ant-checkbox {
                 border-color: ${colors.inputBorderGrey};
               }
