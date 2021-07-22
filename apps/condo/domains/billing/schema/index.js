@@ -13,6 +13,7 @@ const { BillingMeterResource } = require('./BillingMeterResource')
 const { BillingAccountMeter } = require('./BillingAccountMeter')
 const { BillingAccountMeterReading } = require('./BillingAccountMeterReading')
 const { BillingReceipt } = require('./BillingReceipt')
+const { BillingOrganization } = require('./BillingOrganization')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -26,5 +27,6 @@ module.exports = {
     BillingAccountMeter,
     BillingAccountMeterReading,
     BillingReceipt,
+    BillingOrganization,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

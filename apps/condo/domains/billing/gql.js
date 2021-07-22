@@ -38,6 +38,9 @@ const BillingAccountMeterReading = generateGqlQueries('BillingAccountMeterReadin
 const BILLING_RECEIPT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id } account { id } period raw toPay services meta ${COMMON_FIELDS} }`
 const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
 
+const BILLING_ORGANIZATION_FIELDS = `{ context { id } tin iec bic checkNumber ${COMMON_FIELDS} }`
+const BillingOrganization = generateGqlQueries('BillingOrganization', BILLING_ORGANIZATION_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -51,5 +54,6 @@ module.exports = {
     BillingAccountMeter,
     BillingAccountMeterReading,
     BillingReceipt,
+    BillingOrganization,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

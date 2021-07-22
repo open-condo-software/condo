@@ -16,6 +16,7 @@ const { BillingMeterResource: BillingMeterResourceGQL } = require('@condo/domain
 const { BillingAccountMeter: BillingAccountMeterGQL } = require('@condo/domains/billing/gql')
 const { BillingAccountMeterReading: BillingAccountMeterReadingGQL } = require('@condo/domains/billing/gql')
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
+const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateServerUtils(BillingIntegrationGQL)
@@ -28,6 +29,7 @@ const BillingMeterResource = generateServerUtils(BillingMeterResourceGQL)
 const BillingAccountMeter = generateServerUtils(BillingAccountMeterGQL)
 const BillingAccountMeterReading = generateServerUtils(BillingAccountMeterReadingGQL)
 const BillingReceipt = generateServerUtils(BillingReceiptGQL)
+const BillingOrganization = generateServerUtils(BillingOrganizationGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -41,5 +43,6 @@ module.exports = {
     BillingAccountMeter,
     BillingAccountMeterReading,
     BillingReceipt,
+    BillingOrganization,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
