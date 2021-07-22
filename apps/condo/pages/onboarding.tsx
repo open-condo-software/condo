@@ -7,9 +7,15 @@ import { HouseIcon } from '@condo/domains/common/components/icons/HouseIcon'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 import { OnBoardingStep, OnBoardingStepType } from '@condo/domains/user/components/OnBoardingStep'
 import { CheckOutlined, WechatFilled, ProfileFilled, CreditCardFilled } from '@ant-design/icons'
+import { useIntl } from '@core/next/intl'
 import { IPageInterface } from '../next-env'
 
 const OnBoardingPage: IPageInterface = () => {
+    const intl = useIntl()
+    const Title = intl.formatMessage({ id: 'onboarding.title' })
+    const SubTitle = intl.formatMessage({ id: 'onboarding.subtitle' })
+
+    // TODO(Dimitreee): prefetch steps from backend
     const onBoardingSteps = [
         {
             title: 'Создание организации',
@@ -54,7 +60,7 @@ const OnBoardingPage: IPageInterface = () => {
     return (
         <>
             <Head>
-                <title>С чего начать?</title>
+                <title>{Title}</title>
             </Head>
             <PageWrapper>
                 <AuthRequired>
@@ -63,7 +69,7 @@ const OnBoardingPage: IPageInterface = () => {
                             <Col span={24}>
                                 <Space direction={'vertical'} size={24}>
                                     <Typography.Title level={1} style={{ margin: 0 }}>С чего начать?</Typography.Title>
-                                    <Typography.Paragraph>Данные подсказки помогут вам быстрее познакомиться с продуктом</Typography.Paragraph>
+                                    <Typography.Paragraph>{SubTitle}</Typography.Paragraph>
                                 </Space>
                             </Col>
                             <Col span={24}>
