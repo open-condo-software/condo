@@ -38,14 +38,14 @@ import { useRouter } from 'next/router'
 import qs from 'qs'
 import DateRangePicker from '@condo/domains/common/components/DateRangePicker'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
+import { viewModeTypes, TicketChart } from '@condo/domains/ticket/components/TicketChart'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
-type viewModeTypes = 'bar' | 'line' | 'pie'
 type specificationTypes = 'day' | 'week' | 'month'
 interface ITicketAnalyticsPageWidgetProps {
-    data: null | any;
+    data: null | unknown;
     viewMode: viewModeTypes;
     loading?: boolean;
 }
@@ -86,6 +86,47 @@ const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5
     colors.purple[7], colors.lime[8], colors.red[6] ]
 const SPECIFICATIONS = ['day', 'week']
 
+const ticketChartDataMapper = new TicketChart({
+    line: (viewMode, data) => {
+        const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+        const legend = Object.keys(data)
+        const series = []
+        Object.entries(data).map(([groupBy, dataObj]) => {
+            series.push({
+                name: groupBy,
+                type: viewMode,
+                symbol: 'none',
+                stack: groupBy,
+                data: Object.values(dataObj),
+                emphasis: {
+                    focus: 'none',
+                    blurScope: 'none',
+                },
+            })
+        })
+        return { series, legend, axisLabels }
+    },
+    bar: (viewMode, data) => {
+        const series = []
+        const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+        const legend = Object.keys(data)
+        Object.entries(data).map(([groupBy, dataObj]) => {
+            series.push({
+                name: groupBy,
+                type: viewMode,
+                symbol: 'none',
+                stack: 'total',
+                data: Object.values(dataObj),
+                emphasis: {
+                    focus: 'self',
+                    blurScope: 'self',
+                },
+            })
+        })
+        return { series, legend, axisLabels }
+    },
+})
+
 const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     children,
     data,
@@ -97,23 +138,9 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
     if (data === null) {
         return <Skeleton loading={loading} active paragraph={{ rows: 6 }} />
     }
-    const series = []
+    const { series, legend, axisLabels } = ticketChartDataMapper.getChartConfig(viewMode, data)
     const isLineChart = viewMode === 'line'
-    const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
-    const legend = Object.keys(data)
-    Object.entries(data).map(([groupBy, dataObj]) => {
-        series.push({
-            name: groupBy,
-            type: viewMode,
-            symbol: 'none',
-            stack: isLineChart ? groupBy : 'total',
-            data: Object.values(dataObj),
-            emphasis: {
-                focus: isLineChart ? 'none' : 'self',
-                blurScope: isLineChart ? 'none' : 'self',
-            },
-        })
-    })
+
 
     const axisData = {
         yAxis: {
@@ -153,7 +180,6 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
             bottom: '3%',
             containLabel: true,
             borderWidth: 1,
-            zlevel:0,
         },
         ...axisData,
         series,
@@ -209,6 +235,7 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = (
         const restProps = {}
         Object.entries(data).forEach((rowEntry) => {
             const [ticketType, dataObj] = rowEntry
+            // @ts-ignore
             restProps[ticketType] = Object.values(dataObj).reduce((a, b) => a + b)
         })
         dataSource.push({
