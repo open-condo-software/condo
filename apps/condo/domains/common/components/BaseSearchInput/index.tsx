@@ -24,6 +24,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
 
     const {
         search,
+        autoFocus,
         onBlur,
         onSelect,
         onChange,
@@ -126,7 +127,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     return (
         <Select
             showSearch
-            autoFocus
+            autoFocus={autoFocus}
             allowClear
             id={props.id}
             value={isInitialValueFetching ? LoadingMessage : searchValue}
