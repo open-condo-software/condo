@@ -20,9 +20,9 @@ import BehaviorRecorder from '@condo/domains/common/components/containers/Behavi
 import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
-import { GearIcon } from '@condo/domains/common/components/icons/GearIcon'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
+import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
@@ -33,6 +33,11 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 
 function menuDataRender () {
     return [
+        {
+            path: '/onboarding',
+            icon: OnBoardingProgress,
+            locale: 'menu.OnBoarding',
+        },
         {
             path: '/analytics',
             icon: PieChartFilled,
