@@ -21,6 +21,8 @@ import GlobalErrorBoundary from '@condo/domains/common/components/containers/Glo
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
+import { BarChartIcon } from '@condo/domains/common/components/icons/BarChart'
+import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -31,8 +33,13 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 function menuDataRender () {
     return [
         {
+            path: '/onboarding',
+            icon: OnBoardingProgress,
+            locale: 'menu.OnBoarding',
+        },
+        {
             path: '/',
-            icon: PieChartFilled,
+            icon: BarChartIcon,
             locale: 'menu.Analytics',
         },
         {
