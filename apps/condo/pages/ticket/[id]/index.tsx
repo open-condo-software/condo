@@ -177,7 +177,7 @@ const TicketIdPage = () => {
     const TicketInfoMessage = intl.formatMessage({ id: 'Problem' })
     const ClientInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const FullNameMessage = intl.formatMessage({ id: 'field.FullName' })
+    const FullNameShortMessage = intl.formatMessage({ id: 'field.FullName.short' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
@@ -342,7 +342,7 @@ const TicketIdPage = () => {
                                                         <Col span={7}>
                                                             <TicketUserInfoField
                                                                 hidePersonalData
-                                                                title={FullNameMessage}
+                                                                title={FullNameShortMessage}
                                                                 user={{
                                                                     name: ticket.clientName,
                                                                     phone: ticket.clientPhone,
