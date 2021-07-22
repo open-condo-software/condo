@@ -8,49 +8,36 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingOrganization')
-
+const { INTEGRATION_CONTEXT_FIELD } = require('./fields')
 
 const BillingOrganization = new GQLListSchema('BillingOrganization', {
-    // TODO(codegen): write doc for the BillingOrganization domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'An organization which can accept payments from the BillingAccount',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        context: {
-            // TODO(codegen): write doc for BillingOrganization.context field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'BillingIntegrationOrganizationContext',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        context: INTEGRATION_CONTEXT_FIELD,
 
         tin: {
-            // TODO(codegen): write doc for BillingOrganization.tin field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Taxpayer Identification Number. In Russia: INN',
             type: Text,
             isRequired: true,
         },
 
         iec: {
-            // TODO(codegen): write doc for BillingOrganization.iec field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: ' Industrial Enterprise Classification. In Russia: KPP',
             type: Text,
             isRequired: true,
         },
 
         bic: {
-            // TODO(codegen): write doc for BillingOrganization.bic field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Bank Identification Code. In Russia: BIK',
             type: Text,
             isRequired: true,
         },
 
         checkNumber: {
-            // TODO(codegen): write doc for BillingOrganization.checkNumber field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Number of the checking account of organization',
             type: Text,
             isRequired: true,
         },
