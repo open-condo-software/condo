@@ -8,6 +8,7 @@ import classnames from 'classnames'
 import Link from 'next/link'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
+import { TrialTooltip } from '../../../../../billing/components/TrialTooltop'
 import {
     ItemContainer,
     MenuItem,
@@ -148,6 +149,7 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
                 <Space size={60} direction={'vertical'}>
                     <MenuItems menuData={menuData} />
                     <TicketCreateButton />
+                    <TrialTooltip/>
                 </Space>
             </Layout.Sider>
             {menuData && <div css={substrateDesktopCss} className='side-menu-substrate' />}
