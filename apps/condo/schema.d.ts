@@ -9739,9 +9739,9 @@ export type OrganizationLink = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
-  /**  Organization that gives access  */
-  from?: Maybe<Organization>;
   /**  Organization that gets access  */
+  from?: Maybe<Organization>;
+  /**  Organization that gives access  */
   to?: Maybe<Organization>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
