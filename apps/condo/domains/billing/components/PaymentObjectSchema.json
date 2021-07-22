@@ -1,8 +1,0 @@
-{
-  "type": "object",
-  "properties": {
-    "formula": {"type": "string"}
-  },
-  "required": ["formula"],
-  "additionalProperties": true
-}
