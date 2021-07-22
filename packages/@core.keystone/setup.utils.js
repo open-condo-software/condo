@@ -57,6 +57,13 @@ function getAdapter (databaseUrl) {
 
 function prepareDefaultKeystoneConfig (conf) {
     const redisClient = new IORedis(conf.REDIS_URL)
+    redisClient.on('error', (error) => {
+        if (error.code === 'ECONNREFUSED'){
+            console.log('Could not connect to redis:', error)
+            process.exit(0)
+        }
+        console.error('Redis error:', error)
+    })
     const sessionStore = new RedisStore({ client: redisClient })
 
     return {
