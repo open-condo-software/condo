@@ -23,6 +23,16 @@ const RAW_DATA_FIELD = {
     isRequired: true,
 }
 
+const BILLING_ORGANIZATION_FIELD = {
+    schemaDoc: 'Billing organization',
+    type: Relationship,
+    ref: 'BillingOrganization',
+    isRequired: true,
+    knexOptions: { isNotNullable: true }, // Relationship only!
+    kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+}
+
+
 const BILLING_PROPERTY_FIELD = {
     schemaDoc: 'Billing property',
     type: Relationship,
@@ -65,4 +75,5 @@ module.exports = {
     BILLING_ACCOUNT_FIELD,
     BILLING_ACCOUNT_METER_FIELD,
     PERIOD_FIELD,
+    BILLING_ORGANIZATION_FIELD,
 }

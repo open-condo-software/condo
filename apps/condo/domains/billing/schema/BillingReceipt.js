@@ -9,7 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingReceipt')
 
-const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD } = require('./fields')
+const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD, BILLING_ORGANIZATION_FIELD } = require('./fields')
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
     schemaDoc: 'Account monthly invoice document',
@@ -18,14 +18,19 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         sender: SENDER_FIELD,
 
         context: INTEGRATION_CONTEXT_FIELD,
+        property: BILLING_PROPERTY_FIELD,
+        recipient: BILLING_ORGANIZATION_FIELD,
+        account: BILLING_ACCOUNT_FIELD,
 
         importId: IMPORT_ID_FIELD,
+        period: PERIOD_FIELD,
+        printableNumber: {
+            schemaDoc: 'A number to print on the payment document.',
+            type: Text,
+            isRequired: false,
+        },
 
         raw: RAW_DATA_FIELD,
-
-        property: BILLING_PROPERTY_FIELD, // denormalize
-        account: BILLING_ACCOUNT_FIELD,
-        period: PERIOD_FIELD,
 
         toPay: {
             schemaDoc: 'Total sum to pay. The sum of all services',
