@@ -2934,7 +2934,7 @@ export type BillingMeterResourcesUpdateInput = {
   data?: Maybe<BillingMeterResourceUpdateInput>;
 };
 
-/**  TODO DOC!  */
+/**  An organization which can accept payments from the BillingAccount  */
 export type BillingOrganization = {
   __typename?: 'BillingOrganization';
   /**
@@ -2949,15 +2949,15 @@ export type BillingOrganization = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
-  /**  TODO DOC!  */
+  /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
-  /**  TODO DOC!  */
+  /**  Taxpayer Identification Number. In Russia: INN  */
   tin?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
+  /**   Industrial Enterprise Classification. In Russia: KPP  */
   iec?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
+  /**  Bank Identification Code. In Russia: BIK  */
   bic?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
+  /**  Number of the checking account of organization  */
   checkNumber?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
