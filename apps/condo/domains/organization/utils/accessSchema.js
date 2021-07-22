@@ -36,7 +36,7 @@ async function checkRelatedOrganizationPermission (context, userId, organization
 
     const [organizationLink] = await OrganizationLink.getAll(context, {
         AND: [
-            { from: { employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } } },
+            { from: checkIfUserIsOrganizationEmployee(userId) },
             { to: { id: organizationId } },
         ],
     })
@@ -76,8 +76,13 @@ async function checkUserBelongsToOrganization (userId, organizationId) {
     return employee.deletedAt === null
 }
 
+const checkIfUserIsOrganizationEmployee = userId => ({ employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } })
+const checkUserIsRelatedFromOrganizationEmployee = userId => ({ relatedOrganizations_some: { from: checkIfUserIsOrganizationEmployee(userId) } })
+
 module.exports = {
     checkOrganizationPermission,
     checkUserBelongsToOrganization,
     checkRelatedOrganizationPermission,
+    checkUserIsRelatedFromOrganizationEmployee,
+    checkIfUserIsOrganizationEmployee,
 }

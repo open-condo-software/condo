@@ -3,16 +3,19 @@
  */
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { checkUserIsRelatedFromOrganizationEmployee } = require('@condo/domains/organization/utils/accessSchema')
+const { checkIfUserIsOrganizationEmployee } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadTicketChanges ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
+    const userId = user.id
     return {
         ticket: {
             organization: {
                 OR: [
-                    { employees_some: { user: { id: user.id }, isBlocked: false, deletedAt: null } },
-                    { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id }, isBlocked: false, deletedAt: null } } } },
+                    checkIfUserIsOrganizationEmployee(userId),
+                    checkUserIsRelatedFromOrganizationEmployee(userId),
                 ],
             },
         },
