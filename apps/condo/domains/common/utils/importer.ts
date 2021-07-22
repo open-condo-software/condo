@@ -108,7 +108,11 @@ export class Importer implements IImporter {
     // Checking inputs matching with data types
     private isRowValid (row: TableRow): boolean {
         for (let i = 0; i < row.length; i++) {
-            if (typeof row[i].value !== this.columnsTypes[i]) return false
+            if (typeof row[i].value === 'number' && this.columnsTypes[i] === 'string') {
+                row[i].value = String(row[i].value)
+            } else if (typeof row[i].value !== this.columnsTypes[i]) {
+                return false
+            }
         }
         return true
     }
