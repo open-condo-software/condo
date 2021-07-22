@@ -9,6 +9,23 @@ import { Highliter } from '@condo/domains/common/components/Highliter'
 import { grey } from '@ant-design/colors'
 import { colors } from '@condo/domains/common/constants/style'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
+import styled from '@emotion/styled'
+
+/*
+    Fixes visual overlapping of close-button with text
+    It cannot be extracted into global styles, because selects
+    with custom components have different markup
+*/
+const BaseSearchInputWrapper = styled.div`
+  .ant-select-allow-clear {
+    &:hover {
+      .ant-select-selection-search {
+        /* This value fits to any size of select */
+        padding-right: 24px;
+      }
+    }
+  }
+`
 
 type AddressSearchInputProps = SelectProps<string>
 
@@ -90,13 +107,16 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
     )
 
     return (
-        <BaseSearchInput
-            {...props}
-            loadOptionsOnFocus={false}
-            search={searchAddress}
-            renderOption={renderOption}
-            onSelect={handleOptionSelect}
-            id={'addressSuggestionsSearchInput'}
-        />
+        <BaseSearchInputWrapper>
+            <BaseSearchInput
+                {...props}
+                loadOptionsOnFocus={false}
+                search={searchAddress}
+                renderOption={renderOption}
+                onSelect={handleOptionSelect}
+                id={'addressSuggestionsSearchInput'}
+            />
+        </BaseSearchInputWrapper>
+
     )
 }
