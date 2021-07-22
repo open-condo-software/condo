@@ -25,6 +25,7 @@ const { BillingMeterResource: BillingMeterResourceGQL } = require('@condo/domain
 const { BillingAccountMeter: BillingAccountMeterGQL } = require('@condo/domains/billing/gql')
 const { BillingAccountMeterReading: BillingAccountMeterReadingGQL } = require('@condo/domains/billing/gql')
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
+const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -37,6 +38,7 @@ const BillingMeterResource = generateGQLTestUtils(BillingMeterResourceGQL)
 const BillingAccountMeter = generateGQLTestUtils(BillingAccountMeterGQL)
 const BillingAccountMeterReading = generateGQLTestUtils(BillingAccountMeterReadingGQL)
 const BillingReceipt = generateGQLTestUtils(BillingReceiptGQL)
+const BillingOrganization = generateGQLTestUtils(BillingOrganizationGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
@@ -399,6 +401,39 @@ async function updateTestBillingReceipt (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestBillingOrganization (client, context, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!context || !context.id) throw new Error('no context.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestBillingOrganization logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { connect: { id: context.id } },
+        ...extraAttrs,
+    }
+    const obj = await BillingOrganization.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBillingOrganization (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestBillingOrganization logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BillingOrganization.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithIntegrationAccess () {
@@ -456,8 +491,9 @@ module.exports = {
     BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading,
     BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt,
     makeContextWithOrganizationAndIntegrationAsAdmin: createContextWithOrganizationAndIntegrationAsAdmin,
-    makeOrganizationIntegrationManager: createOrganizationIntegrationManager
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    makeOrganizationIntegrationManager: createOrganizationIntegrationManager,
+    BillingOrganization, createTestBillingOrganization, updateTestBillingOrganization,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }
 
 
