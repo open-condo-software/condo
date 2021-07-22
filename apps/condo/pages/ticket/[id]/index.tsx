@@ -178,7 +178,6 @@ const TicketIdPage = () => {
     const ClientInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const FullNameShortMessage = intl.formatMessage({ id: 'field.FullName.short' })
-    const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const ClassifierMessage = intl.formatMessage({ id: 'Classifier' })
@@ -348,9 +347,6 @@ const TicketIdPage = () => {
                                                                     phone: ticket.clientPhone,
                                                                 }}
                                                             />
-                                                        </Col>
-                                                        <Col span={6}>
-                                                            <TicketDescriptionField title={EmailMessage} value={ticket.clientEmail}/>
                                                         </Col>
                                                     </Row>
                                                 </Col>
