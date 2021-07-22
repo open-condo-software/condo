@@ -18,9 +18,12 @@ const SERVICES_WITH_PAYMENT_SCHEMA_JSON = {
         properties: {
             id: { type: 'string' },
             name: { type: 'string' },
-            toPay: { type: 'string' },
+            toPay: { type: 'number' },
             toPayDetails: PAYMENT_SCHEMA_JSON,
         },
+        // todo(toplenboren) discuss the analytics and standartization service for services
+        required: ['name', 'toPay'],
+        additionalProperties: true,
     },
 }
 
@@ -42,7 +45,7 @@ function validatePaymentDetails (args) {
         return commonValidationErrors
     if (!_jsonPaymentObjectValidator(resolvedData[fieldPath])) {
         return _jsonPaymentObjectValidator.errors.forEach(error => {
-            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format: ${error.message}`)
+            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
         })
     }
 }
@@ -54,7 +57,7 @@ function validateServices (args) {
         return commonValidationErrors
     if (!_jsonServicesValidator(resolvedData[fieldPath])) {
         return _jsonServicesValidator.errors.forEach(error => {
-            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format: ${error.message}`)
+            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
         })
     }
 }
