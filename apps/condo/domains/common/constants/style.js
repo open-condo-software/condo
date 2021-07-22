@@ -43,6 +43,15 @@ const colors = {
     ultraLightGrey,
     inputBorderGrey,
     whiteTranslucent,
+    transparent: 'transparent',
+}
+
+const shadows = {
+    hover: '0px 9px 28px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px rgba(0, 0, 0, 0.12)',
+}
+
+const transitions = {
+    easeInOut: 'all .2s ease-in-out',
 }
 
 // Possible customizations can be found at https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less
@@ -81,9 +90,12 @@ const antGlobalVariables = {
     '@alert-success-bg-color': '@green-2',
     '@alert-warning-border-color': '@gold-2',
     '@alert-warning-bg-color': '@gold-2',
+    '@typography-title-margin-bottom': 0,
 }
 
 module.exports = {
     colors,
+    shadows,
+    transitions,
     antGlobalVariables,
 }
