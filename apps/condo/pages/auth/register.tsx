@@ -201,12 +201,28 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
     const RegisterHelpMessage = intl.formatMessage({ id: 'pages.auth.reset.RegisterHelp' })
     const UserAgreementFileName = intl.formatMessage({ id: 'pages.auth.register.info.UserAgreementFileName' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
+    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const { setToken, setPhone, handleReCaptchaVerify } = useContext(RegisterContext)
     const [smsSendError, setSmsSendError] = useState(null)
     const [isloading, setIsLoading] = useState(false)
     const [startPhoneVerify] = useMutation(START_CONFIRM_PHONE_MUTATION)
+    const validations = {
+        phone: [
+            {
+                required: true,
+                message: FieldIsRequiredMessage,
+            },
+            {
+                validator: (_, value) => {
+                    const v = normalizePhone(value)
+                    if (!v) return Promise.reject(PhoneIsNotValidMessage)
+                    return Promise.resolve()
+                },
+            },
+        ],
+    }
     const ErrorToFormFieldMsgMapping = {
         [TOO_MANY_REQUESTS]: {
             name: 'phone',
@@ -263,10 +279,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
                     style={{ marginTop: '40px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }}
                     rules={[
-                        {
-                            required: true,
-                            message: FieldIsRequiredMsg,
-                        },
+                        ...validations.phone,
                         () => ({
                             validator () {
                                 if (!smsSendError) {
@@ -516,6 +529,23 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
     const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
     const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
+    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
+    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
+    const validations = {
+        phone: [
+            {
+                required: true,
+                message: FieldIsRequiredMessage,
+            },
+            {
+                validator: (_, value) => {
+                    const v = normalizePhone(value)
+                    if (!v) return Promise.reject(PhoneIsNotValidMessage)
+                    return Promise.resolve()
+                },
+            },
+        ],
+    }
 
     const ErrorToFormFieldMsgMapping = {
         [CONFIRM_PHONE_ACTION_EXPIRED]: {
@@ -581,7 +611,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     labelAlign='left'
                     style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }}
-                    rules={[{ required: true }]}
+                    rules={validations.phone}
                 >
                     <PhoneInput disabled={true} placeholder={ExamplePhoneMsg} style={{ ...INPUT_STYLE }} />
                 </Form.Item>
