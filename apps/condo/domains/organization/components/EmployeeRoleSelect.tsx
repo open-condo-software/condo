@@ -21,7 +21,9 @@ export const EmployeeRoleSelect: React.FC<IEmployeeRoleSelectProps> = (props) =>
     }), [employeeRoles, organizationId])
 
     useEffect(()=>{
-        props.onSelect(options[0].props.value, options[0].props)
+        if (options && options.length > 0){
+            props.onSelect(options[0].props.value, options[0].props)
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 

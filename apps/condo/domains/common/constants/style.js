@@ -45,6 +45,9 @@ const colors = {
     whiteTranslucent,
 }
 
+const shadows = {
+    cardShadow: 'box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12);',
+}
 // Possible customizations can be found at https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less
 const antGlobalVariables = {
     '@border-radius-base': '4px',
@@ -87,4 +90,5 @@ const antGlobalVariables = {
 module.exports = {
     colors,
     antGlobalVariables,
+    shadows,
 }
