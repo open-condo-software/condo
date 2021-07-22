@@ -166,6 +166,7 @@ const ContactPage = () => {
                                             onRow={handleRowAction}
                                             onChange={handleTableChange}
                                             pagination={{
+                                                showSizeChanger: false,
                                                 total,
                                                 current: offsetFromQuery,
                                                 pageSize: CONTACT_PAGE_SIZE,
