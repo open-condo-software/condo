@@ -58,7 +58,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         return addressApi.getSuggestions(String(address.value)).then((result) => {
             const suggestion = get(result, ['suggestions', 0])
             if (suggestion) {
-                // TODO (savelevMatthew): Check for a building
                 return { row, addons: { suggestion } }
             }
             return Promise.resolve(null)

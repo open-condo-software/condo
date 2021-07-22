@@ -14,7 +14,7 @@ interface IColumnsInfoBoxProps {
 interface IImportProps {
     objectsName: string
     accessCheck: boolean
-    onFinish(): boolean
+    onFinish(): void
     columns: Columns
     rowNormalizer: RowNormalizer
     rowValidator: RowValidator
@@ -70,6 +70,7 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
     const ImportDefaultErrorMessage = intl.formatMessage({ id: 'ImportError' })
     const ImportProcessingMessage = intl.formatMessage({ id:'ImportProcessing' })
     const ImportBreakButtonMessage = intl.formatMessage({ id:'Break' })
+    const ImportPopoverTitle = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
     const [modal, contextHolder] = Modal.useModal()
     const activeModal = useRef(null)
 
@@ -110,7 +111,7 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
         accessCheck && (
             <ModalContext.Provider value={{ progress, error, isImported }}>
                 <DataImporter onUpload={handleUpload}>
-                    <Popover title={ImportTitle} content={<ColumnsInfoBox columns={columns}/>}>
+                    <Popover title={ImportPopoverTitle} content={<ColumnsInfoBox columns={columns}/>}>
                         {props.children}
                     </Popover>
                 </DataImporter>

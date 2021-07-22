@@ -11,8 +11,7 @@ import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
 import { useIntl } from '@core/next/intl'
 
-import { Col, Input, Row, Table, Typography, Dropdown, Menu, Tooltip } from 'antd'
-import { EllipsisOutlined } from '@ant-design/icons'
+import { Col, Input, Row, Space, Table, Typography } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
@@ -26,6 +25,9 @@ import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
 import { SortContactsBy } from '../../schema'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
+import { DiffOutlined } from '@ant-design/icons'
+import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 
@@ -36,9 +38,7 @@ const ContactPage = () => {
     const EmptyListLabel = intl.formatMessage({ id: 'contact.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'contact.EmptyList.title' })
     const CreateContact = intl.formatMessage({ id: 'AddContact' })
-    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
-    const AddItemUsingFormLabel = intl.formatMessage({ id: 'AddItemUsingForm' })
-    const AddItemUsingUploadLabel = intl.formatMessage({ id: 'AddItemUsingFileUpload' })
+    const ContactsMessage = intl.formatMessage({ id: 'menu.Contacts' })
 
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
@@ -49,6 +49,7 @@ const ContactPage = () => {
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const {
+        refetch,
         fetchMore,
         loading,
         count: total,
@@ -100,21 +101,8 @@ const ContactPage = () => {
     }, 400), [loading])
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
-
-    const handleAddContact = () => router.push(ADD_CONTACT_ROUTE)
-
-    const dropDownMenu = (
-        <Menu>
-            <Menu.Item key="1" onClick={handleAddContact}>
-                {AddItemUsingFormLabel}
-            </Menu.Item>
-            <Menu.Item key="2">
-                <Tooltip title={NotImplementedYetMessage}>
-                    {AddItemUsingUploadLabel}
-                </Tooltip>
-            </Menu.Item>
-        </Menu>
-    )
+    const canManageContacts = get(userOrganization, ['link', 'role', 'canManageContacts'], false)
+    const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
     return (
         <>
             <Head>
@@ -141,23 +129,30 @@ const ContactPage = () => {
                                                     value={search}
                                                 />
                                             </Col>
-                                            <Dropdown.Button
-                                                overlay={dropDownMenu}
-                                                buttonsRender={() => [
+                                            <Space size={16}>
+                                                <ImportWrapper
+                                                    objectsName={ContactsMessage}
+                                                    accessCheck={canManageContacts}
+                                                    onFinish={refetch}
+                                                    columns={columns}
+                                                    rowNormalizer={contactNormalizer}
+                                                    rowValidator={contactValidator}
+                                                    objectCreator={contactCreator}
+                                                >
                                                     <Button
-                                                        key='left'
                                                         type={'sberPrimary'}
-                                                        style={{ borderRight: '1px solid white' }}
-                                                        onClick={() => router.push(ADD_CONTACT_ROUTE)}
-                                                    >
-                                                        {CreateContact}
-                                                    </Button>,
-                                                    <Button
-                                                        key='right'
-                                                        type={'sberPrimary'}
-                                                        style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
-                                                        icon={<EllipsisOutlined />}/>,
-                                                ]}/>
+                                                        icon={<DiffOutlined />}
+                                                        secondary
+                                                    />
+                                                </ImportWrapper>
+                                                <Button
+                                                    key='left'
+                                                    type={'sberPrimary'}
+                                                    onClick={() => router.push(ADD_CONTACT_ROUTE)}
+                                                >
+                                                    {CreateContact}
+                                                </Button>
+                                            </Space>
                                         </Row>
                                     </Col>
                                     <Col span={24}>
