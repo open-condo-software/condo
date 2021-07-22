@@ -7,19 +7,18 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
-import { colors } from '@condo/domains/common/constants/style'
+import { colors, shadows } from '@condo/domains/common/constants/style'
 import { CreateEmployeeForm } from '@condo/domains/organization/components/CreateEmployeeForm'
 import { useState } from 'react'
 import { Loader } from '../../domains/common/components/Loader'
 import { css, jsx } from '@emotion/core'
-
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
 const CardCss = css`
     width: 300px;
     height: fit-content;
-    box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12);
+    ${shadows.cardShadow}
 `
 const CreateEmployeePage: IPageWithHeaderAction = () => {
     const intl = useIntl()
