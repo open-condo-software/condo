@@ -149,19 +149,39 @@ const Ticket = new GQLListSchema('Ticket', {
         },
         // classifierMeta
         classifier: {
-            schemaDoc: 'Typification / classification / types of work',
+            schemaDoc: '[will be removed] Typification / classification / types of work',
             type: Relationship,
             ref: 'TicketClassifier',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
-
+        locationClassifier: {
+            schemaDoc: 'Information about where problem heppens',
+            type: Relationship,
+            ref: 'TicketClassifier',
+            many: true,
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+        },
+        categoryClassifier: {
+            schemaDoc: 'Information about what kind of problem heppens',
+            type: Relationship,
+            ref: 'TicketClassifier',
+            many: true,
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+        },
+        subjectClassifier: {
+            schemaDoc: 'Detailed information about the problem',
+            type: Relationship,
+            ref: 'TicketClassifier',
+            many: true,
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+        },
         // description / title
         details: {
             schemaDoc: 'Text description of the issue. Maybe written by a user or an operator',
             type: Text,
-            isRequired: true,
+            isRequired: false,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
                     return normalizeText(resolvedData['details'])
@@ -169,7 +189,7 @@ const Ticket = new GQLListSchema('Ticket', {
             },
         },
         related: {
-            schemaDoc: 'Sometimes, it is important for us to show related issues. For example, to show related issues',
+            schemaDoc: 'Sometimes, it is important for us to show related issues',
             type: Relationship,
             ref: 'Ticket',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
@@ -205,7 +225,6 @@ const Ticket = new GQLListSchema('Ticket', {
                 },
             },
         },
-
         // Where?
         // building/community
         // entrance/section
