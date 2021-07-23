@@ -1,165 +1,43 @@
-const ru = require('../lang/ru.json')
-const en = require('../lang/en.json')
 exports.up = async (knex) => {
-    const roleQueries = ['Administrator', 'Dispatcher', 'Manager', 'Foreman', 'Technician'].map(role=> ({
-        [role]: `
-        UPDATE OrganizationEmployeeRole
-        SET name = "employee.role.title.${role}"
-        WHERE name 
-        `,
-    })).reduce((prev, curr) => ({
-        ...prev, curr,
-    }))
-    let query = `
-    BEGIN;
-    -- Administrator
-    -- Dispatcher
-    -- Manager
-    -- Foreman
-    -- Technician
-    {Technician}
-    `
-    await knex.raw(query)
+    // maybe read deafults.json and iterate over it here
+    // to dynamically replace localzied names?
+
+    // is there need to change fingerprint and down this mutation?
     await knex.raw(`
     BEGIN;
-    
-    -- Dispatcher
-    UPDATE OrganizationEmployeeRole
-    SET name = ""
+        -- Administrator
+        UPDATE "OrganizationEmployeeRole"
+        SET name = 'employee.role.Administrator.name'
+        WHERE (name = 'Administrator' OR name = 'Администратор') AND "createdAt" = "updatedAt" AND "createdBy" = "updatedBy";
+        COMMIT;
 
-    INSERT INTO "OrganizationEmployeeRole" (
-        id, dv, v, sender, organization, "createdAt", "updatedAt",
-        name,
-        "canManageOrganization",
-        "canManageEmployees",
-        "canManageRoles",
-        "canManageIntegrations",
-        "canManageProperties",
-        "canManageTickets",
-        "canManageContacts",
-        "canManageTicketComments"
-    )
-    SELECT
-        gen_random_uuid(), 1, v, '{"dv": 1, "fingerprint": "migration", "timestamp": "20210707112100"}'::json, org.id, now(), now(),
-        case when org.country = 'ru' then 'Диспетчер'
-             when org.country = 'en' then 'Dispatcher'
-        end,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true
-    FROM "Organization" AS org
-    WHERE NOT EXISTS(SELECT FROM "OrganizationEmployeeRole" WHERE organization = org.id AND (name = 'Диспетчер' OR name = 'Dispatcher'));
-    COMMIT;
+        -- Dispatcher
+        UPDATE "OrganizationEmployeeRole"
+        SET name = 'employee.role.Dispatcher.name'
+        WHERE (name = 'Dispatcher' OR name = 'Диспетчер') AND "createdAt" = "updatedAt" AND "createdBy" = "updatedBy";
+        COMMIT;
 
-    -- Manager
-    INSERT INTO "OrganizationEmployeeRole" (
-        id, dv, v, sender, organization, "createdAt", "updatedAt",
-        name,
-        "canManageOrganization",
-        "canManageEmployees",
-        "canManageRoles",
-        "canManageIntegrations",
-        "canManageProperties",
-        "canManageTickets",
-        "canManageContacts",
-        "canManageTicketComments"
-    )
-    SELECT
-        gen_random_uuid(), 1, v, '{"dv": 1, "fingerprint": "migration", "timestamp": "20210707112100"}'::json, org.id, now(), now(),
-        case when org.country = 'ru' then 'Управляющий'
-             when org.country = 'en' then 'Manager'
-        end,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true
-    FROM "Organization" AS org
-    WHERE NOT EXISTS(SELECT FROM "OrganizationEmployeeRole" WHERE organization = org.id AND (name = 'Управляющий' OR name = 'Manager'));
-    COMMIT;
-    
-    -- Foreman
-    INSERT INTO "OrganizationEmployeeRole" (
-        id, dv, v, sender, organization, "createdAt", "updatedAt",
-        name,
-        "canManageOrganization",
-        "canManageEmployees",
-        "canManageRoles",
-        "canManageIntegrations",
-        "canManageProperties",
-        "canManageTickets",
-        "canManageContacts",
-        "canManageTicketComments"
-    )
-    SELECT
-        gen_random_uuid(), 1, v, '{"dv": 1, "fingerprint": "migration", "timestamp": "20210707112100"}'::json, org.id, now(), now(),
-        case when org.country = 'ru' then 'Мастер участка'
-             when org.country = 'en' then 'Foreman'
-        end,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        true
-    FROM "Organization" AS org
-    WHERE NOT EXISTS(SELECT FROM "OrganizationEmployeeRole" WHERE organization = org.id AND (name = 'Мастер участка' OR name = 'Foreman'));
-    COMMIT;
-    
-    -- Technician
-    INSERT INTO "OrganizationEmployeeRole" (
-        id, dv, v, sender, organization, "createdAt", "updatedAt",
-        name,
-        "canManageOrganization",
-        "canManageEmployees",
-        "canManageRoles",
-        "canManageIntegrations",
-        "canManageProperties",
-        "canManageTickets",
-        "canManageContacts",
-        "canManageTicketComments"
-    )
-    SELECT
-        gen_random_uuid(), 1, v, '{"dv": 1, "fingerprint": "migration", "timestamp": "20210707112100"}'::json, org.id, now(), now(),
-        case when org.country = 'ru' then 'Техник'
-             when org.country = 'en' then 'Technician'
-        end,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        true
-    FROM "Organization" AS org
-    WHERE NOT EXISTS(SELECT FROM "OrganizationEmployeeRole" WHERE organization = org.id AND (name = 'Техник' OR name = 'Technician'));
-    COMMIT;
+        -- Manager
+        UPDATE "OrganizationEmployeeRole"
+        SET name = 'employee.role.Manager.name'
+        WHERE (name = 'Manager' OR name = 'Управляющий') AND "createdAt" = "updatedAt" AND "createdBy" = "updatedBy";
+        COMMIT;
 
+        -- Foreman
+        UPDATE "OrganizationEmployeeRole"
+        SET name = 'employee.role.Foreman.name'
+        WHERE (name = 'Foreman' OR name = 'Мастер участка') AND "createdAt" = "updatedAt" AND "createdBy" = "updatedBy";
+        COMMIT;
+
+        -- Technician
+        UPDATE "OrganizationEmployeeRole"
+        SET name = 'employee.role.Foreman.name'
+        WHERE (name = 'Technician' OR name = 'Техник') AND "createdAt" = "updatedAt" AND "createdBy" = "updatedBy";
+        COMMIT;
+    END;
     `)
 }
 
 exports.down = async (knex) => {
-    await knex.raw(`
-    BEGIN;
     
-    DELETE FROM
-        "OrganizationEmployeeRole"
-    WHERE
-        sender::json->>'fingerprint' = 'migration' AND
-        sender::json->>'timestamp' = '20210707112100';
-    
-COMMIT;
-
-    `)
 }
