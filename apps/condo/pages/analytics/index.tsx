@@ -54,10 +54,14 @@ interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps
     animationEnabled?: boolean;
     chartHeight?: number;
 }
+type addressPickerType = { id: string; value: string; }
 type ITicketAnalyticsPageFilters = {
     range: [Moment, Moment];
     specification: specificationTypes;
-    addressList: string[];
+    addressList: addressPickerType[];
+}
+interface ITicketAnalyticsPageListViewProps extends ITicketAnalyticsPageWidgetProps {
+    filters: null | ITicketAnalyticsPageFilters;
 }
 interface ITicketAnalyticsPageFilterProps {
     onChange?: ({ range, specification, addressList }: ITicketAnalyticsPageFilters) => void
@@ -111,7 +115,7 @@ const ticketChartDataMapper = new TicketChart({
         },
         table: (viewMode, data, restOptions) => {
             const dataSource = []
-            const { translations } = restOptions
+            const { translations, filters } = restOptions
             const tableColumns: TableColumnsType = [
                 { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
                 {
@@ -129,7 +133,12 @@ const ticketChartDataMapper = new TicketChart({
             uniqueDates.forEach((date, key) => {
                 const restTableColumns = {}
                 Object.keys(data).forEach(ticketType => (restTableColumns[ticketType] = data[ticketType][date]))
-                dataSource.push({ key, address: translations['allAddresses'], date, ...restTableColumns })
+                let address = translations['allAddresses']
+                const addressList = get(filters, 'addresses')
+                if (addressList && addressList.length) {
+                    address = addressList.join(', ')
+                }
+                dataSource.push({ key, address, date, ...restTableColumns })
             })
             return { dataSource, tableColumns }
         },
@@ -157,7 +166,7 @@ const ticketChartDataMapper = new TicketChart({
             return { series, legend, axisData, tooltip }
         },
         table: (viewMode, data, restOptions) => {
-            const { translations } = restOptions
+            const { translations, filters } = restOptions
             const dataSource = []
             const tableColumns: TableColumnsType = [
                 { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
@@ -166,16 +175,31 @@ const ticketChartDataMapper = new TicketChart({
                 )),
             ]
             const restTableColumns = {}
-            Object.entries(data).forEach((rowEntry) => {
-                const [ticketType, dataObj] = rowEntry
-                const counts = Object.values(dataObj) as number[]
-                restTableColumns[ticketType] = counts.reduce((a, b) => a + b)
-            })
-            dataSource.push({
-                key: 0,
-                address: translations['allAddresses'],
-                ...restTableColumns,
-            })
+            const addressList = get(filters, 'addresses')
+            const aggregateSummary = addressList !== undefined && addressList.length === 0
+            if (aggregateSummary) {
+                Object.entries(data).forEach((rowEntry) => {
+                    const [ticketType, dataObj] = rowEntry
+                    const counts = Object.values(dataObj) as number[]
+                    restTableColumns[ticketType] = counts.reduce((a, b) => a + b)
+                })
+                dataSource.push({
+                    key: 0,
+                    address: translations['allAddresses'],
+                    ...restTableColumns,
+                })
+            } else {
+                addressList.forEach((address, key) => {
+                    const tableRow = { key, address }
+                    Object.entries(data).forEach(rowEntry => {
+                        const [ticketType, dataObj] = rowEntry
+                        const counts = Object.entries(dataObj)
+                            .filter(obj => obj[0] === address).map(e => e[1]) as number[]
+                        tableRow[ticketType] = counts.reduce((a, b) => a + b)
+                    })
+                    dataSource.push(tableRow)
+                })
+            }
             return { dataSource, tableColumns }
         },
 
@@ -234,12 +258,16 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
     </Typography.Paragraph>
 }
 
-const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = ({ loading = false, data, viewMode }) => {
+const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageListViewProps> = ({
+    loading = false,
+    data,
+    viewMode,
+    filters }) => {
     const intl = useIntl()
     const DateTitle = intl.formatMessage({ id: 'Date' })
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const AllAddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses' })
-    if (data === null) {
+    if (data === null || filters === null) {
         return <Skeleton loading={loading} active paragraph={{ rows: 10 }} />
     }
     const restOptions = {
@@ -248,9 +276,11 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = (
             address: AddressTitle,
             allAddresses: AllAddressTitle,
         },
+        filters: {
+            addresses: filters.addressList.map(({ value }) => value),
+        },
     }
     const { tableColumns, dataSource } = ticketChartDataMapper.getTableConfig(viewMode, data, restOptions)
-
     return (
         <>
             <Table
@@ -293,7 +323,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
             createdAt_lte: startDate.toISOString(),
             createdAt_gte: endDate.toISOString(),
             specification,
-            addressList: JSON.stringify(addressList),
+            addressList: JSON.stringify(addressList.map(address => address.id)),
         }))
     }, [dateRange, specification])
 
@@ -319,8 +349,8 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         onChange({ range: dateRange, specification, addressList })
     }, [dateRange, specification, addressList])
 
-    const onSelect = useCallback((_, { key: addressId }) => {
-        setAddressList([addressId])
+    const onSelect = useCallback((_, { key: id, value }) => {
+        setAddressList([{ id, value }])
     }, [addressList])
 
     const onClear = useCallback(() => {
@@ -517,7 +547,9 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
 
                                     if (filtersRef.current.addressList.length) {
                                         // @ts-ignore
-                                        where.AND.push({ property: { id_in: filtersRef.current.addressList } })
+                                        where.AND.push({ property: {
+                                            id_in: filtersRef.current.addressList.map(address => address.id) } }
+                                        )
                                     }
                                     loadTicketAnalytics({ variables: { data: { where, groupBy } } })
                                 }}
@@ -563,7 +595,12 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                         </Col>
                         <Col span={24}>
                             <Typography.Title level={4} style={{ marginBottom: 20 }}>{TableTitle}</Typography.Title>
-                            <TicketAnalyticsPageListView data={analyticsData} loading={loading} viewMode={viewMode} />
+                            <TicketAnalyticsPageListView
+                                data={analyticsData}
+                                loading={loading}
+                                viewMode={viewMode}
+                                filters={filtersRef.current}
+                            />
                         </Col>
                         <ActionBar fullscreen>
                             <Button onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
