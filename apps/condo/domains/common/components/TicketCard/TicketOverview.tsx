@@ -37,7 +37,7 @@ export const TicketOverview: React.FC<TTicket> = ({
                     </Typography.Link>
                 </Link>
             </Col>
-            <Space direction={'vertical'} size={4}>
+            <Space direction={'vertical'} size={4} style={{ width: '100%' }}>
                 <Col span={24}>
                     <Typography.Text type={'secondary'} style={{ fontSize: 12 }}>
                         {formattedCreatedAt}
