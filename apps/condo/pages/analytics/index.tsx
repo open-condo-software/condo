@@ -109,12 +109,13 @@ const ticketChartDataMapper = new TicketChart({
             const tooltip = { trigger: 'axis', axisPointer: { type: 'line' } }
             return { series, legend, axisData, tooltip }
         },
-        table: (viewMode, data) => {
+        table: (viewMode, data, restOptions) => {
             const dataSource = []
+            const { translations } = restOptions
             const tableColumns: TableColumnsType = [
-                { title: 'AddressTitle need to pass', dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
+                { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
                 {
-                    title: 'Date title need to pass',
+                    title: translations['date'],
                     dataIndex: 'date',
                     key: 'date',
                     defaultSortOrder: 'descend',
@@ -128,7 +129,7 @@ const ticketChartDataMapper = new TicketChart({
             uniqueDates.forEach((date, key) => {
                 const restTableColumns = {}
                 Object.keys(data).forEach(ticketType => (restTableColumns[ticketType] = data[ticketType][date]))
-                dataSource.push({ key, address: 'need to pass addresses here', date, ...restTableColumns })
+                dataSource.push({ key, address: translations['allAddresses'], date, ...restTableColumns })
             })
             return { dataSource, tableColumns }
         },
@@ -155,10 +156,11 @@ const ticketChartDataMapper = new TicketChart({
             const tooltip = { trigger: 'item', axisPointer: { type: 'line' } }
             return { series, legend, axisData, tooltip }
         },
-        table: (viewMode, data) => {
+        table: (viewMode, data, restOptions) => {
+            const { translations } = restOptions
             const dataSource = []
             const tableColumns: TableColumnsType = [
-                { title: 'AddressTitle need to pass', dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
+                { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
                 ...Object.entries(data).map(([key, value]: [string, number]) => (
                     { title: key, dataIndex: key, key, sorter: (a, b) => a[value] - b[value] }
                 )),
@@ -171,7 +173,7 @@ const ticketChartDataMapper = new TicketChart({
             })
             dataSource.push({
                 key: 0,
-                address: 'AddressTitle need to pass',
+                address: translations['allAddresses'],
                 ...restTableColumns,
             })
             return { dataSource, tableColumns }
@@ -240,7 +242,14 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = (
     if (data === null) {
         return <Skeleton loading={loading} active paragraph={{ rows: 10 }} />
     }
-    const { tableColumns, dataSource } = ticketChartDataMapper.getTableConfig(viewMode, data)
+    const restOptions = {
+        translations: {
+            date: DateTitle,
+            address: AddressTitle,
+            allAddresses: AllAddressTitle,
+        },
+    }
+    const { tableColumns, dataSource } = ticketChartDataMapper.getTableConfig(viewMode, data, restOptions)
 
     return (
         <>
