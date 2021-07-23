@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { Typography, Row, Col, Card } from 'antd'
 import Head from 'next/head'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -25,14 +25,9 @@ const CardCss = css`
 const CreateEmployeePage: ICreateEmployeePage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'employee.AddEmployee' })
-
-    const [selectedRole, setSelectedRole] = useState<string | null>(null)
-    const roleTranslations = useMemo(() => (selectedRole ? {
-        title: intl.formatMessage({ id: `employee.role.title.${selectedRole}` }),
-        description: intl.formatMessage({ id: `employee.role.description.${selectedRole}` }),
-    } : null),
-    [selectedRole])
-
+    
+    const [selectedRole, setSelectedRole] = useState<{ title: string, description: string } | null>(null)
+    
     return (
         <>
             <Head>

@@ -16,8 +16,8 @@ export const EmployeeRoleSelect: React.FC<IEmployeeRoleSelectProps> = (props) =>
         const convertedOption = OrganizationEmployeeRole.convertGQLItemToFormSelectState(role)
 
         if (convertedOption) {
-            const { value, label } = convertedOption
-            return (<Select.Option key={value} value={value} title={label}>{label}</Select.Option>)
+            const { value, label, description } = convertedOption
+            return (<Select.Option key={value} value={value} description={description} title={label}>{label}</Select.Option>)
         }
     }), [employeeRoles])
 
