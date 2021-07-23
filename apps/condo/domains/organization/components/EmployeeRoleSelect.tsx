@@ -17,7 +17,7 @@ export const EmployeeRoleSelect: React.FC<IEmployeeRoleSelectProps> = (props) =>
 
         if (convertedOption) {
             const { value, label, description } = convertedOption
-            return (<Select.Option key={value} value={value} description={description} title={label}>{label}</Select.Option>)
+            return (<Select.Option key={value} value={value} title={label} description={description}>{label}</Select.Option>)
         }
     }), [employeeRoles])
 
