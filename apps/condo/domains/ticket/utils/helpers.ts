@@ -5,6 +5,7 @@ import { LOCALES } from '@condo/domains/common/constants/locale'
 import moment from 'moment'
 import { ParsedUrlQuery } from 'querystring'
 import { Ticket, TicketStatus, TicketStatusWhereInput, TicketWhereInput } from '../../../schema'
+import { ITicketAnalyticsPageFilters } from '../../../pages/analytics'
 
 export const getTicketCreateMessage = (intl, ticket) => {
     if (!ticket) {
@@ -360,4 +361,18 @@ export const formatDate = (intl, dateStr?: string): string => {
         ? 'd MMMM H:mm'
         : 'd MMMM yyyy H:mm'
     return format(date, pattern, { locale: LOCALES[intl.locale] })
+}
+
+export const filterToQuery = (filter: ITicketAnalyticsPageFilters): unknown[] => {
+    const [dateFrom, dateTo] = filter.range
+    const result: unknown[] = [
+        { createdAt_gte: dateFrom.toISOString() },
+        { createdAt_lte: dateTo.toISOString() },
+    ]
+
+    if (filter.addressList.length) {
+        result.push({ property: { id_in: filter.addressList.map(({ id }) => id) } })
+    }
+
+    return result
 }
