@@ -4,8 +4,8 @@ import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
-import React, { useState, useContext, useEffect } from 'react'
+import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
+import React, { useState, useEffect } from 'react'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
@@ -13,6 +13,7 @@ import { useLazyQuery, useMutation } from '@core/next/apollo'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN } from '@condo/domains/user/gql'
 import { useAuth } from '@core/next/auth'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 const INPUT_STYLE = { width: '20em' }
 
@@ -168,25 +169,7 @@ const ChangePasswordPage: AuthPage = () => {
     )
 }
 
-
-const HeaderAction = (): React.ReactElement => {
-    const intl = useIntl()
-    const RegisterTitle = intl.formatMessage({ id: 'pages.auth.Register' })
-    const { isMobile } = useContext(AuthLayoutContext)
-    return (
-        <Button
-            key='submit'
-            onClick={() => Router.push('/auth/register')}
-            type='sberPrimary'
-            secondary={true}
-            size={isMobile ? 'middle' : 'large'}
-        >
-            {RegisterTitle}
-        </Button>
-    )
-}
-
-ChangePasswordPage.headerAction = <HeaderAction />
+ChangePasswordPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'}/>
 
 ChangePasswordPage.container = AuthLayout
 
