@@ -1,10 +1,10 @@
 import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
+import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import Router from 'next/router'
-import React, { useState, useContext } from 'react'
+import React, { useState } from 'react'
 import { colors } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
 import { FormattedMessage } from 'react-intl'
@@ -15,6 +15,7 @@ import { WRONG_EMAIL_ERROR } from '@condo/domains/user/constants/errors'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { LOCK_TIMEOUT } from '@condo/domains/user/constants/common'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
+import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 
 const LINK_STYLE = { color: colors.sberPrimary[7] }
@@ -148,24 +149,7 @@ const ResetPage: AuthPage = () => {
     )
 }
 
-const HeaderAction = (): React.ReactElement => {
-    const intl = useIntl()
-    const RegisterTitle = intl.formatMessage({ id: 'pages.auth.Register' })
-    const { isMobile } = useContext(AuthLayoutContext)
-    return (
-        <Button
-            key='submit'
-            onClick={() => Router.push('/auth/register')}
-            type='sberPrimary'
-            secondary={true}
-            size={isMobile ? 'middle' : 'large'}
-        >
-            {RegisterTitle}
-        </Button>
-    )
-}
-
-ResetPage.headerAction = <HeaderAction />
+ResetPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'}/>
 
 ResetPage.container = AuthLayout
 

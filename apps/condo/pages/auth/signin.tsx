@@ -1,5 +1,5 @@
-import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
-import React, { useState, useContext } from 'react'
+import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
+import React, { useState } from 'react'
 import Router from 'next/router'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { useAuth } from '@core/next/auth'
@@ -14,6 +14,7 @@ import { useMutation } from '@core/next/apollo'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 import { WRONG_PHONE_ERROR, WRONG_PASSWORD_ERROR } from '@condo/domains/user/constants/errors'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 const LINK_STYLE = { color: colors.sberPrimary[7] }
 const INPUT_STYLE = { width: '20em' }
@@ -136,24 +137,7 @@ const SignInForm = (): React.ReactElement => {
     )
 }
 
-const HeaderAction: React.FunctionComponent = () => {
-    const intl = useIntl()
-    const RegisterTitle = intl.formatMessage({ id: 'pages.auth.Register' })
-    const { isMobile } = useContext(AuthLayoutContext)
-    return (
-        <Button
-            key='submit'
-            onClick={() => Router.push('/auth/register')}
-            type='sberPrimary'
-            secondary={true}
-            size={isMobile ? 'middle' : 'large'}
-        >
-            {RegisterTitle}
-        </Button>
-    )
-}
-
-SignInPage.headerAction = <HeaderAction />
+SignInPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'}/>
 
 SignInPage.container = AuthLayout
 

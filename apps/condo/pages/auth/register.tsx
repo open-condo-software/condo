@@ -38,6 +38,7 @@ import {
     CONFIRM_PHONE_SMS_CODE_EXPIRED,
     TOO_MANY_REQUESTS,
 } from '@condo/domains/user/constants/errors'
+import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 const POLICY_LOCATION = '/policy.pdf'
 const LINK_STYLE = { color: colors.sberPrimary[7] }
@@ -717,24 +718,9 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
     )
 }
 
-const HeaderAction = (): React.ReactElement => {
-    const intl = useIntl()
-    const AllreadyRegisteredTitle = intl.formatMessage({ id: 'pages.auth.AlreadyRegistered' })
-    const { isMobile } = useContext(AuthLayoutContext)
-    return (
-        <Button
-            key='submit'
-            onClick={() => Router.push('/auth/signin')}
-            type='sberPrimary'
-            secondary={true}
-            size={isMobile ? 'middle' : 'large'}
-        >
-            {AllreadyRegisteredTitle}
-        </Button>
-    )
-}
-
-RegisterPage.headerAction = <HeaderAction />
+RegisterPage.headerAction = <ButtonHeaderAction
+    descriptor={{ id: 'pages.auth.AlreadyRegistered' }}
+    path={'/auth/signin'}/>
 RegisterPage.container = AuthLayout
 
 export default RegisterPage
