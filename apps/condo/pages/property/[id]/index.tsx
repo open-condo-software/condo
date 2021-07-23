@@ -5,8 +5,7 @@ import { useRouter } from 'next/router'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
-import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
-import { ArrowLeftOutlined, EditFilled } from '@ant-design/icons'
+import { EditFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import Head from 'next/head'
@@ -15,6 +14,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { PropertyPanels } from '@condo/domains/property/components/panels/index'
 import ActionBar from '@condo/domains/common/components/ActionBar'
+import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 interface IPropertyInfoPanelProps {
     title: string
@@ -110,19 +110,6 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
     </>
 }
 
-const HeaderAction = () => {
-    const intl = useIntl()
-    const AllPropertiesMessage = intl.formatMessage({ id: 'menu.AllProperties' })
-    return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={'/property/'}
-        >
-            {AllPropertiesMessage}
-        </LinkWithIcon>
-    )
-}
-
-PropertyIdPage.headerAction = <HeaderAction />
+PropertyIdPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllProperties' }} path={'/property/'}/>
 
 export default PropertyIdPage

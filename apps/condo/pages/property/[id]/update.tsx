@@ -5,10 +5,8 @@ import { PropertyForm } from '@condo/domains/property/components/PropertyForm'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
-import { colors } from '@condo/domains/common/constants/style'
 import { useRouter } from 'next/router'
+import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
@@ -39,19 +37,8 @@ const UpdatePropertyPage: IPageWithHeaderAction = () => {
     )
 }
 
-const HeaderAction = () => {
-    const intl = useIntl()
-    const AllPropertiesMessage = intl.formatMessage({ id: 'menu.AllProperties' })
-    return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={'/property/'}
-        >
-            {AllPropertiesMessage}
-        </LinkWithIcon>
-    )
-}
-
-UpdatePropertyPage.headerAction = <HeaderAction/>
+UpdatePropertyPage.headerAction = <ReturnBackHeaderAction
+    descriptor={{ id: 'Back' }}
+    path={(id) => `/property/${id}/`}/>
 
 export default UpdatePropertyPage

@@ -3,7 +3,7 @@ import { Col, Row, Space, Typography, Tag, Affix } from 'antd'
 import UploadList from 'antd/lib/upload/UploadList/index'
 import { get, isEmpty } from 'lodash'
 import React, { useEffect, useMemo, useState } from 'react'
-import { ArrowLeftOutlined, EditFilled, FilePdfFilled } from '@ant-design/icons'
+import { EditFilled, FilePdfFilled } from '@ant-design/icons'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
@@ -13,9 +13,7 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { Ticket, TicketChange, TicketFile, TicketComment } from '@condo/domains/ticket/utils/clientSchema'
 import Link from 'next/link'
-import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
-import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import {
     getTicketCreateMessage,
@@ -31,6 +29,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { Comments } from '@condo/domains/common/components/Comments'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
+import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
@@ -422,20 +421,6 @@ const TicketIdPage = () => {
     )
 }
 
-const HeaderAction = () => {
-    const intl = useIntl()
-    const AllTicketsMessage = intl.formatMessage({ id: 'menu.AllTickets' })
-
-    return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={'/ticket/'}
-        >
-            {AllTicketsMessage}
-        </LinkWithIcon>
-    )
-}
-
-TicketIdPage.headerAction = <HeaderAction/>
+TicketIdPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllTickets' }} path={'/ticket/'}/>
 
 export default TicketIdPage
