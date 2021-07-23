@@ -1,11 +1,9 @@
 import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
-import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
-import { ArrowLeftOutlined, EditFilled } from '@ant-design/icons'
+import { EditFilled } from '@ant-design/icons'
 import { Affix, Col, Row, Space, Typography } from 'antd'
 import Head from 'next/head'
 import Link from 'next/link'
-import { colors } from '@condo/domains/common/constants/style'
 import React from 'react'
 import { useRouter } from 'next/router'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
@@ -19,6 +17,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
 import  { TicketCard } from '@condo/domains/common/components/TicketCard/TicketCard'
 import { canManageContacts } from '@condo/domains/organization/permissions'
+import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 
 const FieldPairRow = (props) => {
@@ -169,20 +168,8 @@ const ContactInfoPage = () => {
     )
 }
 
-const HeaderAction = () => {
-    const intl = useIntl()
-    const BackButtonLabel = intl.formatMessage({ id: 'pages.condo.contact.PageTitle' })
-
-    return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={'/contact/'}
-        >
-            {BackButtonLabel}
-        </LinkWithIcon>
-    )
-}
-
-ContactInfoPage.headerAction = <HeaderAction/>
+ContactInfoPage.headerAction = <ReturnBackHeaderAction
+    descriptor={{ id: 'pages.condo.contact.PageTitle' }}
+    path={'/contact/'}/>
 
 export default ContactInfoPage
