@@ -133,15 +133,12 @@ const User = new GQLListSchema('User', {
     },
     hooks: {
         afterChange: async ({ updatedItem, context, existingItem, operation }) => {
-            console.log(operation)
             if (
                 operation === 'update' && existingItem &&
                 (updatedItem.phone !== existingItem.phone ||
                 updatedItem.email !== existingItem.email ||
                 updatedItem.name !== existingItem.name)
             ) {
-                console.log('existingItem', existingItem)
-                console.log('updatedItem', updatedItem)
                 const employees = await OrganizationEmployee.getAll(context, { user: { id: updatedItem.id } })
                 if (employees.length > 0) {
                     employees.forEach(employee => {
