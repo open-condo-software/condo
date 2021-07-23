@@ -1,4 +1,3 @@
-const { OrganizationLinkEmployeeAccess } = require('@condo/domains/organization/utils/serverSchema')
 const { OrganizationLink } = require('./serverSchema')
 const { getByCondition } = require('@core/keystone/schema')
 
@@ -34,24 +33,11 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
 async function checkRelatedOrganizationPermission (context, userId, organizationId, permission) {
     if (!context || !userId || !organizationId) return false
 
-    const [organizationLink] = await OrganizationLink.getAll(context, {
-        AND: [
-            { from: checkIfUserIsOrganizationEmployee(userId) },
-            { to: { id: organizationId } },
-        ],
-    })
-
+    const [organizationLink] = await OrganizationLink.getAll(context,
+        { from: checkIfUserIsOrganizationEmployee(userId), to: { id: organizationId } })
     if (!organizationLink) return false
 
-    const [organizationLinkEmployeeAccess] = await OrganizationLinkEmployeeAccess.getAll(context, {
-        AND: [
-            { link: { id: organizationLink.id } },
-            { employee: { user: { id: userId } } },
-        ],
-    })
-
-    if (!organizationLinkEmployeeAccess) return false
-    return organizationLinkEmployeeAccess[permission] || false
+    return checkOrganizationPermission(userId, organizationLink.from.id, permission)
 }
 
 
