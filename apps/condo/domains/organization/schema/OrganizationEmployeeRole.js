@@ -3,6 +3,7 @@
  */
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { Checkbox, Virtual } = require('@keystonejs/fields')
+const { LocalizedText } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked } = require('@core/keystone/plugins')
 const { Organization } = require('../utils/serverSchema')
@@ -10,7 +11,6 @@ const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../../../s
 const { rules } = require('../../../access')
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRole')
 const get = require('lodash/get')
-const { LocalizedText } = require('@core/keystone/fields')
 
 const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
     schemaDoc: 'Employee role name and access permissions',
@@ -28,7 +28,11 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
             isRequired: true,
             template: 'employee.role.*.name',
         },
-
+        description: {
+            type: LocalizedText,
+            isRequired: false,
+            template: 'employee.role.*.description',
+        },
         statusTransitions: {
             schemaDoc: 'Employee status transitions map',
             type: Virtual,
