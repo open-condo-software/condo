@@ -82,6 +82,4 @@ export {
     OrganizationEmployeeRole,
     OrganizationLink,
 }
-
-export * as OrganizationLinkEmployeeAccess from './OrganizationLinkEmployeeAccess'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

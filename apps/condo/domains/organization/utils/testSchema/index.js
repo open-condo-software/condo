@@ -13,14 +13,12 @@ const { makeLoggedInAdminClient } = require ('@core/keystone/test.utils');
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { Organization: OrganizationGQL, OrganizationEmployee: OrganizationEmployeeGQL, OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@condo/domains/organization/gql')
 const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql')
-const { OrganizationLinkEmployeeAccess: OrganizationLinkEmployeeAccessGQL } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
 const Organization = generateGQLTestUtils(OrganizationGQL)
 const OrganizationEmployee = generateGQLTestUtils(OrganizationEmployeeGQL)
 const OrganizationLink = generateGQLTestUtils(OrganizationLinkGQL)
-const OrganizationLinkEmployeeAccess = generateGQLTestUtils(OrganizationLinkEmployeeAccessGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestOrganization (client, extraAttrs = {}) {
