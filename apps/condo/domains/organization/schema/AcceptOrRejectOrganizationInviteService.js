@@ -17,23 +17,30 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { id, data } = args
                 const authedItem = context.authedItem
-                let { isRejected, isAccepted, name, phone, email, ...restData } = data
+                let { isRejected, isAccepted, ...restData } = data
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
 
-                const resultName = isAccepted && authedItem.name ? authedItem.name : name
-                const resultPhone = isAccepted && authedItem.phone ? authedItem.phone : phone
-                const resultEmail = isAccepted && authedItem.email ? authedItem.email : email
+                let employee
+                // if the user accepts the invitation, then update the name, phone number and email address of the employee
+                if (isAccepted) {
+                    employee = await updateOrganizationEmployee(context, id, {
+                        isRejected,
+                        isAccepted,
+                        ...restData,
+                        name: authedItem.name ? authedItem.name : null,
+                        phone: authedItem.phone ? authedItem.phone : null,
+                        email: authedItem.email ? authedItem.email : null,
+                    })
+                } else {
+                    employee = await updateOrganizationEmployee(context, id, {
+                        isRejected,
+                        isAccepted,
+                        ...restData,
+                    })
+                }
 
-                const obj = await updateOrganizationEmployee(context, id, {
-                    isRejected,
-                    isAccepted,
-                    ...restData,
-                    name: resultName,
-                    phone: resultPhone,
-                    email: resultEmail,
-                })
-                return await getById('OrganizationEmployee', obj.id)
+                return await getById('OrganizationEmployee', employee.id)
             },
         },
         {
