@@ -6,10 +6,15 @@ import React from 'react'
 import { MessageDescriptor } from '@formatjs/intl/src/types'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
+import { Space, Typography } from 'antd'
 
 interface IReturnBackHeaderActionProps {
     descriptor: MessageDescriptor
     path: ((id: string) => string) | string
+}
+
+interface ITitleHeaderActionProps {
+    descriptor: MessageDescriptor
 }
 
 export const ReturnBackHeaderAction: React.FC<IReturnBackHeaderActionProps> = (props) => {
@@ -26,5 +31,18 @@ export const ReturnBackHeaderAction: React.FC<IReturnBackHeaderActionProps> = (p
         >
             {BackMessage}
         </LinkWithIcon>
+    )
+}
+
+export const TitleHeaderAction: React.FC<ITitleHeaderActionProps> = (props) => {
+    const { descriptor } = props
+    const intl = useIntl()
+    const TitleMessage = intl.formatMessage(descriptor)
+    return (
+        <Space>
+            <Typography.Text style={{ fontSize: '12px' }}>
+                {TitleMessage}
+            </Typography.Text>
+        </Space>
     )
 }
