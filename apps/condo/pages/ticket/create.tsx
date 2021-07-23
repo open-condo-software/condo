@@ -5,9 +5,7 @@ import React from 'react'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
-import { colors } from '@condo/domains/common/constants/style'
+import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 const CreateTicketPage = () => {
     const intl = useIntl()
@@ -34,20 +32,6 @@ const CreateTicketPage = () => {
     )
 }
 
-const HeaderAction = () => {
-    const intl = useIntl()
-    const AllTicketsMessage = intl.formatMessage({ id: 'menu.AllTickets' })
-
-    return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={'/ticket/'}
-        >
-            {AllTicketsMessage}
-        </LinkWithIcon>
-    )
-}
-
-CreateTicketPage.headerAction = <HeaderAction/>
+CreateTicketPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllTickets' }} path={'/ticket/'} />
 
 export default CreateTicketPage

@@ -3,12 +3,10 @@ import { useRouter } from 'next/router'
 import React from 'react'
 import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
-import { ArrowLeftOutlined } from '@ant-design/icons'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
-import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
-import { colors } from '@condo/domains/common/constants/style'
+import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 const TicketUpdatePage = () => {
     const intl = useIntl()
@@ -37,21 +35,8 @@ const TicketUpdatePage = () => {
     )
 }
 
-const HeaderAction = () => {
-    const { query } = useRouter()
-    const inl = useIntl()
-    const BackMessage = inl.formatMessage({ id: 'Back' })
-
-    return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={`/ticket/${query.id}`}
-        >
-            {BackMessage}
-        </LinkWithIcon>
-    )
-}
-
-TicketUpdatePage.headerAction = <HeaderAction/>
+TicketUpdatePage.headerAction = <ReturnBackHeaderAction
+    descriptor={{ id: 'Back' }}
+    path={(id) => `/ticket/${id}/`}/>
 
 export default TicketUpdatePage
