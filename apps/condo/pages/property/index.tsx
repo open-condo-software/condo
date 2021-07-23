@@ -37,6 +37,7 @@ import debounce from 'lodash/debounce'
 import { PropertyImport } from '../../domains/property/components/PropertyImport'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 const PropertyPageViewMap = (): React.FC => {
     const userOrganization = useOrganization()
@@ -288,18 +289,6 @@ const PropertyPage = (): React.FC => {
     )
 }
 
-const HeaderAction = () => {
-    const intl = useIntl()
-
-    return (
-        <Space>
-            <Typography.Text style={{ fontSize: '12px' }}>
-                {intl.formatMessage({ id: 'menu.Property' })}
-            </Typography.Text>
-        </Space>
-    )
-}
-
-PropertyPage.headerAction = <HeaderAction />
+PropertyPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Property' }}/>
 
 export default PropertyPage

@@ -15,7 +15,7 @@ import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { useLazyQuery } from '@core/next/apollo'
-import { notification, Col, Input, Row, Space, Table, Typography, Checkbox } from 'antd'
+import { notification, Col, Input, Row, Table, Typography, Checkbox } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
@@ -28,6 +28,7 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
 import { SortTicketsBy } from '../../schema'
+import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
@@ -219,18 +220,6 @@ const TicketsPage: IPageWithHeaderAction = () => {
     )
 }
 
-const HeaderAction = () => {
-    const intl = useIntl()
-
-    return (
-        <Space>
-            <Typography.Text style={{ fontSize: '12px' }}>
-                {intl.formatMessage({ id: 'menu.ControlRoom' })}
-            </Typography.Text>
-        </Space>
-    )
-}
-
-TicketsPage.headerAction = <HeaderAction/>
+TicketsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.ControlRoom' }}/>
 
 export default TicketsPage

@@ -11,7 +11,7 @@ import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/organization/utils/helpers'
 import { useIntl } from '@core/next/intl'
 
-import { Col, Input, Row, Space, Table, Typography, Dropdown, Menu, Tooltip } from 'antd'
+import { Col, Input, Row, Table, Typography, Dropdown, Menu, Tooltip } from 'antd'
 import { EllipsisOutlined } from '@ant-design/icons'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -25,6 +25,7 @@ import { useOrganization } from '@core/next/organization'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { Button } from '../../domains/common/components/Button'
 import { SortOrganizationEmployeesBy } from '../../schema'
+import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 
 const TicketsPage = () => {
@@ -189,19 +190,6 @@ const TicketsPage = () => {
     )
 }
 
-const HeaderAction = () => {
-    const intl = useIntl()
-    const BackButtonLabel = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
-
-    return (
-        <Space>
-            <Typography.Text style={{ fontSize: '12px' }}>
-                {BackButtonLabel}
-            </Typography.Text>
-        </Space>
-    )
-}
-
-TicketsPage.headerAction = <HeaderAction/>
+TicketsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'pages.condo.employee.PageTitle' }}/>
 
 export default TicketsPage

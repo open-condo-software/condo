@@ -11,7 +11,7 @@ import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
 import { useIntl } from '@core/next/intl'
 
-import { Col, Input, Row, Space, Table, Typography, Dropdown, Menu, Tooltip } from 'antd'
+import { Col, Input, Row, Table, Typography, Dropdown, Menu, Tooltip } from 'antd'
 import { EllipsisOutlined } from '@ant-design/icons'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -25,6 +25,7 @@ import { useOrganization } from '@core/next/organization'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
 import { SortContactsBy } from '../../schema'
+import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 
@@ -186,19 +187,6 @@ const ContactPage = () => {
     )
 }
 
-const HeaderAction = () => {
-    const intl = useIntl()
-    const BackButtonLabel = intl.formatMessage({ id: 'pages.condo.contact.PageTitle' })
-
-    return (
-        <Space>
-            <Typography.Text style={{ fontSize: '12px' }}>
-                {BackButtonLabel}
-            </Typography.Text>
-        </Space>
-    )
-}
-
-ContactPage.headerAction = <HeaderAction/>
+ContactPage.headerAction = <TitleHeaderAction descriptor={{ id: 'pages.condo.contact.PageTitle' }}/>
 
 export default ContactPage
