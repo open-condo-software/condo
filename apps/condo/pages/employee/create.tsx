@@ -5,10 +5,10 @@ import React, { useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { colors, shadows } from '@condo/domains/common/constants/style'
 import { CreateEmployeeForm } from '@condo/domains/organization/components/CreateEmployeeForm'
+import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+
 import { useState } from 'react'
 import { Loader } from '../../domains/common/components/Loader'
 import { css, jsx } from '@emotion/core'
@@ -23,9 +23,9 @@ const CardCss = css`
 const CreateEmployeePage: IPageWithHeaderAction = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'employee.AddEmployee' }, {
-        
+
     })
-    
+
     const [selectedRole, setSelectedRole] = useState<string | null>(null)
     const roleTranslations = useMemo(() => (selectedRole ? {
         title: intl.formatMessage({ id: `employee.role.title.${selectedRole}` }),
@@ -68,20 +68,8 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
     )
 }
 
-const HeaderAction = () => {
-    const intl = useIntl()
-    const AllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
-
-    return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }} />}
-            path={'/employee/'}
-        >
-            {AllPropertiesMessage}
-        </LinkWithIcon>
-    )
-}
-
-CreateEmployeePage.headerAction = <HeaderAction />
+CreateEmployeePage.headerAction = <ReturnBackHeaderAction
+    descriptor={{ id: 'pages.condo.employee.PageTitle' }}
+    path={'/employee/'}/>
 
 export default CreateEmployeePage

@@ -1,4 +1,4 @@
-import { ArrowLeftOutlined, DeleteFilled, EditFilled } from '@ant-design/icons'
+import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -18,9 +18,8 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback, useState } from 'react'
-import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
-import { colors } from '@condo/domains/common/constants/style'
+import React, { useState } from 'react'
+import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 
 export const EmployeeInfoPage = () => {
@@ -235,20 +234,8 @@ export const EmployeeInfoPage = () => {
     )
 }
 
-const HeaderAction = () => {
-    const intl = useIntl()
-    const BackButtonLabel = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
-
-    return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={'/employee/'}
-        >
-            {BackButtonLabel}
-        </LinkWithIcon>
-    )
-}
-
-EmployeeInfoPage.headerAction = <HeaderAction/>
+EmployeeInfoPage.headerAction = <ReturnBackHeaderAction
+    descriptor={{ id: 'pages.condo.employee.PageTitle' }}
+    path={'/employee/'}/>
 
 export default EmployeeInfoPage

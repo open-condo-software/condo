@@ -2,12 +2,10 @@ import { useIntl } from '@core/next/intl'
 import Head from 'next/head'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
-import { ArrowLeftOutlined } from '@ant-design/icons'
 import { Typography, Row, Col } from 'antd'
-import { colors } from '@condo/domains/common/constants/style'
 import React from 'react'
 import { CreateContactForm } from '@condo/domains/contact/components/CreateContactForm'
+import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
@@ -40,18 +38,8 @@ const CreateContactPage: IPageWithHeaderAction = () => {
     )
 }
 
-const HeaderAction = () => {
-    const intl = useIntl()
-    const sectionTitle = intl.formatMessage({ id:'pages.condo.contact.PageTitle' })
-    return (
-        <LinkWithIcon
-            path={'/contact'}
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}>
-            {sectionTitle}
-        </LinkWithIcon>
-    )
-}
-
-CreateContactPage.headerAction = <HeaderAction/>
+CreateContactPage.headerAction = <ReturnBackHeaderAction
+    descriptor={{ id:'pages.condo.contact.PageTitle' }}
+    path={'/contact'}/>
 
 export default CreateContactPage
