@@ -17,6 +17,7 @@ interface IGetChartConfig {
 }
 type restTableOptions = {
     translations: unknown;
+    filters?: unknown;
 }
 interface IGetTableConfig {
     (viewMode: viewModeTypes, data: unknown, restOptions: restTableOptions): {
