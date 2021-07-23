@@ -163,7 +163,7 @@ export const CreateEmployeeForm: React.FC<CreateEmplyeeFormProps> = (props) => {
                                                 employeeRoles={employeeRoles}
                                                 onSelect={(_, option) => {
                                                     if (props.onRoleSelect) {
-                                                        props.onRoleSelect(option.title)
+                                                        props.onRoleSelect(option)
                                                     }
                                                 }}
                                             />

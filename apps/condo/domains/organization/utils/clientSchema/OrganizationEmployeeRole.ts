@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { OrganizationEmployeeRole as OrganizationEmployeeRoleGQL } from '@condo/domains/organization/gql'
 import { OrganizationEmployeeRole, OrganizationEmployeeRoleUpdateInput, QueryAllOrganizationEmployeeRolesArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'statusTransitions', 'canManageOrganization', 'canManageEmployees', 'canManageRoles', 'canManageIntegrations', 'canManageProperties', 'canManageTickets', 'canManageTicketComments']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'description', 'statusTransitions', 'canManageOrganization', 'canManageEmployees', 'canManageRoles', 'canManageIntegrations', 'canManageProperties', 'canManageTickets', 'canManageTicketComments']
 const RELATIONS = ['organization']
 
 export interface IOrganizationEmployeeRoleUIState extends OrganizationEmployeeRole {
@@ -57,10 +57,9 @@ const convertGQLItemToFormSelectState = (item: OrganizationEmployeeRole): IOrgan
     if (!item) {
         return
     }
+    const { name, id, description } = item
 
-    const { name, id } = item
-
-    return { value: id, label: name }
+    return { value: id, label: name, description }
 }
 
 const {

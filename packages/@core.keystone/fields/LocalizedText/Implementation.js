@@ -1,4 +1,4 @@
-const { extractReqLocale } = require('@condo/domains/common/utils/locales')
+const { extractReqLocale, defaultLocale } = require('@condo/domains/common/utils/locales')
 const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
 const { Text } = require('@keystonejs/fields')
 const minimatch = require('minimatch')
@@ -15,10 +15,10 @@ class LocalizedText extends Text.implementation {
     gqlOutputFieldResolvers () {
         return {
             [`${this.path}`]: (item, args, context, info) => {
-                const locale = extractReqLocale(context.req)
+                const locale = context.req ? extractReqLocale(context.req) : defaultLocale
                 const translations = getTranslations(locale)
                 // collision detection
-                if (translations[item[this.path]] && minimatch(item[this.path], this.config.tempalte)) {
+                if (translations[item[this.path]] && minimatch(item[this.path], this.config.template)) {
                     return translations[item[this.path]]
                 }
                 return item[this.path]
