@@ -41,6 +41,7 @@ export interface ITicketFormState {
 
 function convertToUIFormState (state: ITicketUIState): ITicketFormState | undefined {
     if (!state) return
+    console.log('STATE', state)
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')

@@ -8,7 +8,8 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 const { gql } = require('graphql-tag')
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName status { id name type organization { id } colors } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name } operator { id name } assignee { id name } executor { id name } watchers { id name } locationClassifier { id name } categoryClassifier { id name } subjectClassifier { id name } details related { id details } isEmergency isPaid meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
+const THREE_LEVEL_CLASSIFIER_FIELDS = 'locationClassifier { id name } categoryClassifier { id name } subjectClassifier { id name }'
+const TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName ${THREE_LEVEL_CLASSIFIER_FIELDS} status { id name type organization { id } colors } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name } operator { id name } assignee { id name } executor { id name } watchers { id name }  details related { id details } isEmergency isPaid meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
 const TICKET_STATUS_FIELDS = `{ organization { id } type name colors ${COMMON_FIELDS} }`
@@ -17,7 +18,7 @@ const TicketStatus = generateGqlQueries('TicketStatus', TICKET_STATUS_FIELDS)
 const TICKET_SOURCE_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
 const TicketSource = generateGqlQueries('TicketSource', TICKET_SOURCE_FIELDS)
 
-const TICKET_CLASSIFIER_FIELDS = `{ organization { id } locationClassifiers { id } categoryClassifiers { id } subjectClassifiers { id } name ${COMMON_FIELDS} }`
+const TICKET_CLASSIFIER_FIELDS = `{ organization { id } dependantClassifiers { id name type } name ${COMMON_FIELDS} }`
 const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIER_FIELDS)
 
 /*
@@ -83,10 +84,6 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'executorIdTo',
     'executorDisplayNameFrom',
     'executorDisplayNameTo',
-    'classifierIdFrom',
-    'classifierIdTo',
-    'classifierDisplayNameFrom',
-    'classifierDisplayNameTo',
     'locationClassifierIdFrom',
     'locationClassifierIdTo',
     'locationClassifierDisplayNameFrom',

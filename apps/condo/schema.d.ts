@@ -12876,14 +12876,6 @@ export enum SortTicketChangesBy {
   ExecutorDisplayNameFromDesc = 'executorDisplayNameFrom_DESC',
   ExecutorDisplayNameToAsc = 'executorDisplayNameTo_ASC',
   ExecutorDisplayNameToDesc = 'executorDisplayNameTo_DESC',
-  ClassifierIdFromAsc = 'classifierIdFrom_ASC',
-  ClassifierIdFromDesc = 'classifierIdFrom_DESC',
-  ClassifierIdToAsc = 'classifierIdTo_ASC',
-  ClassifierIdToDesc = 'classifierIdTo_DESC',
-  ClassifierDisplayNameFromAsc = 'classifierDisplayNameFrom_ASC',
-  ClassifierDisplayNameFromDesc = 'classifierDisplayNameFrom_DESC',
-  ClassifierDisplayNameToAsc = 'classifierDisplayNameTo_ASC',
-  ClassifierDisplayNameToDesc = 'classifierDisplayNameTo_DESC',
   LocationClassifierIdFromAsc = 'locationClassifierIdFrom_ASC',
   LocationClassifierIdFromDesc = 'locationClassifierIdFrom_DESC',
   LocationClassifierIdToAsc = 'locationClassifierIdTo_ASC',
@@ -13258,8 +13250,6 @@ export enum SortTicketsBy {
   ExecutorDesc = 'executor_DESC',
   WatchersAsc = 'watchers_ASC',
   WatchersDesc = 'watchers_DESC',
-  ClassifierAsc = 'classifier_ASC',
-  ClassifierDesc = 'classifier_DESC',
   LocationClassifierAsc = 'locationClassifier_ASC',
   LocationClassifierDesc = 'locationClassifier_DESC',
   CategoryClassifierAsc = 'categoryClassifier_ASC',
@@ -13449,8 +13439,6 @@ export type Ticket = {
   /**  Staff/person who want to watch ticket changes  */
   watchers: Array<User>;
   _watchersMeta?: Maybe<_QueryMeta>;
-  /**  [will be removed] Typification / classification / types of work  */
-  classifier?: Maybe<TicketClassifier>;
   /**  Information about where problem heppens  */
   locationClassifier?: Maybe<TicketClassifier>;
   /**  Information about what kind of problem heppens  */
@@ -13640,14 +13628,6 @@ export type TicketChange = {
   executorDisplayNameFrom?: Maybe<Scalars['String']>;
   /**  New display name of related entity. Executor employee/user who perform the issue  */
   executorDisplayNameTo?: Maybe<Scalars['String']>;
-  /**  Old id of related entity. [will be removed] Typification / classification / types of work  */
-  classifierIdFrom?: Maybe<Scalars['ID']>;
-  /**  New id of related entity. [will be removed] Typification / classification / types of work  */
-  classifierIdTo?: Maybe<Scalars['ID']>;
-  /**  Old display name of related entity. [will be removed] Typification / classification / types of work  */
-  classifierDisplayNameFrom?: Maybe<Scalars['String']>;
-  /**  New display name of related entity. [will be removed] Typification / classification / types of work  */
-  classifierDisplayNameTo?: Maybe<Scalars['String']>;
   /**  Old id of related entity. Information about where problem heppens  */
   locationClassifierIdFrom?: Maybe<Scalars['ID']>;
   /**  New id of related entity. Information about where problem heppens  */
@@ -13772,10 +13752,6 @@ export type TicketChangeCreateInput = {
   executorIdTo?: Maybe<Scalars['ID']>;
   executorDisplayNameFrom?: Maybe<Scalars['String']>;
   executorDisplayNameTo?: Maybe<Scalars['String']>;
-  classifierIdFrom?: Maybe<Scalars['ID']>;
-  classifierIdTo?: Maybe<Scalars['ID']>;
-  classifierDisplayNameFrom?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo?: Maybe<Scalars['String']>;
   locationClassifierIdFrom?: Maybe<Scalars['ID']>;
   locationClassifierIdTo?: Maybe<Scalars['ID']>;
   locationClassifierDisplayNameFrom?: Maybe<Scalars['String']>;
@@ -13871,10 +13847,6 @@ export type TicketChangeUpdateInput = {
   executorIdTo?: Maybe<Scalars['ID']>;
   executorDisplayNameFrom?: Maybe<Scalars['String']>;
   executorDisplayNameTo?: Maybe<Scalars['String']>;
-  classifierIdFrom?: Maybe<Scalars['ID']>;
-  classifierIdTo?: Maybe<Scalars['ID']>;
-  classifierDisplayNameFrom?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo?: Maybe<Scalars['String']>;
   locationClassifierIdFrom?: Maybe<Scalars['ID']>;
   locationClassifierIdTo?: Maybe<Scalars['ID']>;
   locationClassifierDisplayNameFrom?: Maybe<Scalars['String']>;
@@ -14579,50 +14551,6 @@ export type TicketChangeWhereInput = {
   executorDisplayNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
   executorDisplayNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   executorDisplayNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  classifierIdFrom?: Maybe<Scalars['ID']>;
-  classifierIdFrom_not?: Maybe<Scalars['ID']>;
-  classifierIdFrom_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  classifierIdFrom_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  classifierIdTo?: Maybe<Scalars['ID']>;
-  classifierIdTo_not?: Maybe<Scalars['ID']>;
-  classifierIdTo_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  classifierIdTo_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  classifierDisplayNameFrom?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_contains?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not_contains?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_starts_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not_starts_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_ends_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not_ends_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_contains_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not_contains_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_starts_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not_starts_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_ends_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not_ends_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  classifierDisplayNameFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  classifierDisplayNameTo?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_contains?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not_contains?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_starts_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not_starts_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_ends_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not_ends_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_contains_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not_contains_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_starts_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not_starts_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_ends_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  classifierDisplayNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   locationClassifierIdFrom?: Maybe<Scalars['ID']>;
   locationClassifierIdFrom_not?: Maybe<Scalars['ID']>;
   locationClassifierIdFrom_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -15766,7 +15694,6 @@ export type TicketCreateInput = {
   assignee?: Maybe<UserRelateToOneInput>;
   executor?: Maybe<UserRelateToOneInput>;
   watchers?: Maybe<UserRelateToManyInput>;
-  classifier?: Maybe<TicketClassifierRelateToOneInput>;
   locationClassifier?: Maybe<TicketClassifierRelateToOneInput>;
   categoryClassifier?: Maybe<TicketClassifierRelateToOneInput>;
   subjectClassifier?: Maybe<TicketClassifierRelateToOneInput>;
@@ -16137,7 +16064,6 @@ export type TicketHistoryRecord = {
   operator?: Maybe<Scalars['String']>;
   assignee?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
-  classifier?: Maybe<Scalars['String']>;
   locationClassifier?: Maybe<Scalars['String']>;
   categoryClassifier?: Maybe<Scalars['String']>;
   subjectClassifier?: Maybe<Scalars['String']>;
@@ -16182,7 +16108,6 @@ export type TicketHistoryRecordCreateInput = {
   operator?: Maybe<Scalars['String']>;
   assignee?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
-  classifier?: Maybe<Scalars['String']>;
   locationClassifier?: Maybe<Scalars['String']>;
   categoryClassifier?: Maybe<Scalars['String']>;
   subjectClassifier?: Maybe<Scalars['String']>;
@@ -16232,7 +16157,6 @@ export type TicketHistoryRecordUpdateInput = {
   operator?: Maybe<Scalars['String']>;
   assignee?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
-  classifier?: Maybe<Scalars['String']>;
   locationClassifier?: Maybe<Scalars['String']>;
   categoryClassifier?: Maybe<Scalars['String']>;
   subjectClassifier?: Maybe<Scalars['String']>;
@@ -16394,10 +16318,6 @@ export type TicketHistoryRecordWhereInput = {
   executor_not?: Maybe<Scalars['String']>;
   executor_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   executor_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  classifier?: Maybe<Scalars['String']>;
-  classifier_not?: Maybe<Scalars['String']>;
-  classifier_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  classifier_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   locationClassifier?: Maybe<Scalars['String']>;
   locationClassifier_not?: Maybe<Scalars['String']>;
   locationClassifier_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -17413,7 +17333,6 @@ export type TicketUpdateInput = {
   assignee?: Maybe<UserRelateToOneInput>;
   executor?: Maybe<UserRelateToOneInput>;
   watchers?: Maybe<UserRelateToManyInput>;
-  classifier?: Maybe<TicketClassifierRelateToOneInput>;
   locationClassifier?: Maybe<TicketClassifierRelateToOneInput>;
   categoryClassifier?: Maybe<TicketClassifierRelateToOneInput>;
   subjectClassifier?: Maybe<TicketClassifierRelateToOneInput>;
@@ -17568,8 +17487,6 @@ export type TicketWhereInput = {
   watchers_some?: Maybe<UserWhereInput>;
   /**  condition must be false for all nodes  */
   watchers_none?: Maybe<UserWhereInput>;
-  classifier?: Maybe<TicketClassifierWhereInput>;
-  classifier_is_null?: Maybe<Scalars['Boolean']>;
   locationClassifier?: Maybe<TicketClassifierWhereInput>;
   locationClassifier_is_null?: Maybe<Scalars['Boolean']>;
   categoryClassifier?: Maybe<TicketClassifierWhereInput>;

@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { searchEmployee, searchTicketClassifier } from '../../utils/clientSchema/search'
+import { searchEmployee } from '../../utils/clientSchema/search'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
@@ -21,6 +21,7 @@ import { useContactsEditorHook } from '@condo/domains/contact/components/Contact
 import { useOrganization } from '@core/next/organization'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { normalizeText } from '@condo/domains/common/utils/text'
+import { TicketClassifierSelect } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { InputWithCounter } from '@condo/domains/common/components/InputWithCounter'
 
 const { TabPane } = Tabs
@@ -55,7 +56,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorNameLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const DescriptionLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
-    const ClassifierLabel = intl.formatMessage({ id: 'Classifier' })
     const ExecutorLabel = intl.formatMessage({ id: 'field.Executor' })
     const ResponsibleLabel = intl.formatMessage({ id: 'field.Responsible' })
     const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
@@ -70,6 +70,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
 
     const { action: _action, initialValues, organization, afterActionCompleted, files } = props
+
+    console.log('initialValues', initialValues)
+
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState(get(initialValues, 'property'))
     const selectPropertyIdRef = useRef(selectedPropertyId)
@@ -267,9 +270,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 </Col>
                                 <Form.Item noStyle dependencies={['property']}>
                                     {
-                                        ({ getFieldsValue }) => {
-                                            const { property } = getFieldsValue(['property'])
+                                        ({ getFieldsValue, setFieldsValue }) => {
+                                            const { property, locationClassifier, categoryClassifier, subjectClassifier } = getFieldsValue(['property', 'locationClassifier', 'categoryClassifier', 'subjectClassifier'])
                                             const disableUserInteraction = !property
+                                            console.log('locationClassifier, categoryClassifier, subjectClassifier', locationClassifier, categoryClassifier, subjectClassifier)
 
                                             return (
                                                 <Col span={24}>
@@ -281,6 +285,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                         <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
                                                                     </Col>
                                                                     <Col span={24}>
+                                                                        <Form.Item name={'details'} label={DescriptionLabel}>
+                                                                            <Input.TextArea rows={3} placeholder={DescriptionPlaceholder} disabled={disableUserInteraction} />
                                                                         <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
                                                                             <InputWithCounter
                                                                                 InputComponent={Input.TextArea}
@@ -304,13 +310,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             <Col span={24}>
                                                                 <Row align={'top'} >
                                                                     <Col span={11}>
-                                                                        <Form.Item name={'classifier'} rules={validations.classifier} label={ClassifierLabel} >
-                                                                            <GraphQlSearchInput
-                                                                                search={searchTicketClassifier}
-                                                                                allowClear={false}
-                                                                                disabled={disableUserInteraction}
-                                                                            />
-                                                                        </Form.Item>
+                                                                        <TicketClassifierSelect
+                                                                            onSelect={(fieldName, value) => setFieldsValue(Object.fromEntries([fieldName, value]))}
+                                                                            initialValue={{ locationClassifier, categoryClassifier, subjectClassifier }}
+                                                                            disabled={disableUserInteraction}
+                                                                        />
                                                                     </Col>
                                                                     <Col push={2} span={11}>
                                                                         <Row>

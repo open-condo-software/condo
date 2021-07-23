@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { Select, Typography, Space } from 'antd'
-import { ITicketClassifierUIState, TicketClassifierSelectWhereInput } from '@condo/domains/ticket/utils/clientSchema/TicketClassifier'
+import { TicketClassifierSelectWhereInput } from '@condo/domains/ticket/utils/clientSchema/TicketClassifier'
 import { TicketClassifier as TicketClassifierGQL } from '@condo/domains/ticket/gql'
 import { useIntl } from '@core/next/intl'
 import { useApolloClient, ApolloClient } from '@core/next/apollo'
 import isEmpty from 'lodash/isEmpty'
+import { TicketClassifierTypeType } from '../../../schema'
 
 export async function loadClassifiers (client: ApolloClient, variables: TicketClassifierSelectWhereInput): Promise<ITicketClassifierUIState[]> {
     const data = await client.query({
@@ -14,6 +15,10 @@ export async function loadClassifiers (client: ApolloClient, variables: TicketCl
     return data.data.objs
 }
 
+interface ITicketClassifierUIState {
+    id: string
+    name: string
+}
 const selectStyle = {
     width: '264px',
     marginRight: '44px',
@@ -101,11 +106,12 @@ const useTicketClassifierSelectHook = ({
 interface ITicketClassifierSelect {
     disabled?: boolean
     initialValue?: string
-    onSelect: (id: string) => null
+    onSelect: (fieldName: string, id: string) => null
 }
 
 export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props) => {
     const { onSelect, disabled, initialValue } = props
+    console.log(initialValue)
     const intl = useIntl()
     const LocationsLabel = intl.formatMessage({ id: 'component.ticketclassifier.LocationsLabel' })
     const CategoriesLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoriesLabel' })
@@ -119,13 +125,14 @@ export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props)
         setSelected: setSubject,
         ref: subjectRef,
     } = useTicketClassifierSelectHook({ label: SubjectsLabel, onChange: (id) => {
-        onSelect(id)
+        onSelect('subjectClassifier', id)
     } })
 
     const onCategoryChange = (id) => {
+        onSelect('subjectClassifier', id)
         resetSubjects()
         if (id) {
-            loadSubjects({ parent: { id } }).then(_ =>
+            loadSubjects({ type: 'subject' as TicketClassifierTypeType }).then(_ =>
                 subjectRef.current && subjectRef.current.focus()
             )
         }
@@ -139,10 +146,11 @@ export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props)
         ref: categoryRef,
     } = useTicketClassifierSelectHook({ label: CategoriesLabel, onChange: onCategoryChange })
     const onLocationChange = (id) => {
+        onSelect('locationClassifier', id)
         resetSubjects()
         resetCategories()
         if (id) {
-            loadCategories({ parent: { id } }).then(_ =>
+            loadCategories({ type: 'category' as TicketClassifierTypeType }).then(_ =>
                 categoryRef.current && categoryRef.current.focus()
             )
         }
@@ -154,24 +162,24 @@ export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props)
         setSelected: setLocation,
     } = useTicketClassifierSelectHook({ label: LocationsLabel, allowClear: false, showAction: ['click'], onChange: onLocationChange })
 
-    useEffect(() => {
-        loadLocations({ parent_is_null: true })
-        if (initialValue){
-            loadClassifiers(client, { id: initialValue }).then(data => {
-                const [loadedClassifier] = data
-                const { id: subject, parent: { id: category, parent: { id: location } } } = loadedClassifier
-                Promise.all([
-                    loadCategories({ parent: { id: location } }),
-                    loadSubjects({ parent: { id: category } }),
-                ]).then(_ => {
-                    setLocation(location)
-                    setCategory(category)
-                    setSubject(subject)
-                })
-            }).catch(err => console.error(err))
-        }
+    //    useEffect(() => {
+    //        loadLocations({ type: 'location' })
+    //        if (initialValue){
+    //            loadClassifiers(client, { id: initialValue }).then(data => {
+    //                const [loadedClassifier] = data
+    //                const { id: subject } = loadedClassifier
+    //                Promise.all([
+    //                    loadCategories({ parent: { id: location } }),
+    //                    loadSubjects({ parent: { id: category } }),
+    //                ]).then(_ => {
+    //                    setLocation(location)
+    //                    setCategory(category)
+    //                    setSubject(subject)
+    //                })
+    //            }).catch(err => console.error(err))
+    //        }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    //    }, [])
 
     return (
         <div style={{ whiteSpace: 'nowrap' }}>

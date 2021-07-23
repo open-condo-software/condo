@@ -15,10 +15,9 @@ const RELATIONS = ['organization', 'parent']
 
 export interface ITicketClassifierUIState extends TicketClassifier {
     id: string
-    // TODO(codegen): write ITicketClassifierUIState or extends it from
 }
 
-export type TicketClassifierSelectWhereInput = Pick<TicketClassifierWhereInput, 'parent' | 'parent_is_null' | 'id'>
+export type TicketClassifierSelectWhereInput = Pick<TicketClassifierWhereInput, 'type' | 'id'>
 
 function convertToUIState (item: TicketClassifier): ITicketClassifierUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')

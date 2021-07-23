@@ -53,20 +53,13 @@ export function useTicketValidations (): IFormFieldsRuleMap {
                 message: intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' }),
             },
         ],
-        details: [
-            {
-                required: true,
-                min: 20,
-                message: intl.formatMessage({ id: 'field.Description.lengthError' }),
-            },
-        ],
-        locationclassifier: [
+        locationСlassifier: [
             {
                 required: true,
                 message: intl.formatMessage({ id: 'field.LocationClassifier.requiredError' }),
             },
         ],
-        categoryclassifier: [
+        categoryСlassifier: [
             {
                 required: true,
                 message: intl.formatMessage({ id: 'field.CategoryClassifier.requiredError' }),
