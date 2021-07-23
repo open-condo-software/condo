@@ -21,6 +21,7 @@ interface ISearchInput<S> extends Omit<SelectProps<S>, 'onSelect'> {
 export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const NotFoundMessage = intl.formatMessage({ id: 'NotFound' })
 
     const {
         search,
@@ -32,7 +33,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         renderOption,
         initialValueGetter,
         loadOptionsOnFocus = true,
-        notFoundContent = '',
+        notFoundContent = NotFoundMessage,
         style,
         ...restSelectProps
     } = props
