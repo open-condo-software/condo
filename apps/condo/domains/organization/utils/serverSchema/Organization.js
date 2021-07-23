@@ -1,7 +1,8 @@
-const { COUNTRIES, DEFAULT_ENGLISH_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { Organization, OrganizationEmployee } = require('../../gql')
 const { OrganizationEmployeeRole } = require('./index')
 const { execGqlWithoutAccess } = require('./utils')
+
+const conf = require('@core/config')
 
 async function createOrganization (context, data) {
     return await execGqlWithoutAccess(context, {
@@ -30,68 +31,12 @@ async function updateOrganizationEmployee (context, id, data) {
     })
 }
 
-
 async function createDefaultRoles (context, organization, data) {
     if (!context) throw new Error('no context')
     if (!organization.id) throw new Error('wrong organization.id argument')
     if (!organization.country) throw new Error('wrong organization.country argument')
-    const langDict = COUNTRIES[organization.country] || COUNTRIES[DEFAULT_ENGLISH_COUNTRY]
     // TODO: place to another file?
-    const defaultRoles = {
-        admin: {
-            canManageOrganization: true,
-            canManageEmployees: true,
-            canManageRoles: true,
-            canManageIntegrations: true,
-            canManageProperties: true,
-            canManageTickets: true,
-            canManageContacts: true,
-            canManageTicketComments: true,
-        },
-        dispatcher: {
-            canManageOrganization: false,
-            canManageEmployees: false,
-            canManageRoles: false,
-            canManageIntegrations: false,
-            canManageProperties: true,
-            canManageTickets: true,
-            canManageContacts: true,
-            canManageTicketComments: true,
-        },
-        manager: {
-            canManageOrganization: false,
-            canManageEmployees: false,
-            canManageRoles: false,
-            canManageIntegrations: false,
-            canManageProperties: true,
-            canManageTickets: true,
-            canManageContacts: true,
-            canManageTicketComments: true,
-        },
-        foreman: {
-            canManageOrganization: false,
-            canManageEmployees: false,
-            canManageRoles: false,
-            canManageIntegrations: false,
-            canManageProperties: false,
-            canManageTickets: true,
-            canManageContacts: false,
-            canManageTicketComments: true,
-        },
-        technician: {
-            canManageOrganization: false,
-            canManageEmployees: false,
-            canManageRoles: false,
-            canManageIntegrations: false,
-            canManageProperties: false,
-            canManageTickets: true,
-            canManageContacts: false,
-            canManageTicketComments: true,
-        },
-    }
-    Object.keys(defaultRoles).forEach((roleId) => {
-        defaultRoles[roleId].name = langDict[`role.${roleId}.name`]
-    })
+    const defaultRoles = conf.DEFAULTS.roles || {}
     const tasks = Object.entries(defaultRoles).map(([roleId, roleInfo]) =>
         OrganizationEmployeeRole.create(context, {
             organization: { connect: { id: organization.id } },
@@ -99,7 +44,7 @@ async function createDefaultRoles (context, organization, data) {
             ...data,
         }).then(x => ({ [roleId]: x }))
     )
-    return await Promise.all(tasks).then(r => r.reduce((d, c) => ({ ...d, ...c })))
+    return await Promise.all(tasks).then(r => r.reduce((prev, curr) => ({ ...prev, ...curr })))
 }
 async function createConfirmedEmployee (context, organization, user, role, data) {
     if (!context) throw new Error('no context')

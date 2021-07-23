@@ -39,6 +39,9 @@ if (DEBUG) console.dir(process.env)
 function getEnv (namespace, name, defaultValue) {
     return preprocessEnv(process.env[`${namespace}_${name}`] || process.env[`${name}`] || defaultValue)
 }
+function getDefaults (){
+    return require(path.join(root, 'defaults.json'))
+}
 
 function preprocessEnv (v) {
     if (!v) return v
@@ -60,8 +63,8 @@ function getConfig (namespace) {
         // LOCAL MEDIA FILES 
         MEDIA_ROOT: process.env.MEDIA_ROOT || path.join(root, '__media'),
         MEDIA_URL: process.env.MEDIA_URL || '/media',
+        DEFAULTS: getDefaults(),
     }
-
     const getter = (obj, name) => {
         if (name in obj) return obj[name]
         return getEnv(namespace, name)

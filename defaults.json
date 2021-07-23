@@ -1,6 +1,8 @@
 {
 	"roles": {
 		"Administrator": {
+			"name": "employee.role.Administrator.name",
+			"description": "employee.role.Administrator.description",
 			"canManageOrganization": true,
 			"canManageEmployees": true,
 			"canManageRoles": true,
@@ -11,6 +13,8 @@
 			"canManageTicketComments": true
 		},
 		"Dispatcher": {
+			"name": "employee.role.Administrator.name",
+			"description": "employee.role.Administrator.description",
 			"canManageOrganization": false,
 			"canManageEmployees": false,
 			"canManageRoles": false,
@@ -21,6 +25,8 @@
 			"canManageTicketComments": true
 		},
 		"Manager": {
+			"name": "employee.role.Administrator.name",
+			"description": "employee.role.Administrator.description",
 			"canManageOrganization": false,
 			"canManageEmployees": false,
 			"canManageRoles": false,
@@ -31,6 +37,8 @@
 			"canManageTicketComments": true
 		},
 		"Foreman": {
+			"name": "employee.role.Administrator.name",
+			"description": "employee.role.Administrator.description",
 			"canManageOrganization": false,
 			"canManageEmployees": false,
 			"canManageRoles": false,
@@ -41,6 +49,8 @@
 			"canManageTicketComments": true
 		},
 		"Technician": {
+			"name": "employee.role.Administrator.name",
+			"description": "employee.role.Administrator.description",
 			"canManageOrganization": false,
 			"canManageEmployees": false,
 			"canManageRoles": false,
@@ -51,8 +61,53 @@
 			"canManageTicketComments": true
 		}
 	},
-	"statuses": {},
-	"classifiers": {
-
-	}
+	"statuses": {
+		"types": [
+			{
+				"type": "OPEN",
+				"name": "ticket.status.OPEN.name"
+			},
+			{
+				"type": "IN_PROGRESS",
+				"name": "ticket.status.IN_PROGRESS.name"
+			},
+			{
+				"type": "DECLINED",
+				"name": "ticket.status.DECLINED.name"
+			},
+			{
+				"type": "COMPLETED",
+				"name": "ticket.status.COMPLETED.name"
+			},
+			{
+				"type": "DEFERRED",
+				"name": "ticket.status.DEFERRED.name"
+			},
+			{
+				"type": "CLOSED",
+				"name": "ticket.status.CLOSED.name"
+			}
+		],
+		"transitions": {
+			"OPEN": [
+				"IN_PROGRESS",
+				"DECLINED"
+			],
+			"IN_PROGRESS": [
+				"DEFERRED",
+				"COMPLETED",
+				"OPEN",
+				"DECLINED"
+			],
+			"COMPLETED": [
+				"OPEN",
+				"CLOSED"
+			],
+			"DECLINED": [],
+			"DEFERRED": [
+				"OPEN"
+			]
+		}
+	},
+	"classifiers": {}
 }
