@@ -16,11 +16,23 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
             resolver: async (parent, args, context, info, extra = {}) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { id, data } = args
-                let { isRejected, isAccepted, ...restData } = data
+                const authedItem = context.authedItem
+                let { isRejected, isAccepted, name, phone, email, ...restData } = data
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
 
-                const obj = await updateOrganizationEmployee(context, id, { isRejected, isAccepted, ...restData })
+                const resultName = isAccepted && authedItem.name ? authedItem.name : name
+                const resultPhone = isAccepted && authedItem.phone ? authedItem.phone : phone
+                const resultEmail = isAccepted && authedItem.email ? authedItem.email : email
+
+                const obj = await updateOrganizationEmployee(context, id, {
+                    isRejected,
+                    isAccepted,
+                    ...restData,
+                    name: resultName,
+                    phone: resultPhone,
+                    email: resultEmail,
+                })
                 return await getById('OrganizationEmployee', obj.id)
             },
         },
