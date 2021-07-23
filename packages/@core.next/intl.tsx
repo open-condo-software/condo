@@ -1,8 +1,8 @@
 import { IntlProvider, useIntl } from 'react-intl'
 import React, { useEffect, useState } from 'react'
 import cookie from 'js-cookie'
-import nextCookie from 'next-cookies'
 
+import { extractReqLocale } from '@condo/domains/common/utils/locales'
 const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
 const LocaleContext = React.createContext({})
@@ -41,15 +41,6 @@ let getLocale = () => {
     return locale || defaultLocale
 }
 
-let extractReqLocale = (req) => {
-    try {
-        const cookieLocale = nextCookie({ req }).locale
-        const headersLocale = req.headers['accept-language'] && req.headers['accept-language'].slice(0, 2)
-        return cookieLocale || headersLocale || defaultLocale
-    } catch (e) {
-        return null
-    }
-}
 
 const initOnRestore = async (ctx) => {
     let locale, messages
