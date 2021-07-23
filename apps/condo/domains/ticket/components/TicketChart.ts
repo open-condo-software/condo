@@ -15,8 +15,11 @@ interface IGetChartConfig {
         }
     }
 }
+type restTableOptions = {
+    translations: unknown;
+}
 interface IGetTableConfig {
-    (viewMode: viewModeTypes, data: unknown): {
+    (viewMode: viewModeTypes, data: unknown, restOptions: restTableOptions): {
         dataSource: TableProps<any>['dataSource'], tableColumns: TableColumnsType
     }
 }
@@ -33,8 +36,8 @@ class TicketChart {
         return this.chartConfigMap[viewMode]['chart'](viewMode, data)
     }
 
-    public getTableConfig: IGetTableConfig = (viewMode, data) => {
-        return this.chartConfigMap[viewMode]['table'](viewMode, data)
+    public getTableConfig: IGetTableConfig = (viewMode, data, restOptions) => {
+        return this.chartConfigMap[viewMode]['table'](viewMode, data, restOptions)
     }
 
 }
