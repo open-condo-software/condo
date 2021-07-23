@@ -18,7 +18,7 @@ import {
     Divider,
     Select,
     TableColumnsType,
-    Tooltip, Form, Tag,
+    Tooltip, Form, Tag, TableProps,
 } from 'antd'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
@@ -87,43 +87,96 @@ const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5
 const SPECIFICATIONS = ['day', 'week']
 
 const ticketChartDataMapper = new TicketChart({
-    line: (viewMode, data) => {
-        const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
-        const legend = Object.keys(data)
-        const series = []
-        Object.entries(data).map(([groupBy, dataObj]) => {
-            series.push({
-                name: groupBy,
-                type: viewMode,
-                symbol: 'none',
-                stack: groupBy,
-                data: Object.values(dataObj),
-                emphasis: {
-                    focus: 'none',
-                    blurScope: 'none',
-                },
+    line: {
+        chart: (viewMode, data) => {
+            const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+            const legend = Object.keys(data)
+            const series = []
+            Object.entries(data).map(([groupBy, dataObj]) => {
+                series.push({
+                    name: groupBy,
+                    type: viewMode,
+                    symbol: 'none',
+                    stack: groupBy,
+                    data: Object.values(dataObj),
+                    emphasis: {
+                        focus: 'none',
+                        blurScope: 'none',
+                    },
+                })
             })
-        })
-        return { series, legend, axisLabels }
+            const axisData = { yAxis: { type: 'value', data: null }, xAxis: { type: 'category', data: axisLabels } }
+            const tooltip = { trigger: 'axis', axisPointer: { type: 'line' } }
+            return { series, legend, axisData, tooltip }
+        },
+        table: (viewMode, data) => {
+            const dataSource = []
+            const tableColumns: TableColumnsType = [
+                { title: 'AddressTitle need to pass', dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
+                {
+                    title: 'Date title need to pass',
+                    dataIndex: 'date',
+                    key: 'date',
+                    defaultSortOrder: 'descend',
+                    sorter: (a, b) => moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
+                },
+                ...Object.entries(data).map(([key, value]: [string, number]) => (
+                    { title: key, dataIndex: key, key, sorter: (a, b) => a[value] - b[value] }
+                )),
+            ]
+            const uniqueDates = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+            uniqueDates.forEach((date, key) => {
+                const restTableColumns = {}
+                Object.keys(data).forEach(ticketType => (restTableColumns[ticketType] = data[ticketType][date]))
+                dataSource.push({ key, address: 'need to pass addresses here', date, ...restTableColumns })
+            })
+            return { dataSource, tableColumns }
+        },
     },
-    bar: (viewMode, data) => {
-        const series = []
-        const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
-        const legend = Object.keys(data)
-        Object.entries(data).map(([groupBy, dataObj]) => {
-            series.push({
-                name: groupBy,
-                type: viewMode,
-                symbol: 'none',
-                stack: 'total',
-                data: Object.values(dataObj),
-                emphasis: {
-                    focus: 'self',
-                    blurScope: 'self',
-                },
+    bar: {
+        chart: (viewMode, data) => {
+            const series = []
+            const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+            const legend = Object.keys(data)
+            Object.entries(data).map(([groupBy, dataObj]) => {
+                series.push({
+                    name: groupBy,
+                    type: viewMode,
+                    symbol: 'none',
+                    stack: 'total',
+                    data: Object.values(dataObj),
+                    emphasis: {
+                        focus: 'self',
+                        blurScope: 'self',
+                    },
+                })
             })
-        })
-        return { series, legend, axisLabels }
+            const axisData = { yAxis: { type: 'category', data: axisLabels }, xAxis: { type: 'value', data: null } }
+            const tooltip = { trigger: 'item', axisPointer: { type: 'line' } }
+            return { series, legend, axisData, tooltip }
+        },
+        table: (viewMode, data) => {
+            const dataSource = []
+            const tableColumns: TableColumnsType = [
+                { title: 'AddressTitle need to pass', dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
+                ...Object.entries(data).map(([key, value]: [string, number]) => (
+                    { title: key, dataIndex: key, key, sorter: (a, b) => a[value] - b[value] }
+                )),
+            ]
+            const restTableColumns = {}
+            Object.entries(data).forEach((rowEntry) => {
+                const [ticketType, dataObj] = rowEntry
+                const counts = Object.values(dataObj) as number[]
+                restTableColumns[ticketType] = counts.reduce((a, b) => a + b)
+            })
+            dataSource.push({
+                key: 0,
+                address: 'AddressTitle need to pass',
+                ...restTableColumns,
+            })
+            return { dataSource, tableColumns }
+        },
+
     },
 })
 
@@ -138,30 +191,12 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
     if (data === null) {
         return <Skeleton loading={loading} active paragraph={{ rows: 6 }} />
     }
-    const { series, legend, axisLabels } = ticketChartDataMapper.getChartConfig(viewMode, data)
-    const isLineChart = viewMode === 'line'
-
-
-    const axisData = {
-        yAxis: {
-            type: isLineChart ? 'value' : 'category',
-            data: isLineChart ? null : axisLabels,
-        },
-        xAxis: {
-            type: isLineChart ? 'category' : 'value',
-            data: isLineChart ? axisLabels : null,
-        },
-    }
+    const { series, legend, axisData, tooltip } = ticketChartDataMapper.getChartConfig(viewMode, data)
 
     const option = {
         animation: animationEnabled,
         color: COLOR_SET,
-        tooltip: {
-            trigger: isLineChart ? 'axis' : 'item',
-            axisPointer: {
-                type: 'line',
-            },
-        },
+        tooltip,
         legend: {
             data: legend,
             x: 'left',
@@ -205,45 +240,7 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageWidgetProps> = (
     if (data === null) {
         return <Skeleton loading={loading} active paragraph={{ rows: 10 }} />
     }
-    const dataSource = []
-    const tableColumns: TableColumnsType = [
-        { title: AddressTitle, dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
-        ...Object.entries(data).map(([key, value]: [string, number]) => (
-            { title: key, dataIndex: key, key, sorter: (a, b) => a[value] - b[value] }
-        )),
-    ]
-    if (viewMode === 'line') {
-        tableColumns.unshift({
-            title: DateTitle,
-            dataIndex: 'date',
-            key: 'date',
-            defaultSortOrder: 'descend',
-            sorter: (a, b) => moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
-        })
-        const uniqueDates = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
-        uniqueDates.forEach((date, key) => {
-            const restProps = {}
-            Object.keys(data).forEach(ticketType => (restProps[ticketType] = data[ticketType][date]))
-            dataSource.push({
-                key,
-                address: AllAddressTitle,
-                date,
-                ...restProps,
-            })
-        })
-    } else {
-        const restProps = {}
-        Object.entries(data).forEach((rowEntry) => {
-            const [ticketType, dataObj] = rowEntry
-            // @ts-ignore
-            restProps[ticketType] = Object.values(dataObj).reduce((a, b) => a + b)
-        })
-        dataSource.push({
-            key: 0,
-            address: AllAddressTitle,
-            ...restProps,
-        })
-    }
+    const { tableColumns, dataSource } = ticketChartDataMapper.getTableConfig(viewMode, data)
 
     return (
         <>

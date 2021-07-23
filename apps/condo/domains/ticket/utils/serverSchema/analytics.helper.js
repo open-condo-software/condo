@@ -89,12 +89,10 @@ const createCountersStructure = async ({ context, organization, groups, datesRan
     }
     // Transform [[a1, a2, a3], [b1, b2], [c1, c2]] to
     // { a1: { b1: { c1: 0, c2: 0 }, b2: { c1: 0, c2: 0 } }, a2: { ... }}
-    console.log('ranges', ranges)
     const grouppedCounters = ranges.reduceRight((previousValue, currentValue) =>
         Object.fromEntries(currentValue.map(option =>
             ([option.value, previousValue])))
     , 0)
-    console.log('grouppedCounters', grouppedCounters)
     return {
         grouppedCounters,
         translates,
