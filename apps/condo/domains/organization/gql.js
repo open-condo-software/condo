@@ -73,9 +73,6 @@ const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION = gql`
 const ORGANIZATION_LINK_FIELDS = `{ from { id } to { id } ${COMMON_FIELDS} }`
 const OrganizationLink = generateGqlQueries('OrganizationLink', ORGANIZATION_LINK_FIELDS)
 
-const ORGANIZATION_LINK_EMPLOYEE_ACCESS_FIELDS = `{ link { id } employee { id } canManageEmployees canManageRoles canManageIntegrations canManageProperties canManageTickets canManageContacts canManageTicketComments ${COMMON_FIELDS} }`
-const OrganizationLinkEmployeeAccess = generateGqlQueries('OrganizationLinkEmployeeAccess', ORGANIZATION_LINK_EMPLOYEE_ACCESS_FIELDS)
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -83,7 +80,6 @@ module.exports = {
     OrganizationEmployeeRole,
     OrganizationEmployee,
     OrganizationLink,
-    OrganizationLinkEmployeeAccess,
     GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
     UPDATE_ORGANIZATION_BY_ID_MUTATION,
     GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY,
