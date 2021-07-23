@@ -140,8 +140,9 @@ const User = new GQLListSchema('User', {
                 updatedItem.name !== existingItem.name)
             ) {
                 const employees = await OrganizationEmployee.getAll(context, { user: { id: updatedItem.id } })
-                if (employees.length > 0) {
-                    employees.forEach(employee => {
+                const acceptedInviteEmployees = employees.filter(employee => employee.isAccepted)
+                if (acceptedInviteEmployees.length > 0) {
+                    acceptedInviteEmployees.forEach(employee => {
                         OrganizationEmployee.update(context, employee.id, {
                             dv: updatedItem.dv,
                             sender: updatedItem.sender,
