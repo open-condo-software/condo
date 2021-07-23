@@ -1,5 +1,5 @@
 import { EditFilled } from '@ant-design/icons'
-import { Col, Row, Space, Typography } from 'antd'
+import { Col, Row, Typography } from 'antd'
 import Head from 'next/head'
 import Link from 'next/link'
 import React, { useEffect } from 'react'
@@ -12,6 +12,7 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { UserOrganizationsList } from '@condo/domains/user/components/UserOrganizationsList'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
+import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 export const UserInfoPage = () => {
     const intl = useIntl()
@@ -109,19 +110,6 @@ export const UserInfoPage = () => {
     )
 }
 
-const HeaderAction = () => {
-    const intl = useIntl()
-    const AccountMessage = intl.formatMessage({ id: 'Account' })
-
-    return (
-        <Space>
-            <Typography.Text style={{ fontSize: '12px' }}>
-                {AccountMessage}
-            </Typography.Text>
-        </Space>
-    )
-}
-
-UserInfoPage.headerAction = <HeaderAction/>
+UserInfoPage.headerAction = <TitleHeaderAction descriptor={{ id: 'Account' }}/>
 
 export default UserInfoPage
