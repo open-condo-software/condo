@@ -7,15 +7,14 @@ const { NextApp } = require('@keystonejs/app-next')
 const { registerTriggers } = require('@core/triggers')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 const { obsRouterHandler } = require('@condo/domains/common/utils/sberCloudFileAdapter')
+const { startAuth, completeAuth } = require('@condo/domains/common/auth/sbbolAuth')
 const conf = require('@core/config')
 // const access = require('@core/keystone/access')
 const { registerTasks } = require('@core/keystone/tasks')
 const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const express = require('express')
-
 const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
@@ -107,13 +106,21 @@ const authStrategy = keystone.createAuthStrategy({
 })
 
 class OBSFilesMiddleware {
-    prepareMiddleware ({ keystone, dev, distDir }) {
+    prepareMiddleware ({ keystone }) {
         const app = express()
         app.use('/api/files/:file(*)', obsRouterHandler({ keystone }))
         return app
     }
 }
 
+class SberBuisnessOnlineMiddleware {
+    prepareMiddleware ({ keystone }) {
+        const app = express()
+        app.get('/api/sbbol/auth', startAuth())
+        app.get('/api/sbbol/auth/callback', completeAuth({ keystone }))
+        return app
+    }
+}
 
 
 module.exports = {
@@ -128,6 +135,7 @@ module.exports = {
             },
         }),
         new OBSFilesMiddleware(),
+        new SberBuisnessOnlineMiddleware(),
         new AdminUIApp({
             adminPath: '/admin',
             isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
