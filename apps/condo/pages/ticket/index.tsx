@@ -29,7 +29,6 @@ import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
 import { SortTicketsBy } from '../../schema'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { Organization } from '../../domains/organization/utils/clientSchema'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
