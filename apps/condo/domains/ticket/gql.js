@@ -18,7 +18,7 @@ const TicketStatus = generateGqlQueries('TicketStatus', TICKET_STATUS_FIELDS)
 const TICKET_SOURCE_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
 const TicketSource = generateGqlQueries('TicketSource', TICKET_SOURCE_FIELDS)
 
-const TICKET_CLASSIFIER_FIELDS = `{ organization { id } dependantClassifiers { id name type } name ${COMMON_FIELDS} }`
+const TICKET_CLASSIFIER_FIELDS = `{ organization { id } relatedClassifiers { id name type } relatesOnClassifiers { id name type } name ${COMMON_FIELDS} }`
 const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIER_FIELDS)
 
 /*

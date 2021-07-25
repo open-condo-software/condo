@@ -4,7 +4,7 @@ const { v4: uuid } = require('uuid')
 
 
 const CLASSIFIER_TEMPLATE = 'INSERT INTO public."TicketClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy", "type") VALUES (1, \'{"dv": 1, "fingerprint": "initial"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null, \'{type}\');'
-const RELATION_TEMPLATE = 'INSERT INTO public."TicketClassifier_dependantClassifiers_TicketClassifier_dependsO" ("TicketClassifier_left_id", "TicketClassifier_right_id") VALUES(\'{uuid1}\', \'{uuid2}\');'
+const RELATION_TEMPLATE = 'INSERT INTO public."TicketClassifier_relatedClassifiers_TicketClassifier_relatesOnC" ("TicketClassifier_left_id", "TicketClassifier_right_id") VALUES(\'{uuid1}\', \'{uuid2}\');'
 
 // Example:
 // Чердаки, подвалы;Доступ;Ограничение доступа
@@ -383,12 +383,14 @@ class ClassifiersToSql {
 
     setRelations (location, category, subject) {
         this.setUUIDS(location, category, subject)
-        this.setRelation(this.relations.locations,  this.uuids.locations[location], this.uuids.subjects[subject])
         this.setRelation(this.relations.locations, this.uuids.locations[location], this.uuids.categories[category])
-        this.setRelation(this.relations.categories, this.uuids.categories[category], this.uuids.locations[location])
+        this.setRelation(this.relations.locations,  this.uuids.locations[location], this.uuids.subjects[subject])
         this.setRelation(this.relations.categories, this.uuids.categories[category], this.uuids.subjects[subject])
+        /*
+        this.setRelation(this.relations.categories, this.uuids.categories[category], this.uuids.locations[location])
         this.setRelation(this.relations.subjects, this.uuids.subjects[subject], this.uuids.locations[location])
         this.setRelation(this.relations.subjects, this.uuids.subjects[subject], this.uuids.categories[category])
+        */
     }
 
     prepareData () {

@@ -1,10 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Select, Typography, Space } from 'antd'
+import { Select } from 'antd'
 import { TicketClassifierSelectWhereInput } from '@condo/domains/ticket/utils/clientSchema/TicketClassifier'
 import { TicketClassifier as TicketClassifierGQL } from '@condo/domains/ticket/gql'
-import { useIntl } from '@core/next/intl'
 import { useApolloClient, ApolloClient } from '@core/next/apollo'
-import isEmpty from 'lodash/isEmpty'
 import { TicketClassifierTypeType } from '../../../schema'
 
 export async function loadClassifiers (client: ApolloClient, variables: TicketClassifierSelectWhereInput): Promise<ITicketClassifierUIState[]> {
@@ -18,29 +16,30 @@ export async function loadClassifiers (client: ApolloClient, variables: TicketCl
 interface ITicketClassifierUIState {
     id: string
     name: string
-}
-const selectStyle = {
-    width: '264px',
-    marginRight: '44px',
+    type?: TicketClassifierTypeType
+    relatesOnClassifiers?: ITicketClassifierUIState[]
 }
 interface ITicketClassifierSelectHookInput {
-    label: string
     allowClear?: boolean
     showAction?: ('focus' | 'click') []
     onChange: (id: string) => void
 }
+
+type ClassifierSelectComponent = React.FC<{
+    disabled?: boolean
+    selectStyle?: React.CSSProperties
+}>
+
 interface ITicketClassifierSelectHookOutput {
     load: (variables: TicketClassifierSelectWhereInput) => Promise<void>
-    SelectComponent: React.FC<{
-        disabled?: boolean
-    }>
+    setClassifiers: React.Dispatch<React.SetStateAction<ITicketClassifierUIState[]>>
+    SelectComponent: ClassifierSelectComponent
     setSelected: React.Dispatch<React.SetStateAction<string>>
     reset: () => void
     ref: React.MutableRefObject<HTMLSelectElement>
 }
 
 const useTicketClassifierSelectHook = ({
-    label,
     onChange,
     allowClear = true,
     showAction = ['focus', 'click'],
@@ -65,71 +64,66 @@ const useTicketClassifierSelectHook = ({
         setSelected(null)
         setClassifiers([])
     }
-    const SelectComponent: React.FC<{ disabled?: boolean }> = (props) => {
-        const { disabled } = props
+
+    const SelectComponent: React.FC<{ disabled?: boolean, selectStyle?: React.CSSProperties }> = (props) => {
+        const { disabled, selectStyle } = props
         return (
-            !isEmpty(classifiers) &&
-            <Space direction={'vertical'} size={8}>
-                <Typography.Text type={'secondary'}>{label}</Typography.Text>
-                <Select
-                    showSearch
-                    style={selectStyle}
-                    allowClear={allowClear}
-                    onSelect={onSelect}
-                    onClear={onSelect}
-                    optionFilterProp={'title'}
-                    value={selected}
-                    disabled={disabled}
-                    loading={loading}
-                    ref={classifiersRef}
-                    showAction={showAction}
-                >
-                    {
-                        classifiers.map(location => (
-                            <Select.Option value={location.id} key={location.id} title={location.name}>{location.name}</Select.Option>
-                        ))
-                    }
-                </Select>
-            </Space>
+            <Select
+                showSearch
+                style={selectStyle}
+                allowClear={allowClear}
+                onSelect={onSelect}
+                onClear={onSelect}
+                optionFilterProp={'title'}
+                value={selected}
+                disabled={disabled}
+                loading={loading}
+                ref={classifiersRef}
+                showAction={showAction}
+            >
+                {
+                    classifiers.map(classifier => (
+                        <Select.Option value={classifier.id} key={classifier.id} title={classifier.name}>{classifier.name}</Select.Option>
+                    ))
+                }
+            </Select>
         )
     }
     return {
         load,
+        setClassifiers,
         SelectComponent,
         setSelected,
         reset,
         ref: classifiersRef,
     }
 }
-
-
-interface ITicketClassifierSelect {
-    disabled?: boolean
-    initialValue?: string
-    onSelect: (fieldName: string, id: string) => null
+interface ITicketThreeLevelsClassifierHookInput {
+    initialValues: Record<string, string>
+}
+interface ITicketThreeLevelsClassifierHookOutput {
+    LocationSelect: ClassifierSelectComponent
+    CategorySelect: ClassifierSelectComponent
+    SubjectSelect: ClassifierSelectComponent
 }
 
-export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props) => {
-    const { onSelect, disabled, initialValue } = props
-    console.log(initialValue)
-    const intl = useIntl()
-    const LocationsLabel = intl.formatMessage({ id: 'component.ticketclassifier.LocationsLabel' })
-    const CategoriesLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoriesLabel' })
-    const SubjectsLabel = intl.formatMessage({ id: 'component.ticketclassifier.SubjectsLabel' })
+export const useTicketThreeLevelsClassifierHook = ({ initialValues }: ITicketThreeLevelsClassifierHookInput): ITicketThreeLevelsClassifierHookOutput => {
+    console.log('initialValues', initialValues)
+    const { locationClassifier, categoryClassifier, subjectClassifier } = initialValues
+    console.log('locationClassifier, categoryClassifier, subjectClassifier', locationClassifier, categoryClassifier, subjectClassifier)
     const client = useApolloClient()
-
     const {
         load: loadSubjects,
+        setClassifiers: setSubjects,
         SelectComponent: SubjectSelect,
         reset: resetSubjects,
         setSelected: setSubject,
         ref: subjectRef,
-    } = useTicketClassifierSelectHook({ label: SubjectsLabel, onChange: (id) => {
-        onSelect('subjectClassifier', id)
+    } = useTicketClassifierSelectHook({ onChange: (id) => {
+        // onSelect( { subjectClassifier: id })
     } })
 
     const onCategoryChange = (id) => {
-        onSelect('subjectClassifier', id)
         resetSubjects()
         if (id) {
             loadSubjects({ type: 'subject' as TicketClassifierTypeType }).then(_ =>
@@ -140,13 +134,13 @@ export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props)
 
     const {
         load: loadCategories,
+        setClassifiers: setCategories,
         SelectComponent: CategorySelect,
         reset: resetCategories,
         setSelected: setCategory,
         ref: categoryRef,
-    } = useTicketClassifierSelectHook({ label: CategoriesLabel, onChange: onCategoryChange })
+    } = useTicketClassifierSelectHook({ onChange: onCategoryChange })
     const onLocationChange = (id) => {
-        onSelect('locationClassifier', id)
         resetSubjects()
         resetCategories()
         if (id) {
@@ -158,34 +152,36 @@ export const TicketClassifierSelect: React.FC<ITicketClassifierSelect> = (props)
 
     const {
         load: loadLocations,
+        setClassifiers: setLocations,
         SelectComponent: LocationSelect,
         setSelected: setLocation,
-    } = useTicketClassifierSelectHook({ label: LocationsLabel, allowClear: false, showAction: ['click'], onChange: onLocationChange })
+    } = useTicketClassifierSelectHook({ allowClear: false, showAction: ['click'], onChange: onLocationChange })
 
-    //    useEffect(() => {
-    //        loadLocations({ type: 'location' })
-    //        if (initialValue){
-    //            loadClassifiers(client, { id: initialValue }).then(data => {
-    //                const [loadedClassifier] = data
-    //                const { id: subject } = loadedClassifier
-    //                Promise.all([
-    //                    loadCategories({ parent: { id: location } }),
-    //                    loadSubjects({ parent: { id: category } }),
-    //                ]).then(_ => {
-    //                    setLocation(location)
-    //                    setCategory(category)
-    //                    setSubject(subject)
-    //                })
-    //            }).catch(err => console.error(err))
-    //        }
+    useEffect(() => {
+        /*
+        loadLocations({ type: 'location' as TicketClassifierTypeType })
+        loadCategories({ type: 'category' as TicketClassifierTypeType })
+        if (locationClassifier) {
+            setLocation(locationClassifier)
+        }
+        if (categoryClassifier) {
+            setCategory(categoryClassifier)
+        }
+        if (subjectClassifier) {
+            loadClassifiers(client, { id: subjectClassifier }).then(([data]) => {
+                const locations = data.relatesOnClassifiers.filter(classifier => classifier.type === 'location' as TicketClassifierTypeType)
+                const categories = data.relatesOnClassifiers.filter(classifier => classifier.type === 'category' as TicketClassifierTypeType)
+                setLocations(locations)
+                setCategories(categories)
+            })
+        }
+        */
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    //    }, [])
+    }, [])
 
-    return (
-        <div style={{ whiteSpace: 'nowrap' }}>
-            <LocationSelect disabled={disabled} />
-            <CategorySelect disabled={disabled} />
-            <SubjectSelect  disabled={disabled} />
-        </div>
-    )
+    return {
+        LocationSelect,
+        CategorySelect,
+        SubjectSelect,
+    }
 }

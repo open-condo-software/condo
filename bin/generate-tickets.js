@@ -88,8 +88,7 @@ class TicketGenerator {
 
     async prepareModels (propertyInfo) {
         this.statuses = await TicketStatus.getAll(this.context, { organization_is_null: true })
-        const allClassifiers = await TicketClassifier.getAll(this.context, { type: 'subject' })
-        this.classifiers = allClassifiers.filter(classifier => classifier.dependantClassifiers.length !== 0)
+        this.classifiers = await TicketClassifier.getAll(this.context, { type: 'subject' })
         const [property] = await Property.getAll(this.context, { address: propertyInfo.address })
         if (property){
             throw new Error('Property already exists')
@@ -128,8 +127,8 @@ class TicketGenerator {
 
     get problem () {
         const subject = this.classifiers[faker.datatype.number({ min: 0, max: this.classifiers.length - 1 })]
-        const locations = subject.dependantClassifiers.filter(classifier => classifier.type === 'location')
-        const categories = subject.dependantClassifiers.filter(classifier => classifier.type === 'category')
+        const locations = subject.relatesOnClassifiers.filter(classifier => classifier.type === 'location')
+        const categories = subject.relatesOnClassifiers.filter(classifier => classifier.type === 'category')
         const problem = {
             location: locations[faker.datatype.number({ min: 0, max: locations.length - 1 })].id,
             category: categories[faker.datatype.number({ min: 0, max: locations.length - 1 })].id,
@@ -156,8 +155,8 @@ const createTickets = async () => {
     console.log('[INIT] prepare keystone')
     console.time('keystone')
     await TicketManager.connect()
-    // await TicketManager.prepareModels(demoProperties[0])
     console.timeEnd('keystone')
+    console.log('[FINISH] prepare keystone')
     for (const info of demoProperties) {
         try {
             console.log(`[START] ${info.address}`)

@@ -2,11 +2,11 @@
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs } from 'antd'
-import { get } from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
-import { ITicketFormState, searchEmployee, TicketFile, ITicketFileUIState  } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
+import { searchEmployee } from '@condo/domains/ticket/utils/clientSchema/search'
+import { TicketFile, ITicketFileUIState, ITicketFormState } from '@condo/domains/ticket/utils/clientSchema'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
@@ -15,12 +15,13 @@ import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { useTicketValidations } from './useTicketValidations'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
+import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { useOrganization } from '@core/next/organization'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { normalizeText } from '@condo/domains/common/utils/text'
-import { TicketClassifierSelect } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { InputWithCounter } from '@condo/domains/common/components/InputWithCounter'
+import get from 'lodash/get'
 
 const { TabPane } = Tabs
 
@@ -66,11 +67,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
     const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
-
+    const LocationsLabel = intl.formatMessage({ id: 'component.ticketclassifier.LocationsLabel' })
+    const CategoriesLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoriesLabel' })
+    const SubjectsLabel = intl.formatMessage({ id: 'component.ticketclassifier.SubjectsLabel' })
     const { action: _action, initialValues, organization, afterActionCompleted, files } = props
-
-    console.log('initialValues', initialValues)
-
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState(get(initialValues, 'property'))
     const selectPropertyIdRef = useRef(selectedPropertyId)
@@ -148,6 +148,12 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         }
         form.setFieldsValue({ sectionName: null, floorName: null })
     }
+
+    const {
+        LocationSelect,
+        CategorySelect,
+        SubjectSelect,
+    } = useTicketThreeLevelsClassifierHook({ initialValues })
 
 
     return (
@@ -234,7 +240,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             }
 
                                             return (
-                                                <FocusContainer className={!property && 'disabled'}>
+                                                false && <FocusContainer className={!property && 'disabled'}>
                                                     <Tabs defaultActiveKey="1" style={{ width: '100%' }}>
                                                         <TabPane tab={TicketFromResidentMessage} key="1">
                                                             <ContactsEditorComponent
@@ -269,9 +275,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 <Form.Item noStyle dependencies={['property']}>
                                     {
                                         ({ getFieldsValue, setFieldsValue }) => {
-                                            const { property, locationClassifier, categoryClassifier, subjectClassifier } = getFieldsValue(['property', 'locationClassifier', 'categoryClassifier', 'subjectClassifier'])
+                                            const { property } = getFieldsValue(['property'])
                                             const disableUserInteraction = !property
-                                            console.log('locationClassifier, categoryClassifier, subjectClassifier', locationClassifier, categoryClassifier, subjectClassifier)
 
                                             return (
                                                 <Col span={24}>
@@ -282,10 +287,37 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     <Col span={24}>
                                                                         <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
                                                                     </Col>
+                                                                    <Col span={12}>
+                                                                        <Form.Item name={'locationClassifier'} rules={validations.locationClassifier}  label={LocationsLabel} valuePropName='selected'>
+                                                                            <LocationSelect disabled={disableUserInteraction}  />
+                                                                        </Form.Item>
+                                                                    </Col>
+                                                                    <Col span={12}>
+                                                                        <Form.Item name={'categoryClassifier'} rules={validations.categoryClassifier} label={CategoriesLabel} valuePropName='selected'>
+                                                                            <CategorySelect disabled={disableUserInteraction}  />
+                                                                        </Form.Item>
+                                                                    </Col>
+                                                                    <Col span={24}>
+                                                                        <Form.Item name={'subjectClassifier'} label={SubjectsLabel} valuePropName='selected'>
+                                                                            <SubjectSelect  disabled={disableUserInteraction} />
+                                                                        </Form.Item>
+                                                                    </Col>
+                                                                    <Col span={24}>
+                                                                        <Row>
+                                                                            <Col span={6}>
+                                                                                <Form.Item name={'isEmergency'} valuePropName='checked'>
+                                                                                    <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
+                                                                                </Form.Item>
+                                                                            </Col>
+                                                                            <Col span={6}>
+                                                                                <Form.Item name={'isPaid'}  valuePropName='checked'>
+                                                                                    <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
+                                                                                </Form.Item>
+                                                                            </Col>
+                                                                        </Row>
+                                                                    </Col>
                                                                     <Col span={24}>
                                                                         <Form.Item name={'details'} label={DescriptionLabel}>
-                                                                            <Input.TextArea rows={3} placeholder={DescriptionPlaceholder} disabled={disableUserInteraction} />
-                                                                        <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
                                                                             <InputWithCounter
                                                                                 InputComponent={Input.TextArea}
                                                                                 currentLength={currentDetailsLength}
@@ -302,31 +334,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                         >
                                                                             <UploadComponent />
                                                                         </Form.Item>
-                                                                    </Col>
-                                                                </Row>
-                                                            </Col>
-                                                            <Col span={24}>
-                                                                <Row align={'top'} >
-                                                                    <Col span={11}>
-                                                                        <TicketClassifierSelect
-                                                                            onSelect={(fieldName, value) => setFieldsValue(Object.fromEntries([fieldName, value]))}
-                                                                            initialValue={{ locationClassifier, categoryClassifier, subjectClassifier }}
-                                                                            disabled={disableUserInteraction}
-                                                                        />
-                                                                    </Col>
-                                                                    <Col push={2} span={11}>
-                                                                        <Row>
-                                                                            <Col span={12}>
-                                                                                <Form.Item name={'isEmergency'} label={' '} valuePropName='checked'>
-                                                                                    <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
-                                                                                </Form.Item>
-                                                                            </Col>
-                                                                            <Col span={12}>
-                                                                                <Form.Item name={'isPaid'} label={' '} valuePropName='checked'>
-                                                                                    <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
-                                                                                </Form.Item>
-                                                                            </Col>
-                                                                        </Row>
                                                                     </Col>
                                                                 </Row>
                                                             </Col>

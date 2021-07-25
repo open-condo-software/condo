@@ -249,7 +249,7 @@ const TicketIdPage = () => {
         refetchTicket()
         ticketChangesResult.refetch()
     }
-
+    console.log(ticket)
     return (
         <>
             <Head>
@@ -296,25 +296,19 @@ const TicketIdPage = () => {
                                     </Col>
                                     <Col span={24}>
                                         <Row>
-                                            <Col span={6}>
+                                            <Col span={8}>
                                                 <TicketDescriptionField
                                                     title={SourceMessage}
                                                     value={get(ticket, ['source', 'name'])}
                                                 />
                                             </Col>
-                                            <Col span={6}>
-                                                <TicketDescriptionField
-                                                    title={ClassifierMessage}
-                                                    value={get(ticket, ['classifier', 'name'])}
-                                                />
-                                            </Col>
-                                            <Col span={6} >
+                                            <Col span={8} >
                                                 <TicketUserInfoField
                                                     title={ExecutorMessage}
                                                     user={get(ticket, ['executor'])}
                                                 />
                                             </Col>
-                                            <Col span={6}>
+                                            <Col span={8}>
                                                 <TicketUserInfoField
                                                     title={AssigneeMessage}
                                                     user={get(ticket, ['assignee'])}
@@ -355,6 +349,11 @@ const TicketIdPage = () => {
                                                     </Col>
                                                     <Col span={24}>
                                                         <Typography.Text style={{ fontSize: '24px', wordWrap: 'break-word' }}>{ticket.details}</Typography.Text>
+                                                        <Typography.Text style={{ fontSize: '24px', wordWrap: 'break-word' }}>
+                                                            <Tag color="default">{ticket.locationClassifier.name}</Tag>
+                                                            <Tag color="default">{ticket.categoryClassifier.name}</Tag>
+                                                            <Tag color="default">{ticket.subjectClassifier.name}</Tag>
+                                                        </Typography.Text>
                                                         {
                                                             !isEmpty(files) && (
                                                                 <TicketFileList files={files} />
