@@ -18,6 +18,17 @@ const TICKET_STATUS_TYPES = [
     CLOSED_STATUS_TYPE,
 ]
 
+const LOCATION_CLASSIFIER_TYPE = 'location'
+const CATEGORY_CLASSIFIER_TYPE = 'category'
+const SUBJECT_CLASSIFIER_TYPE = 'subject'
+
+const TICKER_CLASSIFIER_TYPES = [
+    LOCATION_CLASSIFIER_TYPE,
+    CATEGORY_CLASSIFIER_TYPE,
+    SUBJECT_CLASSIFIER_TYPE,
+]
+
+
 /*
     To keep everything, we have a `TicketChangeHistoryRecord`, being created by `historical` Keystone plugin for a `Ticket`.
     `TicketChange` – is a feature for an end user and data, that makes sense for end user is kept tracked.
@@ -43,4 +54,5 @@ module.exports = {
     CLOSED_STATUS_TYPE,
     TICKET_STATUS_TYPES,
     OMIT_TICKET_CHANGE_TRACKABLE_FIELDS,
+    TICKER_CLASSIFIER_TYPES,
 }

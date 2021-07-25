@@ -8,6 +8,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketClassifier')
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
+const { TICKER_CLASSIFIER_TYPES } = require('@condo/domains/ticket/constants')
 
 const TicketClassifier = new GQLListSchema('TicketClassifier', {
     schemaDoc: 'Ticket typification/classification. We have a organization specific classification. We check the ticket attrs differently depending on the classifier',
@@ -21,22 +22,21 @@ const TicketClassifier = new GQLListSchema('TicketClassifier', {
             isRequired: true,
         },
         type: {
-            schemaDoc: 'Ticket classifier ',
+            schemaDoc: 'Ticket classifier type',
             type: Select,
             dataType: 'enum',
-            options: ['location', 'category', 'subject'],
-            isRequired: true,
+            options: TICKER_CLASSIFIER_TYPES,
         },
-        dependantClassifiers: {
-            schemaDoc: 'Each classifier can have multiple related locations',
+        relatedClassifiers: {
+            schemaDoc: 'classifier can have multiple bindings with another classifiers',
             type: Relationship,
-            ref: 'TicketClassifier.dependsOnClassifiers',
+            ref: 'TicketClassifier.relatesOnClassifiers',
             many: true,
         },
-        dependsOnClassifiers: {
+        relatesOnClassifiers: {
             schemaDoc: 'Each classifier can have multiple related categories',
             type: Relationship,
-            ref: 'TicketClassifier.dependantClassifiers',
+            ref: 'TicketClassifier.relatedClassifiers',
             many: true,
         },
     },

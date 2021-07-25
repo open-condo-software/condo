@@ -147,6 +147,14 @@ const Ticket = new GQLListSchema('Ticket', {
             ref: 'User',
             many: true,
         },
+        classifier: {
+            schemaDoc: '[DEPRECATED] Typification / classification / types of work',
+            type: Relationship,
+            ref: 'TicketClassifier',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+        },
         locationClassifier: {
             schemaDoc: 'Information about where problem heppens',
             type: Relationship,
@@ -171,7 +179,6 @@ const Ticket = new GQLListSchema('Ticket', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
-
         // description / title
         details: {
             schemaDoc: 'Text description of the issue. Maybe written by a user or an operator',
