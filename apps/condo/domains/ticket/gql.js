@@ -123,6 +123,9 @@ const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
 const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name } content ${COMMON_FIELDS} }`
 const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 
+const TICKET_CLASSIFIER_LINK_FIELDS = `{ location { id } category { id } subject { id } ${COMMON_FIELDS} }`
+const TicketClassifierLink = generateGqlQueries('TicketClassifierLink', TICKET_CLASSIFIER_LINK_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
@@ -147,5 +150,6 @@ module.exports = {
     EXPORT_TICKETS_TO_EXCEL,
     GET_TICKET_WIDGET_REPORT_DATA,
     TicketComment,
+    TicketClassifierLink,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

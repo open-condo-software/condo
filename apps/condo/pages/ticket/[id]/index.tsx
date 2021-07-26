@@ -349,11 +349,11 @@ const TicketIdPage = () => {
                                                     </Col>
                                                     <Col span={24}>
                                                         <Typography.Text style={{ fontSize: '24px', wordWrap: 'break-word' }}>{ticket.details}</Typography.Text>
-                                                        <Typography.Text style={{ fontSize: '24px', wordWrap: 'break-word' }}>
+                                                        <Typography.Paragraph style={{ fontSize: '24px', wordWrap: 'break-word' }}>
                                                             <Tag color="default">{ticket.locationClassifier.name}</Tag>
                                                             <Tag color="default">{ticket.categoryClassifier.name}</Tag>
                                                             <Tag color="default">{ticket.subjectClassifier.name}</Tag>
-                                                        </Typography.Text>
+                                                        </Typography.Paragraph>
                                                         {
                                                             !isEmpty(files) && (
                                                                 <TicketFileList files={files} />

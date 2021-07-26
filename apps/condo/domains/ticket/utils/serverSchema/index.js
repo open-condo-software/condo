@@ -12,6 +12,7 @@ const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
 const { TicketFile: TicketFileGQL } = require('@condo/domains/ticket/gql')
 const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
+const { TicketClassifierLink: TicketClassifierLinkGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -20,6 +21,7 @@ const TicketChange = generateServerUtils(TicketChangeGQL)
 const TicketFile = generateServerUtils(TicketFileGQL)
 const TicketClassifier = generateServerUtils(TicketClassifierGQL)
 const TicketComment = generateServerUtils(TicketCommentGQL)
+const TicketClassifierLink = generateServerUtils(TicketClassifierLinkGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -29,5 +31,6 @@ module.exports = {
     TicketFile,
     TicketClassifier,
     TicketComment,
+    TicketClassifierLink,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

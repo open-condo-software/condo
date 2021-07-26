@@ -16,6 +16,7 @@ const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 const { TicketFile: TicketFileGQL } = require('@condo/domains/ticket/gql')
 const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
+const { TicketClassifierLink: TicketClassifierLinkGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -29,6 +30,7 @@ const TicketChange = generateGQLTestUtils(TicketChangeGQL)
 const TicketSource = generateGQLTestUtils(TicketSourceGQL)
 const TicketClassifier = generateGQLTestUtils(TicketClassifierGQL)
 const TicketComment = generateGQLTestUtils(TicketCommentGQL)
+const TicketClassifierLink = generateGQLTestUtils(TicketClassifierLinkGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -220,6 +222,37 @@ async function updateTestTicketComment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestTicketClassifierLink (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestTicketClassifierLink logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketClassifierLink.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketClassifierLink (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestTicketClassifierLink logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketClassifierLink.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -247,5 +280,6 @@ module.exports = {
     makeClientWithTicket,
     TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier,
     TicketComment, createTestTicketComment, updateTestTicketComment,
+    TicketClassifierLink, createTestTicketClassifierLink, updateTestTicketClassifierLink,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

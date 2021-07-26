@@ -10,4 +10,5 @@ export * as TicketFile from './TicketFile'
 export * as TicketClassifier from './TicketClassifier'
 
 export * as TicketComment from './TicketComment'
+export * as TicketClassifierLink from './TicketClassifierLink'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

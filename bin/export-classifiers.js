@@ -1,10 +1,9 @@
+// usage node export-classifiers.js > classifiers.sql
 const has = require('lodash/has')
 const { v4: uuid } = require('uuid')
 
-
-
 const CLASSIFIER_TEMPLATE = 'INSERT INTO public."TicketClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy", "type") VALUES (1, \'{"dv": 1, "fingerprint": "initial"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null, \'{type}\');'
-const RELATION_TEMPLATE = 'INSERT INTO public."TicketClassifier_relatedClassifiers_TicketClassifier_relatesOnC" ("TicketClassifier_left_id", "TicketClassifier_right_id") VALUES(\'{uuid1}\', \'{uuid2}\');'
+const RELATION_TEMPLATE = 'INSERT INTO public."TicketClassifierLink" (dv, sender, id, v, "createdAt", "updatedAt", "deletedAt", "newId", category, "createdBy", "location", subject, "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial"}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, \'{category}\', null, \'{location}\', \'{subject}\', null);'
 
 // Example:
 // Чердаки, подвалы;Доступ;Ограничение доступа
@@ -16,7 +15,6 @@ const RELATION_TEMPLATE = 'INSERT INTO public."TicketClassifier_relatedClassifie
 // type=subject = Ограничение доступа
 
 // relations (6):
-
 // Чердаки, подвалы => Доступ
 // Чердаки, подвалы => Ограничение доступа
 // Доступ => Чердаки, подвалы
@@ -30,6 +28,9 @@ const RELATION_TEMPLATE = 'INSERT INTO public."TicketClassifier_relatedClassifie
 // Чердаки, подвалы => Ограничение доступа
 // Доступ => Чердаки, подвалы
 
+// or - this one will is chosen
+// relations (1): location + category + subject
+// Чердаки, подвалы => Доступ => Ограничение доступа
 
 
 const importCsvData = `
@@ -345,11 +346,7 @@ class ClassifiersToSql {
     categories = {}
     subjects = {}
 
-    relations = {
-        locations: {},
-        categories: {},
-        subjects: {},
-    }
+    relations = []
 
     uuids = {
         locations: {},
@@ -374,23 +371,13 @@ class ClassifiersToSql {
     }
 
 
-    setRelation (where, parent, child) {
-        if (!has(where, parent)) {
-            where[parent] = []
-        }
-        where[parent].push(child)
-    }
-
-    setRelations (location, category, subject) {
+    setRelation (location, category, subject) {
         this.setUUIDS(location, category, subject)
-        this.setRelation(this.relations.locations, this.uuids.locations[location], this.uuids.categories[category])
-        this.setRelation(this.relations.locations,  this.uuids.locations[location], this.uuids.subjects[subject])
-        this.setRelation(this.relations.categories, this.uuids.categories[category], this.uuids.subjects[subject])
-        /*
-        this.setRelation(this.relations.categories, this.uuids.categories[category], this.uuids.locations[location])
-        this.setRelation(this.relations.subjects, this.uuids.subjects[subject], this.uuids.locations[location])
-        this.setRelation(this.relations.subjects, this.uuids.subjects[subject], this.uuids.categories[category])
-        */
+        this.relations.push({
+            location: this.uuids.locations[location],
+            category: this.uuids.categories[category],
+            subject: this.uuids.subjects[subject],
+        })
     }
 
     prepareData () {
@@ -404,12 +391,10 @@ class ClassifiersToSql {
                 this.locations[locationKey] = location
                 this.categories[categoryKey] = category
                 this.subjects[subjectKey] = subject
-                this.setRelations(locationKey, categoryKey, subjectKey)
+                this.setRelation(locationKey, categoryKey, subjectKey)
             }
         })
     }
-
-
 
     printClassifier ({ name, uuid, type }) {
         process.stdout.write(
@@ -433,31 +418,17 @@ class ClassifiersToSql {
         }
     }
 
-    printRelation ({ uuid1, uuid2 }) {
-        process.stdout.write(
-            RELATION_TEMPLATE
-                .split('{uuid1}').join(uuid1)
-                .split('{uuid2}').join(uuid2)
-        )
-        process.stdout.write('\n')
-    }
-
     printRelations () {
-        for (const uuid1 in this.relations.locations) {
-            this.relations.locations[uuid1].forEach(uuid2 => {
-                this.printRelation({ uuid1, uuid2 })
-            })
-        }
-        for (const uuid1 in this.relations.categories) {
-            this.relations.categories[uuid1].forEach(uuid2 => {
-                this.printRelation({ uuid1, uuid2 })
-            })
-        }
-        for (const uuid1 in this.relations.subjects) {
-            this.relations.subjects[uuid1].forEach(uuid2 => {
-                this.printRelation({ uuid1, uuid2 })
-            })
-        }
+        this.relations.forEach(({ location, category, subject }) => {
+            process.stdout.write(
+                RELATION_TEMPLATE
+                    .split('{uuid}').join(uuid())
+                    .split('{location}').join(location)
+                    .split('{category}').join(category)
+                    .split('{subject}').join(subject)
+            )
+            process.stdout.write('\n')
+        })
     }
 
     printSqlsToOutput () {

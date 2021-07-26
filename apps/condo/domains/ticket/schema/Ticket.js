@@ -160,7 +160,7 @@ const Ticket = new GQLListSchema('Ticket', {
             type: Relationship,
             ref: 'TicketClassifier',
             isRequired: false,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
+            knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
         categoryClassifier: {
@@ -168,7 +168,7 @@ const Ticket = new GQLListSchema('Ticket', {
             type: Relationship,
             ref: 'TicketClassifier',
             isRequired: false,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
+            knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
         subjectClassifier: {
@@ -176,7 +176,7 @@ const Ticket = new GQLListSchema('Ticket', {
             type: Relationship,
             ref: 'TicketClassifier',
             isRequired: false,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
+            knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
         // description / title

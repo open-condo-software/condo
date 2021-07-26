@@ -64,7 +64,6 @@ const useTicketClassifierSelectHook = ({
         setSelected(null)
         setClassifiers([])
     }
-
     const SelectComponent: React.FC<{ disabled?: boolean, selectStyle?: React.CSSProperties }> = (props) => {
         const { disabled, selectStyle } = props
         return (
@@ -126,8 +125,10 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues }: ITicketThr
     const onCategoryChange = (id) => {
         resetSubjects()
         if (id) {
-            loadSubjects({ type: 'subject' as TicketClassifierTypeType }).then(_ =>
-                subjectRef.current && subjectRef.current.focus()
+            loadSubjects({ type: 'subject' as TicketClassifierTypeType }) // no focus on subjects
+
+            loadCategories({ type: 'category' as TicketClassifierTypeType }).then(_ =>
+                categoryRef.current && categoryRef.current.focus()
             )
         }
     }
@@ -155,12 +156,13 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues }: ITicketThr
         setClassifiers: setLocations,
         SelectComponent: LocationSelect,
         setSelected: setLocation,
-    } = useTicketClassifierSelectHook({ allowClear: false, showAction: ['click'], onChange: onLocationChange })
+    } = useTicketClassifierSelectHook({ onChange: onLocationChange })
 
     useEffect(() => {
-        /*
         loadLocations({ type: 'location' as TicketClassifierTypeType })
         loadCategories({ type: 'category' as TicketClassifierTypeType })
+
+        /*
         if (locationClassifier) {
             setLocation(locationClassifier)
         }

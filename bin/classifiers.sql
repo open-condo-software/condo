@@ -1,6 +1,3 @@
-exports.up = async (knex) => {
-    await knex.raw(`
-    BEGIN;
 INSERT INTO public."TicketClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy", "type") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'IT сервисы', '11565860-a0a6-4c79-884d-0947bcaf33f9', 1, '2021-07-22 00:00:00.000000', '2021-07-22 00:00:00.000000', null, null, null, null, null, 'location');
 INSERT INTO public."TicketClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy", "type") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'Безопасность', 'beba3922-45d0-4137-950a-99c40548c0d2', 1, '2021-07-22 00:00:00.000000', '2021-07-22 00:00:00.000000', null, null, null, null, null, 'location');
 INSERT INTO public."TicketClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy", "type") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'Двор', '39d0943c-b43a-4d61-bd69-0562213cf5f1', 1, '2021-07-22 00:00:00.000000', '2021-07-22 00:00:00.000000', null, null, null, null, null, 'location');
@@ -506,19 +503,3 @@ INSERT INTO public."TicketClassifierLink" (dv, sender, id, v, "createdAt", "upda
 INSERT INTO public."TicketClassifierLink" (dv, sender, id, v, "createdAt", "updatedAt", "deletedAt", "newId", category, "createdBy", "location", subject, "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', '5d9466d3-b886-4353-a8f3-7a13cd7a2693', 1, '2021-07-22 00:00:00.000000', '2021-07-22 00:00:00.000000', null, null, '2b24c86e-0e19-4694-ba3a-5443dc615146', null, '94b23852-df5b-4c76-ad1c-be192d2fc39d', 'abe0c70e-a73e-4d74-a747-90d25bb82f39', null);
 INSERT INTO public."TicketClassifierLink" (dv, sender, id, v, "createdAt", "updatedAt", "deletedAt", "newId", category, "createdBy", "location", subject, "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'b43bce71-206f-4dd0-b000-5989686ef9e3', 1, '2021-07-22 00:00:00.000000', '2021-07-22 00:00:00.000000', null, null, '2b24c86e-0e19-4694-ba3a-5443dc615146', null, '94b23852-df5b-4c76-ad1c-be192d2fc39d', '868f0ad7-9592-45d4-a937-7b34d04115cc', null);
 INSERT INTO public."TicketClassifierLink" (dv, sender, id, v, "createdAt", "updatedAt", "deletedAt", "newId", category, "createdBy", "location", subject, "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', '3324bf69-d5b6-47e5-a54f-41f1b51608ac', 1, '2021-07-22 00:00:00.000000', '2021-07-22 00:00:00.000000', null, null, '35488f4c-a581-4eaa-a2e2-cf4cdafddf60', null, '94b23852-df5b-4c76-ad1c-be192d2fc39d', 'eaae68fc-a79f-4208-a1e8-a68202f4b5ba', null);
-    COMMIT;
-
-    `)
-}
-
-exports.down = async (knex) => {
-    await knex.raw(`
-    BEGIN;
-
-    DELETE FROM public."TicketClassifier" WHERE "type"  NOTNULL;
-    DELETE FROM public."TicketClassifierLink" WHERE 1=1;
-
-    COMMIT;
-
-    `)
-}
