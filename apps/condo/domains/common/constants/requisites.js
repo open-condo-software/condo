@@ -1,5 +1,5 @@
 module.exports = {
-    SUPPORT_EMAIL: 'info@doma.ai',
+    SUPPORT_EMAIL: 'help@doma.ai',
     BOT_EMAIL: 'service@doma.ai',
-    SUPPORT_PHONE: '8 (800) 923-23-23',
+    SUPPORT_PHONE: '+7 (922) 180-75-26',
 }
