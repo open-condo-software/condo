@@ -13,7 +13,7 @@ const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { TicketComment, createTestTicketComment, updateTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
-const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
 
 describe('TicketComment', () => {
     describe('field access', () => {
@@ -101,7 +101,7 @@ describe('TicketComment', () => {
             const client = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
 
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await createTestTicketComment(anonymous, ticket, client.user)
             })
         })
@@ -144,7 +144,7 @@ describe('TicketComment', () => {
             const [ticket] = await createTestTicket(client, client.organization, client.property)
             await createTestTicketComment(client, ticket, client.user)
 
-            await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await expectToThrowAuthenticationErrorToObjects(async () => {
                 await TicketComment.getAll(anonymous)
             })
         })
@@ -257,7 +257,7 @@ describe('TicketComment', () => {
             const [ticket] = await createTestTicket(client, client.organization, client.property)
             const [obj] = await createTestTicketComment(client, ticket, client.user)
 
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await updateTestTicketComment(anonymousClient, obj.id)
             })
         })

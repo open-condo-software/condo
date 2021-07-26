@@ -1,3 +1,5 @@
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+
 const userIsAuthenticated = ({ authentication: { item: user } }) => Boolean(user && user.id)
 
 const userIsAdmin = ({ authentication: { item: user } }) => Boolean(user && user.isAdmin)
@@ -29,7 +31,7 @@ const userIsAdminOrIsThisItem = auth => {
 }
 
 const canReadOnlyActive = ({ authentication: { item: user } }) => {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
 
     // Approximately; users.filter(user => user.isActive === true);
@@ -39,7 +41,7 @@ const canReadOnlyActive = ({ authentication: { item: user } }) => {
 }
 
 const canReadOnlyIfInUsers = ({ authentication: { item: user } }) => {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
     return {
         users_some: { id: user.id },

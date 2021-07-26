@@ -9,6 +9,7 @@ const { getByCondition } = require('../schema')
 const { find } = require('../schema')
 const { getById } = require('../schema')
 const { User } = require('./User')
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 const Organization = new GQLListSchema('Organization', {
     fields: {
@@ -453,7 +454,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
 })
 
 function accessAllowOnlyForLinkedUsers ({ authentication: { item: user } }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
     return {
         organization: { userLinks_some: { user: { id: user.id } } },

@@ -13,7 +13,7 @@ async function canReadMessages ({ authentication: { item: user } }) {
 }
 
 async function canManageMessages ({ authentication: { item: user }, operation }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {
         return false

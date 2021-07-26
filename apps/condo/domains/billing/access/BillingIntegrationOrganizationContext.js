@@ -6,9 +6,10 @@ const { checkBillingIntegrationAccessRight } = require('@condo/domains/billing/u
 const { get } = require('lodash')
 const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item: user } }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     return {
         OR: [
@@ -19,7 +20,7 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
 }
 
 async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     let organizationId
     let integrationId

@@ -5,7 +5,7 @@
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { {{name}}, createTest{{name}}, updateTest{{name}} } = require('@condo/domains/{{domain}}/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 
 describe('{{name}}', () => {
     test('user: create {{name}}', async () => {
@@ -26,7 +26,7 @@ describe('{{name}}', () => {
 
     test('anonymous: create {{name}}', async () => {
         const client = await makeClient()
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await createTest{{name}}(client)  // TODO(codegen): check the 'anonymous: create {{name}}' test!
         })
     })
@@ -89,7 +89,7 @@ describe('{{name}}', () => {
 
         const client = await makeClient()
         const payload = {}  // TODO(codegen): change the 'anonymous: update {{name}}' payload
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await updateTest{{name}}(client, objCreated.id, payload)
 })
     })

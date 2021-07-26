@@ -9,7 +9,7 @@ const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/dom
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog, createTestBillingIntegrationOrganizationContext, createTestBillingIntegrationAccessRight, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingIntegrationLog', () => {
     test('admin: create BillingIntegrationLog', async () => {
@@ -42,7 +42,7 @@ describe('BillingIntegrationLog', () => {
         const client = await makeClient()
         const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestBillingIntegrationLog(client, context)
         })
     })
@@ -82,7 +82,7 @@ describe('BillingIntegrationLog', () => {
         await createTestBillingIntegrationLog(admin, context)
         const client = await makeClient()
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await BillingIntegrationLog.getAll(client)
         })
     })
@@ -140,7 +140,7 @@ describe('BillingIntegrationLog', () => {
             message,
         }
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestBillingIntegrationLog(client, obj.id, payload)
         })
     })

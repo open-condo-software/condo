@@ -3,9 +3,10 @@
  */
 const { getByCondition } = require('@core/keystone/schema')
 const { getById } = require('@core/keystone/schema')
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canReadOrganizationEmployees ({ authentication: { item: user } }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
     return {
         // user is inside employee list
@@ -14,7 +15,7 @@ async function canReadOrganizationEmployees ({ authentication: { item: user } })
 }
 
 async function canManageOrganizationEmployees ({ authentication: { item: user }, originalInput, operation, itemId }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {
         const employeeForUser = await getByCondition('OrganizationEmployee', {

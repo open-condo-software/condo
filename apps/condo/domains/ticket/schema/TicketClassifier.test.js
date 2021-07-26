@@ -5,7 +5,7 @@ const { makeLoggedInAdminClient, makeClient, makeLoggedInClient, UUID_RE, DATETI
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 const { TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const faker = require('faker')
 
 describe('TicketClassifier CRUD', () => {
@@ -110,14 +110,14 @@ describe('TicketClassifier CRUD', () => {
     describe('Anonymous', () => {
         it('can not create', async () => {
             const client = await makeClient()
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await createTestTicketClassifier(client)
             })
         })
         // TODO(zuch): if we have access to model for anonymous to read - it will still fail as anonymous do not have access to allUsers - and createBy field will fail
         it('can read', async () => {
             const client = await makeClient()
-            await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await expectToThrowAuthenticationErrorToObjects(async () => {
                 await TicketClassifier.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
             })
         })
@@ -126,7 +126,7 @@ describe('TicketClassifier CRUD', () => {
             const [objCreated] = await createTestTicketClassifier(admin)
             const client = await makeClient()
             const payload = { name: faker.lorem.word() }
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await updateTestTicketClassifier(client, objCreated.id, payload)
             })
         })

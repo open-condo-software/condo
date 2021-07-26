@@ -6,7 +6,7 @@ const { makeClientWithSupportUser } = require('../../user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight, createTestBillingIntegration } = require('../utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('../../common/utils/testSchema')
 
 describe('BillingIntegrationAccessRight', () => {
     test('user: create BillingIntegrationAccessRight', async () => {
@@ -24,7 +24,7 @@ describe('BillingIntegrationAccessRight', () => {
         const [integration] = await createTestBillingIntegration(admin)
 
         const client = await makeClient()
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestBillingIntegrationAccessRight(client, integration, admin.user)
         })
     })
@@ -68,7 +68,7 @@ describe('BillingIntegrationAccessRight', () => {
     test('anonymous: read BillingIntegrationAccessRight', async () => {
         const client = await makeClient()
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await BillingIntegrationAccessRight.getAll(client)
         })
     })
@@ -92,7 +92,7 @@ describe('BillingIntegrationAccessRight', () => {
 
         const client = await makeClient()
         const payload = {}
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestBillingIntegrationAccessRight(client, objCreated.id, payload)
         })
     })

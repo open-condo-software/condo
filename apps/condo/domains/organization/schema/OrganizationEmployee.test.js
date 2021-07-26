@@ -9,7 +9,7 @@ const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { OrganizationEmployee, createTestOrganizationEmployee, updateTestOrganizationEmployee, softDeleteTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
 
 describe('OrganizationEmployee', () => {
     describe('user: create OrganizationEmployee', () => {
@@ -58,7 +58,7 @@ describe('OrganizationEmployee', () => {
             canManageEmployees: false,
         })
         const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestOrganizationEmployee(anonymous, organization, user, role)
         })
     })
@@ -88,7 +88,7 @@ describe('OrganizationEmployee', () => {
     test('anonymous: read OrganizationEmployee', async () => {
         const client = await makeClient()
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await OrganizationEmployee.getAll(client)
         })
     })
@@ -142,7 +142,7 @@ describe('OrganizationEmployee', () => {
 
         const client = await makeClient()
         const payload = {}
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestOrganizationEmployee(client, employee.id, payload)
         })
     })

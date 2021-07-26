@@ -4,10 +4,11 @@
 
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { Contact } = require('../utils/serverSchema')
 
 async function canReadContacts ({ authentication: { item: user } }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
     return {
         organization: { employees_some: { user: { id: user.id }, isBlocked: false } },
@@ -15,7 +16,7 @@ async function canReadContacts ({ authentication: { item: user } }) {
 }
 
 async function canManageContacts ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])

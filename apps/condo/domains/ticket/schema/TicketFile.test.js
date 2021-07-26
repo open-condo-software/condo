@@ -11,7 +11,7 @@ const {
 } = require('@condo/domains/ticket/utils/testSchema')
 
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
 
 describe('TicketFile', () => {
     describe('User', () => {
@@ -94,13 +94,13 @@ describe('TicketFile', () => {
         it('cannot create TicketFile', async () => {
             const client = await makeClient()
             const clientWithOrganization = await makeClientWithProperty()
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await createTestTicketFile(client, clientWithOrganization.organization) 
             })
         })
         it('cannot read TicketFile', async () => {
             const client = await makeClient()
-            await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await expectToThrowAuthenticationErrorToObjects(async () => {
                 await TicketFile.getAll(client)
             })
         })
@@ -109,7 +109,7 @@ describe('TicketFile', () => {
             const [ticketFileCreated] = await createTestTicketFile(userClient, userClient.organization, userClient.ticket)  
             const client = await makeClient()
             const payload = { ticket: { connect: { id: userClient.ticket.id } } }
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await updateTestTicketFile(client, ticketFileCreated.id, payload)
             })
         })

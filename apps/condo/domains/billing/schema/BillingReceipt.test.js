@@ -11,7 +11,7 @@ const { createTestBillingProperty } = require('../utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingReceipt', () => {
     test('admin: create BillingReceipt', async () => {
@@ -57,7 +57,7 @@ describe('BillingReceipt', () => {
         const [property] = await createTestBillingProperty(admin, context)
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestBillingReceipt(client, context, property, billingAccount)
         })
     })
@@ -102,7 +102,7 @@ describe('BillingReceipt', () => {
         const [property] = await createTestBillingProperty(admin, context)
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await BillingReceipt.getAll(client, { id: billingAccount.id })
         })
     })
@@ -166,7 +166,7 @@ describe('BillingReceipt', () => {
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const [obj] = await createTestBillingReceipt(admin, context, property, billingAccount)
         const payload = {}
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestBillingReceipt(client, obj.id, payload)
         })
     })

@@ -146,3 +146,17 @@ export const expectToThrowAuthenticationError = async (testFunc, path='objs') =>
         expect(data).toEqual({ [path]: null })
     })
 }
+
+export const expectToThrowAuthenticationErrorToObj = async (testFunc) => {
+    await catchErrorFrom(testFunc, ({ errors, data }) => {
+        expect(errors[0]).toMatchObject({
+            'message': 'No or incorrect authentication credentials',
+            'name': 'AuthenticationError',
+            'path': ['obj'],
+            'extensions': {
+                'code': 'UNAUTHENTICATED'
+            }
+        })
+        expect(data).toEqual({ 'obj': null })
+    })
+}

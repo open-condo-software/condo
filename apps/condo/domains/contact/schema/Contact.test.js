@@ -4,12 +4,12 @@
 const faker = require('faker')
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
-const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { catchErrorFrom, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
@@ -42,7 +42,7 @@ describe('Contact', () => {
         expect(obj.property).toEqual(expect.objectContaining({ id: userClient.property.id }))
     })
 
-    describe('unique constraint', async () => {
+    describe('unique constraint', () => {
         it('throws error on create record with same set of fields: "property", "unitName", "name", "phone"', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
@@ -129,7 +129,7 @@ describe('Contact', () => {
         })
     })
 
-    describe('normalization', async () => {
+    describe('normalization', () => {
         it('converts phone to E.164 format without spaces', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
@@ -228,13 +228,13 @@ describe('Contact', () => {
         it('cannot be created by anonymous', async () => {
             const userClient = await makeClientWithProperty()
             const anonymous = await makeClient()
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await createTestContact(anonymous, userClient.organization, userClient.property)
             })
         })
     })
 
-    describe('Read', async () => {
+    describe('Read', () => {
         it('can be read by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
@@ -269,7 +269,7 @@ describe('Contact', () => {
             const userClient = await makeClientWithProperty()
             const anonymousClient = await makeClient()
             await createTestContact(adminClient, userClient.organization, userClient.property)
-            await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await expectToThrowAuthenticationErrorToObjects(async () => {
                 await Contact.getAll(anonymousClient)
             })
         })
@@ -369,7 +369,7 @@ describe('Contact', () => {
 
             const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
 
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await updateTestContact(anonymousClient, obj.id)
             })
         })
@@ -404,7 +404,7 @@ describe('Contact', () => {
             const anonymousClient = await makeClient()
 
             const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
-
+            // TODO: is this really authorization error and not authentification
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await Contact.delete(anonymousClient, obj.id)
             })

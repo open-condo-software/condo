@@ -16,7 +16,7 @@ const { STATUS_SELECT_COLORS } = require('@condo/domains/ticket/constants/style'
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketStatus, createTestTicketStatus, updateTestTicketStatus } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
 
 describe('TicketStatus', () => {
     test('admin: create TicketStatus', async () => {
@@ -93,7 +93,7 @@ describe('TicketStatus', () => {
 
     test('anonymous: create TicketStatus', async () => {
         const client = await makeClient()
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestTicketStatus(client)
         })
     })
@@ -128,7 +128,7 @@ describe('TicketStatus', () => {
     test('anonymous: read TicketStatus', async () => {
         const client = await makeClient()
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await TicketStatus.getAll(client)
         })
     })
@@ -160,7 +160,7 @@ describe('TicketStatus', () => {
         const client = await makeClient()
         const name = faker.random.alphaNumeric(8)
         const payload = { name }
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestTicketStatus(client, objCreated.id, payload)
         })
     })

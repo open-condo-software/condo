@@ -6,7 +6,7 @@ const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
 const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
 const { User, UserAdmin, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects,  expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('User', () => {
     test('user: create User', async () => {
@@ -18,7 +18,7 @@ describe('User', () => {
 
     test('anonymous: create User', async () => {
         const client = await makeClient()
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestUser(client)
         })
     })
@@ -62,7 +62,7 @@ describe('User', () => {
 
         const client = await makeClient()
         const payload = {}
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestUser(client, objCreated.id, payload)
         })
     })

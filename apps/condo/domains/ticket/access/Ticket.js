@@ -4,9 +4,10 @@
 const get = require('lodash/get')
 const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canReadTickets ({ authentication: { item: user } }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
 
     if (user.isAdmin) {
         return {}
@@ -16,7 +17,7 @@ async function canReadTickets ({ authentication: { item: user } }) {
 }
 
 async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
 
     if (operation === 'create') {

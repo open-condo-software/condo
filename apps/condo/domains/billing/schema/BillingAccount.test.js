@@ -14,7 +14,7 @@ const { BillingAccount, createTestBillingAccount,
     updateTestBillingAccount, createTestBillingProperty,
     makeContextWithOrganizationAndIntegrationAsAdmin, createTestBillingIntegrationOrganizationContext,
     makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingAccount', () => {
     test('admin: create BillingAccount', async () => {
@@ -44,7 +44,7 @@ describe('BillingAccount', () => {
         const [property] = await createTestBillingProperty(admin, context)
         const client = await makeClient()
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestBillingAccount(client, context, property)
         })
     })
@@ -176,7 +176,7 @@ describe('BillingAccount', () => {
         const client = await makeClient()
         await createTestBillingAccount(admin, context, property)
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await BillingAccount.getAll(client)
         })
     })
@@ -290,7 +290,7 @@ describe('BillingAccount', () => {
         const client = await makeClient()
 
         const payload = {}
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestBillingAccount(client, billingAccount.id, payload)
         })
     })

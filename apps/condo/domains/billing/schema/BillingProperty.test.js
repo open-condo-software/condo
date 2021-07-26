@@ -8,7 +8,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingProperty, createTestBillingProperty, updateTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingProperty', () => {
     test('admin: create BillingProperty', async () => {
@@ -31,7 +31,7 @@ describe('BillingProperty', () => {
         const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const client = await makeClient()
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestBillingProperty(client, context)
         })
     })
@@ -68,7 +68,7 @@ describe('BillingProperty', () => {
         await createTestBillingProperty(admin, context)
         const client = await makeClient()
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await BillingProperty.getAll(client)
         })
     })
@@ -140,7 +140,7 @@ describe('BillingProperty', () => {
             address: faker.lorem.words(),
         }
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestBillingProperty(client, property.id, payload)
         })
     })

@@ -1,6 +1,8 @@
+/** @type {import('ow').default} */
 const ow = require('ow')
 const _ = require('lodash')
 const Emittery = require('emittery')
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 let EVENTS = new Emittery()
 let SCHEMAS = new Map()
@@ -114,6 +116,7 @@ class GQLCustomSchema {
             }))
         }
         if (!name.endsWith('Service')) console.warn(`GQLCustomSchema name=${name} is not ends with 'Service'`)
+        
         this.name = name
         this.schema = schema
         this._type = GQL_CUSTOM_SCHEMA_TYPE

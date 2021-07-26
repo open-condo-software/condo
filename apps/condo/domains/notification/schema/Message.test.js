@@ -7,7 +7,7 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { Message, createTestMessage, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationError, catchErrorFrom } = require('../../common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 
 describe('Message', () => {
     test('admin: create Message', async () => {
@@ -50,7 +50,7 @@ describe('Message', () => {
 
     test('anonymous: create Message', async () => {
         const client = await makeClient()
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestMessage(client)
         })
     })
@@ -104,7 +104,7 @@ describe('Message', () => {
 
         const client = await makeClient()
         const payload = {}
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestMessage(client, objCreated.id, payload)
         })
     })
