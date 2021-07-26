@@ -92,7 +92,7 @@ describe('TicketReportService', () => {
                 data: { userOrganizationId: client1.organization.id, periodType: 'week' },
             })
             expect(errors).toHaveLength(1)
-            expect(errors[0].name).toEqual('AccessDeniedError')
+            expect(errors[0].name).toEqual('AuthenticationError')
         })
     })
 })

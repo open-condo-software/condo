@@ -6,7 +6,7 @@ const { getRandomString } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
 
 describe('BillingIntegration', () => {
     test('admin: create BillingIntegration', async () => {
@@ -26,7 +26,7 @@ describe('BillingIntegration', () => {
 
     test('anonymous: create BillingIntegration', async () => {
         const client = await makeClient()
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestBillingIntegration(client)
         })
     })
@@ -96,7 +96,7 @@ describe('BillingIntegration', () => {
 
         const client = await makeClient()
         const payload = {}
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestBillingIntegration(client, objCreated.id, payload)
         })
     })

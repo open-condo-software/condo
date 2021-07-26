@@ -5,9 +5,10 @@
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { Ticket, TicketComment } = require('../utils/serverSchema')
 const get = require('lodash/get')
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canReadTicketComments ({ authentication: { item: user } }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
     return {
         ticket: { organization: { employees_some: { user: { id: user.id }, isBlocked: false } } },
@@ -15,7 +16,7 @@ async function canReadTicketComments ({ authentication: { item: user } }) {
 }
 
 async function canManageTicketComments ({ authentication: { item: user }, originalInput, existingItem, operation, context, itemId }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {
         const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
@@ -46,7 +47,7 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
 }
 
 async function canSetUserField ({ authentication: { item: user }, originalInput, addFieldValidationError }) {
-    if (!user) return false    
+    if (!user) return throwAuthenticationError()    
     if (user.isAdmin) return true
     if (get(originalInput, ['user', 'connect', 'id']) === user.id) {
         return true

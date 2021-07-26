@@ -12,7 +12,7 @@ const { createTestBillingAccount } = require('@condo/domains/billing/utils/testS
 const { createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingAccountMeterReading', () => {
     test('admin: create BillingAccountMeterReading', async () => {
@@ -69,7 +69,7 @@ describe('BillingAccountMeterReading', () => {
         const [resource] = await createTestBillingMeterResource(admin)
         const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestBillingAccountMeterReading(client, context, property, billingAccount, meter)
         })
     })
@@ -125,7 +125,7 @@ describe('BillingAccountMeterReading', () => {
         const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
         await createTestBillingAccountMeterReading(admin, context, property, billingAccount, meter)
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await BillingAccountMeterReading.getAll(client)
         })
     })
@@ -208,7 +208,7 @@ describe('BillingAccountMeterReading', () => {
         const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(admin, context, property, billingAccount, meter)
 
         const payload = {}
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestBillingAccountMeterReading(client, billingAccountMeterReading.id, payload)
         })
     })

@@ -8,7 +8,7 @@ const { createTestBillingIntegration } = require('../utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
@@ -41,7 +41,7 @@ describe('BillingIntegrationOrganizationContext', () => {
         const [integration] = await createTestBillingIntegration(admin)
         const [organization] = await registerNewOrganization(admin)
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestBillingIntegrationOrganizationContext(anon, organization, integration)
         })
     })
@@ -80,7 +80,7 @@ describe('BillingIntegrationOrganizationContext', () => {
         const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const payload = { settings: { dv: 1, test: 'test' } }
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestBillingIntegrationOrganizationContext(user, context.id, payload)
         })
     })
@@ -126,7 +126,7 @@ describe('BillingIntegrationOrganizationContext', () => {
         const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const client = await makeClient()
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await BillingIntegrationOrganizationContext.getAll(client, { id: context.id })
         })
     })

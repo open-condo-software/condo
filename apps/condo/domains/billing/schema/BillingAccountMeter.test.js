@@ -11,7 +11,7 @@ const { createTestBillingAccount } = require('@condo/domains/billing/utils/testS
 const { createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingAccountMeter', () => {
     test('admin: create BillingAccountMeter', async () => {
@@ -62,7 +62,7 @@ describe('BillingAccountMeter', () => {
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestBillingAccountMeter(client, context, property, billingAccount, resource)
         })
     })
@@ -115,7 +115,7 @@ describe('BillingAccountMeter', () => {
         const [resource] = await createTestBillingMeterResource(admin)
         const [billingAccountMeter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await BillingAccountMeter.getAll(client, { id: billingAccountMeter.id })
         })
     })

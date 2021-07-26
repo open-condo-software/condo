@@ -29,7 +29,7 @@ const {
     COMPLETE_CONFIRM_PHONE_MUTATION,
     GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY,
 } = require('@condo/domains/user/gql')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
 
 const captcha = () => {
     return faker.lorem.sentence()
@@ -75,13 +75,13 @@ describe('ConfirmPhoneAction CRUD', () => {
     describe('Anonymous', () => {
         it('cant create confirm phone action', async () => {
             const client = await makeClient()
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await createTestConfirmPhoneAction(client)
             })
         })
         it('cant read confirm phone actions', async () => {
             const client = await makeClient()
-            await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await expectToThrowAuthenticationErrorToObjects(async () => {
                 await ConfirmPhoneAction.getAll(client)
             })
         })
@@ -90,7 +90,7 @@ describe('ConfirmPhoneAction CRUD', () => {
             const [objCreated] = await createTestConfirmPhoneAction(admin)
             const client = await makeClient()
             const payload = { phone: createTestPhone() }
-            await expectToThrowAccessDeniedErrorToObj(async () =>{
+            await expectToThrowAuthenticationErrorToObj(async () =>{
                 await updateTestConfirmPhoneAction(client, objCreated.id, payload)
             })
         })

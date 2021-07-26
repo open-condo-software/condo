@@ -4,7 +4,7 @@
 
 const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction, createTestUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('ForgotPasswordAction', () => {
@@ -55,14 +55,14 @@ describe('ForgotPasswordAction', () => {
             const admin = await makeLoggedInAdminClient()
             const [user] = await createTestUser(admin)
             const client = await makeClient()
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await createTestForgotPasswordAction(client, user)
             })
         })
 
         it('cannot read', async () => {
             const client = await makeClient()
-            await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await expectToThrowAuthenticationErrorToObjects(async () => {
                 await ForgotPasswordAction.getAll(client)
             })
         })
@@ -74,7 +74,7 @@ describe('ForgotPasswordAction', () => {
 
             const [objCreated] = await createTestForgotPasswordAction(admin, user)
             const usedAt = new Date(Date.now()).toISOString()
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await updateTestForgotPasswordAction(client, objCreated.id, { usedAt })
             })
         })

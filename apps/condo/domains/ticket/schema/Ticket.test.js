@@ -6,7 +6,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient } = require('@core/keystone/test.utils')
 
 const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('../../common/utils/testSchema')
 
 describe('Ticket', () => {
     test('user: create Ticket', async () => {
@@ -59,7 +59,7 @@ describe('Ticket', () => {
     test('anonymous: create Ticket', async () => {
         const client1 = await makeClientWithProperty()
         const client = await makeClient()
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestTicket(client, client1.organization, client1.property)
         })
     })
@@ -96,7 +96,7 @@ describe('Ticket', () => {
     test('anonymous: read Ticket', async () => {
         const client = await makeClient()
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await Ticket.getAll(client)
         })
     })
@@ -152,7 +152,7 @@ describe('Ticket', () => {
         const client = await makeClient()
         const payload = { details: 'new data' }
         const [objCreated] = await createTestTicket(client1, client1.organization, client1.property)
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestTicket(client, objCreated.id, payload)
         })
     })

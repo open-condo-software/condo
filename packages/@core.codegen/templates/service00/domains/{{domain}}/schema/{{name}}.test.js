@@ -18,7 +18,7 @@ describe('{{ name }}', () => {
  
     test('anonymous: execute', async () => {
         const client = await makeClient()
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await {{ convertFirstLetterToLower(name.replace("Service", "")) }}ByTestClient(client)
         })
     })

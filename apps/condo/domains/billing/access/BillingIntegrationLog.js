@@ -5,9 +5,10 @@ const { get } = require('lodash')
 
 const { checkBillingIntegrationAccessRight } = require('../utils/accessSchema')
 const { getById } = require('@core/keystone/schema')
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canReadBillingIntegrationLogs ({ authentication: { item: user } }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     return {
         context: {
@@ -20,7 +21,7 @@ async function canReadBillingIntegrationLogs ({ authentication: { item: user } }
 }
 
 async function canManageBillingIntegrationLogs ({ authentication: { item: user }, originalInput, operation, itemId }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     let contextId
     if (operation === 'create') {

@@ -2,6 +2,7 @@ const { get } = require('lodash')
 const { getByCondition } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('../../organization/utils/accessSchema')
 const { getById } = require('@core/keystone/schema')
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function checkBillingIntegrationAccessRight (userId, integrationId) {
     if (!userId || !integrationId) return false
@@ -13,7 +14,7 @@ async function checkBillingIntegrationAccessRight (userId, integrationId) {
 }
 
 async function canReadBillingEntity (user) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     return {
         OR: [
@@ -24,7 +25,7 @@ async function canReadBillingEntity (user) {
 }
 
 async function canManageBillingEntityWithContext ({ user, operation, itemId, originalInput, schemaWithContextName }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     let contextId
     if (operation === 'create') {

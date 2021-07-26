@@ -5,6 +5,7 @@ const { getByCondition, getById } = require('@core/keystone/schema')
 const { userIsAuthenticated, userIsAdmin } = require('@core/keystone/access')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { checkBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/accessSchema')
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 const isSignedIn = userIsAuthenticated
 
@@ -53,7 +54,7 @@ const rules = {
             const employee = await getById('OrganizationEmployee', id)
             if (!employee) return false
             const user = await getById('User', employee.user)
-            if (!user) return false
+            if (!user) return throwAuthenticationError()
             // TODO(pahaz): check is user email/phone is verified
             return String(employee.user) === String(user.id)
         }
@@ -70,7 +71,7 @@ const rules = {
     canReadBillingIntegrationAccessRights: userIsAdmin,
     canManageBillingIntegrationAccessRights: userIsAdmin,
     canReadBillingIntegrationOrganizationContexts: ({ authentication: { item: user } }) => {
-        if (!user) return false
+        if (!user) return throwAuthenticationError()
         if (user.isAdmin) return true
         return {
             // TODO(pahaz): wait https://github.com/keystonejs/keystone/issues/4829 (no access check!)
@@ -81,7 +82,7 @@ const rules = {
         }
     },
     canManageBillingIntegrationOrganizationContexts: async ({ authentication: { item: user }, originalInput, operation, itemId }) => {
-        if (!user) return false
+        if (!user) return throwAuthenticationError()
         if (user.isAdmin) return true
         if (operation === 'create') {
             // NOTE: can create only by the organization integration manager
@@ -101,7 +102,7 @@ const rules = {
         return false
     },
     canReadBillingIntegrationLogs: ({ authentication: { item: user } }) => {
-        if (!user) return false
+        if (!user) return throwAuthenticationError()
         if (user.isAdmin) return true
         return {
             // TODO(pahaz): wait https://github.com/keystonejs/keystone/issues/4829 (no access check!)
@@ -121,7 +122,7 @@ const rules = {
         }
     },
     canManageBillingIntegrationLogs: async ({ authentication: { item: user }, originalInput, operation, itemId }) => {
-        if (!user) return false
+        if (!user) return throwAuthenticationError()
         if (user.isAdmin) return true
         let contextId
         if (operation === 'create') {
