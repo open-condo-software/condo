@@ -1,5 +1,11 @@
 import { useCallback, useRef, useState } from 'react'
-import { Importer, RowNormalizer, RowValidator, ObjectCreator, ColumnInfo } from '@condo/domains/common/utils/importer'
+import {
+    Importer,
+    RowNormalizer,
+    RowValidator,
+    ObjectCreator,
+    ColumnInfo,
+} from '@condo/domains/common/utils/importer'
 
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -7,6 +13,8 @@ export const useImporter = (columns: Array<ColumnInfo>,
     rowNormalizer: RowNormalizer,
     rowValidator: RowValidator,
     objectCreator: ObjectCreator,
+    setTotalRows: (number) => void,
+    setSuccessRows: (number?) => void,
     onFinish: () => void,
     onError: () => void) => {
     const [progress, setProgress] = useState(0)
@@ -20,6 +28,7 @@ export const useImporter = (columns: Array<ColumnInfo>,
         setIsImported(false)
         setError(null)
         setProgress(0)
+        setTotalRows(Math.max(0, data.length - 1))
 
         importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator)
         importer.current.onProgressUpdate(setProgress)
@@ -34,6 +43,9 @@ export const useImporter = (columns: Array<ColumnInfo>,
             setIsImported(true)
 
             onFinish()
+        })
+        importer.current.onRowProcessed(() => {
+            setSuccessRows()
         })
         importer.current.import(data)
     }, [])

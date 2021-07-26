@@ -9,11 +9,16 @@ export type ProcessedRow = {
 
 export type ProgressUpdateHandler = (progress: number) => void
 export type FinishHandler = () => void
+export type SuccessProcessingHandler = (row: TableRow) => void
 export type ErrorHandler = (error: Error) => void
 export type RowNormalizer = (row: TableRow) => Promise<ProcessedRow | null>
 export type RowValidator = (row: ProcessedRow | null) => Promise<boolean>
 export type ObjectCreator = (row: ProcessedRow | null) => Promise<unknown>
 export type Columns = Array<ColumnInfo>
+export type ErrorInfo = {
+    row: TableRow
+    cells: Array<number>
+}
 
 interface IImporter {
     import: (data: Array<TableRow>) => Promise<void>
@@ -52,6 +57,7 @@ export class Importer implements IImporter {
     private progressUpdateHandler: ProgressUpdateHandler
     private finishHandler: FinishHandler
     private errorHandler: ErrorHandler
+    private successProcessingHandler: SuccessProcessingHandler
     private readonly columnsNames: Array<string>
     private readonly columnsTypes: Array<'string' | 'number'>
 
@@ -87,6 +93,10 @@ export class Importer implements IImporter {
     // Handle finish importing
     public onFinish (handleFinish: FinishHandler): void {
         this.finishHandler = handleFinish
+    }
+
+    public onRowProcessed (handleSuccess: SuccessProcessingHandler): void {
+        this.successProcessingHandler = handleSuccess
     }
 
     // Handle progress update
@@ -155,7 +165,12 @@ export class Importer implements IImporter {
                 return this.rowValidator(normalizedRow)
                     .then(isValid => {
                         if (isValid) {
-                            return this.objectCreator(normalizedRow)
+                            return this.objectCreator(normalizedRow).then(() => {
+                                if (this.successProcessingHandler) {
+                                    this.successProcessingHandler(row)
+                                    return Promise.resolve()
+                                }
+                            })
                         }
                         return Promise.resolve()
                     })
