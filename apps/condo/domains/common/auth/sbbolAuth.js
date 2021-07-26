@@ -15,10 +15,12 @@ class SbbolApi {
         this.clientId = SBBOL_CONFIG.client_id
         this.serviceId = SBBOL_CONFIG.service_id
         this.redirectUrl = `${conf.SERVER_URL}/api/sbbol/auth/callback`
-        this.agent = new https.Agent({
-            pfx: Buffer.from(SBBOL_PFX.certificate, 'base64'),
-            passphrase: SBBOL_PFX.passphrase,
-        })
+        if (SBBOL_PFX.certificate) {
+            this.agent = new https.Agent({
+                pfx: Buffer.from(SBBOL_PFX.certificate, 'base64'),
+                passphrase: SBBOL_PFX.passphrase,
+            })
+        }
     }
 
     async fetchToken ({ code, state, nonce }) {
@@ -52,7 +54,7 @@ class SbbolApi {
             state,
             response_type: 'code',
             client_id: this.clientId,
-            scope: `openid ${this.serviceId}`,
+            scope: `openid ${this.serviceId}`, //  //SBBOL_CONFIG.scope
             redirect_uri: this.redirectUrl,
         })}`
     }
