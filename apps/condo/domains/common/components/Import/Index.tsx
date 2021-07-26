@@ -1,9 +1,15 @@
 import React, { useCallback, useRef } from 'react'
-import { Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
+import { Columns, RowNormalizer, RowValidator, ObjectCreator, ErrorInfo } from '@condo/domains/common/utils/importer'
 import { Modal, Popover, Typography, Space } from 'antd'
 import { useImporter } from '@condo/domains/common/hooks/useImporter'
 import { useIntl } from '@core/next/intl'
-import { ModalContext, getUploadSuccessModalConfig, getUploadErrorModalConfig, getUploadProgressModalConfig } from './ModalConfigs'
+import {
+    ModalContext,
+    getUploadSuccessModalConfig,
+    getUploadErrorModalConfig,
+    getUploadProgressModalConfig,
+    getPartlyLoadedModalConfig,
+} from './ModalConfigs'
 import { DataImporter } from '../DataImporter'
 import styled from '@emotion/styled'
 
@@ -19,6 +25,10 @@ interface IImportProps {
     rowNormalizer: RowNormalizer
     rowValidator: RowValidator
     objectCreator: ObjectCreator
+    errors?: {
+        errorsContainer: Array<ErrorInfo>
+        clearErrorsContainer: () =>  void
+    }
 }
 
 const InfoBoxContainer = styled.div`
@@ -62,7 +72,9 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
         rowNormalizer,
         rowValidator,
         objectCreator,
-        onFinish } = props
+        onFinish,
+        errors,
+    } = props
     const intl = useIntl()
     const ImportTitle = intl.formatMessage({ id:'Import' })
     const ImportSuccessMessage = intl.formatMessage({ id: 'ImportSuccess' },  { objects: objectsName })
@@ -71,8 +83,18 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
     const ImportProcessingMessage = intl.formatMessage({ id:'ImportProcessing' })
     const ImportBreakButtonMessage = intl.formatMessage({ id:'Break' })
     const ImportPopoverTitle = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
+    const GetFailedDataMessage = intl.formatMessage({ id: 'GetFailedData' })
+    const CloseMessage = intl.formatMessage({ id: 'Close' })
     const [modal, contextHolder] = Modal.useModal()
     const activeModal = useRef(null)
+    const totalRowsRef = useRef(0)
+    const setTotalRowsRef = (value: number) => {
+        totalRowsRef.current = value
+    }
+    const successRowsRef = useRef(0)
+    const setSuccessRowsRef = () => {
+        successRowsRef.current = successRowsRef.current + 1
+    }
 
     const destroyActiveModal = () => {
         if (activeModal.current) {
@@ -82,11 +104,17 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
     }
     const [importData, progress, error, isImported, breakImport] = useImporter(
         columns, rowNormalizer, rowValidator, objectCreator,
+        setTotalRowsRef, setSuccessRowsRef,
         () => {
+            const message = `${ImportSuccessMessage} [${successRowsRef.current}/${totalRowsRef.current}]`
             destroyActiveModal()
-            const config = getUploadSuccessModalConfig(ImportTitle, ImportSuccessMessage, ImportOKMessage)
-            activeModal.current = modal.success(config)
-            onFinish()
+            if (errors && errors.errorsContainer.length > 0) {
+                const config = getPartlyLoadedModalConfig(ImportTitle, message, GetFailedDataMessage, CloseMessage, errors.errorsContainer)
+                activeModal.current = modal.confirm(config)
+            } else {
+                const config = getUploadSuccessModalConfig(ImportTitle, message, ImportOKMessage)
+                activeModal.current = modal.success(config)
+            }
         },
         () => {
             destroyActiveModal()
@@ -104,6 +132,9 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
             })
         // @ts-ignore
         activeModal.current = modal.info(config)
+        totalRowsRef.current = 0
+        successRowsRef.current = 0
+        if (errors) errors.clearErrorsContainer()
         importData(file.data)
     }, [])
 

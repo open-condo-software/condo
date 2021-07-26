@@ -1,6 +1,7 @@
 import React from 'react'
 import { Alert, Progress } from 'antd'
 import get from 'lodash/get'
+import { ErrorInfo } from '../../utils/importer'
 
 export const ModalContext = React.createContext({ progress: 0, error: null, isImported: false })
 
@@ -77,5 +78,24 @@ export const getUploadProgressModalConfig = (title: string, processingMessage: s
             danger: true,
         },
         onOk: onButtonClick,
+    }
+}
+
+export const getPartlyLoadedModalConfig = (title: string, content: string, okText: string, cancelText: string, errors: Array<ErrorInfo>) => {
+    return {
+        title: title,
+        closable: false,
+        content: (
+            <Alert
+                style={{ marginTop: 16 }}
+                message={content}
+                type='warning'
+            />
+        ),
+        okText: okText,
+        onOk: () => {
+            console.log(errors)
+        },
+        cancelText: cancelText,
     }
 }

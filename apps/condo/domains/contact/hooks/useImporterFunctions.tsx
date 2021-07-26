@@ -1,4 +1,4 @@
-import { Columns, ObjectCreator, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
+import { Columns, ObjectCreator, RowNormalizer, RowValidator, TableRow } from '@condo/domains/common/utils/importer'
 import { useOrganization } from '@core/next/organization'
 import { useApolloClient } from '@core/next/apollo'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
@@ -19,7 +19,9 @@ const parsePhones = (phones: string) => {
     }).filter(phone => phone)
 }
 
-export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
+type addFailedFunction = (row: TableRow, cells: Array<number>) => void
+
+export const useImporterFunctions = (errorProcessor: addFailedFunction): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const userOrganization = useOrganization()
     const client = useApolloClient()
     const { addressApi } = useAddressApi()
@@ -38,36 +40,54 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     ]
 
     const contactNormalizer: RowNormalizer = (row) => {
-        if (row.length !== columns.length) return Promise.resolve(null)
+        const addons = { address: null, property: null, phones: null, fullName: null }
+        if (row.length !== columns.length) return Promise.resolve({ row })
         const [address, , phones, fullName] = row
         return addressApi.getSuggestions(String(address.value)).then(result => {
             const suggestion = get(result, ['suggestions', 0])
             if (suggestion) {
-                const address = suggestion.value
-                const normalizedPhones = parsePhones(String(phones.value))
-                const normalizedFullName = String(fullName.value).trim()
+                addons.address = suggestion.value
                 const where = {
-                    address_contains_i: address,
+                    address_contains_i: suggestion.value,
                     organization: { id: userOrganizationId },
                 }
                 // TODO (savelevMatthew): better way to detect building
                 return searchProperty(client, where, undefined).then((res) => {
-                    const property = res.length > 0 ? res[0].value : null
-                    const addons = { address, phones: normalizedPhones, fullName: normalizedFullName, property }
+                    addons.property = res.length > 0 ? res[0].value : null
+                    addons.phones = parsePhones(String(phones.value))
+                    addons.fullName = String(fullName.value).trim()
                     return { row, addons }
                 })
             }
-            return null
+            addons.phones = parsePhones(String(phones.value))
+            addons.fullName = String(fullName.value).trim()
+            return { row, addons }
         })
     }
 
     const contactValidator: RowValidator = (row) => {
-        if (!row || !row.addons) return Promise.resolve(false)
-        if (!row.addons.fullName || !row.addons.address || !row.addons.property) return Promise.resolve(false)
+        let cells = []
+        if (!row || !row.addons) {
+            cells = [1, 2, 3, 4]
+        }
+        if (!row.addons.address || !row.addons.property) {
+            cells.push(0)
+        }
+        if (!row.addons.fullName) {
+            cells.push(3)
+        }
         const unitName = get(row.row, ['1', 'value'])
-        if (!unitName || String(unitName).trim().length === 0) return Promise.resolve(false)
+        if (!unitName || String(unitName).trim().length === 0) {
+            cells.push(1)
+        }
         const phones = get(row.addons, ['phones'])
-        if (!phones || phones.length === 0) return Promise.resolve(false)
+        if (!phones || phones.length === 0) {
+            cells.push(2)
+        }
+        if (cells.length > 0) {
+            errorProcessor(row.row, cells)
+            return Promise.resolve(false)
+        }
         return Promise.resolve(true)
     }
 
