@@ -1,7 +1,8 @@
 import React from 'react'
 import { Alert, Progress } from 'antd'
 import get from 'lodash/get'
-import { ErrorInfo } from '../../utils/importer'
+import { Columns, ErrorInfo } from '../../utils/importer'
+import XLSX from 'xlsx'
 
 export const ModalContext = React.createContext({ progress: 0, error: null, isImported: false })
 
@@ -81,7 +82,8 @@ export const getUploadProgressModalConfig = (title: string, processingMessage: s
     }
 }
 
-export const getPartlyLoadedModalConfig = (title: string, content: string, okText: string, cancelText: string, errors: Array<ErrorInfo>) => {
+export const getPartlyLoadedModalConfig = (title: string, content: string, okText: string, cancelText: string,
+    errors: Array<ErrorInfo>, columns: Columns) => {
     return {
         title: title,
         closable: false,
@@ -94,7 +96,23 @@ export const getPartlyLoadedModalConfig = (title: string, content: string, okTex
         ),
         okText: okText,
         onOk: () => {
-            console.log(errors)
+            return new Promise<void>((resolve, reject) => {
+                try {
+                    const data = [columns.map(column => column.name)]
+                    for (let i = 0; i < errors.length; i++) {
+                        const line = errors[i].row.map(cell => cell.value ? String(cell.value) : null)
+                        data.push(line)
+                    }
+                    const wb = XLSX.utils.book_new()
+                    const ws = XLSX.utils.aoa_to_sheet(data)
+                    XLSX.utils.book_append_sheet(wb, ws, 'table')
+                    XLSX.writeFile(wb, 'failed_data.xlsx')
+                } catch (e) {
+                    reject(e)
+                } finally {
+                    resolve()
+                }
+            })
         },
         cancelText: cancelText,
     }
