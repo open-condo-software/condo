@@ -8,14 +8,31 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/co
 
 const { OnBoarding: OnBoardingGQL } = require('@condo/domains/onboarding/gql')
 const { OnBoardingStep: OnBoardingStepGQL } = require('@condo/domains/onboarding/gql')
+const { CREATE_ON_BOARDING_MUTATION } = require('@condo/domains/onboarding/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OnBoarding = generateServerUtils(OnBoardingGQL)
 const OnBoardingStep = generateServerUtils(OnBoardingStepGQL)
+
+async function createOnBoarding (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write createOnBoarding serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: CREATE_ON_BOARDING_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to createOnBoarding',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     OnBoarding,
     OnBoardingStep,
+    createOnBoarding,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

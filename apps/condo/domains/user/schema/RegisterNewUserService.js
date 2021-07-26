@@ -64,7 +64,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 if (userData.password.length < MIN_PASSWORD_LENGTH) {
                     throw new Error(`${MIN_PASSWORD_LENGTH_ERROR}] Password length less then ${MIN_PASSWORD_LENGTH} character`)
                 }
-                // TODO(zuch): fix bug when user can not be created becaues of createAt and updatedAt fields
+                // TODO(zuch): fix bug when user can not be created because of createAt and updatedAt fields
                 // const user = await UserServerUtils.create(context, userData)
                 const { data: { result: user }, errors: createErrors } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),

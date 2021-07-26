@@ -10,16 +10,25 @@ const gql = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const ON_BOARDING_FIELDS = `{ completed stepsTransitions ${COMMON_FIELDS} }`
+const ON_BOARDING_FIELDS = `{ completed stepsTransitions ${COMMON_FIELDS} type }`
 const OnBoarding = generateGqlQueries('OnBoarding', ON_BOARDING_FIELDS)
 
 const ON_BOARDING_STEP_FIELDS = `{ icon title description action entity onBoarding { id } ${COMMON_FIELDS} }`
 const OnBoardingStep = generateGqlQueries('OnBoardingStep', ON_BOARDING_STEP_FIELDS)
+
+// TODO(codegen): write return type result!
+
+const CREATE_ON_BOARDING_MUTATION = gql`
+    mutation createOnBoardingByType ($data: CreateOnBoardingInput!) {
+        result: createOnBoardingByType(data: $data) { id }
+    }
+`
 
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     OnBoarding,
     OnBoardingStep,
+    CREATE_ON_BOARDING_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -5,12 +5,11 @@
  */
 const faker = require('faker')
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
-
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { OnBoarding: OnBoardingGQL } = require('@condo/domains/onboarding/gql')
 const { OnBoardingStep: OnBoardingStepGQL } = require('@condo/domains/onboarding/gql')
+const { CREATE_ON_BOARDING_MUTATION } = require('@condo/domains/onboarding/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OnBoarding = generateGQLTestUtils(OnBoardingGQL)
@@ -81,10 +80,24 @@ async function updateTestOnBoardingStep (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createOnBoardingByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CREATE_ON_BOARDING_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     OnBoarding, createTestOnBoarding, updateTestOnBoarding,
     OnBoardingStep, createTestOnBoardingStep, updateTestOnBoardingStep,
+    createOnBoardingByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
