@@ -44,7 +44,19 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
             id
             user {
                 id
-                email
+            }
+        }
+    }
+`
+
+const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY_WITH_EMAIL = gql`
+    query selectOrgarnizationEmployee ($value: String, $organizationId: ID) {
+        objs: allOrganizationEmployees(where: {name_contains_i: $value, organization: { id: $organizationId } }) {
+            name
+            id
+            user {
+                id
+                hasEmail
             }
         }
     }
@@ -118,12 +130,12 @@ export function searchEmployee (organizationId) {
 
 export function getEmployeeWithEmail (organizationId) {
     return async function (client, value) {
-        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
+        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY_WITH_EMAIL, { value, organizationId })
         if (error) console.warn(error)
 
         return data.objs.map(object => {
             if (object.user) {
-                return ({ text: object.name, value: { id: object.user.id, hasEmail: Boolean(object.user.email) } })
+                return ({ text: object.name, value: { id: object.user.id, hasEmail: object.user.hasEmail } })
             }
         }).filter(Boolean)
     }

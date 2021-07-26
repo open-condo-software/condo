@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
+import { RU_LOCALE } from '@condo/domains/common/constants/locale'
 import { Col, Row, Modal, Collapse, notification } from 'antd'
 import React, { useState } from 'react'
 import { ShareAltOutlined, RightOutlined, CloseCircleFilled } from '@ant-design/icons'
@@ -17,6 +17,13 @@ import styled from '@emotion/styled'
 import { colors } from '@condo/domains/common/constants/style'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { useRouter } from 'next/router'
+import crypto from 'crypto'
+import getConfig from 'next/config'
+import {
+    ALGORITHM,
+    SALT,
+    CRYPTOENCODING,
+} from '@condo/domains/ticket/constants/crypto'
 
 const collapse = css`
     border-radius: 8px;
@@ -158,11 +165,13 @@ const Warning = (props) => {
 }
 
 interface IShareTicketModalProps {
-    description: string,
+    date: string
+    number: number
+    details: string
+    id: string
 }
 
 export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
-    const { description } = props
     const intl = useIntl()
     const SendTicketToEmailMessage = intl.formatMessage({ id: 'SendTicketToEmail' })
     const ToEmployeesEmailMessage = intl.formatMessage({ id: 'ToEmployeesEmail' })
@@ -172,18 +181,26 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const TelegramMessage = intl.formatMessage({ id: 'Telegram' })
     const ShareHeaderMessage = intl.formatMessage({ id: 'ticket.shareHeader' })
     const ShareMessage = intl.formatMessage({ id: 'Share' })
-
     const OKMessage = intl.formatMessage({ id: 'OK' })
     const ShareSentMessage = intl.formatMessage({ id: 'ticket.shareSent' })
     const ShareSentToEmailMessage = intl.formatMessage({ id: 'ticket.shareSentToEmail' })
+
+    const { date, number, details, id } = props
+    const cipher = crypto.createCipher(ALGORITHM, SALT)
+    const stringifiedParams = JSON.stringify({ date, number, details, id })
+    const encryptedText = cipher.update(stringifiedParams, 'utf8', CRYPTOENCODING) + cipher.final(CRYPTOENCODING)
 
     const { query } = useRouter()
     const { organization } = useOrganization()
     const [shareTicket] = useMutation(SHARE_TICKET_MUTATION)
 
-    let href = null
+    let origin = 'http://localhost:3000'
     if (typeof window !== 'undefined') {
-        href = window.location.href
+        origin = window.location.origin
+    } else {
+        ({
+            publicRuntimeConfig: { serverUrl: origin },
+        } = getConfig())
     }
 
     const [value, setValue] = useState([])
@@ -276,7 +293,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                 <Row gutter={[0, 16]}>
                     <Col span={24}>
                         <Link
-                            href={`whatsapp://send/?text=${encodeURI(description)}%20${href}`}
+                            href={`whatsapp://send/?text=${origin}/share?q=${encodeURIComponent(encryptedText)}`}
                         >
                             <ShareButton>
                                 {WhatsappMessage}
@@ -286,7 +303,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                     </Col>
                     <Col span={24}>
                         <Link
-                            href={`https://t.me/share/url?url=${href}&text=${description}`}
+                            href={`https://t.me/share/url?url=${encodeURIComponent(`${origin}/share?q=${encryptedText}`)}`}
                         >
                             <ShareButton>
                                 {TelegramMessage}
