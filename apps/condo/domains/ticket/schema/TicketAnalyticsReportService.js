@@ -3,7 +3,7 @@
  */
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
-// const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
+const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
 const moment = require('moment')
 const get = require('lodash/get')
 const { createCountersStructure, fetchTicketsForAnalitics, DATE_FORMATS } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
@@ -27,7 +27,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
 
     queries: [
         {
-            access: true, // access.canTicketAnalyticsReport,
+            access: access.canTicketAnalyticsReport,
             schema: 'ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { where = {}, groupBy = [] } } = args
@@ -58,7 +58,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                     },
                 })
                 const result = {}
-                // TODO(zuch): rewrite to support `n` levels of groupping
+                // TODO(sitozzz): rewrite to support `n` levels of groupping
                 const [group1Name, group2Name] = groupBy
                 for (const group1Option in grouppedCounters) {
                     result[translates[group1Name][group1Option]] = {}

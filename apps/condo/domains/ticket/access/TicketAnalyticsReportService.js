@@ -5,7 +5,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 async function canTicketAnalyticsReport ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
-    return false
+    return { organization: { employees_some: { user: { id: user.id, isBlocked: false, deletedAt: null } } } }
 }
 
 /*
