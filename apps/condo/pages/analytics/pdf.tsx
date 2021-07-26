@@ -3,9 +3,11 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { Col, notification, Row, Typography } from 'antd'
 import dynamic from 'next/dynamic'
 import { useIntl } from '@core/next/intl'
-import { TicketAnalyticsPageChartView, TicketAnalyticsPageListView } from './index'
+import {
+    TicketAnalyticsPageChartView, TicketAnalyticsPageListView,
+} from './index'
 import { useLazyQuery } from '@core/next/apollo'
-import { GET_TICKET_ANALYTICS_REPORT_DATA } from '@condo/domains/ticket/gql'
+import { TICKET_ANALYTICS_REPORT_MUTATION } from '@condo/domains/ticket/gql'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
@@ -28,7 +30,7 @@ const PdfView = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const [loadTicketAnalyticsData] = useLazyQuery(GET_TICKET_ANALYTICS_REPORT_DATA, {
+    const [loadTicketAnalyticsData] = useLazyQuery(TICKET_ANALYTICS_REPORT_MUTATION, {
         onError: error => {
             console.log(error)
             notification.error({
@@ -39,21 +41,42 @@ const PdfView = () => {
         },
         fetchPolicy: 'network-only',
         onCompleted: response => {
-            const { result: { data } } = response
-            setData(data)
+            const { result: { result } } = response
+            setData(result)
         },
     })
-
     useEffect(() => {
         const queryParams = getQueryParams()
         queryParamsRef.current = queryParams
-        loadTicketAnalyticsData({ variables: {
-            data: {
-                ...queryParams,
-                addressList: JSON.parse(queryParams.addressList),
-                userOrganizationId,
+        const groupBy = []
+        if (queryParams.viewMode === 'line') {
+            groupBy.push(...['status', queryParams.specification])
+        } else {
+            groupBy.push(...['status', 'property'])
+        }
+        const addressList = JSON.parse(queryParams.addressList)
+        const AND: unknown[] = [
+            { organization: { id: userOrganizationId } },
+            { isEmergency: queryParams.ticketType === 'emergency' },
+            { isPaid: queryParams.ticketType === 'paid' },
+            { createdAt_gte: queryParams.dateFrom },
+            { createdAt_lte: queryParams.dateTo },
+        ]
+        if (addressList.length) {
+            AND.push({ property: { id_in: addressList.map(({ id }) => id) } })
+        }
+        loadTicketAnalyticsData({
+            variables: {
+                data: {
+                    groupBy,
+                    where: {
+                        AND,
+                    },
+                },
             },
-        } })
+        })
+
+
     }, [userOrganizationId])
 
     useEffect(() => {
@@ -68,11 +91,12 @@ const PdfView = () => {
         }
     }, [loading, data])
 
-    if (queryParamsRef.current === null) {
+
+    if (queryParamsRef.current === null ) {
         return null
     }
     let ticketTypeTitle = DefaultTickets
-    const { dateFrom, dateTo, viewMode, ticketType } = queryParamsRef.current
+    const { dateFrom, dateTo, viewMode, ticketType, addressList, specification } = queryParamsRef.current
     ticketType === 'paid' && (ticketTypeTitle = PaidTickets)
     ticketType === 'emergency' && (ticketTypeTitle = EmergencyTickets)
     return <>
@@ -90,7 +114,11 @@ const PdfView = () => {
                 />
             </Col>
             <Col span={24}>
-                <TicketAnalyticsPageListView data={data} viewMode={viewMode} />
+                <TicketAnalyticsPageListView data={data} viewMode={viewMode} filters={{
+                    range: [dateFrom, dateTo],
+                    addressList: JSON.parse(addressList),
+                    specification: specification,
+                }} />
             </Col>
         </Row>
     </>

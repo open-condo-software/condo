@@ -197,7 +197,7 @@ const ticketChartDataMapper = new TicketChart({
                         const [ticketType, dataObj] = rowEntry
                         const counts = Object.entries(dataObj)
                             .filter(obj => obj[0] === address).map(e => e[1]) as number[]
-                        tableRow[ticketType] = counts.reduce((a, b) => a + b)
+                        tableRow[ticketType] = counts.reduce((a, b) => a + b, 0)
                     })
                     dataSource.push(tableRow)
                 })
@@ -338,21 +338,23 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
             createdAt_lte: startDate.toISOString(),
             createdAt_gte: endDate.toISOString(),
             specification,
-            addressList: JSON.stringify(addressList.map(address => address.id)),
+            addressList: JSON.stringify(addressList),
         }))
-    }, [dateRange, specification])
+    }, [dateRange, specification, addressList])
 
     useEffect(() => {
         const queryParams = getQueryParams()
+        const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
         const startDate = get(queryParams, 'createdAt_lte')
         const endDate = get(queryParams, 'createdAt_gte')
         const specificationUrl = get(queryParams, 'specification')
-        if (startDate && endDate && specification) {
+        if (startDate && endDate && specification && addressList) {
+            setAddressList(addressList)
             setDateRange([moment(startDate), moment(endDate)])
             setSpecification(specificationUrl)
         }
         isEmpty(queryParams) && updateUrlFilters()
-        onChange({ range: dateRange, specification, addressList: addressList })
+        onChange({ range: dateRange, specification, addressList })
     }, [])
 
     useEffect(() => {
@@ -411,6 +413,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                             onSelect={onSelect}
                             onClear={onClear}
                             style={{ width: '100%' }}
+                            value={addressList.length ? addressList[0].value : ''}
                         />
                     </Form.Item>
                 </Col>
@@ -508,6 +511,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                 ticketType,
                 viewMode,
                 addressList: JSON.stringify(filtersRef.current.addressList),
+                specification: filtersRef.current.specification,
             }))
         },
         [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId],
