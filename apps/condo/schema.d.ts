@@ -18158,6 +18158,7 @@ export type User = {
   sender?: Maybe<Scalars['JSON']>;
   /**  Name. If impersonal account should be a company name  */
   name?: Maybe<Scalars['String']>;
+  hasEmail?: Maybe<Scalars['String']>;
   /**  Password. Update only  */
   password_is_set?: Maybe<Scalars['Boolean']>;
   /**  Field that allows you to distinguish CRM users from mobile app users  */
@@ -18190,6 +18191,12 @@ export type User = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+};
+
+
+/**  Individual / person / service account / impersonal company account  */
+export type UserHasEmailArgs = {
+  formatAs?: Maybe<Scalars['String']>;
 };
 
 export type UserCreateInput = {
@@ -18231,6 +18238,7 @@ export type UserHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  hasEmail?: Maybe<Scalars['JSON']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   isActive?: Maybe<Scalars['Boolean']>;
@@ -18260,6 +18268,7 @@ export type UserHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  hasEmail?: Maybe<Scalars['JSON']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   isActive?: Maybe<Scalars['Boolean']>;
@@ -18294,6 +18303,7 @@ export type UserHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  hasEmail?: Maybe<Scalars['JSON']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   isActive?: Maybe<Scalars['Boolean']>;
@@ -18351,6 +18361,10 @@ export type UserHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  hasEmail?: Maybe<Scalars['JSON']>;
+  hasEmail_not?: Maybe<Scalars['JSON']>;
+  hasEmail_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  hasEmail_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   password?: Maybe<Scalars['String']>;
   password_not?: Maybe<Scalars['String']>;
   password_contains?: Maybe<Scalars['String']>;

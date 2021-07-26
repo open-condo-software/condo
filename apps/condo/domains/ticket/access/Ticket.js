@@ -7,13 +7,7 @@ const { checkOrganizationPermission } = require('@condo/domains/organization/uti
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canReadTickets ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-
-    if (user.isAdmin) {
-        return {}
-    }
-
-    return { organization: { employees_some: { user: { id: user.id }, isBlocked: false } } }
+    return true
 }
 
 async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput }) {

@@ -209,7 +209,7 @@ const TicketIdPage = () => {
 
     const createCommentAction = TicketComment.useCreate({
         ticket: id,
-        user: auth.user.id,
+        user: auth.user && auth.user.id,
     }, () => { refetchComments() })
 
     const { link } = useOrganization()
@@ -219,7 +219,9 @@ const TicketIdPage = () => {
 
     if (!ticket) {
         return (
-            <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={error ? ServerErrorMessage : null}/>
+            <OrganizationRequired>
+                <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={error ? ServerErrorMessage : null}/>
+            </OrganizationRequired>
         )
     }
 
@@ -236,22 +238,11 @@ const TicketIdPage = () => {
         refetchTicket()
         ticketChangesResult.refetch()
     }
-
     const date = format(new Date(ticket.createdAt), 'd MMMM Y', { locale: LOCALES[intl.locale] })
-    const ShareMessage = intl.formatMessage({ id: 'ticket.shareMessage' }, {
-        date,
-        number: ticket.number,
-        details: ticket.details,
-    })
-
     return (
         <>
             <Head>
                 <title>{TicketTitleMessage}</title>
-                <meta property='og:site_name' content='CONDO' />
-                <meta property='og:title' content={TicketTitleMessage} />
-                <meta property='og:description' content={ShareMessage} />
-                <meta property='og:updated_time' content='14400000' />
             </Head>
             <PageWrapper>
                 <OrganizationRequired>
@@ -351,7 +342,10 @@ const TicketIdPage = () => {
                                             </Button>
                                         </Link>
                                         <ShareTicketModal
-                                            description={ShareMessage}
+                                            date={date}
+                                            number={ticket.number}
+                                            details={ticket.details}
+                                            id={id}
                                         />
                                         <Button
                                             type={'sberPrimary'}
