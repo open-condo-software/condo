@@ -25,7 +25,7 @@ test('Groupped counts [day, status]', async () => {
             groupBy: [ 'day', 'status' ],
         },
     })
-    console.log(result)
+    expect(result).toBeDefined()
 })
 test('Groupped counts [status, day]', async () => {
     const client = await makeClient()
@@ -46,7 +46,7 @@ test('Groupped counts [status, day]', async () => {
             groupBy: [ 'status', 'day' ],
         },
     })
-    console.log(result)
+    expect(result).toBeDefined()
 })
 test('Groupped counts [property, status]', async () => {
     const client = await makeClient()
@@ -68,5 +68,5 @@ test('Groupped counts [property, status]', async () => {
             groupBy: [ 'status', 'property' ],
         },
     })
-    console.log(result)
+    expect(result).toBeDefined()
 })

@@ -11,7 +11,7 @@ const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } upda
 const TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName status { id name type organization { id } colors } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name } operator { id name } assignee { id name } executor { id name } watchers { id name } classifier { id name organization { id } parent { id name } } details related { id details } isEmergency isPaid meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
-
+// TODO (sitozzz): @pahaz, @Dimitreee is it legal to do like this?
 const ANALITYCS_TICKET_FIELDS = '{ id createdAt property { id } status { id type } assignee { id } executor { id } }'
 const AnaliticsTicket = generateGqlQueries('Ticket', ANALITYCS_TICKET_FIELDS)
 
@@ -137,12 +137,6 @@ const GET_TICKET_WIDGET_REPORT_DATA = gql`
     }
 `
 
-const GET_TICKET_ANALYTICS_REPORT_DATA = gql`
-    query getAnalyticsData ($data: TicketReportAnalyticsInput!) {
-        result: getTicketReportAnalyticsData(data: $data) { data { result, labels, axisLabels, tableData, tableColumns } }
-    }
-`
-
 module.exports = {
     Ticket,
     AnaliticsTicket,
@@ -155,7 +149,6 @@ module.exports = {
     EXPORT_TICKETS_TO_EXCEL,
     GET_TICKET_WIDGET_REPORT_DATA,
     TicketComment,
-    GET_TICKET_ANALYTICS_REPORT_DATA,
     TICKET_ANALYTICS_REPORT_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

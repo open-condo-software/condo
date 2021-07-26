@@ -65,17 +65,7 @@ const PdfView = () => {
         if (addressList.length) {
             AND.push({ property: { id_in: addressList.map(({ id }) => id) } })
         }
-        loadTicketAnalyticsData({
-            variables: {
-                data: {
-                    groupBy,
-                    where: {
-                        AND,
-                    },
-                },
-            },
-        })
-
+        loadTicketAnalyticsData({ variables: { data: { groupBy, where: { AND } } } })
 
     }, [userOrganizationId])
 
