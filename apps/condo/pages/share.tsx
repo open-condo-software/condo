@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import Router from 'next/router'
-import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import crypto from 'crypto'
@@ -10,7 +9,8 @@ import {
     SALT,
     CRYPTOENCODING,
 } from '@condo/domains/ticket/constants/crypto'
-
+import React from 'react'
+import BaseLayout, { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 
 function RedirectToTicket ({ ticketId }) {
     const intl = useIntl()
@@ -76,12 +76,23 @@ const Share: IShareProps = ({ date, number, details, id }) => {
 export const getServerSideProps = ({ query }) => {
     const decipher = crypto.createDecipher(ALGORITHM, SALT)
     const decryptedText = decipher.update(query.q.replace(/\s/gm, '+'), CRYPTOENCODING, 'utf8') + decipher.final('utf8')
-    // TODO(pahaz): check is user email/phone is verified
+    // TODO(leonid-d): update encrypt method, or use link shortening service
     return { props: JSON.parse(decryptedText) }
 }
 
-Share.container = AuthLayout
+
+const EmptyLayout = ({ children, ...props }) => {
+    return <BaseLayout
+        {...props}
+        logoLocation='topMenu'
+        className='top-menu-only-layout'
+    >
+        <PageWrapper>
+            {children}
+        </PageWrapper>
+    </BaseLayout>
+}
+
+Share.container = EmptyLayout
 
 export default Share
-
-// http://localhost:3000/share?q=IJnfQeKro5my9UrJlK1F9QE727SwjHwWc99mrjpu56z9kPKefjJjx0e7n%2BQFhLlO%2BmC%2Bq2TZXwUvT5NCGRjWjnmzYv9t60eTqlv%2B6WwJmyBz5VAf%2BOan19bBpBGUJ0KOjVK1YMMfe8pwim7%2BygrA8XUW7X7vOA5VI6XqkxqaHKijk1Pte%2FlgqEuPf2Xl6g0U1m1KZ50mwiqfvott6uSH7XFzc%2B24qEYMyqxfLDasEzIJ%2BJxYY0fjU6bHFh49OaCMQwoXCSfcw5cUw6Jp%2BH605IgxNo9OHuupf9dI48wkHnkMVXyw9MECwXF9h6jE21x15URABK%2BTJnKPCv%2BYGGjs%2B4QHrTwsR%2BnFr0E71%2Fbgvew%3D
