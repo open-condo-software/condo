@@ -109,7 +109,8 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
             const message = `${ImportSuccessMessage} [${successRowsRef.current}/${totalRowsRef.current}]`
             destroyActiveModal()
             if (errors && errors.errorsContainer.length > 0) {
-                const config = getPartlyLoadedModalConfig(ImportTitle, message, GetFailedDataMessage, CloseMessage, errors.errorsContainer)
+                const config = getPartlyLoadedModalConfig(ImportTitle, message, GetFailedDataMessage, CloseMessage,
+                    errors.errorsContainer, columns)
                 activeModal.current = modal.confirm(config)
             } else {
                 const config = getUploadSuccessModalConfig(ImportTitle, message, ImportOKMessage)
