@@ -25,11 +25,6 @@ const Resident = new GQLListSchema('Resident', {
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-            access: {
-                read: true,
-                update: userIsAdmin,
-                create: true,
-            },
         },
 
         organization: {
