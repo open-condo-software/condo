@@ -6,22 +6,13 @@
 
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 
-const gql = require('graphql-tag')
-
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
 const RESIDENT_FIELDS = `{ user { id name } organization { id } property { id } billingAccount { id } address addressMeta unitName ${COMMON_FIELDS} }`
 const Resident = generateGqlQueries('Resident', RESIDENT_FIELDS)
-
-const REGISTER_RESIDENT_MUTATION = gql`
-    mutation registerResident ($data: RegisterResidentInput!) {
-        result: registerResident(data: $data) { id v dv sender address addressMeta unitName }
-    }
-`
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Resident,
-    REGISTER_RESIDENT_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

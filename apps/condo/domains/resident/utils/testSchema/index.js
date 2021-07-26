@@ -7,12 +7,9 @@ const faker = require('faker')
 const { get } = require('lodash')
 const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
-
-const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { Resident: ResidentGQL } = require('@condo/domains/resident/gql')
-const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Resident = generateGQLTestUtils(ResidentGQL)
@@ -60,30 +57,9 @@ async function updateTestResident (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-
-async function registerResidentByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const address = faker.address.streetAddress(true)
-    const unitName = faker.random.alphaNumeric(3)
-
-    const attrs = {
-        dv: 1,
-        sender,
-        address,
-        addressMeta: buildFakeAddressMeta(address),
-        unitName,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(REGISTER_RESIDENT_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
-
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     Resident, createTestResident, updateTestResident,
-    registerResidentByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
