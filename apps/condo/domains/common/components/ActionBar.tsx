@@ -20,7 +20,7 @@ const ActionBar: React.FC = ({ children }) => {
     return (
         <Affix offsetBottom={24}>
             <div css={actionBar}>
-                <Space wrap={true} size={40}>
+                <Space size={40}>
                     { children }
                 </Space>
             </div>

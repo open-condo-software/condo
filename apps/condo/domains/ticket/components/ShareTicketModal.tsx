@@ -31,7 +31,6 @@ const collapse = css`
 
     & .ant-collapse-content {
         border-top: none;
-
     }
 
     & .ant-collapse-item:last-child,
@@ -104,6 +103,7 @@ const ShareButton = styled.span`
 
   &:hover, &:focus {
       color: ${green[5]};
+      background-color: ${colors.white}
   }
 
   & .anticon {
