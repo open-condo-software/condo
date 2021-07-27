@@ -505,5 +505,7 @@
   "EditingContact": "Editing contact",
   "EditingContactNoPermission": "You have no permissions to edit this contact",
   "Close": "Close",
-  "GetFailedData": "Get failed rows"
+  "GetFailedData": "Get failed rows",
+  "TooManyRowsInTable": "Your table contains too many rows. Maximum amount is {value}.",
+  "TableHasInvalidHeaders": "Your table contains invalid columns. We expect it to be: {value}"
 }

@@ -4,12 +4,16 @@ import {
     RowNormalizer,
     RowValidator,
     ObjectCreator,
-    ColumnInfo, ProcessedRow,
+    Columns,
+    ProcessedRow,
+    ImporterErrorMessages,
+    MAX_TABLE_LENGTH,
 } from '@condo/domains/common/utils/importer'
+import { useIntl } from '@core/next/intl'
 
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useImporter = (columns: Array<ColumnInfo>,
+export const useImporter = (columns: Columns,
     rowNormalizer: RowNormalizer,
     rowValidator: RowValidator,
     objectCreator: ObjectCreator,
@@ -18,10 +22,21 @@ export const useImporter = (columns: Array<ColumnInfo>,
     handleRowError: (row: ProcessedRow) => void,
     onFinish: () => void,
     onError: () => void) => {
+    const intl = useIntl()
+    const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable' }, {
+        value: MAX_TABLE_LENGTH,
+    })
+    const InvalidRowsErrorMessage = intl.formatMessage({ id: 'TableHasInvalidHeaders' }, {
+        value: columns.map(column => `"${column.name}"`).join(', '),
+    })
     const [progress, setProgress] = useState(0)
     const [error, setError] = useState(null)
     const [isImported, setIsImported] = useState(false)
     const importer = useRef(null)
+    const errors: ImporterErrorMessages = {
+        tooManyRows: TooManyRowsErrorMessage,
+        invalidColumns: InvalidRowsErrorMessage,
+    }
 
     const importData = useCallback((data) => {
         importer.current = null
@@ -31,7 +46,7 @@ export const useImporter = (columns: Array<ColumnInfo>,
         setProgress(0)
         setTotalRows(Math.max(0, data.length - 1))
 
-        importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator)
+        importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator, errors)
         importer.current.onProgressUpdate(setProgress)
         importer.current.onError((e) => {
             importer.current = null
