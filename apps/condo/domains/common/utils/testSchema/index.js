@@ -91,6 +91,34 @@ export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
 }
 
 /**
+ * Expects a GraphQLError of type 'AccessDeniedError', thrown by Keystone on trying to execute a mutation,
+ * which by convention returns `result` object.
+ * Should be used to examine access to GraphQL mutations, that returns `result`.
+ * @example
+ *
+ * test('something, that should throw an error', async () => {
+ *     const client = await makeClient()
+ *     await expectToThrowAccessDeniedErrorToResult(async () => {
+ *         await registerResidentByTestClient(client)
+ *     })
+ * })
+ *
+ * @param {TestFunc} testFunc - Function, expected to throw an error
+ * @return {Promise<void>}
+ */
+export const expectToThrowAccessDeniedErrorToResult = async (testFunc ) => {
+    await catchErrorFrom(testFunc, ({ errors, data }) => {
+        expect(errors[0]).toMatchObject({
+            'message': 'You do not have access to this resource',
+            'name': 'AccessDeniedError',
+            'path': ['result'],
+        })
+        expect(data).toEqual({ 'result': null })
+    })
+}
+
+
+/**
  * Expects a GraphQL 'AuthenticationError' Error, thrown by access check if case of UNAUTHENTICATED user access.
  * Should be used to examine access to `getAll` GraphQL utility wrapper, that returns `objs`.
  * @example
