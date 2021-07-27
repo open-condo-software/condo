@@ -12,9 +12,9 @@ export type FinishHandler = () => void
 export type SuccessProcessingHandler = (row: TableRow) => void
 export type FailProcessingHandler = (row: ProcessedRow) => void
 export type ErrorHandler = (error: Error) => void
-export type RowNormalizer = (row: TableRow) => Promise<ProcessedRow | null>
-export type RowValidator = (row: ProcessedRow | null) => Promise<boolean>
-export type ObjectCreator = (row: ProcessedRow | null) => Promise<unknown>
+export type RowNormalizer = (row: TableRow) => Promise<ProcessedRow>
+export type RowValidator = (row: ProcessedRow) => Promise<boolean>
+export type ObjectCreator = (row: ProcessedRow) => Promise<unknown>
 export type Columns = Array<ColumnInfo>
 
 interface IImporter {
