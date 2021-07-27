@@ -27,7 +27,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     // @ts-ignore
-    const contactCreateAction = Contact.useCreate({ organization: userOrganizationId },
+    const contactCreateAction = Contact.useCreate({},
         () => Promise.resolve())
 
     const columns: Columns = [
