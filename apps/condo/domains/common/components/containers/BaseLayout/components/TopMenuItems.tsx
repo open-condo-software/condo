@@ -11,11 +11,11 @@ import { TopMenuItem, menuIconStyles } from './styles'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 import { Loader } from '@condo/domains/common/components/Loader'
 
-interface ITopMenuItemsProps {
+export interface ITopMenuItemsProps {
     isMobile: boolean
     isSideMenuCollapsed: boolean
     headerAction?: React.ElementType
-    toggleSideMenuCollapsed: () => void
+    toggleSideMenuCollapsed: () => void,
 }
 
 export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {

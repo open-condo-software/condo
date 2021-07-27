@@ -13,7 +13,7 @@ import { Highliter } from '@condo/domains/common/components/Highliter'
 import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { EmptyTableCell } from '@condo/domains/common/components/EmptyTableCell'
 
-interface ITableColumn {
+export interface ITableColumn {
     title: string,
     ellipsis?: boolean,
     sortOrder?: string,

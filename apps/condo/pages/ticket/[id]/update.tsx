@@ -7,12 +7,13 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { PageWithAuthBoundProps } from './index'
 
-const TicketUpdatePage = () => {
+const TicketUpdatePage = ({ AuthBound }: PageWithAuthBoundProps) => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.EditTicketModalTitle' })
-
     const { query } = useRouter()
+    const ResAuthBound = AuthBound ? AuthBound : OrganizationRequired
 
     return (
         <>
@@ -20,7 +21,7 @@ const TicketUpdatePage = () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
+                <ResAuthBound>
                     <PageContent>
                         <Row gutter={[0, 40]} style={{ height: '100%' }}>
                             <Col span={24}>
@@ -29,7 +30,7 @@ const TicketUpdatePage = () => {
                             <TicketForm id={query.id as string}/>
                         </Row>
                     </PageContent>
-                </OrganizationRequired>
+                </ResAuthBound>
             </PageWrapper>
         </>
     )

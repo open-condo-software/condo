@@ -147,7 +147,11 @@ const TicketTag = styled(Tag)`
   line-height: 24px;
 `
 
-const TicketIdPage = () => {
+export interface PageWithAuthBoundProps {
+    AuthBound?: React.FC,
+}
+
+const TicketIdPage = ({ AuthBound }: PageWithAuthBoundProps) => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
@@ -234,13 +238,15 @@ const TicketIdPage = () => {
         ticketChangesResult.refetch()
     }
 
+    const ResAuthBound = AuthBound ? AuthBound : OrganizationRequired
+
     return (
         <>
             <Head>
                 <title>{TicketTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
+                <ResAuthBound>
                     <PageContent>
                         <Row gutter={[0, 40]}>
                             <Col span={16}>
@@ -382,7 +388,7 @@ const TicketIdPage = () => {
                             </Col>
                         </Row>
                     </PageContent>
-                </OrganizationRequired>
+                </ResAuthBound>
             </PageWrapper>
         </>
     )

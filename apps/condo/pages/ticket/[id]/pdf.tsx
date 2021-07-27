@@ -17,6 +17,7 @@ import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { PageWithAuthBoundProps } from './index'
 
 interface ITicketDescriptionFieldProps {
     title?: string
@@ -227,13 +228,14 @@ const DynamicPdfView = dynamic(() => Promise.resolve(PdfView), {
     ssr: false,
 })
 
-function TicketPdfPage () {
+function TicketPdfPage ({ AuthBound }: PageWithAuthBoundProps) {
+    const ResAuthBound = AuthBound ? AuthBound : OrganizationRequired
     return (
-        <OrganizationRequired>
+        <ResAuthBound>
             <PageContent>
                 <DynamicPdfView/>
             </PageContent>
-        </OrganizationRequired>
+        </ResAuthBound>
     )
 }
 
