@@ -9,6 +9,9 @@ const TROW_ERRORS_ON_LOW_CAPTCHA_SCORE = false
 const MAX_SMS_FOR_IP_BY_DAY = 100
 const MAX_SMS_FOR_PHONE_BY_DAY = 20
 
+// Value of `User.type`, that indicates, that this user is a resident (from mobile client).
+const RESIDENT = 'resident'
+
 module.exports = {
     MIN_PASSWORD_LENGTH,
     LOCK_TIMEOUT,
@@ -20,4 +23,5 @@ module.exports = {
     TROW_ERRORS_ON_LOW_CAPTCHA_SCORE,
     MAX_SMS_FOR_IP_BY_DAY,
     MAX_SMS_FOR_PHONE_BY_DAY,
+    RESIDENT,
 }
