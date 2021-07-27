@@ -117,6 +117,14 @@ async function makeClientWithResidentUser() {
     return client
 }
 
+async function makeClientWithStaffUser() {
+    const [user, userAttrs] = await registerNewUser(await makeClient())
+    const client = await makeLoggedInClient(userAttrs)
+    await addStaffAccess(user)
+    client.user = user
+    client.userAttrs = userAttrs
+    return client
+}
 
 async function addAdminAccess (user) {
     const admin = await makeLoggedInAdminClient()
@@ -131,6 +139,11 @@ async function addSupportAccess (user) {
 async function addResidentAccess (user) {
     const admin = await makeLoggedInAdminClient()
     await User.update(admin, user.id, { type: RESIDENT })
+}
+
+async function addStaffAccess (user) {
+    const admin = await makeLoggedInAdminClient()
+    await User.update(admin, user.id, { type: 'staff' })
 }
 
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
@@ -209,8 +222,8 @@ async function updateTestForgotPasswordAction (client, id, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient, makeClientWithResidentUser, makeClientWithSupportUser,
-    makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, addSupportAccess, createTestEmail, createTestPhone,
+    User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient, makeClientWithResidentUser, makeClientWithStaffUser, makeClientWithSupportUser,
+    makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, addSupportAccess, addStaffAccess, createTestEmail, createTestPhone,
     ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
     ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction,
 /* AUTOGENERATE MARKER <EXPORTS> */

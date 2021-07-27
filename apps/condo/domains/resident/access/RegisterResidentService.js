@@ -8,7 +8,7 @@ async function canRegisterResident ({ authentication: { item: user } }) {
     if (!user) throwAuthenticationError()
     if (user.type === RESIDENT) return true
     if (user.isAdmin) return true
-    return throwAuthenticationError()
+    return false
 }
 
 /*

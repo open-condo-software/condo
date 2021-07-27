@@ -8,9 +8,10 @@ const { registerNewOrganization } = require('@condo/domains/organization/utils/t
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithResidentUser } = require('../../user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
-const { expectToThrowAuthenticationError } = require('@condo/domains/common/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, createTestUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { catchErrorFrom } = require('../../common/utils/testSchema')
 
 describe('RegisterResidentService', () => {
     test('can be executed by user with "resident" type', async () => {
@@ -75,5 +76,19 @@ describe('RegisterResidentService', () => {
         expect(resident.user.id).toEqual(adminClient.user.id)
         expect(resident.property.id).toEqual(property.id)
         expect(resident.organization.id).toEqual(organization.id)
+    })
+
+    test('cannot be executed for staff', async () => {
+        const staffClient = await makeClientWithStaffUser()
+        await catchErrorFrom(async () => {
+            await registerResidentByTestClient(staffClient)
+        }, ({ errors, data }) => {
+            expect(errors[0]).toMatchObject({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['result'],
+            })
+            expect(data).toEqual({ 'result': null })
+        })
     })
 })
