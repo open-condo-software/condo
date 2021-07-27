@@ -1,8 +1,9 @@
 const path = require('path')
 const fs = require('fs')
 const dotenv = require('dotenv')
-const DEBUG = false
+const falsey = require('falsey')
 
+const DEBUG = false
 let namespace = undefined
 const root = path.resolve(path.join(__dirname, '../..'))
 const cwd = process.cwd()
@@ -60,6 +61,7 @@ function getConfig (namespace) {
         // LOCAL MEDIA FILES 
         MEDIA_ROOT: process.env.MEDIA_ROOT || path.join(root, '__media'),
         MEDIA_URL: process.env.MEDIA_URL || '/media',
+        DEBUG_APOLLO: !falsey(process.env.DEBUG_APOLLO),
     }
 
     const getter = (obj, name) => {
