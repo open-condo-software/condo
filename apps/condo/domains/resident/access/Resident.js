@@ -12,9 +12,7 @@ async function canReadResidents ({ authentication: { item: user } }) {
             user: { id: user.id },
         }
     }
-    return {
-        organization: { employees_some: { user: { id: user.id }, isBlocked: false } },
-    }
+    return false
 }
 
 async function canManageResidents ({ authentication: { item: user }, originalInput, operation, itemId, context }) {

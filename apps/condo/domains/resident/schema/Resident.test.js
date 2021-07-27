@@ -4,7 +4,7 @@
 
 const faker = require('faker')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithResidentUser, addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
@@ -180,28 +180,18 @@ describe('Resident', () => {
             expect(objs[0].id).toMatch(obj.id)
         })
 
-        it('can be read by user, who is employed in organization, which manages associated property', async () => {
+        it('cannot be read by user, who is employed in organization, which manages associated property', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
-            const objs = await Resident.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
-            expect(objs).toHaveLength(1)
-            expect(objs[0].id).toMatch(obj.id)
+            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Resident.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
+            })
         })
 
         it('user with type "resident" can read only own residents', async () => {
             const userClient = await makeClientWithProperty()
-            const anotherUserClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
-            await createTestResident(adminClient, anotherUserClient.user, anotherUserClient.organization, userClient.property)
-            const objs = await Resident.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
-            expect(objs).toHaveLength(1)
-            expect(objs[0].id).toMatch(obj.id)
-        })
-
-        it('cannot be read by user, who is not employed in organization, which manages associated property', async () => {
-            const userClient = await makeClientWithProperty()
+            await addResidentAccess(userClient.user)
             const anotherUserClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
