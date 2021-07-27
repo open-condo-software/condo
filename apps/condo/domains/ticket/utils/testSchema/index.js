@@ -8,15 +8,15 @@ const faker = require('faker')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { TICKET_STATUS_TYPES } = require('../../constants')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
-const { TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
-const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
-const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
-const { TicketFile: TicketFileGQL } = require('@condo/domains/ticket/gql')
+const { 
+    TicketStatus: TicketStatusGQL, 
+    TicketChange: TicketChangeGQL,
+    TicketSource: TicketSourceGQL,
+    TicketFile: TicketFileGQL
+} = require('@condo/domains/ticket/gql')
 const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
-const { TICKET_ANALYTICS_REPORT_MUTATION } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
