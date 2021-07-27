@@ -5,14 +5,13 @@
 const { TICKET_ANALYTICS_REPORT_MUTATION } = require(('@condo/domains/ticket/gql'))
 const moment = require('moment')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestTicket, makeClientWithTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { TICKET_STATUS_TYPES } = require('@condo/domains/ticket/constants')
 const DATE_FORMAT = 'DD.MM.YYYY'
 const NOW_DATE = moment().format(DATE_FORMAT)
 
 test('Groupped counts [day, status]', async () => {
-    const client = await makeClientWithProperty()
-    await createTestTicket(client, client.organization, client.property)
+    const client = await makeClientWithTicket()
     const dateStart = moment().startOf('week')
     const dateEnd = moment().endOf('week')
     const { data: { result: { result } } } = await client.query(TICKET_ANALYTICS_REPORT_MUTATION, {
@@ -62,9 +61,12 @@ test('Groupped counts [status, day]', async () => {
     expect(ticketCountMap.every(count => (count <= 1))).toBe(true)
 })
 
-test('Groupped counts [property, status]', async () => {
+test('Groupped counts [day, status] with property filter', async () => {
     const client = await makeClientWithProperty()
     await createTestTicket(client, client.organization, client.property)
+    await createTestTicket(client, client.organization, client.property, { isPaid: true })
+    await createTestTicket(client, client.organization, client.property, { isEmergency: true })
+
     const dateStart = moment().startOf('week')
     const dateEnd = moment().endOf('week')
     const { data: { result: { result } } } = await client.query(TICKET_ANALYTICS_REPORT_MUTATION, {
@@ -76,15 +78,16 @@ test('Groupped counts [property, status]', async () => {
                     { organization: { id: client.organization.id } },
                     { createdAt_gte: dateStart.toISOString() },
                     { createdAt_lte: dateEnd.toISOString() },
-                    { isEmergency: false },
+                    { property: { id_in: [ client.property.id ] } },
                     { isPaid: false },
-                    { property: { id_in: [client.property.id] } },
+                    { isEmergency: false },
                 ],
             },
-            groupBy: [ 'property', 'status' ],
+            groupBy: [ 'day', 'status' ],
         },
     })
-    const ticketCountMap = Object.values(result[client.property.address])
     expect(result).toBeDefined()
-    expect(ticketCountMap.some(count => count === 1)).toBe(true)
+    const countsMap = Object.values(result).flatMap(obj => Object.values(obj))
+    expect(countsMap.some(e =>  e === 1)).toBe(true)
+    expect(countsMap.filter(e => e === 1)).toHaveLength(1)
 })
