@@ -17,7 +17,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
         },
         {
             access: true,
-            type: 'input TicketAnalyticsReportInput { where: TicketWhereInput!, groupBy: [String!] }',
+            type: 'input TicketAnalyticsReportInput { where: TicketWhereInput!, groupBy: [TicketAnalyticsGroupBy!] }',
         },
         {
             access: true,
@@ -27,7 +27,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
 
     queries: [
         {
-            access: access.canTicketAnalyticsReport,
+            access: access.canReadTicketAnalyticsReport,
             schema: 'ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { where = {}, groupBy = [] } } = args

@@ -6,8 +6,6 @@ const access = require('@condo/domains/ticket/access/TicketReportService')
 const { TICKET_STATUS_TYPES: ticketStatusTypes } = require('@condo/domains/ticket/constants')
 
 const PERIOD_TYPES = ['week', 'month', 'quarter']
-const TICKET_TYPES = ['default', 'paid', 'emergency']
-const CHART_VIEW_MODES = ['bar', 'line', 'pie']
 
 const countTicketsByStatuses = async (context, dateStart, dateEnd, organizationId) => {
     const answer = {}
@@ -56,14 +54,6 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
         {
             access: true,
             type: 'type TicketReportWidgetOutput { data: [ TicketReportData! ] }',
-        },
-        {
-            access: true,
-            type: `enum TicketType { ${TICKET_TYPES.join(' ')} }`,
-        },
-        {
-            access: true,
-            type: `enum ChartViewMode { ${CHART_VIEW_MODES.join(' ')} }`,
         },
     ],
     queries: [

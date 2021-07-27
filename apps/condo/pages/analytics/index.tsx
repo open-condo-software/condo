@@ -38,7 +38,7 @@ import { useRouter } from 'next/router'
 import qs from 'qs'
 import DateRangePicker from '@condo/domains/common/components/DateRangePicker'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { viewModeTypes, TicketChart } from '@condo/domains/ticket/components/TicketChart'
+import TicketChart, { viewModeTypes, AnalyticsDataType } from '@condo/domains/ticket/components/TicketChart'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { filterToQuery } from '@condo/domains/ticket/utils/helpers'
 
@@ -47,7 +47,7 @@ interface IPageWithHeaderAction extends React.FC {
 }
 type specificationTypes = 'day' | 'week' | 'month'
 interface ITicketAnalyticsPageWidgetProps {
-    data: null | unknown;
+    data: null | AnalyticsDataType;
     viewMode: viewModeTypes;
     loading?: boolean;
 }
@@ -127,9 +127,7 @@ const ticketChartDataMapper = new TicketChart({
                     defaultSortOrder: 'descend',
                     sorter: (a, b) => moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
                 },
-                ...Object.entries(data).map(([key, value]: [string, number]) => (
-                    { title: key, dataIndex: key, key, sorter: (a, b) => a[value] - b[value] }
-                )),
+                ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) =>a[key] - b[key] })),
             ]
             const uniqueDates = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
             uniqueDates.forEach((date, key) => {
@@ -172,9 +170,7 @@ const ticketChartDataMapper = new TicketChart({
             const dataSource = []
             const tableColumns: TableColumnsType = [
                 { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
-                ...Object.entries(data).map(([key, value]: [string, number]) => (
-                    { title: key, dataIndex: key, key, sorter: (a, b) => a[value] - b[value] }
-                )),
+                ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
             ]
             const restTableColumns = {}
             const addressList = get(filters, 'addresses')
