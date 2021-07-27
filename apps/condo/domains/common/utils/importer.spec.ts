@@ -164,27 +164,6 @@ describe('importer tests', () => {
             expect(result).toHaveLength(tableLength)
             expect(result).toStrictEqual(expectedResult)
         })
-        it('with empty table', async () => {
-            const result = []
-            let errors = false
-            let finished = false
-            const fakeCreator = getFakeCreator(result)
-            const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, TEST_SLEEP_TIME)
-            importer.onError(() => {
-                errors = true
-            })
-            importer.onFinish(() => {
-                finished = true
-            })
-            const table = []
-            const expectedResult = []
-            await importer.import(table)
-
-            expect(errors).toEqual(false)
-            expect(finished).toEqual(true)
-            expect(result).toHaveLength(0)
-            expect(result).toStrictEqual(expectedResult)
-        })
     })
     describe('should handle errors', () => {
         it('when columns don\'t match', async () => {
@@ -212,13 +191,35 @@ describe('importer tests', () => {
             expect(finished).toEqual(false)
             expect(result).toStrictEqual([])
         })
-        it('skipp invalid rows', async () => {
+        it('when no columns at all', async () => {
+            const result = []
+            let errors = false
+            let finished = false
+            let errorText = ''
+            const fakeCreator = getFakeCreator(result)
+            const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, TEST_SLEEP_TIME)
+            importer.onError((error) => {
+                errorText = error.message
+                errors = true
+            })
+            importer.onFinish(() => {
+                finished = true
+            })
+            const table = []
+            await importer.import(table)
+
+            expect(errors).toEqual(true)
+            expect(errorText).toEqual(defaultErrors.invalidColumns)
+            expect(finished).toEqual(false)
+            expect(result).toStrictEqual([])
+        })
+        it('skip invalid rows', async () => {
             const result = []
             let errors = false
             let finished = false
             const fakeCreator = getFakeCreator(result)
             const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, TEST_SLEEP_TIME)
-            importer.onError(() => {
+            importer.onError((error) => {
                 errors = true
             })
             importer.onFinish(() => {
@@ -228,7 +229,7 @@ describe('importer tests', () => {
             const tableLength = 6
             const brokenRow = 3
             const table = generateTable(tableLength)
-            table[3][0].value = 'not integer'
+            table[brokenRow][0].value = 'not integer'
             await importer.import(table)
 
             const expectedResult = []

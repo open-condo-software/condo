@@ -170,7 +170,9 @@ export class Importer implements IImporter {
         const row = table.shift()
 
         if (!this.isRowValid(row)) {
-            this.failProcessingHandler({ row })
+            if (this.failProcessingHandler) {
+                this.failProcessingHandler({ row })
+            }
             return this.createRecord(table, index++)
         }
         return this.rowNormalizer(row)
