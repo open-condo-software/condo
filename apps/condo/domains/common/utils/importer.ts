@@ -16,6 +16,10 @@ export type RowNormalizer = (row: TableRow) => Promise<ProcessedRow>
 export type RowValidator = (row: ProcessedRow) => Promise<boolean>
 export type ObjectCreator = (row: ProcessedRow) => Promise<unknown>
 export type Columns = Array<ColumnInfo>
+export type ImporterErrorMessages = {
+    invalidColumns: string
+    tooManyRows: string
+}
 
 interface IImporter {
     import: (data: Array<TableRow>) => Promise<void>
@@ -31,6 +35,7 @@ export interface ColumnInfo {
 }
 
 const SLEEP_INTERVAL_BEFORE_QUERIES = 300
+export const MAX_TABLE_LENGTH = 500
 
 export class Importer implements IImporter {
     constructor (
@@ -38,7 +43,9 @@ export class Importer implements IImporter {
         private rowNormalizer: RowNormalizer,
         private rowValidator: RowValidator,
         private objectCreator: ObjectCreator,
-        private sleepInterval: number = SLEEP_INTERVAL_BEFORE_QUERIES
+        private errors: ImporterErrorMessages,
+        private sleepInterval: number = SLEEP_INTERVAL_BEFORE_QUERIES,
+        private maxTableLength: number = MAX_TABLE_LENGTH
     ) {
         this.columnsNames = columnsTemplate.map(column => column.name.trim().toLowerCase())
         this.columnsTypes = columnsTemplate.map(column => column.type)
@@ -64,12 +71,16 @@ export class Importer implements IImporter {
         this.tableData = data
         const [columns, ...body] = this.tableData
         if (!columns) {
-            this.finishHandler()
+            this.errorHandler(new Error(this.errors.invalidColumns))
             return
         }
         if (!this.isColumnsValid(columns)) {
-            // TODO (savelevmatthew): Add correct code / translations?
-            this.errorHandler(new Error('Invalid columns name!'))
+            this.errorHandler(new Error(this.errors.invalidColumns))
+            return
+        }
+
+        if (body.length > this.maxTableLength) {
+            this.errorHandler(new Error(this.errors.tooManyRows))
             return
         }
 
