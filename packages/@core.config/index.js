@@ -1,7 +1,6 @@
 const path = require('path')
 const fs = require('fs')
 const dotenv = require('dotenv')
-const falsey = require('falsey')
 
 const DEBUG = false
 let namespace = undefined
@@ -38,7 +37,10 @@ if (DEBUG) console.log(`@core.config: inited! namespace=${namespace}, cwd=${cwd}
 if (DEBUG) console.dir(process.env)
 
 function getEnv (namespace, name, defaultValue) {
-    return preprocessEnv(process.env[`${namespace}_${name}`] || process.env[`${name}`] || defaultValue)
+    let variable = preprocessEnv(process.env[`${namespace}_${name}`] || process.env[`${name}`] || defaultValue)
+    if (variable === 'true') variable = true
+    else if (variable === 'false') variable = false
+    return variable
 }
 
 function preprocessEnv (v) {
@@ -61,7 +63,6 @@ function getConfig (namespace) {
         // LOCAL MEDIA FILES 
         MEDIA_ROOT: process.env.MEDIA_ROOT || path.join(root, '__media'),
         MEDIA_URL: process.env.MEDIA_URL || '/media',
-        DEBUG_APOLLO: !falsey(process.env.DEBUG_APOLLO),
     }
 
     const getter = (obj, name) => {
