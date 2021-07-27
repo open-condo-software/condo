@@ -24,7 +24,7 @@ const BillingOrganization = new GQLListSchema('BillingOrganization', {
         },
 
         iec: {
-            schemaDoc: ' Industrial Enterprise Classification. In Russia: KPP',
+            schemaDoc: 'Industrial Enterprise Classification. In Russia: KPP',
             type: Text,
             isRequired: true,
         },
@@ -35,8 +35,8 @@ const BillingOrganization = new GQLListSchema('BillingOrganization', {
             isRequired: true,
         },
 
-        checkNumber: {
-            schemaDoc: 'Number of the checking account of organization',
+        bankAccount: {
+            schemaDoc: 'Number of the bank account of the organization',
             type: Text,
             isRequired: true,
         },
