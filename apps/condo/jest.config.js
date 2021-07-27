@@ -1,8 +1,12 @@
+const conf = require('@core/config')
+
+/** @type {import('@jest/types').Config.InitialOptions} */
 module.exports = {
-    // this is not working in jest =(
-    // https://github.com/facebook/jest/issues/11500
+    // this is not working in jest =( https://github.com/facebook/jest/issues/11500
     // testTimeout: 1000000,
-    silent: true,    
+    silent: true,   
+    // https://stackoverflow.com/questions/43864793/why-does-jest-runinband-speed-up-tests
+    maxWorkers: conf.IN_CI ? 1 : 4, 
     reporters: [
         'default',
         [

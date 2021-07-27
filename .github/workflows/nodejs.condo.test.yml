@@ -84,3 +84,4 @@ jobs:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
           DISABLE_LOGGING: true
+          IN_CI: true
