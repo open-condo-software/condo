@@ -10416,6 +10416,7 @@ export type Query = {
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
+  ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -11699,6 +11700,11 @@ export type QueryTicketReportWidgetDataArgs = {
 
 export type QueryExportTicketsToExcelArgs = {
   data: ExportTicketsToExcelInput;
+};
+
+
+export type QueryTicketAnalyticsReportArgs = {
+  data?: Maybe<TicketAnalyticsReportInput>;
 };
 
 export type ReInviteOrganizationEmployeeInput = {
@@ -13469,9 +13475,17 @@ export type Ticket_WatchersMetaArgs = {
   skip?: Maybe<Scalars['Int']>;
 };
 
+export enum TicketAnalyticsGroupBy {
+  Day = 'day',
+  Week = 'week',
+  Month = 'month',
+  Status = 'status',
+  Property = 'property'
+}
+
 export type TicketAnalyticsReportInput = {
   where: TicketWhereInput;
-  groupBy: Array<Maybe<Scalars['String']>>;
+  groupBy?: Maybe<Array<TicketAnalyticsGroupBy>>;
 };
 
 export type TicketAnalyticsReportOutput = {
