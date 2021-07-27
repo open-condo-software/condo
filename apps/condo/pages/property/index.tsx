@@ -5,7 +5,6 @@ import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/comp
 import { Typography, Space, Radio, Row, Col, Input, Table } from 'antd'
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import Head from 'next/head'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { MapGL } from '@condo/domains/common/components/MapGL'
 import { Button } from '@condo/domains/common/components/Button'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -19,7 +18,6 @@ import pickBy from 'lodash/pickBy'
 import get from 'lodash/get'
 import has from 'lodash/has'
 import XLSX from 'xlsx'
-import isEmpty from 'lodash/isEmpty'
 
 import {
     getPageIndexFromQuery,
@@ -191,75 +189,62 @@ const PropertyPageViewTable = (): React.FC => {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
     }
 
-    const isNoProperties = !properties.length && isEmpty(filtersFromQuery)
-
     const canManageProperties = get(userOrganization, ['link', 'role', 'canManageProperties'], false)
 
     return (
-        <>
-            {
-                isNoProperties ?
-                    <EmptyListView
-                        label={EmptyListLabel}
-                        message={EmptyListMessage}
-                        createRoute={createRoute}
-                        createLabel={CreateLabel} />
-                    :
-                    <Row align={'middle'} gutter={[0, 40]}>
-                        <Col span={6}>
-                            <Input
-                                placeholder={SearchPlaceholder}
-                                onChange={(e)=>{handleSearchChange(e.target.value)}}
-                                value={search}
-                            />
-                        </Col>
-                        <Col span={6} push={1}>
-                            <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData} >{ExportAsExcel}</Button>
-                        </Col>
-                        <Col span={6} push={6} align={'right'}>
-                            <Space size={16}>
-                                <ImportWrapper
-                                    objectsName={PropertiesMessage}
-                                    accessCheck={canManageProperties}
-                                    onFinish={refetch}
-                                    columns={columns}
-                                    rowNormalizer={propertyNormalizer}
-                                    rowValidator={propertyValidator}
-                                    objectCreator={propertyCreator}
-                                >
-                                    <Button
-                                        type={'sberPrimary'}
-                                        icon={<DiffOutlined />}
-                                        secondary
-                                    />
-                                </ImportWrapper>
-                                <Button type='sberPrimary' onClick={() => router.push(createRoute)}>
-                                    {CreateLabel}
-                                </Button>
-                            </Space>
-                        </Col>
-                        <Col span={24}>
-                            <Table
-                                bordered
-                                tableLayout={'fixed'}
-                                loading={loading}
-                                dataSource={properties}
-                                onRow={handleRowAction}
-                                rowKey={record => record.id}
-                                columns={tableColumns}
-                                onChange={handleTableChange}
-                                pagination={{
-                                    showSizeChanger: false,
-                                    total,
-                                    current: offsetFromQuery,
-                                    pageSize: PROPERTY_PAGE_SIZE,
-                                    position: ['bottomLeft'],
-                                }}
-                            />
-                        </Col>
-                    </Row>
-            }
-        </>
+        <Row align={'middle'} gutter={[0, 40]}>
+            <Col span={6}>
+                <Input
+                    placeholder={SearchPlaceholder}
+                    onChange={(e)=>{handleSearchChange(e.target.value)}}
+                    value={search}
+                />
+            </Col>
+            <Col span={6} push={1}>
+                <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData} >{ExportAsExcel}</Button>
+            </Col>
+            <Col span={6} push={6} align={'right'}>
+                <Space size={16}>
+                    <ImportWrapper
+                        objectsName={PropertiesMessage}
+                        accessCheck={canManageProperties}
+                        onFinish={refetch}
+                        columns={columns}
+                        rowNormalizer={propertyNormalizer}
+                        rowValidator={propertyValidator}
+                        objectCreator={propertyCreator}
+                    >
+                        <Button
+                            type={'sberPrimary'}
+                            icon={<DiffOutlined />}
+                            secondary
+                        />
+                    </ImportWrapper>
+                    <Button type='sberPrimary' onClick={() => router.push(createRoute)}>
+                        {CreateLabel}
+                    </Button>
+                </Space>
+            </Col>
+            <Col span={24}>
+                <Table
+                    bordered
+                    tableLayout={'fixed'}
+                    loading={loading}
+                    dataSource={properties}
+                    onRow={handleRowAction}
+                    rowKey={record => record.id}
+                    columns={tableColumns}
+                    onChange={handleTableChange}
+                    pagination={{
+                        showSizeChanger: false,
+                        total,
+                        current: offsetFromQuery,
+                        pageSize: PROPERTY_PAGE_SIZE,
+                        position: ['bottomLeft'],
+                    }}
+                />
+            </Col>
+        </Row>
     )
 }
 
