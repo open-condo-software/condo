@@ -20,7 +20,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
         {
             access: access.canRegisterResident,
             schema: 'registerResident(data: RegisterResidentInput!): Resident',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data: { dv, sender, address, addressMeta, unitName } } = args
                 const attrs = {
                     dv,

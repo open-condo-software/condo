@@ -18,9 +18,8 @@ async function canReadResidents ({ authentication: { item: user } }) {
 async function canManageResidents ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return false
     if (user.isAdmin) return true
-    if (operation === 'create' ) {
-        if (user.type === RESIDENT)
-            return true
+    if (operation === 'create' && user.type === RESIDENT) {
+        return true
     }
     return false
 }
