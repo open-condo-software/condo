@@ -1,7 +1,7 @@
 import React from 'react'
 import { Alert, Progress } from 'antd'
 import get from 'lodash/get'
-import { Columns, ErrorInfo } from '../../utils/importer'
+import { Columns, ProcessedRow } from '../../utils/importer'
 import XLSX from 'xlsx'
 
 export const ModalContext = React.createContext({ progress: 0, error: null, isImported: false })
@@ -82,8 +82,12 @@ export const getUploadProgressModalConfig = (title: string, processingMessage: s
     }
 }
 
+function fitToColumn (arrayOfArray) {
+    return arrayOfArray[0].map((a, i) => ({ wch: Math.max(...arrayOfArray.map(a2 => a2[i] ? a2[i].toString().length : 0)) }))
+}
+
 export const getPartlyLoadedModalConfig = (title: string, content: string, okText: string, cancelText: string,
-    errors: Array<ErrorInfo>, columns: Columns) => {
+    errors: Array<ProcessedRow>, columns: Columns) => {
     return {
         title: title,
         closable: false,
@@ -105,6 +109,7 @@ export const getPartlyLoadedModalConfig = (title: string, content: string, okTex
                     }
                     const wb = XLSX.utils.book_new()
                     const ws = XLSX.utils.aoa_to_sheet(data)
+                    ws['!cols'] = fitToColumn(data)
                     XLSX.utils.book_append_sheet(wb, ws, 'table')
                     XLSX.writeFile(wb, 'failed_data.xlsx')
                 } catch (e) {

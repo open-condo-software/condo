@@ -4,7 +4,7 @@ import {
     RowNormalizer,
     RowValidator,
     ObjectCreator,
-    ColumnInfo,
+    ColumnInfo, ProcessedRow,
 } from '@condo/domains/common/utils/importer'
 
 
@@ -14,7 +14,8 @@ export const useImporter = (columns: Array<ColumnInfo>,
     rowValidator: RowValidator,
     objectCreator: ObjectCreator,
     setTotalRows: (number) => void,
-    setSuccessRows: (number?) => void,
+    setSuccessRows: () => void,
+    handleRowError: (row: ProcessedRow) => void,
     onFinish: () => void,
     onError: () => void) => {
     const [progress, setProgress] = useState(0)
@@ -46,6 +47,9 @@ export const useImporter = (columns: Array<ColumnInfo>,
         })
         importer.current.onRowProcessed(() => {
             setSuccessRows()
+        })
+        importer.current.onRowFailed((row) => {
+            handleRowError(row)
         })
         importer.current.import(data)
     }, [])

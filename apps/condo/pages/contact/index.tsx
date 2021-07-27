@@ -16,7 +16,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import { pickBy, get, debounce } from 'lodash'
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
@@ -28,7 +28,6 @@ import { TitleHeaderAction } from '@condo/domains/common/components/HeaderAction
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DiffOutlined } from '@ant-design/icons'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
-import { TableRow } from '../../domains/common/utils/importer'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 
@@ -103,14 +102,7 @@ const ContactPage = () => {
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const canManageContacts = get(userOrganization, ['link', 'role', 'canManageContacts'], false)
-    const failedRows = useRef([])
-    const addFailedRow = (row: TableRow, cells: Array<number>) => {
-        failedRows.current.push({ row, cells })
-    }
-    const clearFailedRows = () => {
-        failedRows.current.splice(0, failedRows.current.length)
-    }
-    const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions(addFailedRow)
+    const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
     return (
         <>
             <Head>
@@ -146,7 +138,6 @@ const ContactPage = () => {
                                                     rowNormalizer={contactNormalizer}
                                                     rowValidator={contactValidator}
                                                     objectCreator={contactCreator}
-                                                    errors={{ errorsContainer: failedRows.current, clearErrorsContainer: clearFailedRows }}
                                                 >
                                                     <Button
                                                         type={'sberPrimary'}
