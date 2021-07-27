@@ -8,7 +8,8 @@ const { MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS, MESSAGE_DELIVERED_STAT
 const sleep = async (time) => (new Promise((resolve => {
     setTimeout(resolve, time)
 })))
-
+// https://github.com/facebook/jest/issues/11500
+jest.setTimeout(30000)
 describe('SendMessageService.sendMessage', () => {
     test('admin: use send message', async () => {
         const admin = await makeLoggedInAdminClient()
