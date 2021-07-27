@@ -221,19 +221,6 @@ async function updateTestTicketComment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function ticketAnalyticsReportByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(TICKET_ANALYTICS_REPORT_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -261,6 +248,5 @@ module.exports = {
     makeClientWithTicket,
     TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier,
     TicketComment, createTestTicketComment, updateTestTicketComment,
-ticketAnalyticsReportByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

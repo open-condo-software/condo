@@ -19,8 +19,11 @@ type restTableOptions = {
     translations: unknown;
     filters?: unknown;
 }
+
+export type AnalyticsDataType = Record<string, Record<string, number>>
+
 interface IGetTableConfig {
-    (viewMode: viewModeTypes, data: unknown, restOptions: restTableOptions): {
+    (viewMode: viewModeTypes, data: AnalyticsDataType, restOptions: restTableOptions): {
         dataSource: TableProps<any>['dataSource'], tableColumns: TableColumnsType
     }
 }
@@ -43,6 +46,4 @@ class TicketChart {
 
 }
 
-export {
-    TicketChart,
-}
+export default TicketChart
