@@ -13,6 +13,7 @@ const { registerTasks } = require('@core/keystone/tasks')
 const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const express = require('express')
+const bodyParser = require('body-parser')
 
 const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
@@ -114,11 +115,23 @@ class OBSFilesMiddleware {
     }
 }
 
+/**
+ * We need a custom body parser for custom file upload limit
+ */
+class CustomBodyParserMiddleware {
+    prepareMiddleware ({ keystone, dev, distDir }) {
+        const app = express()
+        app.use(bodyParser.json({ limit: '100mb', extended: true }))
+        app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }))
+        return app
+    }
+}
 
 
 module.exports = {
     keystone,
     apps: [
+        new CustomBodyParserMiddleware(),
         new GraphQLApp({
             apollo: {
                 formatError,
