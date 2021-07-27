@@ -25,6 +25,7 @@ const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
 } = require('@condo/domains/user/constants/common')
+const { RESIDENT } = require('../../constants/common')
 
 async function createTestUser (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -129,7 +130,7 @@ async function addSupportAccess (user) {
 
 async function addResidentAccess (user) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { type: 'resident'})
+    await User.update(admin, user.id, { type: RESIDENT })
 }
 
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)

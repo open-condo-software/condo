@@ -21,7 +21,6 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
             access: access.canRegisterResident,
             schema: 'registerResident(data: RegisterResidentInput!): Resident',
             resolver: async (parent, args, context, info, extra = {}) => {
-                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data: { dv, sender, address, addressMeta, unitName } } = args
                 const attrs = {
                     dv,
