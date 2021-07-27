@@ -8,10 +8,10 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingReceipt')
-const { validatePaymentDetails, validateServices } = require('../utils/validation.utils')
+const { validatePaymentDetails, validateServices, validateRecipient } = require('../utils/validation.utils')
 const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD, BILLING_ORGANIZATION_FIELD } = require('./fields')
+const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD } = require('./fields')
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
     schemaDoc: 'Account monthly invoice document',
@@ -21,11 +21,11 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         context: INTEGRATION_CONTEXT_FIELD,
         property: BILLING_PROPERTY_FIELD,
-        recipient: BILLING_ORGANIZATION_FIELD,
         account: BILLING_ACCOUNT_FIELD,
 
         importId: IMPORT_ID_FIELD,
         period: PERIOD_FIELD,
+
         printableNumber: {
             schemaDoc: 'A number to print on the payment document.',
             type: Text,
@@ -55,6 +55,15 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             isRequired: false,
             hooks: {
                 validateInput: validateServices,
+            },
+        },
+
+        recipient: {
+            schemaDoc: 'Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4',
+            type: Json,
+            isRequired: false,
+            hooks: {
+                validateInput: validateRecipient,
             },
         },
     },
