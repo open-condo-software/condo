@@ -1,4 +1,4 @@
-import { Columns, ObjectCreator, RowNormalizer, RowValidator, TableRow } from '@condo/domains/common/utils/importer'
+import { Columns, ObjectCreator, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
 import { useOrganization } from '@core/next/organization'
 import { useApolloClient } from '@core/next/apollo'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
@@ -19,9 +19,7 @@ const parsePhones = (phones: string) => {
     }).filter(phone => phone)
 }
 
-type addFailedFunction = (row: TableRow, cells: Array<number>) => void
-
-export const useImporterFunctions = (errorProcessor: addFailedFunction): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
+export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const userOrganization = useOrganization()
     const client = useApolloClient()
     const { addressApi } = useAddressApi()
@@ -66,28 +64,16 @@ export const useImporterFunctions = (errorProcessor: addFailedFunction): [Column
     }
 
     const contactValidator: RowValidator = (row) => {
-        let cells = []
-        if (!row || !row.addons) {
-            cells = [1, 2, 3, 4]
-        }
-        if (!row.addons.address || !row.addons.property) {
-            cells.push(0)
-        }
-        if (!row.addons.fullName) {
-            cells.push(3)
-        }
+        if (!row || !row.addons) return Promise.resolve(false)
+        if (!row.addons.property) return Promise.resolve(false)
+        if (!row.addons.fullName) return Promise.resolve(false)
+
         const unitName = get(row.row, ['1', 'value'])
-        if (!unitName || String(unitName).trim().length === 0) {
-            cells.push(1)
-        }
+        if (!unitName || String(unitName).trim().length === 0) return Promise.resolve(false)
+
         const phones = get(row.addons, ['phones'])
-        if (!phones || phones.length === 0) {
-            cells.push(2)
-        }
-        if (cells.length > 0) {
-            errorProcessor(row.row, cells)
-            return Promise.resolve(false)
-        }
+        if (!phones || phones.length === 0) return Promise.resolve(false)
+
         return Promise.resolve(true)
     }
 
