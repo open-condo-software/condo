@@ -260,6 +260,7 @@
   "pages.condo.warning.modal.SaveLabel": "Save",
   "pages.condo.warning.modal.LeaveLabel": "Leave",
   "pages.condo.residents.PageTitle": "Residents",
+  "pages.condo.ticket.field.Client": "Client (resident)",
   "pages.condo.ticket.field.Description": "Problem description",
   "pages.condo.ticket.field.Files": "Files list",
   "pages.condo.ticket.field.Details": "Details",
