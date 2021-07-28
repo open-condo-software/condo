@@ -131,13 +131,17 @@ export default function GlobalStyle () {
                 margin: 40px 0 16px;
               }
 
-              .ant-table-column-sorter {
+              .ant-table-column-sorter, .ant-table-filter-trigger {
                 visibility: hidden;
+              }
+
+              .ant-table-filter-trigger.active {
+                visibility: visible;
               }
 
               .ant-table-cell {
                 &:hover {
-                  .ant-table-column-sorter {
+                  .ant-table-column-sorter, .ant-table-filter-trigger {
                     visibility: visible;
                   }
                 }
