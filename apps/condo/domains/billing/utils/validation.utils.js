@@ -37,9 +37,16 @@ const PAYMENT_SCHEMA = {
     type: 'object',
     properties: {
         formula: { type: 'string' },
+        charge: { type: 'number' },
+        measure: { type: 'string' },
+        tariff: { type: 'number' },
+        balance: { type: 'number' },
+        recalculation: { type: 'number' },
+        privilege: { type: 'number' },
+        penalty: { type: 'number' },
     },
     required: ['formula'],
-    additionalProperties: true,
+    additionalProperties: false,
 }
 
 const _jsonPaymentObjectSchemaValidator = ajv.compile(PAYMENT_SCHEMA)
@@ -77,7 +84,6 @@ function _validateServices (resolvedData, fieldPath, addFieldValidationError) {
         })
     }
 }
-
 
 const PAYMENT_RECIPIENT_SCHEMA = {
     type: 'object',
