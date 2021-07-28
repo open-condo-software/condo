@@ -37,7 +37,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: 'Address', type: 'string', required: true },
         { name: 'Unit Name', type: 'string', required: true },
         { name: 'Phones', type: 'string', required: true },
-        { name: 'Full name', type: 'string', required: true },
+        { name: 'Full Name', type: 'string', required: true },
         { name: 'Email', type: 'string', required: false },
     ]
 
