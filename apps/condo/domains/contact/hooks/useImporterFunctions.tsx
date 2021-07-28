@@ -8,15 +8,17 @@ import { searchProperty, searchContacts } from '@condo/domains/ticket/utils/clie
 
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
+const SPLIT_PATTERN = /[, ;.]+/
+
 const parsePhones = (phones: string) => {
-    const splitPhones = phones.split(/[, ;.]+/)
+    const splitPhones = phones.split(SPLIT_PATTERN)
     return splitPhones.map(phone => {
         if (phone.startsWith('8')) {
             phone = '+7' + phone.substring(1)
         }
         phone = phone.replace(/[^0-9+]/g, '')
         return normalizePhone(phone)
-    }).filter(phone => phone)
+    })
 }
 
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
@@ -71,7 +73,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         const unitName = get(row.row, ['1', 'value'])
         if (!unitName || String(unitName).trim().length === 0) return Promise.resolve(false)
 
-        const phones = get(row.addons, ['phones'])
+        const phones = get(row.addons, ['phones'], []).filter(phone => phone)
         if (!phones || phones.length === 0) return Promise.resolve(false)
 
         return Promise.resolve(true)
@@ -81,8 +83,14 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (!row) return Promise.resolve()
         const unitName = String(get(row.row, ['1', 'value'])).trim().toLowerCase()
         const contactPool = []
+        const splitPhones = String(row.row[2].value).split(SPLIT_PATTERN)
+        const inValidPhones = []
         for (let i = 0; i < row.addons.phones.length; i++) {
             const phone: string = row.addons.phones[i]
+            if (!phone && i < splitPhones.length) {
+                inValidPhones.push(splitPhones[i])
+                continue
+            }
             contactPool.push(searchContacts(client, {
                 organizationId: userOrganizationId,
                 propertyId: row.addons.property,
@@ -104,7 +112,12 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 })
             }))
         }
-        return Promise.all(contactPool)
+        return Promise.all(contactPool).then(() => {
+            if (inValidPhones.length > 0) {
+                row.row[2].value = inValidPhones.join('; ')
+                row.shouldBeReported = true
+            }
+        })
     }
 
     return [columns, contactNormalizer, contactValidator, contactCreator]
