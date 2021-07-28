@@ -49,17 +49,19 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     }, [])
 
     async function handleSearch (value) {
-        setLoading(true)
+        if (search) {
+            setLoading(true)
 
-        const data = await search(
-            client,
-            (selected && (!props.mode || props.mode !== 'multiple'))
-                ? selected + ' ' + value
-                : value,
-        )
-        setLoading(false)
-        if (data.length) setData(data)
-        setValue(value)
+            const data = await search(
+                client,
+                (selected && (!props.mode || props.mode !== 'multiple'))
+                    ? selected + ' ' + value
+                    : value,
+            )
+            setLoading(false)
+            if (data.length) setData(data)
+            setValue(value)
+        }
     }
 
     function handleSelect (value, option) {

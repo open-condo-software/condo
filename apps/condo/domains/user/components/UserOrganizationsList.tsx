@@ -104,9 +104,8 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
     )
 }
 
-export const UserOrganizationsList: React.FC = () => {
+export const UserOrganizationsList = ({ employeeOrganizationData }) => {
     const { user } = useAuth()
-    const employeeOrganizationData = useOrganization()
 
     const { objs: userOrganizations, loading } = OrganizationEmployee.useObjects(
         { where: user ? { user: { id: user.id }, isAccepted: true } : {} },

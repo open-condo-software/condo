@@ -81,6 +81,8 @@ const antGlobalVariables = {
     '@checkbox-color': sberGreen,
     '@checkbox-check-bg': ultraLightGrey,
     '@checkbox-border-width': '2px',
+    '@radio-dot-color': sberGreen,
+    '@radio-button-checked-bg': sberGreen,
     '@form-item-margin-bottom': '0',
     '@success-color': green[6],
     '@table-border-color': colors.lightGrey[5],

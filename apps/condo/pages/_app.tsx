@@ -19,7 +19,6 @@ import BehaviorRecorder from '@condo/domains/common/components/containers/Behavi
 import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
-
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {

@@ -27,10 +27,19 @@ import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySear
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
-import { SortTicketsBy } from '../../schema'
+import { SortTicketsBy, TicketWhereInput } from '../../schema'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { PageWithAuthBoundProps } from './[id]'
+import { ColumnType } from 'antd/lib/table'
+import { ITableColumn } from '../../domains/property/hooks/useTableColumns'
 
-interface IPageWithHeaderAction extends React.FC {
+interface TicketIndexPage extends PageWithAuthBoundProps {
+    ticketsWhere?: TicketWhereInput
+    useTableColumns?: (sort: Array<string>, filters: IFilters,
+        setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => ColumnType<ITableColumn>[]
+}
+
+interface IPageWithHeaderAction extends React.FC<TicketIndexPage> {
     headerAction?: JSX.Element
 }
 
@@ -40,7 +49,7 @@ const verticalAlign = css`
     }
 `
 
-const TicketsPage: IPageWithHeaderAction = () => {
+const TicketsPage: IPageWithHeaderAction = ({ AuthBound, ticketsWhere: ticketsWhereFromProps, useTableColumns: useTableColumnsFromProps  }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -57,11 +66,17 @@ const TicketsPage: IPageWithHeaderAction = () => {
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
     const pagesizeFromQuey: number = getPageSizeFromQuery(router.query)
 
+    const ResAuthBound = AuthBound ? AuthBound : OrganizationRequired
+
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC' //TODO(Dimitreee):Find cleanest solution
-    const where = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
+
+    const getResTicketProps: () => TicketWhereInput = () => {
+        return ticketsWhereFromProps ? ticketsWhereFromProps : { organization: { id: userOrganizationId } }
+    }
+    const where = { ...filtersToQuery(filtersFromQuery), ...getResTicketProps() }
 
     const {
         fetchMore,
@@ -94,7 +109,8 @@ const TicketsPage: IPageWithHeaderAction = () => {
     )
 
     const [filtersApplied, setFiltersApplied] = useState(false)
-    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
+    const resUseTableColumns = useTableColumnsFromProps ? useTableColumnsFromProps : useTableColumns
+    const tableColumns = resUseTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -143,7 +159,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
+                <ResAuthBound>
                     <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
                     <PageContent>
                         {
@@ -214,7 +230,7 @@ const TicketsPage: IPageWithHeaderAction = () => {
                                 </Row>
                         }
                     </PageContent>
-                </OrganizationRequired>
+                </ResAuthBound>
             </PageWrapper>
         </>
     )

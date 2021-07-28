@@ -4,7 +4,7 @@ import { Dropdown, Form, Input, List, Menu, Modal, Popconfirm, Skeleton, Typogra
 import { Button } from '@condo/domains/common/components/Button'
 import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import React, { FunctionComponent, useCallback, useState, useRef } from 'react'
+import React, { FunctionComponent, useCallback, useState, useRef, CSSProperties } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
 import { throttle } from 'lodash'
@@ -210,7 +210,8 @@ interface IFormWithAction {
     formValuesToMutationDataPreprocessorContext?: Record<string, unknown>
     OnErrorMsg?: string
     OnCompletedMsg?: string
-    onMutationCompleted?: (result) => void
+    onMutationCompleted?: (result) => void,
+    style?: CSSProperties,
 }
 
 const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
@@ -236,6 +237,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
         colon = true,
         layout = 'vertical',
         validateTrigger,
+        style,
     } = props
 
     const [form] = Form.useForm()
@@ -338,6 +340,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
             onValuesChange={handleChange}
             colon={colon}
             scrollToFirstError
+            style={style}
         >
             <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input /></Form.Item>
             {children({ handleSave, isLoading, handleSubmit: _handleSubmit, form })}

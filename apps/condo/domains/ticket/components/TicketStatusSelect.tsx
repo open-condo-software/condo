@@ -20,11 +20,11 @@ const StyledSelect = styled(Select)`
   border-radius: 4px;
 `
 
-export const TicketStatusSelect = ({ ticket, onUpdate, ...props }) => {
+export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, ...props }) => {
     const intl = useIntl()
     const FormattedStatusUpdateMessage = useMemo(() => getTicketFormattedLastStatusUpdate(intl, ticket), [ticket])
 
-    const { statuses, loading } = useStatusTransitions(get(ticket, ['status', 'id']))
+    const { statuses, loading } = useStatusTransitions(get(ticket, ['status', 'id']), organization, employee)
     const update = Ticket.useUpdate({}, () => onUpdate())
 
     const updateTicketStatus = useCallback((variables) => runMutation({

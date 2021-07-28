@@ -14,6 +14,38 @@ import { colors } from '@condo/domains/common/constants/style'
 
 type IAddressSearchInput = SelectProps<string>
 
+export const renderOption = (dataItem, searchValue) =>  (
+    <Select.Option
+        style={{ direction: 'rtl', textAlign: 'left', color: grey[6] }}
+        key={dataItem.value}
+        value={dataItem.text}
+        title={dataItem.text}
+    >
+        {
+            searchValue === dataItem.text
+                ? dataItem.text
+                : (
+                    <Highliter
+                        text={dataItem.text}
+                        search={searchValue}
+                        renderPart={(part, index) => {
+                            return (
+                                <Typography.Text
+                                    strong
+                                    key={part + index}
+                                    style={{ color: colors.black }}
+                                >
+                                    {part}
+                                </Typography.Text>
+                            )
+                        }}
+                    />
+                )
+        }
+    </Select.Option>
+)
+
+
 export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props) => {
     // TODO(Dimitree):remove ts ignore after useOrganizationTypo
     // @ts-ignore
@@ -40,42 +72,6 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
             }
 
             return searchProperty(client, where, 'unitsCount_DESC')
-        },
-        [],
-    )
-
-    const renderOption = useCallback(
-        (dataItem, searchValue) => {
-            return (
-                <Select.Option
-                    style={{ direction: 'rtl', textAlign: 'left', color: grey[6] }}
-                    key={dataItem.value}
-                    value={dataItem.text}
-                    title={dataItem.text}
-                >
-                    {
-                        searchValue === dataItem.text
-                            ? dataItem.text
-                            : (
-                                <Highliter
-                                    text={dataItem.text}
-                                    search={searchValue}
-                                    renderPart={(part, index) => {
-                                        return (
-                                            <Typography.Text
-                                                strong
-                                                key={part + index}
-                                                style={{ color: colors.black }}
-                                            >
-                                                {part}
-                                            </Typography.Text>
-                                        )
-                                    }}
-                                />
-                            )
-                    }
-                </Select.Option>
-            )
         },
         [],
     )

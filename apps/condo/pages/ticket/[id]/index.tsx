@@ -31,6 +31,7 @@ import { Comments } from '@condo/domains/common/components/Comments'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { Organization, OrganizationEmployee } from '@core/keystone/schema'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 
@@ -151,7 +152,12 @@ export interface PageWithAuthBoundProps {
     AuthBound?: React.FC,
 }
 
-const TicketIdPage = ({ AuthBound }: PageWithAuthBoundProps) => {
+export interface TicketIdPageProps extends PageWithAuthBoundProps {
+    employee?: OrganizationEmployee
+    organization?: Organization
+}
+
+const TicketIdPage = ({ AuthBound, employee: employeeFromProps, organization: organizationFromProps }: TicketIdPageProps) => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
@@ -216,11 +222,13 @@ const TicketIdPage = ({ AuthBound }: PageWithAuthBoundProps) => {
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
+    const ResAuthBound = AuthBound ? AuthBound : OrganizationRequired
+
     if (!ticket) {
         return (
-            <OrganizationRequired>
+            <ResAuthBound>
                 <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={error ? ServerErrorMessage : null}/>
-            </OrganizationRequired>
+            </ResAuthBound>
         )
     }
 
@@ -237,9 +245,7 @@ const TicketIdPage = ({ AuthBound }: PageWithAuthBoundProps) => {
         refetchTicket()
         ticketChangesResult.refetch()
     }
-
-    const ResAuthBound = AuthBound ? AuthBound : OrganizationRequired
-
+    
     return (
         <>
             <Head>
@@ -274,7 +280,13 @@ const TicketIdPage = ({ AuthBound }: PageWithAuthBoundProps) => {
                                             </Col>
                                             <Col span={6}>
                                                 <Row justify={'end'}>
-                                                    <TicketStatusSelect ticket={ticket} onUpdate={handleTicketStatusChanged} loading={loading}/>
+                                                    <TicketStatusSelect
+                                                        organization={organizationFromProps}
+                                                        employee={employeeFromProps}
+                                                        ticket={ticket}
+                                                        onUpdate={handleTicketStatusChanged}
+                                                        loading={loading}
+                                                    />
                                                 </Row>
                                             </Col>
                                         </Row>
@@ -374,7 +386,7 @@ const TicketIdPage = ({ AuthBound }: PageWithAuthBoundProps) => {
                                         // @ts-ignore
                                         createAction={createCommentAction}
                                         comments={comments}
-                                        canCreateComments={get(auth, ['user', 'isAdmin']) || get(link, ['role', 'canManageTicketComments'])}
+                                        canCreateComments={get(auth, ['user', 'isAdmin']) || get(link, ['role', 'canManageTicketComments']) || get(employeeFromProps, ['role', 'canManageTicketComments'])}
                                         actionsFor={comment => {
                                             const isAuthor = comment.user.id === auth.user.id
                                             const isAdmin = get(auth, ['user', 'isAdmin'])

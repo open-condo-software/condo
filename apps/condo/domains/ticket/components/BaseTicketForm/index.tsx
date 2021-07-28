@@ -25,7 +25,7 @@ import { InputWithCounter } from '@condo/domains/common/components/InputWithCoun
 
 const { TabPane } = Tabs
 
-const LAYOUT = {
+export const LAYOUT = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
 }
@@ -144,7 +144,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     )
 }
 
-const TicketPurpose = ({ validations, organization, disableUserInteraction }) => {
+const TicketPurpose = ({ validations, organizationId, disableUserInteraction }) => {
     const intl = useIntl()
 
     const TicketPurposeTitle = intl.formatMessage({ id: 'TicketPurpose' })
@@ -173,7 +173,7 @@ const TicketPurpose = ({ validations, organization, disableUserInteraction }) =>
                     >
                         <GraphQlSearchInput
                             formatLabel={formatUserFieldLabel}
-                            search={searchEmployee(get(organization, 'id'))}
+                            search={searchEmployee(organizationId)}
                             allowClear={false}
                             showArrow={false}
                             disabled={disableUserInteraction}
@@ -188,7 +188,7 @@ const TicketPurpose = ({ validations, organization, disableUserInteraction }) =>
                     >
                         <GraphQlSearchInput
                             formatLabel={formatUserFieldLabel}
-                            search={searchEmployee(get(organization, 'id'))}
+                            search={searchEmployee(organizationId)}
                             allowClear={false}
                             showArrow={false}
                             disabled={disableUserInteraction}
@@ -200,7 +200,7 @@ const TicketPurpose = ({ validations, organization, disableUserInteraction }) =>
     )
 }
 
-export const TicketInfo = ({ validations, UploadComponent, organization, initialValues }) => {
+export const TicketInfo = ({ validations, UploadComponent, organizationId, initialValues }) => {
     const intl = useIntl()
 
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
@@ -280,7 +280,7 @@ export const TicketInfo = ({ validations, UploadComponent, organization, initial
                                     <TicketPurpose
                                         disableUserInteraction={disableUserInteraction}
                                         validations={validations}
-                                        organization={organization}
+                                        organizationId={organizationId}
                                     />
                                 </Row>
                             </FrontLayerContainer>
@@ -423,7 +423,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 <TicketInfo
                                     UploadComponent={UploadComponent}
                                     validations={validations}
-                                    organization={organization}
+                                    organizationId={organization.id}
                                     initialValues={initialValues}
                                 />
                                 <Form.Item name={'source'} hidden>

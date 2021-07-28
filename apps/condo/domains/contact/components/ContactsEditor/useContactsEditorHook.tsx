@@ -6,6 +6,7 @@ import { IContactUIState } from '../../utils/clientSchema/Contact'
 interface IContactsEditorHookArgs {
     // Organization scope for contacts autocomplete and new contact, that can be created
     organization: string,
+    role?: Record<string, boolean>,
 }
 
 interface IContactsEditorHookResult {
@@ -15,7 +16,7 @@ interface IContactsEditorHookResult {
     canCreateContact: boolean,
 }
 
-export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs): IContactsEditorHookResult => {
+export const useContactsEditorHook = ({ organization, role }: IContactsEditorHookArgs): IContactsEditorHookResult => {
     // Field value will be initialized only on user interaction.
     // In case of no interaction, no create action will be performed
     // @ts-ignore
@@ -71,12 +72,13 @@ export const useContactsEditorHook = ({ organization }: IContactsEditorHookArgs)
         const ContactsEditorWrapper = (props) => (
             <ContactsEditor
                 {...props}
+                role={role}
                 organization={organization}
                 onChange={handleChangeContact}
             />
         )
         return ContactsEditorWrapper
-    }, [])
+    }, [role, organization])
 
     return {
         createContact,

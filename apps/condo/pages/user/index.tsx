@@ -13,6 +13,7 @@ import { UserOrganizationsList } from '@condo/domains/user/components/UserOrgani
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { useOrganization } from '@core/next/organization'
 
 export const UserInfoPage = () => {
     const intl = useIntl()
@@ -22,6 +23,7 @@ export const UserInfoPage = () => {
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
 
     const { user, refetch } = useAuth()
+    const employeeOrganizationData = useOrganization()
 
     useEffect(() => {
         refetch()
@@ -98,7 +100,11 @@ export const UserInfoPage = () => {
                                         </Row>
                                     </Col>
                                     <Col span={24}>
-                                        <UserOrganizationsList/>
+                                        {
+                                            employeeOrganizationData ? (
+                                                <UserOrganizationsList employeeOrganizationData={employeeOrganizationData}/>
+                                            ) : null
+                                        }
                                     </Col>
                                 </Row>
                             </Col>

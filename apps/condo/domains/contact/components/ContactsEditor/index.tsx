@@ -49,6 +49,7 @@ export interface IContactEditorProps {
     // Composite scope of organization, property and unitName, used to
     // fetch contacts for autocomplete fields.
     organization?: string,
+    role?: Record<string, boolean>,
     property?: string,
     unitName?: string,
 }
@@ -62,13 +63,14 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const CannotCreateContactMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.CannotCreateContact' })
     const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
 
-    const { form, fields, value: initialValue, onChange, organization, property, unitName } = props
+    const { form, fields, value: initialValue, onChange, organization, role: roleFromProps, property, unitName } = props
 
     const [contacts, setContacts] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState()
-    const { link: { role = {} } } = useOrganization()
+    const { link } = useOrganization()
     const client = useApolloClient()
+    const role = link ? link.role : roleFromProps ? roleFromProps : null
 
     searchContacts(client, {
         organizationId: organization,
