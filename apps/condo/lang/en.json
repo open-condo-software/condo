@@ -412,7 +412,7 @@
   "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Resident Name",
   "ticket.shareTitle": "Ticket #{number} dated {date} has been shared with you.",
-  "ticket.shareDetails": "The text of the ticket: \"{details}…\"",
+  "ticket.shareDetails": "The text of the ticket: \"{details}\"",
   "ticket.shareWarningEmail": "Some employees will not receive a ticket because we do not know their email address. You can add their mail in the \"{link}\" section.\nNo mail for:\n{employees}\n",
   "ticket.shareHeader": "Send ticket's link",
   "ticket.shareSent": "Ticket sent",
