@@ -1,3 +1,4 @@
+const { validatePeriod } = require('../utils/validation.utils')
 const { Text, Relationship, CalendarDay } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 
@@ -64,7 +65,9 @@ const PERIOD_FIELD = {
     schemaDoc: 'Period date: Generated on template 01_<month>_<year>',
     type: CalendarDay,
     isRequired: true,
-    // TODO(pahaz): validate it
+    hooks: {
+        validateInput: validatePeriod,
+    },
 }
 
 module.exports = {
