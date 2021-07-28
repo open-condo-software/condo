@@ -7,18 +7,16 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { PageWithAuthBoundProps } from './[id]'
-import { BaseTicketForm, ITicketFormProps } from '@condo/domains/ticket/components/BaseTicketForm'
-import { BaseTicketFormProvider } from '../../domains/ticket/hooks/useBaseTicketForm'
+import { ITicketFormProps } from '@condo/domains/ticket/components/BaseTicketForm'
 
 export interface TicketFormPageProps extends PageWithAuthBoundProps {
     BaseTicketForm?: React.FC<ITicketFormProps>,
 }
 
-const CreateTicketPage = ({ AuthBound, BaseTicketForm: BaseTicketFormFromProps }: TicketFormPageProps) => {
+const CreateTicketPage = ({ AuthBound }: TicketFormPageProps) => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.CreateTicketModalTitle' })
     const ResAuthBound = AuthBound ? AuthBound : OrganizationRequired
-    const ResBaseTicketForm = BaseTicketFormFromProps ? BaseTicketFormFromProps : BaseTicketForm
     return (
         <>
             <Head>
@@ -31,9 +29,7 @@ const CreateTicketPage = ({ AuthBound, BaseTicketForm: BaseTicketFormFromProps }
                             <Col span={24}>
                                 <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                             </Col>
-                            <BaseTicketFormProvider BaseTicketForm={ResBaseTicketForm}>
-                                <TicketForm/>
-                            </BaseTicketFormProvider>
+                            <TicketForm/>
                         </Row>
                     </PageContent>
                 </ResAuthBound>

@@ -7,7 +7,6 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { BaseTicketFormProvider } from '../../../domains/ticket/hooks/useBaseTicketForm'
 import { BaseTicketForm } from '../../../domains/ticket/components/BaseTicketForm'
 import { TicketFormPageProps } from '../create'
 
@@ -16,7 +15,6 @@ const TicketUpdatePage = ({ AuthBound, BaseTicketForm: BaseTicketFormFromProps }
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.EditTicketModalTitle' })
     const { query } = useRouter()
     const ResAuthBound = AuthBound ? AuthBound : OrganizationRequired
-    const ResBaseTicketForm = BaseTicketFormFromProps ? BaseTicketFormFromProps : BaseTicketForm
     
     return (
         <>
@@ -30,9 +28,7 @@ const TicketUpdatePage = ({ AuthBound, BaseTicketForm: BaseTicketFormFromProps }
                             <Col span={24}>
                                 <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                             </Col>
-                            <BaseTicketFormProvider BaseTicketForm={ResBaseTicketForm}>
-                                <TicketForm id={query.id as string}/>
-                            </BaseTicketFormProvider>
+                            <TicketForm id={query.id as string}/>
                         </Row>
                     </PageContent>
                 </ResAuthBound>
