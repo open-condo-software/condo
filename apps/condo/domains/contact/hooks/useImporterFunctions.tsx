@@ -7,6 +7,7 @@ import { Contact } from '../utils/clientSchema'
 import { searchProperty, searchContacts } from '@condo/domains/ticket/utils/clientSchema/search'
 
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 
 const SPLIT_PATTERN = /[, ;.]+/
 
@@ -33,16 +34,18 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         () => Promise.resolve())
 
     const columns: Columns = [
-        { name: 'Address', type: 'string' },
-        { name: 'Unit Name', type: 'string' },
-        { name: 'Phones', type: 'string' },
-        { name: 'Full name', type: 'string' },
+        { name: 'Address', type: 'string', required: true },
+        { name: 'Unit Name', type: 'string', required: true },
+        { name: 'Phones', type: 'string', required: true },
+        { name: 'Full name', type: 'string', required: true },
+        { name: 'Email', type: 'string', required: false },
     ]
 
     const contactNormalizer: RowNormalizer = (row) => {
-        const addons = { address: null, property: null, phones: null, fullName: null }
+        const addons = { address: null, property: null, phones: null, fullName: null, email: null }
         if (row.length !== columns.length) return Promise.resolve({ row })
-        const [address, , phones, fullName] = row
+        const [address, , phones, fullName, email] = row
+        email.value = email.value && String(email.value).trim().length ? String(email.value).trim() : undefined
         return addressApi.getSuggestions(String(address.value)).then(result => {
             const suggestion = get(result, ['suggestions', 0])
             if (suggestion) {
@@ -56,11 +59,13 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                     addons.property = res.length > 0 ? res[0].value : null
                     addons.phones = parsePhones(String(phones.value))
                     addons.fullName = String(fullName.value).trim()
+                    addons.email = normalizeEmail(email.value)
                     return { row, addons }
                 })
             }
             addons.phones = parsePhones(String(phones.value))
             addons.fullName = String(fullName.value).trim()
+            addons.email = normalizeEmail(email.value)
             return { row, addons }
         })
     }
@@ -69,6 +74,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (!row || !row.addons) return Promise.resolve(false)
         if (!row.addons.property) return Promise.resolve(false)
         if (!row.addons.fullName) return Promise.resolve(false)
+
+        const rowEmail = row.row[4].value
+        if (rowEmail && !row.addons.email) {
+            return Promise.resolve(false)
+        }
 
         const unitName = get(row.row, ['1', 'value'])
         if (!unitName || String(unitName).trim().length === 0) return Promise.resolve(false)
@@ -109,6 +119,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                     unitName,
                     phone: phone,
                     name: row.addons.fullName,
+                    email: row.addons.email,
                 })
             }))
         }
