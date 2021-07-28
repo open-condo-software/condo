@@ -130,7 +130,7 @@ const Warning = (props) => {
     })
     const length = props.children.length - 2
     const WarningContainer = styled.div`
-        background: #FFF1F0;
+        background: ${colors.lightRed};
         border-radius: 2px;
         padding: 9px 16px 11px 42px;
         position: relative;
@@ -152,8 +152,8 @@ const Warning = (props) => {
         <WarningContainer>
             <CloseCircleFilled css={css`
                 border-radius: 7px;
-                color: #F5222D;
-                background: #FFF;
+                color: ${colors.brightRed};
+                background: ${colors.white};
                 position: absolute;
                 left: 17px;
                 top: 14px;

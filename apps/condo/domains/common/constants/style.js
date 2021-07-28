@@ -23,6 +23,8 @@ const inputBorderGrey = '#BFBFBF'
 const black = '#000'
 const beautifulBlue = '#eFF7FF'
 const markColor = '#B5CCFF'
+const lightRed = '#FFF1F0'
+const brightRed = '#F5222D'
 const whiteTranslucent = 'rgba(255, 255, 255, 0.9)'
 
 const colors = {
@@ -43,6 +45,8 @@ const colors = {
     ultraLightGrey,
     inputBorderGrey,
     whiteTranslucent,
+    lightRed,
+    brightRed,
 }
 
 const shadows = {
