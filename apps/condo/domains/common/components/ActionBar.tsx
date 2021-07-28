@@ -6,7 +6,7 @@ import { css, jsx } from '@emotion/core'
 
 
 const actionBar = css`
-    padding: 24px;
+    padding: 24px 24px 48px 24px;
     margin: 0 -24px;
     transition: box-shadow 0.6s ease-out;
 
@@ -20,7 +20,7 @@ const ActionBar: React.FC = ({ children }) => {
     return (
         <Affix offsetBottom={24}>
             <div css={actionBar}>
-                <Space size={40}>
+                <Space wrap={true} size={[40, 24]}>
                     { children }
                 </Space>
             </div>

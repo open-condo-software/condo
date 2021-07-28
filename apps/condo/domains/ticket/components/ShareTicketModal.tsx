@@ -82,6 +82,12 @@ const search = css`
     width: 100%;
 `
 
+const sendButton = css`
+    &, &:focus {
+        background-color: ${colors.white};
+    }
+`
+
 const ModalHeader = styled.span`
     font-weight: 700;
     line-height: 32px;
@@ -103,7 +109,6 @@ const ShareButton = styled.span`
 
   &:hover, &:focus {
       color: ${green[5]};
-      background-color: ${colors.white}
   }
 
   & .anticon {
@@ -180,14 +185,16 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const WhatsappMessage = intl.formatMessage({ id: 'WhatsApp' })
     const TelegramMessage = intl.formatMessage({ id: 'Telegram' })
     const ShareHeaderMessage = intl.formatMessage({ id: 'ticket.shareHeader' })
-    const ShareMessage = intl.formatMessage({ id: 'Share' })
+    const ShareButtonMessage = intl.formatMessage({ id: 'ticket.shareButton' })
     const OKMessage = intl.formatMessage({ id: 'OK' })
     const ShareSentMessage = intl.formatMessage({ id: 'ticket.shareSent' })
     const ShareSentToEmailMessage = intl.formatMessage({ id: 'ticket.shareSentToEmail' })
 
     const { date, number, details, id } = props
     const cipher = crypto.createCipher(ALGORITHM, SALT)
-    const stringifiedParams = JSON.stringify({ date, number, details, id })
+
+    const cutDetails = details.substr(0,100)
+    const stringifiedParams = JSON.stringify({ date, number, details: cutDetails, id })
     const encryptedText = cipher.update(stringifiedParams, 'utf8', CRYPTOENCODING) + cipher.final(CRYPTOENCODING)
 
     const { query } = useRouter()
@@ -261,10 +268,12 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                 icon={<ShareAltOutlined />}
                 secondary
                 onClick={handleShow}
+                css={sendButton}
             >
-                {ShareMessage}
+                {ShareButtonMessage}
             </Button>
             <Modal
+                style={{ top: 30 }}
                 visible={okVisible}
                 footer={<Button
                     type='sberPrimary'
@@ -281,6 +290,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                 {ShareSentToEmailMessage}
             </Modal>
             <Modal
+                style={{ top: 30 }}
                 visible={shareVisible}
                 footer={null}
                 onCancel={handleCancel}
@@ -292,24 +302,28 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
             >
                 <Row gutter={[0, 16]}>
                     <Col span={24}>
-                        <Link
-                            href={`whatsapp://send/?text=${origin}/share?q=${encodeURIComponent(encryptedText)}`}
+                        <a
+                            target='_blank'
+                            rel='noreferrer'
+                            href={`https://wa.me/?text=${origin}/share?q=${encodeURIComponent(encryptedText)}`}
                         >
                             <ShareButton>
                                 {WhatsappMessage}
                                 <RightOutlined />
                             </ShareButton>
-                        </Link>
+                        </a>
                     </Col>
                     <Col span={24}>
-                        <Link
+                        <a
+                            target='_blank'
+                            rel='noreferrer'
                             href={`https://t.me/share/url?url=${encodeURIComponent(`${origin}/share?q=${encryptedText}`)}`}
                         >
                             <ShareButton>
                                 {TelegramMessage}
                                 <RightOutlined />
                             </ShareButton>
-                        </Link>
+                        </a>
                     </Col>
                     <Col span={24}>
                         <Collapse expandIconPosition='right' css={collapse}>
