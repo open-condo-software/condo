@@ -6,6 +6,7 @@ import moment, { Moment } from 'moment'
 import { DownOutlined, MinusOutlined } from '@ant-design/icons'
 import { colors } from '../constants/style'
 import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
+
 const rangePickerCss = css`
   & {
     background-color: ${colors.lightGrey[4]};
