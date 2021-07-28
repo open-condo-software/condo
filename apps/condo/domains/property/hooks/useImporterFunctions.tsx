@@ -47,10 +47,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     }, () => Promise.resolve())
 
     const columns: Columns = [
-        { name: 'address', type: 'string' },
-        { name: 'units', type: 'number' },
-        { name: 'sections', type: 'number' },
-        { name: 'floors', type: 'number' },
+        { name: 'address', type: 'string', required: true },
+        { name: 'units', type: 'number', required: true },
+        { name: 'sections', type: 'number', required: true },
+        { name: 'floors', type: 'number', required: true },
     ]
 
     const propertyNormalizer: RowNormalizer = (row: TableRow) => {

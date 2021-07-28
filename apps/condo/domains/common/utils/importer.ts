@@ -33,6 +33,7 @@ interface IImporter {
 export interface ColumnInfo {
     name: string
     type: 'string' | 'number'
+    required: boolean
 }
 
 const SLEEP_INTERVAL_BEFORE_QUERIES = 300
@@ -50,6 +51,7 @@ export class Importer implements IImporter {
     ) {
         this.columnsNames = columnsTemplate.map(column => column.name.trim().toLowerCase())
         this.columnsTypes = columnsTemplate.map(column => column.type)
+        this.columnsRequired = columnsTemplate.map(column => column.required)
     }
 
     private progress = {
@@ -67,6 +69,7 @@ export class Importer implements IImporter {
     private failProcessingHandler: FailProcessingHandler
     private readonly columnsNames: Array<string>
     private readonly columnsTypes: Array<'string' | 'number'>
+    private readonly columnsRequired: Array<boolean>
 
     public import (data: Array<TableRow>): Promise<void> {
         this.tableData = data
@@ -126,9 +129,12 @@ export class Importer implements IImporter {
 
     private isRowValid (row: TableRow): boolean {
         for (let i = 0; i < row.length; i++) {
+            if (row[i].value === undefined && this.columnsRequired[i]) {
+                return false
+            }
             if (typeof row[i].value === 'number' && this.columnsTypes[i] === 'string') {
                 row[i].value = String(row[i].value)
-            } else if (typeof row[i].value !== this.columnsTypes[i]) {
+            } else if (typeof row[i].value !== 'undefined' && typeof row[i].value !== this.columnsTypes[i]) {
                 return false
             }
         }
