@@ -109,6 +109,8 @@
   "menu.Tickets": "Tickets",
   "menu.Employees": "Employees",
   "menu.Contacts": "Contacts",
+  "menu.Settings": "Settings",
+  "menu.Billing": "Billing",
   "menu.TicketAnalytics": "Ticket analytics",
   "component.uploadlist.AttachedFilesLabel": "Files list",
   "component.uploadlist.AddFileLabel": "Add file",
