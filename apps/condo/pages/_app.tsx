@@ -19,6 +19,7 @@ import BehaviorRecorder from '@condo/domains/common/components/containers/Behavi
 import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
+import { GearIcon } from '@condo/domains/common/components/icons/GearIcon'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 
@@ -54,6 +55,11 @@ function menuDataRender () {
             path: '/employee',
             icon: UserIcon,
             locale: 'menu.Employees',
+        },
+        {
+            path: '/settings',
+            icon: GearIcon,
+            locale: 'menu.Settings',
         },
     ]
 }
