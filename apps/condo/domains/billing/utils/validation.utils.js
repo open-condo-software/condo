@@ -101,9 +101,17 @@ function _validateRecipient (resolvedData, fieldPath, addFieldValidationError) {
     }
 }
 
+function _validatePeriod ({ resolvedData, fieldPath, addFieldValidationError }) {
+    const value = resolvedData[fieldPath]
+    const day = new Date(value)?.getDay()
+    if (day !== 1) {
+        addFieldValidationError(`${fieldPath} field validation error. Period day should always equal 1`)
+    }
+}
 
 module.exports = {
     validatePaymentDetails: (args) => _combineValidators(args, [_validateJSON, _validatePaymentDetails]),
     validateServices: (args) => _combineValidators(args, [_validateJSON, _validateServices]),
     validateRecipient: (args) => _combineValidators(args, [_validateJSON, _validateRecipient]),
+    validatePeriod: _validatePeriod,
 }

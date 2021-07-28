@@ -125,6 +125,23 @@ describe('BillingReceipt', () => {
         expect(objUpdated.toPayDetails.formula).toEqual('calc+recalc')
     })
 
+    test('organization integration manager: update BillingReceipt period', async () => {
+        const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+        const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+        const [property] = await createTestBillingProperty(managerUserClient, context)
+        const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+        const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+
+        const payload = {
+            period: '2011-01-22',
+        }
+
+        const [objUpdated] = await updateTestBillingReceipt(managerUserClient, obj.id, payload)
+
+        expect(obj.id).toEqual(objUpdated.id)
+        expect(objUpdated.period).toEqual('2011-01-22')
+    })
+
     test('organization integration manager: update BillingReceipt toPayDetail', async () => {
         const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
         const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
@@ -214,6 +231,27 @@ describe('BillingReceipt', () => {
             })
     })
 
+    test('organization integration manager: update BillingReceipt with wrong data in period', async () => {
+        const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+        const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+        const [property] = await createTestBillingProperty(managerUserClient, context)
+        const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+        const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+
+        // Bad period - month should always equal 1
+        const payload = {
+            period: '2011-02-15',
+        }
+
+        await catchErrorFrom(
+            async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
+            ({ errors, _ }) => {
+                expect(errors[0]).toMatchObject({
+                    'message': 'You attempted to perform an invalid mutation',
+                })
+            })
+    })
+
     test('organization integration manager: update BillingReceipt with wrong data in services', async () => {
         const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
         const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
@@ -275,7 +313,6 @@ describe('BillingReceipt', () => {
                 })
             })
     })
-
 
     test('user: update BillingReceipt', async () => {
         const user = await makeClientWithNewRegisteredAndLoggedInUser()
