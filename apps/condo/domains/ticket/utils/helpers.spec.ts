@@ -1,4 +1,4 @@
-import moment from 'moment'
+import moment, { Moment } from 'moment'
 import {
     statusToQuery,
     createdAtToQuery,
@@ -14,9 +14,11 @@ import {
     queryToSorter,
     searchToQuery,
     formatDate,
-    TICKET_PAGE_SIZE,
+    TICKET_PAGE_SIZE, filterToQuery,
 } from './helpers'
 import { EN_LOCALE, RU_LOCALE } from '../../common/constants/locale'
+import { randomUUID } from 'crypto'
+import { ITicketAnalyticsPageFilters } from '../../../pages/analytics'
 
 describe('Helpers', () => {
     describe('queryUtils', () => {
@@ -464,6 +466,41 @@ describe('Helpers', () => {
 
                 it('search is not defined', () => {
                     expect(searchToQuery()).toBeUndefined()
+                })
+            })
+        })
+
+        describe('filterToQuery',  () => {
+            describe('it should correctly generate query if', () => {
+                const property = {
+                    id: randomUUID(),
+                    value: 'property address',
+                }
+                const selectedRange: [Moment, Moment] = [moment().subtract(1, 'week'), moment()]
+
+                it('filter contains property', () => {
+                    const filter: ITicketAnalyticsPageFilters = {
+                        range: selectedRange,
+                        addressList: [property],
+                        specification: 'day',
+                    }
+                    expect(filterToQuery(filter)).toStrictEqual([
+                        { createdAt_gte: selectedRange[0].toISOString() },
+                        { createdAt_lte: selectedRange[1].toISOString() },
+                        { property: { id_in: [property.id] } },
+                    ])
+                })
+
+                it('filter not contains property', () => {
+                    const filter: ITicketAnalyticsPageFilters = {
+                        range: selectedRange,
+                        specification: 'day',
+                        addressList: [],
+                    }
+                    expect(filterToQuery(filter)).toStrictEqual([
+                        { createdAt_gte: selectedRange[0].toISOString() },
+                        { createdAt_lte: selectedRange[1].toISOString() },
+                    ])
                 })
             })
         })
