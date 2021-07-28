@@ -37,10 +37,11 @@ describe('OrganizationLink', () => {
         const admin = await makeLoggedInAdminClient()
         const [organizationFrom] = await createTestOrganization(admin)
         const [organizationTo] = await createTestOrganization(admin)
-        await createTestOrganizationLink(admin, organizationFrom, organizationTo)
+        const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo)
 
-        const links = await OrganizationLink.getAll(admin)
+        const links = await OrganizationLink.getAll(admin, { id: link.id })
         expect(links).toHaveLength(1)
+        expect(links[0].id).toEqual(link.id)
     })
 
     test('support: can read OrganizationLink', async () => {
@@ -48,10 +49,11 @@ describe('OrganizationLink', () => {
         const admin = await makeLoggedInAdminClient()
         const [organizationFrom] = await createTestOrganization(admin)
         const [organizationTo] = await createTestOrganization(admin)
-        await createTestOrganizationLink(admin, organizationFrom, organizationTo)
+        const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo)
 
-        const links = await OrganizationLink.getAll(support)
+        const links = await OrganizationLink.getAll(support, { id: link.id })
         expect(links).toHaveLength(1)
+        expect(links[0].id).toEqual(link.id)
     })
 
     test('admin: can update OrganizationLink', async () => {

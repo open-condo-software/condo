@@ -8,13 +8,14 @@ async function canReadBillingAccountMeters ({ authentication: { item: user } }) 
     return await canReadBillingEntity(user)
 }
 
-async function canManageBillingAccountMeters ({ authentication: { item: user }, operation, originalInput, itemId, listKey }) {
+async function canManageBillingAccountMeters ({ authentication: { item: user }, operation, originalInput, itemId, listKey, context }) {
     return await canManageBillingEntityWithContext({
         user,
         operation,
         itemId,
         originalInput,
         schemaWithContextName: listKey,
+        context,
     })
 }
 
