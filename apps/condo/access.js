@@ -33,12 +33,12 @@ const rules = {
 
     */
     canRegisterNewOrganization: isSignedIn,
-    canInviteEmployee: async ({ authentication: { item: user }, args }) => {
+    canInviteEmployee: async ({ authentication: { item: user }, args, context }) => {
         if (!user || !user.id) return false
         if (user.isAdmin) return true
         const organizationId = get(args, ['data', 'organization', 'id'])
         if (!organizationId) return false
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageEmployees')
+        return await checkOrganizationPermission(context, user.id, organizationId, 'canManageEmployees')
     },
     canAcceptOrRejectEmployeeInvite: async ({ authentication: { item: user }, args }) => {
         if (!user || !user.id) return false
@@ -81,21 +81,21 @@ const rules = {
             // ],
         }
     },
-    canManageBillingIntegrationOrganizationContexts: async ({ authentication: { item: user }, originalInput, operation, itemId }) => {
+    canManageBillingIntegrationOrganizationContexts: async ({ authentication: { item: user }, originalInput, operation, itemId, context }) => {
         if (!user) return throwAuthenticationError()
         if (user.isAdmin) return true
         if (operation === 'create') {
             // NOTE: can create only by the organization integration manager
             const organizationId = get(originalInput, ['organization', 'connect', 'id'])
             if (!organizationId) return false
-            return await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
+            return await checkOrganizationPermission(context, user.id, organizationId, 'canManageIntegrations')
         } else if (operation === 'update') {
             // NOTE: can update by the organization integration manager OR the integration account
             if (!itemId) return false
             const context = await getById('BillingIntegrationOrganizationContext', itemId)
             if (!context) return false
             const { organization: organizationId, integration: integrationId } = context
-            const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
+            const canManageIntegrations = await checkOrganizationPermission(context, user.id, organizationId, 'canManageIntegrations')
             if (canManageIntegrations) return true
             return await checkBillingIntegrationAccessRight(user.id, integrationId)
         }

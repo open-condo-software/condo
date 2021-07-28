@@ -19,7 +19,7 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
     }
 }
 
-async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     let organizationId
@@ -39,7 +39,7 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
         integrationId = integration
     }
     if (!organizationId || !integrationId) return false
-    const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
+    const canManageIntegrations = await checkOrganizationPermission(context, user.id, organizationId, 'canManageIntegrations')
     if (canManageIntegrations) return true
     return await checkBillingIntegrationAccessRight(user.id, integrationId)
 }

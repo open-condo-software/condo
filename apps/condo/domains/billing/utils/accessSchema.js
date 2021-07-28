@@ -41,7 +41,7 @@ async function canManageBillingEntityWithContext ({ user, operation, itemId, ori
     const context = await getById('BillingIntegrationOrganizationContext', contextId)
     if (!context) return false
     const { organization: organizationId, integration: integrationId } = context
-    const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
+    const canManageIntegrations = await checkOrganizationPermission(context, user.id, organizationId, 'canManageIntegrations')
     if (canManageIntegrations) return true
     return await checkBillingIntegrationAccessRight(user.id, integrationId)
 }

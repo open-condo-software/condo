@@ -3,6 +3,7 @@
  */
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkUserIsRelatedFromOrganizationEmployee, checkIfUserIsOrganizationEmployee } = require('../utils/accessSchema')
+const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('../utils/accessSchema')
 
 async function canReadOrganizations ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -10,8 +11,8 @@ async function canReadOrganizations ({ authentication: { item: user } }) {
     const userId = user.id
     return {
         OR: [
-            checkIfUserIsOrganizationEmployee(userId),
-            checkUserIsRelatedFromOrganizationEmployee(userId),
+            queryOrganizationEmployeeFor(userId),
+            queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
         ],
     }
 }
