@@ -112,6 +112,7 @@
   "menu.Settings": "Settings",
   "menu.Billing": "Billing",
   "menu.TicketAnalytics": "Ticket analytics",
+  "RolesAndAccess": "Roles and accesses",
   "component.uploadlist.AttachedFilesLabel": "Files list",
   "component.uploadlist.AddFileLabel": "Add file",
   "component.uploadlist.error.FileTooBig": "File size is too big, max size is {maxSizeInMb} MB",

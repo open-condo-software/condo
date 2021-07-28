@@ -112,6 +112,7 @@
   "menu.Settings": "Настройки",
   "menu.Billing": "Биллинг",
   "menu.TicketAnalytics": "Аналитика по заявкам",
+  "RolesAndAccess": "Роли и доступы",
   "component.uploadlist.AttachedFilesLabel": "Прикреплённые файлы",
   "component.uploadlist.AddFileLabel": "Добавить файл",
   "component.uploadlist.error.FileTooBig": "Файл слишком большой, максимальный размер - {maxSizeInMb} МБ",
