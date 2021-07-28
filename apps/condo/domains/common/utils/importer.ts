@@ -50,12 +50,13 @@ export class Importer implements IImporter {
         this.columnsNames = columnsTemplate.map(column => column.name.trim().toLowerCase())
         this.columnsTypes = columnsTemplate.map(column => column.type)
     }
-    // Initial values of importer
+
     private progress = {
         min: 0,
         max: 100,
         current: 0,
     }
+
     private breakImport = false
     private tableData: Array<TableRow> = []
     private progressUpdateHandler: ProgressUpdateHandler
@@ -66,7 +67,6 @@ export class Importer implements IImporter {
     private readonly columnsNames: Array<string>
     private readonly columnsTypes: Array<'string' | 'number'>
 
-    // Handle importing table
     public import (data: Array<TableRow>): Promise<void> {
         this.tableData = data
         const [columns, ...body] = this.tableData
@@ -89,17 +89,14 @@ export class Importer implements IImporter {
         })
     }
 
-    // Handle stopping import
     public break (): void {
         this.breakImport = true
     }
 
-    // Handle error throwing
     public onError (handleError: ErrorHandler): void {
         this.errorHandler = handleError
     }
 
-    // Handle finish importing
     public onFinish (handleFinish: FinishHandler): void {
         this.finishHandler = handleFinish
     }
@@ -112,12 +109,10 @@ export class Importer implements IImporter {
         this.failProcessingHandler = handleFail
     }
 
-    // Handle progress update
     public onProgressUpdate (handleProgressUpdate: ProgressUpdateHandler): void {
         this.progressUpdateHandler = handleProgressUpdate
     }
 
-    // Checking table columns to match template
     private isColumnsValid (row: TableRow): boolean {
         const normalizedColumns = row.map(({ value }) => {
             if (typeof value === 'string') {
@@ -128,7 +123,6 @@ export class Importer implements IImporter {
         return isEqual(this.columnsNames, normalizedColumns)
     }
 
-    // Checking inputs matching with data types
     private isRowValid (row: TableRow): boolean {
         for (let i = 0; i < row.length; i++) {
             if (typeof row[i].value === 'number' && this.columnsTypes[i] === 'string') {
@@ -140,7 +134,6 @@ export class Importer implements IImporter {
         return true
     }
 
-    // Updating progress
     private updateProgress (value?: number) {
         if (value) {
             this.progress.current = value
@@ -155,7 +148,6 @@ export class Importer implements IImporter {
         }
     }
 
-    // Converting table row to db row
     private async createRecord (table, index = 0) {
         if (this.breakImport) {
             return Promise.resolve()
