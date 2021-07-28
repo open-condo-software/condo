@@ -43,6 +43,7 @@ const InfoBoxContainer = styled.div`
 const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns }) => {
     const intl = useIntl()
     const ColumnsFormatMessage = intl.formatMessage({ id: 'ImportRequiredColumnsFormat' })
+    const RequiredFieldsMessage = intl.formatMessage({ id: 'ImportRequiredFields' })
     return (
         <Space direction={'vertical'} size={10}>
             <Typography.Text>
@@ -55,6 +56,11 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns }) => {
                             <>
                                 {index !== 0 && ', '}
                                 <Typography.Text keyboard key={column.name}>
+                                    {column.required && (
+                                        <Typography.Text type={'danger'} style={{ marginRight: 3 }}>
+                                            <sup>*</sup>
+                                        </Typography.Text>
+                                    )}
                                     {column.name}
                                 </Typography.Text>
                             </>
@@ -62,6 +68,12 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns }) => {
                     })
                 }
             </InfoBoxContainer>
+            <Typography.Text>
+                <Typography.Text type={'danger'} style={{ marginRight: 3 }}>
+                    <sup>*</sup>
+                </Typography.Text>
+                {` - ${RequiredFieldsMessage}`}
+            </Typography.Text>
         </Space>
     )
 }
