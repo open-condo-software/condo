@@ -362,8 +362,6 @@ async function createTestBillingReceipt (client, context, property, account, ext
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestBillingReceipt logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -385,16 +383,16 @@ async function createTestBillingReceipt (client, context, property, account, ext
                 name: faker.random.alphaNumeric(),
                 toPay: faker.datatype.number(),
                 toPayDetails: {
-                    formula: "calc + recalc",
-                    calc: faker.datatype.number().toString(),
-                    recalc: faker.datatype.number().toString(),
+                    formula: "charge + penalty",
+                    charge: faker.datatype.number(),
+                    penalty: faker.datatype.number(),
                 }
             },
         ],
         toPayDetails: {
-            formula: "calc + recalc",
-            calc: faker.datatype.number().toString(),
-            recalc: faker.datatype.number().toString(),
+            formula: "charge + penalty",
+            charge: faker.datatype.number(),
+            penalty: faker.datatype.number(),
         },
         ...extraAttrs,
     }
