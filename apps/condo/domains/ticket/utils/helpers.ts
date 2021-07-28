@@ -2,10 +2,9 @@ import { SortOrder } from 'antd/es/table/interface'
 import { format, formatDuration, intervalToDuration } from 'date-fns'
 import get from 'lodash/get'
 import { LOCALES } from '@condo/domains/common/constants/locale'
-import moment from 'moment'
+import moment, { Moment } from 'moment'
 import { ParsedUrlQuery } from 'querystring'
 import { Ticket, TicketStatus, TicketStatusWhereInput, TicketWhereInput } from '../../../schema'
-import { ITicketAnalyticsPageFilters } from '../../../pages/analytics'
 
 export const getTicketCreateMessage = (intl, ticket) => {
     if (!ticket) {
@@ -363,7 +362,19 @@ export const formatDate = (intl, dateStr?: string): string => {
     return format(date, pattern, { locale: LOCALES[intl.locale] })
 }
 
-export const filterToQuery = (filter: ITicketAnalyticsPageFilters): unknown[] => {
+export type specificationTypes = 'day' | 'week' | 'month'
+export type addressPickerType = { id: string; value: string; }
+export type ticketAnalyticsPageFilters = {
+    range: [Moment, Moment];
+    specification: specificationTypes;
+    addressList: addressPickerType[];
+}
+
+interface IFilterToQuery {
+    (filter: ticketAnalyticsPageFilters): unknown[]
+}
+
+export const filterToQuery: IFilterToQuery = (filter) => {
     const [dateFrom, dateTo] = filter.range
     const result: unknown[] = [
         { createdAt_gte: dateFrom.toISOString() },

@@ -14,11 +14,10 @@ import {
     queryToSorter,
     searchToQuery,
     formatDate,
-    TICKET_PAGE_SIZE, filterToQuery,
+    TICKET_PAGE_SIZE, filterToQuery, ticketAnalyticsPageFilters,
 } from './helpers'
 import { EN_LOCALE, RU_LOCALE } from '../../common/constants/locale'
 import { randomUUID } from 'crypto'
-import { ITicketAnalyticsPageFilters } from '../../../pages/analytics'
 
 describe('Helpers', () => {
     describe('queryUtils', () => {
@@ -479,7 +478,7 @@ describe('Helpers', () => {
                 const selectedRange: [Moment, Moment] = [moment().subtract(1, 'week'), moment()]
 
                 it('filter contains property', () => {
-                    const filter: ITicketAnalyticsPageFilters = {
+                    const filter: ticketAnalyticsPageFilters = {
                         range: selectedRange,
                         addressList: [property],
                         specification: 'day',
@@ -492,7 +491,7 @@ describe('Helpers', () => {
                 })
 
                 it('filter not contains property', () => {
-                    const filter: ITicketAnalyticsPageFilters = {
+                    const filter: ticketAnalyticsPageFilters = {
                         range: selectedRange,
                         specification: 'day',
                         addressList: [],
