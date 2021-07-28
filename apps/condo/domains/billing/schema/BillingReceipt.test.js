@@ -133,13 +133,13 @@ describe('BillingReceipt', () => {
         const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
 
         const payload = {
-            period: '2011-01-22',
+            period: '2011-12-01',
         }
 
         const [objUpdated] = await updateTestBillingReceipt(managerUserClient, obj.id, payload)
 
         expect(obj.id).toEqual(objUpdated.id)
-        expect(objUpdated.period).toEqual('2011-01-22')
+        expect(objUpdated.period).toEqual('2011-12-01')
     })
 
     test('organization integration manager: update BillingReceipt toPayDetail', async () => {
