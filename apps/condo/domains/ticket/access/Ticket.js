@@ -3,8 +3,8 @@
  */
 
 const get = require('lodash/get')
-const { checkUserIsRelatedFromOrganizationEmployee } = require('@condo/domains/organization/utils/accessSchema')
-const { checkIfUserIsOrganizationEmployee } = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkRelatedOrganizationPermission } = require('../../organization/utils/accessSchema')
 const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
@@ -19,8 +19,8 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
     return {
         organization: {
             OR: [
-                checkIfUserIsOrganizationEmployee(userId),
-                checkUserIsRelatedFromOrganizationEmployee(userId),
+                queryOrganizationEmployeeFor(userId),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
             ],
         },
     }
@@ -48,7 +48,7 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
             return true
         }
         const organizationIdFromProperty = get(property, 'organization')
-        const canManageTickets = await checkOrganizationPermission(user.id, organizationIdFromTicket, 'canManageTickets')
+        const canManageTickets = await checkOrganizationPermission(context, user.id, organizationIdFromTicket, 'canManageTickets')
         if (!canManageTickets) {
             return false
         }
@@ -71,7 +71,7 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
         if (canManageRelatedOrganizationTickets) {
             return true
         }
-        const canManageTickets = await checkOrganizationPermission(user.id, organizationIdFromTicket, 'canManageTickets')
+        const canManageTickets = await checkOrganizationPermission(context, user.id, organizationIdFromTicket, 'canManageTickets')
         if (!canManageTickets) {
             return false
         }

@@ -8,6 +8,8 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkUserIsRelatedFromOrganizationEmployee } = require('@condo/domains/organization/utils/accessSchema')
 const { checkIfUserIsOrganizationEmployee } = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkRelatedOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadTicketComments ({ authentication: { item: user } }) {
@@ -18,8 +20,8 @@ async function canReadTicketComments ({ authentication: { item: user } }) {
         ticket: {
             organization: {
                 OR: [
-                    checkIfUserIsOrganizationEmployee(userId),
-                    checkUserIsRelatedFromOrganizationEmployee(userId),
+                    queryOrganizationEmployeeFor(userId),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
                 ],
             },
         },
@@ -40,7 +42,7 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
         if (canManageRelatedOrganizationTickets) {
             return true
         }
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageTicketComments')
+        return await checkOrganizationPermission(context, user.id, organizationId, 'canManageTicketComments')
     } else if (operation === 'update') {
         const [ticketComment] = await TicketComment.getAll(context, { id: itemId })
         if (!ticketComment) {
@@ -58,7 +60,7 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
         if (canManageRelatedOrganizationTickets) {
             return true
         }
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageTicketComments')
+        return await checkOrganizationPermission(context, user.id, organizationId, 'canManageTicketComments')
     }
     return false
 }

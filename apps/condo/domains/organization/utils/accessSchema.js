@@ -1,10 +1,10 @@
-const { OrganizationLink } = require('./serverSchema')
+const { OrganizationEmployee, OrganizationEmployeeRole, OrganizationLink } = require('./serverSchema')
 const { getByCondition } = require('@core/keystone/schema')
 
-async function checkOrganizationPermission (userId, organizationId, permission) {
-    if (!userId || !organizationId) return false
+async function checkOrganizationPermission (context, userId, organizationId, permission) {
+    if (!context || !userId || !organizationId) return false
 
-    const employee = await getByCondition('OrganizationEmployee', {
+    const [employee] = await OrganizationEmployee.getAll(context, {
         organization: { id: organizationId },
         user: { id: userId },
         deletedAt: null,
@@ -22,10 +22,11 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
         return false
     }
 
-    const employeeRole = await getByCondition('OrganizationEmployeeRole', {
-        id: employee.role,
+    const [employeeRole] = await OrganizationEmployeeRole.getAll(context, {
+        id: employee.role.id,
         organization: { id: organizationId },
     })
+
     if (!employeeRole) return false
     return employeeRole[permission] || false
 }
@@ -34,10 +35,10 @@ async function checkRelatedOrganizationPermission (context, userId, organization
     if (!context || !userId || !organizationId) return false
 
     const [organizationLink] = await OrganizationLink.getAll(context,
-        { from: checkIfUserIsOrganizationEmployee(userId), to: { id: organizationId } })
+        { from: queryOrganizationEmployeeFor(userId), to: { id: organizationId } })
     if (!organizationLink) return false
 
-    return checkOrganizationPermission(userId, organizationLink.from.id, permission)
+    return checkOrganizationPermission(context, userId, organizationLink.from.id, permission)
 }
 
 
@@ -62,13 +63,13 @@ async function checkUserBelongsToOrganization (userId, organizationId) {
     return employee.deletedAt === null
 }
 
-const checkIfUserIsOrganizationEmployee = userId => ({ employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } })
-const checkUserIsRelatedFromOrganizationEmployee = userId => ({ relatedOrganizations_some: { from: checkIfUserIsOrganizationEmployee(userId) } })
+const queryOrganizationEmployeeFor = userId => ({ employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } })
+const queryOrganizationEmployeeFromRelatedOrganizationFor = userId => ({ relatedOrganizations_some: { from: queryOrganizationEmployeeFor(userId) } })
 
 module.exports = {
     checkOrganizationPermission,
     checkUserBelongsToOrganization,
     checkRelatedOrganizationPermission,
-    checkUserIsRelatedFromOrganizationEmployee,
-    checkIfUserIsOrganizationEmployee,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    queryOrganizationEmployeeFor,
 }

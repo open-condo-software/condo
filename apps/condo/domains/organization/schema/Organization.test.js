@@ -258,22 +258,22 @@ describe('Organization', () => {
     test('employee from "from" related organization: can read organization', async () => {
         const { clientFrom, organizationTo } = await createTestOrganizationLinkWithTwoOrganizations()
 
-        const properties = await Organization.getAll(clientFrom, { id: organizationTo.id })
-        expect(properties).toHaveLength(1)
+        const organizations = await Organization.getAll(clientFrom, { id: organizationTo.id })
+        expect(organizations).toHaveLength(1)
     })
 
     test('employee from "to" related organization: cannot read organization from "from"', async () => {
         const { organizationFrom, clientTo } = await createTestOrganizationLinkWithTwoOrganizations()
 
-        const properties = await Organization.getAll(clientTo, { id: organizationFrom.id })
-        expect(properties).toHaveLength(0)
+        const organizations = await Organization.getAll(clientTo, { id: organizationFrom.id })
+        expect(organizations).toHaveLength(0)
     })
 
     test('user: cannot read not his own organizations', async () => {
         await createTestOrganizationLinkWithTwoOrganizations()
         const user = await makeClientWithNewRegisteredAndLoggedInUser()
-        const properties = await Organization.getAll(user)
-        expect(properties).toHaveLength(0)
+        const organizations = await Organization.getAll(user)
+        expect(organizations).toHaveLength(0)
     })
 
 })

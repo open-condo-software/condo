@@ -20,14 +20,14 @@ async function canManageContacts ({ authentication: { item: user }, originalInpu
     if (user.isAdmin) return true
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-        const canManageContacts = await checkOrganizationPermission(user.id, organizationId, 'canManageContacts')
+        const canManageContacts = await checkOrganizationPermission(context, user.id, organizationId, 'canManageContacts')
         return canManageContacts
     } else if (operation === 'update') {
         const [contact] = await Contact.getAll(context, { id: itemId })
         if (!contact) {
             return false
         }
-        const canManageContacts = await checkOrganizationPermission(user.id, contact.organization.id, 'canManageContacts')
+        const canManageContacts = await checkOrganizationPermission(context, user.id, contact.organization.id, 'canManageContacts')
         return canManageContacts
     }
     return false
