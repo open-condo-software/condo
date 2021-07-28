@@ -207,11 +207,12 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
     animationEnabled = false,
     chartHeight }) => {
     const intl = useIntl()
+    const NoData = intl.formatMessage({ id: 'NoData' })
     if (data === null) {
         return <Skeleton loading={loading} active paragraph={{ rows: 6 }} />
     }
-    const { series, legend, axisData, tooltip } = ticketChartDataMapper.getChartConfig(viewMode, data)
 
+    const { series, legend, axisData, tooltip } = ticketChartDataMapper.getChartConfig(viewMode, data)
     const option = {
         animation: animationEnabled,
         color: COLOR_SET,
@@ -238,7 +239,6 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
         ...axisData,
         series,
     }
-    const NoData = intl.formatMessage({ id: 'NoData' })
     const isEmptyDataSet = Object.values(data).every(ticketStatus => isEmpty(ticketStatus)) && !loading
     return <Typography.Paragraph style={{ position: 'relative' }}>
         {isEmptyDataSet ? (
@@ -418,17 +418,6 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
 
 const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const intl = useIntl()
-    const router = useRouter()
-    const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const filtersRef = useRef(null)
-
-    const [groupTicketsBy, setGroupTicketsBy] = useState<groupTicketsByTypes>('status')
-    const [viewMode, setViewMode] = useState<viewModeTypes>('line')
-    const [analyticsData, setAnalyticsData] = useState(null)
-    const [loading, setLoading] = useState<boolean>(false)
-    const [ticketType, setTicketType] = useState<ticketSelectTypes>('default')
-
     const PageTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' })
     const HeaderButtonTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.HeaderButtonTitle' })
     const ViewModeTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ViewModeTitle' })
@@ -446,6 +435,18 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const PrintTitle = intl.formatMessage({ id: 'Print' })
     const ExcelTitle = intl.formatMessage({ id: 'Excel' })
+
+    const router = useRouter()
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+
+    const filtersRef = useRef(null)
+    const [groupTicketsBy, setGroupTicketsBy] = useState<groupTicketsByTypes>('status')
+    const [viewMode, setViewMode] = useState<viewModeTypes>('line')
+    const [analyticsData, setAnalyticsData] = useState(null)
+    const [loading, setLoading] = useState<boolean>(false)
+
+    const [ticketType, setTicketType] = useState<ticketSelectTypes>('default')
     const [dateFrom, dateTo] = filtersRef.current !== null ? filtersRef.current.range : []
     const selectedPeriod = filtersRef.current !== null ? filtersRef.current.range.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
 
