@@ -22,9 +22,6 @@ import {
     getTicketTitleMessage,
 } from '@condo/domains/ticket/utils/helpers'
 
-import { format } from 'date-fns'
-import { LOCALES } from '@condo/domains/common/constants/locale'
-
 import { LETTERS_AND_NUMBERS } from '@condo/domains/common/constants/regexps'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
@@ -238,7 +235,7 @@ const TicketIdPage = () => {
         refetchTicket()
         ticketChangesResult.refetch()
     }
-    const date = format(new Date(ticket.createdAt), 'd MMMM Y', { locale: LOCALES[intl.locale] })
+
     return (
         <>
             <Head>
@@ -342,7 +339,7 @@ const TicketIdPage = () => {
                                             </Button>
                                         </Link>
                                         <ShareTicketModal
-                                            date={date}
+                                            date={ticket.createdAt}
                                             number={ticket.number}
                                             details={ticket.details}
                                             id={id}

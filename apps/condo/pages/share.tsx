@@ -11,6 +11,8 @@ import {
 } from '@condo/domains/ticket/constants/crypto'
 import React from 'react'
 import BaseLayout, { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { format } from 'date-fns'
+import { LOCALES } from '@condo/domains/common/constants/locale'
 
 function RedirectToTicket ({ ticketId }) {
     const intl = useIntl()
@@ -41,8 +43,9 @@ interface IShareProps extends React.FC<ShareProps> {
 
 const Share: IShareProps = ({ date, number, details, id }) => {
     const intl = useIntl()
+    const dateFormatted = format(new Date(date), 'd MMMM Y', { locale: LOCALES[intl.locale] })
     const ShareTitleMessage = intl.formatMessage({ id: 'ticket.shareTitle' }, {
-        date,
+        date: dateFormatted,
         number,
     })
     const ShareDetailsMessage = intl.formatMessage({ id: 'ticket.shareDetails' }, {
@@ -62,9 +65,9 @@ const Share: IShareProps = ({ date, number, details, id }) => {
     return (
         <>
             <Head>
-                <meta property="og:site_name" content={`Заявка номер ${ShareTitleMessage}`} />
-                <meta property="og:title" content={`Заявка номер ${ShareTitleMessage}`} />
-                <meta property="og:description" content={`Текст заявки: ${ShareDetailsMessage}`} />
+                <meta property="og:site_name" content={ShareTitleMessage} />
+                <meta property="og:title" content={ShareTitleMessage} />
+                <meta property="og:description" content={ShareDetailsMessage} />
                 <meta property="og:updated_time" content="14400000" />
                 <meta property="og:image" content={`${origin}/logoSnippet.png`} />
             </Head>
