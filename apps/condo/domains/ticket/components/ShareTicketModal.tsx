@@ -193,7 +193,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const { date, number, details, id } = props
     const cipher = crypto.createCipher(ALGORITHM, SALT)
 
-    const cutDetails = details.substr(0,100)
+    const cutDetails = details.substr(0, 100)
     const stringifiedParams = JSON.stringify({ date, number, details: cutDetails, id })
     const encryptedText = cipher.update(stringifiedParams, 'utf8', CRYPTOENCODING) + cipher.final(CRYPTOENCODING)
 
