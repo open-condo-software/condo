@@ -109,7 +109,7 @@ function _validateRecipient (resolvedData, fieldPath, addFieldValidationError) {
 
 function _validatePeriod ({ resolvedData, fieldPath, addFieldValidationError }) {
     const value = resolvedData[fieldPath]
-    const day = new Date(value)?.getDay()
+    const day = new Date(value)?.getDate()
     if (day !== 1) {
         addFieldValidationError(`${fieldPath} field validation error. Period day should always equal 1`)
     }
