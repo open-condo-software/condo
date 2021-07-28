@@ -16,14 +16,14 @@ import moment from 'moment'
 
 const PdfView = () => {
     const intl = useIntl()
-    const containerRef = useRef<null | HTMLDivElement>(null)
-    const queryParamsRef = useRef(null)
     const PageTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' })
     const AllAddresses = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllAddresses' })
     const AllCategories = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllCategories' })
     const DefaultTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.DefaultTickets' })
     const PaidTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PaidTickets' })
     const EmergencyTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.EmergencyTickets' })
+    const containerRef = useRef<null | HTMLDivElement>(null)
+    const queryParamsRef = useRef(null)
 
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
