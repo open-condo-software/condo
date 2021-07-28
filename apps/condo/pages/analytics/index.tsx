@@ -40,12 +40,11 @@ import DateRangePicker from '@condo/domains/common/components/DateRangePicker'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import TicketChart, { viewModeTypes, AnalyticsDataType } from '@condo/domains/ticket/components/TicketChart'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { filterToQuery } from '@condo/domains/ticket/utils/helpers'
+import { filterToQuery, specificationTypes, ticketAnalyticsPageFilters } from '@condo/domains/ticket/utils/helpers'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
-type specificationTypes = 'day' | 'week' | 'month'
 interface ITicketAnalyticsPageWidgetProps {
     data: null | AnalyticsDataType;
     viewMode: viewModeTypes;
@@ -56,17 +55,12 @@ interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps
     animationEnabled?: boolean;
     chartHeight?: number;
 }
-type addressPickerType = { id: string; value: string; }
-export type ITicketAnalyticsPageFilters = {
-    range: [Moment, Moment];
-    specification: specificationTypes;
-    addressList: addressPickerType[];
-}
+
 interface ITicketAnalyticsPageListViewProps extends ITicketAnalyticsPageWidgetProps {
-    filters: null | ITicketAnalyticsPageFilters;
+    filters: null | ticketAnalyticsPageFilters;
 }
 interface ITicketAnalyticsPageFilterProps {
-    onChange?: ({ range, specification, addressList }: ITicketAnalyticsPageFilters) => void
+    onChange?: ({ range, specification, addressList }: ticketAnalyticsPageFilters) => void
 }
 const FORM_ITEM_STYLE = {
     labelCol: {
@@ -513,7 +507,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
         [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId],
     )
 
-    const onFilterChange = useCallback((filters: ITicketAnalyticsPageFilters) => {
+    const onFilterChange: ITicketAnalyticsPageFilterProps['onChange'] = useCallback((filters) => {
         filtersRef.current = filters
         getAnalyticsData()
     }, [viewMode, ticketType, userOrganizationId])

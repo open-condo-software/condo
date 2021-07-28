@@ -2,7 +2,7 @@ import { TableColumnsType, TableProps } from 'antd'
 
 export type viewModeTypes = 'bar' | 'line' | 'pie'
 interface IGetChartConfig {
-    (viewMode: viewModeTypes, data: unknown): {
+    (viewMode: viewModeTypes, data: AnalyticsDataType): {
         legend: string[],
         series: unknown[],
         axisData: {
@@ -27,7 +27,7 @@ interface IGetTableConfig {
         dataSource: TableProps<any>['dataSource'], tableColumns: TableColumnsType
     }
 }
-type chartConfigMapType = {
+export type chartConfigMapType = {
     bar?: { chart: IGetChartConfig; table: IGetTableConfig; };
     line?: { chart: IGetChartConfig; table: IGetTableConfig; };
     pie?: { chart: IGetChartConfig; table: IGetTableConfig; };
