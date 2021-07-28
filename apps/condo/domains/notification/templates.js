@@ -91,48 +91,56 @@ async function renderTemplate (transport, message) {
             return {
                 subject: `Ticket №${ticketNumber}`,
                 html: `
-                    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">
-                        <tr>
-                            <td width="10%" align="left"><b>DOMA.ai</b></td>
-                            <td width="80%">&nbsp;</td>
-                            <td width="10%" align="right">ДИСПЕТЧЕРСКАЯ</td>
-                        </tr>
-                    </table>
-                    <p>Hello!<br />
-                    Ticket #${ticketNumber} dated ${format(new Date(date), 'd MMMM Y', { locale: LOCALES[EN_LOCALE] })} has been shared with you.<br />
-                    The text of the ticket: "${details}"</p>
-                    <p>&nbsp;</p>
-                    <div><!--[if mso]>
-                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${serverUrl}/ticket/${id}" style="height:40px;v-text-anchor:middle;width:330px;" arcsize="10%" stroke="f" fill="t">
-                        <v:fill type="tile" src="" color="#4CD174" />
-                        <w:anchorlock/>
-                        <center style="color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:bold;">To Doma.ai ticket's card</center>
-                    </v:roundrect>
-                    <![endif]--><a href="${serverUrl}/ticket/${id}" style="background-color:#4CD174;background-image:url();border-radius:4px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:16px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:330px;-webkit-text-size-adjust:none;mso-hide:all;">To Doma.ai ticket's card</a></div>
+                    <html style="fmargin: 0; font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">
+                        <body style="margin: 0; font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">
+                            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 16px;">
+                                <tr>
+                                    <td width="10%" align="left"><b style="font-size: 16px;">DOMA.ai</b></td>
+                                    <td width="80%">&nbsp;</td>
+                                    <td width="10%" align="right"><b style="font-size: 16px;">CONTROL ROOM</b></td>
+                                </tr>
+                            </table>
+                            <p style="font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">Hello!<br />
+                            Ticket #${ticketNumber} dated ${format(new Date(date), 'd MMMM Y', { locale: LOCALES[EN_LOCALE] })} has been shared with you.<br />
+                            The text of the ticket: "${details}"</p>
+                            <p>&nbsp;</p>
+                            <div><!--[if mso]>
+                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${serverUrl}/ticket/${id}" style="height:40px;v-text-anchor:middle;width:330px;" arcsize="10%" stroke="f" fill="t">
+                                <v:fill type="tile" src="" color="#4CD174" />
+                                <w:anchorlock/>
+                                <center style="color:#ffffff;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;">To Doma.ai ticket's card</center>
+                            </v:roundrect>
+                            <![endif]--><a href="${serverUrl}/ticket/${id}" style="background-color:#4CD174;border-radius:4px;color:#ffffff;display:inline-block;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:330px;-webkit-text-size-adjust:none;mso-hide:all;">To Doma.ai ticket's card</a></div>
+                        </body>
+                    </html>
                 `,
             }
         } else if (message.lang === RU_LOCALE) {
             return {
                 subject: `Заявка №${ticketNumber}`,
                 html: `
-                    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">
-                        <tr>
-                            <td width="10%" align="left"><b>DOMA.ai</b></td>
-                            <td width="80%">&nbsp;</td>
-                            <td width="10%" align="right">ДИСПЕТЧЕРСКАЯ</td>
-                        </tr>
-                    </table>
-                    <p>Добрый день!<br />
-                    С вами поделились заявкой №${ticketNumber} от ${format(new Date(date), 'd MMMM Y', { locale: LOCALES[RU_LOCALE] })}.<br />
-                    Текст заявки: «${details}»</p>
-                    <p>&nbsp;</p>
-                    <div><!--[if mso]>
-                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${serverUrl}/ticket/${id}" style="height:40px;v-text-anchor:middle;width:330px;" arcsize="10%" stroke="f" fill="t">
-                        <v:fill type="tile" src="" color="#4CD174" />
-                        <w:anchorlock/>
-                        <center style="color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:bold;">Перейти в карточку завяки в Doma.ai</center>
-                    </v:roundrect>
-                    <![endif]--><a href="${serverUrl}/ticket/${id}" style="background-color:#4CD174;background-image:url();border-radius:4px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:16px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:330px;-webkit-text-size-adjust:none;mso-hide:all;">Перейти в карточку завяки в Doma.ai</a></div>
+                    <html style="fmargin: 0; font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">
+                        <body style="margin: 0; font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">
+                            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">
+                                <tr>
+                                    <td width="10%" align="left"><b style="font-size: 16px;">DOMA.ai</b></td>
+                                    <td width="80%">&nbsp;</td>
+                                    <td width="10%" align="right"><b style="font-size: 16px;">ДИСПЕТЧЕРСКАЯ</b></td>
+                                </tr>
+                            </table>
+                            <p style="font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">Добрый день!<br />
+                            С вами поделились заявкой №${ticketNumber} от ${format(new Date(date), 'd MMMM Y', { locale: LOCALES[RU_LOCALE] })}.<br />
+                            Текст заявки: «${details}»</p>
+                            <p>&nbsp;</p>
+                            <div><!--[if mso]>
+                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${serverUrl}/ticket/${id}" style="height:40px;v-text-anchor:middle;width:330px;" arcsize="10%" stroke="f" fill="t">
+                                <v:fill type="tile" src="" color="#4CD174" />
+                                <w:anchorlock/>
+                                <center style="color:#ffffff;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;">Перейти в карточку завяки в Doma.ai</center>
+                            </v:roundrect>
+                            <![endif]--><a href="${serverUrl}/ticket/${id}" style="background-color:#4CD174;border-radius:4px;color:#ffffff;display:inline-block;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:330px;-webkit-text-size-adjust:none;mso-hide:all;">Перейти в карточку завяки в Doma.ai</a></div>
+                        </body>
+                    </html>
                 `,
             }
         }
