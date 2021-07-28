@@ -83,7 +83,9 @@ export const getUploadProgressModalConfig = (title: string, processingMessage: s
 }
 
 function fitToColumn (arrayOfArray) {
-    return arrayOfArray[0].map((a, i) => ({ wch: Math.max(...arrayOfArray.map(a2 => a2[i] ? a2[i].toString().length : 0)) }))
+    return arrayOfArray[0].map((_, index) => (
+        { wch: Math.max(...arrayOfArray.map(row => row[index] ? row[index].toString().length : 0)) }
+    ))
 }
 
 export const getPartlyLoadedModalConfig = (title: string, content: string, okText: string, cancelText: string,
