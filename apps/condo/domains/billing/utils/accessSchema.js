@@ -24,7 +24,7 @@ async function canReadBillingEntity (user) {
     }
 }
 
-async function canManageBillingEntityWithContext ({ user, operation, itemId, originalInput, schemaWithContextName }) {
+async function canManageBillingEntityWithContext ({ user, operation, itemId, originalInput, schemaWithContextName, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     let contextId
@@ -38,9 +38,9 @@ async function canManageBillingEntityWithContext ({ user, operation, itemId, ori
         contextId = get(itemWithContext, ['context'])
         if (!contextId) return false
     }
-    const context = await getById('BillingIntegrationOrganizationContext', contextId)
-    if (!context) return false
-    const { organization: organizationId, integration: integrationId } = context
+    const organizationContext = await getById('BillingIntegrationOrganizationContext', contextId)
+    if (!organizationContext) return false
+    const { organization: organizationId, integration: integrationId } = organizationContext
     const canManageIntegrations = await checkOrganizationPermission(context, user.id, organizationId, 'canManageIntegrations')
     if (canManageIntegrations) return true
     return await checkBillingIntegrationAccessRight(user.id, integrationId)
