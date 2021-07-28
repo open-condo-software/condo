@@ -5,6 +5,7 @@ export type TableRow = Array<Record<'value', string | number>>
 export type ProcessedRow = {
     row: TableRow
     addons?: { [id: string]: any }
+    shouldBeReported?: boolean
 }
 
 export type ProgressUpdateHandler = (progress: number) => void
@@ -173,10 +174,13 @@ export class Importer implements IImporter {
                     .then(isValid => {
                         if (isValid) {
                             return this.objectCreator(normalizedRow).then(() => {
+                                if (normalizedRow.shouldBeReported && this.failProcessingHandler) {
+                                    this.failProcessingHandler(normalizedRow)
+                                }
                                 if (this.successProcessingHandler) {
                                     this.successProcessingHandler(row)
-                                    return Promise.resolve()
                                 }
+                                return Promise.resolve()
                             })
                         } else {
                             if (this.failProcessingHandler) {
