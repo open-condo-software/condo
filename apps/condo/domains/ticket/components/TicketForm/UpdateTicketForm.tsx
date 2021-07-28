@@ -3,7 +3,6 @@ import React, { useEffect } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { Form, Typography, Space } from 'antd'
 import { useIntl } from '@core/next/intl'
-import { BaseTicketForm } from '../BaseTicketForm'
 import { Button } from '@condo/domains/common/components/Button'
 import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
@@ -12,8 +11,9 @@ import { FormResetButton } from '@condo/domains/common/components/FormResetButto
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { useBaseTicketForm } from '../../hooks/useBaseTicketForm'
 interface IUpdateTicketForm {
-    id: string
+    id: string,
 }
 
 export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
@@ -24,6 +24,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const { organization } = useOrganization()
+    const BaseTicketForm = useBaseTicketForm()
     const { obj, loading, refetch, error } = Ticket.useObject({ where: { id } })
     const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id } } })
     

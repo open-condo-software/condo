@@ -5,9 +5,9 @@ import { UpdateTicketForm } from './UpdateTicketForm'
 import { CreateTicketForm } from './CreateTicketForm'
 
 interface ITicketFormProps {
-    id?: string
+    id?: string,
 }
 
 export const TicketForm: React.FC<ITicketFormProps> = ({ id }) => {
-    return ( id ? <UpdateTicketForm id={id}/> : <CreateTicketForm/> )
+    return ( id ? <UpdateTicketForm id={id} /> : <CreateTicketForm/> )
 }

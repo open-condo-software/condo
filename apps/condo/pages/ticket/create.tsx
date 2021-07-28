@@ -6,27 +6,37 @@ import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { PageWithAuthBoundProps } from './[id]'
+import { BaseTicketForm, ITicketFormProps } from '@condo/domains/ticket/components/BaseTicketForm'
+import { BaseTicketFormProvider } from '../../domains/ticket/hooks/useBaseTicketForm'
 
-const CreateTicketPage = () => {
+export interface TicketFormPageProps extends PageWithAuthBoundProps {
+    BaseTicketForm?: React.FC<ITicketFormProps>,
+}
+
+const CreateTicketPage = ({ AuthBound, BaseTicketForm: BaseTicketFormFromProps }: TicketFormPageProps) => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.CreateTicketModalTitle' })
-
+    const ResAuthBound = AuthBound ? AuthBound : OrganizationRequired
+    const ResBaseTicketForm = BaseTicketFormFromProps ? BaseTicketFormFromProps : BaseTicketForm
     return (
         <>
             <Head>
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
+                <ResAuthBound>
                     <PageContent>
                         <Row gutter={[0, 40]}>
                             <Col span={24}>
                                 <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                             </Col>
-                            <TicketForm/>
+                            <BaseTicketFormProvider BaseTicketForm={ResBaseTicketForm}>
+                                <TicketForm/>
+                            </BaseTicketFormProvider>
                         </Row>
                     </PageContent>
-                </OrganizationRequired>
+                </ResAuthBound>
             </PageWrapper>
         </>
     )

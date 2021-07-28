@@ -297,8 +297,8 @@ interface IOrganization {
     id: string
 }
 
-interface ITicketFormProps {
-    organization: IOrganization
+export interface ITicketFormProps {
+    organization?: IOrganization
     initialValues?: ITicketFormState
     action?: (...args) => void,
     files?: ITicketFileUIState[],
