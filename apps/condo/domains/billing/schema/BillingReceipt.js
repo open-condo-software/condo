@@ -59,9 +59,9 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         },
 
         recipient: {
-            schemaDoc: 'Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4',
+            schemaDoc: 'Billing account recipient. Should contain all meta information to identify the organization',
             type: Json,
-            isRequired: false,
+            isRequired: true,
             hooks: {
                 validateInput: validateRecipient,
             },
