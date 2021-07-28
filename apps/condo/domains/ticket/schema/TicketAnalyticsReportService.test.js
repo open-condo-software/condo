@@ -91,3 +91,44 @@ test('Groupped counts [day, status] with property filter', async () => {
     expect(countsMap.some(e =>  e === 1)).toBe(true)
     expect(countsMap.filter(e => e === 1)).toHaveLength(1)
 })
+
+test('User can not read ticket analytics report from another organization', async () => {
+    const client = await makeClientWithProperty()
+    await createTestTicket(client, client.organization, client.property)
+    const wrongClient = await makeClientWithProperty()
+    const dateStart = moment().startOf('week')
+    const dateEnd = moment().endOf('week')
+    const { data: { result: { result: emptyResult } } } = await wrongClient.query(TICKET_ANALYTICS_REPORT_MUTATION, {
+        dv: 1,
+        sender: { dv:1, fingerprint: 'tests' },
+        data: {
+            where: {
+                AND: [
+                    { organization: { id: wrongClient.organization.id } },
+                    { createdAt_gte: dateStart.toISOString() },
+                    { createdAt_lte: dateEnd.toISOString() },
+                ],
+            },
+            groupBy: [ 'day', 'status' ],
+        },
+    })
+
+    const { data: { result: { result } } } = await client.query(TICKET_ANALYTICS_REPORT_MUTATION, {
+        dv: 1,
+        sender: { dv:1, fingerprint: 'tests' },
+        data: {
+            where: {
+                AND: [
+                    { organization: { id: client.organization.id } },
+                    { createdAt_gte: dateStart.toISOString() },
+                    { createdAt_lte: dateEnd.toISOString() },
+                ],
+            },
+            groupBy: [ 'day', 'status' ],
+        },
+    })
+
+    expect(emptyResult).toMatchObject({})
+    expect(Object.keys(result)).toStrictEqual([NOW_DATE])
+    expect(Object.values(result[NOW_DATE])).toHaveLength(TICKET_STATUS_TYPES.length)
+})
