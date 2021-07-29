@@ -6,8 +6,8 @@ import { Loader } from '../Loader'
 
 interface ILoadingOrErrorPageProps {
     title: string
-    loading: boolean
     error: string
+    loading?: boolean
 }
 
 const LoadingOrErrorPage: React.FC<ILoadingOrErrorPageProps> = ({ title, loading, error }) => {

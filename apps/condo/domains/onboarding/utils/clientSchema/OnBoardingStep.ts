@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { OnBoardingStep as OnBoardingStepGQL } from '@condo/domains/onboarding/gql'
 import { OnBoardingStep, OnBoardingStepUpdateInput, QueryAllOnBoardingStepsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'icon', 'title', 'description', 'action', 'entity', 'onBoarding']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'icon', 'title', 'description', 'action', 'entity', 'onBoarding', 'completed', 'order', 'required']
 const RELATIONS = ['onBoarding']
 
 export interface IOnBoardingStepUIState extends OnBoardingStep {
