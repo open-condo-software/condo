@@ -3957,6 +3957,15 @@ export type CheckPasswordRecoveryTokenOutput = {
   status: Scalars['String'];
 };
 
+export type CheckPropertyWithAddressExistInput = {
+  address: Scalars['String'];
+};
+
+export type CheckPropertyWithAddressExistOutput = {
+  __typename?: 'CheckPropertyWithAddressExistOutput';
+  isFound: Scalars['Boolean'];
+};
+
 export type CompleteConfirmPhoneActionInput = {
   token: Scalars['String'];
   smsCode: Scalars['Int'];
@@ -10570,6 +10579,7 @@ export type Query = {
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
+  checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
   /** The version of the Keystone application serving this API. */
@@ -11890,6 +11900,11 @@ export type QueryCheckPasswordRecoveryTokenArgs = {
 
 export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
   data: GetPhoneByConfirmPhoneActionTokenInput;
+};
+
+
+export type QueryCheckPropertyWithAddressExistArgs = {
+  data: CheckPropertyWithAddressExistInput;
 };
 
 
