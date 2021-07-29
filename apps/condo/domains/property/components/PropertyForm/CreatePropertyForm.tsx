@@ -21,7 +21,7 @@ export const CreatePropertyForm: React.FC = () => {
     const action = Property.useCreate({
         organization: organization.id,
         type: DEFAULT_PROPERTY_TYPE,
-    }, () => { router.push('/property/') })
+    }, () => { router.push('/property/?showTooltip=true') })
 
     const initialValues = {
         name: '',

@@ -1,61 +1,133 @@
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
-import { Col, Row, Space, Typography } from 'antd'
+import { Col, Row, Skeleton, Space, Typography } from 'antd'
 import Head from 'next/head'
-import React from 'react'
+import Router from 'next/router'
+import React, { useEffect, useMemo } from 'react'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { HouseIcon } from '@condo/domains/common/components/icons/HouseIcon'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
-import { OnBoardingStep, OnBoardingStepType } from '@condo/domains/user/components/OnBoardingStep'
-import { CheckOutlined, WechatFilled, ProfileFilled, CreditCardFilled } from '@ant-design/icons'
+import { OnBoardingStepItem, OnBoardingStepType } from '@condo/domains/onboarding/components/OnBoardingStepItem'
+import { CheckOutlined, WechatFilled, ProfileFilled, CreditCardFilled, BankOutlined } from '@ant-design/icons'
+import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
+import { useAuth } from '@core/next/auth'
+import { useOnBoardingContext } from '../domains/onboarding/components/OnBoardingContext'
+import { useCreateOrganizationModalForm } from '../domains/organization/hooks/useCreateOrganizationModalForm'
+import { useApplySubscriptionModal } from '../domains/subscription/hooks/useSubscriptionModal'
 import { IPageInterface } from '../next-env'
+import { OnBoardingStep as OnBoardingStepInterface  } from '../schema'
+
+const getStepKey = (step: OnBoardingStepInterface) => `${step.action}.${step.entity}`
+
+const getParentStep = (stepTransitions: Record<string, Array<string>>, stepKey: string, steps: Array<OnBoardingStepInterface>) => {
+    let parentKey: string | undefined
+
+    Object.keys(stepTransitions).map((key) => {
+        if (!parentKey && stepTransitions[key].includes(stepKey)) {
+            parentKey = key
+        }
+    })
+
+    if (!parentKey) {
+        return null
+    }
+
+    const [targetAction, targetEntity] = parentKey.split('.')
+
+    return steps.find((step) => (
+        step.action === targetAction && step.entity === targetEntity
+    ))
+}
+
+const getStepType = (
+    step: OnBoardingStepInterface,
+    stepsTransitions: Record<string, Array<string>>,
+    steps: Array<OnBoardingStepInterface>,
+) => {
+    const stepKey = getStepKey(step)
+    const stepTransitions = get(stepsTransitions, stepKey)
+    const parentStep = getParentStep(stepsTransitions, stepKey, steps)
+
+    const parentRequired = get(parentStep, 'required')
+    const parentCompleted = get(parentStep, 'completed')
+
+    if (Array.isArray(stepTransitions)) {
+        if (parentRequired && !parentCompleted) {
+            return OnBoardingStepType.DISABLED
+        }
+
+        if (step.completed) {
+            return OnBoardingStepType.COMPLETED
+        }
+
+        return OnBoardingStepType.DEFAULT
+    } else {
+        return OnBoardingStepType.DISABLED
+    }
+}
 
 const OnBoardingPage: IPageInterface = () => {
     const intl = useIntl()
     const Title = intl.formatMessage({ id: 'onboarding.title' })
     const SubTitle = intl.formatMessage({ id: 'onboarding.subtitle' })
+    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const { onBoardingSteps, onBoarding, isLoading } = useOnBoardingContext()
 
-    // TODO(Dimitreee): prefetch steps from backend
-    const onBoardingSteps = [
-        {
-            title: 'Создание организации',
-            type: OnBoardingStepType.COMPLETED,
-            icon: CheckOutlined,
-            description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
-        },
-        {
-            title: 'Добавление дома',
-            type: OnBoardingStepType.DEFAULT,
-            icon: HouseIcon,
-            description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
-        },
-        {
-            title: 'Добавление сотрудника',
-            type: OnBoardingStepType.DISABLED,
-            icon: UserIcon,
-            description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
-        },
-        {
-            title: 'Формирование команды',
-            type: OnBoardingStepType.DISABLED,
+    const { user } = useAuth()
 
-            icon: WechatFilled,
-            description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
+    const { setVisible: showApplySubscription, SubscriptionModal } = useApplySubscriptionModal()
+    const { setVisible: showCreateOrganizationModal, ModalForm } = useCreateOrganizationModalForm({
+        onFinish: () => {
+            showApplySubscription(true)
         },
-        {
-            title: 'Подключение биллинга',
-            type: OnBoardingStepType.DISABLED,
+    })
 
-            icon: ProfileFilled,
-            description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
-        },
-        {
-            title: 'Подключение эквайринга',
-            type: OnBoardingStepType.DISABLED,
-            icon: CreditCardFilled,
-            description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
-        },
-    ]
+    const onBoardingIconsMap = {
+        organization: BankOutlined,
+        house: HouseIcon,
+        user: UserIcon,
+        chat: WechatFilled,
+        billing: ProfileFilled,
+        creditCard: CreditCardFilled,
+    }
+
+    const onBoardingActionMap = {
+        'create.Organization': () => showCreateOrganizationModal(true),
+        'create.Property': () => Router.push('property/create'),
+        'create.OrganizationEmployee': () => Router.push('employee/create'),
+    }
+
+    useEffect(() => {
+        const isOnBoardingCompleted = get(onBoarding, 'completed')
+
+        if (isOnBoardingCompleted) {
+            Router.push('/')
+        }
+    }, [onBoarding])
+
+    const steps = useMemo(() => {
+        if (onBoarding && Array.isArray(onBoardingSteps) && onBoardingSteps.length > 0) {
+            return onBoardingSteps
+                .sort((leftStep, rightStep) => leftStep.order > rightStep.order ? 1 : -1)
+                .map((step) => {
+                    const { title, description, icon } = step
+                    const stepKey = getStepKey(step)
+
+                    return (
+                        <OnBoardingStepItem
+                            action={step.completed ? null : onBoardingActionMap[stepKey]}
+                            key={title}
+                            title={title}
+                            description={description}
+                            icon={step.completed ? CheckOutlined : onBoardingIconsMap[icon]}
+                            type={getStepType(step, get(onBoarding, 'stepsTransitions'), onBoardingSteps)}
+                        />
+                    )
+                })
+        }
+
+        return []
+    }, [onBoardingSteps, onBoarding])
 
     return (
         <>
@@ -73,16 +145,25 @@ const OnBoardingPage: IPageInterface = () => {
                                 </Space>
                             </Col>
                             <Col span={24}>
-                                <Row gutter={[0, 0]}>
-                                    {onBoardingSteps.map((step) => {
-                                        return (
-                                            <OnBoardingStep {...step} key={step.title}/>
-                                        )
-                                    })}
-                                </Row>
+                                {isLoading
+                                    ? (
+                                        <React.Fragment>
+                                            <Skeleton active/>
+                                            <Skeleton active/>
+                                            <Skeleton active/>
+                                            <Skeleton active/>
+                                        </React.Fragment>
+                                    )
+                                    : (
+                                        <Row gutter={[0, 0]}>
+                                            {steps}
+                                        </Row>
+                                    )}
                             </Col>
                         </Row>
                     </PageContent>
+                    <ModalForm/>
+                    <SubscriptionModal/>
                 </AuthRequired>
             </PageWrapper>
         </>

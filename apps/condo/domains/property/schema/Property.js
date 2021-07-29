@@ -17,7 +17,6 @@ const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder
 const Ajv = require('ajv')
 const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { Property: PropertyAPI } = require('../utils/serverSchema')
-const { ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
 
