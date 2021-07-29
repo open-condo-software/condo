@@ -1,4 +1,5 @@
 import { Col, Form, Input, Row, Typography } from 'antd'
+import get from 'lodash/get'
 import Router from 'next/router'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { useMutation } from '@core/next/apollo'
@@ -14,6 +15,7 @@ import {
     PHONE_ALREADY_REGISTERED_ERROR,
 } from '@condo/domains/user/constants/errors'
 import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
+import { CREATE_ON_BOARDING_MUTATION } from '@condo/domains/onboarding/gql'
 import { AuthLayoutContext } from '../containers/AuthLayoutContext'
 import { useRegisterFormValidators } from './hooks'
 import { RegisterContext } from './RegisterContextProvider'
@@ -71,6 +73,24 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const { phone, token } = useContext(RegisterContext)
     const { signInByPhone } = useContext(AuthLayoutContext)
     const [registerMutation] = useMutation(REGISTER_NEW_USER_MUTATION)
+    const [createOnBoarding] = useMutation(CREATE_ON_BOARDING_MUTATION)
+
+    const initOnBoarding = useCallback(async (userId: string) => {
+        const onBoardingExtraData = {
+            dv: 1,
+            sender: getClientSideSenderInfo(),
+        }
+
+        const data = { ...onBoardingExtraData, type: 'ADMINISTRATOR', userId }
+
+        return runMutation({
+            mutation: createOnBoarding,
+            variables: { data },
+            intl,
+            form,
+            ErrorToFormFieldMsgMapping,
+        })
+    }, [])
 
     const registerComplete = useCallback(async () => {
         const registerExtraData = {
@@ -86,9 +106,15 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
         return runMutation({
             mutation: registerMutation,
             variables: { data },
-            onCompleted: () => {
+            onCompleted: ({ data }) => {
+                const userId = get(data, ['user', 'id'])
+
                 signInByPhone(form.getFieldsValue(['phone', 'password']))
-                    .then(() => { Router.push('/billing/trial') }, console.error)
+                    .then(() => initOnBoarding(userId))
+                    .then(() => {
+                        Router.push('/onboarding')
+                    })
+                    .catch(console.error)
             },
             onFinally: () => {
                 setIsLoading(false)
