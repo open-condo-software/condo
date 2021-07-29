@@ -2,37 +2,6 @@ const { JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/er
 const Ajv = require('ajv')
 const ajv = new Ajv()
 
-
-/**
- * The basic JSON validation
- * @private
- */
-function _validateJSON (resolvedData, fieldPath, addFieldValidationError) {
-    if (!resolvedData.hasOwnProperty(fieldPath)) return // skip if no value
-    const value = resolvedData[fieldPath]
-    if (value === null) return // null is OK
-    if (typeof value !== 'object')
-        return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`)
-}
-
-/**
- * This function accepts the list of validators
- * @param args - {resolvedData, fieldPath, addFieldValidationError}
- * @param validators - a list of validator functions, where each function accepts args (via spread operator) and may raise addFieldValidationError
- * @return {void|*}
- * @private
- */
-function _combineValidators (args, validators) {
-    const { resolvedData, fieldPath, addFieldValidationError } = args
-
-    for (let validator of validators) {
-        let validatonErrors = validator(resolvedData, fieldPath, addFieldValidationError)
-        if (validatonErrors) {
-            return validatonErrors
-        }
-    }
-}
-
 const PAYMENT_SCHEMA = {
     type: 'object',
     properties: {
@@ -51,7 +20,7 @@ const PAYMENT_SCHEMA = {
 
 const _jsonPaymentObjectSchemaValidator = ajv.compile(PAYMENT_SCHEMA)
 
-function _validatePaymentDetails (resolvedData, fieldPath, addFieldValidationError) {
+function _validatePaymentDetails ({ resolvedData, fieldPath, addFieldValidationError }) {
     if (!_jsonPaymentObjectSchemaValidator(resolvedData[fieldPath])) {
         return _jsonPaymentObjectSchemaValidator.errors.forEach(error => {
             addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
@@ -77,7 +46,7 @@ const SERVICES_WITH_PAYMENT_SCHEMA = {
 
 const _jsonServicesSchemaValidator = ajv.compile(SERVICES_WITH_PAYMENT_SCHEMA)
 
-function _validateServices (resolvedData, fieldPath, addFieldValidationError) {
+function _validateServices ({ resolvedData, fieldPath, addFieldValidationError }) {
     if (!_jsonServicesSchemaValidator(resolvedData[fieldPath])) {
         return _jsonServicesSchemaValidator.errors.forEach(error => {
             addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
@@ -99,7 +68,7 @@ const PAYMENT_RECIPIENT_SCHEMA = {
 
 const _jsonPaymentRecipientSchemaValidator = ajv.compile(PAYMENT_RECIPIENT_SCHEMA)
 
-function _validateRecipient (resolvedData, fieldPath, addFieldValidationError) {
+function _validateRecipient ({ resolvedData, fieldPath, addFieldValidationError }) {
     if (!_jsonPaymentRecipientSchemaValidator(resolvedData[fieldPath])) {
         return _jsonPaymentRecipientSchemaValidator.errors.forEach(error => {
             addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
@@ -120,8 +89,8 @@ function _validatePeriod ({ resolvedData, fieldPath, addFieldValidationError }) 
 }
 
 module.exports = {
-    validatePaymentDetails: (args) => _combineValidators(args, [_validateJSON, _validatePaymentDetails]),
-    validateServices: (args) => _combineValidators(args, [_validateJSON, _validateServices]),
-    validateRecipient: (args) => _combineValidators(args, [_validateJSON, _validateRecipient]),
+    validatePaymentDetails: _validatePaymentDetails,
+    validateServices: _validateServices,
+    validateRecipient: _validateRecipient,
     validatePeriod: _validatePeriod,
 }
