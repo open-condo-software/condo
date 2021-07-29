@@ -333,6 +333,7 @@
   "pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency": "Аварийные",
   "pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses": "Все адреса",
   "pages.condo.analytics.TicketAnalyticsPage.AllAddresses": "по всем адресам",
+  "pages.condo.analytics.TicketAnalyticsPage.SingleAddress": "по адресу",
   "pages.condo.analytics.TicketAnalyticsPage.AllCategories": "во всех категориях",
   "pages.condo.analytics.TicketAnalyticsPage.DefaultTickets": "Обычные заявки за",
   "pages.condo.analytics.TicketAnalyticsPage.PaidTickets": "Платные заявки за",
