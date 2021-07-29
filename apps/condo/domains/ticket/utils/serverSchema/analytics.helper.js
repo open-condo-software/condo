@@ -71,8 +71,10 @@ const createCountersStructure = async ({ context, organization, groups, datesRan
     for (const groupName of groups) {
         let range = []
         switch (groupName) {
-            case 'day':
             case 'week':
+                range = createDateRange(moment(min).endOf(groupName), moment(max).endOf(groupName), groupName)
+                break
+            case 'day':
             case 'month':
                 range = createDateRange(min, max, groupName)
                 break
