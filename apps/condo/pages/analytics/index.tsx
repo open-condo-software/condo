@@ -173,7 +173,7 @@ const ticketChartDataMapper = new TicketChart({
                 Object.entries(data).forEach((rowEntry) => {
                     const [ticketType, dataObj] = rowEntry
                     const counts = Object.values(dataObj) as number[]
-                    restTableColumns[ticketType] = counts.reduce((a, b) => a + b)
+                    restTableColumns[ticketType] = counts.reduce((a, b) => a + b, 0)
                 })
                 dataSource.push({
                     key: 0,
@@ -339,7 +339,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         const endDate = get(queryParams, 'createdAt_gte', moment().toISOString())
         const range = [moment(startDate), moment(endDate)] as [Moment, Moment]
         const specificationUrl = get(queryParams, 'specification')
-        if (startDate && endDate && specification && addressList) {
+        if (startDate && endDate && specificationUrl && addressList) {
             setAddressList(addressList)
             setDateRange(range)
             setSpecification(specificationUrl)
@@ -364,7 +364,6 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const onClear = useCallback(() => {
         setAddressList([])
     }, [])
-
     return (
         <Form>
             <Row gutter={[40, 25]} wrap>
