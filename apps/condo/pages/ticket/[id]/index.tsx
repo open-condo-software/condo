@@ -21,8 +21,6 @@ import {
     getTicketCreateMessage,
     getTicketTitleMessage,
 } from '@condo/domains/ticket/utils/helpers'
-
-import { LETTERS_AND_NUMBERS } from '@condo/domains/common/constants/regexps'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
 // @ts-ignore
@@ -209,7 +207,7 @@ const TicketIdPage = () => {
         user: auth.user && auth.user.id,
     }, () => { refetchComments() })
 
-    const { link } = useOrganization()
+    const { link, organization } = useOrganization()
 
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
@@ -343,6 +341,7 @@ const TicketIdPage = () => {
                                             number={ticket.number}
                                             details={ticket.details}
                                             id={id}
+                                            locale={organization.country}
                                         />
                                         <Button
                                             type={'sberPrimary'}
