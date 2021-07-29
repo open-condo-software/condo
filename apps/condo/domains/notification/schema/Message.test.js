@@ -81,7 +81,7 @@ describe('Message', () => {
     test('anonymous: read Message', async () => {
         const client = await makeClient()
 
-        await expectToThrowAuthenticationError(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await Message.getAll(client)
         })
     })
