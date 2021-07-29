@@ -12,6 +12,7 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
         required: true,
         action: 'create',
         entity: 'Organization',
+        order: 1,
     },
     {
         icon: 'house',
@@ -19,13 +20,15 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
         description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
         action: 'create',
         entity: 'Property',
+        order: 2,
     },
     {
         icon: 'user',
         title: 'Добавление сотрудника',
         description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
         action: 'create',
-        entity: 'Employee',
+        entity: 'OrganizationEmployee',
+        order: 3,
     },
     {
         icon: 'chat',
@@ -33,6 +36,7 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
         description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
         action: 'create',
         entity: 'Squad', // should be renamed
+        order: 4,
     },
     {
         icon: 'billing',
@@ -40,6 +44,7 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
         description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
         action: 'create',
         entity: 'BillingAccount',
+        order: 5,
     },
     {
         icon: 'creditCard',
@@ -47,16 +52,17 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
         description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
         action: 'create',
         entity: 'Acquiring',
+        order: 6,
     },
 ]
+
 const DEFAULT_ADMINISTRATOR_STEPS_TRANSITION = {
     'create.Organization': [
         'create.Property',
-        'create.Employee',
-        'create.Squad',
-        'create.BillingAccount',
-        'create.Acquiring',
+        'create.OrganizationEmployee',
     ],
+    'create.Property': [],
+    'create.OrganizationEmployee': [],
 }
 
 const ONBOARDING_STEPS = {

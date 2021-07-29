@@ -23,11 +23,13 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const { isLoading } = useOrganization()
     const { loading: isInvitesLoading } = useOrganizationInvites()
     const { isMobile, toggleSideMenuCollapsed } = props
+
     if (isLoading || auth.isLoading || isInvitesLoading) {
         return (
             <Loader fill='false' />
         )
     }
+
     return (
         <>
             {props.headerAction && props.headerAction}
