@@ -8,6 +8,7 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/co
 
 const { Resident: ResidentGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/property/gql')
+const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Resident = generateServerUtils(ResidentGQL)
@@ -25,10 +26,12 @@ async function registerResident (context, data) {
         dataPath: 'obj',
     })
 }
+const ServiceConsumer = generateServerUtils(ServiceConsumerGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Resident,
     registerResident,
+    ServiceConsumer,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
