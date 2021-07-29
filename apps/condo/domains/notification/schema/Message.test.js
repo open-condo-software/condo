@@ -7,7 +7,7 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { Message, createTestMessage, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
 
 describe('Message', () => {
     test('admin: create Message', async () => {
