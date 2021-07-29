@@ -36,7 +36,7 @@ const SIGNIN_MUTATION = gql`
 
 const CHANGE_PASSWORD_WITH_TOKEN_MUTATION = gql`
     mutation changePasswordWithToken($data: ChangePasswordWithTokenInput!) {
-        result: changePasswordWithToken(data: $data) { status }
+        result: changePasswordWithToken(data: $data) { status, email }
     }
 `
 

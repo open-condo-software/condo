@@ -25,6 +25,7 @@ const ForgotPasswordAction = new GQLListSchema('ForgotPasswordAction', {
             schemaDoc: 'Unique token to complete confirmation',
             type: Text,
             isRequired: true,
+            isUnique: true,
         },
         requestedAt: {
             schemaDoc: 'DateTime when confirm phone action was started',
