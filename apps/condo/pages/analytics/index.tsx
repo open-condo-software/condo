@@ -335,16 +335,17 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     useEffect(() => {
         const queryParams = getQueryParams()
         const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
-        const startDate = get(queryParams, 'createdAt_lte')
-        const endDate = get(queryParams, 'createdAt_gte')
+        const startDate = get(queryParams, 'createdAt_lte', moment().subtract(1, 'week').toISOString())
+        const endDate = get(queryParams, 'createdAt_gte', moment().toISOString())
+        const range = [moment(startDate), moment(endDate)] as [Moment, Moment]
         const specificationUrl = get(queryParams, 'specification')
         if (startDate && endDate && specification && addressList) {
             setAddressList(addressList)
-            setDateRange([moment(startDate), moment(endDate)])
+            setDateRange(range)
             setSpecification(specificationUrl)
         }
         isEmpty(queryParams) && updateUrlFilters()
-        onChange({ range: dateRange, specification, addressList })
+        onChange({ range, specification, addressList })
     }, [])
 
     useEffect(() => {
@@ -430,6 +431,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const TicketTypePaid = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Paid' })
     const TicketTypeEmergency = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency' })
     const AllAddresses = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllAddresses' })
+    const SingleAddress = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.SingleAddress' })
     const AllCategories = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllCategories' })
     const TableTitle = intl.formatMessage({ id: 'Table' })
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
@@ -449,6 +451,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const [ticketType, setTicketType] = useState<ticketSelectTypes>('default')
     const [dateFrom, dateTo] = filtersRef.current !== null ? filtersRef.current.range : []
     const selectedPeriod = filtersRef.current !== null ? filtersRef.current.range.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
+    const selectedAddresses = filtersRef.current !== null ? filtersRef.current.addressList : []
 
     const [loadTicketAnalytics] = useLazyQuery(TICKET_ANALYTICS_REPORT_MUTATION, {
         onError: error => {
@@ -464,6 +467,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     })
     const getAnalyticsData = () => {
         if (filtersRef.current !== null) {
+            setLoading(true)
             const groupBy = []
             if (viewMode === 'line') {
                 groupBy.push(...['status', filtersRef.current.specification])
@@ -489,7 +493,6 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     }
 
     useEffect(() => {
-        setLoading(true)
         getAnalyticsData()
     }, [groupTicketsBy, userOrganizationId, ticketType, viewMode])
 
@@ -513,6 +516,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
         getAnalyticsData()
     }, [viewMode, ticketType, userOrganizationId])
 
+    const addressFilterTitle = selectedAddresses.length ? `${SingleAddress} «${selectedAddresses[0].value}»` : AllAddresses
     return <>
         <Head>
             <title>{PageTitle}</title>
@@ -550,7 +554,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                         </Col>
                         <Col span={14}>
                             <Typography.Title level={3}>
-                                {ViewModeTitle} {selectedPeriod} {AllAddresses} {AllCategories}
+                                {ViewModeTitle} {selectedPeriod} {addressFilterTitle} {AllCategories}
                             </Typography.Title>
                         </Col>
                         <Col span={4} style={{ textAlign: 'right', flexWrap: 'nowrap' }}>
