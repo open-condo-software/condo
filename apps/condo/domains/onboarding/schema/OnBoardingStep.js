@@ -70,6 +70,7 @@ const OnBoardingStep = new GQLListSchema('OnBoardingStep', {
             ref: 'OnBoarding',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
