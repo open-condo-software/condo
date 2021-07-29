@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { RU_LOCALE } from '@condo/domains/common/constants/locale'
-import { Col, Row, Modal, Collapse, notification } from 'antd'
+import { Col, Row, Modal, Collapse, notification, Tooltip } from 'antd'
 import React, { useState } from 'react'
 import { ShareAltOutlined, RightOutlined, CloseCircleFilled } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
@@ -190,6 +190,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const OKMessage = intl.formatMessage({ id: 'OK' })
     const ShareSentMessage = intl.formatMessage({ id: 'ticket.shareSent' })
     const ShareSentToEmailMessage = intl.formatMessage({ id: 'ticket.shareSentToEmail' })
+    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
 
     const { date, number, details, id, locale } = props
     const cipher = crypto.createCipher(ALGORITHM, SALT)
@@ -329,7 +330,15 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                             </ShareButton>
                         </a>
                     </Col>
-                    <Col span={24}>
+                     <Col span={24}>
+                        <Tooltip title={NotImplementedYetMessage}>
+                            <ShareButton>
+                                {ToEmployeesEmailMessage}
+                                <RightOutlined />
+                            </ShareButton>
+                        </Tooltip>
+                    </Col>
+                    {/* <Col span={24}>
                         <Collapse expandIconPosition='right' css={collapse}>
                             <Collapse.Panel key='1' header={ToEmployeesEmailMessage}>
                                 <GraphQlSearchInput
@@ -353,7 +362,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                                 </Button> : null}
                             </Collapse.Panel>
                         </Collapse>
-                    </Col>
+                    </Col> */}
                 </Row>
             </Modal>
         </>
