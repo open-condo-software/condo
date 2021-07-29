@@ -330,39 +330,33 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                             </ShareButton>
                         </a>
                     </Col>
-                     <Col span={24}>
-                        <Tooltip title={NotImplementedYetMessage}>
-                            <ShareButton>
-                                {ToEmployeesEmailMessage}
-                                <RightOutlined />
-                            </ShareButton>
-                        </Tooltip>
-                    </Col>
-                    {/* <Col span={24}>
-                        <Collapse expandIconPosition='right' css={collapse}>
-                            <Collapse.Panel key='1' header={ToEmployeesEmailMessage}>
-                                <GraphQlSearchInput
-                                    search={getEmployeeWithEmail(organization.id)}
-                                    showArrow={false}
-                                    mode='multiple'
-                                    css={search}
-                                    onChange={handleSelect}
-                                    value={value}
-                                    placeholder={EmployeesNameMessage}
-                                />
-                                {usersWithoutEmail.length ? <Warning>{usersWithoutEmail}</Warning> : null}
-                                {value.length ? <Button
-                                    type='sberPrimary'
-                                    size='large'
-                                    onClick={handleClick}
-                                    style={{ marginTop: '20px' }}
-                                    disabled={loading}
-                                >
-                                    {SendTicketToEmailMessage}
-                                </Button> : null}
-                            </Collapse.Panel>
-                        </Collapse>
-                    </Col> */}
+                    <Tooltip title={NotImplementedYetMessage}>
+                        <Col span={24}>
+                            <Collapse collapsible='disabled' expandIconPosition='right' css={collapse}>
+                                <Collapse.Panel key='1' header={ToEmployeesEmailMessage}>
+                                    <GraphQlSearchInput
+                                        search={getEmployeeWithEmail(organization.id)}
+                                        showArrow={false}
+                                        mode='multiple'
+                                        css={search}
+                                        onChange={handleSelect}
+                                        value={value}
+                                        placeholder={EmployeesNameMessage}
+                                    />
+                                    {usersWithoutEmail.length ? <Warning>{usersWithoutEmail}</Warning> : null}
+                                    {value.length ? <Button
+                                        type='sberPrimary'
+                                        size='large'
+                                        onClick={handleClick}
+                                        style={{ marginTop: '20px' }}
+                                        disabled={loading}
+                                    >
+                                        {SendTicketToEmailMessage}
+                                    </Button> : null}
+                                </Collapse.Panel>
+                            </Collapse>
+                        </Col>
+                    </Tooltip>
                 </Row>
             </Modal>
         </>
