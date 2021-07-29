@@ -4,7 +4,7 @@ const { WRONG_EMAIL_ERROR, MULTIPLE_ACCOUNTS_MATCHES, RESET_TOKEN_NOT_FOUND, PAS
 const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { GQLCustomSchema } = require('@core/keystone/schema')
+const { GQLCustomSchema, getById } = require('@core/keystone/schema')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ForgotPasswordAction: ForgotPasswordActionUtil, User } = require('@condo/domains/user/utils/serverSchema')
@@ -34,7 +34,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
         },
         {
             access: true,
-            type: 'type ChangePasswordWithTokenOutput { status: String! }',
+            type: 'type ChangePasswordWithTokenOutput { status: String!, email: String! }',
         },
 
     ],
@@ -45,14 +45,13 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             resolver: async (parent, args, context, info, extra) => {
                 const { data: { token } } = args
                 const now = extra.extraNow || Date.now()
-                const actions = await ForgotPasswordActionUtil.getAll(context, {
+                const [action] = await ForgotPasswordActionUtil.getAll(context, {
                     token,
                     expiresAt_gte: new Date(now).toISOString(),
                 })
-                if (isEmpty(actions)) {
+                if (!action || action.usedAt) {
                     throw new Error(`${TOKEN_EXPIRED_ERROR}]: Unable to find valid token`)
                 }
-
                 return { status: 'ok' }
             },
         },
@@ -131,6 +130,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 }
 
                 const userId = forgotPasswordData[0].user.id
+                const { email } = await getById('User', userId)
                 const tokenId = forgotPasswordData[0].id
 
                 // mark token as used
@@ -142,7 +142,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     password,
                 })
 
-                return { status: 'ok' }
+                return { status: 'ok', email }
             },
         },
     ],
