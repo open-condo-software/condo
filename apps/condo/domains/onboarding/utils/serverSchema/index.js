@@ -3,6 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const get = require('lodash/get')
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
@@ -28,11 +29,54 @@ async function createOnBoarding (context, data) {
     })
 }
 
+async function updateOnBoardingStepByAuthUser (context, action, entity) {
+    if (!context) throw new Error('no context')
+    if (!action) throw new Error('no action')
+    if (!entity) throw new Error('no entity')
+    const userId = get(context, ['authedItem', 'id'])
+
+    if (!userId) {
+        return
+    }
+
+    const onBoarding = await execGqlWithoutAccess(context, {
+        query: OnBoardingGQL.GET_ALL_OBJS_QUERY,
+        variables: { where: { user: { id: userId } } },
+        errorMessage: '[error] organization onBoardingTrigger error',
+        dataPath: 'objs',
+    })
+
+    if (!onBoarding || onBoarding.completed) {
+        return
+    }
+
+    const steps = await execGqlWithoutAccess(context, {
+        query: OnBoardingStepGQL.GET_ALL_OBJS_QUERY,
+        variables: { where: { action, entity, onBoarding: { id : onBoarding.id }, completed: false } },
+        errorMessage: '[error] organization onBoardingTrigger error',
+        dataPath: 'objs',
+    })
+
+    for (let i = 0; i < steps.length; i++) {
+        if (!steps[i].completed) {
+            await execGqlWithoutAccess(context, {
+                query: OnBoardingStepGQL.UPDATE_OBJ_MUTATION,
+                variables: {
+                    id: steps[i].id,
+                    data: { completed: true },
+                    dataPath: 'obj',
+                },
+            })
+        }
+    }
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     OnBoarding,
     OnBoardingStep,
     createOnBoarding,
+    updateOnBoardingStepByAuthUser,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
