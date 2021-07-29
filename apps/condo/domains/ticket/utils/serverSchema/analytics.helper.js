@@ -1,3 +1,4 @@
+const { MAX_TICKET_REPORT_COUNT } =  require('@condo/domains/ticket/constants/common')
 const { TicketStatus: TicketStatusServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
 const { Property: PropertyServerUtils } = require('@condo/domains/property/utils/serverSchema')
 const { AnaliticsTicket: AnaliticsTicketServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
@@ -101,7 +102,7 @@ const createCountersStructure = async ({ context, organization, groups, datesRan
 
 const fetchTicketsForAnalitics = async (context, ticketWhereInput) => {
     let skip = 0
-    let maxCount = 1000
+    let maxCount = MAX_TICKET_REPORT_COUNT
     let newchunk = []
     let allTickets = []
     do {
