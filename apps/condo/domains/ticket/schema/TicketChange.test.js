@@ -4,7 +4,7 @@
 
 const { catchErrorFrom, expectToThrowAuthenticationErrorToObjects } = require('../../common/utils/testSchema')
 const faker = require('faker')
-const { createTestOrganizationLinkWithTwoOrganizations } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { updateTestTicket } = require('../utils/testSchema')
@@ -356,7 +356,7 @@ describe('TicketChange', () => {
 
     test('employee from "from" relation: can read ticket changes from his "to" relation organization', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
         const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
         const payload = {
             details: faker.lorem.sentence(),
@@ -372,7 +372,7 @@ describe('TicketChange', () => {
 
     test('employee from "to" relation: cannot read ticket changes from his "from" relation organization', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { organizationFrom, propertyFrom, clientTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const { organizationFrom, propertyFrom, clientTo } = await createTestOrganizationWithAccessToAnotherOrganization()
         const [ticket] = await createTestTicket(admin, organizationFrom, propertyFrom)
         const payload = {
             details: faker.lorem.sentence(),

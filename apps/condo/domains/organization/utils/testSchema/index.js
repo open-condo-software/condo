@@ -203,7 +203,7 @@ async function updateTestOrganizationLink (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestOrganizationLinkWithTwoOrganizations () {
+async function createTestOrganizationWithAccessToAnotherOrganization () {
     const admin = await makeLoggedInAdminClient()
     // createClientWithProperty creates an employee inside himself, this behavior is not needed here
     const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -239,7 +239,7 @@ module.exports = {
     createTestOrganizationEmployee,
     softDeleteTestOrganizationEmployee,
     makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
-    updateTestOrganizationEmployee, createTestOrganizationLinkWithTwoOrganizations,
+    updateTestOrganizationEmployee, createTestOrganizationWithAccessToAnotherOrganization,
     OrganizationLink, createTestOrganizationLink, updateTestOrganizationLink,
 }
 
