@@ -1,7 +1,5 @@
 import { Form, Space } from 'antd'
 import React from 'react'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import { useAuth } from '@core/next/auth'
@@ -9,8 +7,6 @@ import { useIntl } from '@core/next/intl'
 import { BaseTicketForm } from '../BaseTicketForm'
 import { Button } from '@condo/domains/common/components/Button'
 import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 
@@ -21,11 +17,8 @@ export const CreateTicketForm: React.FC = () => {
     const intl = useIntl()
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     const { organization } = useOrganization()
     const router = useRouter()
-    // TODO(Dimitreee):remove after typo inject
     const auth = useAuth() as { user: { id: string } }
 
     const action = Ticket.useCreate(

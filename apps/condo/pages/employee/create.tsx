@@ -22,9 +22,7 @@ const CardCss = css`
 `
 const CreateEmployeePage: IPageWithHeaderAction = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'employee.AddEmployee' }, {
-
-    })
+    const PageTitleMsg = intl.formatMessage({ id: 'employee.AddEmployee' })
 
     const [selectedRole, setSelectedRole] = useState<string | null>(null)
     const roleTranslations = useMemo(() => (selectedRole ? {
@@ -68,8 +66,11 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
     )
 }
 
-CreateEmployeePage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'pages.condo.employee.PageTitle' }}
-    path={'/employee/'}/>
+CreateEmployeePage.headerAction = (
+    <ReturnBackHeaderAction
+        descriptor={{ id: 'pages.condo.employee.PageTitle' }}
+        path={'/employee/'}
+    />
+)
 
 export default CreateEmployeePage

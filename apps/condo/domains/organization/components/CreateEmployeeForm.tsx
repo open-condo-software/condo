@@ -2,15 +2,17 @@ import { Col, Form, Input, Row } from 'antd'
 import MaskedInput from 'antd-mask-input'
 import { Rule } from 'rc-field-form/lib/interface'
 import React from 'react'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 import { Button } from '@condo/domains/common/components/Button'
-import { OrganizationEmployee, useInviteNewOrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import {
+    OrganizationEmployee,
+    OrganizationEmployeeRole,
+    useInviteNewOrganizationEmployee,
+} from '@condo/domains/organization/utils/clientSchema'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ErrorsContainer } from '@condo/domains/organization/components/ErrorsContainer'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
@@ -51,14 +53,14 @@ export const CreateEmployeeForm: React.FC<CreateEmplyeeFormProps> = (props) => {
     const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const UserAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
 
-    const {
-        objs: employee,
-    } = OrganizationEmployee.useObjects({
-        where: { organization: { id: organization.id } },
-    }, {
-        fetchPolicy: 'network-only',
-    })
+    const { objs: employee } = OrganizationEmployee.useObjects(
+        { where: { organization: { id: organization.id } } },
+        { fetchPolicy: 'network-only' },
+    )
 
+    const { objs: employeeRoles, loading, error } = OrganizationEmployeeRole.useObjects(
+        { where: { organization: { id: get(organization, 'id') } } }
+    )
 
     const validations: { [key: string]: Rule[] } = {
         phone: [
@@ -97,9 +99,14 @@ export const CreateEmployeeForm: React.FC<CreateEmplyeeFormProps> = (props) => {
         router.push('/employee/')
     })
 
+    const initialValues = {
+        role: get(employeeRoles, [0, 'id'], ''),
+    }
+
     return (
         <FormWithAction
             action={action}
+            initialValues={initialValues}
             layout={'horizontal'}
             validateTrigger={['onBlur', 'onSubmit']}
             colon={false}
@@ -164,10 +171,11 @@ export const CreateEmployeeForm: React.FC<CreateEmplyeeFormProps> = (props) => {
                                     </Col>
                                     <Col span={24}>
                                         <Form.Item name={'role'} label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'}>
-                                            <EmployeeRoleSelect 
-                                                defaultActiveFirstOption
-                                                organizationId={get(organization, 'id')} 
-                                                onSelect={(_, option) => { 
+                                            <EmployeeRoleSelect
+                                                loading={loading}
+                                                error={Boolean(error)}
+                                                employeeRoles={employeeRoles}
+                                                onSelect={(_, option) => {
                                                     if (props.onRoleSelect) {
                                                         props.onRoleSelect(option.title)
                                                     }

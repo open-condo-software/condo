@@ -1,24 +1,25 @@
 import React, { useMemo } from 'react'
 import { Select, SelectProps } from 'antd'
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
+import { OrganizationEmployeeRole as IOrganizationEmployeeRole  } from '../../../schema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useEffect } from 'react'
 
 interface IEmployeeRoleSelectProps extends SelectProps<string> {
-    organizationId: string
+    employeeRoles: Array<IOrganizationEmployeeRole>
+    error: boolean
 }
 
 export const EmployeeRoleSelect: React.FC<IEmployeeRoleSelectProps> = (props) => {
-    const { organizationId, ...restProps } = props
-    const { objs: employeeRoles, loading, error } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
-    const options = useMemo(() => employeeRoles.map((status) => {
-        const convertedOption = OrganizationEmployeeRole.convertGQLItemToFormSelectState(status)
+    const { employeeRoles, loading, error, ...restProps } = props
+    const options = useMemo(() => employeeRoles.map((role) => {
+        const convertedOption = OrganizationEmployeeRole.convertGQLItemToFormSelectState(role)
 
         if (convertedOption) {
             const { value, label } = convertedOption
             return (<Select.Option key={value} value={value} title={label}>{label}</Select.Option>)
         }
-    }), [employeeRoles, organizationId])
+    }), [employeeRoles])
 
     useEffect(()=>{
         if (options && options.length > 0){
