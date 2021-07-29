@@ -381,12 +381,6 @@ const TicketIdPage = () => {
                                 </Affix>
                             </Col>
                         </Row>
-
-                        <TicketChanges
-                            loading={ticketChangesResult.loading}
-                            items={ticketChangesResult.objs}
-                            total={ticketChangesResult.count}
-                        />
                     </PageContent>
                 </OrganizationRequired>
             </PageWrapper>
