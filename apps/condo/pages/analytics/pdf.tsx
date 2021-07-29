@@ -18,6 +18,7 @@ const PdfView = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' })
     const AllAddresses = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllAddresses' })
+    const SingleAddress = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.SingleAddress' })
     const AllCategories = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllCategories' })
     const DefaultTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.DefaultTickets' })
     const PaidTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PaidTickets' })
@@ -89,12 +90,14 @@ const PdfView = () => {
     const { dateFrom, dateTo, viewMode, ticketType, addressList, specification } = queryParamsRef.current
     ticketType === 'paid' && (ticketTypeTitle = PaidTickets)
     ticketType === 'emergency' && (ticketTypeTitle = EmergencyTickets)
+    const addressListParsed = JSON.parse(addressList)
+    const addressFilterTitle = addressListParsed.length ? `${SingleAddress} «${addressListParsed[0].value}»` : AllAddresses
     return <>
         <Row ref={containerRef} gutter={[0, 40]}>
             <Col span={24}>
                 <Typography.Title level={3}>{PageTitle}</Typography.Title>
                 <Typography.Title level={4}>
-                    {ticketTypeTitle} {moment(dateFrom).format('DD.MM.YYYY')} - {moment(dateTo).format('DD.MM.YYYY')} {AllAddresses} {AllCategories}
+                    {ticketTypeTitle} {moment(dateFrom).format('DD.MM.YYYY')} - {moment(dateTo).format('DD.MM.YYYY')} {addressFilterTitle} {AllCategories}
                 </Typography.Title>
                 <TicketAnalyticsPageChartView
                     data={data}
@@ -106,7 +109,7 @@ const PdfView = () => {
             <Col span={24}>
                 <TicketAnalyticsPageListView data={data} viewMode={viewMode} filters={{
                     range: [dateFrom, dateTo],
-                    addressList: JSON.parse(addressList),
+                    addressList: addressListParsed,
                     specification: specification,
                 }} />
             </Col>
