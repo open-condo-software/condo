@@ -37,10 +37,10 @@ if (DEBUG) console.log(`@core.config: inited! namespace=${namespace}, cwd=${cwd}
 if (DEBUG) console.dir(process.env)
 
 function getEnv (namespace, name, defaultValue) {
-    let variable = preprocessEnv(process.env[`${namespace}_${name}`] || process.env[`${name}`] || defaultValue)
-    if (variable === 'true') variable = true
-    else if (variable === 'false') variable = false
-    return variable
+    let envVariable = preprocessEnv(process.env[`${namespace}_${name}`] || process.env[`${name}`] || defaultValue)
+    if (envVariable === 'true') envVariable = true
+    else if (envVariable === 'false') envVariable = false
+    return envVariable
 }
 
 function preprocessEnv (v) {
