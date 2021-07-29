@@ -12,7 +12,7 @@ import {
 import React from 'react'
 import BaseLayout, { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { format } from 'date-fns'
-import { LOCALES } from '@condo/domains/common/constants/locale'
+import { RU_LOCALE, EN_LOCALE, LOCALES } from '@condo/domains/common/constants/locale'
 
 function RedirectToTicket ({ ticketId }) {
     const intl = useIntl()
@@ -34,24 +34,27 @@ interface ShareProps {
     number: string
     details: string
     id: string
-    date: string
+    date: string;
+    locale?: string;
 }
 
 interface IShareProps extends React.FC<ShareProps> {
     container: React.FC
 }
 
-const Share: IShareProps = ({ date, number, details, id }) => {
-    const intl = useIntl()
-    const dateFormatted = format(new Date(date), 'd MMMM Y', { locale: LOCALES[intl.locale] })
-    const ShareTitleMessage = intl.formatMessage({ id: 'ticket.shareTitle' }, {
-        date: dateFormatted,
-        number,
-    })
-    const ShareDetailsMessage = intl.formatMessage({ id: 'ticket.shareDetails' }, {
-        details,
-    })
+const Share: IShareProps = ({ date, number, details, id, locale }) => {
+    let ShareTitleMessage
+    let ShareDetailsMessage
 
+    const dateFormatted = format(new Date(date), 'd MMMM Y', { locale: LOCALES[locale || RU_LOCALE] })
+
+    if (locale === RU_LOCALE) {
+        ShareTitleMessage = `С вами поделились заявкой №${number} от ${dateFormatted}.`
+        ShareDetailsMessage = `Текст заявки: «${details}»`
+    } else if (locale === EN_LOCALE) {
+        ShareTitleMessage = `Ticket #${number} dated ${dateFormatted} has been shared with you.`
+        ShareDetailsMessage = `The text of the ticket: "${details}"`
+    }
 
     let origin = 'http://localhost:3000'
     if (typeof window !== 'undefined') {

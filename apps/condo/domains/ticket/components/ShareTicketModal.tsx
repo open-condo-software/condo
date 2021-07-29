@@ -174,6 +174,7 @@ interface IShareTicketModalProps {
     number: number
     details: string
     id: string
+    locale?: string
 }
 
 export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
@@ -190,14 +191,14 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const ShareSentMessage = intl.formatMessage({ id: 'ticket.shareSent' })
     const ShareSentToEmailMessage = intl.formatMessage({ id: 'ticket.shareSentToEmail' })
 
-    const { date, number, details, id } = props
+    const { date, number, details, id, locale } = props
     const cipher = crypto.createCipher(ALGORITHM, SALT)
 
     let cutDetails = details
     if (cutDetails.length >= 110) {
         cutDetails = `${cutDetails.substr(0, 100)}…`
     }
-    const stringifiedParams = JSON.stringify({ date, number, details: cutDetails, id })
+    const stringifiedParams = JSON.stringify({ date, number, details: cutDetails, id, locale: locale || RU_LOCALE })
     const encryptedText = cipher.update(stringifiedParams, 'utf8', CRYPTOENCODING) + cipher.final(CRYPTOENCODING)
 
     const { query } = useRouter()
@@ -217,10 +218,10 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const [loading, setLoading] = useState(false)
     const [shareVisible, setShareVisible] = useState(false)
     const [okVisible, setOkVisible] = useState(false)
-    const [usersWoEmail, setUsersWoEmail] = useState([])
+    const [usersWithoutEmail, setUsersWithoutEmail] = useState([])
 
     function handleSelect (value) {
-        setUsersWoEmail(value.map(JSON.parse).filter(item => !item.value.hasEmail).map(item => item.text))
+        setUsersWithoutEmail(value.map(JSON.parse).filter(item => !item.value.hasEmail).map(item => item.text))
         setValue(value)
     }
 
@@ -340,7 +341,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                                     value={value}
                                     placeholder={EmployeesNameMessage}
                                 />
-                                {usersWoEmail.length ? <Warning>{usersWoEmail}</Warning> : null}
+                                {usersWithoutEmail.length ? <Warning>{usersWithoutEmail}</Warning> : null}
                                 {value.length ? <Button
                                     type='sberPrimary'
                                     size='large'

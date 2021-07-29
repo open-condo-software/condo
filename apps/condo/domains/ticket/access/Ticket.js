@@ -7,7 +7,7 @@ const { checkOrganizationPermission } = require('@condo/domains/organization/uti
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canReadTickets ({ authentication: { item: user } }) {
-    if (!user) return false
+    if (!user) return throwAuthenticationError()
 
     if (user.isAdmin) {
         return {}
