@@ -4,7 +4,9 @@ import { Typography, Tabs, Tooltip } from 'antd'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useIntl } from '@core/next/intl'
-import { OrganizationRequired } from '../../domains/organization/components/OrganizationRequired'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { BillingChooser } from '../../domains/billing/components/Settings/BillingChooser'
+
 
 const SettingsPage =  () => {
     const intl = useIntl()
@@ -23,9 +25,13 @@ const SettingsPage =  () => {
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
                 <OrganizationRequired>
                     <PageContent>
-                        <Tabs defaultActiveKey="settings">
+                        <Tabs
+                            defaultActiveKey="settings"
+                            tabBarStyle={{ marginBottom: 40 }}
+                            style={{ overflow: 'visible' }}
+                        >
                             <Tabs.TabPane key="settings" tab={BillingTitle}>
-
+                                <BillingChooser/>
                             </Tabs.TabPane>
                             <Tabs.TabPane
                                 key="rolesAndAccess"
