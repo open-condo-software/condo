@@ -8,6 +8,8 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core'
 import { Button } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -42,6 +44,12 @@ interface ITicketFileListProps {
     files?: TicketFile.ITicketFileUIState[]
 }
 
+const UploadListWrapperStyles = css`
+    .ant-upload-list-text-container:first-child .ant-upload-list-item {
+        margin-top: 0;
+    }
+`
+
 const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
     const uploadFiles = files.map(({ file }) => {
         const fileInList = {
@@ -53,7 +61,7 @@ const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
         return fileInList
     })
     return (
-        <div className={'upload-control-wrapper'} style={{ marginTop: '-8px' }}>
+        <div className={'upload-control-wrapper'} css={UploadListWrapperStyles}>
             <UploadList locale={{}} showRemoveIcon={false} items={uploadFiles} />
         </div>
     )
