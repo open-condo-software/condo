@@ -2,7 +2,6 @@
 // @ts-nocheck
 import React from 'react'
 import Head from 'next/head'
-import getConfig from 'next/config'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import { ThunderboltFilled, HomeFilled, PieChartFilled, SettingFilled, ApiFilled } from '@ant-design/icons'
@@ -23,8 +22,10 @@ import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
+import { OnBoardingProvider } from '../domains/onboarding/components/OnBoardingContext'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { SubscriptionContextProvider } from '../domains/subscription/components/SubscriptionContext'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -89,25 +90,29 @@ const MyApp = ({ Component, pageProps }) => {
     const HeaderAction = Component.headerAction
     const RequiredAccess = Component.requiredAccess || React.Fragment
     return (
-        <GlobalErrorBoundary>
-            <CacheProvider value={cache}>
-                <Head>
-                    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
-                    <meta
-                        name="viewport"
-                        content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
-                    />
-                </Head>
-                <GlobalStyle/>
-                <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
-                    <RequiredAccess>
-                        <Component {...pageProps} />
-                    </RequiredAccess>
-                </LayoutComponent>
-                <GoogleAnalytics/>
-                <BehaviorRecorder engine="plerdy"/>
-            </CacheProvider>
-        </GlobalErrorBoundary>
+        <SubscriptionContextProvider>
+            <GlobalErrorBoundary>
+                <CacheProvider value={cache}>
+                    <Head>
+                        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+                        <meta
+                            name="viewport"
+                            content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
+                        />
+                    </Head>
+                    <GlobalStyle/>
+                    <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
+                        <OnBoardingProvider>
+                            <RequiredAccess>
+                                <Component {...pageProps} />
+                            </RequiredAccess>
+                        </OnBoardingProvider>
+                    </LayoutComponent>
+                    <GoogleAnalytics/>
+                    <BehaviorRecorder engine="plerdy"/>
+                </CacheProvider>
+            </GlobalErrorBoundary>
+        </SubscriptionContextProvider>
     )
 }
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
