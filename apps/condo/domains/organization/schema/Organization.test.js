@@ -3,7 +3,7 @@
  */
 const { catchErrorFrom, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationLinkWithTwoOrganizations } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { DEFAULT_STATUS_TRANSITIONS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
 const { createTestOrganizationEmployee } = require('../utils/testSchema')
@@ -256,21 +256,21 @@ describe('Organization', () => {
     })
 
     test('employee from "from" related organization: can read organization', async () => {
-        const { clientFrom, organizationTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const { clientFrom, organizationTo } = await createTestOrganizationWithAccessToAnotherOrganization()
 
         const organizations = await Organization.getAll(clientFrom, { id: organizationTo.id })
         expect(organizations).toHaveLength(1)
     })
 
     test('employee from "to" related organization: cannot read organization from "from"', async () => {
-        const { organizationFrom, clientTo } = await createTestOrganizationLinkWithTwoOrganizations()
+        const { organizationFrom, clientTo } = await createTestOrganizationWithAccessToAnotherOrganization()
 
         const organizations = await Organization.getAll(clientTo, { id: organizationFrom.id })
         expect(organizations).toHaveLength(0)
     })
 
     test('user: cannot read not his own organizations', async () => {
-        await createTestOrganizationLinkWithTwoOrganizations()
+        await createTestOrganizationWithAccessToAnotherOrganization()
         const user = await makeClientWithNewRegisteredAndLoggedInUser()
         const organizations = await Organization.getAll(user)
         expect(organizations).toHaveLength(0)

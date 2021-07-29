@@ -4,7 +4,7 @@
 
 const faker = require('faker')
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationLinkWithTwoOrganizations } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
@@ -109,7 +109,7 @@ describe('TicketComment', () => {
 
         it('can be created by employee from "from" relation organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientFrom, organizationTo, propertyTo, organizationFrom, employeeFrom } = await createTestOrganizationLinkWithTwoOrganizations()
+            const { clientFrom, organizationTo, propertyTo, organizationFrom, employeeFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                 canManageTickets: true,
             })
@@ -124,7 +124,7 @@ describe('TicketComment', () => {
 
         it('cannot be created by employee from "to" relation organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientTo, organizationFrom, propertyFrom } = await createTestOrganizationLinkWithTwoOrganizations()
+            const { clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [ticket] = await createTestTicket(admin, organizationFrom, propertyFrom)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -177,7 +177,7 @@ describe('TicketComment', () => {
 
         it('can be read by employee from "from" relation organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationLinkWithTwoOrganizations()
+            const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
             await createTestTicketComment(admin, ticket, clientFrom.user)
 
@@ -187,7 +187,7 @@ describe('TicketComment', () => {
 
         it('cannot be read by employee from "to" relation organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientFrom, clientTo, organizationFrom, propertyFrom } = await createTestOrganizationLinkWithTwoOrganizations()
+            const { clientFrom, clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [ticket] = await createTestTicket(admin, organizationFrom, propertyFrom)
             await createTestTicketComment(admin, ticket, clientFrom.user)
 
@@ -310,7 +310,7 @@ describe('TicketComment', () => {
 
         it('can be updated by employee from "from" relation organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientFrom, propertyTo, organizationTo, organizationFrom, employeeFrom } = await createTestOrganizationLinkWithTwoOrganizations()
+            const { clientFrom, propertyTo, organizationTo, organizationFrom, employeeFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                 canManageTickets: true,
             })
@@ -330,7 +330,7 @@ describe('TicketComment', () => {
 
         it('cannot be updated by employee from "to" relation organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientFrom, clientTo, organizationFrom, propertyFrom, employeeFrom } = await createTestOrganizationLinkWithTwoOrganizations()
+            const { clientFrom, clientTo, organizationFrom, propertyFrom, employeeFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                 canManageTickets: true,
             })
