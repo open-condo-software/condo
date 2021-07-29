@@ -18,10 +18,14 @@ const REGISTER_RESIDENT_MUTATION = gql`
         result: registerResident(data: $data) ${RESIDENT_FIELDS}
     }
 `
+const SERVICE_CONSUMER_FIELDS = `{ resident { id } billingAccount { id } accountNumber ${COMMON_FIELDS} }`
+const ServiceConsumer = generateGqlQueries('ServiceConsumer', SERVICE_CONSUMER_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Resident,
     REGISTER_RESIDENT_MUTATION,
+    ServiceConsumer,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

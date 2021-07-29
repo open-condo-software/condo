@@ -4,4 +4,5 @@
  */
 
 export * as Resident from './Resident'
+export * as ServiceConsumer from './ServiceConsumer'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

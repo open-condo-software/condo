@@ -14,9 +14,11 @@ const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/ut
 
 const { Resident: ResidentGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/resident/gql')
+const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Resident = generateGQLTestUtils(ResidentGQL)
+const ServiceConsumer = generateGQLTestUtils(ServiceConsumerGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestResident (client, user, organization, property, extraAttrs = {}) {
@@ -79,10 +81,44 @@ async function registerResidentByTestClient(client, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
+async function createTestServiceConsumer (client, resident, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!resident || !resident.id) throw new Error('no resident.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestServiceConsumer logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        resident: { connect: { id: resident.id } },
+        ...extraAttrs,
+    }
+    const obj = await ServiceConsumer.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestServiceConsumer (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestServiceConsumer logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ServiceConsumer.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     Resident, createTestResident, updateTestResident,
     registerResidentByTestClient,
+    ServiceConsumer, createTestServiceConsumer, updateTestServiceConsumer,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
