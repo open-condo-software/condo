@@ -118,10 +118,10 @@ interface ITicketFieldRowProps {
 const TicketFieldRow: React.FC<ITicketFieldRowProps> = ({ title, children, highlight, style }) => {
     return (
         <>
-            <Col span={8} style={{ fontSize: '16px'}}>
+            <Col span={8} style={{ fontSize: '16px' }}>
                 {title}
             </Col>
-            <Col span={16} style={{ fontSize: '16px'}}>
+            <Col span={16} style={{ fontSize: '16px' }}>
                 <Typography.Text
                     type={highlight ? 'success' : null}
                     style={{ wordWrap: 'break-word' }}
@@ -261,7 +261,7 @@ const TicketIdPage = () => {
                                                 </Row>
                                             </Col>
                                         </Row>
-                                        <Space direction={'horizontal'} style={{ marginTop: '1.6em '}}>
+                                        <Space direction={'horizontal'} style={{ marginTop: '1.6em ' }}>
                                             {isEmergency && <TicketTag color={'red'}>{EmergencyMessage.toLowerCase()}</TicketTag>}
                                             {isPaid && <TicketTag color={'orange'}>{PaidMessage.toLowerCase()}</TicketTag>}
                                         </Space>
