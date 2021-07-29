@@ -13,6 +13,7 @@ module.exports = {
     forceExit: true,
     notify: false,
     timers: 'legacy',
+    testRunner: 'jest-jasmine2',
     reporters: [
         'jest-clean-reporter',
         [
