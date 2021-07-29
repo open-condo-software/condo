@@ -120,18 +120,18 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 if (password.length < MIN_PASSWORD_LENGTH) {
                     throw new Error(`${PASSWORD_TOO_SHORT}] Password is too short`)
                 }
-                const forgotPasswordData = await ForgotPasswordActionUtil.getAll(context, {
+                const [action] = await ForgotPasswordActionUtil.getAll(context, {
                     token,
                     expiresAt_gte: now,
                 })
 
-                if (isEmpty(forgotPasswordData) || !forgotPasswordData.length) {
+                if (!action || action.usedAt) {
                     throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find token`)
                 }
 
-                const userId = forgotPasswordData[0].user.id
+                const userId = action.user.id
                 const { email } = await getById('User', userId)
-                const tokenId = forgotPasswordData[0].id
+                const tokenId = action.id
 
                 // mark token as used
                 await ForgotPasswordActionUtil.update(context, tokenId, {
