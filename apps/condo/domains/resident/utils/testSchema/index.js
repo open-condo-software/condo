@@ -86,13 +86,11 @@ async function createTestServiceConsumer (client, resident, extraAttrs = {}) {
     if (!resident || !resident.id) throw new Error('no resident.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestServiceConsumer logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
         resident: { connect: { id: resident.id } },
-        ...extraAttrs,
+        accountNumber: faker.random.alphaNumeric(8)
     }
     const obj = await ServiceConsumer.create(client, attrs)
     return [obj, attrs]

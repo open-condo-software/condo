@@ -7,7 +7,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/resident/access/ServiceConsumer')
-import { BillingAccount } from '@condo/domains/billing/utils/serverSchema'
+const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 
 
 const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
@@ -49,6 +49,9 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
     hooks: {
         beforeChange: async ({ context, resolvedData }) => {
             const { resident, accountNumber } = resolvedData
+            if (resolvedData.billingAccount) {
+                return
+            }
             const applicableBillingAccounts = BillingAccount.getAll(
                 context,
                 {
