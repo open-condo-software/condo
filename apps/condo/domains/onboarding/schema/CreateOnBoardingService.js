@@ -7,7 +7,6 @@ const access = require('@condo/domains/onboarding/access/CreateOnBoardingService
 const { OnBoarding } = require('@condo/domains/onboarding/utils/serverSchema')
 const { OnBoardingStep } = require('@condo/domains/onboarding/utils/serverSchema')
 const { ONBOARDING_TYPES, ONBOARDING_STEPS } = require('../constants')
-const { get } = require('lodash')
 
 const CreateOnBoardingService = new GQLCustomSchema('CreateOnBoardingService', {
     types: [
@@ -20,7 +19,6 @@ const CreateOnBoardingService = new GQLCustomSchema('CreateOnBoardingService', {
             type: 'input CreateOnBoardingInput { dv: Int!, sender: JSON!, type: OnBoardingType, userId:ID! }',
         },
     ],
-
     mutations: [
         {
             access: access.canCreateOnBoarding,
@@ -30,13 +28,13 @@ const CreateOnBoardingService = new GQLCustomSchema('CreateOnBoardingService', {
                 const { type, dv, sender, userId } = data
 
                 if (!ONBOARDING_TYPES.includes(type)) {
-                    throw new Error(`[error] Cannot create onboarding for ${type}. Unsupported role.`)
+                    throw new Error(`[error] Cannot create onBoarding for ${type}. Unsupported role.`)
                 }
 
                 const onBoardingStepData = ONBOARDING_STEPS[type]
 
                 if (!onBoardingStepData) {
-                    throw new Error(`[error] Cannot create onboarding for ${type}. StepTransitions is not defined.`)
+                    throw new Error(`[error] Cannot create onBoarding for ${type}. StepTransitions is not defined.`)
                 }
 
                 const onBoarding = await OnBoarding.create(context, {
@@ -68,7 +66,6 @@ const CreateOnBoardingService = new GQLCustomSchema('CreateOnBoardingService', {
             },
         },
     ],
-
 })
 
 module.exports = {
