@@ -48,9 +48,10 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                     month: 'interval.month',
                 }
                 const allDates = allTickets.map(ticket => new Date(ticket.createdAt))
+                // TODO(sitozzz): move organization filter query from array & remove find statement
                 const { grouppedCounters, translates } = await createCountersStructure({
                     context,
-                    organization: where.organization,
+                    organization: where.AND.find(filters => Object.keys(filters).includes('organization')).organization,
                     groups: groupBy,
                     datesRange: {
                         min: new Date(Math.min.apply(null, allDates)),
