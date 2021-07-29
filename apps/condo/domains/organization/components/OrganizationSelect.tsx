@@ -3,6 +3,7 @@
 import { Select } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { useRouter } from 'next/router'
 import React, { useRef } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useAuth } from '@core/next/auth'
@@ -51,43 +52,29 @@ const optionStyle: React.CSSProperties = {
 }
 
 export const OrganizationSelect: React.FC = () => {
-    const { user } = useAuth()
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
+
+    const router = useRouter()
+    const { user } = useAuth()
     const selectRef = useRef<HTMLSelectElement>(null)
     const { link, selectLink, isLoading: organizationLoading } = useOrganization()
-    const { objs: userOrganizations, loading: organizationLinksLoading, fetchMore } = OrganizationEmployee.useObjects(
+
+    const { objs: userOrganizations, loading: organizationLinksLoading } = OrganizationEmployee.useObjects(
         { where: user ? { user: { id: user.id }, isRejected: false, isBlocked: false } : {} },
         { fetchPolicy: 'network-only' }
     )
-    const chooseOrganizationByLinkId = React.useCallback((value) => {
-        selectLink({ id: value })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-    const { setVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
-        onFinish: (createResult) => {
-            const id = get(createResult, 'data.obj.id')
-            fetchMore({
-                where: { organization: { id }, user: { id: user.id } },
-            }).then((data) => {
-                const userLinks = get(data, 'data.objs', [])
-                if (id) {
-                    const newLink = userLinks.find(link => link.organization.id === id)
-                    if (newLink) {
-                        chooseOrganizationByLinkId(newLink.id)
-                    }
-                }
-            })
-            return null
-        },
-    })
+
+    const { setVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm()
+
     const options = React.useMemo(() => {
         return userOrganizations.filter(link => link.isAccepted).map((organization) => {
             const { value, label } = OrganizationEmployee.convertGQLItemToFormSelectState(organization)
             return (<Select.Option style={optionStyle} key={value} value={value} title={label}>{label}</Select.Option>)
         })
     }, [userOrganizations])
+
     // When user lost his cookies with chosen organization - he will see select opened
     useEffect(() => {
         if (!organizationLinksLoading && user && !link){
@@ -97,13 +84,21 @@ export const OrganizationSelect: React.FC = () => {
         }
     }, [userOrganizations, organizationLinksLoading, user, link])
     // User without invites and organizations will be forced to create one
+
     useEffect(() => {
         if (!organizationLinksLoading && user){
             if (!userOrganizations.length) {
-                showCreateOrganizationModal(true)
+                // TODO(Dimitreee): think about better solution
+                if (router.pathname !== '/onboarding') {
+                    showCreateOrganizationModal(true)
+                }
             }
         }
     }, [userOrganizations, organizationLinksLoading, showCreateOrganizationModal, user])
+
+    const chooseOrganizationByLinkId = React.useCallback((value) => {
+        selectLink({ id: value })
+    }, [selectLink])
 
     const isOptionsEmpty = !options.length
     const selectValue = isOptionsEmpty ? LoadingMessage : get(link, 'id')
@@ -112,6 +107,7 @@ export const OrganizationSelect: React.FC = () => {
         onChange: chooseOrganizationByLinkId,
         loading: organizationLinksLoading || organizationLoading,
     }
+
     return (
         <>
             {!(organizationLoading || organizationLinksLoading) && (

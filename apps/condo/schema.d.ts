@@ -4850,6 +4850,13 @@ export type ContactsUpdateInput = {
   data?: Maybe<ContactUpdateInput>;
 };
 
+export type CreateOnBoardingInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  type?: Maybe<OnBoardingType>;
+  userId: Scalars['ID'];
+};
+
 export type ExportTicketsToExcelInput = {
   where: TicketWhereInput;
   sortBy?: Maybe<Array<SortTicketsBy>>;
@@ -6525,6 +6532,7 @@ export type Mutation = {
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
+  createOnBoardingByType?: Maybe<OnBoarding>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -8288,6 +8296,11 @@ export type MutationResendMessageArgs = {
 };
 
 
+export type MutationCreateOnBoardingByTypeArgs = {
+  data: CreateOnBoardingInput;
+};
+
+
 export type MutationAuthenticateUserWithPasswordArgs = {
   email?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
@@ -8319,6 +8332,7 @@ export type OnBoarding = {
   stepsTransitions?: Maybe<Scalars['JSON']>;
   /**  TODO DOC!  */
   user?: Maybe<User>;
+  type?: Maybe<OnBoardingTypeType>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -8335,6 +8349,7 @@ export type OnBoardingCreateInput = {
   completed?: Maybe<Scalars['Boolean']>;
   stepsTransitions?: Maybe<Scalars['JSON']>;
   user?: Maybe<UserRelateToOneInput>;
+  type?: Maybe<OnBoardingTypeType>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8360,6 +8375,7 @@ export type OnBoardingHistoryRecord = {
   completed?: Maybe<Scalars['Boolean']>;
   stepsTransitions?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -8379,6 +8395,7 @@ export type OnBoardingHistoryRecordCreateInput = {
   completed?: Maybe<Scalars['Boolean']>;
   stepsTransitions?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8403,6 +8420,7 @@ export type OnBoardingHistoryRecordUpdateInput = {
   completed?: Maybe<Scalars['Boolean']>;
   stepsTransitions?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8440,6 +8458,24 @@ export type OnBoardingHistoryRecordWhereInput = {
   user_not?: Maybe<Scalars['String']>;
   user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_contains?: Maybe<Scalars['String']>;
+  type_not_contains?: Maybe<Scalars['String']>;
+  type_starts_with?: Maybe<Scalars['String']>;
+  type_not_starts_with?: Maybe<Scalars['String']>;
+  type_ends_with?: Maybe<Scalars['String']>;
+  type_not_ends_with?: Maybe<Scalars['String']>;
+  type_i?: Maybe<Scalars['String']>;
+  type_not_i?: Maybe<Scalars['String']>;
+  type_contains_i?: Maybe<Scalars['String']>;
+  type_not_contains_i?: Maybe<Scalars['String']>;
+  type_starts_with_i?: Maybe<Scalars['String']>;
+  type_not_starts_with_i?: Maybe<Scalars['String']>;
+  type_ends_with_i?: Maybe<Scalars['String']>;
+  type_not_ends_with_i?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -8544,9 +8580,15 @@ export type OnBoardingStep = {
   /**  TODO DOC!  */
   icon?: Maybe<Scalars['String']>;
   /**  TODO DOC!  */
+  order?: Maybe<Scalars['Int']>;
+  /**  TODO DOC!  */
   title?: Maybe<Scalars['String']>;
   /**  TODO DOC!  */
   description?: Maybe<Scalars['String']>;
+  /**  TODO DOC!  */
+  required?: Maybe<Scalars['Boolean']>;
+  /**  TODO DOC!  */
+  completed?: Maybe<Scalars['Boolean']>;
   /**  TODO DOC!  */
   action?: Maybe<OnBoardingStepActionType>;
   /**  TODO DOC!  */
@@ -8574,8 +8616,11 @@ export type OnBoardingStepCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   icon?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
+  required?: Maybe<Scalars['Boolean']>;
+  completed?: Maybe<Scalars['Boolean']>;
   action?: Maybe<OnBoardingStepActionType>;
   entity?: Maybe<Scalars['String']>;
   onBoarding?: Maybe<OnBoardingRelateToOneInput>;
@@ -8602,8 +8647,11 @@ export type OnBoardingStepHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   icon?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
+  required?: Maybe<Scalars['Boolean']>;
+  completed?: Maybe<Scalars['Boolean']>;
   action?: Maybe<Scalars['String']>;
   entity?: Maybe<Scalars['String']>;
   onBoarding?: Maybe<Scalars['String']>;
@@ -8624,8 +8672,11 @@ export type OnBoardingStepHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   icon?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
+  required?: Maybe<Scalars['Boolean']>;
+  completed?: Maybe<Scalars['Boolean']>;
   action?: Maybe<Scalars['String']>;
   entity?: Maybe<Scalars['String']>;
   onBoarding?: Maybe<Scalars['String']>;
@@ -8651,8 +8702,11 @@ export type OnBoardingStepHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   icon?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
+  required?: Maybe<Scalars['Boolean']>;
+  completed?: Maybe<Scalars['Boolean']>;
   action?: Maybe<Scalars['String']>;
   entity?: Maybe<Scalars['String']>;
   onBoarding?: Maybe<Scalars['String']>;
@@ -8701,6 +8755,14 @@ export type OnBoardingStepHistoryRecordWhereInput = {
   icon_not_ends_with_i?: Maybe<Scalars['String']>;
   icon_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   icon_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  order?: Maybe<Scalars['Int']>;
+  order_not?: Maybe<Scalars['Int']>;
+  order_lt?: Maybe<Scalars['Int']>;
+  order_lte?: Maybe<Scalars['Int']>;
+  order_gt?: Maybe<Scalars['Int']>;
+  order_gte?: Maybe<Scalars['Int']>;
+  order_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  order_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   title?: Maybe<Scalars['String']>;
   title_not?: Maybe<Scalars['String']>;
   title_contains?: Maybe<Scalars['String']>;
@@ -8737,6 +8799,10 @@ export type OnBoardingStepHistoryRecordWhereInput = {
   description_not_ends_with_i?: Maybe<Scalars['String']>;
   description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  required?: Maybe<Scalars['Boolean']>;
+  required_not?: Maybe<Scalars['Boolean']>;
+  completed?: Maybe<Scalars['Boolean']>;
+  completed_not?: Maybe<Scalars['Boolean']>;
   action?: Maybe<Scalars['String']>;
   action_not?: Maybe<Scalars['String']>;
   action_contains?: Maybe<Scalars['String']>;
@@ -8860,8 +8926,11 @@ export type OnBoardingStepUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   icon?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
+  required?: Maybe<Scalars['Boolean']>;
+  completed?: Maybe<Scalars['Boolean']>;
   action?: Maybe<OnBoardingStepActionType>;
   entity?: Maybe<Scalars['String']>;
   onBoarding?: Maybe<OnBoardingRelateToOneInput>;
@@ -8907,6 +8976,14 @@ export type OnBoardingStepWhereInput = {
   icon_not_ends_with_i?: Maybe<Scalars['String']>;
   icon_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   icon_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  order?: Maybe<Scalars['Int']>;
+  order_not?: Maybe<Scalars['Int']>;
+  order_lt?: Maybe<Scalars['Int']>;
+  order_lte?: Maybe<Scalars['Int']>;
+  order_gt?: Maybe<Scalars['Int']>;
+  order_gte?: Maybe<Scalars['Int']>;
+  order_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  order_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   title?: Maybe<Scalars['String']>;
   title_not?: Maybe<Scalars['String']>;
   title_contains?: Maybe<Scalars['String']>;
@@ -8943,6 +9020,10 @@ export type OnBoardingStepWhereInput = {
   description_not_ends_with_i?: Maybe<Scalars['String']>;
   description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  required?: Maybe<Scalars['Boolean']>;
+  required_not?: Maybe<Scalars['Boolean']>;
+  completed?: Maybe<Scalars['Boolean']>;
+  completed_not?: Maybe<Scalars['Boolean']>;
   action?: Maybe<OnBoardingStepActionType>;
   action_not?: Maybe<OnBoardingStepActionType>;
   action_in?: Maybe<Array<Maybe<OnBoardingStepActionType>>>;
@@ -9026,12 +9107,21 @@ export type OnBoardingStepsUpdateInput = {
   data?: Maybe<OnBoardingStepUpdateInput>;
 };
 
+export enum OnBoardingType {
+  Administrator = 'ADMINISTRATOR'
+}
+
+export enum OnBoardingTypeType {
+  Administrator = 'ADMINISTRATOR'
+}
+
 export type OnBoardingUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   completed?: Maybe<Scalars['Boolean']>;
   stepsTransitions?: Maybe<Scalars['JSON']>;
   user?: Maybe<UserRelateToOneInput>;
+  type?: Maybe<OnBoardingTypeType>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9064,6 +9154,10 @@ export type OnBoardingWhereInput = {
   stepsTransitions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   user?: Maybe<UserWhereInput>;
   user_is_null?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<OnBoardingTypeType>;
+  type_not?: Maybe<OnBoardingTypeType>;
+  type_in?: Maybe<Array<Maybe<OnBoardingTypeType>>>;
+  type_not_in?: Maybe<Array<Maybe<OnBoardingTypeType>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -13649,6 +13743,8 @@ export enum SortOnBoardingHistoryRecordsBy {
   DvDesc = 'dv_DESC',
   CompletedAsc = 'completed_ASC',
   CompletedDesc = 'completed_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -13670,10 +13766,16 @@ export enum SortOnBoardingStepHistoryRecordsBy {
   DvDesc = 'dv_DESC',
   IconAsc = 'icon_ASC',
   IconDesc = 'icon_DESC',
+  OrderAsc = 'order_ASC',
+  OrderDesc = 'order_DESC',
   TitleAsc = 'title_ASC',
   TitleDesc = 'title_DESC',
   DescriptionAsc = 'description_ASC',
   DescriptionDesc = 'description_DESC',
+  RequiredAsc = 'required_ASC',
+  RequiredDesc = 'required_DESC',
+  CompletedAsc = 'completed_ASC',
+  CompletedDesc = 'completed_DESC',
   ActionAsc = 'action_ASC',
   ActionDesc = 'action_DESC',
   EntityAsc = 'entity_ASC',
@@ -13699,10 +13801,16 @@ export enum SortOnBoardingStepsBy {
   DvDesc = 'dv_DESC',
   IconAsc = 'icon_ASC',
   IconDesc = 'icon_DESC',
+  OrderAsc = 'order_ASC',
+  OrderDesc = 'order_DESC',
   TitleAsc = 'title_ASC',
   TitleDesc = 'title_DESC',
   DescriptionAsc = 'description_ASC',
   DescriptionDesc = 'description_DESC',
+  RequiredAsc = 'required_ASC',
+  RequiredDesc = 'required_DESC',
+  CompletedAsc = 'completed_ASC',
+  CompletedDesc = 'completed_DESC',
   ActionAsc = 'action_ASC',
   ActionDesc = 'action_DESC',
   EntityAsc = 'entity_ASC',
@@ -13732,6 +13840,8 @@ export enum SortOnBoardingsBy {
   CompletedDesc = 'completed_DESC',
   UserAsc = 'user_ASC',
   UserDesc = 'user_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

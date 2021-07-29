@@ -1,5 +1,5 @@
 import { Space, Typography } from 'antd'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { colors } from '@condo/domains/common/constants/style'
 import { ActivateStepIcon, IconContainer, StepContainer } from './components'
 
@@ -14,14 +14,21 @@ interface IOnBoardingStep {
     icon: React.FC,
     title: string,
     description: string,
+    action?: () => void
 }
 
-export const OnBoardingStep: React.FC<IOnBoardingStep> = (props) => {
-    const { type, icon, title, description } = props
+export const OnBoardingStepItem: React.FC<IOnBoardingStep> = (props) => {
+    const { type, icon, title, description, action } = props
     const StepIcon = icon
 
+    const handleClick = useCallback(() => {
+        if (action) {
+            action()
+        }
+    }, [action])
+
     return (
-        <StepContainer color={colors.transparent} type={props.type}>
+        <StepContainer color={colors.transparent} type={props.type} onClick={handleClick}>
             <Space direction={'horizontal'} size={16}>
                 <IconContainer type={type}>
                     <StepIcon/>

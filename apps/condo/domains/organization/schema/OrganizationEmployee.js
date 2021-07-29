@@ -8,6 +8,7 @@ const { Text, Relationship, Uuid, Checkbox } = require('@keystonejs/fields')
 
 const { userIsAdmin } = require('@core/keystone/access')
 const access = require('@condo/domains/organization/access/OrganizationEmployee')
+const {triggersManager} = require("@core/triggers");
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, tracked, softDeleted } = require('@core/keystone/plugins')
@@ -125,6 +126,11 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         auth: true,
     },
     hooks: {
+        resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
+            await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey }, context)
+
+            return resolvedData
+        },
         validateInput: ({ resolvedData, existingItem, addValidationError }) => {
             if (!hasRequestAndDbFields(['dv', 'sender'], ['organization'], resolvedData, existingItem, addValidationError)) return
             if (!hasOneOfFields(['email', 'name', 'phone'], resolvedData, existingItem, addValidationError)) return
