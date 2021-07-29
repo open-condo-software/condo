@@ -10,9 +10,9 @@ module.exports = {
     maxWorkers: conf.IN_CI ? 1 : 4, 
     noStackTrace: true,
     expand: false,
-    // forceExit: true,
+    forceExit: true,
     notify: false,
-    detectOpenHandles: true,
+    timers: 'legacy',
     reporters: [
         'jest-clean-reporter',
         [
