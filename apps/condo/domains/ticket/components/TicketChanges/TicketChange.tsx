@@ -29,10 +29,10 @@ export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => 
     const changedFieldMessages = useChangedFieldMessagesOf(ticketChange)
     return (
         <Row gutter={[12, 12]}>
-            <Col span={3}>
+            <Col span={6}>
                 <Typography.Text style={{ fontSize: '16px' }}>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
             </Col>
-            <Col span={21}>
+            <Col span={18}>
                 {changedFieldMessages.map(({ field, message }) => (
                     <Typography.Text key={field} style={{ fontSize: '16px' }}>
                         <Diff className={field}>
