@@ -25,7 +25,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         },
 
         billingAccount: {
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'System-wide billing account, that will allow to pay for all services from all organizations',
             type: Relationship,
             ref: 'BillingAccount',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
