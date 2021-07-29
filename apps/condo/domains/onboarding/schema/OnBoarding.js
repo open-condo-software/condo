@@ -38,13 +38,13 @@ const OnBoarding = new GQLListSchema('OnBoarding', {
             ref: 'User',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
         type: {
             type: Select,
             options: 'ADMINISTRATOR', // TODO: add select onBoarding type options
             defaultValue: 'member',
             isRequired: true,
-            kmigratorOptions: { null: false },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
