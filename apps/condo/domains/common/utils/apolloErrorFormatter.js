@@ -123,23 +123,22 @@ const toGraphQLFormat = (safeFormattedError) => {
 const formatError = error => {
     // error: { locations, path, message, extensions }
     const { originalError } = error
+    error.uid = cuid()
     if (conf.DEBUG_APOLLO){
         try {
-        // For correlating user error reports with logs
-            error.uid = cuid()
-
-            // NOTE1(pahaz): Keystone use apollo-errors for all their errors. There are:
-            //   AccessDeniedError, ValidationFailureError, LimitsExceededError and ParameterError
-            // NOTE2(pahaz): Apollo use apollo-server-errors for all their errors> There are:
-            //   SyntaxError, ValidationError, UserInputError, AuthenticationError, ForbiddenError, PersistedQueryNotFoundError, PersistedQueryNotSupportedError, ...
+            /* For correlating user error reports with logs
+             NOTE1(pahaz): Keystone use apollo-errors for all their errors. There are:
+                AccessDeniedError, ValidationFailureError, LimitsExceededError and ParameterError
+             NOTE2(pahaz): Apollo use apollo-server-errors for all their errors> There are:
+                SyntaxError, ValidationError, UserInputError, AuthenticationError, ForbiddenError, PersistedQueryNotFoundError, PersistedQueryNotSupportedError, ...*/
             if (isKeystoneErrorInstance(originalError) || originalError instanceof ApolloError) {
-            // originalError: { message name data internalData time_thrown path locations }
+                // originalError: { message name data internalData time_thrown path locations }
                 graphqlLogger.info({ error: safeFormatError(error) })
             } else {
                 graphqlLogger.error({ error: safeFormatError(error) })
             }
         } catch (formatErrorError) {
-        // Something went wrong with formatting above, so we log the errors
+            // Something went wrong with formatting above, so we log the errors
             graphqlLogger.error({ error: serializeError(ensureError(error)) })
             graphqlLogger.error({ error: serializeError(ensureError(formatErrorError)) })
         }
