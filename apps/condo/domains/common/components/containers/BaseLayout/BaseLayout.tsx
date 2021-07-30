@@ -23,7 +23,7 @@ interface ILayoutContext {
 
 const LayoutContext = createContext<ILayoutContext>({
     isMobile: false,
-    addNotification: (notification) => null,
+    addNotification: () => null,
 })
 
 const useLayoutContext = (): ILayoutContext => useContext<ILayoutContext>(LayoutContext)
@@ -76,6 +76,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
     const toggleSideMenuCollapsed = () => setIsSideMenuCollapsed(!isSideMenuCollapsed)
 
     const TopMenuItems = TopMenuItemsFromProps ? TopMenuItemsFromProps : BaseTopMenuItems
+
 
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
