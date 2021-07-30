@@ -293,8 +293,8 @@ const TicketIdPage = () => {
                                             <TicketFieldRow title={ClientMessage} highlight>
                                                 <TicketUserInfoField
                                                     user={{
-                                                        name: ticket.clientName,
-                                                        phone: ticket.clientPhone,
+                                                        name: get(ticket, 'clientName'),
+                                                        phone: get(ticket, 'clientPhone'),
                                                     }}
                                                 />
                                             </TicketFieldRow>
@@ -337,11 +337,11 @@ const TicketIdPage = () => {
                                             </Button>
                                         </Link>
                                         <ShareTicketModal
-                                            date={ticket.createdAt}
-                                            number={ticket.number}
-                                            details={ticket.details}
+                                            date={get(ticket, 'createdAt')}
+                                            number={get(ticket, 'number')}
+                                            details={get(ticket, 'details')}
                                             id={id}
-                                            locale={organization.country}
+                                            locale={get(organization, 'country')}
                                         />
                                         <Button
                                             type={'sberPrimary'}
@@ -354,9 +354,9 @@ const TicketIdPage = () => {
                                         </Button>
                                     </ActionBar>
                                     <TicketChanges
-                                        loading={ticketChangesResult.loading}
-                                        items={ticketChangesResult.objs}
-                                        total={ticketChangesResult.count}
+                                        loading={get(ticketChangesResult, 'loading')}
+                                        items={get(ticketChangesResult, 'objs')}
+                                        total={get(ticketChangesResult, 'count')}
                                     />
                                 </Row>
                             </Col>
