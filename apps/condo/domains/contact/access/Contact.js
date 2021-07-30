@@ -29,7 +29,6 @@ async function canManageContacts ({ authentication: { item: user }, originalInpu
     if (user.isAdmin) return true
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-        const canManageContacts = await checkOrganizationPermission(context, user.id, organizationId, 'canManageContacts')
         const canManageRelatedOrganizationContacts = await checkRelatedOrganizationPermission(context, user.id, organizationId, 'canManageContacts')
         if (canManageRelatedOrganizationContacts) {
             return true
@@ -41,7 +40,6 @@ async function canManageContacts ({ authentication: { item: user }, originalInpu
         if (!contact) {
             return false
         }
-        const canManageContacts = await checkOrganizationPermission(context, user.id, contact.organization.id, 'canManageContacts')
         const canManageRelatedOrganizationContacts = await checkRelatedOrganizationPermission(context, user.id, contact.organization.id, 'canManageContacts')
         if (canManageRelatedOrganizationContacts) {
             return true

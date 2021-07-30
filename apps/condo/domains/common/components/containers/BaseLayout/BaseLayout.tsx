@@ -89,7 +89,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
                     }} />
                     <Layout css={subLayoutCss}>
                         <Header css={topMenuCss}>
-                            <TopMenuItems
+                            <ResTopMenuItems
                                 headerAction={headerAction}
                                 isMobile={isMobile}
                                 isSideMenuCollapsed={isSideMenuCollapsed}
