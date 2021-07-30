@@ -11,13 +11,12 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient } = require('@core/keystone/test.utils')
 const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
-const { createTestOrganizationLink, createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const faker = require('faker')
-const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 
 describe('Ticket', () => {

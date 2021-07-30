@@ -40,9 +40,9 @@ interface IBaseLayoutProps {
     style?: CSSProperties
     className?: string
     disableMobile?: boolean
-    headerAction: ElementType<unknown>
-    onLogoClick: () => void
-    menuDataRender: () => MenuItem[]
+    headerAction?: ElementType<unknown>
+    onLogoClick?: () => void
+    menuDataRender?: () => MenuItem[]
     TopMenuItems?: React.FC<ITopMenuItemsProps>
     logoLocation?: string
 }
