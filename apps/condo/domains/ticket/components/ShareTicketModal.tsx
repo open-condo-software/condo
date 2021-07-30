@@ -26,72 +26,72 @@ import {
 } from '@condo/domains/ticket/constants/crypto'
 
 const collapse = css`
+  border-radius: 8px;
+  background: ${colors.white};
+
+  & .ant-collapse-content {
+    border-top: none;
+  }
+
+  & .ant-collapse-item:last-child,
+  & .ant-collapse-item:last-child > .ant-collapse-header {
     border-radius: 8px;
+    line-height: 24px
+  }
+
+  & > .ant-collapse-item > .ant-collapse-header .ant-collapse-arrow {
+    right: 20px;
+    font-size: 14px;
+  }
+  & > .ant-collapse-item > .ant-collapse-header {
+    color: ${green[6]};
+    padding: 17px 20px;
+    font-size: 16px;
+
+    &:hover, &:focus {
+      color: ${green[5]};
+    }
+  }
+  & .ant-collapse-item:last-child > .ant-collapse-content {
+    border-radius: 8px;
+  }
+  & .ant-collapse-content > .ant-collapse-content-box {
+    padding: 0px 19px 22px;
+  }
+
+  & .ant-select-multiple .ant-select-selection-item {
     background: ${colors.white};
+    font-size: 12px;
+  }
 
-    & .ant-collapse-content {
-        border-top: none;
-    }
+  & .ant-select-multiple.ant-select-lg .ant-select-selection-item {
+    line-height: 20px;
+    height: 20px;
+    border: none;
+  }
 
-    & .ant-collapse-item:last-child,
-    & .ant-collapse-item:last-child > .ant-collapse-header {
-        border-radius: 8px;
-        line-height: 24px
-    }
-
-    & > .ant-collapse-item > .ant-collapse-header .ant-collapse-arrow {
-        right: 20px;
-        font-size: 14px;
-    }
-    & > .ant-collapse-item > .ant-collapse-header {
-        color: ${green[6]};
-        padding: 17px 20px;
-        font-size: 16px;
-
-        &:hover, &:focus {
-            color: ${green[5]};
-        }
-    }
-    & .ant-collapse-item:last-child > .ant-collapse-content {
-        border-radius: 8px;
-    }
-    & .ant-collapse-content > .ant-collapse-content-box {
-        padding: 0px 19px 22px;
-    }
-
-    & .ant-select-multiple .ant-select-selection-item {
-        background: ${colors.white};
-        font-size: 12px;
-    }
-
-    & .ant-select-multiple.ant-select-lg .ant-select-selection-item {
-        line-height: 20px;
-        height: 20px;
-        border: none;
-    }
-
-    & .ant-select-item-option-content,
-    & .ant-select-item,
-    & .ant-select-show-search.ant-select:not(.ant-select-customize-input) .ant-select-selector input {
-        font-size: 12px;
-    }
+  & .ant-select-item-option-content,
+  & .ant-select-item,
+  & .ant-select-show-search.ant-select:not(.ant-select-customize-input) .ant-select-selector input {
+    font-size: 12px;
+  }
 
 `
 
 const search = css`
-    width: 100%;
+  width: 100%;
 `
 
 const sendButton = css`
-    &, &:focus {
-        background-color: ${colors.white};
-    }
+  &, &:focus {
+    background-color: ${colors.white};
+  }
 `
 
 const ModalHeader = styled.span`
-    font-weight: 700;
-    line-height: 32px;
-    font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+  font-size: 24px;
 `
 
 const ShareButton = styled.span`
@@ -108,7 +108,7 @@ const ShareButton = styled.span`
   font-size: 16px;
 
   &:hover, &:focus {
-      color: ${green[5]};
+    color: ${green[5]};
   }
 
   & .anticon {
@@ -130,35 +130,35 @@ const Warning = (props) => {
     })
     const length = props.children.length - 2
     const WarningContainer = styled.div`
-        background: ${colors.lightRed};
-        border-radius: 2px;
-        padding: 9px 16px 11px 42px;
-        position: relative;
-        margin-top: 8px;
-        white-space: pre-wrap;
-        font-size: 14px;
-        line-height: 22px;
+      background: ${colors.lightRed};
+      border-radius: 2px;
+      padding: 9px 16px 11px 42px;
+      position: relative;
+      margin-top: 8px;
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 22px;
 
-        & a {
-            color: ${green[6]};
-            &:hover,
-            &:focus,
-            &:active {
-                color: ${green[5]};
-            }
+      & a {
+        color: ${green[6]};
+        &:hover,
+        &:focus,
+        &:active {
+          color: ${green[5]};
         }
+      }
     `
     return (
         <WarningContainer>
             <CloseCircleFilled css={css`
-                border-radius: 7px;
-                color: ${colors.brightRed};
-                background: ${colors.white};
-                position: absolute;
-                left: 17px;
-                top: 14px;
-                height: 14px;
-                width: 14px;
+              border-radius: 7px;
+              color: ${colors.brightRed};
+              background: ${colors.white};
+              position: absolute;
+              left: 17px;
+              top: 14px;
+              height: 14px;
+              width: 14px;
             `} />
 
             {ShareWarningEmailMessage}
@@ -190,7 +190,6 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const OKMessage = intl.formatMessage({ id: 'OK' })
     const ShareSentMessage = intl.formatMessage({ id: 'ticket.shareSent' })
     const ShareSentToEmailMessage = intl.formatMessage({ id: 'ticket.shareSentToEmail' })
-    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
 
     const { date, number, details, id, locale } = props
     const cipher = crypto.createCipher(ALGORITHM, SALT)
@@ -229,15 +228,17 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     async function handleClick () {
         setLoading(true)
         const sender = getClientSideSenderInfo()
-        const { data, error } = await shareTicket({ variables: {
-            data: {
-                sender,
-                users: value
-                    .map(item=>JSON.parse(item))
-                    .filter(item=> item.value.hasEmail)
-                    .map(item=>item.value.id),
-                ticketId: query.id,
-            } },
+        const { data, error } = await shareTicket({
+            variables: {
+                data: {
+                    sender,
+                    users: value
+                        .map(item=>JSON.parse(item))
+                        .filter(item=> item.value.hasEmail)
+                        .map(item=>item.value.id),
+                    ticketId: query.id,
+                },
+            },
         })
         if (data && data.obj) {
             setValue([])
@@ -330,33 +331,31 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                             </ShareButton>
                         </a>
                     </Col>
-                    <Tooltip title={NotImplementedYetMessage}>
-                        <Col span={24}>
-                            <Collapse collapsible='disabled' expandIconPosition='right' css={collapse}>
-                                <Collapse.Panel key='1' header={ToEmployeesEmailMessage}>
-                                    <GraphQlSearchInput
-                                        search={getEmployeeWithEmail(organization.id)}
-                                        showArrow={false}
-                                        mode='multiple'
-                                        css={search}
-                                        onChange={handleSelect}
-                                        value={value}
-                                        placeholder={EmployeesNameMessage}
-                                    />
-                                    {usersWithoutEmail.length ? <Warning>{usersWithoutEmail}</Warning> : null}
-                                    {value.length ? <Button
-                                        type='sberPrimary'
-                                        size='large'
-                                        onClick={handleClick}
-                                        style={{ marginTop: '20px' }}
-                                        disabled={loading}
-                                    >
-                                        {SendTicketToEmailMessage}
-                                    </Button> : null}
-                                </Collapse.Panel>
-                            </Collapse>
-                        </Col>
-                    </Tooltip>
+                    <Col span={24}>
+                        <Collapse expandIconPosition='right' css={collapse}>
+                            <Collapse.Panel key='1' header={ToEmployeesEmailMessage}>
+                                <GraphQlSearchInput
+                                    search={getEmployeeWithEmail(organization.id)}
+                                    showArrow={false}
+                                    mode='multiple'
+                                    css={search}
+                                    onChange={handleSelect}
+                                    value={value}
+                                    placeholder={EmployeesNameMessage}
+                                />
+                                {usersWithoutEmail.length ? <Warning>{usersWithoutEmail}</Warning> : null}
+                                {value.length ? <Button
+                                    type='sberPrimary'
+                                    size='large'
+                                    onClick={handleClick}
+                                    style={{ marginTop: '20px' }}
+                                    disabled={loading}
+                                >
+                                    {SendTicketToEmailMessage}
+                                </Button> : null}
+                            </Collapse.Panel>
+                        </Collapse>
+                    </Col>
                 </Row>
             </Modal>
         </>
