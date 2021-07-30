@@ -10,10 +10,10 @@ const { createTestBillingProperty } = require('../utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { catchErrorFrom } = require('../../common/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestResident, createTestServiceConsumer, } = require('@condo/domains/resident/utils/testSchema')
+const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 
 describe('BillingReceipt', () => {
     describe('Validators', async () => {
@@ -272,17 +272,16 @@ describe('BillingReceipt', () => {
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
             const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+            await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
 
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
                 unitName: billingAccountAttrs.unitName,
             })
-            const [consumer] = await createTestServiceConsumer(adminClient, resident, {
+            await createTestServiceConsumer(adminClient, resident, {
                 number: billingAccountAttrs.number,
             })
 
-            const [property] = await createTestBillingProperty(adminClient, context)
-            const objs = await BillingReceipt.getAll(userClient, { id: billingAccount.id })
-
+            const objs = await BillingReceipt.getAll(userClient)
             expect(objs).toHaveLength(1)
         })
 
@@ -298,14 +297,14 @@ describe('BillingReceipt', () => {
         })
 
         test('anonymous cant read BillingReceipt', async () => {
-            const client = await makeClient()
+            const anonymous = await makeClient()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
             const [billingAccount] = await createTestBillingAccount(admin, context, property)
 
-            await expectToThrowAuthenticationErrorToObjects(async () => {
-                await BillingReceipt.getAll(client, { id: billingAccount.id })
+            expectToThrowAccessDeniedErrorToObj(async () => {
+                await BillingReceipt.getAll(anonymous, { id: billingAccount.id })
             })
         })
     })
