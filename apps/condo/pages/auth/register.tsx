@@ -39,6 +39,7 @@ import {
     TOO_MANY_REQUESTS,
 } from '@condo/domains/user/constants/errors'
 import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 const POLICY_LOCATION = '/policy.pdf'
 const LINK_STYLE = { color: colors.sberPrimary[7] }
@@ -332,7 +333,6 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
     const initialValues = { smsCode: '' }
     const intl = useIntl()
     const ChangePhoneNumberLabel = intl.formatMessage({ id: 'pages.auth.register.ChangePhoneNumber' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const SmsCodeTitle = intl.formatMessage({ id: 'pages.auth.register.field.SmsCode' })
     const ResendSmsLabel = intl.formatMessage({ id: 'pages.auth.register.ResendSmsLabel' })
 
@@ -370,6 +370,8 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
     const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'Hide' }) : intl.formatMessage({ id: 'Show' })
     const { token, phone, handleReCaptchaVerify } = useContext(RegisterContext)
     const [showPhone, setShowPhone] = useState(phone)
+    const { requiredValidator } = useValidations()
+
     useEffect(() => {
         if (isPhoneVisible) {
             setShowPhone(formatPhone(phone))
@@ -459,10 +461,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
                     style={{ marginTop: '40px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }}
                     rules={[
-                        {
-                            required: true,
-                            message: FieldIsRequiredMsg,
-                        },
+                        requiredValidator,
                         () => ({
                             validator () {
                                 if (!phoneValidateError) {
@@ -522,7 +521,6 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
     const PasswordMsg = intl.formatMessage({ id: 'pages.auth.register.field.Password' })
     const ConfirmPasswordMsg = intl.formatMessage({ id: 'pages.auth.register.field.ConfirmPassword' })
     const EmailMsg = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
-    const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
     const AllFieldsAreRequired = intl.formatMessage({ id: 'pages.auth.register.AllFieldsAreRequired' })
     const PhoneIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsAlreadyRegistered' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
@@ -530,27 +528,20 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
     const NameContainsOnlyMsg = intl.formatMessage({ id: 'pages.auth.NameContainsOnly' })
     const NameMustContainMsg = intl.formatMessage({ id: 'pages.auth.NameMustContain' })
     const NameMustNotStartOrAndMsg = intl.formatMessage({ id: 'pages.auth.NameMustNotStartOrAnd' })
-    const EmailIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
     const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
     const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
-    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
-    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
+
+    const { combiner, requiredValidator, phoneValidator, messageChanger, emailValidator } = useValidations()
+    const minPasswordValidator = {
+        min: MIN_PASSWORD_LENGTH,
+        message: PasswordIsTooShortMsg,
+    }
     const validations = {
-        phone: [
-            {
-                required: true,
-                message: FieldIsRequiredMessage,
-            },
-            {
-                validator: (_, value) => {
-                    const v = normalizePhone(value)
-                    if (!v) return Promise.reject(PhoneIsNotValidMessage)
-                    return Promise.resolve()
-                },
-            },
-        ],
+        phone: combiner(requiredValidator, phoneValidator),
+        email: combiner(messageChanger(requiredValidator, PleaseInputYourEmailMsg), emailValidator),
+        minPassword: combiner(requiredValidator, minPasswordValidator),
     }
 
     const ErrorToFormFieldMsgMapping = {
@@ -651,16 +642,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     labelAlign='left'
                     style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }}
-                    rules={[
-                        {
-                            type: 'email',
-                            message: EmailIsNotValidMsg,
-                        },
-                        {
-                            required: true,
-                            message: PleaseInputYourEmailMsg,
-                        },
-                    ]}
+                    rules={validations.email}
                 >
                     <Input autoComplete='chrome-off' placeholder={EmailPlaceholder} style={INPUT_STYLE} />
                 </Form.Item>
@@ -670,16 +652,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     labelAlign='left'
                     style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }}
-                    rules={[
-                        {
-                            required: true,
-                            message: PleaseInputYourPasswordMsg,
-                        },
-                        {
-                            min: MIN_PASSWORD_LENGTH,
-                            message: PasswordIsTooShortMsg,
-                        },
-                    ]}
+                    rules={validations.minPassword}
                 >
                     <Input.Password autoComplete='new-password' style={INPUT_STYLE} />
                 </Form.Item>
@@ -691,10 +664,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     labelCol={{ flex: 1 }}
                     dependencies={['password']}
                     rules={[
-                        {
-                            required: true,
-                            message: PleaseConfirmYourPasswordMsg,
-                        },
+                        messageChanger(requiredValidator, PleaseConfirmYourPasswordMsg),
                         ({ getFieldValue }) => ({
                             validator (_, value) {
                                 if (!value || getFieldValue('password') === value) {

@@ -11,6 +11,7 @@ import {
 } from '@condo/domains/organization/utils/clientSchema'
 import { INN_LENGTH } from '@condo/domains/organization/constants/common'
 import { EMPTY_NAME_ERROR, INN_TOO_SHORT_ERROR } from '@condo/domains/organization/constants/errors'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 interface ICreateOrganizationModalFormArguments {
     onFinish: (newOrganization) => void
@@ -27,7 +28,6 @@ export const useCreateOrganizationModalForm = ({ onFinish }: ICreateOrganization
     const CreateOrganizationModalTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationModalTitle' })
     const CreateOrganizationModalMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationMessage' })
 
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const NameMsg = intl.formatMessage({ id: 'pages.organizations.OrganizationName' })
     const InnMessage = intl.formatMessage({ id: 'pages.organizations.Inn' })
     const InnTooShortMsg = intl.formatMessage({ id: 'pages.organizations.inn.TooShortMessage' })
@@ -45,6 +45,17 @@ export const useCreateOrganizationModalForm = ({ onFinish }: ICreateOrganization
             errors: [ValueIsTooShortMsg],
         },
     }
+
+    const { requiredValidator, combiner } = useValidations()
+    const minLengthValidator = {
+        min: INN_LENGTH,
+        message: InnTooShortMsg,
+    }
+    const validations = {
+        name: [requiredValidator],
+        inn: combiner(requiredValidator, minLengthValidator),
+    }
+
     const ModalForm: React.FC = () => (
         <BaseModalForm
             mutation={REGISTER_NEW_ORGANIZATION_MUTATION}
@@ -73,7 +84,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: ICreateOrganization
             <Form.Item
                 name='name'
                 label={NameMsg}
-                rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                rules={validations.name}
             >
                 <Input />
             </Form.Item>
@@ -81,13 +92,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: ICreateOrganization
                 name='inn'
                 style={{ width: '50%' }}
                 label={InnMessage}
-                rules={[
-                    { required: true, message: FieldIsRequiredMsg },
-                    {
-                        min: INN_LENGTH,
-                        message: InnTooShortMsg,
-                    },
-                ]}
+                rules={validations.inn}
             >
                 <Input />
             </Form.Item>

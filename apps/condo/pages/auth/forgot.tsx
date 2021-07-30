@@ -16,6 +16,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { LOCK_TIMEOUT } from '@condo/domains/user/constants/common'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 
 const LINK_STYLE = { color: colors.sberPrimary[7] }
@@ -35,7 +36,6 @@ const ResetPage: AuthPage = () => {
     const CheckEmailMsg = intl.formatMessage({ id: 'pages.auth.reset.CheckEmail' })
     const ReturnToLoginPage = intl.formatMessage({ id: 'pages.auth.reset.ReturnToLoginPage' })
     const EmailPlaceholder = intl.formatMessage({ id: 'example.Email' })
-    const EmailIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
 
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccessMessage, setIsSuccessMessage] = useState(false)
@@ -46,6 +46,12 @@ const ResetPage: AuthPage = () => {
             errors: [EmailIsNotRegisteredMsg],
         },
     }
+
+    const { combiner, messageChanger, requiredValidator, emailValidator } = useValidations()
+    const validations = {
+        email: combiner(messageChanger(requiredValidator, PleaseInputYourEmailMsg), emailValidator),
+    }
+
     if (isLoading) {
         return <LoadingOrErrorPage title={ResetTitle} loading={isLoading} error={null}/>
     }
@@ -104,16 +110,7 @@ const ResetPage: AuthPage = () => {
                 <Form.Item
                     name='email'
                     label={EmailMsg}
-                    rules={[
-                        {
-                            type: 'email',
-                            message: EmailIsNotValidMsg,
-                        },
-                        {
-                            required: true,
-                            message: PleaseInputYourEmailMsg,
-                        },
-                    ]}
+                    rules={validations.email}
                     labelAlign='left'
                     labelCol={{ flex: 1 }}
                 >

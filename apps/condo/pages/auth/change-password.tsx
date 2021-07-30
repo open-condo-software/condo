@@ -13,6 +13,7 @@ import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN } fr
 import { useAuth } from '@core/next/auth'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useContext } from 'react'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -45,6 +46,14 @@ const ChangePasswordPage: AuthPage = () => {
 
     const ErrorToFormFieldMsgMapping = {}
 
+    const { requiredValidator, changeMessage } = useValidations()
+    const minPasswordLength = {
+        min: MIN_PASSWORD_LENGTH,
+        message: PasswordIsTooShortMsg,
+    }
+    const validations = {
+        password: [changeMessage(requiredValidator, PleaseInputYourPasswordMsg), minPasswordLength],
+    }
     const authLayoutContext = useContext(AuthLayoutContext)
 
     const onFinish = (values: typeof initialValues) => {
@@ -127,16 +136,7 @@ const ChangePasswordPage: AuthPage = () => {
                     label={PasswordMsg}
                     labelAlign='left'
                     labelCol={{ flex: 1 }}
-                    rules={[
-                        {
-                            required: true,
-                            message: PleaseInputYourPasswordMsg,
-                        },
-                        {
-                            min: MIN_PASSWORD_LENGTH,
-                            message: PasswordIsTooShortMsg,
-                        },
-                    ]}
+                    rules={validations.password}
                 >
                     <Input.Password style={INPUT_STYLE}/>
                 </Form.Item>
@@ -148,10 +148,7 @@ const ChangePasswordPage: AuthPage = () => {
                     style={{ marginTop: '40px' }}
                     dependencies={['password']}
                     rules={[
-                        {
-                            required: true,
-                            message: PleaseConfirmYourPasswordMsg,
-                        },
+                        changeMessage(requiredValidator, PleaseConfirmYourPasswordMsg),
                         ({ getFieldValue }) => ({
                             validator (_, value) {
                                 if (!value || getFieldValue('password') === value) {

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Col, Form, Input, Row, Space, Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
@@ -9,12 +9,11 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { Loader } from '@condo/domains/common/components/Loader'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-import { Rule } from 'rc-field-form/lib/interface'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
 import { Button } from '@condo/domains/common/components/Button'
 import { canManageContacts } from '@condo/domains/organization/permissions'
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -37,10 +36,6 @@ export const EditContactForm: React.FC = () => {
     const ContactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })
     const ProfileUpdateTitle = intl.formatMessage({ id: 'EditingContact' })
     const NameLabel = intl.formatMessage({ id: 'field.FullName.short' })
-    const FullNameRequiredMessage = intl.formatMessage({ id: 'field.FullName.requiredError' })
-    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
-    const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
-    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const FullNamePlaceholderMessage = intl.formatMessage({ id:'field.FullName' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
@@ -72,41 +67,12 @@ export const EditContactForm: React.FC = () => {
         })
     })
 
-    const validations: { [key: string]: Rule[] } = useMemo(() => {
-        return {
-            phone: [
-                {
-                    required: true,
-                    message: FieldIsRequiredMessage,
-                },
-                {
-                    validator: (_, value) => {
-                        const v = normalizePhone(value)
-                        if (!v) return Promise.reject(PhoneIsNotValidMessage)
-                        return Promise.resolve()
-                    },
-                },
-            ],
-            email: [
-                {
-                    type: 'email',
-                    message: EmailErrorMessage,
-                },
-            ],
-            name: [
-                {
-                    required: true,
-                    message: FullNameRequiredMessage,
-                },
-                {
-                    validator: (_, value) => {
-                        if (value.trim().length === 0) return Promise.reject(FullNameRequiredMessage)
-                        return Promise.resolve()
-                    },
-                },
-            ],
-        }
-    }, [FieldIsRequiredMessage, PhoneIsNotValidMessage, EmailErrorMessage, FullNameRequiredMessage])
+    const { combiner, requiredValidator, phoneValidator, emailValidator, trimValidator } = useValidations()
+    const validations = {
+        phone: combiner(requiredValidator, phoneValidator),
+        email: [emailValidator],
+        name: combiner(requiredValidator, trimValidator),
+    }
 
     if (error) {
         return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
