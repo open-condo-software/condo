@@ -126,7 +126,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 })
 
                 if (!action || action.usedAt) {
-                    throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find token`)
+                    throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to valid find token`)
                 }
 
                 const userId = action.user.id
