@@ -19,8 +19,8 @@ test('Groupped counts [day, status]', async () => {
         sender: { dv: 1, fingerprint: 'tests' },
         data: {
             where: {
+                organization: { id: client.organization.id },
                 AND: [
-                    { organization: { id: client.organization.id } },
                     { createdAt_gte: dateStart.toISOString() },
                     { createdAt_lte: dateEnd.toISOString() },
                 ],
@@ -45,8 +45,8 @@ test('Groupped counts [status, day]', async () => {
         sender: { dv: 1, fingerprint: 'tests' },
         data: {
             where: {
+                organization: { id: client.organization.id },
                 AND: [
-                    { organization: { id: client.organization.id } },
                     { createdAt_gte: dateStart.toISOString() },
                     { createdAt_lte: dateEnd.toISOString() },
                     { isEmergency: true },
@@ -74,8 +74,8 @@ test('Groupped counts [day, status] with property filter', async () => {
         sender: { dv: 1, fingerprint: 'tests' },
         data: {
             where: {
+                organization: { id: client.organization.id },
                 AND: [
-                    { organization: { id: client.organization.id } },
                     { createdAt_gte: dateStart.toISOString() },
                     { createdAt_lte: dateEnd.toISOString() },
                     { property: { id_in: [ client.property.id ] } },
@@ -103,8 +103,8 @@ test('User can not read ticket analytics report from another organization', asyn
         sender: { dv:1, fingerprint: 'tests' },
         data: {
             where: {
+                organization: { id: wrongClient.organization.id },
                 AND: [
-                    { organization: { id: wrongClient.organization.id } },
                     { createdAt_gte: dateStart.toISOString() },
                     { createdAt_lte: dateEnd.toISOString() },
                 ],
@@ -118,8 +118,8 @@ test('User can not read ticket analytics report from another organization', asyn
         sender: { dv:1, fingerprint: 'tests' },
         data: {
             where: {
+                organization: { id: client.organization.id },
                 AND: [
-                    { organization: { id: client.organization.id } },
                     { createdAt_gte: dateStart.toISOString() },
                     { createdAt_lte: dateEnd.toISOString() },
                 ],

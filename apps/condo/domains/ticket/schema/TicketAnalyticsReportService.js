@@ -6,7 +6,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
 const moment = require('moment')
 const get = require('lodash/get')
-const { createCountersStructure, fetchTicketsForAnalitics, DATE_FORMATS } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
+const { createCountersStructure, fetchTicketsForAnalytics, DATE_FORMATS } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
 
 
 const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportService', {
@@ -31,7 +31,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             schema: 'ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { where = {}, groupBy = [] } } = args
-                let allTickets = await fetchTicketsForAnalitics(context, where)
+                let allTickets = await fetchTicketsForAnalytics(context, where)
                 allTickets = allTickets.map( ticket => {
                     ticket.interval = {
                         day: moment(ticket.createdAt).format(DATE_FORMATS.day),
@@ -48,10 +48,9 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                     month: 'interval.month',
                 }
                 const allDates = allTickets.map(ticket => new Date(ticket.createdAt))
-                // TODO(sitozzz): move organization filter query from array & remove find statement
-                const { grouppedCounters, translates } = await createCountersStructure({
+                const { groupedCounters, translates } = await createCountersStructure({
                     context,
-                    organization: where.AND.find(filters => Object.keys(filters).includes('organization')).organization,
+                    organization: where.organization,
                     groups: groupBy,
                     datesRange: {
                         min: new Date(Math.min.apply(null, allDates)),
@@ -61,9 +60,9 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 const result = {}
                 // TODO(sitozzz): rewrite to support `n` levels of groupping
                 const [group1Name, group2Name] = groupBy
-                for (const group1Option in grouppedCounters) {
+                for (const group1Option in groupedCounters) {
                     result[translates[group1Name][group1Option]] = {}
-                    for (const group2Option in grouppedCounters[group1Option]) {
+                    for (const group2Option in groupedCounters[group1Option]) {
                         result[translates[group1Name][group1Option]][translates[group2Name][group2Option]] = allTickets.filter(
                             ticket =>
                                 get(ticket, groupByFields[group1Name]) === group1Option &&
