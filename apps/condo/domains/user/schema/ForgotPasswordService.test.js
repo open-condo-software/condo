@@ -33,7 +33,7 @@ describe('ForgotPasswordAction Service', () => {
             expect(newClient.user.id).toEqual(user.id)
         })
 
-        it('cannot change password more than one time', async ()=> {
+        it('cannot change password with one token more than one time', async ()=> {
             const admin = await makeLoggedInAdminClient()
             const [user, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
@@ -44,7 +44,7 @@ describe('ForgotPasswordAction Service', () => {
             expect(result.data.result).toEqual({ status: 'ok', email:  userAttrs.email })
             result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
 
-            expect(result.errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find token`)
+            expect(result.errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
         })
         it('cannot change password with expired token', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -57,7 +57,7 @@ describe('ForgotPasswordAction Service', () => {
             await updateTestForgotPasswordAction(admin, id, { expiresAt: new Date(Date.now()).toISOString() })
             const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
             expect(result.errors).toHaveLength(1)
-            expect(result.errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find token`)
+            expect(result.errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
         })
 
         it('cannot change password to a shorter one', async () =>  {
@@ -118,7 +118,7 @@ describe('ForgotPasswordAction Service', () => {
             expect(newClient.user.id).toEqual(user.id)
         })
 
-        it('cannot change password more than one time', async ()=> {
+        it('cannot change password with one token more than one time', async ()=> {
             const admin = await makeLoggedInAdminClient()
             const [user, userAttrs] = await createTestUser(admin)
             const client = await makeClient()
@@ -129,7 +129,7 @@ describe('ForgotPasswordAction Service', () => {
             expect(result.data.result).toEqual({ status: 'ok', email:  userAttrs.email })
             result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
 
-            expect(result.errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find token`)
+            expect(result.errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
         })
 
         it('cannot change password with expired token', async () => {
@@ -143,7 +143,7 @@ describe('ForgotPasswordAction Service', () => {
             await updateTestForgotPasswordAction(admin, id, { expiresAt: new Date(Date.now()).toISOString() })
             const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
             expect(result.errors).toHaveLength(1)
-            expect(result.errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find token`)
+            expect(result.errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
         })
 
         it('cannot change password to a shorter one', async () => {
