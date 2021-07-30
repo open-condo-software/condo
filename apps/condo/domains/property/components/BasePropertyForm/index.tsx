@@ -108,7 +108,6 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         <AddressSuggestionsSearchInput
                                             onSelect={(_, option) => {
                                                 const address = JSON.parse(option.key) as AddressMeta
-                                                console.log(address.data)
                                                 if (!validSettlementTypes.includes(address.data.settlement_type_full)) {
                                                     setAddressValidatorError(UnsupportedPropertyErrorMsg.replace('{propertyType}', address.data.settlement_type_full))
                                                 }
