@@ -92,17 +92,17 @@ const createCountersStructure = async ({ context, organization, groups, datesRan
     }
     // Transform [[a1, a2, a3], [b1, b2], [c1, c2]] to
     // { a1: { b1: { c1: 0, c2: 0 }, b2: { c1: 0, c2: 0 } }, a2: { ... }}
-    const grouppedCounters = ranges.reduceRight((previousValue, currentValue) =>
+    const groupedCounters = ranges.reduceRight((previousValue, currentValue) =>
         Object.fromEntries(currentValue.map(option =>
             ([option.value, previousValue])))
     , 0)
     return {
-        grouppedCounters,
+        groupedCounters,
         translates,
     }
 }
 
-const fetchTicketsForAnalitics = async (context, ticketWhereInput) => {
+const fetchTicketsForAnalytics = async (context, ticketWhereInput) => {
     let skip = 0
     let maxCount = MAX_TICKET_REPORT_COUNT
     let newchunk = []
@@ -118,5 +118,5 @@ const fetchTicketsForAnalitics = async (context, ticketWhereInput) => {
 module.exports = {
     DATE_FORMATS,
     createCountersStructure,
-    fetchTicketsForAnalitics,
+    fetchTicketsForAnalytics,
 }

@@ -18,7 +18,7 @@ import {
     Divider,
     Select,
     TableColumnsType,
-    Tooltip, Form,
+    Tooltip, Form, notification,
 } from 'antd'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
@@ -455,6 +455,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const [loadTicketAnalytics] = useLazyQuery(TICKET_ANALYTICS_REPORT_MUTATION, {
         onError: error => {
             console.log(error)
+            notification.error(error)
             setLoading(false)
         },
         fetchPolicy: 'network-only',
@@ -478,8 +479,8 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                     data: {
                         groupBy,
                         where: {
+                            organization: { id: userOrganizationId },
                             AND: [
-                                { organization: { id: userOrganizationId } },
                                 { isEmergency: ticketType === 'emergency' },
                                 { isPaid: ticketType === 'paid' },
                                 ...filterToQuery(filtersRef.current),

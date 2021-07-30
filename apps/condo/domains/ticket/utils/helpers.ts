@@ -377,8 +377,8 @@ interface IFilterToQuery {
 export const filterToQuery: IFilterToQuery = (filter) => {
     const [dateFrom, dateTo] = filter.range
     const result: unknown[] = [
-        { createdAt_gte: dateFrom.toISOString() },
-        { createdAt_lte: dateTo.toISOString() },
+        { createdAt_gte: dateFrom.startOf('day').toISOString() },
+        { createdAt_lte: dateTo.endOf('day').toISOString() },
     ]
 
     if (filter.addressList.length) {
