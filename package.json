@@ -73,13 +73,6 @@
       "comma-spacing": "off",
       "@typescript-eslint/comma-spacing": "error",
       "indent": "off",
-      "@typescript-eslint/indent": [
-        "error",
-        4,
-        {
-          "SwitchCase": 1
-        }
-      ],
       "quotes": "off",
       "@typescript-eslint/quotes": [
         "error",
