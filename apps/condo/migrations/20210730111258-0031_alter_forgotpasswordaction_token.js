@@ -3,25 +3,38 @@
 
 exports.up = async (knex) => {
     await knex.raw(`
-    BEGIN;
---
--- Alter field token on forgotpasswordaction
---
-ALTER TABLE "ForgotPasswordAction" ADD CONSTRAINT "ForgotPasswordAction_token_9a0cc9b4_uniq" UNIQUE ("token");
-CREATE INDEX "ForgotPasswordAction_token_9a0cc9b4_like" ON "ForgotPasswordAction" ("token" text_pattern_ops);
-COMMIT;
+    BEGIN;
+
+--
+
+-- Alter field token on forgotpasswordaction
+
+--
+
+ALTER TABLE "ForgotPasswordAction" ADD CONSTRAINT "ForgotPasswordAction_token_9a0cc9b4_uniq" UNIQUE ("token");
+
+CREATE INDEX "ForgotPasswordAction_token_9a0cc9b4_like" ON "ForgotPasswordAction" ("token" text_pattern_ops);
+
+COMMIT;
+
 
     `)
 }
 
 exports.down = async (knex) => {
     await knex.raw(`
-    BEGIN;
---
--- Alter field token on forgotpasswordaction
---
-DROP INDEX IF EXISTS "ForgotPasswordAction_token_9a0cc9b4_like";
-COMMIT;
+    BEGIN;
+
+--
+
+-- Alter field token on forgotpasswordaction
+
+--
+
+DROP INDEX IF EXISTS "ForgotPasswordAction_token_9a0cc9b4_like";
+ALTER TABLE "ForgotPasswordAction" DROP CONSTRAINT "ForgotPasswordAction_token_9a0cc9b4_uniq";
+COMMIT;
+
 
     `)
 }
