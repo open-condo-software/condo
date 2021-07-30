@@ -306,24 +306,24 @@ const TicketIdPage = () => {
                                                     <TicketFileList files={files} />
                                                 </TicketFieldRow>
                                             )}
-                                            <FocusContainer style={{ marginTop: '1.6em' }}>
-                                                <Row style={{ rowGap: '1.6em' }}>
-                                                    <TicketFieldRow title={ExecutorMessage} highlight>
-                                                        <TicketUserInfoField
-                                                            user={get(ticket, ['executor'])}
-                                                        />
-                                                    </TicketFieldRow>
-                                                    <TicketFieldRow title={AssigneeMessage} highlight>
-                                                        <TicketUserInfoField
-                                                            user={get(ticket, ['assignee'])}
-                                                        />
-                                                    </TicketFieldRow>
-                                                    <TicketFieldRow title={ClassifierMessage}>
-                                                        {get(ticket, ['classifier', 'name'])}
-                                                    </TicketFieldRow>
-                                                </Row>
-                                            </FocusContainer>
                                         </Row>
+                                        <FocusContainer style={{ marginTop: '1.6em' }}>
+                                            <Row style={{ rowGap: '1.6em' }}>
+                                                <TicketFieldRow title={ExecutorMessage} highlight>
+                                                    <TicketUserInfoField
+                                                        user={get(ticket, ['executor'])}
+                                                    />
+                                                </TicketFieldRow>
+                                                <TicketFieldRow title={AssigneeMessage} highlight>
+                                                    <TicketUserInfoField
+                                                        user={get(ticket, ['assignee'])}
+                                                    />
+                                                </TicketFieldRow>
+                                                <TicketFieldRow title={ClassifierMessage}>
+                                                    {get(ticket, ['classifier', 'name'])}
+                                                </TicketFieldRow>
+                                            </Row>
+                                        </FocusContainer>
                                     </Col>
                                     <ActionBar>
                                         <Link href={`/ticket/${ticket.id}/update`}>
