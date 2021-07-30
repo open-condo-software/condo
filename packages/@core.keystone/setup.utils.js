@@ -55,7 +55,7 @@ function getAdapter (databaseUrl) {
     }
 }
 let redisClientHandler = {}
-function prepareDefaultKeystoneConfig(conf) {
+function prepareDefaultKeystoneConfig (conf) {
     const redisClient = new IORedis(conf.REDIS_URL)
     redisClientHandler.redisClient = redisClient
     const sessionStore = new RedisStore({ client: redisClient })
