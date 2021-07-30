@@ -11,8 +11,7 @@ import { PropertyPanels } from '../panels'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { AddressMeta } from '@condo/domains/common/utils/addressApi/AddressMeta'
 import { useState } from 'react'
-import { validHouseTypes } from '@condo/domains/property/constants/property'
-import { get } from 'lodash'
+import { validHouseTypes, validSettlementTypes } from '@condo/domains/property/constants/property'
 
 interface IOrganization {
     id: string
@@ -109,10 +108,11 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         <AddressSuggestionsSearchInput
                                             onSelect={(_, option) => {
                                                 const address = JSON.parse(option.key) as AddressMeta
-                                                if (address.data.settlement_type) {
-                                                    setAddressValidatorError(UnsupportedPropertyErrorMsg.replace('{propertyType}', address.data.settlement_type))
+                                                console.log(address.data)
+                                                if (!validSettlementTypes.includes(address.data.settlement_type_full)) {
+                                                    setAddressValidatorError(UnsupportedPropertyErrorMsg.replace('{propertyType}', address.data.settlement_type_full))
                                                 }
-                                                else if (!validHouseTypes.includes(address.data.house_type)) {
+                                                else if (!validHouseTypes.includes(address.data.house_type_full)) {
                                                     setAddressValidatorError(AddressValidationErrorMsg)
                                                 }
                                                 else if (AddressValidationErrorMsg) setAddressValidatorError(null)
