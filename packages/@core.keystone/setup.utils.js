@@ -46,17 +46,18 @@ function getAdapter (databaseUrl) {
     } else if (databaseUrl.startsWith('undefined')) {
         // NOTE: case for build time!
         const adapter = new MongooseAdapter()
-        adapter.connect = () => {throw new Error('UndefinedAdapter.connect() call!')}
-        adapter.postConnect = () => {throw new Error('UndefinedAdapter.postConnect() call!')}
-        adapter.checkDatabaseVersion = () => {throw new Error('UndefinedAdapter.checkDatabaseVersion() call!')}
+        adapter.connect = () => { throw new Error('UndefinedAdapter.connect() call!') }
+        adapter.postConnect = () => { throw new Error('UndefinedAdapter.postConnect() call!') }
+        adapter.checkDatabaseVersion = () => { throw new Error('UndefinedAdapter.checkDatabaseVersion() call!') }
         return adapter
     } else {
         throw new Error(`getAdapter() call with unknown schema: ${databaseUrl}`)
     }
 }
-let redisClient
-function prepareDefaultKeystoneConfig (conf) {
-    redisClient = new IORedis(conf.REDIS_URL)
+let redisClientHandler = {}
+function prepareDefaultKeystoneConfig(conf) {
+    const redisClient = new IORedis(conf.REDIS_URL)
+    redisClientHandler.redisClient = redisClient
     const sessionStore = new RedisStore({ client: redisClient })
 
     return {
@@ -78,5 +79,5 @@ module.exports = {
     getCookieSecret,
     getAdapter,
     prepareDefaultKeystoneConfig,
-    redisClient,
+    redisClientHandler,
 }
