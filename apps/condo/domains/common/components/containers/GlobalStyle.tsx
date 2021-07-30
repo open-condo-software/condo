@@ -156,6 +156,14 @@ export default function GlobalStyle () {
                   cursor: pointer;
                 }
               }
+              
+              .ant-input-affix-wrapper > input.ant-input, .ant-form-item-has-error .ant-input-affix-wrapper > input.ant-input {
+                  -webkit-text-fill-color: unset;
+              }
+              
+              .ant-form-item-has-error .ant-input-affix-wrapper > input.ant-input:focus, .ant-input-affix-wrapper > input.ant-input:focus {
+                -webkit-text-fill-color: unset;
+              }
 
               ${uploadControlCss}
               ${radioGroupCss}
