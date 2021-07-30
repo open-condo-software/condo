@@ -16,12 +16,16 @@ interface ICreateOrganizationModalFormResult {
     setVisible: Dispatch<SetStateAction<boolean>>
 }
 
-export const useCreateOrganizationModalForm = (): ICreateOrganizationModalFormResult => {
+interface IUseCreateOrganizationModalFormProps {
+    onFinish?: () => void
+}
+
+export const useCreateOrganizationModalForm = (props: IUseCreateOrganizationModalFormProps): ICreateOrganizationModalFormResult => {
     const intl = useIntl()
+
     const ValueIsTooShortMsg = intl.formatMessage({ id: 'ValueIsTooShort' })
     const CreateOrganizationModalTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationModalTitle' })
     const CreateOrganizationModalMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationMessage' })
-
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const NameMsg = intl.formatMessage({ id: 'pages.organizations.OrganizationName' })
     const InnMessage = intl.formatMessage({ id: 'pages.organizations.Inn' })
@@ -52,6 +56,10 @@ export const useCreateOrganizationModalForm = (): ICreateOrganizationModalFormRe
                 if (newLink) {
                     selectLink({ id: newLink.id })
                 }
+            }
+
+            if (props.onFinish) {
+                props.onFinish()
             }
         })
 

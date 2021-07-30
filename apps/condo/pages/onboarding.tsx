@@ -14,6 +14,7 @@ import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
 import LoadingOrErrorPage from '../domains/common/components/containers/LoadingOrErrorPage'
 import { useCreateOrganizationModalForm } from '../domains/organization/hooks/useCreateOrganizationModalForm'
+import { useApplySubscriptionModal } from '../domains/subscription/hooks/useSubscriptionModal'
 import { IPageInterface } from '../next-env'
 import { OnBoardingStep as OnBoardingStepInterface  } from '../schema'
 
@@ -77,12 +78,18 @@ const OnBoardingPage: IPageInterface = () => {
     const { loading: onBordingLoading, obj: onBoarding, error: onBoardingError } = OnBoarding
         .useObject({ where: { user: { id: get(user, 'id') } } })
 
-    const { loading: stepsLoading, objs: steps, error: stepsError } = OnBoardingStep
+    const { loading: stepsLoading, objs: steps, error: stepsError, refetch } = OnBoardingStep
         .useObjects({ where: { onBoarding: { id: get(onBoarding, 'id') } } }, {
             fetchPolicy: 'network-only',
         })
 
-    const { setVisible: showCreateOrganizationModal, ModalForm } = useCreateOrganizationModalForm()
+    const { setVisible: showApplySubscription, SubscriptionModal } = useApplySubscriptionModal()
+    const { setVisible: showCreateOrganizationModal, ModalForm } = useCreateOrganizationModalForm({
+        onFinish: () => {
+            showApplySubscription(true)
+            refetch()
+        },
+    })
 
     const onBoardingIconsMap = {
         organization: BankOutlined,
@@ -172,8 +179,9 @@ const OnBoardingPage: IPageInterface = () => {
                             </Col>
                         </Row>
                     </PageContent>
+                    <ModalForm/>
+                    <SubscriptionModal/>
                 </AuthRequired>
-                <ModalForm/>
             </PageWrapper>
         </>
     )

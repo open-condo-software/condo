@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
-import { createContext, CSSProperties, FunctionComponent, useContext, useState } from 'react'
+import React, { createContext, CSSProperties, FunctionComponent, useContext, useState } from 'react'
 import { ConfigProvider, Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import { useTopNotificationsHook, ITopNotification } from '@condo/domains/common/components/TopNotifications'
 import { SideMenu } from './components/SideMenu'
@@ -23,7 +23,7 @@ interface ILayoutContext {
 
 const LayoutContext = createContext<ILayoutContext>({
     isMobile: false,
-    addNotification: (notification) => null,
+    addNotification: () => null,
 })
 
 const useLayoutContext = (): ILayoutContext => useContext<ILayoutContext>(LayoutContext)
@@ -71,6 +71,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
         className
     )
     const toggleSideMenuCollapsed = () => setIsSideMenuCollapsed(!isSideMenuCollapsed)
+
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
             <LayoutContext.Provider value={{ isMobile, addNotification }}>

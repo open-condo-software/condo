@@ -1,5 +1,6 @@
 import styled from '@emotion/styled'
 import { Tooltip } from 'antd'
+import { useRouter } from 'next/router'
 import React from 'react'
 
 const FocusWrapper = styled.div`
@@ -55,11 +56,18 @@ const FocusWrapper = styled.div`
 `
 
 export const FocusElement: React.FC = ({ children }) => {
+    const router = useRouter()
+    const { query } = router
+
     return (
-        <FocusWrapper>
-            <Tooltip title={'Теперь вы можете перейти к следующему шагу'} visible placement={'right'}>
-                {children}
-            </Tooltip>
-        </FocusWrapper>
+        query.showTooltip
+            ? (
+                <FocusWrapper>
+                    <Tooltip title={'Теперь вы можете перейти к следующему шагу'} visible placement={'right'}>
+                        {children}
+                    </Tooltip>
+                </FocusWrapper>
+            )
+            : null
     )
 }

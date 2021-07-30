@@ -23,6 +23,7 @@ import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import { BarChartIcon } from '@condo/domains/common/components/icons/BarChart'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
+import { SubscriptionContextProvider } from '../domains/subscription/components/SubscriptionContext'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -71,23 +72,25 @@ const MyApp = ({ Component, pageProps }) => {
     // TODO(Dimitreee): remove this mess later
     const HeaderAction = Component.headerAction
     return (
-        <GlobalErrorBoundary>
-            <CacheProvider value={cache}>
-                <Head>
-                    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
-                    <meta
-                        name="viewport"
-                        content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
-                    />
-                </Head>
-                <GlobalStyle/>
-                <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
-                    <Component {...pageProps} />
-                </LayoutComponent>
-                <GoogleAnalytics/>
-                <BehaviorRecorder engine="plerdy"/>
-            </CacheProvider>
-        </GlobalErrorBoundary>
+        <SubscriptionContextProvider>
+            <GlobalErrorBoundary>
+                <CacheProvider value={cache}>
+                    <Head>
+                        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+                        <meta
+                            name="viewport"
+                            content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
+                        />
+                    </Head>
+                    <GlobalStyle/>
+                    <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
+                        <Component {...pageProps} />
+                    </LayoutComponent>
+                    <GoogleAnalytics/>
+                    <BehaviorRecorder engine="plerdy"/>
+                </CacheProvider>
+            </GlobalErrorBoundary>
+        </SubscriptionContextProvider>
     )
 }
 

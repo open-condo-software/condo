@@ -2,7 +2,7 @@
 // @ts-nocheck
 import { css } from '@emotion/core'
 import { Typography } from 'antd'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import Router, { useRouter } from 'next/router'
 import qs from 'qs'
 import { useAuth } from '@core/next/auth'
