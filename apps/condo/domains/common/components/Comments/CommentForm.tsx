@@ -1,14 +1,14 @@
 import React from 'react'
 import { FormWithAction } from '../containers/FormList'
-import { Form, Input, Typography } from 'antd'
+import { Form, Input } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import Icon from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
 import { SendMessage } from '../icons/SendMessage'
-import { colors } from '@condo/domains/common/constants/style'
 import { useState } from 'react'
 import { InputWithCounter } from '../InputWithCounter'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 const Holder = styled.div`
   position: relative;
@@ -51,16 +51,11 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
         }
     }
 
+    const { requiredValidator, trimValidator, combiner }  = useValidations()
+
+
     const validations = {
-        comment: [
-            { required: true },
-            {
-                validator: (_, value) => {
-                    if (!value || value.trim().length === 0) return Promise.reject()
-                    return Promise.resolve()
-                },
-            },
-        ],
+        comment: combiner(requiredValidator, trimValidator),
     }
 
     return (

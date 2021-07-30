@@ -1,5 +1,4 @@
 import { Col, Form, Input, Row } from 'antd'
-import MaskedInput from 'antd-mask-input'
 import { Rule } from 'rc-field-form/lib/interface'
 import React from 'react'
 import { useOrganization } from '@core/next/organization'
@@ -17,6 +16,7 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { ErrorsContainer } from '@condo/domains/organization/components/ErrorsContainer'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { EmployeeRoleSelect } from './EmployeeRoleSelect'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -47,8 +47,6 @@ export const CreateEmployeeForm: React.FC<CreateEmplyeeFormProps> = (props) => {
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const EmailLabel = intl.formatMessage({ id: 'Email' })
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
-    const EmailError = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const UserAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
@@ -62,37 +60,25 @@ export const CreateEmployeeForm: React.FC<CreateEmplyeeFormProps> = (props) => {
         { where: { organization: { id: get(organization, 'id') } } }
     )
 
+    const { combiner, requiredValidator, emailValidator, phoneValidator } = useValidations()
+    const alreadyRegisteredPhoneValidator = {
+        validator: (_, value) => {
+            if (employee.find(emp => emp.phone === value)) return Promise.reject(UserAlreadyInListMsg)
+            const v = normalizePhone(value)
+            if (!v) return Promise.reject(PhoneIsNotValidMsg)
+            return Promise.resolve()
+        },
+    }
+    const alreadyRegisteredEmailValidator = {
+        validator: (_, value) => {
+            if (employee.find(emp => emp.email === value)) return Promise.reject(UserAlreadyInListMsg)
+            return Promise.resolve()
+        },
+    }
+
     const validations: { [key: string]: Rule[] } = {
-        phone: [
-            {
-                required: true,
-                message: FieldIsRequiredMsg,
-            },
-            {
-                validator: (_, value) => {
-                    if (employee.find(emp => emp.phone === value)) return Promise.reject(UserAlreadyInListMsg)
-                    const v = normalizePhone(value)
-                    if (!v) return Promise.reject(PhoneIsNotValidMsg)
-                    return Promise.resolve()
-                },
-            },
-        ],
-        email: [
-            {
-                required: true,
-                message: FieldIsRequiredMsg,
-            },
-            {
-                type: 'email',
-                message: EmailError,
-            },
-            {
-                validator: (_, value) => {
-                    if (employee.find(emp => emp.email === value)) return Promise.reject(UserAlreadyInListMsg)
-                    return Promise.resolve()
-                },
-            },
-        ],
+        phone: combiner(requiredValidator, phoneValidator, alreadyRegisteredPhoneValidator),
+        email: combiner(requiredValidator, emailValidator, alreadyRegisteredEmailValidator),
     }
 
     const action = useInviteNewOrganizationEmployee({ organization: { id: organization.id } }, () => {

@@ -10,6 +10,7 @@ type ValidatorHookReturnType = {
     requiredValidator: Rule
     phoneValidator: Rule
     emailValidator: Rule
+    trimValidator: Rule
 }
 
 const combiner = (...rules: CombinerParams) => {
@@ -33,6 +34,7 @@ export const useValidations: () => ValidatorHookReturnType = () => {
 
     const phoneValidator: Rule = {
         validator: (_, value) => {
+            if (!value) return Promise.resolve()
             const v = normalizePhone(value)
             if (!v) return Promise.reject(PhoneIsNotValidMessage)
             return Promise.resolve()
@@ -44,11 +46,19 @@ export const useValidations: () => ValidatorHookReturnType = () => {
         message: EmailErrorMessage,
     }
 
+    const trimValidator: Rule = {
+        validator: (_, value) => {
+            if (!value || value.trim().length === 0) return Promise.reject(ThisFieldIsRequiredMessage)
+            return Promise.resolve()
+        },
+    }
+
     return {
         combiner,
         messageChanger,
         requiredValidator,
         phoneValidator,
         emailValidator,
+        trimValidator,
     }
 }
