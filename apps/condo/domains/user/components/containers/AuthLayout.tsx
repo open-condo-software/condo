@@ -118,7 +118,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
     const signInByEmail = ({ email, password }) => {
         return runMutation({
             mutation: signinByEmailMutation,
-            variables: { email, password },
+            variables: { identity: email, secret: password },
             onCompleted: () => {
                 refetch()
             },

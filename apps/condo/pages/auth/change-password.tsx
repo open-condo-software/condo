@@ -1,5 +1,4 @@
 import Router from 'next/router'
-import get from 'lodash/get'
 
 import { useIntl } from '@core/next/intl'
 import { Form, Input, Typography } from 'antd'
@@ -10,13 +9,13 @@ import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useLazyQuery, useMutation } from '@core/next/apollo'
-import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN, SIGNIN_MUTATION } from '@condo/domains/user/gql'
+import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN } from '@condo/domains/user/gql'
 import { useAuth } from '@core/next/auth'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useContext } from 'react'
-import { AuthLayoutContext } from '../../domains/user/components/containers/AuthLayout'
-import { Loader } from '../../domains/common/components/Loader'
+import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayout'
+import { Loader } from '@condo/domains/common/components/Loader'
 
 const INPUT_STYLE = { width: '20em' }
 
@@ -46,8 +45,8 @@ const ChangePasswordPage: AuthPage = () => {
 
     const ErrorToFormFieldMsgMapping = {}
 
-    const userId = get(auth, ['user', 'id'])
     const authLayoutContext = useContext(AuthLayoutContext)
+
     const onFinish = (values: typeof initialValues) => {
         setIsSaving(true)
         const { token, password } = values
@@ -55,40 +54,32 @@ const ChangePasswordPage: AuthPage = () => {
             mutation: changePassword,
             variables: { data: { token, password } },
             onCompleted: ({ data: { result } }) => {
-                const credentials = {
-                    identity: result.email, secret: form.getFieldValue('password'),
-                }
-                reAuth(credentials)
+                signInAgain({
+                    email: result.email,
+                    password:  form.getFieldValue('password'),
+                })
             },
             intl,
             form,
             ErrorToFormFieldMsgMapping,
-        }).catch(error => {
+        }).catch(() => {
             setIsSaving(false)
         })
     }
-    const [signinByEmailMutation] = useMutation(SIGNIN_MUTATION)
-    async function reAuth (credentials: {
-        identity: string;
-        secret: string;
+    async function signInAgain (credentials: {
+        email: string;
+        password: string;
     }){
-        // await authLayoutContext.signInByEmail(credentials)
-        // auth.signin(credentials.email, credentials.password)
-        await runMutation({
-            mutation: signinByEmailMutation,
-            variables: credentials,
-            onCompleted: () => {
-                auth.refetch()
-                Router.push( '/')
-            },
-            onFinally: () => {
-                setIsSaving(false)
-            },
-            intl,
-        }).catch(error => {
-            console.log('mutation error', error)
+        try {
+            await authLayoutContext.signInByEmail(credentials)
+            await auth.refetch()
+            Router.push( '/')
+        } catch (error) {
             setIsSaving(false)
-        })
+        }
+        finally {
+            setIsSaving(false)
+        }
     }
     const [checkPasswordRecoveryToken] = useLazyQuery(CHECK_PASSWORD_RECOVERY_TOKEN, {
         onError: error => {
