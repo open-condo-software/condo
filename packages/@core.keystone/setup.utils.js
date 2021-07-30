@@ -54,9 +54,9 @@ function getAdapter (databaseUrl) {
         throw new Error(`getAdapter() call with unknown schema: ${databaseUrl}`)
     }
 }
-
+let redisClient
 function prepareDefaultKeystoneConfig (conf) {
-    const redisClient = new IORedis(conf.REDIS_URL)
+    redisClient = new IORedis(conf.REDIS_URL)
     const sessionStore = new RedisStore({ client: redisClient })
 
     return {
@@ -78,4 +78,5 @@ module.exports = {
     getCookieSecret,
     getAdapter,
     prepareDefaultKeystoneConfig,
+    redisClient,
 }
