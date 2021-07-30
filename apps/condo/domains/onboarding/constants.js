@@ -8,7 +8,7 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
     {
         icon: 'organization',
         title: 'Создание организации',
-        description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
+        description: 'Добавляйте свою организацию, чтобы получить доступ ко всем функциям.',
         required: true,
         action: 'create',
         entity: 'Organization',
@@ -17,7 +17,7 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
     {
         icon: 'house',
         title: 'Добавление дома',
-        description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
+        description: 'Это позволит легко находить нужную информацию по объектам и работать с шахматкой квартир.',
         action: 'create',
         entity: 'Property',
         order: 2,
@@ -25,7 +25,7 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
     {
         icon: 'user',
         title: 'Добавление сотрудника',
-        description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
+        description: 'Назначайте роли сотрудникам, чтобы они получили доступ к своим функциям.',
         action: 'create',
         entity: 'OrganizationEmployee',
         order: 3,
@@ -33,7 +33,7 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
     {
         icon: 'chat',
         title: 'Формирование команды',
-        description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
+        description: 'Собирайте сотрудников в группы, отправляйте заявки и следите за их работой.',
         action: 'create',
         entity: 'Squad', // should be renamed
         order: 4,
@@ -41,7 +41,7 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
     {
         icon: 'billing',
         title: 'Подключение биллинга',
-        description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
+        description: 'Это нужно, чтобы присваивать лицевые счета, формировать квитанции на оплату и отслеживать задолженности.',
         action: 'create',
         entity: 'BillingAccount',
         order: 5,
@@ -49,7 +49,7 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
     {
         icon: 'creditCard',
         title: 'Подключение эквайринга',
-        description: 'ЗАЧЕМ этот шаг / а не ЧТО нужно сделать здесь (профит)',
+        description: 'А это позволит получать оплату от жителей за обслуживание и услуги ЖКХ.',
         action: 'create',
         entity: 'Acquiring',
         order: 6,

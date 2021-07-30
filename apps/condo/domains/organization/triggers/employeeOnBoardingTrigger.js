@@ -22,7 +22,7 @@ const employeeOnBoardingTrigger = {
     },
     action: async (_, context) => {
         if (context) {
-            await updateOnBoardingStepByAuthUser(context, 'create', 'OrganizationEmployee')
+            // await updateOnBoardingStepByAuthUser(context, 'create', 'OrganizationEmployee')
         }
     },
 }
