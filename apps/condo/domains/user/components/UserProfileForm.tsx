@@ -1,5 +1,4 @@
 import { Col, Form, Input, Row, Space, Typography } from 'antd'
-import { Router } from 'express'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React from 'react'
@@ -11,6 +10,7 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
 import { UserAvatar } from './UserAvatar'
 import { UserPasswordResetButton } from './UserPasswordResetButton'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -32,7 +32,6 @@ export const UserProfileForm = () => {
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const PasswordLabel = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-    const EmailIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const PleaseInputYourEmailMessage = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
     const MinLengthError = intl.formatMessage({ id: 'field.ClientName.minLengthError' })
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
@@ -40,6 +39,16 @@ export const UserProfileForm = () => {
     const { user } = useAuth()
     const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
     const formAction = (formValues) => updateUserAction(formValues, user)
+
+    const { combiner, requiredValidator, emailValidator, messageChanger } = useValidations()
+    const minLengthValidator = {
+        min: 2,
+        message: MinLengthError,
+    }
+    const validations = {
+        email: combiner(messageChanger(requiredValidator, PleaseInputYourEmailMessage), emailValidator),
+        name: combiner(requiredValidator, minLengthValidator),
+    }
 
     const initialValues = {
         name: get(user, 'name'),
@@ -78,14 +87,7 @@ export const UserProfileForm = () => {
                                         labelAlign={'left'}
                                         name={'name'}
                                         label={FullNameLabel}
-                                        rules={[
-                                            {
-                                                required: true,
-                                                min: 2,
-                                                type: 'string',
-                                                message: MinLengthError,
-                                            },
-                                        ]}
+                                        rules={validations.name}
                                     >
                                         <Input/>
                                     </Form.Item>
@@ -94,16 +96,7 @@ export const UserProfileForm = () => {
                                         labelAlign={'left'}
                                         name={'email'}
                                         label={EmailLabel}
-                                        rules={[
-                                            {
-                                                type: 'email',
-                                                message: EmailIsNotValidMessage,
-                                            },
-                                            {
-                                                required: true,
-                                                message: PleaseInputYourEmailMessage,
-                                            },
-                                        ]}
+                                        rules={validations.email}
                                     >
                                         <Input/>
                                     </Form.Item>

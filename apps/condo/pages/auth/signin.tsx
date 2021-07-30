@@ -15,6 +15,7 @@ import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 import { WRONG_PHONE_ERROR, WRONG_PASSWORD_ERROR } from '@condo/domains/user/constants/errors'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 const LINK_STYLE = { color: colors.sberPrimary[7] }
 const INPUT_STYLE = { width: '20em' }
@@ -41,7 +42,6 @@ const SignInForm = (): React.ReactElement => {
     const { refetch } = useAuth()
     const initialValues = { password: '', phone: '' }
     const intl = useIntl()
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const SignInMsg = intl.formatMessage({ id: 'SignIn' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const PasswordMsg = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
@@ -82,6 +82,9 @@ const SignInForm = (): React.ReactElement => {
             setIsLoading(false)
         })
     }
+
+    const { requiredValidator } = useValidations()
+
     return (
         <Form
             form={form}
@@ -97,7 +100,7 @@ const SignInForm = (): React.ReactElement => {
                 label={PhoneMsg}
                 labelAlign='left'
                 labelCol={{ flex: 1 }}
-                rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                rules={[requiredValidator]}
             >
                 <PhoneInput placeholder={ExamplePhoneMsg} style={INPUT_STYLE} tabIndex={1} />
             </Form.Item>
@@ -108,7 +111,7 @@ const SignInForm = (): React.ReactElement => {
                 labelAlign='left'
                 labelCol={{ flex: 1 }}
                 style={{ marginTop: '24px' }}
-                rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                rules={[requiredValidator]}
             >
                 <Input.Password style={INPUT_STYLE} tabIndex={2} />
             </Form.Item>

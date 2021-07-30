@@ -12,6 +12,7 @@ import Prompt from '@condo/domains/common/components/Prompt'
 import { AddressMeta } from '@condo/domains/common/utils/addressApi/AddressMeta'
 import { useState } from 'react'
 import { validHouseTypes, validSettlementTypes } from '@condo/domains/property/constants/property'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 interface IOrganization {
     id: string
@@ -28,7 +29,6 @@ interface IPropertyFormProps {
 const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const NameMsg = intl.formatMessage({ id: 'pages.condo.property.form.field.Name' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
@@ -66,6 +66,19 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         return formData
     }, [initialValues])
 
+    const { requiredValidator } = useValidations()
+    const addressValidator = {
+        validator () {
+            if (!addressValidatorError) {
+                return Promise.resolve()
+            }
+            return Promise.reject(addressValidatorError)
+        },
+    }
+    const validations = {
+        address: [requiredValidator, addressValidator],
+    }
+
     return (
         <>
             <FormWithAction
@@ -91,25 +104,13 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     <Form.Item
                                         name="address"
                                         label={AddressLabel}
-                                        rules={[{
-                                            required: true,
-                                            message: FieldIsRequiredMsg,
-                                        },
-                                        {
-                                            validator () {
-                                                if (!addressValidatorError) {
-                                                    return Promise.resolve()
-                                                }
-                                                return Promise.reject(addressValidatorError)
-                                            },
-                                        },
-                                        ]}
+                                        rules={validations.address}
                                     >
                                         <AddressSuggestionsSearchInput
                                             onSelect={(_, option) => {
                                                 const address = JSON.parse(option.key) as AddressMeta
-                                                if (address.data.settlement_type_full && !validSettlementTypes.includes(address.data.settlement_type_full)) {
-                                                    setAddressValidatorError(UnsupportedPropertyErrorMsg.replace('{propertyType}', address.data.settlement_type_full))
+                                                if (address.data.settlement_type) {
+                                                    setAddressValidatorError(UnsupportedPropertyErrorMsg.replace('{propertyType}', address.data.settlement_type))
                                                 }
                                                 else if (!validHouseTypes.includes(address.data.house_type_full)) {
                                                     setAddressValidatorError(AddressValidationErrorMsg)
