@@ -34,7 +34,7 @@ async function send ({ to, cc, bcc, subject, text, html } = {}) {
     if (!EMAIL_API_CONFIG) throw new Error('no EMAIL_API_CONFIG')
     if (!to || !to.includes('@')) throw new Error('unsupported to argument format')
     if (!subject) throw new Error('no subject argument')
-    if (!text || !html) throw new Error('no text or html argument')
+    if (!text && !html) throw new Error('no text or html argument')
     const { api_url, token, from } = EMAIL_API_CONFIG
     const form = new FormData()
     form.append('from', from)
