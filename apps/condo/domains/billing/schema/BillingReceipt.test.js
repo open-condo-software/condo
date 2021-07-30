@@ -17,7 +17,6 @@ const { createTestResident, createTestServiceConsumer } = require('@condo/domain
 
 describe('BillingReceipt', () => {
     describe('Validators', async () => {
-
         test('organization integration manager: update BillingReceipt toPayDetail', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
@@ -189,6 +188,23 @@ describe('BillingReceipt', () => {
                     })
                 })
         })
+
+        test('organization integration manager: update BillingReceipt period', async () => {
+            const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+            const [property] = await createTestBillingProperty(managerUserClient, context)
+            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+
+            const payload = {
+                period: '2011-12-01',
+            }
+
+            const [objUpdated] = await updateTestBillingReceipt(managerUserClient, obj.id, payload)
+
+            expect(obj.id).toEqual(objUpdated.id)
+            expect(objUpdated.period).toEqual('2011-12-01')
+        })
     })
 
     describe('Create', async () => {
@@ -310,7 +326,7 @@ describe('BillingReceipt', () => {
     })
 
     describe('Update', async () => {
-        test('admin: update BillingReceipt', async () => {
+        test('admin can update BillingReceipt', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
@@ -327,7 +343,7 @@ describe('BillingReceipt', () => {
             expect(objUpdated.toPayDetails.formula).toEqual('calc+recalc')
         })
 
-        test('user: update BillingReceipt', async () => {
+        test('user cant update BillingReceipt', async () => {
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -340,7 +356,7 @@ describe('BillingReceipt', () => {
             })
         })
 
-        test('anonymous: update BillingReceipt', async () => {
+        test('anonymous cant update BillingReceipt', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -352,28 +368,10 @@ describe('BillingReceipt', () => {
                 await updateTestBillingReceipt(client, obj.id, payload)
             })
         })
-
-        test('organization integration manager: update BillingReceipt period', async () => {
-            const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
-            const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
-
-            const payload = {
-                period: '2011-12-01',
-            }
-
-            const [objUpdated] = await updateTestBillingReceipt(managerUserClient, obj.id, payload)
-
-            expect(obj.id).toEqual(objUpdated.id)
-            expect(objUpdated.period).toEqual('2011-12-01')
-        })
     })
 
     describe('Delete', async () => {
-
-        test('user: delete BillingReceipt', async () => {
+        test('user cant delete BillingReceipt', async () => {
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -386,7 +384,7 @@ describe('BillingReceipt', () => {
             })
         })
 
-        test('anonymous: delete BillingReceipt', async () => {
+        test('anonymous cant delete BillingReceipt', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()

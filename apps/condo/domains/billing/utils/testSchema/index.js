@@ -220,8 +220,8 @@ async function createTestBillingAccount (client, context, property, extraAttrs =
         context: { connect: { id: context.id } },
         property: { connect: { id: property.id } },
         raw: { foo: faker.lorem.words() },
-        number: faker.lorem.words(),
-        unitName: faker.lorem.words(),
+        number: faker.random.alphaNumeric(),
+        unitName: faker.random.alphaNumeric(),
         meta: {
             dv: 1,
             test: 123,
