@@ -312,4 +312,5 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
 module.exports = {
     ConfirmPhoneAction,
     ConfirmPhoneActionService,
+    redisGuard,
 }
