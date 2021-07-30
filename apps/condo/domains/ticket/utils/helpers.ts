@@ -95,6 +95,7 @@ export interface IFilters extends Pick<Ticket, 'clientName' | 'createdAt' | 'det
     assignee?: string
     executor?: string
     property?: string
+    organization?: string
     search?: string
 }
 
