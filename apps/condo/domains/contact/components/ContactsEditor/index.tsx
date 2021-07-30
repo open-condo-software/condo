@@ -1,4 +1,4 @@
-import { find, get, has } from 'lodash'
+import { find, get } from 'lodash'
 import { Col, Form, FormInstance, Input, Row, Skeleton } from 'antd'
 import { PlusCircleFilled } from '@ant-design/icons'
 import React, { useEffect, useState } from 'react'
@@ -6,7 +6,6 @@ import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import { useApolloClient } from '@core/next/apollo'
 import { searchContacts } from '@condo/domains/ticket/utils/clientSchema/search'
-import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
 import { Labels } from './Labels'
 import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
 import { ContactOption } from './ContactOption'
@@ -14,7 +13,7 @@ import { ErrorsWrapper } from '@condo/domains/ticket/components/BaseTicketForm/E
 import { Button } from '@condo/domains/common/components/Button'
 import { green } from '@ant-design/colors'
 import styled from '@emotion/styled'
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 /**
  * Displays validation error, but hides form input
@@ -60,7 +59,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
     const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
     const CannotCreateContactMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.CannotCreateContact' })
-    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
 
     const { form, fields, value: initialValue, onChange, organization, property, unitName } = props
 
@@ -90,17 +88,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const [manuallyTypedContact, setManuallyTypedContact] = useState()
     const [displayEditableContactFields, setDisplayEditableContactFields] = useState(false)
 
-    const validations = useTicketValidations()
-    const notRequiredPhoneValidations = [
-        {
-            validator: (_, value) => {
-                if (!value) return Promise.resolve()
-                const v = normalizePhone(value)
-                if (!v) return Promise.reject(PhoneIsNotValidMessage)
-                return Promise.resolve()
-            },
-        },
-    ]
+    const { phoneValidator } = useValidations()
+    const validations = {
+        phone: [phoneValidator],
+    }
 
     // It's not enough to have `value` props of `Input` set.
     useEffect(() => {
@@ -275,7 +266,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                             <Form.Item
                                 name={fields.phone}
                                 validateFirst
-                                rules={notRequiredPhoneValidations}>
+                                rules={validations.phone}>
                                 <Input value={get(value, 'phone')}/>
                             </Form.Item>
                         </ErrorContainerOfHiddenControl>

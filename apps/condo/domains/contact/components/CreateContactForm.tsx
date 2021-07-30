@@ -5,7 +5,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ErrorsContainer } from '@condo/domains/contact/components/ErrorsContainer'
@@ -14,6 +13,7 @@ import { PropertyAddressSearchInput } from '@condo/domains/property/components/P
 import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -40,8 +40,6 @@ export const CreateContactForm: React.FC = () => {
     const FullNamePlaceholderMessage = intl.formatMessage({ id:'field.FullName' })
     const FullNameRequiredMessage = intl.formatMessage({ id: 'field.FullName.requiredError' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
-    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
-    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
@@ -55,44 +53,13 @@ export const CreateContactForm: React.FC = () => {
     const { organization } = useOrganization()
     const router = useRouter()
 
+    const { combiner, messageChanger, phoneValidator, emailValidator, requiredValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
-        phone: [
-            {
-                required: true,
-                message: FieldIsRequiredMessage,
-            },
-            {
-                validator: (_, value) => {
-                    const v = normalizePhone(value)
-                    if (!v) return Promise.reject(PhoneIsNotValidMessage)
-                    return Promise.resolve()
-                },
-            },
-        ],
-        email: [
-            {
-                type: 'email',
-                message: EmailErrorMessage,
-            },
-        ],
-        property: [
-            {
-                required: true,
-                message: PropertyErrorMessage,
-            },
-        ],
-        unit: [
-            {
-                required: true,
-                message: UnitErrorMessage,
-            },
-        ],
-        name: [
-            {
-                required: true,
-                message: FullNameRequiredMessage,
-            },
-        ],
+        phone: combiner(requiredValidator, phoneValidator),
+        email: [messageChanger(emailValidator, EmailErrorMessage)],
+        property: [messageChanger(requiredValidator, PropertyErrorMessage)],
+        unit: [messageChanger(requiredValidator, UnitErrorMessage)],
+        name: [messageChanger(requiredValidator, FullNameRequiredMessage)],
     }
 
     const [selectedPropertyId, setSelectedPropertyId] = useState(null)
