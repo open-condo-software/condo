@@ -176,6 +176,7 @@ const TicketIdPage = ({ AuthBound, employee: employeeFromProps, organization: or
     const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' })
     const FilesFieldLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Files' })
+    const OrganizationMessage = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
 
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
@@ -297,6 +298,13 @@ const TicketIdPage = ({ AuthBound, employee: employeeFromProps, organization: or
                                     </Col>
                                     <Col span={24}>
                                         <Row style={{ rowGap: '1.6em' }}>
+                                            {
+                                                organizationFromProps ? (
+                                                    <TicketFieldRow title={OrganizationMessage}>
+                                                        {organizationFromProps.name}
+                                                    </TicketFieldRow>
+                                                ) : null
+                                            }
                                             <TicketFieldRow title={AddressMessage} highlight>
                                                 {ticketAddress}
                                                 {ticketAddressExtra && (

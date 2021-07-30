@@ -69,7 +69,7 @@ interface IMultipleFileUploadHookArgs {
     relationField: string
     initialFileList: DBFile[]
     initialCreateValues?: Record<string, unknown>,
-    rerenderHookDeeps?: Array<unknown>
+    rerenderHookDeps?: Array<unknown>
 }
 interface IMultipleFileUploadHookResult {
     UploadComponent: React.FC<IUploadComponentProps>,
@@ -81,7 +81,7 @@ export const useMultipleFileUploadHook = ({
     relationField,
     initialFileList,
     initialCreateValues = {},
-    rerenderHookDeeps = [],
+    rerenderHookDeps = [],
 }: IMultipleFileUploadHookArgs): IMultipleFileUploadHookResult => {
     const [modifiedFiles, dispatch] = useReducer(reducer, { added: [], deleted: [] })
     // Todo(zuch): without ref modifiedFiles dissappears on submit
@@ -114,7 +114,7 @@ export const useMultipleFileUploadHook = ({
         )
         return UploadWrapper
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [...rerenderHookDeeps])
+    }, [...rerenderHookDeps])
     return {
         UploadComponent,
         syncModifiedFiles,

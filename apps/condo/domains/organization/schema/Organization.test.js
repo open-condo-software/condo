@@ -220,7 +220,7 @@ describe('Organization', () => {
     test('admin: can create Organization', async () => {
         const admin = await makeLoggedInAdminClient()
         const [obj, attrs] = await createTestOrganization(admin)
-        expect(obj.id)§.toMatch(UUID_RE)
+        expect(obj.id).toMatch(UUID_RE)
         expect(obj.dv).toEqual(1)
         expect(obj.sender).toEqual(attrs.sender)
         expect(obj.v).toEqual(1)

@@ -22,6 +22,7 @@ import { useOrganization } from '@core/next/organization'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import { InputWithCounter } from '@condo/domains/common/components/InputWithCounter'
+import { CustomGraphQlSearchInput } from '@app/callcenter/components/ticket/GraphQlSearchInput'
 
 const { TabPane } = Tabs
 
@@ -66,8 +67,7 @@ export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
                                 if (!option) {
                                     setSelectedUnitName(null)
                                     updateSectionAndFloor(form, null)
-                                }
-                                else {
+                                } else {
                                     setSelectedUnitName(option.key)
                                     updateSectionAndFloor(form, option.key)
                                 }
@@ -77,12 +77,12 @@ export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
                 </Col>
                 <Col span={6}>
                     <Form.Item name={'sectionName'} label={SectionNameLabel}>
-                        <Input disabled />
+                        <Input disabled/>
                     </Form.Item>
                 </Col>
                 <Col span={6}>
                     <Form.Item name={'floorName'} label={FloorNameLabel}>
-                        <Input disabled />
+                        <Input disabled/>
                     </Form.Item>
                 </Col>
             </Row>
@@ -103,9 +103,9 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                     const { property, unitName } = getFieldsValue(['property', 'unitName'])
 
                     const value = {
-                        id: get(initialValues.contact, 'id'),
-                        name: initialValues.clientName,
-                        phone: initialValues.clientPhone,
+                        id: get(initialValues, ['contact', 'id']),
+                        name: get(initialValues, 'clientName'),
+                        phone: get(initialValues, 'clientPhone'),
                     }
 
                     return (
@@ -144,7 +144,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     )
 }
 
-const TicketPurpose = ({ validations, organizationId, disableUserInteraction }) => {
+export const TicketPurpose = ({ validations, organizationId, disableUserInteraction, researchEmployeeDeps, searchEmployeeQueryArguments }) => {
     const intl = useIntl()
 
     const TicketPurposeTitle = intl.formatMessage({ id: 'TicketPurpose' })
@@ -169,7 +169,7 @@ const TicketPurpose = ({ validations, organizationId, disableUserInteraction }) 
                     <Form.Item
                         name={'executor'}
                         rules={validations.executor}
-                        label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel} />}
+                        label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel}/>}
                     >
                         <GraphQlSearchInput
                             formatLabel={formatUserFieldLabel}
@@ -177,6 +177,8 @@ const TicketPurpose = ({ validations, organizationId, disableUserInteraction }) 
                             allowClear={false}
                             showArrow={false}
                             disabled={disableUserInteraction}
+                            researchDeps={researchEmployeeDeps}
+                            searchQueryArguments={searchEmployeeQueryArguments}
                         />
                     </Form.Item>
                 </Col>
@@ -184,7 +186,7 @@ const TicketPurpose = ({ validations, organizationId, disableUserInteraction }) 
                     <Form.Item
                         name={'assignee'}
                         rules={validations.assignee}
-                        label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel} />}
+                        label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
                     >
                         <GraphQlSearchInput
                             formatLabel={formatUserFieldLabel}
@@ -192,6 +194,8 @@ const TicketPurpose = ({ validations, organizationId, disableUserInteraction }) 
                             allowClear={false}
                             showArrow={false}
                             disabled={disableUserInteraction}
+                            researchDeps={researchEmployeeDeps}
+                            searchQueryArguments={searchEmployeeQueryArguments}
                         />
                     </Form.Item>
                 </Col>
@@ -200,9 +204,9 @@ const TicketPurpose = ({ validations, organizationId, disableUserInteraction }) 
     )
 }
 
-export const TicketInfo = ({ validations, UploadComponent, organizationId, initialValues }) => {
-    const intl = useIntl()
 
+export const TicketInfo = ({ validations, UploadComponent, initialValues, disableUserInteraction }) => {
+    const intl = useIntl()
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
     const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
     const DescriptionLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
@@ -211,84 +215,65 @@ export const TicketInfo = ({ validations, UploadComponent, organizationId, initi
     const PaidLabel = intl.formatMessage({ id: 'Paid' })
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
 
-    const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(initialValues.details ? initialValues.details.length : 0)
+    const details = get(initialValues, 'details')
+    const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(details ? details.length : 0)
 
     return (
-        <Form.Item noStyle dependencies={['property']}>
-            {
-                ({ getFieldsValue }) => {
-                    const { property } = getFieldsValue(['property'])
-                    const disableUserInteraction = !property
-
-                    return (
-                        <Col span={24}>
-                            <FrontLayerContainer showLayer={disableUserInteraction}>
-                                <Row gutter={[0, 40]}>
-                                    <Col span={24}>
-                                        <Row gutter={[0, 24]}>
-                                            <Col span={24}>
-                                                <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
-                                            </Col>
-                                            <Col span={24}>
-                                                <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
-                                                    <InputWithCounter
-                                                        InputComponent={Input.TextArea}
-                                                        currentLength={currentDetailsLength}
-                                                        maxLength={500}
-                                                        onChange={e => setCurrentDetailsLength(e.target.value.length)}
-                                                        placeholder={DescriptionPlaceholder}
-                                                        disabled={disableUserInteraction}
-                                                    />
-                                                </Form.Item>
-                                            </Col>
-                                            <Col flex={0}>
-                                                <Form.Item
-                                                    label={AttachedFilesLabel}
-                                                >
-                                                    <UploadComponent />
-                                                </Form.Item>
-                                            </Col>
-                                        </Row>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Row align={'top'} >
-                                            <Col span={11}>
-                                                <Form.Item name={'classifier'} rules={validations.classifier} label={ClassifierLabel} >
-                                                    <GraphQlSearchInput
-                                                        search={searchTicketClassifier}
-                                                        allowClear={false}
-                                                        disabled={disableUserInteraction}
-                                                    />
-                                                </Form.Item>
-                                            </Col>
-                                            <Col push={2} span={11}>
-                                                <Row>
-                                                    <Col span={12}>
-                                                        <Form.Item name={'isEmergency'} label={' '} valuePropName='checked'>
-                                                            <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
-                                                        </Form.Item>
-                                                    </Col>
-                                                    <Col span={12}>
-                                                        <Form.Item name={'isPaid'} label={' '} valuePropName='checked'>
-                                                            <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
-                                                        </Form.Item>
-                                                    </Col>
-                                                </Row>
-                                            </Col>
-                                        </Row>
-                                    </Col>
-                                    <TicketPurpose
-                                        disableUserInteraction={disableUserInteraction}
-                                        validations={validations}
-                                        organizationId={organizationId}
-                                    />
-                                </Row>
-                            </FrontLayerContainer>
-                        </Col>
-                    )
-                }
-            }
-        </Form.Item>
+        <>
+            <Col span={24}>
+                <Row gutter={[0, 24]}>
+                    <Col span={24}>
+                        <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
+                            <InputWithCounter
+                                InputComponent={Input.TextArea}
+                                currentLength={currentDetailsLength}
+                                maxLength={500}
+                                onChange={e => setCurrentDetailsLength(e.target.value.length)}
+                                placeholder={DescriptionPlaceholder}
+                                disabled={disableUserInteraction}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col flex={0}>
+                        <Form.Item
+                            label={AttachedFilesLabel}
+                        >
+                            <UploadComponent/>
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Col>
+            <Col span={24}>
+                <Row align={'top'}>
+                    <Col span={11}>
+                        <Form.Item name={'classifier'} rules={validations.classifier} label={ClassifierLabel}>
+                            <GraphQlSearchInput
+                                search={searchTicketClassifier}
+                                allowClear={false}
+                                disabled={disableUserInteraction}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col push={2} span={11}>
+                        <Row>
+                            <Col span={12}>
+                                <Form.Item name={'isEmergency'} label={' '} valuePropName='checked'>
+                                    <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item name={'isPaid'} label={' '} valuePropName='checked'>
+                                    <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+            </Col>
+        </>
     )
 }
 
@@ -389,14 +374,20 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 <Col span={24}>
                                     <Row justify={'space-between'} gutter={[0, 15]}>
                                         <Col span={24}>
-                                            <Typography.Title level={5} style={{ margin: '0' }}>{UserInfoTitle}</Typography.Title>
+                                            <Typography.Title level={5}
+                                                style={{ margin: '0' }}>{UserInfoTitle}</Typography.Title>
                                         </Col>
                                         <Col span={24}>
-                                            <Form.Item name={'property'} label={AddressLabel} rules={validations.property}>
+                                            <Form.Item name={'property'} label={AddressLabel}
+                                                rules={validations.property}>
                                                 <PropertyAddressSearchInput
                                                     autoFocus={true}
                                                     onSelect={(_, option) => {
-                                                        form.setFieldsValue({ unitName: null, sectionName: null, floorName: null })
+                                                        form.setFieldsValue({
+                                                            unitName: null,
+                                                            sectionName: null,
+                                                            floorName: null,
+                                                        })
                                                         setSelectedPropertyId(option.key)
                                                     }}
                                                     placeholder={AddressPlaceholder}
@@ -420,14 +411,37 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                     initialValues={initialValues}
                                     selectedPropertyId={selectedPropertyId}
                                 />
-                                <TicketInfo
-                                    UploadComponent={UploadComponent}
-                                    validations={validations}
-                                    organizationId={organization.id}
-                                    initialValues={initialValues}
-                                />
+                                <Form.Item noStyle dependencies={['property']}>
+                                    {
+                                        ({ getFieldsValue }) => {
+                                            const { property } = getFieldsValue(['property'])
+                                            const disableUserInteraction = !property
+
+                                            return (
+                                                <Col span={24}>
+                                                    <FrontLayerContainer showLayer={disableUserInteraction}>
+                                                        <Row gutter={[0, 40]}>
+                                                            <TicketInfo
+                                                                UploadComponent={UploadComponent}
+                                                                validations={validations}
+                                                                organizationId={organization.id}
+                                                                initialValues={initialValues}
+                                                                disableUserInteraction={disableUserInteraction}
+                                                            />
+                                                            <TicketPurpose
+                                                                disableUserInteraction={disableUserInteraction}
+                                                                validations={validations}
+                                                                organizationId={organization.id}
+                                                            />
+                                                        </Row>
+                                                    </FrontLayerContainer>
+                                                </Col>
+                                            )
+                                        }
+                                    }
+                                </Form.Item>
                                 <Form.Item name={'source'} hidden>
-                                    <Input />
+                                    <Input/>
                                 </Form.Item>
                             </Row>
                         </Col>

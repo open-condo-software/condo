@@ -20,10 +20,12 @@ interface ISearchInputProps extends SelectProps {
     autoFocus?: boolean
     initialValue?: string
     formatLabel?: (option: { value: string, text: string }) => JSX.Element
+    researchDeps?: Array<any>
+    searchQueryArguments?: (selected, value) => string
 }
 
 export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
-    const { search, onSelect, formatLabel, ...restProps } = props
+    const { search, onSelect, formatLabel, researchDeps, searchQueryArguments, ...restProps } = props
     const client = useApolloClient()
     const [selected, setSelected] = useState('')
     const [isLoading, setLoading] = useState(false)
@@ -46,7 +48,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
     useEffect(() => {
         handleSearch('')
-    }, [])
+    },  researchDeps ? researchDeps : [])
 
     async function handleSearch (value) {
         if (search) {
@@ -55,9 +57,10 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             const data = await search(
                 client,
                 (selected && (!props.mode || props.mode !== 'multiple'))
-                    ? selected + ' ' + value
+                    ? searchQueryArguments ? searchQueryArguments(selected, value) : selected + ' ' + value
                     : value,
             )
+
             setLoading(false)
             if (data.length) setData(data)
             setValue(value)
