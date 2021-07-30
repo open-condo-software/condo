@@ -4,18 +4,24 @@ const conf = require('@core/config')
 module.exports = {
     // this is not working in jest =( https://github.com/facebook/jest/issues/11500
     // testTimeout: 1000000,
-    silent: true,   
+    silent: true,
     verbose: false,
     // https://stackoverflow.com/questions/43864793/why-does-jest-runinband-speed-up-tests
-    maxWorkers: conf.IN_CI ? 1 : 4, 
+    maxWorkers: conf.IN_CI ? 1 : 4,
     noStackTrace: true,
     expand: false,
     forceExit: true,
     notify: false,
     timers: 'legacy',
+    detectOpenHandles: true,
     testRunner: 'jest-jasmine2',
     reporters: [
-        'jest-clean-reporter',
+        [
+            'jest-clean-reporter',
+            {
+                showFailedInfo: true,
+            },
+        ],
         [
             'jest-stare',
             {

@@ -16,7 +16,9 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-    await redisGuard.db.quit()
-    await redisClient.quit()
+    if (redisGuard.db)
+        await redisGuard.db.quit()
+    if (redisClient)
+        await redisClient.quit()
     return await taskQueue.close()
 })
