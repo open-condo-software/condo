@@ -116,17 +116,16 @@ export async function searchTicketClassifier (client, value) {
 }
 
 export function searchEmployee (organizationId) {
-    if (organizationId) {
-        return async function (client, value) {
-            const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
-            if (error) console.warn(error)
+    if (!organizationId) return
+    return async function (client, value) {
+        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
+        if (error) console.warn(error)
 
-            return data.objs.map(object => {
-                if (object.user) {
-                    return ({ text: object.name, value: object.user.id })
-                }
-            }).filter(Boolean)
-        }
+        return data.objs.map(object => {
+            if (object.user) {
+                return ({ text: object.name, value: object.user.id })
+            }
+        }).filter(Boolean)
     }
 }
 
