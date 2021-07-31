@@ -9489,6 +9489,7 @@ export type OrganizationEmployeeRole = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canShareTickets?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -9511,6 +9512,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canShareTickets?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9543,6 +9545,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canShareTickets?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -9569,6 +9572,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canShareTickets?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9600,6 +9604,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canShareTickets?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9685,6 +9690,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageContacts_not?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageTicketComments_not?: Maybe<Scalars['Boolean']>;
+  canShareTickets?: Maybe<Scalars['Boolean']>;
+  canShareTickets_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -9773,6 +9780,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canShareTickets?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9849,6 +9857,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageContacts_not?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageTicketComments_not?: Maybe<Scalars['Boolean']>;
+  canShareTickets?: Maybe<Scalars['Boolean']>;
+  canShareTickets_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -14889,6 +14899,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
   CanManageTicketCommentsDesc = 'canManageTicketComments_DESC',
+  CanShareTicketsAsc = 'canShareTickets_ASC',
+  CanShareTicketsDesc = 'canShareTickets_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -14928,6 +14940,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
   CanManageTicketCommentsDesc = 'canManageTicketComments_DESC',
+  CanShareTicketsAsc = 'canShareTickets_ASC',
+  CanShareTicketsDesc = 'canShareTickets_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

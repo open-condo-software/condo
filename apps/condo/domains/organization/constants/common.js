@@ -13,6 +13,7 @@ const DEFAULT_ROLES = {
         'canManageTickets': true,
         'canManageContacts': true,
         'canManageTicketComments': true,
+        'canShareTickets': true,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',
@@ -25,6 +26,7 @@ const DEFAULT_ROLES = {
         'canManageTickets': true,
         'canManageContacts': true,
         'canManageTicketComments': true,
+        'canShareTickets': true,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -37,6 +39,7 @@ const DEFAULT_ROLES = {
         'canManageTickets': true,
         'canManageContacts': true,
         'canManageTicketComments': true,
+        'canShareTickets': true,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',
@@ -49,6 +52,7 @@ const DEFAULT_ROLES = {
         'canManageTickets': true,
         'canManageContacts': false,
         'canManageTicketComments': true,
+        'canShareTickets': true,
     },
     'Technician': {
         'name': 'employee.role.Technician.name',
@@ -61,6 +65,7 @@ const DEFAULT_ROLES = {
         'canManageTickets': true,
         'canManageContacts': false,
         'canManageTicketComments': true,
+        'canShareTickets': true,
     },
 }
 module.exports = {
