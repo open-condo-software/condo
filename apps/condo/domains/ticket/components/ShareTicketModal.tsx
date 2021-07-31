@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { RU_LOCALE } from '@condo/domains/common/constants/locale'
+import { EN_LOCALE } from '@condo/domains/common/constants/locale'
 import { Col, Row, Modal, Collapse, notification, Tooltip } from 'antd'
 import React, { useState } from 'react'
 import { ShareAltOutlined, RightOutlined, CloseCircleFilled } from '@ant-design/icons'
@@ -198,7 +198,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     if (cutDetails.length >= 110) {
         cutDetails = `${cutDetails.substr(0, 100)}…`
     }
-    const stringifiedParams = JSON.stringify({ date, number, details: cutDetails, id, locale: locale || RU_LOCALE })
+    const stringifiedParams = JSON.stringify({ date, number, details: cutDetails, id })
     const encryptedText = cipher.update(stringifiedParams, 'utf8', CRYPTOENCODING) + cipher.final(CRYPTOENCODING)
 
     const { query } = useRouter()
@@ -311,7 +311,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                         <a
                             target='_blank'
                             rel='noreferrer'
-                            href={`https://wa.me/?text=${origin}/share?q=${encodeURIComponent(encryptedText)}`}
+                            href={`https://wa.me/?text=${encodeURIComponent(`${origin}/share?q=${encryptedText}&locale=${locale || EN_LOCALE}`)}`}
                         >
                             <ShareButton>
                                 {WhatsappMessage}
@@ -323,7 +323,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                         <a
                             target='_blank'
                             rel='noreferrer'
-                            href={`https://t.me/share/url?url=${encodeURIComponent(`${origin}/share?q=${encryptedText}`)}`}
+                            href={`https://t.me/share/url?url=${encodeURIComponent(`${origin}/share?q=${encryptedText}&locale=${locale || EN_LOCALE}`)}`}
                         >
                             <ShareButton>
                                 {TelegramMessage}
