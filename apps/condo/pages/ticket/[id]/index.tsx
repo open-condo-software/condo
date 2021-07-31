@@ -208,7 +208,9 @@ const TicketIdPage = () => {
     }, () => { refetchComments() })
 
     const { link, organization } = useOrganization()
-
+    console.log(get(link, 'role'))
+    const canShareTickets = get(link, 'role.canShareTickets')
+    console.log(canShareTickets)
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
@@ -347,13 +349,13 @@ const TicketIdPage = () => {
                                             {UpdateMessage}
                                         </Button>
                                     </Link>
-                                    <ShareTicketModal
+                                    {canShareTickets ? <ShareTicketModal
                                         date={get(ticket, 'createdAt')}
                                         number={get(ticket, 'number')}
                                         details={get(ticket, 'details')}
                                         id={id}
                                         locale={get(organization, 'country')}
-                                    />
+                                    /> : null}
                                     <Button
                                         type={'sberPrimary'}
                                         icon={<FilePdfFilled />}
