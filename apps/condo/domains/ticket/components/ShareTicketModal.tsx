@@ -162,9 +162,9 @@ const Warning = (props) => {
             `} />
 
             {ShareWarningEmailMessage}
-            {length > 0 && (intl.locale === RU_LOCALE
-                ? `… и ещё сотрудников ${length}`
-                : `… and more ${length} employee${length > 1 ? 's' : ''}`)}
+            {length > 0 && (intl.locale === EN_LOCALE
+                ? `… and more ${length} employee${length > 1 ? 's' : ''}`
+                : `… и ещё сотрудников ${length}`)}
         </WarningContainer>
     )
 }
