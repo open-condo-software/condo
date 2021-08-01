@@ -95,6 +95,19 @@ const Organization = new GQLListSchema('Organization', {
                 read: true,
             },
         },
+        // TODO(zuch) uniq for combination of fields
+        importRemoteSystem: {
+            schemaDoc: 'External provider for organization',
+            type: Text,
+            access: access.canAccessToImportField,
+            kmigratorOptions: { null: true, unique: false },
+        },
+        importId: {
+            schemaDoc: 'External system organization id. Used for integrations',
+            type: Text,
+            access: access.canAccessToImportField,
+            kmigratorOptions: { null: true, unique: false },
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

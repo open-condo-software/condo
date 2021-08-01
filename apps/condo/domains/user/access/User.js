@@ -48,7 +48,7 @@ const canAccessToIsAdminField = {
 }
 const canAccessToIsEmailVerifiedField = readByAnyUpdateByAdminField
 const canAccessToIsPhoneVerifiedField = readByAnyUpdateByAdminField
-const canAccessToImportIdField = readByAnyUpdateByAdminField
+const canAccessToImportField = readByAnyUpdateByAdminField
 
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
@@ -63,5 +63,5 @@ module.exports = {
     canAccessToIsAdminField,
     canAccessToIsEmailVerifiedField,
     canAccessToIsPhoneVerifiedField,
-    canAccessToImportIdField,
+    canAccessToImportField,
 }

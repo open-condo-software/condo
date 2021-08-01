@@ -7,7 +7,7 @@ const { NextApp } = require('@keystonejs/app-next')
 const { registerTriggers } = require('@core/triggers')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 const { obsRouterHandler } = require('@condo/domains/common/utils/sberCloudFileAdapter')
-const { startAuth, completeAuth } = require('@condo/domains/common/auth/sbbolAuth')
+const { AuthRoutes, sigInSbbolUser } = require('@condo/domains/common/auth/sbbolAuth')
 const conf = require('@core/config')
 // const access = require('@core/keystone/access')
 const { registerTasks } = require('@core/keystone/tasks')
@@ -116,11 +116,16 @@ class OBSFilesMiddleware {
     }
 }
 
+
+
 class SberBuisnessOnlineMiddleware {
     prepareMiddleware ({ keystone }) {
+        const Auth = new AuthRoutes()
         const app = express()
-        app.get('/api/sbbol/auth', startAuth())
-        app.get('/api/sbbol/auth/callback', completeAuth({ keystone }))
+        app.get('/api/sbbol/auth', Auth.startAuth())
+        app.get('/api/sbbol/auth/callback',  Auth.completeAuth(async (req, userInfo) => {
+            await sigInSbbolUser(req, userInfo, keystone)
+        }))
         return app
     }
 }

@@ -4,6 +4,13 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkUserIsRelatedFromOrganizationEmployee, checkIfUserIsOrganizationEmployee } = require('../utils/accessSchema')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('../utils/accessSchema')
+const access = require('@core/keystone/access')
+
+const readByAnyUpdateByAdminField = {
+    read: true,
+    create: access.userIsAdmin,
+    update: access.userIsAdmin,
+}
 
 async function canReadOrganizations ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -30,7 +37,7 @@ async function canManageOrganizations ({ authentication: { item: user }, origina
     }
     return false
 }
-
+const canAccessToImportField = readByAnyUpdateByAdminField
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -38,4 +45,5 @@ async function canManageOrganizations ({ authentication: { item: user }, origina
 module.exports = {
     canReadOrganizations,
     canManageOrganizations,
+    canAccessToImportField,
 }

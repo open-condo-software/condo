@@ -120,15 +120,19 @@ const User = new GQLListSchema('User', {
             type: Json,
             // TODO(pahaz): we should check the structure!
         },
-
-        // TODO(pahaz): should we also add remote system?
+        // TODO(zuch) uniq for combination of fields
+        importRemoteSystem: {
+            schemaDoc: 'External provider for user',
+            type: Text,
+            access: access.canAccessToImportField,
+            kmigratorOptions: { null: true, unique: false },
+        },
         importId: {
             schemaDoc: 'External system user id. Used for integrations',
             type: Text,
-            access: access.canAccessToImportIdField,
-            kmigratorOptions: { null: true, unique: true },
+            access: access.canAccessToImportField,
+            kmigratorOptions: { null: true, unique: false },
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
