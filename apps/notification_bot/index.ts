@@ -5,7 +5,7 @@ import express from 'express'
 import cors from 'cors'
 
 import { BotController } from './botController'
-import { getMessage } from './utils'
+import { getPullRequestMessage } from './utils'
 
 const app = express()
 const bot = new BotController()
@@ -35,7 +35,7 @@ app.post('/pullRequestUpdate/', (req, res) => {
     const signature = req.headers['http_x_hub_signature_256']
     verify_signature(signature)
 
-    const message = getMessage(pullRequest._links.html.href, pullRequest.user.login, bot.getUsers())
+    const message = getPullRequestMessage(pullRequest._links.html.href, pullRequest.user.login, bot.getUsers())
     bot.sendMessage(message)
     res.send('OK')
 })

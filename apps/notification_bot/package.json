@@ -21,6 +21,7 @@
     "@types/node-telegram-bot-api": "^0.51.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "@octokit/core": "^3.5.1",
     "node-telegram-bot-api": "^0.51.0",
     "ts-node-dev": "^1.0.0-pre.63"
   }
