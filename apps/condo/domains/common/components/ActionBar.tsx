@@ -7,7 +7,7 @@ import { css, jsx } from '@emotion/core'
 
 const actionBar = css`
     position: relative;
-    padding: 24px 24px 32px 24px;
+    padding: 24px;
     margin: 0 -24px;
     transition: box-shadow 0.6s ease-out;
 
@@ -25,7 +25,7 @@ const ActionBar: React.FC<IActionBarProps> = ({ children, fullscreen = false }) 
     return (
         <Affix offsetBottom={24} style={{ width: fullscreen ? '100%' : 'unset' }}>
             <div css={actionBar}>
-                <Space wrap={true} size={[40, 24]}>
+                <Space wrap={true} size={[40, 24]} style={{ marginBottom: '0 !important' }}>
                     { children }
                 </Space>
             </div>
