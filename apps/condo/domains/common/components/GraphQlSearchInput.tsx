@@ -66,6 +66,11 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     function handleSelect (value, option) {
         setSelected(option.children)
 
+        if (props.mode === 'multiple') {
+            setValue('')
+            handleSearch('')
+        }
+
         if (onSelect) {
             onSelect(value, option)
         }
