@@ -20,6 +20,7 @@ interface ISearchInputProps extends SelectProps {
     autoFocus?: boolean
     initialValue?: string
     formatLabel?: (option: { value: string, text: string }) => JSX.Element
+    maxTagCount?: 'responsive' | number
 }
 
 export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
