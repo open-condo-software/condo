@@ -13,12 +13,12 @@ export const EmployeeUpdatePage = () => {
     return (
         <>
             <Head>
-                <title>{ UpdateEmployeeMessage }</title>
+                <title>{UpdateEmployeeMessage}</title>
             </Head>
             <PageWrapper>
                 <OrganizationRequired>
                     <PageContent>
-                        <EmployeeProfileForm/>
+                        <EmployeeProfileForm />
                     </PageContent>
                 </OrganizationRequired>
             </PageWrapper>
@@ -26,8 +26,6 @@ export const EmployeeUpdatePage = () => {
     )
 }
 
-EmployeeUpdatePage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'Back' }}
-    path={(id) => `/employee/${id}/`}/>
+EmployeeUpdatePage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'Back' }} path={(id) => `/employee/${id}/`} />
 
 export default EmployeeUpdatePage

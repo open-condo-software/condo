@@ -60,9 +60,8 @@ const ChangePasswordPage: AuthPage = () => {
                         password: form.getFieldValue('password'),
                     })
                     await auth.refetch()
-                    Router.push( '/')
-                }
-                finally {
+                    Router.push('/')
+                } finally {
                     setIsSaving(false)
                 }
             },
@@ -74,7 +73,7 @@ const ChangePasswordPage: AuthPage = () => {
         })
     }
     const [checkPasswordRecoveryToken] = useLazyQuery(CHECK_PASSWORD_RECOVERY_TOKEN, {
-        onError: error => {
+        onError: (error) => {
             setRecoveryTokenError(error)
             setIsLoading(false)
         },
@@ -87,7 +86,7 @@ const ChangePasswordPage: AuthPage = () => {
     useEffect(() => {
         checkPasswordRecoveryToken({ variables: { data: { token } } })
     }, [])
-    if (isLoading){
+    if (isLoading) {
         return <Loader size="large" delay={0} fill />
     }
     if (recoveryTokenError) {
@@ -95,20 +94,17 @@ const ChangePasswordPage: AuthPage = () => {
             <BasicEmptyListView>
                 <Typography.Title level={3}>{ChangePasswordTokenErrorLabel}</Typography.Title>
                 <Typography.Text style={{ fontSize: '16px' }}>{ChangePasswordTokenErrorMessage}</Typography.Text>
-                <Button
-                    type='sberPrimary'
-                    style={{ marginTop: '16px' }}
-                    onClick={() => Router.push('/auth/forgot')}
-                >{ChangePasswordTokenErrorConfirmLabel}</Button>
+                <Button type="sberPrimary" style={{ marginTop: '16px' }} onClick={() => Router.push('/auth/forgot')}>
+                    {ChangePasswordTokenErrorConfirmLabel}
+                </Button>
             </BasicEmptyListView>
         )
     }
 
-
     return (
-        <div >
+        <div>
             <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
-            <Typography.Paragraph style={{ textAlign: 'left' }} >{CreateNewPasswordMsg}</Typography.Paragraph>
+            <Typography.Paragraph style={{ textAlign: 'left' }}>{CreateNewPasswordMsg}</Typography.Paragraph>
 
             <Form
                 form={form}
@@ -125,7 +121,7 @@ const ChangePasswordPage: AuthPage = () => {
                 <Form.Item
                     name="password"
                     label={PasswordMsg}
-                    labelAlign='left'
+                    labelAlign="left"
                     labelCol={{ flex: 1 }}
                     rules={[
                         {
@@ -138,12 +134,12 @@ const ChangePasswordPage: AuthPage = () => {
                         },
                     ]}
                 >
-                    <Input.Password style={INPUT_STYLE}/>
+                    <Input.Password style={INPUT_STYLE} />
                 </Form.Item>
                 <Form.Item
                     name="confirm"
                     label={ConfirmPasswordMsg}
-                    labelAlign='left'
+                    labelAlign="left"
                     labelCol={{ flex: 1 }}
                     style={{ marginTop: '40px' }}
                     dependencies={['password']}
@@ -153,7 +149,7 @@ const ChangePasswordPage: AuthPage = () => {
                             message: PleaseConfirmYourPasswordMsg,
                         },
                         ({ getFieldValue }) => ({
-                            validator (_, value) {
+                            validator(_, value) {
                                 if (!value || getFieldValue('password') === value) {
                                     return Promise.resolve()
                                 }
@@ -162,19 +158,14 @@ const ChangePasswordPage: AuthPage = () => {
                         }),
                     ]}
                 >
-                    <Input.Password  style={INPUT_STYLE}/>
+                    <Input.Password style={INPUT_STYLE} />
                 </Form.Item>
                 <div style={{ marginTop: '60px', display: 'flex', justifyContent: 'flex-start' }}>
-                    <Form.Item >
-                        <Button
-                            key='submit'
-                            type='sberPrimary'
-                            loading={isSaving}
-                            htmlType="submit"
-                        >
+                    <Form.Item>
+                        <Button key="submit" type="sberPrimary" loading={isSaving} htmlType="submit">
                             {SaveMsg}
                         </Button>
-                        <Typography.Text type='secondary' style={{ marginLeft: '20px' }}>
+                        <Typography.Text type="secondary" style={{ marginLeft: '20px' }}>
                             {AndSignInMsg}
                         </Typography.Text>
                     </Form.Item>
@@ -184,7 +175,7 @@ const ChangePasswordPage: AuthPage = () => {
     )
 }
 
-ChangePasswordPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'}/>
+ChangePasswordPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'} />
 
 ChangePasswordPage.container = AuthLayout
 

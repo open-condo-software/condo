@@ -5,8 +5,19 @@
 const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
 const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
-const { User, UserAdmin, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects,  expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    User,
+    UserAdmin,
+    createTestUser,
+    updateTestUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeLoggedInClient,
+} = require('@condo/domains/user/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 
 describe('User', () => {
     test('user: create User', async () => {
@@ -92,10 +103,10 @@ describe('User', () => {
         const { data, errors } = await User.count(client, {}, { raw: true })
         expect(data).toEqual({ meta: { count: null } })
         expect(errors[0]).toMatchObject({
-            'data': { 'target': '_allUsersMeta', 'type': 'query' },
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
-            'path': ['meta', 'count'],
+            data: { target: '_allUsersMeta', type: 'query' },
+            message: 'You do not have access to this resource',
+            name: 'AccessDeniedError',
+            path: ['meta', 'count'],
         })
     })
 
@@ -116,7 +127,6 @@ describe('User utils', () => {
         expect(userAttrs.email).toBeTruthy()
         expect(userAttrs.password).toBeTruthy()
     })
-
 })
 
 describe('User fields', () => {

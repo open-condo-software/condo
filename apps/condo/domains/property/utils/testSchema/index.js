@@ -16,7 +16,7 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 const Property = generateGQLTestUtils(PropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestProperty (client, organization, extraAttrs = {}) {
+async function createTestProperty(client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -28,14 +28,16 @@ async function createTestProperty (client, organization, extraAttrs = {}) {
         sender,
         organization: { connect: { id: organization.id } },
         type: 'building',
-        name, address, addressMeta,
+        name,
+        address,
+        addressMeta,
         ...extraAttrs,
     }
     const obj = await Property.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestProperty (client, id, extraAttrs = {}) {
+async function updateTestProperty(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -48,7 +50,7 @@ async function updateTestProperty (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function makeClientWithProperty () {
+async function makeClientWithProperty() {
     const client = await makeClientWithRegisteredOrganization()
     const [property] = await createTestProperty(client, client.organization, { map: buildingMapJson })
     client.property = property
@@ -74,5 +76,5 @@ module.exports = {
     updateTestProperty,
     makeClientWithProperty,
     checkPropertyWithAddressExistByTestClient,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

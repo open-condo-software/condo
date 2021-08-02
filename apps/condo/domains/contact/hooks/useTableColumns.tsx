@@ -12,11 +12,14 @@ import { EmptyTableCell } from '@condo/domains/common/components/EmptyTableCell'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
-export const useTableColumns = (sort: Array<string>, filters: IFilters,
-    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
+export const useTableColumns = (
+    sort: Array<string>,
+    filters: IFilters,
+    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>,
+) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'field.FullName.short' })
-    const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
+    const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
 
@@ -30,15 +33,11 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 <Highliter
                     text={String(text)}
                     search={String(search)}
-                    renderPart={(part) => (
-                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                            {part}
-                        </Typography.Text>
-                    )}
+                    renderPart={(part) => <Typography.Text style={{ backgroundColor: colors.markColor }}>{part}</Typography.Text>}
                 />
             )
         }
-        return (<EmptyTableCell>{result}</EmptyTableCell>)
+        return <EmptyTableCell>{result}</EmptyTableCell>
     }
 
     return useMemo(() => {

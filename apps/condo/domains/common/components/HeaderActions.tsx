@@ -32,10 +32,7 @@ export const ReturnBackHeaderAction: React.FC<IReturnBackHeaderActionProps> = (p
     const url = typeof path === 'string' ? path : path(String(get(query, 'id')))
 
     return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={url}
-        >
+        <LinkWithIcon icon={<ArrowLeftOutlined style={{ color: colors.white }} />} path={url}>
             {BackMessage}
         </LinkWithIcon>
     )
@@ -47,9 +44,7 @@ export const TitleHeaderAction: React.FC<ITitleHeaderActionProps> = (props) => {
     const TitleMessage = intl.formatMessage(descriptor)
     return (
         <Space>
-            <Typography.Text style={{ fontSize: '12px' }}>
-                {TitleMessage}
-            </Typography.Text>
+            <Typography.Text style={{ fontSize: '12px' }}>{TitleMessage}</Typography.Text>
         </Space>
     )
 }
@@ -62,9 +57,9 @@ export const ButtonHeaderAction: React.FC<IRightButtonHeaderActionProps> = (prop
 
     return (
         <Button
-            key='submit'
+            key="submit"
             onClick={() => Router.push(path)}
-            type='sberPrimary'
+            type="sberPrimary"
             secondary={true}
             size={isMobile ? 'middle' : 'large'}
         >

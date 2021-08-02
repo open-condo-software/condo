@@ -23,7 +23,6 @@ const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV 
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
 
-
 if (IS_ENABLE_DD_TRACE) {
     require('dd-trace').init({
         logInjection: true,
@@ -62,15 +61,11 @@ registerSchemas(keystone, [
     require('@condo/domains/resident/schema'),
 ])
 
-registerTasks([
-    require('@condo/domains/notification/tasks'),
-])
+registerTasks([require('@condo/domains/notification/tasks')])
 
-registerTriggers([
-    require('@condo/domains/ticket/triggers'),
-])
+registerTriggers([require('@condo/domains/ticket/triggers')])
 
-function verifySchema (keystone) {
+function verifySchema(keystone) {
     let errorCounter = 0
     const report = (msg) => console.warn(`WRONG-SCHEMA-DEFINITION[${errorCounter}]: ${msg}`)
     Object.entries(keystone.lists).forEach(([key, list]) => {
@@ -81,11 +76,15 @@ function verifySchema (keystone) {
                     report(`${list.key}->${field.path} relation without kmigratorOptions`)
                 } else {
                     if (!kmigratorOptions.on_delete) {
-                        report(`${list.key}->${field.path} relation without on_delete! Example: "kmigratorOptions: { null: false, on_delete: 'models.CASCADE' }". Chose one: CASCADE, PROTECT, SET_NULL, DO_NOTHING`)
+                        report(
+                            `${list.key}->${field.path} relation without on_delete! Example: "kmigratorOptions: { null: false, on_delete: 'models.CASCADE' }". Chose one: CASCADE, PROTECT, SET_NULL, DO_NOTHING`,
+                        )
                     }
                     if (kmigratorOptions.null === false) {
                         if (!knexOptions || typeof knexOptions !== 'object' || knexOptions.isNotNullable !== true) {
-                            report(`${list.key}->${field.path} non nullable relation should have knexOptions like: "knexOptions: { isNotNullable: true }"`)
+                            report(
+                                `${list.key}->${field.path} non nullable relation should have knexOptions like: "knexOptions: { isNotNullable: true }"`,
+                            )
                         }
                         if (knexOptions.on_delete) {
                             report(`${list.key}->${field.path} knexOptions should not contain on_delete key!`)
@@ -109,7 +108,7 @@ const authStrategy = keystone.createAuthStrategy({
 })
 
 class OBSFilesMiddleware {
-    prepareMiddleware ({ keystone, dev, distDir }) {
+    prepareMiddleware({ keystone, dev, distDir }) {
         const app = express()
         app.use('/api/files/:file(*)', obsRouterHandler({ keystone }))
         return app
@@ -120,14 +119,13 @@ class OBSFilesMiddleware {
  * We need a custom body parser for custom file upload limit
  */
 class CustomBodyParserMiddleware {
-    prepareMiddleware ({ keystone, dev, distDir }) {
+    prepareMiddleware({ keystone, dev, distDir }) {
         const app = express()
         app.use(bodyParser.json({ limit: '100mb', extended: true }))
         app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }))
         return app
     }
 }
-
 
 module.exports = {
     keystone,

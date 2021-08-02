@@ -9,11 +9,10 @@ import { MAX_COMMENT_LENGTH } from './CommentForm'
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 
-
 interface ICommentProps {
-    comment: TComment,
-    updateAction?: (formValues, obj) => Promise<any>,
-    deleteAction?: (formValues, obj) => Promise<any>,
+    comment: TComment
+    updateAction?: (formValues, obj) => Promise<any>
+    deleteAction?: (formValues, obj) => Promise<any>
 }
 
 type CommentMode = 'display' | 'edit' | 'deleted'
@@ -25,9 +24,9 @@ const WhiteStyle = css`
 `
 
 const DeletedTextStyle = css`
-  margin-top: 1em;
-  padding-left: 12px;
-  color: ${grey[2]};
+    margin-top: 1em;
+    padding-left: 12px;
+    color: ${grey[2]};
 `
 
 const CommentStyle = css`
@@ -35,53 +34,53 @@ const CommentStyle = css`
     margin-top: 1em;
     border-radius: 8px;
     padding: 0;
-    box-shadow: rgba(0,0,0,0.15) 0px 1px 3px;
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 1px 3px;
     font-size: 14px;
     line-height: 22px;
 
     &:hover {
-      .ant-comment-inner {
-        .ant-comment-content {
-          .ant-comment-actions {
-            opacity: 1;
-            pointer-events: all;
-          }
+        .ant-comment-inner {
+            .ant-comment-content {
+                .ant-comment-actions {
+                    opacity: 1;
+                    pointer-events: all;
+                }
+            }
         }
-      }
     }
 
     .ant-comment-inner {
-      padding: 12px;
+        padding: 12px;
 
-      .ant-comment-content {
-        display: flex;
-        flex-flow: column nowrap;
+        .ant-comment-content {
+            display: flex;
+            flex-flow: column nowrap;
 
-        .ant-comment-content-detail {
-          order: 1;
-        }
-        .ant-comment-content-author {
-          order: 2;
-          margin-top: 0.6em;
-          font-size: 12px;
-          
-          .ant-comment-content-author-name {
-            color: ${green[6]};
-          }
+            .ant-comment-content-detail {
+                order: 1;
+            }
+            .ant-comment-content-author {
+                order: 2;
+                margin-top: 0.6em;
+                font-size: 12px;
 
-          .ant-comment-content-author-time > div > span {
-            color: ${grey[2]};
-          }
+                .ant-comment-content-author-name {
+                    color: ${green[6]};
+                }
+
+                .ant-comment-content-author-time > div > span {
+                    color: ${grey[2]};
+                }
+            }
+            .ant-comment-actions {
+                position: absolute;
+                right: -5px;
+                bottom: -5px;
+                opacity: 0;
+                pointer-events: none;
+                transition: all 0.3s ease-in-out;
+            }
         }
-        .ant-comment-actions {
-          position: absolute;
-          right: -5px;
-          bottom: -5px;
-          opacity: 0;
-          pointer-events: none;
-          transition: all 0.3s ease-in-out;
-        }
-      }
     }
 `
 
@@ -98,11 +97,10 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
 
     const [dateShowMode, setDateShowMode] = useState<'created' | 'updated'>('created')
     const handleSave = (newContent) => {
-        updateAction({ content: newContent }, comment)
-            .then(() => {
-                setMode('display')
-                setContent(newContent)
-            })
+        updateAction({ content: newContent }, comment).then(() => {
+            setMode('display')
+            setContent(newContent)
+        })
     }
 
     const handleCancelSave = () => {
@@ -122,9 +120,11 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
                     size="middle"
                     css={WhiteStyle}
                     icon={<EditFilled />}
-                    onClick={() => { setMode('edit') }}
+                    onClick={() => {
+                        setMode('edit')
+                    }}
                     style={{ color: green[7] }}
-                />
+                />,
             )
         }
         if (deleteAction) {
@@ -135,14 +135,8 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
                     cancelText={ConfirmDeleteCancelText}
                     onConfirm={handleDelete}
                 >
-                    <Button
-                        key="delete"
-                        size="middle"
-                        css={WhiteStyle}
-                        icon={<DeleteFilled />}
-                        style={{ color: red[5] }}
-                    />
-                </Popconfirm>
+                    <Button key="delete" size="middle" css={WhiteStyle} icon={<DeleteFilled />} style={{ color: red[5] }} />
+                </Popconfirm>,
             )
         }
     } else if (mode === 'edit') {
@@ -154,7 +148,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
                 icon={<CloseOutlined />}
                 onClick={handleCancelSave}
                 style={{ color: grey[3] }}
-            />
+            />,
         )
         actions.push(
             <Button
@@ -164,16 +158,13 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
                 icon={<CheckOutlined />}
                 onClick={handleSave}
                 style={{ color: green[7] }}
-            />
+            />,
         )
     }
 
     if (comment.deletedAt) {
         return (
-            <Typography.Paragraph
-                italic
-                css={DeletedTextStyle}
-            >
+            <Typography.Paragraph italic css={DeletedTextStyle}>
                 {CommentDeletedText}
             </Typography.Paragraph>
         )
@@ -199,12 +190,9 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
             }
             author={comment.user.name}
             datetime={
-                <div
-                    onMouseOut={() => setDateShowMode('created')}
-                    onMouseOver={() => setDateShowMode('updated')}
-                >
+                <div onMouseOut={() => setDateShowMode('created')} onMouseOver={() => setDateShowMode('updated')}>
                     <Typography.Text title={MetaUpdatedText}>
-                        {dateShowMode === 'created' ?  formatDate(intl, comment.createdAt) : formatDate(intl, comment.updatedAt)}
+                        {dateShowMode === 'created' ? formatDate(intl, comment.createdAt) : formatDate(intl, comment.updatedAt)}
                     </Typography.Text>
                 </div>
             }

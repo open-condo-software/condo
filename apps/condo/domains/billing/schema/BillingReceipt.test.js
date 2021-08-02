@@ -12,7 +12,12 @@ const { createTestBillingProperty } = require('../utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingReceipt', () => {
     test('admin: create BillingReceipt', async () => {
@@ -226,9 +231,10 @@ describe('BillingReceipt', () => {
             async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
             ({ errors, _ }) => {
                 expect(errors[0]).toMatchObject({
-                    'message': 'You attempted to perform an invalid mutation',
+                    message: 'You attempted to perform an invalid mutation',
                 })
-            })
+            },
+        )
     })
 
     test('organization integration manager: update BillingReceipt with wrong data in period', async () => {
@@ -247,9 +253,10 @@ describe('BillingReceipt', () => {
             async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
             ({ errors, _ }) => {
                 expect(errors[0]).toMatchObject({
-                    'message': 'You attempted to perform an invalid mutation',
+                    message: 'You attempted to perform an invalid mutation',
                 })
-            })
+            },
+        )
     })
 
     test('organization integration manager: update BillingReceipt with wrong data in services', async () => {
@@ -259,7 +266,7 @@ describe('BillingReceipt', () => {
         const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
         const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
 
-        // Wrong services toPay details 
+        // Wrong services toPay details
         const payload = {
             services: [
                 {
@@ -279,9 +286,10 @@ describe('BillingReceipt', () => {
             async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
             ({ errors, _ }) => {
                 expect(errors[0]).toMatchObject({
-                    'message': 'You attempted to perform an invalid mutation',
+                    message: 'You attempted to perform an invalid mutation',
                 })
-            })
+            },
+        )
     })
 
     test('organization integration manager: update BillingReceipt with wrong data in services 2', async () => {
@@ -309,9 +317,10 @@ describe('BillingReceipt', () => {
             async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
             ({ errors, _ }) => {
                 expect(errors[0]).toMatchObject({
-                    'message': 'You attempted to perform an invalid mutation',
+                    message: 'You attempted to perform an invalid mutation',
                 })
-            })
+            },
+        )
     })
 
     test('user: update BillingReceipt', async () => {
@@ -366,4 +375,3 @@ describe('BillingReceipt', () => {
         })
     })
 })
-

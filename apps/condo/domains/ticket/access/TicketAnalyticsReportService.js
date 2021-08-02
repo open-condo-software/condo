@@ -5,7 +5,7 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkUserBelongsToOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadTicketAnalyticsReport ({ authentication: { item: user }, args }) {
+async function canReadTicketAnalyticsReport({ authentication: { item: user }, args }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     const organizationId = get(args, 'data.where.organization.id', false)

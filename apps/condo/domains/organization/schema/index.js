@@ -20,5 +20,5 @@ module.exports = {
     InviteNewOrganizationEmployeeService,
     AcceptOrRejectOrganizationInviteService,
     OrganizationLink,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

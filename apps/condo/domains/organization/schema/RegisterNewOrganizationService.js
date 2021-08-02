@@ -1,4 +1,8 @@
-const { createConfirmedEmployee, createOrganization, createDefaultRoles } = require('@condo/domains/organization/utils/serverSchema/Organization')
+const {
+    createConfirmedEmployee,
+    createOrganization,
+    createDefaultRoles,
+} = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { getById, GQLCustomSchema } = require('@core/keystone/schema')
 const { rules } = require('../../../access')
 

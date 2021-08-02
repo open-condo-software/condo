@@ -7,8 +7,17 @@ const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/u
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { BillingProperty, createTestBillingProperty, updateTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    BillingProperty,
+    createTestBillingProperty,
+    updateTestBillingProperty,
+} = require('@condo/domains/billing/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingProperty', () => {
     test('admin: create BillingProperty', async () => {

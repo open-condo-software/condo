@@ -14,8 +14,16 @@ const RESIDENT_FIELDS = `{ user { id name } organization { id } property { id } 
 const Resident = generateGqlQueries('Resident', RESIDENT_FIELDS)
 
 const REGISTER_RESIDENT_MUTATION = gql`
-    mutation registerResident ($data: RegisterResidentInput!) {
-        result: registerResident(data: $data) { id v dv sender address addressMeta unitName }
+    mutation registerResident($data: RegisterResidentInput!) {
+        result: registerResident(data: $data) {
+            id
+            v
+            dv
+            sender
+            address
+            addressMeta
+            unitName
+        }
     }
 `
 /* AUTOGENERATE MARKER <CONST> */
@@ -23,5 +31,5 @@ const REGISTER_RESIDENT_MUTATION = gql`
 module.exports = {
     Resident,
     REGISTER_RESIDENT_MUTATION,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

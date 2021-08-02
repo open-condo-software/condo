@@ -8,14 +8,7 @@ import classnames from 'classnames'
 import Link from 'next/link'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
-import {
-    ItemContainer,
-    MenuItem,
-    SIDE_MENU_WIDTH,
-    sideMenuDesktopCss,
-    sideMenuMobileCss,
-    substrateDesktopCss,
-} from './styles'
+import { ItemContainer, MenuItem, SIDE_MENU_WIDTH, sideMenuDesktopCss, sideMenuMobileCss, substrateDesktopCss } from './styles'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { Button } from '@condo/domains/common/components/Button'
 import { PlusCircleFilled } from '@ant-design/icons'
@@ -24,46 +17,41 @@ const MenuItems = (props) => {
     const router = useRouter()
     const intl = useIntl()
 
-    const isItemActive = useCallback((path) => {
-        if (path === '/') {
-            return router.route === path
-        }
+    const isItemActive = useCallback(
+        (path) => {
+            if (path === '/') {
+                return router.route === path
+            }
 
-        return router.route.includes(path)
-    }, [router])
-
-    return (
-        props.menuData
-            ? (
-                <ItemContainer>
-                    {
-                        props.menuData.map((item) => {
-                            if (item.hideInMenu) {
-                                return null
-                            }
-
-                            const Icon = item.icon
-
-                            const menuItemClassNames = classnames({
-                                'active': isItemActive(item.path),
-                            })
-
-                            return (
-                                <Link href={item.path} key={item.path}>
-                                    <MenuItem className={menuItemClassNames}>
-                                        <Icon className='icon' />
-                                        <Typography.Text className='label'>
-                                            {intl.formatMessage({ id: item.locale })}
-                                        </Typography.Text>
-                                    </MenuItem>
-                                </Link>
-                            )
-                        })
-                    }
-                </ItemContainer>
-            )
-            : null
+            return router.route.includes(path)
+        },
+        [router],
     )
+
+    return props.menuData ? (
+        <ItemContainer>
+            {props.menuData.map((item) => {
+                if (item.hideInMenu) {
+                    return null
+                }
+
+                const Icon = item.icon
+
+                const menuItemClassNames = classnames({
+                    active: isItemActive(item.path),
+                })
+
+                return (
+                    <Link href={item.path} key={item.path}>
+                        <MenuItem className={menuItemClassNames}>
+                            <Icon className="icon" />
+                            <Typography.Text className="label">{intl.formatMessage({ id: item.locale })}</Typography.Text>
+                        </MenuItem>
+                    </Link>
+                )
+            })}
+        </ItemContainer>
+    ) : null
 }
 
 type MenuItem = {
@@ -76,7 +64,7 @@ type MenuItem = {
 
 interface ISideMenuProps {
     onLogoClick: (...args) => void
-    menuData: Array<MenuItem>,
+    menuData: Array<MenuItem>
     isMobile: boolean
     isSideMenuCollapsed: boolean
     toggleSideMenuCollapsed: (...args) => void
@@ -86,9 +74,9 @@ const TicketCreateButton = () => {
     const intl = useIntl()
 
     return (
-        <Link href={'/ticket/create'} >
+        <Link href={'/ticket/create'}>
             <a>
-                <Button type='sberDefault' >
+                <Button type="sberDefault">
                     <PlusCircleFilled />
                     {intl.formatMessage({ id: 'CreateTicket' })}
                 </Button>
@@ -110,22 +98,17 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
         <Drawer
             closable={false}
             visible={!isSideMenuCollapsed}
-            placement='left'
+            placement="left"
             style={{
                 padding: 0,
                 height: '100vh',
             }}
             width={SIDE_MENU_WIDTH}
             bodyStyle={{ height: '100vh', padding: 0 }}
-            className='side-menu'
+            className="side-menu"
             onClose={toggleSideMenuCollapsed}
         >
-            <Layout.Sider
-                theme='light'
-                css={sideMenuMobileCss}
-                width={SIDE_MENU_WIDTH}
-                onCollapse={toggleSideMenuCollapsed}
-            >
+            <Layout.Sider theme="light" css={sideMenuMobileCss} width={SIDE_MENU_WIDTH} onCollapse={toggleSideMenuCollapsed}>
                 <Logo onClick={onLogoClick} />
                 <Space size={60} direction={'vertical'}>
                     <MenuItems menuData={menuData} />
@@ -138,11 +121,11 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
     const DesktopSideNav = (
         <>
             <Layout.Sider
-                theme='light'
+                theme="light"
                 css={sideMenuDesktopCss}
                 width={SIDE_MENU_WIDTH}
                 onCollapse={toggleSideMenuCollapsed}
-                className='side-menu'
+                className="side-menu"
             >
                 <Logo onClick={onLogoClick} />
                 <Space size={60} direction={'vertical'}>
@@ -150,7 +133,7 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
                     <TicketCreateButton />
                 </Space>
             </Layout.Sider>
-            {menuData && <div css={substrateDesktopCss} className='side-menu-substrate' />}
+            {menuData && <div css={substrateDesktopCss} className="side-menu-substrate" />}
         </>
     )
 

@@ -47,7 +47,7 @@ const TicketFile = new GQLListSchema('TicketFile', {
                     const key = `${TICKET_FILE_FOLDER_NAME}/${filename}`
                     // OBS will lowercase all keys from meta
                     const metaToSet = {
-                        listkey: listKey,                    
+                        listkey: listKey,
                         id,
                     }
                     await Adapter.acl.setMeta(key, metaToSet)

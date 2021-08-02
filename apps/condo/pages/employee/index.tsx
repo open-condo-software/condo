@@ -5,7 +5,8 @@ import {
     getPageIndexFromQuery,
     getSortStringFromQuery,
     EMPLOYEE_PAGE_SIZE,
-    sorterToQuery, queryToSorter,
+    sorterToQuery,
+    queryToSorter,
 } from '@condo/domains/organization/utils/helpers'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/organization/utils/helpers'
@@ -52,14 +53,17 @@ const TicketsPage = () => {
         loading,
         count: total,
         objs: tickets,
-    } = OrganizationEmployee.useObjects({
-        sortBy: sortFromQuery.length > 0  ? sortFromQuery : ['createdAt_DESC'] as Array<SortOrganizationEmployeesBy>, //TODO(Dimitreee):Find cleanest solution
-        where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
-        skip: (offsetFromQuery * EMPLOYEE_PAGE_SIZE) - EMPLOYEE_PAGE_SIZE,
-        first: EMPLOYEE_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
-    })
+    } = OrganizationEmployee.useObjects(
+        {
+            sortBy: sortFromQuery.length > 0 ? sortFromQuery : (['createdAt_DESC'] as Array<SortOrganizationEmployeesBy>), //TODO(Dimitreee):Find cleanest solution
+            where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
+            skip: offsetFromQuery * EMPLOYEE_PAGE_SIZE - EMPLOYEE_PAGE_SIZE,
+            first: EMPLOYEE_PAGE_SIZE,
+        },
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
     const [filtersApplied, setFiltersApplied] = useState(false)
 
     const tableColumns = useTableColumns(userOrganizationId, sortFromQuery, filtersFromQuery, setFiltersApplied)
@@ -72,32 +76,40 @@ const TicketsPage = () => {
         }
     }, [])
 
-    const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
-        const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
+    const handleTableChange = useCallback(
+        debounce((...tableChangeArguments) => {
+            const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
 
-        const { current, pageSize } = nextPagination
-        const offset = filtersApplied ? 0 : current * pageSize - pageSize
-        const sort = sorterToQuery(nextSorter)
-        const filters = filtersToQuery(nextFilters)
-        setFiltersApplied(false)
+            const { current, pageSize } = nextPagination
+            const offset = filtersApplied ? 0 : current * pageSize - pageSize
+            const sort = sorterToQuery(nextSorter)
+            const filters = filtersToQuery(nextFilters)
+            setFiltersApplied(false)
 
-        if (!loading) {
-            fetchMore({
-                // @ts-ignore
-                sortBy: sort,
-                where: filters,
-                skip: offset,
-                first: EMPLOYEE_PAGE_SIZE,
-            }).then(() => {
-                const query = qs.stringify(
-                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
-                    { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-                )
+            if (!loading) {
+                fetchMore({
+                    // @ts-ignore
+                    sortBy: sort,
+                    where: filters,
+                    skip: offset,
+                    first: EMPLOYEE_PAGE_SIZE,
+                }).then(() => {
+                    const query = qs.stringify(
+                        {
+                            ...router.query,
+                            sort,
+                            offset,
+                            filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })),
+                        },
+                        { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+                    )
 
-                router.push(router.route + query)
-            })
-        }
-    }, 400), [loading])
+                    router.push(router.route + query)
+                })
+            }
+        }, 400),
+        [loading],
+    )
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
 
@@ -109,9 +121,7 @@ const TicketsPage = () => {
                 {AddItemUsingFormLabel}
             </Menu.Item>
             <Menu.Item key="2">
-                <Tooltip title={NotImplementedYetMessage}>
-                    {AddItemUsingUploadLabel}
-                </Tooltip>
+                <Tooltip title={NotImplementedYetMessage}>{AddItemUsingUploadLabel}</Tooltip>
             </Menu.Item>
         </Menu>
     )
@@ -122,67 +132,70 @@ const TicketsPage = () => {
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
+                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>} />
                 <OrganizationRequired>
                     <PageContent>
-                        {
-                            !tickets.length && !filtersFromQuery
-                                ? <EmptyListView
-                                    label={EmptyListLabel}
-                                    message={EmptyListMessage}
-                                    createRoute={ADD_EMPLOYEE_ROUTE}
-                                    createLabel={CreateEmployee} />
-                                : <Row gutter={[0, 40]} align={'middle'}>
-                                    <Col span={24}>
-                                        <Row justify={'space-between'}>
-                                            <Col span={6}>
-                                                <Input
-                                                    placeholder={SearchPlaceholder}
-                                                    onChange={(e)=>{handleSearchChange(e.target.value)}}
-                                                    value={search}
-                                                />
-                                            </Col>
-                                            <Dropdown.Button
-                                                overlay={dropDownMenu}
-                                                buttonsRender={() => [
-                                                    <Button
-                                                        key='left'
-                                                        type={'sberPrimary'}
-                                                        style={{ borderRight: '1px solid white' }}
-                                                        onClick={() => router.push(ADD_EMPLOYEE_ROUTE)}
-                                                    >
-                                                        {CreateEmployee}
-                                                    </Button>,
-                                                    <Button
-                                                        key='right'
-                                                        type={'sberPrimary'}
-                                                        style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
-                                                        icon={<EllipsisOutlined />}
-                                                    />,
-                                                ]}
+                        {!tickets.length && !filtersFromQuery ? (
+                            <EmptyListView
+                                label={EmptyListLabel}
+                                message={EmptyListMessage}
+                                createRoute={ADD_EMPLOYEE_ROUTE}
+                                createLabel={CreateEmployee}
+                            />
+                        ) : (
+                            <Row gutter={[0, 40]} align={'middle'}>
+                                <Col span={24}>
+                                    <Row justify={'space-between'}>
+                                        <Col span={6}>
+                                            <Input
+                                                placeholder={SearchPlaceholder}
+                                                onChange={(e) => {
+                                                    handleSearchChange(e.target.value)
+                                                }}
+                                                value={search}
                                             />
-                                        </Row>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Table
-                                            bordered
-                                            tableLayout={'fixed'}
-                                            loading={loading}
-                                            dataSource={tickets}
-                                            columns={tableColumns}
-                                            onRow={handleRowAction}
-                                            onChange={handleTableChange}
-                                            rowKey={record => record.id}
-                                            pagination={{
-                                                total,
-                                                current: offsetFromQuery,
-                                                pageSize: EMPLOYEE_PAGE_SIZE,
-                                                position: ['bottomLeft'],
-                                            }}
+                                        </Col>
+                                        <Dropdown.Button
+                                            overlay={dropDownMenu}
+                                            buttonsRender={() => [
+                                                <Button
+                                                    key="left"
+                                                    type={'sberPrimary'}
+                                                    style={{ borderRight: '1px solid white' }}
+                                                    onClick={() => router.push(ADD_EMPLOYEE_ROUTE)}
+                                                >
+                                                    {CreateEmployee}
+                                                </Button>,
+                                                <Button
+                                                    key="right"
+                                                    type={'sberPrimary'}
+                                                    style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
+                                                    icon={<EllipsisOutlined />}
+                                                />,
+                                            ]}
                                         />
-                                    </Col>
-                                </Row>
-                        }
+                                    </Row>
+                                </Col>
+                                <Col span={24}>
+                                    <Table
+                                        bordered
+                                        tableLayout={'fixed'}
+                                        loading={loading}
+                                        dataSource={tickets}
+                                        columns={tableColumns}
+                                        onRow={handleRowAction}
+                                        onChange={handleTableChange}
+                                        rowKey={(record) => record.id}
+                                        pagination={{
+                                            total,
+                                            current: offsetFromQuery,
+                                            pageSize: EMPLOYEE_PAGE_SIZE,
+                                            position: ['bottomLeft'],
+                                        }}
+                                    />
+                                </Col>
+                            </Row>
+                        )}
                     </PageContent>
                 </OrganizationRequired>
             </PageWrapper>
@@ -190,6 +203,6 @@ const TicketsPage = () => {
     )
 }
 
-TicketsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'pages.condo.employee.PageTitle' }}/>
+TicketsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'pages.condo.employee.PageTitle' }} />
 
 export default TicketsPage

@@ -6,10 +6,7 @@
 
 const has = require('lodash/has')
 const faker = require('faker')
-const {
-    SMS_CODE_LENGTH,
-} = require('@condo/domains/user/constants/common')
-
+const { SMS_CODE_LENGTH } = require('@condo/domains/user/constants/common')
 
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
@@ -26,9 +23,9 @@ const ForgotPasswordAction = generateServerUtils(ForgotPasswordActionGQL)
 const conf = require('@core/config')
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
 
-
 const generateSmsCode = (phone) => {
-    if (has(whiteList, phone)) { // Emulate Firebase white list for development - no real send sms
+    if (has(whiteList, phone)) {
+        // Emulate Firebase white list for development - no real send sms
         return Number(whiteList[phone])
     }
     return faker.datatype.number({
@@ -37,11 +34,10 @@ const generateSmsCode = (phone) => {
     })
 }
 
-
 module.exports = {
     User,
     ConfirmPhoneAction,
     generateSmsCode,
     ForgotPasswordAction,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

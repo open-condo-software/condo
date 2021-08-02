@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 export const useSelectCareeteControls = (id: string) => {
     const [selectInputNode, setSelectInputNode] = useState(null)
 
-    const setSelectRef = useCallback(node => {
+    const setSelectRef = useCallback((node) => {
         try {
             if (node !== null) {
                 const isSelectMounted = node.updater.isMounted(node)

@@ -100,7 +100,6 @@ const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
             type: DateTimeUtc,
             isRequired: false,
         },
-
     },
     plugins: [uuided(), softDeleted(), historical()],
     access: {
@@ -246,7 +245,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 const newSmsCode = generateSmsCode(phone)
                 await ConfirmPhoneActionUtils.update(context, id, {
                     smsCode: newSmsCode,
-                    smsCodeExpiresAt:  new Date(now + SMS_CODE_TTL * 1000).toISOString(),
+                    smsCodeExpiresAt: new Date(now + SMS_CODE_TTL * 1000).toISOString(),
                     smsCodeRequestedAt: new Date(now).toISOString(),
                 })
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
@@ -284,7 +283,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 await redisGuard.checkLock(token, 'confirm')
                 await redisGuard.lock(token, 'confirm', LOCK_TIMEOUT)
                 const { id, smsCode: actionSmsCode, retries, smsCodeExpiresAt } = actions[0]
-                const isExpired = (new Date(smsCodeExpiresAt) < new Date(now))
+                const isExpired = new Date(smsCodeExpiresAt) < new Date(now)
                 if (isExpired) {
                     throw new Error(`${CONFIRM_PHONE_SMS_CODE_EXPIRED}] SMS code expired `)
                 }
@@ -292,7 +291,9 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     await ConfirmPhoneActionUtils.update(context, id, {
                         completedAt: new Date(now).toISOString(),
                     })
-                    throw new Error(`${CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED}] Retries limit is excided try to confirm from start`)
+                    throw new Error(
+                        `${CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED}] Retries limit is excided try to confirm from start`,
+                    )
                 }
                 if (actionSmsCode !== smsCode) {
                     await ConfirmPhoneActionUtils.update(context, id, {

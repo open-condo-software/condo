@@ -8,7 +8,10 @@ const { registerNewOrganization } = require('@condo/domains/organization/utils/t
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
-const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
+const {
+    expectToThrowAuthenticationError,
+    expectToThrowAccessDeniedErrorToResult,
+} = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 
@@ -32,14 +35,14 @@ describe('RegisterResidentService', () => {
             await registerResidentByTestClient(userClient)
         }, 'result')
     })
- 
+
     test('anonymous: execute', async () => {
         const client = await makeClient()
         await expectToThrowAuthenticationError(async () => {
             await registerResidentByTestClient(client)
         }, 'result')
     })
- 
+
     test('admin: execute', async () => {
         const adminClient = await makeLoggedInAdminClient()
         const [obj, attrs] = await registerResidentByTestClient(adminClient)

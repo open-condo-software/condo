@@ -20,10 +20,12 @@ const PAYMENT_SCHEMA = {
 
 const _jsonPaymentObjectSchemaValidator = ajv.compile(PAYMENT_SCHEMA)
 
-function _validatePaymentDetails ({ resolvedData, fieldPath, addFieldValidationError }) {
+function _validatePaymentDetails({ resolvedData, fieldPath, addFieldValidationError }) {
     if (!_jsonPaymentObjectSchemaValidator(resolvedData[fieldPath])) {
-        return _jsonPaymentObjectSchemaValidator.errors.forEach(error => {
-            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
+        return _jsonPaymentObjectSchemaValidator.errors.forEach((error) => {
+            addFieldValidationError(
+                `${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`,
+            )
         })
     }
 }
@@ -46,10 +48,12 @@ const SERVICES_WITH_PAYMENT_SCHEMA = {
 
 const _jsonServicesSchemaValidator = ajv.compile(SERVICES_WITH_PAYMENT_SCHEMA)
 
-function _validateServices ({ resolvedData, fieldPath, addFieldValidationError }) {
+function _validateServices({ resolvedData, fieldPath, addFieldValidationError }) {
     if (!_jsonServicesSchemaValidator(resolvedData[fieldPath])) {
-        return _jsonServicesSchemaValidator.errors.forEach(error => {
-            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
+        return _jsonServicesSchemaValidator.errors.forEach((error) => {
+            addFieldValidationError(
+                `${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`,
+            )
         })
     }
 }
@@ -68,15 +72,17 @@ const PAYMENT_RECIPIENT_SCHEMA = {
 
 const _jsonPaymentRecipientSchemaValidator = ajv.compile(PAYMENT_RECIPIENT_SCHEMA)
 
-function _validateRecipient ({ resolvedData, fieldPath, addFieldValidationError }) {
+function _validateRecipient({ resolvedData, fieldPath, addFieldValidationError }) {
     if (!_jsonPaymentRecipientSchemaValidator(resolvedData[fieldPath])) {
-        return _jsonPaymentRecipientSchemaValidator.errors.forEach(error => {
-            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
+        return _jsonPaymentRecipientSchemaValidator.errors.forEach((error) => {
+            addFieldValidationError(
+                `${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`,
+            )
         })
     }
 }
 
-function _validatePeriod ({ resolvedData, fieldPath, addFieldValidationError }) {
+function _validatePeriod({ resolvedData, fieldPath, addFieldValidationError }) {
     const value = resolvedData[fieldPath]
     const date = new Date(value)
     if (!date) {

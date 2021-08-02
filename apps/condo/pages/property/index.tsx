@@ -42,19 +42,20 @@ import { TitleHeaderAction } from '@condo/domains/common/components/HeaderAction
 const PropertyPageViewMap = (): React.FC => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const {
-        objs: properties,
-    } = Property.useObjects({
-        where: {
-            organization: { id: userOrganizationId },
+    const { objs: properties } = Property.useObjects(
+        {
+            where: {
+                organization: { id: userOrganizationId },
+            },
         },
-    }, {
-        fetchPolicy: 'network-only',
-    })
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
 
     const points = properties
-        .filter(property => has(property, ['addressMeta', 'data'] ))
-        .map(property => {
+        .filter((property) => has(property, ['addressMeta', 'data']))
+        .map((property) => {
             const { geo_lat, geo_lon } = property.addressMeta.data
             return {
                 title: property.name,
@@ -64,9 +65,7 @@ const PropertyPageViewMap = (): React.FC => {
             }
         })
 
-    return (
-        <MapGL points={points} />
-    )
+    return <MapGL points={points} />
 }
 
 const PropertyPageViewTable = (): React.FC => {
@@ -83,7 +82,7 @@ const PropertyPageViewTable = (): React.FC => {
     const ExcelAddressLabel = intl.formatMessage({ id: 'field.Address' })
     const ExcelOrganizationLabel = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
     const ExcelUnitsCountLabel = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
-    const ExcelTicketsInWorkLabel = intl.formatMessage({ id:'pages.condo.property.id.TicketsInWork' })
+    const ExcelTicketsInWorkLabel = intl.formatMessage({ id: 'pages.condo.property.id.TicketsInWork' })
 
     const createRoute = '/property/create'
 
@@ -101,68 +100,66 @@ const PropertyPageViewTable = (): React.FC => {
         error,
         count: total,
         objs: properties,
-    } = Property.useObjects({
-        sortBy: sortFromQuery,
-        where: {
-            ...filtersToQuery(filtersFromQuery),
-            organization: { id: userOrganizationId },
+    } = Property.useObjects(
+        {
+            sortBy: sortFromQuery,
+            where: {
+                ...filtersToQuery(filtersFromQuery),
+                organization: { id: userOrganizationId },
+            },
+            skip: offsetFromQuery * PROPERTY_PAGE_SIZE - PROPERTY_PAGE_SIZE,
+            first: PROPERTY_PAGE_SIZE,
         },
-        skip: (offsetFromQuery * PROPERTY_PAGE_SIZE) - PROPERTY_PAGE_SIZE,
-        first: PROPERTY_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
-    })
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
 
     const [filtersApplied, setFiltersApplied] = useState(false)
     const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
 
-    const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
-        const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
-        const { current, pageSize } = nextPagination
-        const offset = filtersApplied ? 0 : current * pageSize - pageSize
-        const sort = sorterToQuery(nextSorter)
-        const filters = filtersToQuery(nextFilters)
-        setFiltersApplied(false)
-        if (!loading) {
-            fetchMore({
-                sortBy: sort,
-                where: filters,
-                skip: offset,
-                first: PROPERTY_PAGE_SIZE,
-            }).then(() => {
-                const query = qs.stringify(
-                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
-                    { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-                )
-                router.push(router.route + query)
-            })
-
-        }
-    }, 400), [loading])
+    const handleTableChange = useCallback(
+        debounce((...tableChangeArguments) => {
+            const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
+            const { current, pageSize } = nextPagination
+            const offset = filtersApplied ? 0 : current * pageSize - pageSize
+            const sort = sorterToQuery(nextSorter)
+            const filters = filtersToQuery(nextFilters)
+            setFiltersApplied(false)
+            if (!loading) {
+                fetchMore({
+                    sortBy: sort,
+                    where: filters,
+                    skip: offset,
+                    first: PROPERTY_PAGE_SIZE,
+                }).then(() => {
+                    const query = qs.stringify(
+                        {
+                            ...router.query,
+                            sort,
+                            offset,
+                            filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })),
+                        },
+                        { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+                    )
+                    router.push(router.route + query)
+                })
+            }
+        }, 400),
+        [loading],
+    )
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
 
     const generateExcelData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {
             try {
-                const dataCols = [
-                    'address',
-                    'organization',
-                    'unitsCount',
-                    'ticketsInWork',
-                ]
-                const headers = [
-                    [
-                        ExcelAddressLabel,
-                        ExcelOrganizationLabel,
-                        ExcelUnitsCountLabel,
-                        ExcelTicketsInWorkLabel,
-                    ],
-                ]
+                const dataCols = ['address', 'organization', 'unitsCount', 'ticketsInWork']
+                const headers = [[ExcelAddressLabel, ExcelOrganizationLabel, ExcelUnitsCountLabel, ExcelTicketsInWorkLabel]]
                 const wb = XLSX.utils.book_new()
                 const ws = XLSX.utils.json_to_sheet(
                     properties.map((property) => Property.extractAttributes(property, dataCols)),
-                    { skipHeader: true, origin: 'A2' }
+                    { skipHeader: true, origin: 'A2' },
                 )
                 XLSX.utils.sheet_add_aoa(ws, headers)
                 XLSX.utils.book_append_sheet(wb, ws, 'table')
@@ -175,71 +172,77 @@ const PropertyPageViewTable = (): React.FC => {
         })
     }, [properties])
 
-    const handleRowAction = useCallback((record) => {
-        return {
-            onClick: () => {
-                router.push(`/property/${record.id}/`)
-            },
-        }
-    }, [router])
+    const handleRowAction = useCallback(
+        (record) => {
+            return {
+                onClick: () => {
+                    router.push(`/property/${record.id}/`)
+                },
+            }
+        },
+        [router],
+    )
 
     if (error) {
-        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
+        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null} />
     }
 
     const isNoProperties = !properties.length && isEmpty(filtersFromQuery)
 
-
     return (
         <>
-            {
-                isNoProperties ?
-                    <EmptyListView
-                        label={EmptyListLabel}
-                        message={EmptyListMessage}
-                        createRoute={createRoute}
-                        createLabel={CreateLabel} />
-                    :
-                    <Row align={'middle'} gutter={[0, 40]}>
-                        <Col span={6}>
-                            <Input
-                                placeholder={SearchPlaceholder}
-                                onChange={(e)=>{handleSearchChange(e.target.value)}}
-                                value={search}
-                            />
-                        </Col>
-                        <Col span={6} push={1}>
-                            <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData} >{ExportAsExcel}</Button>
-                        </Col>
-                        <Col span={6} push={6} align={'right'}>
-                            <Space size={16}>
-                                <PropertyImport onFinish={refetch}/>
-                                <Button type='sberPrimary' onClick={() => router.push(createRoute)}>
-                                    {CreateLabel}
-                                </Button>
-                            </Space>
-                        </Col>
-                        <Col span={24}>
-                            <Table
-                                bordered
-                                tableLayout={'fixed'}
-                                loading={loading}
-                                dataSource={properties}
-                                onRow={handleRowAction}
-                                rowKey={record => record.id}
-                                columns={tableColumns}
-                                onChange={handleTableChange}
-                                pagination={{
-                                    showSizeChanger: false,
-                                    total,
-                                    current: offsetFromQuery,
-                                    pageSize: PROPERTY_PAGE_SIZE,
-                                    position: ['bottomLeft'],
-                                }}
-                            />
-                        </Col>
-                    </Row>
-            }
+            {isNoProperties ? (
+                <EmptyListView
+                    label={EmptyListLabel}
+                    message={EmptyListMessage}
+                    createRoute={createRoute}
+                    createLabel={CreateLabel}
+                />
+            ) : (
+                <Row align={'middle'} gutter={[0, 40]}>
+                    <Col span={6}>
+                        <Input
+                            placeholder={SearchPlaceholder}
+                            onChange={(e) => {
+                                handleSearchChange(e.target.value)
+                            }}
+                            value={search}
+                        />
+                    </Col>
+                    <Col span={6} push={1}>
+                        <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData}>
+                            {ExportAsExcel}
+                        </Button>
+                    </Col>
+                    <Col span={6} push={6} align={'right'}>
+                        <Space size={16}>
+                            <PropertyImport onFinish={refetch} />
+                            <Button type="sberPrimary" onClick={() => router.push(createRoute)}>
+                                {CreateLabel}
+                            </Button>
+                        </Space>
+                    </Col>
+                    <Col span={24}>
+                        <Table
+                            bordered
+                            tableLayout={'fixed'}
+                            loading={loading}
+                            dataSource={properties}
+                            onRow={handleRowAction}
+                            rowKey={(record) => record.id}
+                            columns={tableColumns}
+                            onChange={handleTableChange}
+                            pagination={{
+                                showSizeChanger: false,
+                                total,
+                                current: offsetFromQuery,
+                                pageSize: PROPERTY_PAGE_SIZE,
+                                position: ['bottomLeft'],
+                            }}
+                        />
+                    </Col>
+                </Row>
+            )}
         </>
     )
 }
@@ -260,28 +263,26 @@ const PropertyPage = (): React.FC => {
                 <OrganizationRequired>
                     <PageContent>
                         <Row gutter={[0, 40]} align={'top'} style={{ zIndex: 1, position: 'relative' }}>
-                            <Col span={6} >
-                                <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>
-                                    {PageTitleMessage}
-                                </Typography.Title>} />
+                            <Col span={6}>
+                                <PageHeader
+                                    style={{ background: 'transparent' }}
+                                    title={<Typography.Title>{PageTitleMessage}</Typography.Title>}
+                                />
                             </Col>
                             <Col span={6} push={12} align={'right'} style={{ top: 10 }}>
-                                <Radio.Group className={'sberRadioGroup'} value={viewMode} buttonStyle="outline" onChange={e => changeViewMode(e.target.value)}>
+                                <Radio.Group
+                                    className={'sberRadioGroup'}
+                                    value={viewMode}
+                                    buttonStyle="outline"
+                                    onChange={(e) => changeViewMode(e.target.value)}
+                                >
                                     <Radio.Button value="list">{ShowTable}</Radio.Button>
                                     <Radio.Button value="map">{ShowMap}</Radio.Button>
                                 </Radio.Group>
                             </Col>
-                            <Col span={24}>
-                                {
-                                    viewMode !== 'map' ? <PropertyPageViewTable /> : null
-                                }
-                            </Col>
+                            <Col span={24}>{viewMode !== 'map' ? <PropertyPageViewTable /> : null}</Col>
                         </Row>
-                        <>
-                            {
-                                viewMode === 'map' ? <PropertyPageViewMap /> : null
-                            }
-                        </>
+                        <>{viewMode === 'map' ? <PropertyPageViewMap /> : null}</>
                     </PageContent>
                 </OrganizationRequired>
             </PageWrapper>
@@ -289,6 +290,6 @@ const PropertyPage = (): React.FC => {
     )
 }
 
-PropertyPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Property' }}/>
+PropertyPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Property' }} />
 
 export default PropertyPage

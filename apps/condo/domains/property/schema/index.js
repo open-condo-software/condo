@@ -11,5 +11,5 @@ const { CheckPropertyWithAddressExistService } = require('./CheckPropertyWithAdd
 module.exports = {
     Property,
     CheckPropertyWithAddressExistService,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

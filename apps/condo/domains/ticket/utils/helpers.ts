@@ -11,11 +11,7 @@ export const getTicketCreateMessage = (intl, ticket) => {
         return
     }
 
-    const formattedCreatedDate = format(
-        new Date(ticket.createdAt),
-        'dd MMMM HH:mm',
-        { locale: LOCALES[intl.locale] }
-    )
+    const formattedCreatedDate = format(new Date(ticket.createdAt), 'dd MMMM HH:mm', { locale: LOCALES[intl.locale] })
 
     return `${intl.formatMessage({ id: 'CreatedDate' })} ${formattedCreatedDate}`
 }
@@ -38,12 +34,12 @@ export const getTicketFormattedLastStatusUpdate = (intl, ticket) => {
 
     const formattedDate = ticketLastUpdateDate
         ? formatDuration(
-            intervalToDuration({
-                start: new Date(ticketLastUpdateDate),
-                end: new Date(),
-            }),
-            { locale: LOCALES[intl.locale], format: ['months', 'days', 'hours', 'minutes'] }
-        )
+              intervalToDuration({
+                  start: new Date(ticketLastUpdateDate),
+                  end: new Date(),
+              }),
+              { locale: LOCALES[intl.locale], format: ['months', 'days', 'hours', 'minutes'] },
+          )
         : ''
 
     if (ticketLastUpdateDate && !formattedDate) {
@@ -64,10 +60,7 @@ export const getTicketLabel = (intl, ticket) => {
 
     const { createdAt, statusUpdatedAt } = ticket
     const ticketLastUpdateDate = statusUpdatedAt || createdAt
-    const formattedDate = format(
-        new Date(ticketLastUpdateDate), 'd MMM',
-        { locale: LOCALES[intl.locale] }
-    )
+    const formattedDate = format(new Date(ticketLastUpdateDate), 'd MMM', { locale: LOCALES[intl.locale] })
 
     return `${get(ticket, ['status', 'name'])} ${intl.formatMessage({ id: 'From' })} ${formattedDate}`
 }
@@ -101,9 +94,11 @@ export interface IFilters extends Pick<Ticket, 'clientName' | 'createdAt' | 'det
 export const statusToQuery = (statusIds: Array<string>): TicketStatusWhereInput => {
     if (Array.isArray(statusIds) && statusIds.length > 0) {
         return {
-            AND: [{
-                id_in: statusIds,
-            }],
+            AND: [
+                {
+                    id_in: statusIds,
+                },
+            ],
         }
     }
 }
@@ -129,9 +124,11 @@ export const propertyToQuery = (address?: string) => {
     }
 
     return {
-        AND: [{
-            address_contains_i: address,
-        }],
+        AND: [
+            {
+                address_contains_i: address,
+            },
+        ],
     }
 }
 
@@ -141,9 +138,11 @@ export const executorToQuery = (executor?: string) => {
     }
 
     return {
-        AND: [{
-            name_contains_i: executor,
-        }],
+        AND: [
+            {
+                name_contains_i: executor,
+            },
+        ],
     }
 }
 
@@ -153,9 +152,11 @@ export const assigneeToQuery = (assignee?: string) => {
     }
 
     return {
-        AND: [{
-            name_contains_i: assignee,
-        }],
+        AND: [
+            {
+                name_contains_i: assignee,
+            },
+        ],
     }
 }
 
@@ -231,7 +232,7 @@ export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
 }
 
 type SorterColumn = {
-    columnKey: string,
+    columnKey: string
     order: 'ascend' | 'descend'
 }
 
@@ -244,57 +245,52 @@ export const sorterToQuery = (sorter?: SorterColumn | Array<SorterColumn>): Arra
         sorter = [sorter]
     }
 
-    return sorter.map((sort) => {
-        const { columnKey, order } = sort
+    return sorter
+        .map((sort) => {
+            const { columnKey, order } = sort
 
-        const sortKeys = {
-            'ascend': 'ASC',
-            'descend': 'DESC',
-        }
+            const sortKeys = {
+                ascend: 'ASC',
+                descend: 'DESC',
+            }
 
-        const sortKey = sortKeys[order]
+            const sortKey = sortKeys[order]
 
-        if (!sortKey) {
-            return
-        }
+            if (!sortKey) {
+                return
+            }
 
-        return `${columnKey}_${sortKeys[order]}`
-    }).filter(Boolean)
+            return `${columnKey}_${sortKeys[order]}`
+        })
+        .filter(Boolean)
 }
 
 const SORT_ORDERS = {
-    'ASC': 'ascend',
-    'DESC': 'descend',
+    ASC: 'ascend',
+    DESC: 'descend',
 }
 
-const TICKET_TABLE_COLUMNS = [
-    'number',
-    'status',
-    'details',
-    'property',
-    'assignee',
-    'executor',
-    'createdAt',
-    'clientName',
-]
+const TICKET_TABLE_COLUMNS = ['number', 'status', 'details', 'property', 'assignee', 'executor', 'createdAt', 'clientName']
 
 export const queryToSorter = (query: Array<string>) => {
-    return query.map((sort) => {
-        const [columnKey, sortKey] = sort.split('_')
+    return query
+        .map((sort) => {
+            const [columnKey, sortKey] = sort.split('_')
 
-        try {
-            if (TICKET_TABLE_COLUMNS.includes(columnKey) && SORT_ORDERS[sortKey]) {
-                return {
-                    columnKey,
-                    order: SORT_ORDERS[sortKey],
+            try {
+                if (TICKET_TABLE_COLUMNS.includes(columnKey) && SORT_ORDERS[sortKey]) {
+                    return {
+                        columnKey,
+                        order: SORT_ORDERS[sortKey],
+                    }
                 }
+            } catch (e) {
+                // TODO(Dimitreee): send error to sentry
             }
-        } catch (e) {
-            // TODO(Dimitreee): send error to sentry
-        }
 
-        return
-    }).filter(Boolean)
+            return
+        })
+        .filter(Boolean)
 }
 
 export const createSorterMap = (sortStringFromQuery: Array<string>): Record<string, SortOrder> => {
@@ -335,9 +331,10 @@ export const getPageSizeFromQuery = (query: ParsedUrlQuery): number => {
     if (POSSIBLE_PAGE_SIZE.indexOf(queryValue) !== -1) {
         return queryValue
     }
-    const nearest = POSSIBLE_PAGE_SIZE
-        .map(validPageSize => ({ validPageSize, difference: Math.abs(queryValue - validPageSize) }))
-        .sort((a, b) => a.difference - b.difference)[0].validPageSize
+    const nearest = POSSIBLE_PAGE_SIZE.map((validPageSize) => ({
+        validPageSize,
+        difference: Math.abs(queryValue - validPageSize),
+    })).sort((a, b) => a.difference - b.difference)[0].validPageSize
     return nearest
 }
 
@@ -356,18 +353,16 @@ export const getPageIndexFromQuery = (query: ParsedUrlQuery): number => {
 export const formatDate = (intl, dateStr?: string): string => {
     const currentDate = new Date()
     const date = new Date(dateStr)
-    const pattern = date.getFullYear() === currentDate.getFullYear()
-        ? 'd MMMM H:mm'
-        : 'd MMMM yyyy H:mm'
+    const pattern = date.getFullYear() === currentDate.getFullYear() ? 'd MMMM H:mm' : 'd MMMM yyyy H:mm'
     return format(date, pattern, { locale: LOCALES[intl.locale] })
 }
 
 export type specificationTypes = 'day' | 'week' | 'month'
-export type addressPickerType = { id: string; value: string; }
+export type addressPickerType = { id: string; value: string }
 export type ticketAnalyticsPageFilters = {
-    range: [Moment, Moment];
-    specification: specificationTypes;
-    addressList: addressPickerType[];
+    range: [Moment, Moment]
+    specification: specificationTypes
+    addressList: addressPickerType[]
 }
 
 interface IFilterToQuery {

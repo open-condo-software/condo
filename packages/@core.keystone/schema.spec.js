@@ -31,7 +31,9 @@ const EVENT_LIST = new GQLListSchema('Event', {
             factory: () => faker.fake('{{name.firstName}}'),
             type: Text,
             hooks: {
-                validateInput: async (ctx) => {await EVENT_LIST.emit('validateName', ctx)},
+                validateInput: async (ctx) => {
+                    await EVENT_LIST.emit('validateName', ctx)
+                },
             },
         },
     },
@@ -39,7 +41,9 @@ const EVENT_LIST = new GQLListSchema('Event', {
         read: false,
     },
     hooks: {
-        validateInput: async (ctx) => {await EVENT_LIST.emit('validate', ctx)},
+        validateInput: async (ctx) => {
+            await EVENT_LIST.emit('validate', ctx)
+        },
     },
 })
 
@@ -141,7 +145,6 @@ const CALCULATOR_SERVICE = new GQLCustomSchema('CalculatorService', {
 
 test('execute mutation func', async () => {
     const [parent, context, info, extra] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()]
-    const res = await CALCULATOR_SERVICE.schema.mutations[0].resolver(
-        parent, { op: '+', l: 2, r: 2 }, context, info, extra)
+    const res = await CALCULATOR_SERVICE.schema.mutations[0].resolver(parent, { op: '+', l: 2, r: 2 }, context, info, extra)
     expect(res).toEqual('4')
 })

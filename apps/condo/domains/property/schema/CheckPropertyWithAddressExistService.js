@@ -6,7 +6,6 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/property/access/CheckPropertyWithAddressExistService')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
-
 const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyWithAddressExistService', {
     types: [
         {
@@ -18,7 +17,7 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
             type: 'type CheckPropertyWithAddressExistOutput { isFound: Boolean! }',
         },
     ],
-    
+
     queries: [
         {
             access: access.canCheckPropertyWithAddressExist,
@@ -35,7 +34,6 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
             },
         },
     ],
-    
 })
 
 module.exports = {

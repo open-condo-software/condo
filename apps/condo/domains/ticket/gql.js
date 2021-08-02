@@ -26,7 +26,9 @@ const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIE
 
 const SHARE_TICKET_MUTATION = gql`
     mutation shareTicket($data: ShareTicketInput!) {
-        obj: shareTicket(data: $data) { status }
+        obj: shareTicket(data: $data) {
+            status
+        }
     }
 `
 
@@ -115,7 +117,9 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'watchersDisplayNamesTo',
 ]
 
-const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } } id dv sender v createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
+const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } } id dv sender v createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS.join(
+    ' ',
+)} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
 
 const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
@@ -126,20 +130,32 @@ const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 
 // TODO(codegen): write return type result!
 const TICKET_ANALYTICS_REPORT_MUTATION = gql`
-    query ticketAnalyticsReport ($data: TicketAnalyticsReportInput!) {
-        result: ticketAnalyticsReport(data: $data) { result }
+    query ticketAnalyticsReport($data: TicketAnalyticsReportInput!) {
+        result: ticketAnalyticsReport(data: $data) {
+            result
+        }
     }
 `
 /* AUTOGENERATE MARKER <CONST> */
-const EXPORT_TICKETS_TO_EXCEL =  gql`
-    query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
-        result: exportTicketsToExcel(data: $data) { status, linkToFile }
+const EXPORT_TICKETS_TO_EXCEL = gql`
+    query exportTicketsToExcel($data: ExportTicketsToExcelInput!) {
+        result: exportTicketsToExcel(data: $data) {
+            status
+            linkToFile
+        }
     }
 `
 
 const GET_TICKET_WIDGET_REPORT_DATA = gql`
-    query getWidgetData ($data: TicketReportWidgetInput!) {
-        result: ticketReportWidgetData(data: $data) { data { statusName, currentValue, growth, statusType } }
+    query getWidgetData($data: TicketReportWidgetInput!) {
+        result: ticketReportWidgetData(data: $data) {
+            data {
+                statusName
+                currentValue
+                growth
+                statusType
+            }
+        }
     }
 `
 
@@ -157,5 +173,5 @@ module.exports = {
     TicketComment,
     TICKET_ANALYTICS_REPORT_MUTATION,
     SHARE_TICKET_MUTATION,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

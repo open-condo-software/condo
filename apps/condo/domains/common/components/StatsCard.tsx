@@ -10,31 +10,40 @@ import { useIntl } from '@core/next/intl'
 import { Tooltip } from './Tooltip'
 
 interface IStatsCardProps {
-    title: string;
-    link: string;
-    loading?: boolean;
-    onFilterChange: (filter: string) => void;
-    dependencyArray: string[] | number[];
+    title: string
+    link: string
+    loading?: boolean
+    onFilterChange: (filter: string) => void
+    dependencyArray: string[] | number[]
 }
 
 const cardCss = css`
-  box-shadow: 0 9px 28px rgba(0, 0, 0, 0.05), 
-    0 6px 16px rgba(0, 0, 0, 0.08), 
-    0 3px 6px rgba(0, 0, 0, 0.12);
-  border-radius: 8px;
-  min-height: 210px;
+    box-shadow: 0 9px 28px rgba(0, 0, 0, 0.05), 0 6px 16px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    min-height: 210px;
 `
 
 const cardTitleCss = css`
-  cursor: pointer;
+    cursor: pointer;
 `
 
 const Card: React.FC<CardProps> = (props) => {
     const { children, ...allProps } = props
-    return <AntCard css={cardCss} {...allProps}>{children}</AntCard>
+    return (
+        <AntCard css={cardCss} {...allProps}>
+            {children}
+        </AntCard>
+    )
 }
 
-export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, loading = false, onFilterChange, dependencyArray }) => {
+export const StatsCard: React.FC<IStatsCardProps> = ({
+    title,
+    children,
+    link,
+    loading = false,
+    onFilterChange,
+    dependencyArray,
+}) => {
     const intl = useIntl()
     const extraTitle = intl.formatMessage({ id: 'component.statscard.ExtraTitle' })
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
@@ -53,28 +62,30 @@ export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, lo
 
     const menu = (
         <Menu onClick={({ key }) => setSelectedPeriod(key)} disabled={loading}>
-            {Object.keys(SELECTED_PERIOD).map((period, key) => <Menu.Item key={period}>{SELECTED_PERIOD[period]}</Menu.Item>)}
+            {Object.keys(SELECTED_PERIOD).map((period, key) => (
+                <Menu.Item key={period}>{SELECTED_PERIOD[period]}</Menu.Item>
+            ))}
         </Menu>
     )
 
     const cardTitle = (
         <Space css={cardTitleCss}>
             {title}
-            <Dropdown overlay={menu} >
-                <span style={{ color: colors.green[6] }}>{SELECTED_PERIOD[selectedPeriod]} <DownOutlined /></span>
+            <Dropdown overlay={menu}>
+                <span style={{ color: colors.green[6] }}>
+                    {SELECTED_PERIOD[selectedPeriod]} <DownOutlined />
+                </span>
             </Dropdown>
         </Space>
     )
 
-    const linkClick = useCallback(
-        () => Router.push(link),
-        [link],
-    )
+    const linkClick = useCallback(() => Router.push(link), [link])
 
     const cardExtra = (
         <Tooltip title={NotImplementedYetMessage}>
             <Button style={{ fontSize: 16, fontWeight: 700 }} type={'inlineLink'} onClick={linkClick}>
-                {extraTitle}{<RightOutlined />}
+                {extraTitle}
+                {<RightOutlined />}
             </Button>
         </Tooltip>
     )
@@ -87,7 +98,9 @@ export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, lo
                     bordered={false}
                     headStyle={{ fontSize: 20, fontWeight: 700, borderBottom: 'none' }}
                     extra={cardExtra}
-                >{loading ? <Skeleton active round paragraph={{ rows: 1 }} /> : children}</Card>
+                >
+                    {loading ? <Skeleton active round paragraph={{ rows: 1 }} /> : children}
+                </Card>
             </Col>
         </Row>
     )

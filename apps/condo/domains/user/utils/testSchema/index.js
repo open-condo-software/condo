@@ -20,14 +20,10 @@ const UserAdmin = generateGQLTestUtils(UserAdminGQL)
 const createTestEmail = () => ('test.' + getRandomString() + '@example.com').toLowerCase()
 const createTestPhone = () => '+18170' + String(Math.random()).slice(2).slice(-6)
 
-
-const {
-    SMS_CODE_TTL,
-    CONFIRM_PHONE_ACTION_EXPIRY,
-} = require('@condo/domains/user/constants/common')
+const { SMS_CODE_TTL, CONFIRM_PHONE_ACTION_EXPIRY } = require('@condo/domains/user/constants/common')
 const { RESIDENT } = require('../../constants/common')
 
-async function createTestUser (client, extraAttrs = {}) {
+async function createTestUser(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
@@ -35,14 +31,19 @@ async function createTestUser (client, extraAttrs = {}) {
     const phone = createTestPhone()
     const password = getRandomString()
     const meta = {
-        dv: 1, city: faker.address.city(), county: faker.address.county(),
+        dv: 1,
+        city: faker.address.city(),
+        county: faker.address.county(),
     }
 
     const attrs = {
         dv: 1,
         sender,
-        name, email, phone,
-        password, meta,
+        name,
+        email,
+        phone,
+        password,
+        meta,
         type: 'staff',
         ...extraAttrs,
     }
@@ -50,7 +51,7 @@ async function createTestUser (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestUser (client, id, extraAttrs = {}) {
+async function updateTestUser(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -64,7 +65,7 @@ async function updateTestUser (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
+async function registerNewUser(client, extraAttrs = {}, { raw = false } = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
@@ -72,7 +73,9 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
     const password = getRandomString()
     const phone = createTestPhone()
     const meta = {
-        dv: 1, city: faker.address.city(), county: faker.address.county(),
+        dv: 1,
+        city: faker.address.city(),
+        county: faker.address.county(),
     }
     const attrs = {
         dv: 1,
@@ -80,7 +83,8 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
         name,
         email,
         phone,
-        password, meta,
+        password,
+        meta,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, {
@@ -91,7 +95,7 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
     return [data.user, attrs]
 }
 
-async function makeClientWithNewRegisteredAndLoggedInUser () {
+async function makeClientWithNewRegisteredAndLoggedInUser() {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
     client.user = user
@@ -126,22 +130,22 @@ async function makeClientWithStaffUser() {
     return client
 }
 
-async function addAdminAccess (user) {
+async function addAdminAccess(user) {
     const admin = await makeLoggedInAdminClient()
     await User.update(admin, user.id, { isAdmin: true })
 }
 
-async function addSupportAccess (user) {
+async function addSupportAccess(user) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { isSupport: true})
+    await User.update(admin, user.id, { isSupport: true })
 }
 
-async function addResidentAccess (user) {
+async function addResidentAccess(user) {
     const admin = await makeLoggedInAdminClient()
     await User.update(admin, user.id, { type: RESIDENT })
 }
 
-async function addStaffAccess (user) {
+async function addStaffAccess(user) {
     const admin = await makeLoggedInAdminClient()
     await User.update(admin, user.id, { type: 'staff' })
 }
@@ -150,7 +154,7 @@ const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 const ForgotPasswordAction = generateGQLTestUtils(ForgotPasswordActionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
+async function createTestConfirmPhoneAction(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const now = Date.now()
@@ -173,7 +177,7 @@ async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestConfirmPhoneAction (client, id, extraAttrs = {}) {
+async function updateTestConfirmPhoneAction(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -186,7 +190,7 @@ async function updateTestConfirmPhoneAction (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestForgotPasswordAction (client, user, extraAttrs = {}) {
+async function createTestForgotPasswordAction(client, user, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -205,7 +209,7 @@ async function createTestForgotPasswordAction (client, user, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestForgotPasswordAction (client, id, extraAttrs = {}) {
+async function updateTestForgotPasswordAction(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -222,9 +226,27 @@ async function updateTestForgotPasswordAction (client, id, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient, makeClientWithResidentUser, makeClientWithStaffUser, makeClientWithSupportUser,
-    makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, addSupportAccess, addResidentAccess, addStaffAccess, createTestEmail, createTestPhone,
-    ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
-    ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    User,
+    UserAdmin,
+    createTestUser,
+    updateTestUser,
+    registerNewUser,
+    makeLoggedInClient,
+    makeClientWithResidentUser,
+    makeClientWithStaffUser,
+    makeClientWithSupportUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    addAdminAccess,
+    addSupportAccess,
+    addResidentAccess,
+    addStaffAccess,
+    createTestEmail,
+    createTestPhone,
+    ConfirmPhoneAction,
+    createTestConfirmPhoneAction,
+    updateTestConfirmPhoneAction,
+    ForgotPasswordAction,
+    createTestForgotPasswordAction,
+    updateTestForgotPasswordAction,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

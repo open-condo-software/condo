@@ -37,7 +37,11 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 // If we change identity field for PasswordStrategy from email to phone. We will break admin-ui-app
                 // Maybe, we can cloneDeep PasswordStrategy
                 const { keystone } = await getSchemaCtx('User')
-                const { auth: { User: { password: PasswordStrategy } } } = keystone
+                const {
+                    auth: {
+                        User: { password: PasswordStrategy },
+                    },
+                } = keystone
                 const { success, message } = await PasswordStrategy.validate({ email: user.email, password })
                 if (!success) {
                     throw new Error(`${WRONG_PASSWORD_ERROR}] ${message}`)

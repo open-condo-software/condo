@@ -16,7 +16,7 @@ const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('@condo/domains/prop
 const Property = generateServerUtils(PropertyGQL)
 const Resident = generateServerUtils(ResidentGQL)
 
-async function checkPropertyWithAddressExist (context, data) {
+async function checkPropertyWithAddressExist(context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
 
@@ -33,5 +33,5 @@ module.exports = {
     Property,
     Resident,
     checkPropertyWithAddressExist,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -128,7 +128,6 @@ const User = new GQLListSchema('User', {
             access: access.canAccessToImportIdField,
             kmigratorOptions: { null: true, unique: true },
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

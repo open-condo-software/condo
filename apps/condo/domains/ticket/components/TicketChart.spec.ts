@@ -13,13 +13,13 @@ const TABLE_RESULT_DATA = {
 }
 
 const ANALYTICS_DATA = {
-    'group11': {
-        'group21': 1,
-        'group22': 0,
+    group11: {
+        group21: 1,
+        group22: 0,
     },
-    'group12': {
-        'group21': 2,
-        'group22': 3,
+    group12: {
+        group21: 2,
+        group22: 3,
     },
 }
 
@@ -45,7 +45,7 @@ describe('TicketChart', () => {
             expect(ticketChart).toBeInstanceOf(TicketChart)
         })
 
-        it('should return config for chart from getChartConfig method call',  () => {
+        it('should return config for chart from getChartConfig method call', () => {
             const ticketChart = new TicketChart(TICKET_CHART_CONFIG)
             expect(ticketChart.getChartConfig('line', ANALYTICS_DATA)).toStrictEqual(CHART_RESULT_DATA)
         })

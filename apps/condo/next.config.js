@@ -11,23 +11,27 @@ const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
 const addressSuggestionsConfig = conf['ADDRESS_SUGGESTIONS_CONFIG'] && JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG'])
 const mapApiKey = conf['MAP_API_KEY']
-const behaviorRecorder = { 'plerdy': conf['BEHAVIOR_RECORDER_PLERDY_CONFIG'] }
-const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
+const behaviorRecorder = { plerdy: conf['BEHAVIOR_RECORDER_PLERDY_CONFIG'] }
+const docsConfig = { isGraphqlPlaygroundEnabled: conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
 const googleCaptcha = conf['GOOGLE_RECAPTCHA_CONFIG'] && JSON.parse(conf['GOOGLE_RECAPTCHA_CONFIG'])
 
-module.exports = withTM(withLess(withCSS({
-    publicRuntimeConfig: {
-        // Will be available on both server and client
-        serverUrl,
-        apolloGraphQLUrl,
-        addressSuggestionsConfig,
-        mapApiKey,
-        googleCaptcha,
-        behaviorRecorder,
-        docsConfig,
-    },
-    lessLoaderOptions: {
-        javascriptEnabled: true,
-        modifyVars: antGlobalVariables,
-    },
-})))
+module.exports = withTM(
+    withLess(
+        withCSS({
+            publicRuntimeConfig: {
+                // Will be available on both server and client
+                serverUrl,
+                apolloGraphQLUrl,
+                addressSuggestionsConfig,
+                mapApiKey,
+                googleCaptcha,
+                behaviorRecorder,
+                docsConfig,
+            },
+            lessLoaderOptions: {
+                javascriptEnabled: true,
+                modifyVars: antGlobalVariables,
+            },
+        }),
+    ),
+)

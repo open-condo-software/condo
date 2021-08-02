@@ -13,7 +13,7 @@ interface IPageWithHeaderAction extends React.FC {
 
 const CreatePropertyPage: IPageWithHeaderAction = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.property.index.CreatePropertyTitle' })
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyTitle' })
     return (
         <>
             <Head>
@@ -24,10 +24,12 @@ const CreatePropertyPage: IPageWithHeaderAction = () => {
                     <PageContent>
                         <Row gutter={[0, 40]}>
                             <Col span={24}>
-                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                                <Typography.Title level={1} style={{ margin: 0 }}>
+                                    {PageTitleMsg}
+                                </Typography.Title>
                             </Col>
                             <Col span={24}>
-                                <PropertyForm/>
+                                <PropertyForm />
                             </Col>
                         </Row>
                     </PageContent>
@@ -37,6 +39,6 @@ const CreatePropertyPage: IPageWithHeaderAction = () => {
     )
 }
 
-CreatePropertyPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllProperties' }} path={'/property/'}/>
+CreatePropertyPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllProperties' }} path={'/property/'} />
 
 export default CreatePropertyPage

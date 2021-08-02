@@ -1,22 +1,22 @@
 /*
-* Triggers manager.
-* - add triggers
-* - drop triggers
-* - execute triggers validation triggers conditions using *json-rules-engine* and similar rules language
-*
-* */
+ * Triggers manager.
+ * - add triggers
+ * - drop triggers
+ * - execute triggers validation triggers conditions using *json-rules-engine* and similar rules language
+ *
+ * */
 
 const Q = require('q')
 const { Engine, Rule } = require('json-rules-engine')
 const get = require('lodash/get')
 
 class TriggersManager {
-    constructor (triggersMap) {
+    constructor(triggersMap) {
         this.engine = new Engine()
         this.triggers = triggersMap || new Map()
     }
 
-    addTrigger (trigger) {
+    addTrigger(trigger) {
         const { rule, action } = trigger
         const triggerName = get(rule, ['event', 'type'])
 
@@ -34,7 +34,7 @@ class TriggersManager {
         this.engine.addRule(engineRule)
     }
 
-    dropTrigger (trigger) {
+    dropTrigger(trigger) {
         const { rule } = trigger
         const triggerName = get(rule, ['event', 'type'])
 
@@ -46,45 +46,43 @@ class TriggersManager {
         this.engine.removeRule(rule)
     }
 
-    flushTriggers () {
-        this.triggers.forEach(( triggerName, { rule }) => {
+    flushTriggers() {
+        this.triggers.forEach((triggerName, { rule }) => {
             this.engine.removeRule(rule)
         })
 
         this.triggers.clear()
     }
 
-    executeTrigger (data, context) {
+    executeTrigger(data, context) {
         if (this.triggers.size > 0) {
-            return this.engine.run(data)
-                .then(({ events }) => {
-                    const actions = events.map((event) => {
-                        const trigger = this.triggers.get(event.type)
+            return this.engine.run(data).then(({ events }) => {
+                const actions = events.map((event) => {
+                    const trigger = this.triggers.get(event.type)
 
-                        if (!trigger) {
-                            throw new Error(`Trigger with name ${event.params.name} is not found`)
-                        }
-
-                        const { action } = trigger
-
-                        if (!action) {
-                            throw new Error(`Trigger action from ${event.params.name} is not found`)
-                        }
-
-                        return action(data, context)
-                    })
-
-                    if (actions.length) {
-                        // return chained version of triggers action using q:
-                        return actions.reduce(Q.when, Q())
+                    if (!trigger) {
+                        throw new Error(`Trigger with name ${event.params.name} is not found`)
                     }
 
-                    return Promise.resolve()
+                    const { action } = trigger
+
+                    if (!action) {
+                        throw new Error(`Trigger action from ${event.params.name} is not found`)
+                    }
+
+                    return action(data, context)
                 })
+
+                if (actions.length) {
+                    // return chained version of triggers action using q:
+                    return actions.reduce(Q.when, Q())
+                }
+
+                return Promise.resolve()
+            })
         }
 
         return Promise.resolve()
-
     }
 }
 
@@ -92,12 +90,11 @@ const triggersManager = new TriggersManager()
 
 // TODO(Dimtiree): add dynamic trigger registration
 const registerTriggers = (modulesList) => {
-    modulesList.forEach(
-        (module) => {
-            Object.values(module).forEach((trigger) => {
-                triggersManager.addTrigger(trigger)
-            })
+    modulesList.forEach((module) => {
+        Object.values(module).forEach((trigger) => {
+            triggersManager.addTrigger(trigger)
         })
+    })
 }
 
 module.exports = {

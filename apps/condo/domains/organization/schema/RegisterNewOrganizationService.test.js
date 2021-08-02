@@ -17,9 +17,11 @@ describe('RegisterNewOrganizationService', () => {
         const [org] = await registerNewOrganization(client, { name })
 
         expect(org.id).toMatch(/^[0-9a-zA-Z-_]+$/)
-        expect(org).toEqual(expect.objectContaining({
-            name,
-        }))
+        expect(org).toEqual(
+            expect.objectContaining({
+                name,
+            }),
+        )
 
         // Validate Employee and Role!
         const employees = await OrganizationEmployee.getAll(admin, { organization: { id: org.id } })

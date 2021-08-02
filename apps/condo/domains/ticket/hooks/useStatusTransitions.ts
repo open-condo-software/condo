@@ -11,11 +11,12 @@ export const useStatusTransitions = (ticketStatusId: string) => {
 
     return {
         loading: loading,
-        statuses:  getPossibleStatuses(
+        statuses: getPossibleStatuses(
             statusList,
             ticketStatusId,
             get(organization, 'statusTransitions'),
-            get(employee, ['role', 'statusTransitions']),  get(organization, 'defaultEmployeeRoleStatusTransitions'),
+            get(employee, ['role', 'statusTransitions']),
+            get(organization, 'defaultEmployeeRoleStatusTransitions'),
         ),
     }
 }

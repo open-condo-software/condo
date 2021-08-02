@@ -7,7 +7,7 @@ import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Pro
 interface IUnitNameInputProps extends Pick<SelectProps<string>, 'onChange' | 'onSelect'> {
     property: IPropertyUIState
     placeholder?: string
-    allowClear?: false,
+    allowClear?: false
     loading: boolean
 }
 
@@ -24,14 +24,13 @@ const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
             return floors.map((floor) => floor.units).reverse()
         })
 
-        const flattenUnits: Array<{ id: string, label }> = flattenDeep(unflattenUnits)
+        const flattenUnits: Array<{ id: string; label }> = flattenDeep(unflattenUnits)
 
-        return flattenUnits.map(
-            (unit) => (
-                <Select.Option key={unit.label} value={unit.label} title={String(unit.label)}>{unit.label}</Select.Option>
-            )
-        )
-
+        return flattenUnits.map((unit) => (
+            <Select.Option key={unit.label} value={unit.label} title={String(unit.label)}>
+                {unit.label}
+            </Select.Option>
+        ))
     }, [property])
 
     return (
@@ -53,8 +52,8 @@ export const UnitNameInput = (props: IUnitNameInputProps) => {
     const { property, onSelect, onChange, ...baseInputProps } = props
 
     if (!property) {
-        return <Input {...baseInputProps} disabled value={null}/>
+        return <Input {...baseInputProps} disabled value={null} />
     }
 
-    return <BaseUnitNameInput {...props} onSelect={onSelect} onChange={onChange}/>
+    return <BaseUnitNameInput {...props} onSelect={onSelect} onChange={onChange} />
 }

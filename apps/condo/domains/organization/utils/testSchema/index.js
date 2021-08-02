@@ -4,14 +4,18 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-const {makeClientWithProperty} = require("@condo/domains/property/utils/testSchema");
-const {createTestProperty} = require("@condo/domains/property/utils/testSchema");
-const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require ('@condo/domains/common/constants/countries');
-const { makeClientWithNewRegisteredAndLoggedInUser } = require ('../../../user/utils/testSchema');
-const { makeLoggedInAdminClient } = require ('@core/keystone/test.utils');
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('../../../user/utils/testSchema')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-const { Organization: OrganizationGQL, OrganizationEmployee: OrganizationEmployeeGQL, OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@condo/domains/organization/gql')
+const {
+    Organization: OrganizationGQL,
+    OrganizationEmployee: OrganizationEmployeeGQL,
+    OrganizationEmployeeRole: OrganizationEmployeeRoleGQL,
+} = require('@condo/domains/organization/gql')
 const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -21,12 +25,12 @@ const OrganizationEmployee = generateGQLTestUtils(OrganizationEmployeeGQL)
 const OrganizationLink = generateGQLTestUtils(OrganizationLinkGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestOrganization (client, extraAttrs = {}) {
-    if (!client) throw new Error ('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric (8) }
+async function createTestOrganization(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const country = DEFAULT_ENGLISH_COUNTRY
-    const name = faker.company.companyName ()
-    const description = faker.company.catchPhrase ()
+    const name = faker.company.companyName()
+    const description = faker.company.catchPhrase()
     const meta = {
         dv: 1,
         inn: faker.random.alphaNumeric(10),
@@ -51,7 +55,7 @@ async function createTestOrganization (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestOrganization (client, id, extraAttrs = {}) {
+async function updateTestOrganization(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -78,7 +82,7 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestOrganizationEmployee (client, organization, user, role, extraAttrs = {}) {
+async function createTestOrganizationEmployee(client, organization, user, role, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!user || !user.id) throw new Error('no user.id')
@@ -98,7 +102,7 @@ async function createTestOrganizationEmployee (client, organization, user, role,
     return [obj, attrs]
 }
 
-async function updateTestOrganizationEmployee (client, id, extraAttrs = {}) {
+async function updateTestOrganizationEmployee(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -112,7 +116,7 @@ async function updateTestOrganizationEmployee (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function softDeleteTestOrganizationEmployee (client, id, extraAttrs = {}) {
+async function softDeleteTestOrganizationEmployee(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -127,7 +131,7 @@ async function softDeleteTestOrganizationEmployee (client, id, extraAttrs = {}) 
     return updateTestOrganizationEmployee(client, id, attrs)
 }
 
-async function createTestOrganizationEmployeeRole (client, organization, extraAttrs = {}) {
+async function createTestOrganizationEmployeeRole(client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -146,7 +150,7 @@ async function createTestOrganizationEmployeeRole (client, organization, extraAt
 /**
  * Simplifies creating series of instances
  */
-async function makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee () {
+async function makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee() {
     const admin = await makeLoggedInAdminClient()
     const [organization] = await createTestOrganization(admin)
     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
@@ -155,7 +159,7 @@ async function makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee () 
     return { employee, role, organization, admin }
 }
 
-async function updateTestOrganizationEmployeeRole (client, id, extraAttrs = {}) {
+async function updateTestOrganizationEmployeeRole(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -170,7 +174,7 @@ async function updateTestOrganizationEmployeeRole (client, id, extraAttrs = {}) 
     return [obj, attrs]
 }
 
-async function createTestOrganizationLink (client, from, to, extraAttrs = {}) {
+async function createTestOrganizationLink(client, from, to, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!from || !from.id) throw new Error('no from.id')
     if (!to || !to.id) throw new Error('no to.id')
@@ -187,7 +191,7 @@ async function createTestOrganizationLink (client, from, to, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestOrganizationLink (client, id, extraAttrs = {}) {
+async function updateTestOrganizationLink(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -203,7 +207,7 @@ async function updateTestOrganizationLink (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestOrganizationWithAccessToAnotherOrganization () {
+async function createTestOrganizationWithAccessToAnotherOrganization() {
     const admin = await makeLoggedInAdminClient()
     // createClientWithProperty creates an employee inside himself, this behavior is not needed here
     const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -220,8 +224,14 @@ async function createTestOrganizationWithAccessToAnotherOrganization () {
     const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo)
 
     return {
-        clientFrom, propertyFrom, employeeFrom, organizationFrom,
-        clientTo, propertyTo, employeeTo, organizationTo,
+        clientFrom,
+        propertyFrom,
+        employeeFrom,
+        organizationFrom,
+        clientTo,
+        propertyTo,
+        employeeTo,
+        organizationTo,
         link,
     }
 }
@@ -239,8 +249,11 @@ module.exports = {
     createTestOrganizationEmployee,
     softDeleteTestOrganizationEmployee,
     makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
-    updateTestOrganizationEmployee, createTestOrganizationWithAccessToAnotherOrganization,
-    OrganizationLink, createTestOrganizationLink, updateTestOrganizationLink,
+    updateTestOrganizationEmployee,
+    createTestOrganizationWithAccessToAnotherOrganization,
+    OrganizationLink,
+    createTestOrganizationLink,
+    updateTestOrganizationLink,
 }
 
-    /* AUTOGENERATE MARKER <EXPORTS> */
+/* AUTOGENERATE MARKER <EXPORTS> */

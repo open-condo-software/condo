@@ -8,5 +8,5 @@ const { Contact } = require('./Contact')
 
 module.exports = {
     Contact,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -8,7 +8,7 @@ import {
     CONTACT_PAGE_SIZE,
 } from './helpers'
 
-function randInt (maxValue) {
+function randInt(maxValue) {
     return Math.floor(Math.random() * maxValue)
 }
 
@@ -43,14 +43,17 @@ describe('Contact Helpers', () => {
                 { key: phone, result: { phone_contains_i: phone } },
                 { key: email, result: { email_contains_i: email } },
                 { key: address, result: { property: { address_contains_i: address } } },
-                { key: search, result: {
-                    OR: [
-                        { name_contains_i: search },
-                        { phone_contains_i: search },
-                        { email_contains_i: search },
-                        { property: { address_contains_i: search } },
-                    ],
-                } },
+                {
+                    key: search,
+                    result: {
+                        OR: [
+                            { name_contains_i: search },
+                            { phone_contains_i: search },
+                            { email_contains_i: search },
+                            { property: { address_contains_i: search } },
+                        ],
+                    },
+                },
             ]
             describe('should generate correct filters', () => {
                 describe('if 1 filter defined', () => {
@@ -59,9 +62,7 @@ describe('Contact Helpers', () => {
                             const testFilters = {}
                             testFilters[filters[i].key] = filters[i].key
                             expect(filtersToQuery(testFilters)).toStrictEqual({
-                                AND: [
-                                    filters[i].result,
-                                ],
+                                AND: [filters[i].result],
                             })
                         })
                     }
@@ -74,10 +75,7 @@ describe('Contact Helpers', () => {
                                 testFilters[filters[i].key] = filters[i].key
                                 testFilters[filters[j].key] = filters[j].key
                                 expect(filtersToQuery(testFilters)).toStrictEqual({
-                                    AND: [
-                                        filters[i].result,
-                                        filters[j].result,
-                                    ],
+                                    AND: [filters[i].result, filters[j].result],
                                 })
                             })
                         }
@@ -93,11 +91,7 @@ describe('Contact Helpers', () => {
                                     testFilters[filters[j].key] = filters[j].key
                                     testFilters[filters[k].key] = filters[k].key
                                     expect(filtersToQuery(testFilters)).toStrictEqual({
-                                        AND: [
-                                            filters[i].result,
-                                            filters[j].result,
-                                            filters[k].result,
-                                        ],
+                                        AND: [filters[i].result, filters[j].result, filters[k].result],
                                     })
                                 })
                             }
@@ -115,12 +109,7 @@ describe('Contact Helpers', () => {
                                     testFilters[filters[k].key] = filters[k].key
                                     testFilters[filters[l].key] = filters[l].key
                                     expect(filtersToQuery(testFilters)).toStrictEqual({
-                                        AND: [
-                                            filters[i].result,
-                                            filters[j].result,
-                                            filters[k].result,
-                                            filters[l].result,
-                                        ],
+                                        AND: [filters[i].result, filters[j].result, filters[k].result, filters[l].result],
                                     })
                                 }
                             }
@@ -147,15 +136,17 @@ describe('Contact Helpers', () => {
                     expect(sorterToQuery([])).toStrictEqual([])
                 })
                 it('non-empty correct array', () => {
-                    expect(sorterToQuery([
-                        { columnKey: 'column1', order: 'ascend' },
-                        { columnKey: 'column2', order: 'descend' },
-                    ])).toStrictEqual(['column1_ASC', 'column2_DESC'])
+                    expect(
+                        sorterToQuery([
+                            { columnKey: 'column1', order: 'ascend' },
+                            { columnKey: 'column2', order: 'descend' },
+                        ]),
+                    ).toStrictEqual(['column1_ASC', 'column2_DESC'])
                 })
             })
             it('if sorter is Single object', () => {
-                expect(sorterToQuery({ columnKey:'c', order:'ascend' })).toStrictEqual(['c_ASC'])
-                expect(sorterToQuery({ columnKey:'c', order:'descend' })).toStrictEqual(['c_DESC'])
+                expect(sorterToQuery({ columnKey: 'c', order: 'ascend' })).toStrictEqual(['c_ASC'])
+                expect(sorterToQuery({ columnKey: 'c', order: 'descend' })).toStrictEqual(['c_DESC'])
             })
             it('should be empty if sorter is not provided', () => {
                 expect(sorterToQuery()).toStrictEqual([])
@@ -262,5 +253,3 @@ describe('Contact Helpers', () => {
         })
     })
 })
-
-

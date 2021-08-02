@@ -21,6 +21,7 @@ const LOCALES = {
 
 // TODO(pahaz): we also have a LANG. We need to check the locale usage and refactor it to locale or lang
 module.exports = {
-    RU_LOCALE, EN_LOCALE,
+    RU_LOCALE,
+    EN_LOCALE,
     LOCALES,
 }

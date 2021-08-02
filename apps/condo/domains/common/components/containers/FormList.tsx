@@ -14,7 +14,7 @@ const identity = (x) => !!x
 const NON_FIELD_ERROR_NAME = '_NON_FIELD_ERROR_'
 
 class ValidationError extends Error {
-    constructor (message, field = NON_FIELD_ERROR_NAME) {
+    constructor(message, field = NON_FIELD_ERROR_NAME) {
         super(message)
         this.name = 'ValidationError'
         this.field = field
@@ -22,115 +22,114 @@ class ValidationError extends Error {
 }
 
 const SListItemForm = styled(Form)`
-  width: 100%;
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: center;
-  align-items: stretch;
-  align-content: stretch;
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: stretch;
+    align-content: stretch;
 `
 
 const SListItem = styled(List.Item)`
-  padding: 0 !important;
+    padding: 0 !important;
 `
 
 const SListItemMeta = styled(List.Item.Meta)`
-  flex: 1 0 55%;
-  margin: 16px 24px;
+    flex: 1 0 55%;
+    margin: 16px 24px;
 `
 
 const SListItemExtra = styled.div`
-  flex: none;
-  margin: 16px 24px;
+    flex: none;
+    margin: 16px 24px;
 
-  & ul:first-child {
-    margin-top: 0;
-  }
+    & ul:first-child {
+        margin-top: 0;
+    }
 `
 
 const SSkeleton = styled(Skeleton)`
-  margin: 16px 24px;
+    margin: 16px 24px;
 `
 
 const SListActionsUl = styled.ul`
-  margin: 10px 10px 0;
-  text-align: center;
+    margin: 10px 10px 0;
+    text-align: center;
 
-  > li {
-    margin: 0;
-  }
+    > li {
+        margin: 0;
+    }
 `
 
-function FormList ({ dataSource, renderItem, ...extra }) {
+function FormList({ dataSource, renderItem, ...extra }) {
     if (!renderItem) throw new Error('renderItem prop is required')
 
-    return <List
-        size="large"
-        itemLayout={'horizontal'}
-        dataSource={dataSource}
-        renderItem={renderItemWrapper}
-        {...extra}
-    />
+    return <List size="large" itemLayout={'horizontal'} dataSource={dataSource} renderItem={renderItemWrapper} {...extra} />
 
-    function renderItemWrapper (item) {
+    function renderItemWrapper(item) {
         const itemData = renderItem(item)
         const itemMeta = { key: item.id, ...(itemData.itemMeta || {}) }
         const formMeta = { layout: 'inline', ...(itemData.formMeta || {}) }
         const mainBlockMeta = { key: `m${item.id}`, ...(itemData.mainBlockMeta || {}) }
         const extraBlockMeta = { key: `e${item.id}`, ...(itemData.extraBlockMeta || {}) }
-        return <SListItem {...itemMeta}>
-            <SListItemForm {...formMeta}>
-                <SSkeleton loading={item.loading} active>
-                    <SListItemMeta
-                        avatar={itemData.avatar}
-                        title={itemData.title}
-                        description={itemData.description}
-                        {...mainBlockMeta} />
-                    <SListItemExtra {...extraBlockMeta}>
-                        {(itemData.actions && Array.isArray(itemData.actions)) ?
-                            itemData.actions
-                                .map((actionsLine, i) => {
-                                    if (!actionsLine) return null
-                                    if (!Array.isArray(actionsLine)) throw new Error('renderItem() => itemData.actions should be array of arrays')
-                                    const cleanedActionsLine = actionsLine.filter(identity)
-                                    const length = cleanedActionsLine.length
-                                    if (length === 0) return null
-                                    return <SListActionsUl key={i} className='ant-list-item-action'>
-                                        {cleanedActionsLine
-                                            .map((action, j) => {
-                                                if (!action) return null
-                                                return <li key={j} className='ant-list-item-action'>
-                                                    {action}
-                                                    {j !== length - 1 && <em className='ant-list-item-action-split' />}
-                                                </li>
-                                            })
-                                        }
-                                    </SListActionsUl>
-                                })
-                                .filter(identity)
-                            : itemData.actions}
-                    </SListItemExtra>
-                </SSkeleton>
-            </SListItemForm>
-        </SListItem>
+        return (
+            <SListItem {...itemMeta}>
+                <SListItemForm {...formMeta}>
+                    <SSkeleton loading={item.loading} active>
+                        <SListItemMeta
+                            avatar={itemData.avatar}
+                            title={itemData.title}
+                            description={itemData.description}
+                            {...mainBlockMeta}
+                        />
+                        <SListItemExtra {...extraBlockMeta}>
+                            {itemData.actions && Array.isArray(itemData.actions)
+                                ? itemData.actions
+                                      .map((actionsLine, i) => {
+                                          if (!actionsLine) return null
+                                          if (!Array.isArray(actionsLine))
+                                              throw new Error('renderItem() => itemData.actions should be array of arrays')
+                                          const cleanedActionsLine = actionsLine.filter(identity)
+                                          const length = cleanedActionsLine.length
+                                          if (length === 0) return null
+                                          return (
+                                              <SListActionsUl key={i} className="ant-list-item-action">
+                                                  {cleanedActionsLine.map((action, j) => {
+                                                      if (!action) return null
+                                                      return (
+                                                          <li key={j} className="ant-list-item-action">
+                                                              {action}
+                                                              {j !== length - 1 && <em className="ant-list-item-action-split" />}
+                                                          </li>
+                                                      )
+                                                  })}
+                                              </SListActionsUl>
+                                          )
+                                      })
+                                      .filter(identity)
+                                : itemData.actions}
+                        </SListItemExtra>
+                    </SSkeleton>
+                </SListItemForm>
+            </SListItem>
+        )
     }
 }
 
-function CreateFormListItemButton ({ label, ...extra }) {
-    return <Button
-        type="dashed"
-        style={{ width: '100%' }}
-        {...extra}
-    >
-        <PlusOutlined />{label}
-    </Button>
+function CreateFormListItemButton({ label, ...extra }) {
+    return (
+        <Button type="dashed" style={{ width: '100%' }} {...extra}>
+            <PlusOutlined />
+            {label}
+        </Button>
+    )
 }
 
-function ExtraDropdownActionsMenu ({ actions }) {
+function ExtraDropdownActionsMenu({ actions }) {
     const actionsLine = actions.filter(identity)
     const [popConfirmProps, setPopConfirmProps] = useState({ visible: false, title: null, icon: null })
 
-    function handleAction ({ key }) {
+    function handleAction({ key }) {
         const action = actionsLine[key]
         if (action.confirm) {
             setPopConfirmProps({
@@ -145,39 +144,48 @@ function ExtraDropdownActionsMenu ({ actions }) {
         }
     }
 
-    return <Popconfirm {...popConfirmProps}>
-        <Dropdown overlay={<Menu onClick={handleAction}>
-            {actionsLine.map((action, i) => <Menu.Item key={i}>{action.label}</Menu.Item>)}
-        </Menu>}>
-            <a> ... <DownOutlined /></a>
-        </Dropdown>
-    </Popconfirm>
+    return (
+        <Popconfirm {...popConfirmProps}>
+            <Dropdown
+                overlay={
+                    <Menu onClick={handleAction}>
+                        {actionsLine.map((action, i) => (
+                            <Menu.Item key={i}>{action.label}</Menu.Item>
+                        ))}
+                    </Menu>
+                }
+            >
+                <a>
+                    {' '}
+                    ... <DownOutlined />
+                </a>
+            </Dropdown>
+        </Popconfirm>
+    )
 }
 
-function ExpandableDescription ({ children }) {
+function ExpandableDescription({ children }) {
     const intl = useIntl()
     const ReadMoreMsg = intl.formatMessage({ id: 'ReadMore' })
 
-    return <Typography.Paragraph ellipsis={{ rows: 3, expandable: true, symbol: ReadMoreMsg }}>
-        {children}
-    </Typography.Paragraph>
+    return <Typography.Paragraph ellipsis={{ rows: 3, expandable: true, symbol: ReadMoreMsg }}>{children}</Typography.Paragraph>
 }
 
-function useCreateAndEditModalForm () {
+function useCreateAndEditModalForm() {
     const [visible, setIsModalVisible] = useState(false)
     const [editableItem, setModalObject] = useState(null)
 
-    function openCreateModal () {
+    function openCreateModal() {
         setIsModalVisible(true)
         setModalObject(null)
     }
 
-    function openEditModal (item) {
+    function openEditModal(item) {
         setIsModalVisible(true)
         setModalObject(item)
     }
 
-    function cancelModal () {
+    function cancelModal() {
         setIsModalVisible(false)
         setModalObject(null)
     }
@@ -200,10 +208,13 @@ interface IFormWithAction {
     layout?: 'vertical' | 'horizontal'
     colon?: boolean
     formValuesToMutationDataPreprocessor?: (values: IFormValuesType) => IFormValuesType
-    ErrorToFormFieldMsgMapping?: Record<string, {
-        name: string
-        errors: string[]
-    }>
+    ErrorToFormFieldMsgMapping?: Record<
+        string,
+        {
+            name: string
+            errors: string[]
+        }
+    >
     mutationExtraVariables?: Record<string, unknown>
     mutationExtraData?: Record<string, unknown>
     formValuesToMutationDataPreprocessor?: (values) => values
@@ -244,7 +255,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
     let create = null
 
     if (!action) {
-        [create] = useMutation(mutation) // eslint-disable-line react-hooks/rules-of-hooks
+        ;[create] = useMutation(mutation) // eslint-disable-line react-hooks/rules-of-hooks
     }
 
     const _handleSubmit = useCallback((values) => {
@@ -254,7 +265,9 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
         if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
         let data
         try {
-            data = (formValuesToMutationDataPreprocessor) ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext, form) : values
+            data = formValuesToMutationDataPreprocessor
+                ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext, form)
+                : values
         } catch (err) {
             if (err instanceof ValidationError) {
                 let errors = []
@@ -273,7 +286,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
                 return
             } else {
                 form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [ClientSideErrorMsg] }])
-                throw err  // unknown error, rethrow it (**)
+                throw err // unknown error, rethrow it (**)
             }
         }
         form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [] }])
@@ -302,10 +315,10 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
             OnErrorMsg,
             OnCompletedMsg,
         })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    function handleSave () {
+    function handleSave() {
         // TODO(zuch) Possible bug: If user press save button and form not touched he will stay on edit screen with no response from system
         // if (form.isFieldsTouched()) {
         form.submit()
@@ -315,13 +328,13 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
     const errors = {}
 
     const throttledValidateFields = throttle((field) => {
-        const item = form.getFieldsError().find(item => item.name[0] === field)
+        const item = form.getFieldsError().find((item) => item.name[0] === field)
 
         errors[field] = errors[field] || Boolean(item.errors.length)
         errors[field] && form.validateFields([field])
     }, 400)
 
-    async function handleChange (changedValues, allValues) {
+    async function handleChange(changedValues, allValues) {
         const field = Object.keys(changedValues)[0]
         throttledValidateFields(field)
 
@@ -339,7 +352,9 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
             colon={colon}
             scrollToFirstError
         >
-            <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input /></Form.Item>
+            <Form.Item className="ant-non-field-error" name={NON_FIELD_ERROR_NAME}>
+                <Input />
+            </Form.Item>
             {children({ handleSave, isLoading, handleSubmit: _handleSubmit, form })}
         </Form>
     )
@@ -372,35 +387,40 @@ const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
     const handleSaveRef = useRef(null)
     const Buttons = []
     if (showCancelButton) {
-        Buttons.push((<Button key="cancel" type="sberPrimary" secondary onClick={cancelModal}>{CancelMessage}</Button>))
+        Buttons.push(
+            <Button key="cancel" type="sberPrimary" secondary onClick={cancelModal}>
+                {CancelMessage}
+            </Button>,
+        )
     }
-    return (<Modal
-        title={<h2 style={{ fontWeight: 'bold', lineHeight: '22px', marginBottom: '0px' }}>{ModalTitleMsg}</h2>}
-        visible={visible}
-        onCancel={cancelModal}
-        footer={[
-            ...modalExtraFooter,
-            ...Buttons,
-            <Button key="submit" onClick={() => {
-                handleSaveRef.current()
-            }} type="sberPrimary" >{SaveMessage}</Button>,
-        ]}
-    >
-        <FormWithAction {...props}>
-            {
-                ({ handleSave }) => {
+    return (
+        <Modal
+            title={<h2 style={{ fontWeight: 'bold', lineHeight: '22px', marginBottom: '0px' }}>{ModalTitleMsg}</h2>}
+            visible={visible}
+            onCancel={cancelModal}
+            footer={[
+                ...modalExtraFooter,
+                ...Buttons,
+                <Button
+                    key="submit"
+                    onClick={() => {
+                        handleSaveRef.current()
+                    }}
+                    type="sberPrimary"
+                >
+                    {SaveMessage}
+                </Button>,
+            ]}
+        >
+            <FormWithAction {...props}>
+                {({ handleSave }) => {
                     handleSaveRef.current = handleSave
-                    return (
-                        <>
-                            {children}
-                        </>
-                    )
-                }
-            }
-        </FormWithAction>
-    </Modal>)
+                    return <>{children}</>
+                }}
+            </FormWithAction>
+        </Modal>
+    )
 }
-
 
 export {
     ValidationError,

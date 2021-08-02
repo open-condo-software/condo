@@ -8,7 +8,7 @@ const COUNTRIES = {
         'role.dispatcher.name': 'Dispatcher',
         'role.manager.name': 'Manager',
         'role.foreman.name': 'Foreman',
-        'role.technician.name' : 'Technician',
+        'role.technician.name': 'Technician',
         // statusTransitions: {},  // TODO(pahaz): write logic for transitions
         phonePattern: /^[+]1[0-9-. ()]{7,}[0-9]$/gi,
         locale: EN_LOCALE,
@@ -18,7 +18,7 @@ const COUNTRIES = {
         'role.dispatcher.name': 'Диспетчер',
         'role.manager.name': 'Управляющий',
         'role.foreman.name': 'Мастер участка',
-        'role.technician.name' : 'Техник',
+        'role.technician.name': 'Техник',
         // statusTransitions: {},  // TODO(pahaz): write logic for transitions
         phonePattern: /^[+]?[0-9-. ()]{7,}[0-9]$/gi,
         locale: RU_LOCALE,
@@ -26,6 +26,7 @@ const COUNTRIES = {
 }
 
 module.exports = {
-    DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY,
+    DEFAULT_ENGLISH_COUNTRY,
+    RUSSIA_COUNTRY,
     COUNTRIES,
 }

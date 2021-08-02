@@ -1,12 +1,12 @@
 /*
-* Accepts an excel file as input
-* Parses it column by column
-* Validates address
-* Normalizes address
-* Checks the uniqueness of the address
-* Generates a checkerboard according to the specified parameters (If there are no parameters, it substitutes the default markup)
-* Creates an object
-* */
+ * Accepts an excel file as input
+ * Parses it column by column
+ * Validates address
+ * Normalizes address
+ * Checks the uniqueness of the address
+ * Generates a checkerboard according to the specified parameters (If there are no parameters, it substitutes the default markup)
+ * Creates an object
+ * */
 import isEqual from 'lodash/isEqual'
 import get from 'lodash/get'
 import cloneDeep from 'lodash/cloneDeep'
@@ -17,8 +17,8 @@ import { MapEdit, MapTypesList, BuildingSection } from '../components/panels/Bui
 type TableRow = Array<Record<'value', string | number>>
 
 type IBuildingMap = {
-    dv: number,
-    type: MapTypesList,
+    dv: number
+    type: MapTypesList
     sections: Array<BuildingSection>
 }
 
@@ -35,7 +35,7 @@ interface IPropertyImporter {
 }
 
 export class PropertyImporter implements IPropertyImporter {
-    constructor (
+    constructor(
         // TODO(Dimitreee): remove any
         private propertyCreator: (...args: any) => Promise<any>,
         private propertyValidator: (address: string) => Promise<boolean>,
@@ -43,7 +43,7 @@ export class PropertyImporter implements IPropertyImporter {
     ) {}
 
     // TODO(Dimitreee): remove any
-    public import (data: Array<TableRow>): Promise<any> {
+    public import(data: Array<TableRow>): Promise<any> {
         this.tableData = data
         const [columns, ...body] = this.tableData
 
@@ -53,12 +53,12 @@ export class PropertyImporter implements IPropertyImporter {
             return
         }
 
-        return this.createPropertyRecord(cloneDeep(body)).catch(e => {
+        return this.createPropertyRecord(cloneDeep(body)).catch((e) => {
             this.errorHandler(e)
         })
     }
 
-    public onProgressUpdate (handleProgressUpdate: ProgressUpdateHandler): void {
+    public onProgressUpdate(handleProgressUpdate: ProgressUpdateHandler): void {
         this.progressUpdateHandler = handleProgressUpdate
     }
 
@@ -66,15 +66,15 @@ export class PropertyImporter implements IPropertyImporter {
         this.breakImport = true
     }
 
-    public onFinish (handleFinish: FinishHandler): void {
+    public onFinish(handleFinish: FinishHandler): void {
         this.finishHandler = handleFinish
     }
 
-    public onError (handleError: ErrorHandler): void {
+    public onError(handleError: ErrorHandler): void {
         this.errorHandler = handleError
     }
 
-    private async createPropertyRecord (table, index = 0) {
+    private async createPropertyRecord(table, index = 0) {
         if (this.breakImport) {
             return Promise.resolve()
         }
@@ -113,12 +113,12 @@ export class PropertyImporter implements IPropertyImporter {
             .then(() => {
                 return this.createPropertyRecord(table, index++)
             })
-            .catch(e => {
+            .catch((e) => {
                 this.errorHandler(e)
             })
     }
 
-    private addProperty (property, map: Scalars['JSON']) {
+    private addProperty(property, map: Scalars['JSON']) {
         return this.validateAddress(property.value)
             .then((isPropertyValid) => {
                 if (isPropertyValid) {
@@ -135,12 +135,13 @@ export class PropertyImporter implements IPropertyImporter {
                 }
 
                 return Promise.resolve()
-            }).then(() => {
+            })
+            .then(() => {
                 this.updateProgress()
             })
     }
 
-    private isColumnsValid (row: TableRow): boolean {
+    private isColumnsValid(row: TableRow): boolean {
         const validColumns = ['address', 'units', 'sections', 'floors']
         const normalizedTableColumns = row.map(({ value }) => {
             if (typeof value === 'string') {
@@ -152,7 +153,7 @@ export class PropertyImporter implements IPropertyImporter {
         return isEqual(validColumns, normalizedTableColumns)
     }
 
-    private isRowValid (row: TableRow): boolean {
+    private isRowValid(row: TableRow): boolean {
         const [address, units, sections, floors] = row
 
         return (
@@ -163,7 +164,7 @@ export class PropertyImporter implements IPropertyImporter {
         )
     }
 
-    private updateProgress (value?: number) {
+    private updateProgress(value?: number) {
         if (value) {
             this.progress.current = value
         } else {
@@ -180,11 +181,11 @@ export class PropertyImporter implements IPropertyImporter {
         this.progressUpdateHandler(this.progress.current)
     }
 
-    private validateAddress (address: string): Promise<boolean> {
+    private validateAddress(address: string): Promise<boolean> {
         return this.propertyValidator(address)
     }
 
-    private createPropertyUnitsMap (units: number, sections: number, floors: number): IBuildingMap {
+    private createPropertyUnitsMap(units: number, sections: number, floors: number): IBuildingMap {
         const unitsOnFloor = Math.floor(units / (floors * sections))
         if (!unitsOnFloor) {
             return
@@ -224,6 +225,6 @@ export class PropertyImporter implements IPropertyImporter {
     private breakImport = false
 }
 
-function sleep (ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms))
+function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
 }

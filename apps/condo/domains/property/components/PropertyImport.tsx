@@ -31,7 +31,7 @@ const useImporter = (onFinish, onError) => {
         {
             organization: userOrganizationId,
         },
-        () => Promise.resolve()
+        () => Promise.resolve(),
     )
 
     const validateProperty = (address) => {
@@ -40,10 +40,9 @@ const useImporter = (onFinish, onError) => {
             organization: { id: userOrganizationId },
         }
 
-        return searchProperty(client, where)
-            .then((res) => {
-                return res.length === 0
-            })
+        return searchProperty(client, where).then((res) => {
+            return res.length === 0
+        })
     }
 
     const importData = useCallback((data) => {
@@ -88,25 +87,19 @@ const getPropertyUploadInfoModalConfig = (intl, onButtonClick) => {
         closable: false,
         content: (
             <ModalContext.Consumer>
-                {
-                    ({ progress }) => {
-                        return (
-                            <>
-                                <Progress
-                                    format={(percent) => Math.floor(percent) + '%'}
-                                    percent={progress}
-                                    status={'active'}
-                                />
-                                <Alert
-                                    style={{ marginTop: 16 }}
-                                    // TODO(Dimitreee): add translations
-                                    message={intl.formatMessage({ id: 'property.Processing' })}
-                                    type='info'
-                                />
-                            </>
-                        )
-                    }
-                }
+                {({ progress }) => {
+                    return (
+                        <>
+                            <Progress format={(percent) => Math.floor(percent) + '%'} percent={progress} status={'active'} />
+                            <Alert
+                                style={{ marginTop: 16 }}
+                                // TODO(Dimitreee): add translations
+                                message={intl.formatMessage({ id: 'property.Processing' })}
+                                type="info"
+                            />
+                        </>
+                    )
+                }}
             </ModalContext.Consumer>
         ),
         okText: intl.formatMessage({ id: 'property.Break' }),
@@ -128,7 +121,7 @@ const getPropertyUploadSuccessModalConfig = (intl) => {
                 style={{ marginTop: 16 }}
                 // TODO(Dimitreee): add translations
                 message={intl.formatMessage({ id: 'property.ImportSuccess' })}
-                type='success'
+                type="success"
             />
         ),
         okText: intl.formatMessage({ id: 'property.Continue' }),
@@ -142,20 +135,18 @@ const getPropertyUploadErrorModalConfig = (intl) => {
         closable: true,
         content: (
             <ModalContext.Consumer>
-                {
-                    ({ error }) => {
-                        const errorMessage = get(error, 'message') || intl.formatMessage({ id: 'property.ImportError' })
+                {({ error }) => {
+                    const errorMessage = get(error, 'message') || intl.formatMessage({ id: 'property.ImportError' })
 
-                        return (
-                            <Alert
-                                style={{ marginTop: 16 }}
-                                // TODO(Dimitreee): add translations
-                                message={errorMessage}
-                                type='error'
-                            />
-                        )
-                    }
-                }
+                    return (
+                        <Alert
+                            style={{ marginTop: 16 }}
+                            // TODO(Dimitreee): add translations
+                            message={errorMessage}
+                            type="error"
+                        />
+                    )
+                }}
             </ModalContext.Consumer>
         ),
         okText: intl.formatMessage({ id: 'property.Continue' }),
@@ -196,13 +187,10 @@ export const PropertyImport: React.FC<IPropertyImport> = (props) => {
 
     const handleUpload = useCallback((file) => {
         destroyActiveModal()
-        const config = getPropertyUploadInfoModalConfig(
-            intl,
-            () => {
-                breakImport()
-                props.onFinish()
-            }
-        )
+        const config = getPropertyUploadInfoModalConfig(intl, () => {
+            breakImport()
+            props.onFinish()
+        })
         activeModal.current = modal.info(config)
 
         importData(file.data)
@@ -214,11 +202,7 @@ export const PropertyImport: React.FC<IPropertyImport> = (props) => {
         canManageProperties && (
             <ModalContext.Provider value={{ progress, error, isImported }}>
                 <DataImporter onUpload={handleUpload}>
-                    <Button
-                        type={'sberPrimary'}
-                        icon={<DiffOutlined />}
-                        secondary
-                    />
+                    <Button type={'sberPrimary'} icon={<DiffOutlined />} secondary />
                 </DataImporter>
                 {contextHolder}
             </ModalContext.Provider>

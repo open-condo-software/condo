@@ -3,13 +3,13 @@ const { gql } = require('graphql-tag')
 
 const DEFAULT_PAGE_SIZE = 100
 
-function getModelForms (key) {
+function getModelForms(key) {
     const MODEL = pluralize.singular(key)
     const MODELS = pluralize.plural(key)
     return [MODEL, MODELS]
 }
 
-function genGetAllGQL (key, fields) {
+function genGetAllGQL(key, fields) {
     const [MODEL, MODELS] = getModelForms(key)
     return gql`
         query getAll${MODELS}($where: ${MODEL}WhereInput, $first: Int = ${DEFAULT_PAGE_SIZE}, $skip: Int, $sortBy: [Sort${MODELS}By!]) {
@@ -18,7 +18,7 @@ function genGetAllGQL (key, fields) {
     `
 }
 
-function genGetCountGQL (key) {
+function genGetCountGQL(key) {
     const [MODEL, MODELS] = getModelForms(key)
     return gql`
         query get${MODELS}Meta($where: ${MODEL}WhereInput) {
@@ -27,7 +27,7 @@ function genGetCountGQL (key) {
     `
 }
 
-function genGetAllWithCountGQL (key, fields) {
+function genGetAllWithCountGQL(key, fields) {
     const [MODEL, MODELS] = getModelForms(key)
     return gql`
         query getAll${MODELS}($where: ${MODEL}WhereInput, $first: Int = ${DEFAULT_PAGE_SIZE}, $skip: Int, $sortBy: [Sort${MODELS}By!]) {
@@ -37,7 +37,7 @@ function genGetAllWithCountGQL (key, fields) {
     `
 }
 
-function genCreateGQL (key, fields) {
+function genCreateGQL(key, fields) {
     const [MODEL] = getModelForms(key)
     return gql`
         mutation create${MODEL}($data: ${MODEL}CreateInput) {
@@ -46,7 +46,7 @@ function genCreateGQL (key, fields) {
     `
 }
 
-function genUpdateGQL (key, fields) {
+function genUpdateGQL(key, fields) {
     const [MODEL] = getModelForms(key)
     return gql`
         mutation update${MODEL}($id: ID!, $data: ${MODEL}UpdateInput) {
@@ -55,7 +55,7 @@ function genUpdateGQL (key, fields) {
     `
 }
 
-function genDeleteGQL (key, fields) {
+function genDeleteGQL(key, fields) {
     const [MODEL] = getModelForms(key)
     return gql`
         mutation delete${MODEL}($id: ID!) {
@@ -64,10 +64,9 @@ function genDeleteGQL (key, fields) {
     `
 }
 
-function generateGqlQueries (key, fields) {
+function generateGqlQueries(key, fields) {
     const [singularName, pluralName] = getModelForms(key)
-    if (!fields.startsWith('{') || !fields.endsWith('}'))
-        throw new Error('wrong list fields format. Try "{ name1 name2 }"')
+    if (!fields.startsWith('{') || !fields.endsWith('}')) throw new Error('wrong list fields format. Try "{ name1 name2 }"')
     const GET_ALL_OBJS_QUERY = genGetAllGQL(singularName, fields)
     const GET_COUNT_OBJS_QUERY = genGetCountGQL(singularName)
     const GET_ALL_OBJS_WITH_COUNT_QUERY = genGetAllWithCountGQL(singularName, fields)

@@ -41,7 +41,7 @@ export const EditContactForm: React.FC = () => {
     const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
     const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
-    const FullNamePlaceholderMessage = intl.formatMessage({ id:'field.FullName' })
+    const FullNamePlaceholderMessage = intl.formatMessage({ id: 'field.FullName' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
@@ -109,19 +109,19 @@ export const EditContactForm: React.FC = () => {
     }, [FieldIsRequiredMessage, PhoneIsNotValidMessage, EmailErrorMessage, FullNameRequiredMessage])
 
     if (error) {
-        return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
+        return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null} />
     }
     if (loading) {
         return <Loader />
     }
     if (!contact) {
-        return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
+        return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage} />
     }
 
     const isContactEditable = canManageContacts(link, contact)
 
     if (!isContactEditable) {
-        return <LoadingOrErrorPage title={ProfileUpdateTitle} loading={false} error={NoPermissionMessage}/>
+        return <LoadingOrErrorPage title={ProfileUpdateTitle} loading={false} error={NoPermissionMessage} />
     }
 
     const formAction = (formValues) => {
@@ -141,82 +141,69 @@ export const EditContactForm: React.FC = () => {
                 layout={'horizontal'}
                 validateTrigger={['onBlur', 'onSubmit']}
             >
-                {
-                    ({ handleSave, isLoading }) => {
-                        return (
-                            <Row>
-                                <Col span={3}>
-                                    <UserAvatar borderRadius={24}/>
-                                </Col>
-                                <Col span={20} push={1}>
-                                    <Row gutter={[0, 40]}>
-                                        <Col span={24}>
-                                            <Typography.Title
-                                                level={1}
-                                                style={{ margin: 0, fontWeight: 'bold' }}
-                                            >
-                                                {ProfileUpdateTitle}
-                                            </Typography.Title>
-                                        </Col>
-                                        <Col span={24}>
-                                            <Form.Item
-                                                {...INPUT_LAYOUT_PROPS}
-                                                labelAlign={'left'}
-                                                name={'name'}
-                                                label={NameLabel}
-                                                required={true}
-                                                validateFirst
-                                                rules={validations.name}
-                                            >
-                                                <Input placeholder={FullNamePlaceholderMessage}/>
-                                            </Form.Item>
-                                        </Col>
-                                        <Col span={24}>
-                                            <Form.Item
-                                                {...INPUT_LAYOUT_PROPS}
-                                                labelAlign={'left'}
-                                                name={'phone'}
-                                                label={PhoneLabel}
-                                                required={true}
-                                                validateFirst
-                                                rules={validations.phone}
-                                            >
-                                                <PhoneInput placeholder={ExamplePhoneMessage} style={{ width: '100%' }}/>
-                                            </Form.Item>
-                                        </Col>
-                                        <Col span={24}>
-                                            <Form.Item
-                                                {...INPUT_LAYOUT_PROPS}
-                                                labelAlign={'left'}
-                                                name={'email'}
-                                                label={EmailLabel}
-                                                required={false}
-                                                validateFirst
-                                                rules={validations.email}
-                                            >
-                                                <Input/>
-                                            </Form.Item>
-                                        </Col>
-                                        <Space size={40} style={{ paddingTop: '36px' }}>
-                                            <FormResetButton
-                                                type={'sberPrimary'}
-                                                secondary
-                                            />
-                                            <Button
-                                                key={'submit'}
-                                                onClick={handleSave}
-                                                type={'sberPrimary'}
-                                                loading={isLoading}
-                                            >
-                                                {ApplyChangesMessage}
-                                            </Button>
-                                        </Space>
-                                    </Row>
-                                </Col>
-                            </Row>
-                        )
-                    }
-                }
+                {({ handleSave, isLoading }) => {
+                    return (
+                        <Row>
+                            <Col span={3}>
+                                <UserAvatar borderRadius={24} />
+                            </Col>
+                            <Col span={20} push={1}>
+                                <Row gutter={[0, 40]}>
+                                    <Col span={24}>
+                                        <Typography.Title level={1} style={{ margin: 0, fontWeight: 'bold' }}>
+                                            {ProfileUpdateTitle}
+                                        </Typography.Title>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            {...INPUT_LAYOUT_PROPS}
+                                            labelAlign={'left'}
+                                            name={'name'}
+                                            label={NameLabel}
+                                            required={true}
+                                            validateFirst
+                                            rules={validations.name}
+                                        >
+                                            <Input placeholder={FullNamePlaceholderMessage} />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            {...INPUT_LAYOUT_PROPS}
+                                            labelAlign={'left'}
+                                            name={'phone'}
+                                            label={PhoneLabel}
+                                            required={true}
+                                            validateFirst
+                                            rules={validations.phone}
+                                        >
+                                            <PhoneInput placeholder={ExamplePhoneMessage} style={{ width: '100%' }} />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            {...INPUT_LAYOUT_PROPS}
+                                            labelAlign={'left'}
+                                            name={'email'}
+                                            label={EmailLabel}
+                                            required={false}
+                                            validateFirst
+                                            rules={validations.email}
+                                        >
+                                            <Input />
+                                        </Form.Item>
+                                    </Col>
+                                    <Space size={40} style={{ paddingTop: '36px' }}>
+                                        <FormResetButton type={'sberPrimary'} secondary />
+                                        <Button key={'submit'} onClick={handleSave} type={'sberPrimary'} loading={isLoading}>
+                                            {ApplyChangesMessage}
+                                        </Button>
+                                    </Space>
+                                </Row>
+                            </Col>
+                        </Row>
+                    )
+                }}
             </FormWithAction>
         </>
     )

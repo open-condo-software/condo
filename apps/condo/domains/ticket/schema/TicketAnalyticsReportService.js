@@ -6,8 +6,11 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
 const moment = require('moment')
 const get = require('lodash/get')
-const { createCountersStructure, fetchTicketsForAnalytics, DATE_FORMATS } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
-
+const {
+    createCountersStructure,
+    fetchTicketsForAnalytics,
+    DATE_FORMATS,
+} = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
 
 const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportService', {
     types: [
@@ -30,9 +33,11 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             access: access.canReadTicketAnalyticsReport,
             schema: 'ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { where = {}, groupBy = [] } } = args
+                const {
+                    data: { where = {}, groupBy = [] },
+                } = args
                 let allTickets = await fetchTicketsForAnalytics(context, where)
-                allTickets = allTickets.map( ticket => {
+                allTickets = allTickets.map((ticket) => {
                     ticket.interval = {
                         day: moment(ticket.createdAt).format(DATE_FORMATS.day),
                         week: moment(ticket.createdAt).endOf('week').format(DATE_FORMATS.week),
@@ -47,7 +52,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                     week: 'interval.week',
                     month: 'interval.month',
                 }
-                const allDates = allTickets.map(ticket => new Date(ticket.createdAt))
+                const allDates = allTickets.map((ticket) => new Date(ticket.createdAt))
                 const { groupedCounters, translates } = await createCountersStructure({
                     context,
                     organization: where.organization,
@@ -64,9 +69,9 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                     result[translates[group1Name][group1Option]] = {}
                     for (const group2Option in groupedCounters[group1Option]) {
                         result[translates[group1Name][group1Option]][translates[group2Name][group2Option]] = allTickets.filter(
-                            ticket =>
+                            (ticket) =>
                                 get(ticket, groupByFields[group1Name]) === group1Option &&
-                                get(ticket, groupByFields[group2Name]) === group2Option
+                                get(ticket, groupByFields[group2Name]) === group2Option,
                         ).length
                     }
                 }
@@ -74,7 +79,6 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             },
         },
     ],
-
 })
 
 module.exports = {

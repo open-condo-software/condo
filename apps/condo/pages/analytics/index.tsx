@@ -18,7 +18,9 @@ import {
     Divider,
     Select,
     TableColumnsType,
-    Tooltip, Form, notification,
+    Tooltip,
+    Form,
+    notification,
 } from 'antd'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
@@ -46,18 +48,18 @@ interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
 }
 interface ITicketAnalyticsPageWidgetProps {
-    data: null | AnalyticsDataType;
-    viewMode: viewModeTypes;
-    loading?: boolean;
+    data: null | AnalyticsDataType
+    viewMode: viewModeTypes
+    loading?: boolean
 }
 interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps {
-    onChartReady?: () => void;
-    animationEnabled?: boolean;
-    chartHeight?: number;
+    onChartReady?: () => void
+    animationEnabled?: boolean
+    chartHeight?: number
 }
 
 interface ITicketAnalyticsPageListViewProps extends ITicketAnalyticsPageWidgetProps {
-    filters: null | ticketAnalyticsPageFilters;
+    filters: null | ticketAnalyticsPageFilters
 }
 interface ITicketAnalyticsPageFilterProps {
     onChange?: ({ range, specification, addressList }: ticketAnalyticsPageFilters) => void
@@ -79,17 +81,41 @@ const DATE_RANGE_PRESETS = {
 type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
 type ticketSelectTypes = 'default' | 'paid' | 'emergency'
 const DATE_DISPLAY_FORMAT = 'DD.MM.YYYY'
-const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5], colors.volcano[5], colors.purple[5],
-    colors.lime[7], colors.sberGrey[7], colors.magenta[5], colors.blue[4], colors.gold[6], colors.cyan[6],
-    colors.blue[7], colors.volcano[6], colors.green[5], colors.geekblue[7], colors.sberGrey[7], colors.gold[7],
-    colors.magenta[7], colors.yellow[5], colors.lime[7], colors.blue[8], colors.cyan[5], colors.yellow[6],
-    colors.purple[7], colors.lime[8], colors.red[6] ]
+const COLOR_SET = [
+    colors.blue[5],
+    colors.green[5],
+    colors.red[4],
+    colors.gold[5],
+    colors.volcano[5],
+    colors.purple[5],
+    colors.lime[7],
+    colors.sberGrey[7],
+    colors.magenta[5],
+    colors.blue[4],
+    colors.gold[6],
+    colors.cyan[6],
+    colors.blue[7],
+    colors.volcano[6],
+    colors.green[5],
+    colors.geekblue[7],
+    colors.sberGrey[7],
+    colors.gold[7],
+    colors.magenta[7],
+    colors.yellow[5],
+    colors.lime[7],
+    colors.blue[8],
+    colors.cyan[5],
+    colors.yellow[6],
+    colors.purple[7],
+    colors.lime[8],
+    colors.red[6],
+]
 const SPECIFICATIONS = ['day', 'week']
 
 const ticketChartDataMapper = new TicketChart({
     line: {
         chart: (viewMode, data) => {
-            const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+            const axisLabels = Array.from(new Set(Object.values(data).flatMap((e) => Object.keys(e))))
             const legend = Object.keys(data)
             const series = []
             Object.entries(data).map(([groupBy, dataObj]) => {
@@ -113,20 +139,26 @@ const ticketChartDataMapper = new TicketChart({
             const dataSource = []
             const { translations, filters } = restOptions
             const tableColumns: TableColumnsType = [
-                { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
+                {
+                    title: translations['address'],
+                    dataIndex: 'address',
+                    key: 'address',
+                    sorter: (a, b) => a['address'] - b['address'],
+                },
                 {
                     title: translations['date'],
                     dataIndex: 'date',
                     key: 'date',
                     defaultSortOrder: 'descend',
-                    sorter: (a, b) => moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
+                    sorter: (a, b) =>
+                        moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
                 },
-                ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) =>a[key] - b[key] })),
+                ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
             ]
-            const uniqueDates = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+            const uniqueDates = Array.from(new Set(Object.values(data).flatMap((e) => Object.keys(e))))
             uniqueDates.forEach((date, key) => {
                 const restTableColumns = {}
-                Object.keys(data).forEach(ticketType => (restTableColumns[ticketType] = data[ticketType][date]))
+                Object.keys(data).forEach((ticketType) => (restTableColumns[ticketType] = data[ticketType][date]))
                 let address = translations['allAddresses']
                 const addressList = get(filters, 'addresses')
                 if (addressList && addressList.length) {
@@ -140,7 +172,7 @@ const ticketChartDataMapper = new TicketChart({
     bar: {
         chart: (viewMode, data) => {
             const series = []
-            const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+            const axisLabels = Array.from(new Set(Object.values(data).flatMap((e) => Object.keys(e))))
             const legend = Object.keys(data)
             Object.entries(data).map(([groupBy, dataObj]) => {
                 series.push({
@@ -163,7 +195,12 @@ const ticketChartDataMapper = new TicketChart({
             const { translations, filters } = restOptions
             const dataSource = []
             const tableColumns: TableColumnsType = [
-                { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
+                {
+                    title: translations['address'],
+                    dataIndex: 'address',
+                    key: 'address',
+                    sorter: (a, b) => a['address'] - b['address'],
+                },
                 ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
             ]
             const restTableColumns = {}
@@ -183,10 +220,11 @@ const ticketChartDataMapper = new TicketChart({
             } else {
                 addressList.forEach((address, key) => {
                     const tableRow = { key, address }
-                    Object.entries(data).forEach(rowEntry => {
+                    Object.entries(data).forEach((rowEntry) => {
                         const [ticketType, dataObj] = rowEntry
                         const counts = Object.entries(dataObj)
-                            .filter(obj => obj[0] === address).map(e => e[1]) as number[]
+                            .filter((obj) => obj[0] === address)
+                            .map((e) => e[1]) as number[]
                         tableRow[ticketType] = counts.reduce((a, b) => a + b, 0)
                     })
                     dataSource.push(tableRow)
@@ -194,7 +232,6 @@ const ticketChartDataMapper = new TicketChart({
             }
             return { dataSource, tableColumns }
         },
-
     },
 })
 
@@ -205,7 +242,8 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
     loading = false,
     onChartReady,
     animationEnabled = false,
-    chartHeight }) => {
+    chartHeight,
+}) => {
     const intl = useIntl()
     const NoData = intl.formatMessage({ id: 'NoData' })
     if (data === null) {
@@ -239,35 +277,38 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
         ...axisData,
         series,
     }
-    const isEmptyDataSet = Object.values(data).every(ticketStatus => isEmpty(ticketStatus)) && !loading
-    return <Typography.Paragraph style={{ position: 'relative' }}>
-        {isEmptyDataSet ? (
-            <Typography.Paragraph>
-                <BasicEmptyListView>
-                    <Typography.Text>{NoData}</Typography.Text>
-                </BasicEmptyListView>
-            </Typography.Paragraph>
-        ) : (
-            <>
-                <ReactECharts
-                    opts={{ renderer: 'svg', height: chartHeight ? chartHeight : 'auto' }}
-                    onChartReady={onChartReady}
-                    notMerge
-                    showLoading={loading}
-                    style={{ height: chartHeight ? 'unset' : 300 }}
-                    option={option}/>
-                {children}
-            </>
-        )}
-
-    </Typography.Paragraph>
+    const isEmptyDataSet = Object.values(data).every((ticketStatus) => isEmpty(ticketStatus)) && !loading
+    return (
+        <Typography.Paragraph style={{ position: 'relative' }}>
+            {isEmptyDataSet ? (
+                <Typography.Paragraph>
+                    <BasicEmptyListView>
+                        <Typography.Text>{NoData}</Typography.Text>
+                    </BasicEmptyListView>
+                </Typography.Paragraph>
+            ) : (
+                <>
+                    <ReactECharts
+                        opts={{ renderer: 'svg', height: chartHeight ? chartHeight : 'auto' }}
+                        onChartReady={onChartReady}
+                        notMerge
+                        showLoading={loading}
+                        style={{ height: chartHeight ? 'unset' : 300 }}
+                        option={option}
+                    />
+                    {children}
+                </>
+            )}
+        </Typography.Paragraph>
+    )
 }
 
 const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageListViewProps> = ({
     loading = false,
     data,
     viewMode,
-    filters }) => {
+    filters,
+}) => {
     const intl = useIntl()
     const DateTitle = intl.formatMessage({ id: 'Date' })
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
@@ -301,7 +342,6 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageListViewProps> =
     )
 }
 
-
 const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ onChange }) => {
     const router = useRouter()
     const intl = useIntl()
@@ -309,7 +349,9 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const SpecificationTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.SpecificationTitle' })
     const SpecificationDays = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.Specification.Days' })
     const SpecificationWeeks = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.Specification.Weeks' })
-    const AllAddressesPlaceholder = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllAddressesPlaceholder' })
+    const AllAddressesPlaceholder = intl.formatMessage({
+        id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllAddressesPlaceholder',
+    })
     const AddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AddressTitle' })
     const ApplyButtonTitle = intl.formatMessage({ id: 'Show' })
     const PresetWeek = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Week' })
@@ -324,12 +366,15 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
 
     const updateUrlFilters = useCallback(() => {
         const [startDate, endDate] = dateRange
-        router.push('/analytics?' + qs.stringify({
-            createdAt_lte: startDate.toISOString(),
-            createdAt_gte: endDate.toISOString(),
-            specification,
-            addressList: JSON.stringify(addressList),
-        }))
+        router.push(
+            '/analytics?' +
+                qs.stringify({
+                    createdAt_lte: startDate.toISOString(),
+                    createdAt_gte: endDate.toISOString(),
+                    specification,
+                    addressList: JSON.stringify(addressList),
+                }),
+        )
     }, [dateRange, specification, addressList])
 
     useEffect(() => {
@@ -357,9 +402,12 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         onChange({ range: dateRange, specification, addressList })
     }, [dateRange, specification, addressList])
 
-    const onSelect = useCallback((_, { key: id, value }) => {
-        setAddressList([{ id, value }])
-    }, [addressList])
+    const onSelect = useCallback(
+        (_, { key: id, value }) => {
+            setAddressList([{ id, value }])
+        },
+        [addressList],
+    )
 
     const onClear = useCallback(() => {
         setAddressList([])
@@ -369,15 +417,12 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
             <Row gutter={[40, 25]} wrap>
                 <Col flex={0}>
                     <Form.Item label={PeriodTitle} {...FORM_ITEM_STYLE}>
-                        <DateRangePicker
-                            value={dateRange}
-                            onChange={(range) => setDateRange(range)}
-                        />
+                        <DateRangePicker value={dateRange} onChange={(range) => setDateRange(range)} />
                         <Typography.Paragraph>
                             <Radio.Group
                                 css={radioButtonBorderlessCss}
                                 size={'small'}
-                                onChange={preset => setDateRangePreset(preset.target.value)}
+                                onChange={(preset) => setDateRangePreset(preset.target.value)}
                             >
                                 <Radio.Button value={'week'}>{PresetWeek}</Radio.Button>
                                 <Radio.Button value={'month'}>{PresetMonth}</Radio.Button>
@@ -388,8 +433,8 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                     </Form.Item>
                 </Col>
                 <Col flex={0}>
-                    <Form.Item label={SpecificationTitle} {...FORM_ITEM_STYLE} >
-                        <Select value={specification} onChange={(e) => setSpecification(e)} >
+                    <Form.Item label={SpecificationTitle} {...FORM_ITEM_STYLE}>
+                        <Select value={specification} onChange={(e) => setSpecification(e)}>
                             <Select.Option value={'day'}>{SpecificationDays}</Select.Option>
                             <Select.Option value={'week'}>{SpecificationWeeks}</Select.Option>
                         </Select>
@@ -408,13 +453,14 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                     </Form.Item>
                 </Col>
                 <Col span={24}>
-                    <Button onClick={applyFilters} type={'sberPrimary'}>{ApplyButtonTitle}</Button>
+                    <Button onClick={applyFilters} type={'sberPrimary'}>
+                        {ApplyButtonTitle}
+                    </Button>
                 </Col>
             </Row>
         </Form>
     )
 }
-
 
 const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const intl = useIntl()
@@ -425,7 +471,9 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const PropertyFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Property' })
     const CategoryFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })
     const UserFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.User' })
-    const ResponsibleFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Responsible' })
+    const ResponsibleFilterLabel = intl.formatMessage({
+        id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Responsible',
+    })
     const TicketTypeDefault = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Default' })
     const TicketTypePaid = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Paid' })
     const TicketTypeEmergency = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency' })
@@ -449,18 +497,21 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
 
     const [ticketType, setTicketType] = useState<ticketSelectTypes>('default')
     const [dateFrom, dateTo] = filtersRef.current !== null ? filtersRef.current.range : []
-    const selectedPeriod = filtersRef.current !== null ? filtersRef.current.range.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
+    const selectedPeriod =
+        filtersRef.current !== null ? filtersRef.current.range.map((e) => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
     const selectedAddresses = filtersRef.current !== null ? filtersRef.current.addressList : []
 
     const [loadTicketAnalytics] = useLazyQuery(TICKET_ANALYTICS_REPORT_MUTATION, {
-        onError: error => {
+        onError: (error) => {
             console.log(error)
             notification.error(error)
             setLoading(false)
         },
         fetchPolicy: 'network-only',
-        onCompleted: response => {
-            const { result: { result } } = response
+        onCompleted: (response) => {
+            const {
+                result: { result },
+            } = response
             setAnalyticsData(result)
             setLoading(false)
         },
@@ -496,125 +547,143 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
         getAnalyticsData()
     }, [groupTicketsBy, userOrganizationId, ticketType, viewMode])
 
-    const printPdf = useCallback(
-        () => {
-            router.push('/analytics/pdf?' + qs.stringify({
-                dateFrom: dateFrom.toISOString(),
-                dateTo: dateTo.toISOString(),
-                groupBy: groupTicketsBy,
-                ticketType,
-                viewMode,
-                addressList: JSON.stringify(filtersRef.current.addressList),
-                specification: filtersRef.current.specification,
-            }))
+    const printPdf = useCallback(() => {
+        router.push(
+            '/analytics/pdf?' +
+                qs.stringify({
+                    dateFrom: dateFrom.toISOString(),
+                    dateTo: dateTo.toISOString(),
+                    groupBy: groupTicketsBy,
+                    ticketType,
+                    viewMode,
+                    addressList: JSON.stringify(filtersRef.current.addressList),
+                    specification: filtersRef.current.specification,
+                }),
+        )
+    }, [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId])
+
+    const onFilterChange: ITicketAnalyticsPageFilterProps['onChange'] = useCallback(
+        (filters) => {
+            filtersRef.current = filters
+            getAnalyticsData()
         },
-        [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId],
+        [viewMode, ticketType, userOrganizationId],
     )
 
-    const onFilterChange: ITicketAnalyticsPageFilterProps['onChange'] = useCallback((filters) => {
-        filtersRef.current = filters
-        getAnalyticsData()
-    }, [viewMode, ticketType, userOrganizationId])
-
     const addressFilterTitle = selectedAddresses.length ? `${SingleAddress} «${selectedAddresses[0].value}»` : AllAddresses
-    return <>
-        <Head>
-            <title>{PageTitle}</title>
-        </Head>
-        <PageWrapper>
-            <OrganizationRequired>
-                <PageContent>
-                    <Row gutter={[0, 40]}>
-                        <Col span={18}>
-                            <PageHeader style={{ width: '100%' }} title={<Typography.Title>{PageTitle}</Typography.Title>} />
-                        </Col>
-                        <Col span={6} style={{ textAlign: 'right', marginTop: 4 }}>
-                            <Tooltip title={NotImplementedYetMessage}>
-                                <Button icon={<PlusCircleFilled />} type='sberPrimary' secondary>{HeaderButtonTitle}</Button>
-                            </Tooltip>
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 20]} align={'top'} justify={'space-between'}>
-                        <Col span={24}>
-                            <Tabs
-                                defaultActiveKey='status'
-                                activeKey={groupTicketsBy}
-                                onChange={(key) => setGroupTicketsBy(key as groupTicketsByTypes)}
-                            >
-                                <Tabs.TabPane key='status' tab={StatusFilterLabel} />
-                                <Tabs.TabPane disabled key='property' tab={PropertyFilterLabel} />
-                                <Tabs.TabPane disabled key='category' tab={CategoryFilterLabel} />
-                                <Tabs.TabPane disabled key='user' tab={UserFilterLabel} />
-                                <Tabs.TabPane disabled key='responsible' tab={ResponsibleFilterLabel} />
-                            </Tabs>
-                        </Col>
-                        <Col span={24}>
-                            <TicketAnalyticsPageFilter onChange={onFilterChange} />
-                            <Divider />
-                        </Col>
-                        <Col span={14}>
-                            <Typography.Title level={3}>
-                                {ViewModeTitle} {selectedPeriod} {addressFilterTitle} {AllCategories}
-                            </Typography.Title>
-                        </Col>
-                        <Col span={4} style={{ textAlign: 'right', flexWrap: 'nowrap' }}>
-                            <RadioGroupWithIcon
-                                value={viewMode}
-                                size='small'
-                                buttonStyle='outline'
-                                onChange={(e) => setViewMode(e.target.value)}>
-                                <Radio.Button value='line'>
-                                    <LinearChartIcon height={32} width={24} />
-                                </Radio.Button>
-                                <Radio.Button value='bar'>
-                                    <BarChartIcon height={32} width={24} />
-                                </Radio.Button>
-                            </RadioGroupWithIcon>
-                        </Col>
-                        <Col span={24}>
-                            {useMemo(() => (
-                                <TicketAnalyticsPageChartView
-                                    data={analyticsData}
-                                    loading={loading}
-                                    viewMode={viewMode}
-                                    animationEnabled
+    return (
+        <>
+            <Head>
+                <title>{PageTitle}</title>
+            </Head>
+            <PageWrapper>
+                <OrganizationRequired>
+                    <PageContent>
+                        <Row gutter={[0, 40]}>
+                            <Col span={18}>
+                                <PageHeader style={{ width: '100%' }} title={<Typography.Title>{PageTitle}</Typography.Title>} />
+                            </Col>
+                            <Col span={6} style={{ textAlign: 'right', marginTop: 4 }}>
+                                <Tooltip title={NotImplementedYetMessage}>
+                                    <Button icon={<PlusCircleFilled />} type="sberPrimary" secondary>
+                                        {HeaderButtonTitle}
+                                    </Button>
+                                </Tooltip>
+                            </Col>
+                        </Row>
+                        <Row gutter={[0, 20]} align={'top'} justify={'space-between'}>
+                            <Col span={24}>
+                                <Tabs
+                                    defaultActiveKey="status"
+                                    activeKey={groupTicketsBy}
+                                    onChange={(key) => setGroupTicketsBy(key as groupTicketsByTypes)}
                                 >
-                                    <Select
-                                        value={ticketType}
-                                        onChange={(e) => setTicketType(e)}
-                                        style={{ position: 'absolute', top: 0, right: 0, minWidth: '132px' }}
-                                    >
-                                        <Select.Option value='default'>{TicketTypeDefault}</Select.Option>
-                                        <Select.Option value='paid'>{TicketTypePaid}</Select.Option>
-                                        <Select.Option value='emergency'>{TicketTypeEmergency}</Select.Option>
-                                    </Select>
-                                </TicketAnalyticsPageChartView>
-                            ), [analyticsData, loading, viewMode, ticketType])}
-                        </Col>
-                        <Col span={24}>
-                            <Typography.Title level={4} style={{ marginBottom: 20 }}>{TableTitle}</Typography.Title>
-                            {useMemo(() => (
-                                <TicketAnalyticsPageListView
-                                    data={analyticsData}
-                                    loading={loading}
-                                    viewMode={viewMode}
-                                    filters={filtersRef.current}
-                                />
-                            ), [analyticsData, loading, viewMode])}
-                        </Col>
-                        <ActionBar fullscreen>
-                            <Button onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
-                                {PrintTitle}
-                            </Button>
-                            <Tooltip title={NotImplementedYetMessage}>
-                                <Button icon={<EditFilled />} type='sberPrimary' secondary>{ExcelTitle}</Button>
-                            </Tooltip>
-                        </ActionBar>
-                    </Row>
-                </PageContent>
-            </OrganizationRequired>
-        </PageWrapper>
-    </>
+                                    <Tabs.TabPane key="status" tab={StatusFilterLabel} />
+                                    <Tabs.TabPane disabled key="property" tab={PropertyFilterLabel} />
+                                    <Tabs.TabPane disabled key="category" tab={CategoryFilterLabel} />
+                                    <Tabs.TabPane disabled key="user" tab={UserFilterLabel} />
+                                    <Tabs.TabPane disabled key="responsible" tab={ResponsibleFilterLabel} />
+                                </Tabs>
+                            </Col>
+                            <Col span={24}>
+                                <TicketAnalyticsPageFilter onChange={onFilterChange} />
+                                <Divider />
+                            </Col>
+                            <Col span={14}>
+                                <Typography.Title level={3}>
+                                    {ViewModeTitle} {selectedPeriod} {addressFilterTitle} {AllCategories}
+                                </Typography.Title>
+                            </Col>
+                            <Col span={4} style={{ textAlign: 'right', flexWrap: 'nowrap' }}>
+                                <RadioGroupWithIcon
+                                    value={viewMode}
+                                    size="small"
+                                    buttonStyle="outline"
+                                    onChange={(e) => setViewMode(e.target.value)}
+                                >
+                                    <Radio.Button value="line">
+                                        <LinearChartIcon height={32} width={24} />
+                                    </Radio.Button>
+                                    <Radio.Button value="bar">
+                                        <BarChartIcon height={32} width={24} />
+                                    </Radio.Button>
+                                </RadioGroupWithIcon>
+                            </Col>
+                            <Col span={24}>
+                                {useMemo(
+                                    () => (
+                                        <TicketAnalyticsPageChartView
+                                            data={analyticsData}
+                                            loading={loading}
+                                            viewMode={viewMode}
+                                            animationEnabled
+                                        >
+                                            <Select
+                                                value={ticketType}
+                                                onChange={(e) => setTicketType(e)}
+                                                style={{ position: 'absolute', top: 0, right: 0, minWidth: '132px' }}
+                                            >
+                                                <Select.Option value="default">{TicketTypeDefault}</Select.Option>
+                                                <Select.Option value="paid">{TicketTypePaid}</Select.Option>
+                                                <Select.Option value="emergency">{TicketTypeEmergency}</Select.Option>
+                                            </Select>
+                                        </TicketAnalyticsPageChartView>
+                                    ),
+                                    [analyticsData, loading, viewMode, ticketType],
+                                )}
+                            </Col>
+                            <Col span={24}>
+                                <Typography.Title level={4} style={{ marginBottom: 20 }}>
+                                    {TableTitle}
+                                </Typography.Title>
+                                {useMemo(
+                                    () => (
+                                        <TicketAnalyticsPageListView
+                                            data={analyticsData}
+                                            loading={loading}
+                                            viewMode={viewMode}
+                                            filters={filtersRef.current}
+                                        />
+                                    ),
+                                    [analyticsData, loading, viewMode],
+                                )}
+                            </Col>
+                            <ActionBar fullscreen>
+                                <Button onClick={printPdf} icon={<FilePdfFilled />} type="sberPrimary" secondary>
+                                    {PrintTitle}
+                                </Button>
+                                <Tooltip title={NotImplementedYetMessage}>
+                                    <Button icon={<EditFilled />} type="sberPrimary" secondary>
+                                        {ExcelTitle}
+                                    </Button>
+                                </Tooltip>
+                            </ActionBar>
+                        </Row>
+                    </PageContent>
+                </OrganizationRequired>
+            </PageWrapper>
+        </>
+    )
 }
 
 const HeaderAction = () => {
@@ -630,7 +699,6 @@ const HeaderAction = () => {
 
 TicketAnalyticsPage.headerAction = <HeaderAction />
 TicketAnalyticsPage.whyDidYouRender = false
-
 
 export default TicketAnalyticsPage
 export { TicketAnalyticsPageChartView, TicketAnalyticsPageListView }

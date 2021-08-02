@@ -8,17 +8,17 @@ import { colors } from '../constants/style'
 import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
 
 const rangePickerCss = css`
-  & {
-    background-color: ${colors.lightGrey[4]};
-  }
-  &.ant-picker-focused {
-    border-color: unset;
-    box-shadow: unset;
-  }
-  & input {
-    color: ${colors.lightGrey[9]};
-    text-align: center;
-  }
+    & {
+        background-color: ${colors.lightGrey[4]};
+    }
+    &.ant-picker-focused {
+        border-color: unset;
+        box-shadow: unset;
+    }
+    & input {
+        color: ${colors.lightGrey[9]};
+        text-align: center;
+    }
 `
 
 const DateRangePicker: React.FC<RangePickerSharedProps<Moment>> = (props) => {
@@ -28,7 +28,7 @@ const DateRangePicker: React.FC<RangePickerSharedProps<Moment>> = (props) => {
             allowClear={false}
             suffixIcon={<DownOutlined />}
             disabledDate={(date) => date > moment()}
-            format='DD.MM.YYYY'
+            format="DD.MM.YYYY"
             separator={<MinusOutlined />}
             {...props}
         />

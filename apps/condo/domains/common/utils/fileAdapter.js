@@ -6,28 +6,25 @@ const coreConfig = require('@core/config')
 const { DEFAULT_FILE_ADAPTER } = require('../constants/uploads')
 
 class NoFileAdapter {
-
-    get error () {
+    get error() {
         return new Error('[error] NoFileAdapter configured. Add env record for s3 storage')
     }
 
-    save () {
-        return Promise.reject(this.error) 
+    save() {
+        return Promise.reject(this.error)
     }
 
-    getFilename () {
+    getFilename() {
         throw this.error
     }
 
-    publicUrl () {
+    publicUrl() {
         throw this.error
     }
-
 }
 
 class FileAdapter {
-
-    constructor (folder, type = DEFAULT_FILE_ADAPTER) {
+    constructor(folder, type = DEFAULT_FILE_ADAPTER) {
         this.folder = folder
         this.type = type
         let Adapter = null
@@ -49,8 +46,8 @@ class FileAdapter {
         return Adapter
     }
 
-    createLocalFileApapter () {
-        if (!this.isConfigValid(coreConfig, [ 'MEDIA_ROOT', 'MEDIA_URL' ])) {
+    createLocalFileApapter() {
+        if (!this.isConfigValid(coreConfig, ['MEDIA_ROOT', 'MEDIA_URL'])) {
             return null
         }
         return new LocalFileAdapter({
@@ -59,7 +56,7 @@ class FileAdapter {
         })
     }
 
-    getEnvConfig (name, required) {
+    getEnvConfig(name, required) {
         const config = coreConfig[name] ? JSON.parse(coreConfig[name]) : {}
         if (!this.isConfigValid(config, required)) {
             return null
@@ -67,8 +64,8 @@ class FileAdapter {
         return config
     }
 
-    isConfigValid (config, required = []) {
-        const missedFields = required.filter(field => !get(config, field))
+    isConfigValid(config, required = []) {
+        const missedFields = required.filter((field) => !get(config, field))
         if (!isEmpty(missedFields)) {
             console.error(`FileAdapter ${this.type} has missing fields in config file: ${[missedFields.join(', ')]}`)
             return false
@@ -76,8 +73,8 @@ class FileAdapter {
         return true
     }
 
-    createSbercloudFileApapter () {
-        const config = this.getEnvConfig('SBERCLOUD_OBS_CONFIG',  [
+    createSbercloudFileApapter() {
+        const config = this.getEnvConfig('SBERCLOUD_OBS_CONFIG', [
             'bucket',
             's3Options.server',
             's3Options.access_key_id',
@@ -88,8 +85,6 @@ class FileAdapter {
         }
         return new SberCloudFileAdapter({ ...config, folder: this.folder })
     }
-
 }
-
 
 module.exports = FileAdapter

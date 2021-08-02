@@ -1,4 +1,4 @@
-const { MAX_TICKET_REPORT_COUNT } =  require('@condo/domains/ticket/constants/common')
+const { MAX_TICKET_REPORT_COUNT } = require('@condo/domains/ticket/constants/common')
 const { TicketStatus: TicketStatusServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
 const { Property: PropertyServerUtils } = require('@condo/domains/property/utils/serverSchema')
 const { AnaliticsTicket: AnaliticsTicketServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
@@ -42,25 +42,25 @@ const sortStatusesByType = (statuses) => {
 }
 
 const createStatusRange = async (context, organizationWhereInput) => {
-    const statuses = await TicketStatusServerUtils.getAll(context, { OR: [
-        { organization: organizationWhereInput },
-        { organization_is_null: true },
-    ] })
+    const statuses = await TicketStatusServerUtils.getAll(context, {
+        OR: [{ organization: organizationWhereInput }, { organization_is_null: true }],
+    })
     // We use organization specific statuses if they exists
     // or default if there is no organization specific status with a same type
-    const allStatuses = statuses.filter(status => {
+    const allStatuses = statuses.filter((status) => {
         if (!status.organization) {
             return true
         }
-        return !statuses
-            .find(organizationStatus => organizationStatus.organization !== null && organizationStatus.type === status.type)
+        return !statuses.find(
+            (organizationStatus) => organizationStatus.organization !== null && organizationStatus.type === status.type,
+        )
     })
-    return sortStatusesByType(allStatuses).map(status => ({ label: status.name, value: status.type }))
+    return sortStatusesByType(allStatuses).map((status) => ({ label: status.name, value: status.type }))
 }
 
 const createPropertyRange = async (context, organizationWhereInput) => {
-    const properties = await PropertyServerUtils.getAll(context, { organization:  organizationWhereInput  })
-    return properties.map( property => ({ label: property.address, value: property.id }))
+    const properties = await PropertyServerUtils.getAll(context, { organization: organizationWhereInput })
+    return properties.map((property) => ({ label: property.address, value: property.id }))
 }
 
 // TODO(zuch): add support for groupping by classifier, assignee, executor
@@ -87,15 +87,15 @@ const createCountersStructure = async ({ context, organization, groups, datesRan
             default:
                 throw new Error('Unknown group name')
         }
-        translates[groupName] = Object.fromEntries(range.map(({ value, label }) => ([ value, label ])))
+        translates[groupName] = Object.fromEntries(range.map(({ value, label }) => [value, label]))
         ranges.push(range)
     }
     // Transform [[a1, a2, a3], [b1, b2], [c1, c2]] to
     // { a1: { b1: { c1: 0, c2: 0 }, b2: { c1: 0, c2: 0 } }, a2: { ... }}
-    const groupedCounters = ranges.reduceRight((previousValue, currentValue) =>
-        Object.fromEntries(currentValue.map(option =>
-            ([option.value, previousValue])))
-    , 0)
+    const groupedCounters = ranges.reduceRight(
+        (previousValue, currentValue) => Object.fromEntries(currentValue.map((option) => [option.value, previousValue])),
+        0,
+    )
     return {
         groupedCounters,
         translates,

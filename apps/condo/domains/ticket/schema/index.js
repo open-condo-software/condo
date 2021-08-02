@@ -28,5 +28,5 @@ module.exports = {
     ExportTicketsService,
     TicketAnalyticsReportService,
     ShareTicketService,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -42,32 +42,38 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 if (allTickets.length === 0) {
                     throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
                 }
-                const ticketIds = allTickets.map(ticket => ticket.id)
+                const ticketIds = allTickets.map((ticket) => ticket.id)
                 const comments = await TicketComment.getAll(context, { ticket: { id_in: ticketIds } })
                 const indexedComments = {}
-                comments.forEach(comment => {
+                comments.forEach((comment) => {
                     if (!has(indexedComments, comment.ticket.id)) {
                         indexedComments[comment.ticket.id] = []
                     }
                     indexedComments[comment.ticket.id].push(comment.content)
                 })
                 const statuses = await TicketStatus.getAll(context, { type_in: ['processing', 'canceled', 'completed'] })
-                const indexedStatuses = Object.fromEntries(statuses.map(({ id, type }) => ([id, type])))
-                const statusChanges = await TicketChange.getAll(context, { ticket: { id_in: ticketIds }, statusIdTo_in: Object.keys(indexedStatuses) }, { sortBy: 'createdAt_ASC' })
+                const indexedStatuses = Object.fromEntries(statuses.map(({ id, type }) => [id, type]))
+                const statusChanges = await TicketChange.getAll(
+                    context,
+                    { ticket: { id_in: ticketIds }, statusIdTo_in: Object.keys(indexedStatuses) },
+                    { sortBy: 'createdAt_ASC' },
+                )
                 const statusDateByTickets = {}
-                statusChanges.forEach(statusChange => {
-                    if (!has(statusDateByTickets, statusChange.ticket.id)){
+                statusChanges.forEach((statusChange) => {
+                    if (!has(statusDateByTickets, statusChange.ticket.id)) {
                         statusDateByTickets[statusChange.ticket.id] = {}
                     }
                     statusDateByTickets[statusChange.ticket.id][indexedStatuses[statusChange.statusIdTo]] = statusChange.createdAt
                 })
-                const excelRows = allTickets.map(ticket => {
+                const excelRows = allTickets.map((ticket) => {
                     let inWork = get(statusDateByTickets, `${ticket.id}.processing`, '')
                     // When ticket created with assigner it will aoutomatically get processing status on creation
                     if (ticket.status.type !== 'new_or_reopened' && !inWork) {
                         inWork = ticket.createdAt
                     }
-                    const completed = get(statusDateByTickets, `${ticket.id}.completed`) ||  get(statusDateByTickets, `${ticket.id}.canceled`, '')
+                    const completed =
+                        get(statusDateByTickets, `${ticket.id}.completed`) ||
+                        get(statusDateByTickets, `${ticket.id}.canceled`, '')
                     return {
                         number: ticket.number,
                         organization: ticket.organization.name,
@@ -104,9 +110,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
             },
         },
     ],
-    mutations: [
-
-    ],
+    mutations: [],
 })
 
 module.exports = {

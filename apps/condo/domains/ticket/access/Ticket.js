@@ -10,7 +10,7 @@ const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-async function canReadTickets ({ authentication: { item: user }, context }) {
+async function canReadTickets({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) {
         return {}
@@ -18,15 +18,12 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
     const userId = user.id
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(userId),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-            ],
+            OR: [queryOrganizationEmployeeFor(userId), queryOrganizationEmployeeFromRelatedOrganizationFor(userId)],
         },
     }
 }
 
-async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput, context }) {
+async function canManageTickets({ authentication: { item: user }, operation, itemId, originalInput, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
 
@@ -43,7 +40,12 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
             return false
         }
 
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationIdFromTicket, 'canManageTickets')
+        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(
+            context,
+            user.id,
+            organizationIdFromTicket,
+            'canManageTickets',
+        )
         if (canManageRelatedOrganizationTickets) {
             return true
         }
@@ -54,7 +56,6 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
         }
 
         return organizationIdFromTicket === organizationIdFromProperty
-
     } else if (operation === 'update') {
         if (!itemId) {
             return false
@@ -67,7 +68,12 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
 
         const { organization: organizationIdFromTicket } = ticket
 
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationIdFromTicket, 'canManageTickets')
+        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(
+            context,
+            user.id,
+            organizationIdFromTicket,
+            'canManageTickets',
+        )
         if (canManageRelatedOrganizationTickets) {
             return true
         }

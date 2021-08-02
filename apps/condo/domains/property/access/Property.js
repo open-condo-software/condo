@@ -8,21 +8,18 @@ const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-async function canReadProperties ({ authentication: { item: user } }) {
+async function canReadProperties({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
     const userId = user.id
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(userId),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-            ],
+            OR: [queryOrganizationEmployeeFor(userId), queryOrganizationEmployeeFromRelatedOrganizationFor(userId)],
         },
     }
 }
 
-async function canManageProperties ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageProperties({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {
@@ -45,7 +42,7 @@ async function canManageProperties ({ authentication: { item: user }, originalIn
         const { organization: organizationId } = property
 
         return await checkOrganizationPermission(context, user.id, organizationId, 'canManageProperties')
-    } 
+    }
     return false
 }
 

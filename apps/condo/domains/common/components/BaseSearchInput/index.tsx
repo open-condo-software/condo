@@ -46,22 +46,16 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     const [initialValue, isInitialValueFetching] = useInitialValueGetter(restSelectProps.value, initialValueGetter)
     const [scrollInputCaretToEnd, setSelectRef, selectInputNode] = useSelectCareeteControls(restSelectProps.id)
 
-    const searchSuggestions = useCallback(
-        async (value) => {
-            setFetching(true)
-            const data = await search((selected) ? selected + ' ' + value : value)
-            setFetching(false)
-            setData(data)
-        },
-        [],
-    )
+    const searchSuggestions = useCallback(async (value) => {
+        setFetching(true)
+        const data = await search(selected ? selected + ' ' + value : value)
+        setFetching(false)
+        setData(data)
+    }, [])
 
-    const debouncedSearch = useMemo(
-        () => {
-            return debounce(searchSuggestions, DEBOUNCE_TIMEOUT)
-        },
-        [searchSuggestions],
-    )
+    const debouncedSearch = useMemo(() => {
+        return debounce(searchSuggestions, DEBOUNCE_TIMEOUT)
+    }, [searchSuggestions])
 
     const loadInitialOptions = useCallback(
         (e) => {
@@ -77,45 +71,30 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         [initialOptionsLoaded],
     )
 
-    const handleSelect = useCallback(
-        (value, option) => {
-            if (onSelect) {
-                props.onSelect(value, option)
-            }
+    const handleSelect = useCallback((value, option) => {
+        if (onSelect) {
+            props.onSelect(value, option)
+        }
 
-            setSelected(option.children)
-        },
-        [],
-    )
+        setSelected(option.children)
+    }, [])
 
-    const handleClear = useCallback(
-        () => {
-            setSelected(null)
-            props.onClear()
-        },
-        [],
-    )
+    const handleClear = useCallback(() => {
+        setSelected(null)
+        props.onClear()
+    }, [])
 
-    useEffect(
-        () => {
-            setSearchValue(restSelectProps.value)
-        },
-        [restSelectProps.value]
-    )
+    useEffect(() => {
+        setSearchValue(restSelectProps.value)
+    }, [restSelectProps.value])
 
-    useEffect(
-        () => {
-            setSearchValue(initialValue)
-        },
-        [initialValue],
-    )
+    useEffect(() => {
+        setSearchValue(initialValue)
+    }, [initialValue])
 
-    useEffect(
-        () => {
-            scrollInputCaretToEnd(selectInputNode)
-        },
-        [selectInputNode, selected],
-    )
+    useEffect(() => {
+        scrollInputCaretToEnd(selectInputNode)
+    }, [selectInputNode, selected])
 
     const options = useMemo(
         () => data.map((option) => renderOption(option, restSelectProps.value)),

@@ -4,10 +4,11 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const access = require('@condo/domains/user/access/SigninResidentUserService')
+const { CONFIRM_PHONE_ACTION_EXPIRED } = require('@condo/domains/user/constants/errors')
 const {
-    CONFIRM_PHONE_ACTION_EXPIRED,
-} = require('@condo/domains/user/constants/errors')
-const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils } = require('@condo/domains/user/utils/serverSchema')
+    ConfirmPhoneAction: ConfirmPhoneActionServerUtils,
+    User: UserServerUtils,
+} = require('@condo/domains/user/utils/serverSchema')
 const { getRandomString } = require('@core/keystone/test.utils')
 
 const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService', {
@@ -27,21 +28,21 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
             access: access.canSigninResidentUser,
             schema: 'signinResidentUser(data: SigninResidentUserInput!): SigninResidentUserOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { dv, sender, token } } = args
+                const {
+                    data: { dv, sender, token },
+                } = args
                 const userData = {
                     dv,
                     sender,
                     type: 'resident',
                     isPhoneVerified: false,
                 }
-                const [action] = await ConfirmPhoneActionServerUtils.getAll(context,
-                    {
-                        token,
-                        expiresAt_gte: new Date().toISOString(),
-                        completedAt: null,
-                        isPhoneVerified: true,
-                    }
-                )
+                const [action] = await ConfirmPhoneActionServerUtils.getAll(context, {
+                    token,
+                    expiresAt_gte: new Date().toISOString(),
+                    completedAt: null,
+                    isPhoneVerified: true,
+                })
                 if (!action) {
                     throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] Unable to find confirm phone action`)
                 }
@@ -53,7 +54,10 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                 if (!user) {
                     // TODO(zuch): fix bug when user can not be created with server utils becaues of createAt and updatedAt fields
                     // user = await User.create(context, userData)
-                    const { data: { result: createdUser }, errors: createErrors } = await context.executeGraphQL({
+                    const {
+                        data: { result: createdUser },
+                        errors: createErrors,
+                    } = await context.executeGraphQL({
                         context: context.createContext({ skipAccessControl: true }),
                         query: `
                             mutation create($data: UserCreateInput!) {
@@ -82,7 +86,6 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
             },
         },
     ],
-
 })
 
 module.exports = {

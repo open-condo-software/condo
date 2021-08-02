@@ -25,14 +25,14 @@ const _USE_TABLE_INITIAL_STATE = {
     sorter: {},
 }
 
-function createNewGQLItem () {
+function createNewGQLItem() {
     return {
         isUnsavedNew: true,
         isBlocked: false,
     }
 }
 
-function _tableStateReducer (draft, action) {
+function _tableStateReducer(draft, action) {
     switch (action.type) {
         case 'reset': {
             return _USE_TABLE_INITIAL_STATE
@@ -72,18 +72,19 @@ function _tableStateReducer (draft, action) {
     }
 }
 
-function useTable () {
+function useTable() {
     const [state, dispatch] = useImmerReducer(_tableStateReducer, _USE_TABLE_INITIAL_STATE)
 
     return {
         state,
         setData: (value) => dispatch({ type: 'set', key: 'data', value }),
-        updateFilterPaginationSort: (pagination, filters, sorter) => dispatch({
-            type: 'query',
-            pagination,
-            filters,
-            sorter,
-        }),
+        updateFilterPaginationSort: (pagination, filters, sorter) =>
+            dispatch({
+                type: 'query',
+                pagination,
+                filters,
+                sorter,
+            }),
         updateActions: (value) => dispatch({ type: 'merge', key: 'actions', value }),
         action: (name, args) => state.actions[name](args),
         reset: () => dispatch({ type: 'reset' }),
@@ -91,41 +92,45 @@ function useTable () {
     }
 }
 
-function _useTableRowForm () {
+function _useTableRowForm() {
     const form = useContext(FormTable.RowFormContext)
     const { table } = useContext(FormTable.TableContext)
     const { editing, loading, hidden, setRowContext } = useContext(FormTable.RowContext)
 
-    function setEditing (value) {
-        return setRowContext(x => ({ ...x, editing: value }))
+    function setEditing(value) {
+        return setRowContext((x) => ({ ...x, editing: value }))
     }
 
-    function setLoading (value) {
-        return setRowContext(x => ({ ...x, loading: value }))
+    function setLoading(value) {
+        return setRowContext((x) => ({ ...x, loading: value }))
     }
 
-    function setHidden (value) {
-        return setRowContext(x => ({ ...x, hidden: value }))
+    function setHidden(value) {
+        return setRowContext((x) => ({ ...x, hidden: value }))
     }
 
-    function action (name, args) {
+    function action(name, args) {
         return table.action(name, args)
     }
 
-    function remove (where) {
+    function remove(where) {
         table.remove(where)
     }
 
     return {
-        action, remove,
-        form, editing, loading, hidden,
+        action,
+        remove,
+        form,
+        editing,
+        loading,
+        hidden,
         setEditing,
         setLoading,
         setHidden,
     }
 }
 
-function RenderActionsColumn (text, item, index) {
+function RenderActionsColumn(text, item, index) {
     const intl = useIntl()
     const AreYouSureMessage = intl.formatMessage({ id: 'AreYouSure' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
@@ -136,53 +141,60 @@ function RenderActionsColumn (text, item, index) {
     const { isUnsavedNew } = item
     const { action, remove, form, setEditing, setLoading, editing, loading } = _useTableRowForm()
 
-    function validateFields () {
+    function validateFields() {
         setLoading(true)
-        return form.validateFields()
+        return form
+            .validateFields()
             .then((values) => action('CreateOrUpdate', { values, item, form }))
-            .then(() => (isUnsavedNew) ? remove({ id: item.id }) : null)
-            .then(() => (isUnsavedNew) ? null : setEditing(false))
+            .then(() => (isUnsavedNew ? remove({ id: item.id }) : null))
+            .then(() => (isUnsavedNew ? null : setEditing(false)))
             .finally(() => setLoading(false))
     }
 
-    function deleteRow () {
+    function deleteRow() {
         setLoading(false)
         setEditing(false)
         remove({ id: item.id })
     }
 
-    return <Space>
-        {(isUnsavedNew || editing) ?
-            <Button size="small" type={'primary'} onClick={validateFields} loading={loading}>
-                <SaveOutlined/>
-            </Button>
-            : null}
-        {(isUnsavedNew) ?
-            <Button size="small" type={'primary'} onClick={deleteRow}>
-                <DeleteOutlined/>
-            </Button>
-            :
-            <ExtraDropdownActionsMenu actions={[
-                (item.user && item.user.id === user.id) ? null : {
-                    confirm: {
-                        title: AreYouSureMessage,
-                        icon: <QuestionCircleOutlined style={{ color: 'red' }}/>,
-                    },
-                    label: DeleteMessage,
-                    action: () => action('Delete', { values: { id: item.id }, item, form }),
-                },
-                {
-                    label: EditMessage,
-                    action: () => {
-                        setEditing(true)
-                    },
-                },
-            ]}/>
-        }
-    </Space>
+    return (
+        <Space>
+            {isUnsavedNew || editing ? (
+                <Button size="small" type={'primary'} onClick={validateFields} loading={loading}>
+                    <SaveOutlined />
+                </Button>
+            ) : null}
+            {isUnsavedNew ? (
+                <Button size="small" type={'primary'} onClick={deleteRow}>
+                    <DeleteOutlined />
+                </Button>
+            ) : (
+                <ExtraDropdownActionsMenu
+                    actions={[
+                        item.user && item.user.id === user.id
+                            ? null
+                            : {
+                                  confirm: {
+                                      title: AreYouSureMessage,
+                                      icon: <QuestionCircleOutlined style={{ color: 'red' }} />,
+                                  },
+                                  label: DeleteMessage,
+                                  action: () => action('Delete', { values: { id: item.id }, item, form }),
+                              },
+                        {
+                            label: EditMessage,
+                            action: () => {
+                                setEditing(true)
+                            },
+                        },
+                    ]}
+                />
+            )}
+        </Space>
+    )
 }
 
-function toGQLSortBy (sorter) {
+function toGQLSortBy(sorter) {
     if (sorter) {
         const { field } = sorter
         let { order } = sorter
@@ -196,7 +208,7 @@ function toGQLSortBy (sorter) {
     return undefined
 }
 
-function toGQLWhere (filters) {
+function toGQLWhere(filters) {
     const where = {}
     Object.keys(filters).forEach((key) => {
         const v = filters[key]
@@ -213,7 +225,7 @@ function toGQLWhere (filters) {
     return where
 }
 
-function TableCellInner ({ children, record, rowIndex, column }) {
+function TableCellInner({ children, record, rowIndex, column }) {
     const intl = useIntl()
     const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
 
@@ -223,66 +235,72 @@ function TableCellInner ({ children, record, rowIndex, column }) {
     useEffect(() => {
         form.setFieldsValue({
             // TODO(pahaz): think about normalize!
-            [dataIndex]: (normalize) ? normalize(record[dataIndex]) : record[dataIndex],
+            [dataIndex]: normalize ? normalize(record[dataIndex]) : record[dataIndex],
         })
     }, [])
 
     if (!editable || !editing) return children
-    const input = (editableInput) ? editableInput() : <Input/>
+    const input = editableInput ? editableInput() : <Input />
 
-    return <Form.Item
-        style={{ margin: 0 }}
-        key={dataIndex}
-        name={dataIndex}
-        normalize={normalize}
-        rules={rules || [
-            {
-                required: true,
-                message: FieldIsRequiredMessage,
-            },
-        ]}
-    >
-        {input}
-    </Form.Item>
+    return (
+        <Form.Item
+            style={{ margin: 0 }}
+            key={dataIndex}
+            name={dataIndex}
+            normalize={normalize}
+            rules={
+                rules || [
+                    {
+                        required: true,
+                        message: FieldIsRequiredMessage,
+                    },
+                ]
+            }
+        >
+            {input}
+        </Form.Item>
+    )
 }
 
-function NewOrExportTableBlock ({ columns, table }) {
+function NewOrExportTableBlock({ columns, table }) {
     const intl = useIntl()
     const CreateMessage = intl.formatMessage({ id: 'Create' })
 
     const data = table.state.data
     const setData = table.setData
 
-    function handleSetExportData (data) {
-        setData(data.map(x => {
-            return { ...createNewGQLItem(), ...x }
-        }))
+    function handleSetExportData(data) {
+        setData(
+            data.map((x) => {
+                return { ...createNewGQLItem(), ...x }
+            }),
+        )
     }
 
-    function handleAdd () {
+    function handleAdd() {
         setData([...data, createNewGQLItem()])
     }
 
-    return <>
-        <ExcelExporterButton columns={columns.filter((x => x.importFromFile))} setExportedData={handleSetExportData}/>
-        <CreateFormListItemButton
-            onClick={handleAdd} label={CreateMessage}
-            style={{ marginBottom: '16px', width: '100%' }}/>
-        {(data.length) ?
-            <Space direction="vertical">
-                <FormTable
-                    dataSource={data}
-                    columns={columns.filter((x => x.create))}
-                    CellInner={TableCellInner}
-                    rowContextInitialState={{ editing: true, loading: false }}
-                    tableContextInitialState={{ table }}
-                />
-            </Space>
-            : null}
-    </>
+    return (
+        <>
+            <ExcelExporterButton columns={columns.filter((x) => x.importFromFile)} setExportedData={handleSetExportData} />
+            <CreateFormListItemButton onClick={handleAdd} label={CreateMessage} style={{ marginBottom: '16px', width: '100%' }} />
+            {data.length ? (
+                <Space direction="vertical">
+                    <FormTable
+                        dataSource={data}
+                        columns={columns.filter((x) => x.create)}
+                        CellInner={TableCellInner}
+                        rowContextInitialState={{ editing: true, loading: false }}
+                        tableContextInitialState={{ table }}
+                    />
+                </Space>
+            ) : null}
+        </>
+    )
 }
 
-function ViewOrEditTableBlock ({ columns, table }) {
+function ViewOrEditTableBlock({ columns, table }) {
     const data = table.state.data
     const pagination = table.state.pagination
     const onChangeFilterPaginationSort = table.updateFilterPaginationSort
@@ -297,23 +315,18 @@ function ViewOrEditTableBlock ({ columns, table }) {
         }
     }
 
-    return <FormTable
-        dataSource={data}
-        columns={columns}
-        CellInner={TableCellInner}
-        rowContextInitialState={{ editing: false, loading: false }}
-        tableContextInitialState={{ table }}
-        onChangeFilterPaginationSort={onChangeFilterPaginationSort}
-        pagination={pagination}
-        onRow={onRow}
-    />
+    return (
+        <FormTable
+            dataSource={data}
+            columns={columns}
+            CellInner={TableCellInner}
+            rowContextInitialState={{ editing: false, loading: false }}
+            tableContextInitialState={{ table }}
+            onChangeFilterPaginationSort={onChangeFilterPaginationSort}
+            pagination={pagination}
+            onRow={onRow}
+        />
+    )
 }
 
-export {
-    useTable,
-    RenderActionsColumn,
-    toGQLSortBy,
-    toGQLWhere,
-    NewOrExportTableBlock,
-    ViewOrEditTableBlock,
-}
+export { useTable, RenderActionsColumn, toGQLSortBy, toGQLWhere, NewOrExportTableBlock, ViewOrEditTableBlock }

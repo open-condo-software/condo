@@ -12,7 +12,10 @@ import { AuthRequired } from '@condo/domains/common/components/containers/AuthRe
 import { isFunction } from '@condo/domains/common/utils/ecmascript.utils'
 import { Loader } from '@condo/domains/common/components/Loader'
 
-const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions }) => {
+const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({
+    children,
+    withEmployeeRestrictions,
+}) => {
     const intl = useIntl()
     const EmployeeRestrictedTitle = intl.formatMessage({ id: 'employee.emptyList.title' })
     const EmployeeRestrictedDescription = intl.formatMessage({ id: 'employee.emptyList.description' })
@@ -23,13 +26,18 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     const { isLoading, link } = organization
 
     if (isLoading || isLoadingAuth) {
-        return <Loader/>
+        return <Loader />
     }
 
     if (!link) {
         return (
             <>
-                <Typography.Title css={css`display: block; text-align: center;`}>
+                <Typography.Title
+                    css={css`
+                        display: block;
+                        text-align: center;
+                    `}
+                >
                     {SelectOrganizationRequiredMessage}
                 </Typography.Title>
             </>
@@ -42,9 +50,7 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     if (isEmployeeBlocked && withEmployeeRestrictions) {
         return (
             <BasicEmptyListView>
-                <Typography.Title level={3}>
-                    {EmployeeRestrictedTitle}
-                </Typography.Title>
+                <Typography.Title level={3}>{EmployeeRestrictedTitle}</Typography.Title>
                 <Typography.Text>
                     {EmployeeRestrictedDescription}
                     <Typography.Text strong> «{organizationName}».</Typography.Text>
@@ -60,7 +66,10 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     return children
 }
 
-export const OrganizationRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions = true }) => {
+export const OrganizationRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({
+    children,
+    withEmployeeRestrictions = true,
+}) => {
     return (
         <AuthRequired>
             <OrganizationRequiredAfterAuthRequired withEmployeeRestrictions={withEmployeeRestrictions}>

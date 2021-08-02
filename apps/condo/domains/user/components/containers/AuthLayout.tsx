@@ -3,10 +3,7 @@ import React, { createContext, useCallback, useMemo } from 'react'
 import Router from 'next/router'
 import { FormattedMessage } from 'react-intl'
 import { ConfigProvider, Layout } from 'antd'
-import {
-    SIGNIN_MUTATION,
-    SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,
-} from '@condo/domains/user/gql'
+import { SIGNIN_MUTATION, SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useAuth } from '@core/next/auth'
@@ -28,7 +25,9 @@ const ANT_LOCALES = {
 import { useAntdMediaQuery } from '@condo/domains/common/utils/mediaQuery.utils'
 import getConfig from 'next/config'
 import styled from '@emotion/styled'
-const { publicRuntimeConfig: { googleCaptcha } } = getConfig()
+const {
+    publicRuntimeConfig: { googleCaptcha },
+} = getConfig()
 
 export interface AuthPage extends React.FC {
     headerAction: React.ReactElement
@@ -38,29 +37,33 @@ export interface AuthPage extends React.FC {
 const FOOTER_LINK_STYLE = { color: colors.sberPrimary[7] }
 const AUTH_PAGES_STYLE = { width: '100%', maxWidth: '500px', paddingLeft: '20px', paddingRight: '20px' }
 const HEADER_STYLE = { background: colors.white, padding: '20px', margin: '0px', width: '100%' }
-const FOOTER_STYLE = { color: colors.lightGrey[7], backgroundColor: colors.white, fontSize: '12px', lineHeight: '20px',  padding: '20px' }
+const FOOTER_STYLE = {
+    color: colors.lightGrey[7],
+    backgroundColor: colors.white,
+    fontSize: '12px',
+    lineHeight: '20px',
+    padding: '20px',
+}
 
 const AdaptiveContent = styled(Content)`
-  display: flex;
-  justify-content: center;
-  @media screen and (max-height: 630px) {
-      margin-top: 81px;
-      align-items: start;
-  }
-  @media screen and (max-width: 380px) {
-    margin-top: 120px;
-  }
-  @media screen and (min-height: 630px) {
-      align-items: center;
-  }
+    display: flex;
+    justify-content: center;
+    @media screen and (max-height: 630px) {
+        margin-top: 81px;
+        align-items: start;
+    }
+    @media screen and (max-width: 380px) {
+        margin-top: 120px;
+    }
+    @media screen and (min-height: 630px) {
+        align-items: center;
+    }
 `
 
 const PageContent: React.FC = ({ children }) => {
     return (
         <AdaptiveContent>
-            <div style={AUTH_PAGES_STYLE}>
-                {children}
-            </div>
+            <div style={AUTH_PAGES_STYLE}>{children}</div>
         </AdaptiveContent>
     )
 }
@@ -69,10 +72,18 @@ const PageFooter: React.FC = () => {
     return (
         <Footer style={FOOTER_STYLE}>
             <FormattedMessage
-                id='pages.auth.FooterText'
+                id="pages.auth.FooterText"
                 values={{
-                    email: <a style={FOOTER_LINK_STYLE} href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>,
-                    phone: <a style={FOOTER_LINK_STYLE} href={`tel:${SUPPORT_PHONE}`}>{SUPPORT_PHONE}</a>,
+                    email: (
+                        <a style={FOOTER_LINK_STYLE} href={`mailto:${SUPPORT_EMAIL}`}>
+                            {SUPPORT_EMAIL}
+                        </a>
+                    ),
+                    phone: (
+                        <a style={FOOTER_LINK_STYLE} href={`tel:${SUPPORT_PHONE}`}>
+                            {SUPPORT_PHONE}
+                        </a>
+                    ),
                 }}
             />
         </Footer>
@@ -84,10 +95,9 @@ interface IAuthLayoutProps {
 }
 interface IAuthLayoutContext {
     isMobile: boolean
-    signInByEmail: ({ email, password }) => Promise<unknown>,
-    signInByPhone: ({ phone, password }) => Promise<unknown>,
+    signInByEmail: ({ email, password }) => Promise<unknown>
+    signInByPhone: ({ phone, password }) => Promise<unknown>
 }
-
 
 export const AuthLayoutContext = createContext<IAuthLayoutContext>({
     isMobile: false,
@@ -99,7 +109,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
     const intl = useIntl()
     const colSize = useAntdMediaQuery()
     const { refetch, isAuthenticated } = useAuth()
-    const isMobile = (colSize === 'xs')
+    const isMobile = colSize === 'xs'
     const [signinByPhoneMutation] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
     const signInByPhone = ({ phone, password }) => {
         return runMutation({
@@ -109,7 +119,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                 refetch()
             },
             intl,
-        }).catch(error => {
+        }).catch((error) => {
             console.error(error)
         })
     }
@@ -123,13 +133,12 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                 refetch()
             },
             intl,
-        }).catch(error => {
+        }).catch((error) => {
             console.error(error)
         })
     }
     const handleRedirectToIndex = useCallback(() => {
-        if (isAuthenticated)
-            Router.push('/')
+        if (isAuthenticated) Router.push('/')
         else Router.push('/auth/signin')
     }, [isAuthenticated])
     return (
@@ -142,23 +151,23 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                     async: true,
                     defer: true,
                     appendTo: 'body',
-                }}>
-                <AuthLayoutContext.Provider value={{
-                    isMobile,
-                    signInByEmail,
-                    signInByPhone,
-                }}>
+                }}
+            >
+                <AuthLayoutContext.Provider
+                    value={{
+                        isMobile,
+                        signInByEmail,
+                        signInByPhone,
+                    }}
+                >
                     <Global styles={formInputFixCss}></Global>
                     <Layout style={{ background: colors.white, height: '100vh' }}>
                         <AntPageHeader
                             style={{ ...HEADER_STYLE, position: 'fixed' }}
                             title={<Logo onClick={handleRedirectToIndex} />}
                             extra={headerAction}
-                        >
-                        </AntPageHeader>
-                        <PageContent>
-                            {children}
-                        </PageContent>
+                        ></AntPageHeader>
+                        <PageContent>{children}</PageContent>
                         <PageFooter />
                     </Layout>
                 </AuthLayoutContext.Provider>

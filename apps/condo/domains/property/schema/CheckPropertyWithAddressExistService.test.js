@@ -4,7 +4,7 @@
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils.js')
 const { checkPropertyWithAddressExistByTestClient } = require('@condo/domains/property/utils/testSchema')
- 
+
 describe('CheckPropertyWithAddressExistService', () => {
     test('user: execute on existing address', async () => {
         const client = await makeClientWithProperty()

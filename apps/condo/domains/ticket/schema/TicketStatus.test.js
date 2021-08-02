@@ -16,7 +16,12 @@ const { STATUS_SELECT_COLORS } = require('@condo/domains/ticket/constants/style'
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketStatus, createTestTicketStatus, updateTestTicketStatus } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('../../common/utils/testSchema')
 
 describe('TicketStatus', () => {
     test('admin: create TicketStatus', async () => {
@@ -39,15 +44,20 @@ describe('TicketStatus', () => {
     test('admin: create TicketStatus with valid PROCESSING_STATUS_TYPE color', async () => {
         const client = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(client)
-        const [obj] = await createTestTicketStatus(client, { type: PROCESSING_STATUS_TYPE, organization: { connect: { id: organization.id } } })
+        const [obj] = await createTestTicketStatus(client, {
+            type: PROCESSING_STATUS_TYPE,
+            organization: { connect: { id: organization.id } },
+        })
         expect(obj.colors).toStrictEqual(STATUS_SELECT_COLORS[obj.type])
-
     })
 
     test('admin: create TicketStatus with valid NEW_OR_REOPENED_STATUS_TYPE color', async () => {
         const client = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(client)
-        const [obj] = await createTestTicketStatus(client, { type: NEW_OR_REOPENED_STATUS_TYPE, organization: { connect: { id: organization.id } } })
+        const [obj] = await createTestTicketStatus(client, {
+            type: NEW_OR_REOPENED_STATUS_TYPE,
+            organization: { connect: { id: organization.id } },
+        })
         expect(obj.colors).toStrictEqual(STATUS_SELECT_COLORS[obj.type])
     })
 
@@ -55,7 +65,10 @@ describe('TicketStatus', () => {
         const client = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(client)
 
-        const [obj] = await createTestTicketStatus(client, { type: CANCELED_STATUS_TYPE, organization: { connect: { id: organization.id } } })
+        const [obj] = await createTestTicketStatus(client, {
+            type: CANCELED_STATUS_TYPE,
+            organization: { connect: { id: organization.id } },
+        })
         expect(obj.colors).toStrictEqual(STATUS_SELECT_COLORS[obj.type])
     })
 
@@ -63,7 +76,10 @@ describe('TicketStatus', () => {
         const client = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(client)
 
-        const [obj] = await createTestTicketStatus(client, { type: COMPLETED_STATUS_TYPE, organization: { connect: { id: organization.id } } })
+        const [obj] = await createTestTicketStatus(client, {
+            type: COMPLETED_STATUS_TYPE,
+            organization: { connect: { id: organization.id } },
+        })
         expect(obj.colors).toStrictEqual(STATUS_SELECT_COLORS[obj.type])
     })
 
@@ -71,7 +87,10 @@ describe('TicketStatus', () => {
         const client = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(client)
 
-        const [obj] = await createTestTicketStatus(client, { type: DEFERRED_STATUS_TYPE, organization: { connect: { id: organization.id } } })
+        const [obj] = await createTestTicketStatus(client, {
+            type: DEFERRED_STATUS_TYPE,
+            organization: { connect: { id: organization.id } },
+        })
         expect(obj.colors).toStrictEqual(STATUS_SELECT_COLORS[obj.type])
     })
 
@@ -79,7 +98,10 @@ describe('TicketStatus', () => {
         const client = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(client)
 
-        const [obj] = await createTestTicketStatus(client, { type: CLOSED_STATUS_TYPE, organization: { connect: { id: organization.id } } })
+        const [obj] = await createTestTicketStatus(client, {
+            type: CLOSED_STATUS_TYPE,
+            organization: { connect: { id: organization.id } },
+        })
         expect(obj.colors).toStrictEqual(STATUS_SELECT_COLORS[obj.type])
     })
 

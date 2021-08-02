@@ -5,16 +5,27 @@
 const { getRandomString } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
+const {
+    BillingIntegration,
+    createTestBillingIntegration,
+    updateTestBillingIntegration,
+} = require('@condo/domains/billing/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('../../common/utils/testSchema')
 
 describe('BillingIntegration', () => {
     test('admin: create BillingIntegration', async () => {
         const admin = await makeLoggedInAdminClient()
         const [integration, attrs] = await createTestBillingIntegration(admin)
-        expect(integration).toEqual(expect.objectContaining({
-            name: attrs.name,
-        }))
+        expect(integration).toEqual(
+            expect.objectContaining({
+                name: attrs.name,
+            }),
+        )
     })
 
     test('user: create BillingIntegration', async () => {
@@ -34,9 +45,11 @@ describe('BillingIntegration', () => {
     test('support: create BillingIntegration', async () => {
         const support = await makeClientWithSupportUser()
         const [integration, attrs] = await createTestBillingIntegration(support)
-        expect(integration).toEqual(expect.objectContaining({
-            name: attrs.name,
-        }))
+        expect(integration).toEqual(
+            expect.objectContaining({
+                name: attrs.name,
+            }),
+        )
     })
 
     test('support: update BillingIntegration', async () => {
@@ -58,17 +71,19 @@ describe('BillingIntegration', () => {
         const objs = await BillingIntegration.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
         expect(objs.length >= 1).toBeTruthy()
-        expect(objs).toEqual(expect.arrayContaining([
-            expect.objectContaining({
-                id: obj.id,
-                sender: attrs.sender,
-                createdBy: expect.objectContaining({ id: admin.user.id }),
-                updatedBy: expect.objectContaining({ id: admin.user.id }),
-                createdAt: obj.createdAt,
-                updatedAt: obj.updatedAt,
-                name: attrs.name,
-            }),
-        ]))
+        expect(objs).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    id: obj.id,
+                    sender: attrs.sender,
+                    createdBy: expect.objectContaining({ id: admin.user.id }),
+                    updatedBy: expect.objectContaining({ id: admin.user.id }),
+                    createdAt: obj.createdAt,
+                    updatedAt: obj.updatedAt,
+                    name: attrs.name,
+                }),
+            ]),
+        )
     })
 
     test('anonymous: read BillingIntegration', async () => {

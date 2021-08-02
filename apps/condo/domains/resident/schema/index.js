@@ -10,5 +10,5 @@ const { RegisterResidentService } = require('./RegisterResidentService')
 module.exports = {
     Resident,
     RegisterResidentService,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

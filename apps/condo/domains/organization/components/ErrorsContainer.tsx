@@ -5,10 +5,10 @@ import React from 'react'
 import { colors } from '@condo/domains/common/constants/style'
 
 export const ErrorsWrapper = styled.div`
-  display: inline-block;
-  padding: 9px 16px;
-  border-radius: 8px;
-  background-color: ${colors.beautifulBlue[5]};
+    display: inline-block;
+    padding: 9px 16px;
+    border-radius: 8px;
+    background-color: ${colors.beautifulBlue[5]};
 `
 
 interface IErrorsContainerProps {

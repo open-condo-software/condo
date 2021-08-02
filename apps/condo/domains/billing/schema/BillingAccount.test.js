@@ -3,18 +3,26 @@
  */
 
 const faker = require('faker')
-const { createTestOrganization } = require(
-    '@condo/domains/organization/utils/testSchema')
-const { makeClientWithIntegrationAccess } = require(
-    '@condo/domains/billing/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithIntegrationAccess } = require('@condo/domains/billing/utils/testSchema')
 const { OrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { BillingAccount, createTestBillingAccount,
-    updateTestBillingAccount, createTestBillingProperty,
-    makeContextWithOrganizationAndIntegrationAsAdmin, createTestBillingIntegrationOrganizationContext,
-    makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    BillingAccount,
+    createTestBillingAccount,
+    updateTestBillingAccount,
+    createTestBillingProperty,
+    makeContextWithOrganizationAndIntegrationAsAdmin,
+    createTestBillingIntegrationOrganizationContext,
+    makeOrganizationIntegrationManager,
+} = require('@condo/domains/billing/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingAccount', () => {
     test('admin: create BillingAccount', async () => {
@@ -53,7 +61,11 @@ describe('BillingAccount', () => {
         const adminClient = await makeLoggedInAdminClient()
         const integrationClient = await makeClientWithIntegrationAccess()
         const [organization] = await createTestOrganization(adminClient)
-        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integrationClient.integration)
+        const [context] = await createTestBillingIntegrationOrganizationContext(
+            adminClient,
+            organization,
+            integrationClient.integration,
+        )
         const [property] = await createTestBillingProperty(adminClient, context)
         const [billingAccount] = await createTestBillingAccount(integrationClient, context, property)
 
@@ -116,7 +128,11 @@ describe('BillingAccount', () => {
         const adminClient = await makeLoggedInAdminClient()
         const integrationClient = await makeClientWithIntegrationAccess()
         const [organization] = await createTestOrganization(adminClient)
-        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integrationClient.integration)
+        const [context] = await createTestBillingIntegrationOrganizationContext(
+            adminClient,
+            organization,
+            integrationClient.integration,
+        )
         const [property] = await createTestBillingProperty(adminClient, context)
         const [billingAccount] = await createTestBillingAccount(adminClient, context, property)
 
@@ -254,7 +270,11 @@ describe('BillingAccount', () => {
         const adminClient = await makeLoggedInAdminClient()
         const integrationClient = await makeClientWithIntegrationAccess()
         const [organization] = await createTestOrganization(adminClient)
-        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integrationClient.integration)
+        const [context] = await createTestBillingIntegrationOrganizationContext(
+            adminClient,
+            organization,
+            integrationClient.integration,
+        )
         const [property] = await createTestBillingProperty(adminClient, context)
         const [billingAccount] = await createTestBillingAccount(adminClient, context, property)
 

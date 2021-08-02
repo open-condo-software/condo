@@ -25,11 +25,16 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
     const PageTitleMsg = intl.formatMessage({ id: 'employee.AddEmployee' })
 
     const [selectedRole, setSelectedRole] = useState<string | null>(null)
-    const roleTranslations = useMemo(() => (selectedRole ? {
-        title: intl.formatMessage({ id: `employee.role.title.${selectedRole}` }),
-        description: intl.formatMessage({ id: `employee.role.description.${selectedRole}` }),
-    } : null),
-    [selectedRole])
+    const roleTranslations = useMemo(
+        () =>
+            selectedRole
+                ? {
+                      title: intl.formatMessage({ id: `employee.role.title.${selectedRole}` }),
+                      description: intl.formatMessage({ id: `employee.role.description.${selectedRole}` }),
+                  }
+                : null,
+        [selectedRole],
+    )
 
     return (
         <>
@@ -41,23 +46,29 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
                     <PageContent>
                         <Row gutter={[12, 40]}>
                             <Col span={24}>
-                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                                <Typography.Title level={1} style={{ margin: 0 }}>
+                                    {PageTitleMsg}
+                                </Typography.Title>
                             </Col>
                             <Col span={10}>
                                 <CreateEmployeeForm onRoleSelect={(role) => setSelectedRole(role)} />
                             </Col>
-                            {roleTranslations ? <Card
-                                title={roleTranslations.title}
-                                bordered={false}
-                                css={CardCss}
-                                headStyle={{
-                                    color: colors.lightGrey[10],
-                                    fontSize: 24,
-                                    fontWeight: 'bold',
-                                }}
-                            >
-                                {roleTranslations.description}
-                            </Card> : <Loader />}
+                            {roleTranslations ? (
+                                <Card
+                                    title={roleTranslations.title}
+                                    bordered={false}
+                                    css={CardCss}
+                                    headStyle={{
+                                        color: colors.lightGrey[10],
+                                        fontSize: 24,
+                                        fontWeight: 'bold',
+                                    }}
+                                >
+                                    {roleTranslations.description}
+                                </Card>
+                            ) : (
+                                <Loader />
+                            )}
                         </Row>
                     </PageContent>
                 </OrganizationRequired>
@@ -67,10 +78,7 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
 }
 
 CreateEmployeePage.headerAction = (
-    <ReturnBackHeaderAction
-        descriptor={{ id: 'pages.condo.employee.PageTitle' }}
-        path={'/employee/'}
-    />
+    <ReturnBackHeaderAction descriptor={{ id: 'pages.condo.employee.PageTitle' }} path={'/employee/'} />
 )
 
 export default CreateEmployeePage

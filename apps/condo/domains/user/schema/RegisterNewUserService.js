@@ -5,13 +5,14 @@ const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { MIN_PASSWORD_LENGTH_ERROR } = require('@condo/domains/user/constants/errors')
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils } = require('@condo/domains/user/utils/serverSchema')
-const isEmpty = require('lodash/isEmpty')
 const {
-    CONFIRM_PHONE_ACTION_EXPIRED,
-} = require('@condo/domains/user/constants/errors')
+    ConfirmPhoneAction: ConfirmPhoneActionServerUtils,
+    User: UserServerUtils,
+} = require('@condo/domains/user/utils/serverSchema')
+const isEmpty = require('lodash/isEmpty')
+const { CONFIRM_PHONE_ACTION_EXPIRED } = require('@condo/domains/user/constants/errors')
 
-async function ensureNotExists (context, field, value) {
+async function ensureNotExists(context, field, value) {
     if (isEmpty(value)) {
         throw new Error(`[error] Unable to check field ${field} uniques because the passed value is empty`)
     }
@@ -42,13 +43,11 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 }
                 let confirmPhoneActionId = null
                 if (confirmPhoneActionToken) {
-                    const [action] = await ConfirmPhoneActionServerUtils.getAll(context,
-                        {
-                            token: confirmPhoneActionToken,
-                            completedAt: null,
-                            isPhoneVerified: true,
-                        }
-                    )
+                    const [action] = await ConfirmPhoneActionServerUtils.getAll(context, {
+                        token: confirmPhoneActionToken,
+                        completedAt: null,
+                        isPhoneVerified: true,
+                    })
                     if (!action) {
                         throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] Unable to find confirm phone action`)
                     }
@@ -66,7 +65,10 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 }
                 // TODO(zuch): fix bug when user can not be created becaues of createAt and updatedAt fields
                 // const user = await UserServerUtils.create(context, userData)
-                const { data: { result: user }, errors: createErrors } = await context.executeGraphQL({
+                const {
+                    data: { result: user },
+                    errors: createErrors,
+                } = await context.executeGraphQL({
                     context: context.createContext({ skipAccessControl: true }),
                     query: `
                         mutation create($data: UserCreateInput!) {
@@ -87,7 +89,9 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 }
                 // end
                 if (confirmPhoneActionToken) {
-                    await ConfirmPhoneActionServerUtils.update(context, confirmPhoneActionId, { completedAt: new Date().toISOString() })
+                    await ConfirmPhoneActionServerUtils.update(context, confirmPhoneActionId, {
+                        completedAt: new Date().toISOString(),
+                    })
                 }
                 // TODO(Dimitreee): use locale from .env
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale

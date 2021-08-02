@@ -6,7 +6,7 @@ const IORedis = require('ioredis')
 const session = require('express-session')
 const RedisStore = require('connect-redis')(session)
 
-function _makeid (length) {
+function _makeid(length) {
     let result = ''
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     const charactersLength = characters.length
@@ -16,7 +16,7 @@ function _makeid (length) {
     return result
 }
 
-function getCookieSecret (cookieSecret) {
+function getCookieSecret(cookieSecret) {
     if (!cookieSecret) {
         if (process.env.NODE_ENV === 'production') {
             throw new TypeError('getCookieSecret() call without cookieSecret (check the COOKIE_SECRET environment)')
@@ -36,7 +36,7 @@ function getCookieSecret (cookieSecret) {
     }
 }
 
-function getAdapter (databaseUrl) {
+function getAdapter(databaseUrl) {
     if (!databaseUrl) throw new TypeError('getAdapter() call without databaseUrl')
     if (typeof databaseUrl !== 'string') throw new TypeError('getAdapter() databaseUrl is not a string')
     if (databaseUrl.startsWith('mongodb')) {
@@ -46,16 +46,22 @@ function getAdapter (databaseUrl) {
     } else if (databaseUrl.startsWith('undefined')) {
         // NOTE: case for build time!
         const adapter = new MongooseAdapter()
-        adapter.connect = () => {throw new Error('UndefinedAdapter.connect() call!')}
-        adapter.postConnect = () => {throw new Error('UndefinedAdapter.postConnect() call!')}
-        adapter.checkDatabaseVersion = () => {throw new Error('UndefinedAdapter.checkDatabaseVersion() call!')}
+        adapter.connect = () => {
+            throw new Error('UndefinedAdapter.connect() call!')
+        }
+        adapter.postConnect = () => {
+            throw new Error('UndefinedAdapter.postConnect() call!')
+        }
+        adapter.checkDatabaseVersion = () => {
+            throw new Error('UndefinedAdapter.checkDatabaseVersion() call!')
+        }
         return adapter
     } else {
         throw new Error(`getAdapter() call with unknown schema: ${databaseUrl}`)
     }
 }
 
-function prepareDefaultKeystoneConfig (conf) {
+function prepareDefaultKeystoneConfig(conf) {
     const redisClient = new IORedis(conf.REDIS_URL)
     const sessionStore = new RedisStore({ client: redisClient })
 

@@ -4,17 +4,13 @@ import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import crypto from 'crypto'
 import getConfig from 'next/config'
-import {
-    ALGORITHM,
-    SALT,
-    CRYPTOENCODING,
-} from '@condo/domains/ticket/constants/crypto'
+import { ALGORITHM, SALT, CRYPTOENCODING } from '@condo/domains/ticket/constants/crypto'
 import React from 'react'
 import BaseLayout, { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { format } from 'date-fns'
 import { RU_LOCALE, EN_LOCALE, LOCALES } from '@condo/domains/common/constants/locale'
 
-function RedirectToTicket ({ ticketId }) {
+function RedirectToTicket({ ticketId }) {
     const intl = useIntl()
     const RedirectingMessage = intl.formatMessage({ id: 'Redirecting' })
 
@@ -34,8 +30,8 @@ interface ShareProps {
     number: string
     details: string
     id: string
-    date: string;
-    locale?: string;
+    date: string
+    locale?: string
 }
 
 interface IShareProps extends React.FC<ShareProps> {
@@ -60,7 +56,7 @@ const Share: IShareProps = ({ date, number, details, id, locale }) => {
     if (typeof window !== 'undefined') {
         origin = window.location.origin
     } else {
-        ({
+        ;({
             publicRuntimeConfig: { serverUrl: origin },
         } = getConfig())
     }
@@ -86,17 +82,12 @@ export const getServerSideProps = ({ query }) => {
     return { props: JSON.parse(decryptedText) }
 }
 
-
 const EmptyLayout = ({ children, ...props }) => {
-    return <BaseLayout
-        {...props}
-        logoLocation='topMenu'
-        className='top-menu-only-layout'
-    >
-        <PageWrapper>
-            {children}
-        </PageWrapper>
-    </BaseLayout>
+    return (
+        <BaseLayout {...props} logoLocation="topMenu" className="top-menu-only-layout">
+            <PageWrapper>{children}</PageWrapper>
+        </BaseLayout>
+    )
 }
 
 Share.container = EmptyLayout

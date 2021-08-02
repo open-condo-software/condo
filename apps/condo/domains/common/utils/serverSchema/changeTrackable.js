@@ -84,15 +84,13 @@ const { Json } = require('@core/keystone/fields')
  * @param {Options} options
  * @return {*}
  */
-const buildSetOfFieldsToTrackFrom = (schema, options = {}) => (
-    omit(schema.fields, options.except || [])
-)
+const buildSetOfFieldsToTrackFrom = (schema, options = {}) => omit(schema.fields, options.except || [])
 
 /**
  * Indicates, that some resolver does not have required field
  */
 class ResolversValidationError extends Error {
-    constructor (fields) {
+    constructor(fields) {
         const message = 'Missing display name resolvers for some fields'
         super(message)
         this.fields = fields
@@ -135,18 +133,14 @@ class ResolversValidationError extends Error {
  * @param {Object} manyRelationshipDisplayNameResolvers - map of field names to functions, that resolves display name of "many" relationship for that field
  * @return {Object} - Set of fields, that should be substituted into a declaration of schema, that will store changes.
  */
-function generateChangeTrackableFieldsFrom (
-    fields,
-    singleRelationshipDisplayNameResolvers,
-    manyRelationshipDisplayNameResolvers
-) {
+function generateChangeTrackableFieldsFrom(fields, singleRelationshipDisplayNameResolvers, manyRelationshipDisplayNameResolvers) {
     const scalars = transform(pickBy(fields, isScalar), mapScalars, {})
     const fieldsOfSingleRelations = pickBy(fields, isRelationSingle)
     const fieldsOfManyRelations = pickBy(fields, isRelationMany)
 
     const fieldsWithoutResolvers = [
-        ...keys(fieldsOfSingleRelations).filter(key => !singleRelationshipDisplayNameResolvers[key]),
-        ...keys(fieldsOfManyRelations).filter(key => !manyRelationshipDisplayNameResolvers[key]),
+        ...keys(fieldsOfSingleRelations).filter((key) => !singleRelationshipDisplayNameResolvers[key]),
+        ...keys(fieldsOfManyRelations).filter((key) => !manyRelationshipDisplayNameResolvers[key]),
     ]
     if (fieldsWithoutResolvers.length > 0) {
         throw new ResolversValidationError(fieldsWithoutResolvers)
@@ -179,7 +173,6 @@ function generateChangeTrackableFieldsFrom (
  * @typedef DisplayNameResolvers
  */
 
-
 /**
  * Map of fields with many-to-many relations to functions,
  * that obtains ids and display names of previous and updated list of related items.
@@ -209,27 +202,24 @@ function generateChangeTrackableFieldsFrom (
  * @param relatedManyToManyResolvers
  * @return function, compatible with Keystone `afterChange` hook
  */
-const storeChangesIfUpdated = (
-    fields,
-    createCallback,
-    displayNameResolvers,
-    relatedManyToManyResolvers
-) => async ({ operation, existingItem, context, originalInput, updatedItem }) => {
-    if (operation === 'update') {
-        const fieldsChanges = await buildDataToStoreChangeFrom({
-            existingItem,
-            updatedItem,
-            context,
-            originalInput,
-            fields,
-            displayNameResolvers,
-            relatedManyToManyResolvers,
-        })
-        if (keys(fieldsChanges).length > 0) {
-            createCallback(fieldsChanges, { existingItem, updatedItem, context })
+const storeChangesIfUpdated =
+    (fields, createCallback, displayNameResolvers, relatedManyToManyResolvers) =>
+    async ({ operation, existingItem, context, originalInput, updatedItem }) => {
+        if (operation === 'update') {
+            const fieldsChanges = await buildDataToStoreChangeFrom({
+                existingItem,
+                updatedItem,
+                context,
+                originalInput,
+                fields,
+                displayNameResolvers,
+                relatedManyToManyResolvers,
+            })
+            if (keys(fieldsChanges).length > 0) {
+                createCallback(fieldsChanges, { existingItem, updatedItem, context })
+            }
         }
     }
-}
 
 /**
  * Arguments to `buildDataToStoreChangeFrom` function
@@ -250,78 +240,63 @@ const storeChangesIfUpdated = (
  * @param {BuildDataToStoreChangeFromArgs} args
  */
 const buildDataToStoreChangeFrom = async (args) => {
-    const {
-        existingItem,
-        updatedItem,
-        context,
-        originalInput,
-        fields,
-        displayNameResolvers,
-        relatedManyToManyResolvers,
-    } = args
+    const { existingItem, updatedItem, context, originalInput, fields, displayNameResolvers, relatedManyToManyResolvers } = args
     const data = {}
     // Since `map` uses a series of async function calls, we need to use `Promise.all`,
     // otherwise, final result will miss fields, calculated asynchronously.
     // https://stackoverflow.com/questions/47065444/lodash-is-it-possible-to-use-map-with-async-functions
-    await Promise.all(keys(fields).map(async (key) => {
-        const field = fields[key]
-        if (isScalar(field)) {
-            if (existingItem[key] !== updatedItem[key]) {
-                data[`${ key }From`] = existingItem[key]
-                data[`${ key }To`] = updatedItem[key]
-            }
-        } else if (isRelationSingle(field)) {
-            if (existingItem[key] !== updatedItem[key]) {
-                data[`${ key }IdFrom`] = existingItem[key]
-                data[`${ key }IdTo`] = updatedItem[key]
-                data[`${ key }DisplayNameFrom`] = await displayNameResolvers[key](existingItem[key])
-                data[`${ key }DisplayNameTo`] = await displayNameResolvers[key](updatedItem[key])
-            }
-        } else if (isRelationMany(field)) {
-            if (originalInput[key]) {
-                // Since many-to-many relation is stored in different schema, there is no
-                // direct information here about initial list of related items.
-                // As an easy solution, we can utilize `originalInput`, that have
-                // relation "Nested mutations", like `connect` and `disconnect`
-                // https://www.keystonejs.com/keystonejs/fields/src/types/relationship/#nested-mutations
-                const { existing, updated } = await relatedManyToManyResolvers[key]({
-                    context,
-                    existingItem,
-                    originalInput,
-                })
-                if (difference(existing.ids, updated.ids).length > 0) {
-                    data[`${ key }IdsFrom`] = existing.ids
-                    data[`${ key }IdsTo`] = updated.ids
-                    data[`${ key }DisplayNamesFrom`] = existing.displayNames
-                    data[`${ key }DisplayNamesTo`] = updated.displayNames
+    await Promise.all(
+        keys(fields).map(async (key) => {
+            const field = fields[key]
+            if (isScalar(field)) {
+                if (existingItem[key] !== updatedItem[key]) {
+                    data[`${key}From`] = existingItem[key]
+                    data[`${key}To`] = updatedItem[key]
                 }
-
+            } else if (isRelationSingle(field)) {
+                if (existingItem[key] !== updatedItem[key]) {
+                    data[`${key}IdFrom`] = existingItem[key]
+                    data[`${key}IdTo`] = updatedItem[key]
+                    data[`${key}DisplayNameFrom`] = await displayNameResolvers[key](existingItem[key])
+                    data[`${key}DisplayNameTo`] = await displayNameResolvers[key](updatedItem[key])
+                }
+            } else if (isRelationMany(field)) {
+                if (originalInput[key]) {
+                    // Since many-to-many relation is stored in different schema, there is no
+                    // direct information here about initial list of related items.
+                    // As an easy solution, we can utilize `originalInput`, that have
+                    // relation "Nested mutations", like `connect` and `disconnect`
+                    // https://www.keystonejs.com/keystonejs/fields/src/types/relationship/#nested-mutations
+                    const { existing, updated } = await relatedManyToManyResolvers[key]({
+                        context,
+                        existingItem,
+                        originalInput,
+                    })
+                    if (difference(existing.ids, updated.ids).length > 0) {
+                        data[`${key}IdsFrom`] = existing.ids
+                        data[`${key}IdsTo`] = updated.ids
+                        data[`${key}DisplayNamesFrom`] = existing.displayNames
+                        data[`${key}DisplayNamesTo`] = updated.displayNames
+                    }
+                }
             }
-        }
-    }))
+        }),
+    )
     return data
 }
 
-const isScalar = (field) => (
-    field.type !== Relationship
-)
+const isScalar = (field) => field.type !== Relationship
 
-const isRelationSingle = (field) => (
-    field.type === Relationship && !field.many
-)
+const isRelationSingle = (field) => field.type === Relationship && !field.many
 
-const isRelationMany = (field) => (
-    field.type === Relationship && field.many
-)
+const isRelationMany = (field) => field.type === Relationship && field.many
 
 const mapScalars = (acc, value, key) => {
     acc[`${key}From`] = mapScalar(value)
     acc[`${key}To`] = mapScalar(value)
 }
 
-const mapScalar = (field) => (
-    pick(field, ['schemaDoc', 'type'])
-)
+const mapScalar = (field) => pick(field, ['schemaDoc', 'type'])
 
 /**
  * Produces "Change storage set" of fields (see Terms) for a single relationship field

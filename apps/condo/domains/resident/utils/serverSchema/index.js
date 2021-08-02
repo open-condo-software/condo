@@ -12,7 +12,7 @@ const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/property/gql')
 
 const Resident = generateServerUtils(ResidentGQL)
 
-async function registerResident (context, data) {
+async function registerResident(context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
@@ -30,5 +30,5 @@ async function registerResident (context, data) {
 module.exports = {
     Resident,
     registerResident,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

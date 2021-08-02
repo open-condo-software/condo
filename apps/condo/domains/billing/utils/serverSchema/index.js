@@ -44,5 +44,5 @@ module.exports = {
     BillingAccountMeterReading,
     BillingReceipt,
     BillingOrganization,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -18,13 +18,13 @@ const userIsOwner = ({ existingItem, authentication: { item: user } }) => {
     return existingItem.user.id === user.id
 }
 
-const userIsAdminOrOwner = auth => {
+const userIsAdminOrOwner = (auth) => {
     const isAdmin = userIsAdmin(auth)
     const isOwner = userIsOwner(auth)
     return Boolean(isAdmin || isOwner)
 }
 
-const userIsAdminOrIsThisItem = auth => {
+const userIsAdminOrIsThisItem = (auth) => {
     const isAdmin = userIsAdmin(auth)
     const isThisItem = userIsThisItem(auth)
     return Boolean(isAdmin || isThisItem)

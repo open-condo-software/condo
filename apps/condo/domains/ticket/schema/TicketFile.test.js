@@ -8,21 +8,25 @@ const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
-const { 
-    TicketFile, 
-    createTestTicketFile, 
+const {
+    TicketFile,
+    createTestTicketFile,
     updateTestTicketFile,
     makeClientWithTicket,
 } = require('@condo/domains/ticket/utils/testSchema')
 
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('../../common/utils/testSchema')
 
 describe('TicketFile', () => {
     describe('User', () => {
         it('can create temporary TicketFile [no ticket relation]', async () => {
             const client = await makeClientWithProperty()
-            const [ticketFile, attrs] = await createTestTicketFile(client, client.organization)  
+            const [ticketFile, attrs] = await createTestTicketFile(client, client.organization)
             expect(ticketFile.id).toMatch(UUID_RE)
             expect(ticketFile.dv).toEqual(1)
             expect(ticketFile.sender).toEqual(attrs.sender)
@@ -37,7 +41,7 @@ describe('TicketFile', () => {
         })
         it('can create TicketFile', async () => {
             const client = await makeClientWithTicket()
-            const [ticketFile, attrs] = await createTestTicketFile(client, client.organization, client.ticket)  
+            const [ticketFile, attrs] = await createTestTicketFile(client, client.organization, client.ticket)
             expect(ticketFile.id).toMatch(UUID_RE)
             expect(ticketFile.dv).toEqual(1)
             expect(ticketFile.sender).toEqual(attrs.sender)
@@ -53,7 +57,7 @@ describe('TicketFile', () => {
         })
         it('can read TicketFile', async () => {
             const client = await makeClientWithTicket()
-            const [ticketFile, attrs] = await createTestTicketFile(client, client.organization, client.ticket)  
+            const [ticketFile, attrs] = await createTestTicketFile(client, client.organization, client.ticket)
             const objs = await TicketFile.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs).toHaveLength(1)
             expect(objs[0].id).toMatch(ticketFile.id)
@@ -69,15 +73,17 @@ describe('TicketFile', () => {
         })
         it('cannot read TicketFile from another organization', async () => {
             const client = await makeClientWithTicket()
-            await createTestTicketFile(client, client.organization, client.ticket)  
+            await createTestTicketFile(client, client.organization, client.ticket)
             const anotherClient = await makeClientWithTicket()
             const objs = await TicketFile.getAll(anotherClient, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs).toHaveLength(0)
         })
         it('can update temporary TicketFile', async () => {
             const client = await makeClientWithTicket()
-            const [ticketFileCreated] = await createTestTicketFile(client, client.organization)  
-            const [ticketFileUpdated, attrsUpdate] = await updateTestTicketFile(client, ticketFileCreated.id, { ticket: { connect: { id: client.ticket.id } } })
+            const [ticketFileCreated] = await createTestTicketFile(client, client.organization)
+            const [ticketFileUpdated, attrsUpdate] = await updateTestTicketFile(client, ticketFileCreated.id, {
+                ticket: { connect: { id: client.ticket.id } },
+            })
             expect(ticketFileUpdated.id).toEqual(ticketFileUpdated.id)
             expect(ticketFileUpdated.dv).toEqual(1)
             expect(ticketFileUpdated.sender).toEqual(attrsUpdate.sender)
@@ -87,7 +93,7 @@ describe('TicketFile', () => {
         })
         it('cannot delete TicketFile', async () => {
             const userClient = await makeClientWithTicket()
-            const [ticketFileCreated] = await createTestTicketFile(userClient, userClient.organization, userClient.ticket)  
+            const [ticketFileCreated] = await createTestTicketFile(userClient, userClient.organization, userClient.ticket)
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 // TODO(codegen): check 'user: delete TicketFile' test!
                 await TicketFile.delete(userClient, ticketFileCreated.id)
@@ -100,7 +106,7 @@ describe('TicketFile', () => {
             const client = await makeClient()
             const clientWithOrganization = await makeClientWithProperty()
             await expectToThrowAuthenticationErrorToObj(async () => {
-                await createTestTicketFile(client, clientWithOrganization.organization) 
+                await createTestTicketFile(client, clientWithOrganization.organization)
             })
         })
         it('cannot read TicketFile', async () => {
@@ -111,7 +117,7 @@ describe('TicketFile', () => {
         })
         it('cannot update TicketFile', async () => {
             const userClient = await makeClientWithTicket()
-            const [ticketFileCreated] = await createTestTicketFile(userClient, userClient.organization, userClient.ticket)  
+            const [ticketFileCreated] = await createTestTicketFile(userClient, userClient.organization, userClient.ticket)
             const client = await makeClient()
             const payload = { ticket: { connect: { id: userClient.ticket.id } } }
             await expectToThrowAuthenticationErrorToObj(async () => {
@@ -120,7 +126,7 @@ describe('TicketFile', () => {
         })
         it('cannot delete TicketFile', async () => {
             const userClient = await makeClientWithTicket()
-            const [ticketFileCreated] = await createTestTicketFile(userClient, userClient.organization, userClient.ticket)  
+            const [ticketFileCreated] = await createTestTicketFile(userClient, userClient.organization, userClient.ticket)
             const client = await makeClient()
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 // TODO(codegen): check 'anonymous: delete TicketFile' test!
@@ -132,7 +138,8 @@ describe('TicketFile', () => {
     describe('Employee from "from" relation organization', () => {
         it('can create ticket file for his "to" related organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientFrom, organizationTo, propertyTo, organizationFrom, employeeFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+            const { clientFrom, organizationTo, propertyTo, organizationFrom, employeeFrom } =
+                await createTestOrganizationWithAccessToAnotherOrganization()
             const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                 canManageTickets: true,
             })
@@ -147,7 +154,8 @@ describe('TicketFile', () => {
 
         it('cannot create ticket file for not his "to" related organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientFrom, organizationFrom, employeeFrom, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
+            const { clientFrom, organizationFrom, employeeFrom, propertyTo } =
+                await createTestOrganizationWithAccessToAnotherOrganization()
             const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                 canManageTickets: true,
             })
@@ -174,7 +182,8 @@ describe('TicketFile', () => {
 
         it('can update ticket file for his "to" related organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientFrom, organizationTo, propertyTo, organizationFrom, employeeFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+            const { clientFrom, organizationTo, propertyTo, organizationFrom, employeeFrom } =
+                await createTestOrganizationWithAccessToAnotherOrganization()
             const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                 canManageTickets: true,
             })
@@ -191,7 +200,8 @@ describe('TicketFile', () => {
     describe('Employee from "to" relation organization', () => {
         it('cannot create ticket file for his "from" related organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { organizationTo, propertyFrom, clientTo, organizationFrom, employeeFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+            const { organizationTo, propertyFrom, clientTo, organizationFrom, employeeFrom } =
+                await createTestOrganizationWithAccessToAnotherOrganization()
             const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                 canManageTickets: true,
             })

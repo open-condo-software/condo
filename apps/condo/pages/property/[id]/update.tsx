@@ -14,8 +14,10 @@ interface IPageWithHeaderAction extends React.FC {
 
 const UpdatePropertyPage: IPageWithHeaderAction = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.property.index.UpdatePropertyTitle' })
-    const { query: { id } } = useRouter()
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.index.UpdatePropertyTitle' })
+    const {
+        query: { id },
+    } = useRouter()
     return (
         <>
             <Head>
@@ -26,9 +28,11 @@ const UpdatePropertyPage: IPageWithHeaderAction = () => {
                     <PageContent>
                         <Row gutter={[0, 40]} style={{ height: '100%' }}>
                             <Col span={24}>
-                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                                <Typography.Title level={1} style={{ margin: 0 }}>
+                                    {PageTitleMsg}
+                                </Typography.Title>
                             </Col>
-                            <PropertyForm id={id as string}/>
+                            <PropertyForm id={id as string} />
                         </Row>
                     </PageContent>
                 </OrganizationRequired>
@@ -37,8 +41,6 @@ const UpdatePropertyPage: IPageWithHeaderAction = () => {
     )
 }
 
-UpdatePropertyPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'Back' }}
-    path={(id) => `/property/${id}/`}/>
+UpdatePropertyPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'Back' }} path={(id) => `/property/${id}/`} />
 
 export default UpdatePropertyPage

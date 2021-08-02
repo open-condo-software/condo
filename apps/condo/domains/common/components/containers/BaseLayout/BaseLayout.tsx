@@ -43,7 +43,7 @@ interface IBaseLayoutProps {
     headerAction?: ElementType<unknown>
     onLogoClick?: () => void
     menuDataRender?: () => MenuItem[]
-    logoLocation?: string;
+    logoLocation?: string
 }
 
 const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
@@ -58,32 +58,27 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
     } = props
     const intl = useIntl()
     const colSize = useAntdMediaQuery()
-    const {
-        TopNotificationComponent,
-        addNotification,
-    } = useTopNotificationsHook()
+    const { TopNotificationComponent, addNotification } = useTopNotificationsHook()
     // TODO(Dimitreee): add UA base isMobile detection
-    const isMobile = (colSize === 'xs') && !disableMobile
+    const isMobile = colSize === 'xs' && !disableMobile
     const menuData = menuDataRender()
     const [isSideMenuCollapsed, setIsSideMenuCollapsed] = useState(!isMobile)
-    const menuDataClassNames = classnames(
-        'layout',
-        { 'hided-side-menu': !menuData || menuData.length === 0 },
-        className
-    )
+    const menuDataClassNames = classnames('layout', { 'hided-side-menu': !menuData || menuData.length === 0 }, className)
     const toggleSideMenuCollapsed = () => setIsSideMenuCollapsed(!isSideMenuCollapsed)
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
             <LayoutContext.Provider value={{ isMobile, addNotification }}>
                 <TopNotificationComponent />
-                <Layout className={menuDataClassNames} style={style} css={layoutCss} >
-                    <SideMenu {...{
-                        onLogoClick,
-                        menuData,
-                        isMobile,
-                        isSideMenuCollapsed,
-                        toggleSideMenuCollapsed,
-                    }} />
+                <Layout className={menuDataClassNames} style={style} css={layoutCss}>
+                    <SideMenu
+                        {...{
+                            onLogoClick,
+                            menuData,
+                            isMobile,
+                            isSideMenuCollapsed,
+                            toggleSideMenuCollapsed,
+                        }}
+                    />
                     <Layout css={subLayoutCss}>
                         <Header css={topMenuCss}>
                             <TopMenuItems
@@ -108,7 +103,7 @@ interface IPageWrapperProps {
 
 const PageWrapper: FunctionComponent<IPageWrapperProps> = ({ children, className, style }) => {
     return (
-        <Content className={classnames('page-wrapper', className)} css={pageWrapperCss}  style={style}>
+        <Content className={classnames('page-wrapper', className)} css={pageWrapperCss} style={style}>
             {children}
         </Content>
     )
@@ -124,8 +119,11 @@ interface IPageHeaderProps extends PageHeaderProps {
 const PageHeader: FunctionComponent<IPageHeaderProps> = ({ children, className, style, title, subTitle, ...pageHeaderProps }) => {
     return (
         <AntPageHeader
-            className={classnames('page-header', className)} css={pageHeaderCss} style={style}
-            title={title} subTitle={subTitle}
+            className={classnames('page-header', className)}
+            css={pageHeaderCss}
+            style={style}
+            title={title}
+            subTitle={subTitle}
             {...pageHeaderProps}
         >
             {children}
@@ -147,9 +145,4 @@ const PageContent: FunctionComponent<IPageContentProps> = ({ children, className
 }
 
 export default BaseLayout
-export {
-    useLayoutContext,
-    PageWrapper,
-    PageHeader,
-    PageContent,
-}
+export { useLayoutContext, PageWrapper, PageHeader, PageContent }

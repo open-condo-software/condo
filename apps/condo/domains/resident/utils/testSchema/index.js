@@ -18,7 +18,7 @@ const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/resident/gql')
 const Resident = generateGQLTestUtils(ResidentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestResident (client, user, organization, property, extraAttrs = {}) {
+async function createTestResident(client, user, organization, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -45,7 +45,7 @@ async function createTestResident (client, user, organization, property, extraAt
     return [obj, attrs]
 }
 
-async function updateTestResident (client, id, extraAttrs = {}) {
+async function updateTestResident(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -59,7 +59,6 @@ async function updateTestResident (client, id, extraAttrs = {}) {
     const obj = await Resident.update(client, id, attrs)
     return [obj, attrs]
 }
-
 
 async function registerResidentByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -83,7 +82,9 @@ async function registerResidentByTestClient(client, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    Resident, createTestResident, updateTestResident,
+    Resident,
+    createTestResident,
+    updateTestResident,
     registerResidentByTestClient,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

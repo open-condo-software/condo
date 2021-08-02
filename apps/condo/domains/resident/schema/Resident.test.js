@@ -17,10 +17,13 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
 const { Resident, createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const {
+    catchErrorFrom,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
+} = require('../../common/utils/testSchema')
 
 describe('Resident', () => {
-
     describe('validations', async () => {
         it('throws error on create record with same set of fields: "property", "unitName"', async () => {
             const userClient = await makeClientWithProperty()
@@ -31,13 +34,24 @@ describe('Resident', () => {
             }
             await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
 
-            await catchErrorFrom(async () => {
-                await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot create resident, because another resident with the same provided set of "property", "unitName"')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestResident(
+                        adminClient,
+                        userClient.user,
+                        userClient.organization,
+                        userClient.property,
+                        duplicatedFields,
+                    )
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch(
+                        'Cannot create resident, because another resident with the same provided set of "property", "unitName"',
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('throws error, when trying to connect new resident to billing account, that is connected to another resident', async () => {
@@ -52,15 +66,32 @@ describe('Resident', () => {
                 billingAccount: { connect: { id: billingAccount.id } },
             }
 
-            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, billingAccountConnection)
+            await createTestResident(
+                adminClient,
+                userClient.user,
+                userClient.organization,
+                userClient.property,
+                billingAccountConnection,
+            )
 
-            await catchErrorFrom(async () => {
-                await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, billingAccountConnection)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Specified billing account is already connected to another resident')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestResident(
+                        adminClient,
+                        userClient.user,
+                        userClient.organization,
+                        userClient.property,
+                        billingAccountConnection,
+                    )
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch(
+                        'Specified billing account is already connected to another resident',
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('throws error, when trying to connect new resident to property with another address', async () => {
@@ -71,20 +102,33 @@ describe('Resident', () => {
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
 
-            const [propertyWithAnotherAddress] = await createTestProperty(userClient, userClient.organization, { map: buildingMapJson })
+            const [propertyWithAnotherAddress] = await createTestProperty(userClient, userClient.organization, {
+                map: buildingMapJson,
+            })
 
             const attrs = {
                 billingAccount: { connect: { id: billingAccount.id } },
                 address: userClient.property.address,
             }
 
-            await catchErrorFrom(async () => {
-                await createTestResident(adminClient, userClient.user, userClient.organization, propertyWithAnotherAddress, attrs)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot connect property, because its address differs from address of resident')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestResident(
+                        adminClient,
+                        userClient.user,
+                        userClient.organization,
+                        propertyWithAnotherAddress,
+                        attrs,
+                    )
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch(
+                        'Cannot connect property, because its address differs from address of resident',
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
     })
 
@@ -101,7 +145,13 @@ describe('Resident', () => {
                 billingAccount: { connect: { id: billingAccount.id } },
             }
 
-            const [obj, attrs] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, fields)
+            const [obj, attrs] = await createTestResident(
+                adminClient,
+                userClient.user,
+                userClient.organization,
+                userClient.property,
+                fields,
+            )
             expect(obj.id).toMatch(UUID_RE)
             expect(obj.dv).toEqual(1)
             expect(obj.sender).toEqual(attrs.sender)

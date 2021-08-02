@@ -8,76 +8,71 @@ import { colors } from '@condo/domains/common/constants/style'
 import { ITicketCommentFormState, ITicketCommentUIState } from '../../../ticket/utils/clientSchema/TicketComment'
 
 export type TComment = {
-    id: string,
-    content: string,
+    id: string
+    content: string
     user: {
-        id: string,
-        name: string,
-    },
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string,
+        id: string
+        name: string
+    }
+    createdAt: string
+    updatedAt: string
+    deletedAt: string
 }
 
 const Container = styled.aside`
-  background: #F5F5F5;
-  border-radius: 8px;
-  height: calc(100vh - 120px);
+    background: #f5f5f5;
+    border-radius: 8px;
+    height: calc(100vh - 120px);
 
-  > * {
-    padding: 24px
-  }
+    > * {
+        padding: 24px;
+    }
 
-  display: flex;
-  flex-flow: column nowrap;
-  align-content: space-between;
+    display: flex;
+    flex-flow: column nowrap;
+    align-content: space-between;
 `
 const Head = styled.div`
-  border-bottom: solid thin ${colors.lightGrey};
-  font-style: normal;
-  font-weight: bold;
-  font-size: 20px;
-  line-height: 28px;
+    border-bottom: solid thin ${colors.lightGrey};
+    font-style: normal;
+    font-weight: bold;
+    font-size: 20px;
+    line-height: 28px;
 `
 const Body = styled.div`
-  overflow-y: scroll;
-  flex: 1 1 auto;
+    overflow-y: scroll;
+    flex: 1 1 auto;
 `
 const Footer = styled.div<{
     hasComments?: boolean
 }>`
-  ${({ hasComments }) => hasComments ? 'border-top: solid thin #D9D9D9;' : ''}
+    ${({ hasComments }) => (hasComments ? 'border-top: solid thin #D9D9D9;' : '')}
 `
 const EmptyContainer = styled.div`
-  text-align: center;
-  flex: 1 1;
-  display: flex;
-  align-items: center;
+    text-align: center;
+    flex: 1 1;
+    display: flex;
+    align-items: center;
 
-  .ant-empty-image {
-    display: none;
-  }
+    .ant-empty-image {
+        display: none;
+    }
 `
 
 type ActionsForComment = {
-    updateAction?: (formValues: ITicketCommentFormState, obj: ITicketCommentUIState) => Promise<ITicketCommentUIState>,
-    deleteAction?: (formValues: ITicketCommentFormState, obj: ITicketCommentUIState) => Promise<ITicketCommentUIState>,
+    updateAction?: (formValues: ITicketCommentFormState, obj: ITicketCommentUIState) => Promise<ITicketCommentUIState>
+    deleteAction?: (formValues: ITicketCommentFormState, obj: ITicketCommentUIState) => Promise<ITicketCommentUIState>
 }
 
 interface ICommentsListProps {
-    comments: TComment[],
-    createAction?: (formValues) => Promise<void>,
+    comments: TComment[]
+    createAction?: (formValues) => Promise<void>
     // Place for abilities check. If action of given type is not returned, appropriate button will not be displayed
-    actionsFor: (comment: TComment) => ActionsForComment,
-    canCreateComments: boolean,
+    actionsFor: (comment: TComment) => ActionsForComment
+    canCreateComments: boolean
 }
 
-const Comments: React.FC<ICommentsListProps> = ({
-    comments,
-    createAction,
-    canCreateComments,
-    actionsFor,
-}) => {
+const Comments: React.FC<ICommentsListProps> = ({ comments, createAction, canCreateComments, actionsFor }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
     const PromptTitleMessage = intl.formatMessage({ id: 'Comments.prompt.title' })
@@ -106,7 +101,8 @@ const Comments: React.FC<ICommentsListProps> = ({
                         image={null}
                         description={
                             <>
-                                <Typography.Text strong>{PromptTitleMessage}</Typography.Text><br/>
+                                <Typography.Text strong>{PromptTitleMessage}</Typography.Text>
+                                <br />
                                 <Typography.Text>{PromptDescriptionMessage}</Typography.Text>
                             </>
                         }
@@ -115,22 +111,17 @@ const Comments: React.FC<ICommentsListProps> = ({
             ) : (
                 <Body ref={bodyRef}>
                     <Typography.Text style={{ fontSize: '12px' }}>{ListDescriptionMessage}</Typography.Text>
-                    {comments.map(comment => {
+                    {comments.map((comment) => {
                         const { updateAction, deleteAction } = actionsFor(comment)
                         return (
-                            <Comment
-                                key={comment.id}
-                                comment={comment}
-                                updateAction={updateAction}
-                                deleteAction={deleteAction}
-                            />
+                            <Comment key={comment.id} comment={comment} updateAction={updateAction} deleteAction={deleteAction} />
                         )
                     })}
                 </Body>
             )}
             <Footer hasComments={comments.length > 0}>
                 {canCreateComments ? (
-                    <CommentForm action={createAction}/>
+                    <CommentForm action={createAction} />
                 ) : (
                     <Typography.Text disabled>{CannotCreateCommentsMessage}</Typography.Text>
                 )}

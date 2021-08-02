@@ -22,10 +22,11 @@ const SENDER_FIELD_CONSTRAINS = {
 const SENDER_FIELD = {
     factory: () => JSON.stringify({ dv: '1', fingerprint: 'VaxSw2aXZa', userId: 'pL7dnHUPGX1KpRsOXun' }),
     type: Json,
-    schemaDoc: 'Client-side devise identification used for the anti-fraud detection. ' +
-        'Example `{ dv: \'1\', fingerprint: \'VaxSw2aXZa\'}`. ' +
-        'Where the `fingerprint` should be the same for the same devices and it\'s not linked to the user ID. ' +
-        'It\'s the device ID like browser / mobile application / remote system',
+    schemaDoc:
+        'Client-side devise identification used for the anti-fraud detection. ' +
+        "Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. " +
+        "Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. " +
+        "It's the device ID like browser / mobile application / remote system",
     isRequired: true,
     kmigratorOptions: { null: false },
     hooks: {

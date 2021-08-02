@@ -1,4 +1,4 @@
-const { normalizeEmail }  = require('./mail')
+const { normalizeEmail } = require('./mail')
 
 describe('normalizeMail()', () => {
     test('no data', () => {
@@ -17,7 +17,7 @@ describe('normalizeMail()', () => {
         expect(normalizeEmail('ASD@asd.asd')).toEqual('asd@asd.asd')
         expect(normalizeEmail('asd@asD.aSd')).toEqual('asd@asd.asd')
         expect(normalizeEmail('uBiIcAOnBoardINGoVVV2007@sber.doma')).toEqual('ubiicaonboardingovvv2007@sber.doma')
-    } )
+    })
 
     test('multiple @  test', () => {
         expect(normalizeEmail('asd@asd@ads')).toBeUndefined()
@@ -60,6 +60,6 @@ describe('normalizeMail()', () => {
     test('complex testcase', () => {
         expect(normalizeEmail('\t    ASD@asD.asd\t\t\t   ')).toEqual('asd@asd.asd')
         expect(normalizeEmail('   \t   my.EmAil@googleMAIL.com   \t')).toEqual('myemail@gmail.com')
-        expect((normalizeEmail('      asdasd@ya.ru \t'))).toEqual('asdasd@yandex.ru')
+        expect(normalizeEmail('      asdasd@ya.ru \t')).toEqual('asdasd@yandex.ru')
     })
 })

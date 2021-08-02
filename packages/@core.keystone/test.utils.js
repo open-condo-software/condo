@@ -45,7 +45,7 @@ let __expressApp = null
 let __keystone = null
 let __isAwaiting = false
 
-function setFakeClientMode (path) {
+function setFakeClientMode(path) {
     if (__expressApp !== null) return
     if (__isAwaiting) return
     const module = require(path)
@@ -74,7 +74,7 @@ function setFakeClientMode (path) {
 }
 
 const prepareKeystoneExpressApp = async (entryPoint) => {
-    const { distDir, keystone, apps, configureExpress } = (typeof entryPoint === 'string') ? require(entryPoint) : entryPoint
+    const { distDir, keystone, apps, configureExpress } = typeof entryPoint === 'string' ? require(entryPoint) : entryPoint
     const dev = process.env.NODE_ENV === 'development'
     const { middlewares } = await keystone.prepare({ apps, distDir, dev })
     await keystone.connect()
@@ -98,7 +98,7 @@ const makeFakeClient = async (app) => {
     const client = request(app)
     let cookies = {}
 
-    function extractCookies (cookies) {
+    function extractCookies(cookies) {
         return cookies.reduce((shapedCookies, cookieString) => {
             const [rawCookie, ...flags] = cookieString.split('; ')
             const [cookieName, value] = rawCookie.split('=')
@@ -106,53 +106,63 @@ const makeFakeClient = async (app) => {
         }, {})
     }
 
-    function cookiesToString (cookies) {
-        return Object.entries(cookies).map(([key, value]) => `${key}=${value}`).join(';')
+    function cookiesToString(cookies) {
+        return Object.entries(cookies)
+            .map(([key, value]) => `${key}=${value}`)
+            .join(';')
     }
 
     return {
         mutate: async (query, variables = {}) => {
             if (query.kind !== 'Document') throw new Error('query is not a gql object')
             return new Promise((resolve, reject) => {
-                client.post(API_PATH).set('Cookie', [cookiesToString(cookies)]).send({
-                    query: print(query),
-                    variables: JSON.stringify(variables),
-                }).end(function (err, res) {
-                    const setCookies = res.headers['set-cookie']
-                    if (setCookies) {
-                        cookies = { ...cookies, ...extractCookies(setCookies) }
-                    }
-                    if (err) {
-                        console.error(err)
-                        return reject(err)
-                    }
-                    if (res.body && res.body.errors && TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS) {
-                        console.warn(util.inspect(res.body.errors, { showHidden: false, depth: null }))
-                    }
-                    return resolve(res.body)
-                })
+                client
+                    .post(API_PATH)
+                    .set('Cookie', [cookiesToString(cookies)])
+                    .send({
+                        query: print(query),
+                        variables: JSON.stringify(variables),
+                    })
+                    .end(function (err, res) {
+                        const setCookies = res.headers['set-cookie']
+                        if (setCookies) {
+                            cookies = { ...cookies, ...extractCookies(setCookies) }
+                        }
+                        if (err) {
+                            console.error(err)
+                            return reject(err)
+                        }
+                        if (res.body && res.body.errors && TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS) {
+                            console.warn(util.inspect(res.body.errors, { showHidden: false, depth: null }))
+                        }
+                        return resolve(res.body)
+                    })
             })
         },
         query: async (query, variables = {}) => {
             if (query.kind !== 'Document') throw new Error('query is not a gql object')
             return new Promise((resolve, reject) => {
-                client.get(API_PATH).set('Cookie', [cookiesToString(cookies)]).query({
-                    query: print(query),
-                    variables: JSON.stringify(variables),
-                }).end(function (err, res) {
-                    const setCookies = res.headers['set-cookie']
-                    if (setCookies) {
-                        cookies = { ...cookies, ...extractCookies(setCookies) }
-                    }
-                    if (err) {
-                        console.error(err)
-                        return reject(err)
-                    }
-                    if (res.body && res.body.errors && TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS) {
-                        console.warn(util.inspect(res.body.errors, { showHidden: false, depth: null }))
-                    }
-                    return resolve(res.body)
-                })
+                client
+                    .get(API_PATH)
+                    .set('Cookie', [cookiesToString(cookies)])
+                    .query({
+                        query: print(query),
+                        variables: JSON.stringify(variables),
+                    })
+                    .end(function (err, res) {
+                        const setCookies = res.headers['set-cookie']
+                        if (setCookies) {
+                            cookies = { ...cookies, ...extractCookies(setCookies) }
+                        }
+                        if (err) {
+                            console.error(err)
+                            return reject(err)
+                        }
+                        if (res.body && res.body.errors && TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS) {
+                            console.warn(util.inspect(res.body.errors, { showHidden: false, depth: null }))
+                        }
+                        return resolve(res.body)
+                    })
             })
         },
     }
@@ -289,8 +299,8 @@ const getSchemaObject = async (schemaList, fields, where) => {
     if (schemaList._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Wrong type. Expect ${GQL_LIST_SCHEMA_TYPE}`)
     const client = await makeLoggedInAdminClient()
 
-    function fieldsToStr (fields) {
-        return '{ ' + fields.map((f) => Array.isArray(f) ? fieldsToStr(f) : f).join(' ') + ' }'
+    function fieldsToStr(fields) {
+        return '{ ' + fields.map((f) => (Array.isArray(f) ? fieldsToStr(f) : f)).join(' ') + ' }'
     }
 
     const query = gql`
@@ -306,7 +316,7 @@ const getSchemaObject = async (schemaList, fields, where) => {
 }
 
 class EmptyApp {
-    prepareMiddleware ({ keystone, dev, distDir }) {
+    prepareMiddleware({ keystone, dev, distDir }) {
         return express()
     }
 }
@@ -320,7 +330,8 @@ const isMongo = () => {
 }
 
 module.exports = {
-    isPostgres, isMongo,
+    isPostgres,
+    isMongo,
     EmptyApp,
     prepareKeystoneExpressApp,
     prepareNextExpressApp,

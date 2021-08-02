@@ -12,40 +12,41 @@ const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
 
 const isNotNullObject = (v) => typeof v === 'object' && v !== null
 
-function registerSchemas (keystone, modulesList) {
-    modulesList.forEach(
-        (module) => {
-            if (GQL_SCHEMA_TYPES.includes(module._type)) {
-                module._register(keystone)
-            } else {
-                Object.values(module).forEach(
-                    (GQLSchema) => {
-                        if (GQL_SCHEMA_TYPES.includes(GQLSchema._type)) {
-                            GQLSchema._register(keystone)
-                        } else {
-                            console.warn('Wrong schema module export format! What\'s this? ', GQLSchema)
-                        }
-                    })
-            }
-        })
+function registerSchemas(keystone, modulesList) {
+    modulesList.forEach((module) => {
+        if (GQL_SCHEMA_TYPES.includes(module._type)) {
+            module._register(keystone)
+        } else {
+            Object.values(module).forEach((GQLSchema) => {
+                if (GQL_SCHEMA_TYPES.includes(GQLSchema._type)) {
+                    GQLSchema._register(keystone)
+                } else {
+                    console.warn("Wrong schema module export format! What's this? ", GQLSchema)
+                }
+            })
+        }
+    })
 }
 
-async function unregisterAllSchemas () {
-    console.warn('unregisterAllSchemas() called! It\'just for debug/tests purposes. Don\'t use it in prod!')
+async function unregisterAllSchemas() {
+    console.warn("unregisterAllSchemas() called! It'just for debug/tests purposes. Don't use it in prod!")
     EVENTS = new Emittery()
     SCHEMAS = new Map()
 }
 
-async function getAllRegisteredSchemasNames () {
+async function getAllRegisteredSchemasNames() {
     return [...SCHEMAS.keys()]
 }
 
 class GQLListSchema {
-    constructor (name, schema) {
-        ow(schema, ow.object.partialShape({
-            fields: ow.object.valuesOfType(ow.any(ow.object.hasKeys('type'), ow.null, ow.undefined)),
-            access: ow.object.nonEmpty,
-        }))
+    constructor(name, schema) {
+        ow(
+            schema,
+            ow.object.partialShape({
+                fields: ow.object.valuesOfType(ow.any(ow.object.hasKeys('type'), ow.null, ow.undefined)),
+                access: ow.object.nonEmpty,
+            }),
+        )
         // remove null fields (may be overridden)
         schema.fields = _.pickBy(schema.fields, _.identity)
         this.name = name
@@ -54,7 +55,7 @@ class GQLListSchema {
         this._keystone = null
     }
 
-    _factory (props = {}) {
+    _factory(props = {}) {
         const result = {}
         for (const [name, field] of Object.entries(this.schema.fields)) {
             if (props.hasOwnProperty(name)) {
@@ -70,7 +71,7 @@ class GQLListSchema {
         return result
     }
 
-    _override (schema) {
+    _override(schema) {
         const mergedSchema = { ...this.schema, ...schema }
         Object.keys(schema).forEach((key) => {
             if (isNotNullObject(schema[key]) && isNotNullObject(this.schema[key]) && !Array.isArray(schema[key])) {
@@ -80,20 +81,20 @@ class GQLListSchema {
         return new GQLListSchema(this.name, mergedSchema)
     }
 
-    _register (keystone) {
+    _register(keystone) {
         if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
         SCHEMAS.set(this.name, this)
         this._keystone = keystone
         keystone.createList(this.name, this.schema)
     }
 
-    on (eventName, listener) {
+    on(eventName, listener) {
         ow(eventName, ow.string)
         ow(listener, ow.function)
         return EVENTS.on(`${this.name}:${eventName}`, listener)
     }
 
-    async emit (eventName, eventData) {
+    async emit(eventName, eventData) {
         ow(eventName, ow.string)
         ow(eventData, ow.object)
         return await EVENTS.emit(`${this.name}:${eventName}`, eventData)
@@ -101,72 +102,77 @@ class GQLListSchema {
 }
 
 class GQLCustomSchema {
-    constructor (name, schema) {
+    constructor(name, schema) {
         if (schema.hasOwnProperty('mutations')) {
-            ow(schema, ow.object.partialShape({
-                mutations: ow.array.valueOf(
-                    ow.object.valuesOfType(ow.object.hasKeys(['access', 'schema', 'resolver']))),
-            }))
+            ow(
+                schema,
+                ow.object.partialShape({
+                    mutations: ow.array.valueOf(ow.object.valuesOfType(ow.object.hasKeys(['access', 'schema', 'resolver']))),
+                }),
+            )
         }
 
         if (schema.hasOwnProperty('queries')) {
-            ow(schema, ow.object.partialShape({
-                queries: ow.array.valueOf(
-                    ow.object.valuesOfType(ow.object.hasKeys(['access', 'schema', 'resolver']))),
-            }))
+            ow(
+                schema,
+                ow.object.partialShape({
+                    queries: ow.array.valueOf(ow.object.valuesOfType(ow.object.hasKeys(['access', 'schema', 'resolver']))),
+                }),
+            )
         }
         if (!name.endsWith('Service')) console.warn(`GQLCustomSchema name=${name} is not ends with 'Service'`)
-        
+
         this.name = name
         this.schema = schema
         this._type = GQL_CUSTOM_SCHEMA_TYPE
         this._keystone = null
     }
 
-    _override (schema) {
+    _override(schema) {
         const mergedSchema = { ...this.schema, ...schema }
         return new GQLCustomSchema(this.name, mergedSchema)
     }
 
-    _register (keystone) {
+    _register(keystone) {
         if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
         SCHEMAS.set(this.name, this)
         this._keystone = keystone
         keystone.extendGraphQLSchema(this.schema)
     }
 
-    on (eventName, listener) {
+    on(eventName, listener) {
         ow(eventName, ow.string)
         ow(listener, ow.function)
         return EVENTS.on(`${this.name}:${eventName}`, listener)
     }
 
-    async emit (eventName, eventData) {
+    async emit(eventName, eventData) {
         ow(eventName, ow.string)
         ow(eventData, ow.object)
         return await EVENTS.emit(`${this.name}:${eventName}`, eventData)
     }
 }
 
-async function find (schemaName, condition) {
+async function find(schemaName, condition) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
-    if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
+    if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE)
+        throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
     return await schemaList._keystone.lists[schemaName].adapter.find(condition)
 }
 
-async function getByCondition (schemaName, condition) {
+async function getByCondition(schemaName, condition) {
     const res = await find(schemaName, condition)
     if (res.length > 1) throw new Error('getByCondition() returns multiple objects')
     else if (res.length === 1) return res[0]
     else return null
 }
 
-async function getById (schemaName, id) {
+async function getById(schemaName, id) {
     return await getByCondition(schemaName, { id })
 }
 
-async function getSchemaCtx (schemaObjOrName) {
+async function getSchemaCtx(schemaObjOrName) {
     let name
     if (typeof schemaObjOrName === 'object' && GQL_SCHEMA_TYPES.includes(schemaObjOrName._type) && schemaObjOrName.name) {
         name = schemaObjOrName.name

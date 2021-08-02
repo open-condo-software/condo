@@ -5,19 +5,16 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 const { checkUserIsRelatedFromOrganizationEmployee, checkIfUserIsOrganizationEmployee } = require('../utils/accessSchema')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('../utils/accessSchema')
 
-async function canReadOrganizations ({ authentication: { item: user } }) {
+async function canReadOrganizations({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
     return {
-        OR: [
-            queryOrganizationEmployeeFor(userId),
-            queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-        ],
+        OR: [queryOrganizationEmployeeFor(userId), queryOrganizationEmployeeFromRelatedOrganizationFor(userId)],
     }
 }
 
-async function canManageOrganizations ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageOrganizations({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {

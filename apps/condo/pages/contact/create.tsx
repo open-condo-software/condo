@@ -25,10 +25,12 @@ const CreateContactPage: IPageWithHeaderAction = () => {
                     <PageContent>
                         <Row gutter={[12, 40]}>
                             <Col span={24}>
-                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitle}</Typography.Title>
+                                <Typography.Title level={1} style={{ margin: 0 }}>
+                                    {PageTitle}
+                                </Typography.Title>
                             </Col>
                             <Col span={24}>
-                                <CreateContactForm/>
+                                <CreateContactForm />
                             </Col>
                         </Row>
                     </PageContent>
@@ -38,8 +40,6 @@ const CreateContactPage: IPageWithHeaderAction = () => {
     )
 }
 
-CreateContactPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id:'pages.condo.contact.PageTitle' }}
-    path={'/contact'}/>
+CreateContactPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'pages.condo.contact.PageTitle' }} path={'/contact'} />
 
 export default CreateContactPage

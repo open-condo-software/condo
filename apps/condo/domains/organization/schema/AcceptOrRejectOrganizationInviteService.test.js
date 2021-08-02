@@ -15,15 +15,19 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
         const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
         const [accepted] = await acceptOrRejectOrganizationInviteById(client2, invite)
 
-        expect(accepted).toEqual(expect.objectContaining({
-            isAccepted: true,
-            isRejected: false,
-        }))
+        expect(accepted).toEqual(
+            expect.objectContaining({
+                isAccepted: true,
+                isRejected: false,
+            }),
+        )
 
         const [rejected] = await acceptOrRejectOrganizationInviteById(client2, invite, { isRejected: true })
 
-        expect(rejected).toEqual(expect.objectContaining({
-            isRejected: true,
-        }))
+        expect(rejected).toEqual(
+            expect.objectContaining({
+                isRejected: true,
+            }),
+        )
     })
 })

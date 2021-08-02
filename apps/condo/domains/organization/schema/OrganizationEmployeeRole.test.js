@@ -8,12 +8,20 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { OrganizationEmployeeRole, createTestOrganizationEmployeeRole, updateTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
+const {
+    OrganizationEmployeeRole,
+    createTestOrganizationEmployeeRole,
+    updateTestOrganizationEmployeeRole,
+} = require('@condo/domains/organization/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('../../common/utils/testSchema')
 
 describe('OrganizationEmployeeRole', () => {
     describe('user: create OrganizationEmployeeRole', () => {
-
         it('can with granted "canManageRoles" permission', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
@@ -51,7 +59,6 @@ describe('OrganizationEmployeeRole', () => {
                 await createTestOrganizationEmployeeRole(notManagerUserClient, organization)
             })
         })
-
     })
 
     test('anonymous: create OrganizationEmployeeRole', async () => {
@@ -64,7 +71,6 @@ describe('OrganizationEmployeeRole', () => {
     })
 
     describe('user: read OrganizationEmployeeRole', () => {
-
         it('can only for organization it employed in', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
@@ -87,7 +93,6 @@ describe('OrganizationEmployeeRole', () => {
             expect(objs[0].createdAt).toMatch(role.createdAt)
             expect(objs[0].updatedAt).toMatch(role.updatedAt)
         })
-
     })
 
     test('anonymous: read OrganizationEmployeeRole', async () => {
@@ -102,7 +107,6 @@ describe('OrganizationEmployeeRole', () => {
     })
 
     describe('user: update OrganizationEmployeeRole', () => {
-
         it('can with granted "canManageRoles" permission', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
@@ -139,7 +143,6 @@ describe('OrganizationEmployeeRole', () => {
                 await updateTestOrganizationEmployeeRole(managerUserClient, role.id)
             })
         })
-
     })
 
     test('anonymous: update OrganizationEmployeeRole', async () => {

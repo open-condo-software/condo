@@ -14,5 +14,5 @@ const Contact = generateServerUtils(ContactGQL)
 
 module.exports = {
     Contact,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

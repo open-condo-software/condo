@@ -14,34 +14,34 @@ import { useCreateOrganizationModalForm } from '@condo/domains/organization/hook
 import { useEffect } from 'react'
 
 const blackSelectCss = css`
-  width: 200px;
-  color: ${colors.white};
-  &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    border: 1px solid ${colors.black};
-    border-radius: 4px;
-  }
-  &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    border-color: ${colors.sberGrey[6]};
-    background-color: ${colors.black};
+    width: 200px;
     color: ${colors.white};
-  }
-  &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    background-color: ${colors.black};
-  }
-  & .ant-select-arrow{
-    color: ${colors.white};
-  }
-  &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector,
-  &.ant-select:not(.ant-select-disabled):hover .ant-select-selector{
-    border-color: ${colors.sberGrey[6]};
-    box-shadow: 0 0 0 1px ${colors.sberGrey[6]};
-  }
-  &.ant-select-single.ant-select-open .ant-select-selection-item{
-    color: ${colors.white};
-  }
-  & .ant-select-item-option-selected:not(.ant-select-item-option-disabled){
-      background: ${colors.white};
-  }
+    &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+        border: 1px solid ${colors.black};
+        border-radius: 4px;
+    }
+    &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
+        border-color: ${colors.sberGrey[6]};
+        background-color: ${colors.black};
+        color: ${colors.white};
+    }
+    &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+        background-color: ${colors.black};
+    }
+    & .ant-select-arrow {
+        color: ${colors.white};
+    }
+    &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector,
+    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+        border-color: ${colors.sberGrey[6]};
+        box-shadow: 0 0 0 1px ${colors.sberGrey[6]};
+    }
+    &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: ${colors.white};
+    }
+    & .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+        background: ${colors.white};
+    }
 `
 // TODO(zuch): can't use emotion css here
 const optionStyle: React.CSSProperties = {
@@ -57,13 +57,17 @@ export const OrganizationSelect: React.FC = () => {
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
     const selectRef = useRef<HTMLSelectElement>(null)
     const { link, selectLink, isLoading: organizationLoading } = useOrganization()
-    const { objs: userOrganizations, loading: organizationLinksLoading, fetchMore } = OrganizationEmployee.useObjects(
+    const {
+        objs: userOrganizations,
+        loading: organizationLinksLoading,
+        fetchMore,
+    } = OrganizationEmployee.useObjects(
         { where: user ? { user: { id: user.id }, isRejected: false, isBlocked: false } : {} },
-        { fetchPolicy: 'cache-first' }
+        { fetchPolicy: 'cache-first' },
     )
     const chooseOrganizationByLinkId = React.useCallback((value) => {
         selectLink({ id: value })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     const { setVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
         onFinish: (createResult) => {
@@ -73,7 +77,7 @@ export const OrganizationSelect: React.FC = () => {
             }).then((data) => {
                 const userLinks = get(data, 'data.objs', [])
                 if (id) {
-                    const newLink = userLinks.find(link => link.organization.id === id)
+                    const newLink = userLinks.find((link) => link.organization.id === id)
                     if (newLink) {
                         chooseOrganizationByLinkId(newLink.id)
                     }
@@ -83,14 +87,20 @@ export const OrganizationSelect: React.FC = () => {
         },
     })
     const options = React.useMemo(() => {
-        return userOrganizations.filter(link => link.isAccepted).map((organization) => {
-            const { value, label } = OrganizationEmployee.convertGQLItemToFormSelectState(organization)
-            return (<Select.Option style={optionStyle} key={value} value={value} title={label}>{label}</Select.Option>)
-        })
+        return userOrganizations
+            .filter((link) => link.isAccepted)
+            .map((organization) => {
+                const { value, label } = OrganizationEmployee.convertGQLItemToFormSelectState(organization)
+                return (
+                    <Select.Option style={optionStyle} key={value} value={value} title={label}>
+                        {label}
+                    </Select.Option>
+                )
+            })
     }, [userOrganizations])
     // When user lost his cookies with chosen organization - he will see select opened
     useEffect(() => {
-        if (!organizationLinksLoading && user && !link){
+        if (!organizationLinksLoading && user && !link) {
             if (userOrganizations.length && selectRef.current) {
                 selectRef.current.focus()
             }
@@ -98,7 +108,7 @@ export const OrganizationSelect: React.FC = () => {
     }, [userOrganizations, organizationLinksLoading, user, link])
     // User without invites and organizations will be forced to create one
     useEffect(() => {
-        if (!organizationLinksLoading && user){
+        if (!organizationLinksLoading && user) {
             if (!userOrganizations.length) {
                 showCreateOrganizationModal(true)
             }
@@ -120,18 +130,21 @@ export const OrganizationSelect: React.FC = () => {
                         ref={selectRef}
                         css={blackSelectCss}
                         size={'middle'}
-                        showAction={['focus', 'click' ]}
-                        dropdownRender={menu => (
+                        showAction={['focus', 'click']}
+                        dropdownRender={(menu) => (
                             <div>
                                 {menu}
                                 <Button
                                     type={'inlineLink'}
                                     style={{ marginLeft: '12px', padding: '8px 0', fontSize: '14px' }}
                                     onClick={() => showCreateOrganizationModal(true)}
-                                >{AddOrganizationTitle}</Button>
+                                >
+                                    {AddOrganizationTitle}
+                                </Button>
                             </div>
                         )}
-                        {...selectOptionsProps}>
+                        {...selectOptionsProps}
+                    >
                         {options}
                     </Select>
                     <CreateOrganizationModalForm />

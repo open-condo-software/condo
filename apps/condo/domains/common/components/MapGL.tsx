@@ -14,21 +14,19 @@ const {
 } = getConfig()
 
 export interface IPointsOfInterest {
-    title?: string,
-    text?: string,
-    location: { lat: number, lng: number },
+    title?: string
+    text?: string
+    location: { lat: number; lng: number }
     route?: string
 }
 
 export interface IMapProps {
-    points: [IPointsOfInterest],
+    points: [IPointsOfInterest]
 }
 
-
-const _toArrCoordinates = ({ lng, lat }) => [Number(lng), Number(lat)] 
+const _toArrCoordinates = ({ lng, lat }) => [Number(lng), Number(lat)]
 
 export const MapGL: React.FC<IMapProps> = ({ points }) => {
-    
     const [map, setMap] = useState(null)
     const [api, setApi] = useState(null)
 
@@ -45,9 +43,9 @@ export const MapGL: React.FC<IMapProps> = ({ points }) => {
                 key: mapApiKey || GUEST_API_KEY,
             })
             setMap(map)
-            handleResize = (() => {
+            handleResize = () => {
                 map.invalidateSize()
-            })
+            }
             window.addEventListener('resize', handleResize)
         })
         return () => {
@@ -55,8 +53,8 @@ export const MapGL: React.FC<IMapProps> = ({ points }) => {
         }
     }, [])
 
-    useEffect(() => {        
-        const center = points.length ? _toArrCoordinates(points[0].location) : DEFAULT_CENTER    
+    useEffect(() => {
+        const center = points.length ? _toArrCoordinates(points[0].location) : DEFAULT_CENTER
         if (!map) {
             return
         }
@@ -65,28 +63,28 @@ export const MapGL: React.FC<IMapProps> = ({ points }) => {
             for (const point of points) {
                 const marker = new api.Marker(map, {
                     coordinates: _toArrCoordinates(point.location),
-                    icon: MARKER_SVG_URL,                    
+                    icon: MARKER_SVG_URL,
                 })
-                marker.on('click', function (){
+                marker.on('click', function () {
                     setSelected(point)
-                })        
+                })
             }
         }
     }, [map, points, api])
 
     return (
-        <>  
+        <>
             <div id="map-container" style={{ position: 'absolute', top: 140, bottom: 0, right: 0, left: 0 }} />
-            { selected ? 
-                <Card style={{ width: 300, bottom: 20, position: 'absolute' }} >
+            {selected ? (
+                <Card style={{ width: 300, bottom: 20, position: 'absolute' }}>
                     <p>
                         <b>{selected.text}</b>
                     </p>
                     <p>
-                        <Tag >{selected.title}</Tag>
+                        <Tag>{selected.title}</Tag>
                     </p>
-                </Card> : null
-            }
+                </Card>
+            ) : null}
         </>
     )
 }

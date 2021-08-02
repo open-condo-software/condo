@@ -11,7 +11,14 @@ const access = require('@condo/domains/billing/access/BillingReceipt')
 const { validatePaymentDetails, validateServices, validateRecipient } = require('../utils/validation.utils')
 const { hasRequestAndDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD } = require('./fields')
+const {
+    INTEGRATION_CONTEXT_FIELD,
+    IMPORT_ID_FIELD,
+    RAW_DATA_FIELD,
+    BILLING_PROPERTY_FIELD,
+    BILLING_ACCOUNT_FIELD,
+    PERIOD_FIELD,
+} = require('./fields')
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
     schemaDoc: 'Account monthly invoice document',
@@ -50,7 +57,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         },
 
         services: {
-            schemaDoc: 'Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4',
+            schemaDoc:
+                'Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4',
             type: Json,
             isRequired: false,
             hooks: {

@@ -17,14 +17,12 @@ const ContactUpdatePage = () => {
     return (
         <>
             <Head>
-                <title>
-                    {PageTitle}
-                </title>
+                <title>{PageTitle}</title>
             </Head>
             <PageWrapper>
                 <OrganizationRequired>
                     <PageContent>
-                        <EditContactForm/>
+                        <EditContactForm />
                     </PageContent>
                 </OrganizationRequired>
             </PageWrapper>
@@ -38,15 +36,12 @@ const HeaderAction = () => {
     const { query } = useRouter()
 
     return (
-        <LinkWithIcon
-            icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
-            path={`/contact/${get(query, 'id')}/`}
-        >
+        <LinkWithIcon icon={<ArrowLeftOutlined style={{ color: colors.white }} />} path={`/contact/${get(query, 'id')}/`}>
             {BackButtonLabel}
         </LinkWithIcon>
     )
 }
 
-ContactUpdatePage.headerAction = <HeaderAction/>
+ContactUpdatePage.headerAction = <HeaderAction />
 
 export default ContactUpdatePage

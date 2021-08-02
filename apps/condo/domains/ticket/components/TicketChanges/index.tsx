@@ -9,9 +9,9 @@ import { TicketChange as TicketChangeType } from '../../../../schema'
 import { FormattedMessage } from 'react-intl'
 
 interface ITicketChangesProps {
-    items: TicketChangeType[],
-    total: number,
-    loading: boolean,
+    items: TicketChangeType[]
+    total: number
+    loading: boolean
 }
 
 const CHANGES_PER_CHUNK = 5
@@ -22,45 +22,44 @@ export const TicketChanges: React.FC<ITicketChangesProps> = ({ items, total, loa
     const TicketChangesMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketChanges' })
 
     if (loading) {
-        return <Skeleton/>
+        return <Skeleton />
     }
 
-    return items.length > 0 && (
-        <Col span={24} style={{ marginTop: '20px' }}>
-            <Row gutter={[0, 24]}>
-                <Col span={24}>
-                    <Typography.Title level={5}>{TicketChangesMessage}</Typography.Title>
-                </Col>
-                <Col span={24}>
-                    {items.slice(0, displayCount).map(change => (
-                        <TicketChange
-                            key={change.id}
-                            ticketChange={change}
-                        />
-                    ))}
-                    {displayCount < total && (
-                        <Button
-                            type="text"
-                            onClick={() => {
-                                setDisplayCount(displayCount + CHANGES_PER_CHUNK)
-                            }}
-                            style={{
-                                fontSize: '16px',
-                                padding: 0,
-                                color: green[6],
-                            }}
-                        >
-                            ↓&nbsp;
-                            <FormattedMessage
-                                id="pages.condo.ticket.TicketChanges.fetchMore"
-                                values={{
-                                    count: Math.min(total - displayCount, CHANGES_PER_CHUNK),
+    return (
+        items.length > 0 && (
+            <Col span={24} style={{ marginTop: '20px' }}>
+                <Row gutter={[0, 24]}>
+                    <Col span={24}>
+                        <Typography.Title level={5}>{TicketChangesMessage}</Typography.Title>
+                    </Col>
+                    <Col span={24}>
+                        {items.slice(0, displayCount).map((change) => (
+                            <TicketChange key={change.id} ticketChange={change} />
+                        ))}
+                        {displayCount < total && (
+                            <Button
+                                type="text"
+                                onClick={() => {
+                                    setDisplayCount(displayCount + CHANGES_PER_CHUNK)
                                 }}
-                            />
-                        </Button>
-                    )}
-                </Col>
-            </Row>
-        </Col>
+                                style={{
+                                    fontSize: '16px',
+                                    padding: 0,
+                                    color: green[6],
+                                }}
+                            >
+                                ↓&nbsp;
+                                <FormattedMessage
+                                    id="pages.condo.ticket.TicketChanges.fetchMore"
+                                    values={{
+                                        count: Math.min(total - displayCount, CHANGES_PER_CHUNK),
+                                    }}
+                                />
+                            </Button>
+                        )}
+                    </Col>
+                </Row>
+            </Col>
+        )
     )
 }
