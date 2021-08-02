@@ -14,6 +14,7 @@ describe('BillingIntegration', () => {
         const [integration, attrs] = await createTestBillingIntegration(admin)
         expect(integration).toEqual(expect.objectContaining({
             name: attrs.name,
+            detailsTitle: attrs.detailsTitle,
         }))
     })
 
