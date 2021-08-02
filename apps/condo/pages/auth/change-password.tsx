@@ -53,11 +53,18 @@ const ChangePasswordPage: AuthPage = () => {
         return runMutation({
             mutation: changePassword,
             variables: { data: { token, password } },
-            onCompleted: ({ data: { result } }) => {
-                signInAgain({
-                    email: result.email,
-                    password:  form.getFieldValue('password'),
-                })
+            onCompleted: async ({ data: { result } }) => {
+                try {
+                    await authLayoutContext.signInByEmail({
+                        email: result.email,
+                        password: form.getFieldValue('password'),
+                    })
+                    await auth.refetch()
+                    Router.push( '/')
+                }
+                finally {
+                    setIsSaving(false)
+                }
             },
             intl,
             form,
@@ -65,21 +72,6 @@ const ChangePasswordPage: AuthPage = () => {
         }).catch(() => {
             setIsSaving(false)
         })
-    }
-    async function signInAgain (credentials: {
-        email: string;
-        password: string;
-    }){
-        try {
-            await authLayoutContext.signInByEmail(credentials)
-            await auth.refetch()
-            Router.push( '/')
-        } catch (error) {
-            setIsSaving(false)
-        }
-        finally {
-            setIsSaving(false)
-        }
     }
     const [checkPasswordRecoveryToken] = useLazyQuery(CHECK_PASSWORD_RECOVERY_TOKEN, {
         onError: error => {
