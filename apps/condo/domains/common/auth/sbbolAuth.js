@@ -6,13 +6,20 @@ const { Issuer, custom, generators } = require('openid-client') // certified ope
 const jwtDecode = require('jwt-decode') // decode jwt without validation
 const Ajv = require('ajv')
 const faker = require('faker')
+const { v4: uuid } = require('uuid')
 
 const { JSON_SCHEMA_VALIDATION_ERROR } = require('@condo/domains/common/constants/errors')
+const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries.js')
+
 
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
-const SESSION_AUTH_KEY = 'sbbol'
-const { getItems, createItem } = require('@keystonejs/server-side-graphql-client')
+const IMPORT_NAME = 'sbbol'
+const { getItems, createItem, updateItem } = require('@keystonejs/server-side-graphql-client')
+const { createConfirmedEmployee, createDefaultRoles } = require('@condo/domains/organization/utils/serverSchema/Organization')
+const { getSchemaCtx } = require('@core/keystone/schema')
+
+
 
 class SbbolApi {
     constructor () {
@@ -173,6 +180,8 @@ const userInfoValidationSchema = {
     properties: {
         // Organization's field
         OrgName: { type: 'string' },
+        orgOgrn: { type: 'string' },
+        orgLawFormShort: { type: 'string' },
         // Organization's meta fields
         inn: { type: 'string' },
         orgKpp: { type: 'string' },
@@ -201,7 +210,7 @@ class AuthRoutes {
             // nonce: to prevent several callbacks from same request
             // state: to validate user browser on callback
             const checks = { nonce: generators.nonce(), state: generators.state() }
-            req.session[SESSION_AUTH_KEY] = checks
+            req.session[IMPORT_NAME] = checks
             await req.session.save()
             try {
                 const redirectUrl = this.helper.authorizationUrlWithParams(checks)
@@ -216,7 +225,7 @@ class AuthRoutes {
     completeAuth (onComplete) {
         const route = async (req, res, next) => {
             try {
-                const tokenSet = await this.helper.fetchTokens(req, SESSION_AUTH_KEY)
+                const tokenSet = await this.helper.fetchTokens(req, IMPORT_NAME)
                 const { access_token } = tokenSet
                 const userInfo = await this.helper.fetchUserInfo(access_token)
                 // not working for now as we do not have access to fintech api
@@ -225,7 +234,7 @@ class AuthRoutes {
                     throw new Error(`${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure for userInfo`)
                 }
                 await onComplete(req, userInfo)
-                delete req.session[SESSION_AUTH_KEY]
+                delete req.session[IMPORT_NAME]
                 await req.session.save()
                 return res.redirect('/')
             } catch (error) {
@@ -235,46 +244,168 @@ class AuthRoutes {
         return route
     }
 }
-
-const userFromInfo = (userInfo) => {
-    return {
-        name: userInfo.phone_number,
-        importId: userInfo.userGuid,
-        importRemoteSystem: 'SBBOL',
-        email: userInfo.email,
-        phone: userInfo.phone_number,
-        isPhoneVerified: true,
-        isEmailVerified: true,
-        password: faker.password(),
+class SyncSbbolUser {
+    constructor ({ keystone, userInfo }){
+        this.keystone = keystone
+        this.organization = null
+        this.user = null
+        this.commonFields = {
+            dv: 1,
+            sender: { dv: 1, fingerprint: `import-${IMPORT_NAME}` },
+        }
+        this.organizationInfo = {
+            ...this.commonFields,
+            name: userInfo.OrgName,
+            country: RUSSIA_COUNTRY,
+            meta: {
+                inn: userInfo.inn,
+                kpp: userInfo.orgKpp,
+                ogrn: userInfo.orgOgrn,
+                address: userInfo.orgJuridicalAddress,
+                fullname: userInfo.orgFullName,
+                bank: userInfo.terBank,
+            },
+            importRemoteSystem: IMPORT_NAME,
+            importId: userInfo.HashOrgId, // TODO(zuch) we have no access to orgId field from sbbol
+        }
+        this.userInfo = {
+            ...this.commonFields,
+            name: userInfo.OrgName, // TODO(zuch) we have no access to name field from sbbol
+            importId: userInfo.userGuid,
+            importRemoteSystem: IMPORT_NAME,
+            email: userInfo.email,
+            phone: userInfo.phone_number,
+            isPhoneVerified: true,
+            isEmailVerified: true,
+            password: faker.internet.password(),
+        }
     }
+
+    async connect () {
+        this.adminContext = await this.keystone.createContext({ skipAccessControl: true })
+    }
+
+    async createUser () {
+        const existedUsers = await getItems({ ...this.context, listKey: 'User', where: {
+            OR: [
+                {
+                    phone: this.userInfo.phone,
+                },
+                {
+                    importId: this.userInfo.importId,
+                    importRemoteSystem: this.userInfo.importRemoteSystem,
+                },
+            ],
+        } })
+        if (existedUsers > 1) {
+            throw new Error('Multiple matching users found')
+        }
+        if (existedUsers.length === 0) {
+            this.user = await createItem({ listKey: 'User', item: this.userInfo, returnFields: 'id', ...this.context })
+            return
+        }
+        const existed = existedUsers[0]
+        // User first register and then logIn through sbbol
+        if (!existed.importId) {
+            this.user = await updateItem({ listKey: 'User', item: {
+                importId: this.userInfo.importId,
+                importRemoteSystem: this.userInfo.importRemoteSystem,
+            }, returnFields: 'id', ...this.context })
+            return
+        }
+        this.user = {
+            id: existed.id,
+        }
+    }
+
+    async getAllUserOrganizations () {
+        const links = await getItems({ ...this.context, listKey: 'OrganizationEmployee', where: {
+            user: { id: this.user.id },
+        }, returnFields: 'organization { id }' })
+        const organizationIds = links.map(link => link.organization.id)
+        if (organizationIds.length === 0) {
+            return []
+        }
+        const organizations = await getItems({ ...this.context, listKey: 'Organization', where: {
+            id_in: organizationIds,
+        }, returnFields: 'id meta importId importRemoteSystem' })
+        return organizations
+    }
+
+    async createOrganization () {
+        const existedOrganization = await getItems({ ...this.context, listKey: 'Organization', where: {
+            importId: this.organizationInfo.importId,
+            importRemoteSystem: this.organizationInfo.importRemoteSystem,
+        } })
+        if (existedOrganization.length > 1) {
+            throw new Error('Multiple matching organizations found')
+        }
+        if (existedOrganization.length === 0) {
+            const userOrganizations = await this.getAllUserOrganizations()
+            const theSameOrganization = userOrganizations.find(organization => organization.meta.inn === this.organizationInfo.inn)
+            if (theSameOrganization) {
+                const { id } = await updateItem({ listKey: 'Organization', id: theSameOrganization.id, item: {
+                    importId: this.organizationInfo.importId,
+                    importRemoteSystem: this.organizationInfo.importRemoteSystem,
+                    meta: this.organizationInfo.meta,
+                }, returnFields: 'id', ...this.context })
+                this.organization = { id }
+            } else {
+                const { id } = await createItem({ listKey: 'Organization', item: this.organizationInfo, returnFields: 'id', ...this.context })
+                this.organization = { id }
+                await createDefaultRoles(this.adminContext, {
+                    id,
+                    country: this.organizationInfo.country,
+                })
+
+            }
+            return
+        }
+        this.organization = {
+            id: existedOrganization[0].id,
+        }
+    }
+
+    async bindUserToOrganization () {
+        if (!this.user.id && !this.organization.id) {
+            throw new Error('No user or organization')
+        }
+        const existedOrganizations = await this.getAllUserOrganizations()
+        const alreadyBinded = existedOrganizations.find(organization => organization.id === this.organization.id)
+        if (!alreadyBinded) {
+            await createItem({ listKey: 'OrganizationEmployee', item: {
+                ...this.commonFields,
+                inviteCode: uuid(),
+                email: this.userInfo.email,
+                phone: this.userInfo.phone,
+                name:  this.userInfo.name,
+                isAccepted: true,
+
+            }, returnFields: 'id', ...this.context })
+        }
+
+    }
+
+    get context () {
+        return ({
+            keystone: this.keystone,
+            context: this.adminContext,
+        })
+    }
+
+
 }
 
-const sigInSbbolUser = async (req, userInfo, keystone) => {
-    // 1. Find user
-    // 2. Create user if needed
-    // 3. Find organization
-    // 4. Check all user's organizations = with a same inn  => update else create
-    // 5. Make user admin of organization (if it was created)
-    // 6. Login user
-    const context = await keystone.createContext({ skipAccessControl: true })
-    let userId = null
-    const existedUsers = await getItems({ keystone, listKey: 'User', where: { importId: userInfo.userGuid, importRemoteSystem: 'SBBOL' }, context })
-    if (existedUsers.length > 1) {
-        throw new Error('multiple users found')
-    }
-    if (existedUsers.length === 0) {
-        console.log('Creating new user')
-        const result = await createItem({ keystone, listKey: 'User', item: userFromInfo(userInfo), context, returnFields: 'id' })
-        console.log(result)
-    } else {
-        userId = existedUsers[0].id
-    }
-    console.log('userId', userId)
 
-    console.log('!!!!!!!!!!!!!!!!!!!!!!!')
-    console.log('req', Object.keys(req))
-    console.log('userInfo', userInfo)
-    console.log('keystone', Object.keys(keystone))
+const sigInSbbolUser = async (req, userInfo, keystone) => {
+    const sync = new SyncSbbolUser({ keystone, userInfo })
+    await sync.connect()
+    await sync.createUser()
+    await sync.createOrganization()
+    await sync.bindUserToOrganization()
+    // 6. Login user
+    // const { keystone } = await getSchemaCtx('User')
+    // const sessionToken = await context.startAuthedSession({ item: user, list: keystone.lists['User'] })
 }
 
 
