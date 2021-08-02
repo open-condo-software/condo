@@ -152,9 +152,7 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Typification / classification / types of work',
             type: Relationship,
             ref: 'TicketClassifier',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         // description / title
@@ -258,7 +256,7 @@ const Ticket = new GQLListSchema('Ticket', {
             return resolvedData
         },
         validateInput: ({ resolvedData, existingItem, addValidationError, operation }) => {
-            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'source', 'status', 'classifier', 'details'], resolvedData, existingItem, addValidationError)) return
+            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'source', 'status', 'details'], resolvedData, existingItem, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic

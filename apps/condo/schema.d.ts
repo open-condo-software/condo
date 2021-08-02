@@ -4909,6 +4909,14 @@ export type ContactsUpdateInput = {
   data?: Maybe<ContactUpdateInput>;
 };
 
+export type CreateResidentTicketInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  details: Scalars['String'];
+  propertyId: Scalars['String'];
+  unitName?: Maybe<Scalars['String']>;
+};
+
 export type ExportTicketsToExcelInput = {
   where: TicketWhereInput;
   sortBy?: Maybe<Array<SortTicketsBy>>;
@@ -6583,6 +6591,7 @@ export type Mutation = {
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
   shareTicket?: Maybe<ShareTicketOutput>;
+  createResidentTicket?: Maybe<ResidentTicketOutput>;
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
   registerResident?: Maybe<Resident>;
@@ -8341,6 +8350,11 @@ export type MutationAcceptOrRejectOrganizationInviteByCodeArgs = {
 
 export type MutationShareTicketArgs = {
   data: ShareTicketInput;
+};
+
+
+export type MutationCreateResidentTicketArgs = {
+  data: CreateResidentTicketInput;
 };
 
 
@@ -11036,6 +11050,7 @@ export type Query = {
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
+  getAllResidentTickets?: Maybe<Array<Maybe<ResidentTicketOutput>>>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -12426,6 +12441,13 @@ export type QueryTicketAnalyticsReportArgs = {
   data?: Maybe<TicketAnalyticsReportInput>;
 };
 
+
+export type QueryGetAllResidentTicketsArgs = {
+  where?: Maybe<TicketWhereInput>;
+  first: Scalars['Int'];
+  skip: Scalars['Int'];
+};
+
 export type ReInviteOrganizationEmployeeInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -12775,6 +12797,43 @@ export type ResidentHistoryRecordsCreateInput = {
 export type ResidentHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<ResidentHistoryRecordUpdateInput>;
+};
+
+export type ResidentTicketOutput = {
+  __typename?: 'ResidentTicketOutput';
+  organization: Organization;
+  property: Property;
+  unitName?: Maybe<Scalars['String']>;
+  sectionName?: Maybe<Scalars['String']>;
+  floorName?: Maybe<Scalars['String']>;
+  number: Scalars['Int'];
+  client: User;
+  clientName?: Maybe<Scalars['String']>;
+  clientEmail?: Maybe<Scalars['String']>;
+  clientPhone?: Maybe<Scalars['String']>;
+  contact?: Maybe<Contact>;
+  operator?: Maybe<User>;
+  assignee?: Maybe<User>;
+  executor?: Maybe<User>;
+  details: Scalars['String'];
+  related?: Maybe<Ticket>;
+  isEmergency?: Maybe<Scalars['Boolean']>;
+  isPaid?: Maybe<Scalars['Boolean']>;
+  source: TicketSource;
+  id: Scalars['String'];
+  createdBy: User;
+  createdAt: Scalars['String'];
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<User>;
+  watchers?: Maybe<Array<Maybe<User>>>;
+  classifier?: Maybe<TicketClassifier>;
+  meta?: Maybe<Scalars['JSON']>;
+  sourceMeta?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
 };
 
 export type ResidentUpdateInput = {
