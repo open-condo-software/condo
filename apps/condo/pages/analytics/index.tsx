@@ -37,10 +37,11 @@ import RadioGroupWithIcon, { radioButtonBorderlessCss } from '@condo/domains/com
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import DateRangePicker from '@condo/domains/common/components/DateRangePicker'
-import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import TicketChart, { viewModeTypes, AnalyticsDataType } from '@condo/domains/ticket/components/TicketChart'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { filterToQuery, specificationTypes, ticketAnalyticsPageFilters } from '@condo/domains/ticket/utils/helpers'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
@@ -317,9 +318,12 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const PresetQuarter = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Quarter' })
     const PresetYear = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Year' })
 
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const [dateRange, setDateRange] = useState<[Moment, Moment]>([moment().subtract(1, 'week'), moment()])
     const [dateRangePreset, setDateRangePreset] = useState<null | string>(null)
     const [addressList, setAddressList] = useState([])
+    const addressListRef = useRef([])
     const [specification, setSpecification] = useState<specificationTypes>(SPECIFICATIONS[0] as specificationTypes)
 
     const updateUrlFilters = useCallback(() => {
@@ -328,7 +332,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
             createdAt_lte: startDate.toISOString(),
             createdAt_gte: endDate.toISOString(),
             specification,
-            addressList: JSON.stringify(addressList),
+            addressList: JSON.stringify(addressListRef.current),
         }))
     }, [dateRange, specification, addressList])
 
@@ -340,7 +344,8 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         const range = [moment(startDate), moment(endDate)] as [Moment, Moment]
         const specificationUrl = get(queryParams, 'specification')
         if (startDate && endDate && specificationUrl && addressList) {
-            setAddressList(addressList)
+            addressListRef.current = addressList
+            setAddressList(addressList.length ? addressList.map(e => e.value) : [])
             setDateRange(range)
             setSpecification(specificationUrl)
         }
@@ -354,16 +359,26 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
 
     const applyFilters = useCallback(() => {
         updateUrlFilters()
-        onChange({ range: dateRange, specification, addressList })
+        onChange({ range: dateRange, specification, addressList: addressListRef.current })
     }, [dateRange, specification, addressList])
 
-    const onSelect = useCallback((_, { key: id, value }) => {
-        setAddressList([{ id, value }])
+    const searchAddress = useCallback(
+        (client, query) => {
+            const where = {
+                address_contains_i: query,
+                organization: { id: userOrganizationId },
+            }
+
+            return searchProperty(client, where, 'unitsCount_DESC')
+        },
+        [userOrganizationId],
+    )
+
+    const onAddressChange = useCallback((labelsList, searchObjectsList) => {
+        setAddressList(labelsList as string[])
+        addressListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
     }, [addressList])
 
-    const onClear = useCallback(() => {
-        setAddressList([])
-    }, [])
     return (
         <Form>
             <Row gutter={[40, 25]} wrap>
@@ -397,13 +412,14 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                 </Col>
                 <Col span={10}>
                     <Form.Item label={AddressTitle} {...FORM_ITEM_STYLE}>
-                        {/* TODO (sitozzz): change to multiple mode */}
-                        <PropertyAddressSearchInput
+                        <GraphQlSearchInput
+                            allowClear
+                            search={searchAddress}
+                            mode={'multiple'}
+                            value={addressList}
+                            onChange={onAddressChange}
+                            maxTagCount={'responsive' as const}
                             placeholder={AllAddressesPlaceholder}
-                            onSelect={onSelect}
-                            onClear={onClear}
-                            style={{ width: '100%' }}
-                            value={addressList.length ? addressList[0].value : ''}
                         />
                     </Form.Item>
                 </Col>
@@ -414,7 +430,6 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         </Form>
     )
 }
-
 
 const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const intl = useIntl()
@@ -430,6 +445,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const TicketTypePaid = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Paid' })
     const TicketTypeEmergency = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency' })
     const AllAddresses = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllAddresses' })
+    const ManyAddresses = intl.formatMessage({ id:'pages.condo.analytics.TicketAnalyticsPage.ManyAddresses' })
     const SingleAddress = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.SingleAddress' })
     const AllCategories = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllCategories' })
     const TableTitle = intl.formatMessage({ id: 'Table' })
@@ -516,7 +532,10 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
         getAnalyticsData()
     }, [viewMode, ticketType, userOrganizationId])
 
-    const addressFilterTitle = selectedAddresses.length ? `${SingleAddress} «${selectedAddresses[0].value}»` : AllAddresses
+    let addressFilterTitle = selectedAddresses.length === 0 ? AllAddresses : `${SingleAddress} «${selectedAddresses[0].value}»`
+    if (selectedAddresses.length > 1) {
+        addressFilterTitle = ManyAddresses
+    }
     return <>
         <Head>
             <title>{PageTitle}</title>
@@ -552,7 +571,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                             <TicketAnalyticsPageFilter onChange={onFilterChange} />
                             <Divider />
                         </Col>
-                        <Col span={14}>
+                        <Col span={16}>
                             <Typography.Title level={3}>
                                 {ViewModeTitle} {selectedPeriod} {addressFilterTitle} {AllCategories}
                             </Typography.Title>
