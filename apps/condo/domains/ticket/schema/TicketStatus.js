@@ -3,6 +3,7 @@
  */
 
 const { Text, Select, Virtual } = require('@keystonejs/fields')
+const LocalizedText  = require('@core/keystone/fields/LocalizedText')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
@@ -42,13 +43,12 @@ const TicketStatus = new GQLListSchema('TicketStatus', {
             options: TICKET_STATUS_TYPES.join(','),
             isRequired: true,
         },
-
         name: {
             schemaDoc: 'Status name',
-            type: Text,
+            type: LocalizedText,
             isRequired: true,
+            template: 'ticket.status.*.name',
         },
-
         colors: {
             schemaDoc: 'Status colors, includes primary (font color), secondary (background color), additional (border color), all colors presented in HEX',
             type: Virtual,
