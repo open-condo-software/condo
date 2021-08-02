@@ -218,12 +218,13 @@ const TicketIdPage = ({ AuthBound, employee: employeeFromProps, organization: or
         user: auth.user && auth.user.id,
     }, () => { refetchComments() })
 
-    const { link, organization } = useOrganization()
+    const { link, organization: userOrganization } = useOrganization()
 
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
     const ResAuthBound = AuthBound ? AuthBound : OrganizationRequired
+    const organization = organizationFromProps ? organizationFromProps : userOrganization
 
     if (!ticket) {
         return (
@@ -246,7 +247,8 @@ const TicketIdPage = ({ AuthBound, employee: employeeFromProps, organization: or
         refetchTicket()
         ticketChangesResult.refetch()
     }
-    
+
+    // TODO (nomerdvadcatpyat) change TicketStatusSelect organization={organization} employee={employeeFromProps} in props
     return (
         <>
             <Head>
@@ -363,6 +365,7 @@ const TicketIdPage = ({ AuthBound, employee: employeeFromProps, organization: or
                                             </Button>
                                         </Link>
                                         <ShareTicketModal
+                                            organization={organization}
                                             date={get(ticket, 'createdAt')}
                                             number={get(ticket, 'number')}
                                             details={get(ticket, 'details')}

@@ -4,6 +4,7 @@ import { useOrganization } from '@core/next/organization'
 import { TicketStatus } from '../utils/clientSchema'
 import { getPossibleStatuses } from '../utils/status'
 
+// TODO (nomerdvadcatpyat) organizationFromProps, employeeFromProps remove (take up)
 export const useStatusTransitions = (ticketStatusId: string, organizationFromProps, employeeFromProps) => {
     const { organization, link: employee } = useOrganization()
     const { objs: statusList, loading } = TicketStatus.useObjects()

@@ -24,6 +24,7 @@ import {
     SALT,
     CRYPTOENCODING,
 } from '@condo/domains/ticket/constants/crypto'
+import { Organization } from '@core/keystone/schema'
 
 const collapse = css`
   border-radius: 8px;
@@ -175,6 +176,7 @@ interface IShareTicketModalProps {
     details: string
     id: string
     locale?: string
+    organization: Organization
 }
 
 export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
@@ -191,7 +193,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const ShareSentMessage = intl.formatMessage({ id: 'ticket.shareSent' })
     const ShareSentToEmailMessage = intl.formatMessage({ id: 'ticket.shareSentToEmail' })
 
-    const { date, number, details, id, locale } = props
+    const { date, number, details, id, locale, organization } = props
     const cipher = crypto.createCipher(ALGORITHM, SALT)
 
     let cutDetails = details
@@ -202,7 +204,6 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const encryptedText = cipher.update(stringifiedParams, 'utf8', CRYPTOENCODING) + cipher.final(CRYPTOENCODING)
 
     const { query } = useRouter()
-    const { organization } = useOrganization()
     const [shareTicket] = useMutation(SHARE_TICKET_MUTATION)
 
     let origin = 'http://localhost:3000'
@@ -335,7 +336,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                         <Collapse expandIconPosition='right' css={collapse}>
                             <Collapse.Panel key='1' header={ToEmployeesEmailMessage}>
                                 <GraphQlSearchInput
-                                    search={getEmployeeWithEmail(organization.id)}
+                                    search={getEmployeeWithEmail(organization?.id)}
                                     showArrow={false}
                                     mode='multiple'
                                     css={search}
