@@ -22,7 +22,6 @@ import { useOrganization } from '@core/next/organization'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import { InputWithCounter } from '@condo/domains/common/components/InputWithCounter'
-import { CustomGraphQlSearchInput } from '@app/callcenter/components/ticket/GraphQlSearchInput'
 
 const { TabPane } = Tabs
 
@@ -90,6 +89,7 @@ export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
     )
 }
 
+// TODO (nomerdvadcatpyat): why selectedPropertyId? remove this
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
     const intl = useIntl()
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
