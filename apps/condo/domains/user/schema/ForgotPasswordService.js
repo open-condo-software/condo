@@ -48,8 +48,9 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const [action] = await ForgotPasswordActionUtil.getAll(context, {
                     token,
                     expiresAt_gte: new Date(now).toISOString(),
+                    usedAt: null,
                 })
-                if (!action || action.usedAt) {
+                if (!action) {
                     throw new Error(`${TOKEN_EXPIRED_ERROR}]: Unable to find valid token`)
                 }
                 return { status: 'ok' }
@@ -123,9 +124,10 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const [action] = await ForgotPasswordActionUtil.getAll(context, {
                     token,
                     expiresAt_gte: now,
+                    usedAt: null,
                 })
 
-                if (!action || action.usedAt) {
+                if (!action) {
                     throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
                 }
 
