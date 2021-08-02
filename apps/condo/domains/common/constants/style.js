@@ -1,5 +1,5 @@
 const {
-    generate, grey, green, gold, blue, red, volcano, purple, lime, magenta, cyan, geekblue, yellow,
+    generate, grey, green, gold, blue, red, volcano, purple, lime, magenta, cyan, geekblue, yellow, orange,
 } = require('@ant-design/colors')
 
 const generateCustomColorPalette = (primaryColor, secondaryColor) => {
@@ -56,6 +56,7 @@ const colors = {
     whiteTranslucent,
     lightRed,
     brightRed,
+    orange,
 }
 
 const shadows = {

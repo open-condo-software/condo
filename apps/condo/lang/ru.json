@@ -522,5 +522,7 @@
   "GetFailedData": "Скачать незагруженные данные",
   "TooManyRowsInTable": "В вашей таблице слишком много строк. Максимально допустимое значение - {value}.",
   "TableHasInvalidHeaders": "У вашей таблицы неправильные заголовки. Для корректного импорта они должны быть: {value}",
-  "ImportRequiredFields": "обязательные поля"
+  "ImportRequiredFields": "обязательные поля",
+  "ConnectionInProgress": "Подключение в процессе",
+  "Connected": "Подключено"
 }

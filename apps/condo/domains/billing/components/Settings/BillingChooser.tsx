@@ -27,40 +27,42 @@ export const BillingChooser: React.FC = () => {
         <>
             <Space direction={'vertical'} size={40} style={{ width: '100%' }}>
                 <Alert message={OneBillingWarningMessage} showIcon type="warning" style={{ width: 'fit-content' }} />
-                <Row gutter={[44, 44]}>
-                    <Col span={12}>
-                        <IntegrationPanel
-                            integrationId={'1'}
-                            title={'Интеграция через загрузку вашего реестра'}
-                            shortDescription={'Возможные шаблоны: СБ Бизнес Онлайн 8_2 и 9_1'}
-                            status={'chosen'}
-                        />
-                    </Col>
-                    <Col span={12}>
-                        <IntegrationPanel
-                            integrationId={'2'}
-                            title={'ГИС ЖКХ'}
-                            shortDescription={'Государственная информационная система ЖКХ'}
-                            status={'available'}
-                        />
-                    </Col>
-                    <Col span={12}>
-                        <IntegrationPanel
-                            integrationId={'3'}
-                            title={'Интеграция через загрузку вашего реестра'}
-                            shortDescription={'Возможные шаблоны: СБ Бизнес Онлайн 8_2 и 9_1 очень очень очень очень долгий текст'}
-                            status={'disabled'}
-                        />
-                    </Col>
-                    <Col span={12}>
-                        <IntegrationPanel
-                            integrationId={'3'}
-                            title={'Интеграция через загрузку вашего ajdkjsakdjaklsdjaklsjdklasjdklajsdlkjlk'}
-                            shortDescription={'Возможные шаблоны: СБ Бизнес Онлайн 8_2 и 9_1 очень очень очень очень долгий текст'}
-                            status={'disabled'}
-                        />
-                    </Col>
-                </Row>
+                <Col span={24}>
+                    <Row gutter={[44, 44]}>
+                        <Col span={12}>
+                            <IntegrationPanel
+                                integrationId={'1'}
+                                title={'Интеграция через загрузку вашего реестра'}
+                                shortDescription={'Возможные шаблоны: СБ Бизнес Онлайн 8_2 и 9_1'}
+                                status={'chosen'}
+                            />
+                        </Col>
+                        <Col span={12}>
+                            <IntegrationPanel
+                                integrationId={'2'}
+                                title={'ГИС ЖКХ'}
+                                shortDescription={'Государственная информационная система ЖКХ'}
+                                status={'inProgress'}
+                            />
+                        </Col>
+                        <Col span={12}>
+                            <IntegrationPanel
+                                integrationId={'3'}
+                                title={'Интеграция через загрузку вашего реестра'}
+                                shortDescription={'Возможные шаблоны: СБ Бизнес Онлайн 8_2 и 9_1 очень очень очень очень долгий текст'}
+                                status={'available'}
+                            />
+                        </Col>
+                        <Col span={12}>
+                            <IntegrationPanel
+                                integrationId={'3'}
+                                title={'Интеграция через загрузку вашего ajdkjsakdjaklsdjaklsjdklasjdklajsdlkjlk'}
+                                shortDescription={'Возможные шаблоны: СБ Бизнес Онлайн 8_2 и 9_1 очень очень очень очень долгий текст'}
+                                status={'disabled'}
+                            />
+                        </Col>
+                    </Row>
+                </Col>
             </Space>
         </>
     )
