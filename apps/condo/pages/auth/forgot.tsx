@@ -47,9 +47,9 @@ const ResetPage: AuthPage = () => {
         },
     }
 
-    const { combiner, messageChanger, requiredValidator, emailValidator } = useValidations()
+    const { requiredValidator, emailValidator, changeMessage } = useValidations()
     const validations = {
-        email: combiner(messageChanger(requiredValidator, PleaseInputYourEmailMsg), emailValidator),
+        email: [changeMessage(requiredValidator, PleaseInputYourEmailMsg), emailValidator],
     }
 
     if (isLoading) {

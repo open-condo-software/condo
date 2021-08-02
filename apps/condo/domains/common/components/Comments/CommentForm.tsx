@@ -51,11 +51,11 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
         }
     }
 
-    const { requiredValidator, trimValidator, combiner }  = useValidations()
+    const { requiredValidator, trimValidator }  = useValidations()
 
 
     const validations = {
-        comment: combiner(requiredValidator, trimValidator),
+        comment: [requiredValidator, trimValidator],
     }
 
     return (

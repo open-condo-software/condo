@@ -53,13 +53,13 @@ export const CreateContactForm: React.FC = () => {
     const { organization } = useOrganization()
     const router = useRouter()
 
-    const { combiner, messageChanger, phoneValidator, emailValidator, requiredValidator } = useValidations()
+    const { changeMessage, phoneValidator, emailValidator, requiredValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
-        phone: combiner(requiredValidator, phoneValidator),
-        email: [messageChanger(emailValidator, EmailErrorMessage)],
-        property: [messageChanger(requiredValidator, PropertyErrorMessage)],
-        unit: [messageChanger(requiredValidator, UnitErrorMessage)],
-        name: [messageChanger(requiredValidator, FullNameRequiredMessage)],
+        phone: [requiredValidator, phoneValidator],
+        email: [changeMessage(emailValidator, EmailErrorMessage)],
+        property: [changeMessage(requiredValidator, PropertyErrorMessage)],
+        unit: [changeMessage(requiredValidator, UnitErrorMessage)],
+        name: [changeMessage(requiredValidator, FullNameRequiredMessage)],
     }
 
     const [selectedPropertyId, setSelectedPropertyId] = useState(null)
