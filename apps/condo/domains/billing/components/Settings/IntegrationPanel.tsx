@@ -1,9 +1,8 @@
 import React from 'react'
 import styled from '@emotion/styled'
+import { css } from '@emotion/core'
 import { colors, shadows } from '@condo/domains/common/constants/style'
-import { Tooltip, Typography } from 'antd'
-import { CheckOutlined } from '@ant-design/icons'
-import { Button } from '@condo/domains/common/components/Button'
+import { Tooltip, Typography, Tag } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 
@@ -11,21 +10,27 @@ interface IIntegrationPanelProps {
     integrationId: string
     title: string
     shortDescription: string
-    status: 'available' | 'chosen' | 'disabled'
+    status: 'available' | 'inProgress' | 'chosen' | 'disabled'
 }
 
 const CardContainer = styled.div`
+  position: relative;
+  height: 229px;
   box-sizing: border-box;
   border: 1px solid ${colors.lightGrey[5]};
   border-radius: 8px;
   padding: 24px;
   transition: all 0.2s ease-in-out;
-  // @ts-ignore
-  background-color: ${props => props['data-status'] === 'chosen' ? colors.lightGrey[4] : 'transparent'};
-  &:hover {
-    border-color: transparent;
-    ${shadows.elevatedShadow}
-  }
+  cursor: ${props => props['data-status'] !== 'disabled' ? 'pointer' : 'default'};
+  background-color: ${props => (props['data-status'] === 'chosen' || props['data-status'] === 'inProgress') 
+        ? colors.lightGrey[4] 
+        : 'transparent'};
+  ${props => props['data-status'] !== 'disabled' && css`
+    &:hover {
+      border-color: transparent;
+      ${shadows.elevatedShadow}
+    }
+  `}
 `
 
 const TwoLineClamp = styled.div`
@@ -36,21 +41,15 @@ const TwoLineClamp = styled.div`
   text-overflow: ellipsis;
 `
 
-const ButtonWrap = styled.div`
-  margin-top: 26px;
-  width: fit-content;
-  cursor: ${({ disabled }: { disabled: boolean }) => disabled ? 'not-allowed' : 'pointer'};
-`
-
 export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
     integrationId,
     title,
     shortDescription,
     status }) => {
     const intl = useIntl()
-    const ChooseMessage = intl.formatMessage({ id: 'Select' })
-    const ChosenMessage = intl.formatMessage({ id: 'Selected' })
     const CompanyLabel = intl.formatMessage({ id: 'CompanyName' })
+    const IntegrationInProgressMessage = intl.formatMessage({ id: 'ConnectionInProgress' })
+    const IntegrationConnectedMessage = intl.formatMessage({ id: 'Connected' })
     const NoMoreBillingsAllowedMessage = intl.formatMessage({ id: 'NoMoreIntegrationsAllowed' }, {
         company: CompanyLabel,
     })
@@ -59,46 +58,53 @@ export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
     })
     const ClickToSeeMoreMessage = intl.formatMessage({ id: 'ClickToSeeMore' })
 
-    const TooltipMessage = status === 'available'
-        ? ClickToSeeMoreMessage
+    const TooltipMessage = (status === 'chosen' || status === 'inProgress')
+        ? ContactSupportForCancellingMessage
         : (
-            status === 'chosen'
-                ? ContactSupportForCancellingMessage
+            status === 'available'
+                ? ClickToSeeMoreMessage
                 : NoMoreBillingsAllowedMessage
         )
+
+    const tagBackgroundColor = status === 'chosen' ? colors.green[2] : colors.orange[3]
+    const tagTextColor = status === 'chosen' ? colors.green[7] : colors.orange[7]
+    const tagText = status === 'chosen' ? IntegrationConnectedMessage : IntegrationInProgressMessage
 
 
     const router = useRouter()
     const onSelectPushRoute = `/settings/integration/${integrationId}/`
-    const buttonDisabled = status !== 'available'
-    const buttonIcon = status === 'chosen' ? <CheckOutlined /> : null
-    const buttonMessage = status === 'chosen' ? ChosenMessage : ChooseMessage
+    const onClickEvent = status !== 'disabled'
+        ? (
+            () => {
+                router.push(onSelectPushRoute)
+            }
+        )
+        : undefined
 
     return (
-        <CardContainer data-status={status}>
-            <TwoLineClamp style={{ height: 56 }}>
-                <Typography.Title level={4}>
-                    {title}
-                </Typography.Title>
-            </TwoLineClamp>
-            <TwoLineClamp style={{ height: 48, marginTop: 8 }}>
-                <Typography.Text style={{ lineHeight: '24px', fontSize: 16 }}>
-                    {shortDescription}
-                </Typography.Text>
-            </TwoLineClamp>
-            <Tooltip title={TooltipMessage} >
-                <ButtonWrap disabled={buttonDisabled}>
-                    <Button
-                        type={'sberPrimary'}
-                        onClick={() => router.push(onSelectPushRoute)}
-                        disabled={buttonDisabled}
-                        style={{ pointerEvents: buttonDisabled ? 'none' : 'auto' }}
-                        icon={buttonIcon}
+        <Tooltip title={TooltipMessage}>
+            <CardContainer data-status={status} onClick={onClickEvent}>
+                {(status === 'inProgress' || status === 'chosen') && (
+                    <Tag
+                        color={tagBackgroundColor}
+                        style={{ position: 'absolute', top: 12, right: 4 }}
                     >
-                        {buttonMessage}
-                    </Button>
-                </ButtonWrap>
-            </Tooltip>
-        </CardContainer>
+                        <Typography.Text style={{ color: tagTextColor }}>
+                            {tagText}
+                        </Typography.Text>
+                    </Tag>
+                )}
+                <TwoLineClamp style={{ marginTop: 5 }}>
+                    <Typography.Title level={4}>
+                        {title}
+                    </Typography.Title>
+                </TwoLineClamp>
+                <TwoLineClamp style={{ height: 48, marginTop: 8 }}>
+                    <Typography.Text style={{ lineHeight: '24px', fontSize: 16 }}>
+                        {shortDescription}
+                    </Typography.Text>
+                </TwoLineClamp>
+            </CardContainer>
+        </Tooltip>
     )
 }
