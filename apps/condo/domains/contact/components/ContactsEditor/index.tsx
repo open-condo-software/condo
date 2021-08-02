@@ -70,7 +70,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const [error, setError] = useState()
     const { link } = useOrganization()
     const client = useApolloClient()
-    const role = link ? link.role : roleFromProps ? roleFromProps : null
+    const role = roleFromProps ? roleFromProps : link ? link.role : null
 
     searchContacts(client, {
         organizationId: organization,
