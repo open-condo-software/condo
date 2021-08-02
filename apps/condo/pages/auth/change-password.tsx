@@ -46,13 +46,21 @@ const ChangePasswordPage: AuthPage = () => {
 
     const ErrorToFormFieldMsgMapping = {}
 
-    const { requiredValidator, changeMessage } = useValidations()
-    const minPasswordLength = {
-        min: MIN_PASSWORD_LENGTH,
-        message: PasswordIsTooShortMsg,
-    }
+    const { requiredValidator, changeMessage, minLengthValidator } = useValidations()
+    const minPasswordLengthValidator = changeMessage(minLengthValidator(MIN_PASSWORD_LENGTH), PasswordIsTooShortMsg)
     const validations = {
-        password: [changeMessage(requiredValidator, PleaseInputYourPasswordMsg), minPasswordLength],
+        password: [changeMessage(requiredValidator, PleaseInputYourPasswordMsg), minPasswordLengthValidator],
+        confirmPassword: [
+            changeMessage(requiredValidator, PleaseConfirmYourPasswordMsg),
+            ({ getFieldValue }) => ({
+                validator (_, value) {
+                    if (!value || getFieldValue('password') === value) {
+                        return Promise.resolve()
+                    }
+                    return Promise.reject(TwoPasswordDontMatchMsg)
+                },
+            }),
+        ],
     }
     const authLayoutContext = useContext(AuthLayoutContext)
 
@@ -82,6 +90,7 @@ const ChangePasswordPage: AuthPage = () => {
             setIsSaving(false)
         })
     }
+
     const [checkPasswordRecoveryToken] = useLazyQuery(CHECK_PASSWORD_RECOVERY_TOKEN, {
         onError: error => {
             setRecoveryTokenError(error)
@@ -147,17 +156,7 @@ const ChangePasswordPage: AuthPage = () => {
                     labelCol={{ flex: 1 }}
                     style={{ marginTop: '40px' }}
                     dependencies={['password']}
-                    rules={[
-                        changeMessage(requiredValidator, PleaseConfirmYourPasswordMsg),
-                        ({ getFieldValue }) => ({
-                            validator (_, value) {
-                                if (!value || getFieldValue('password') === value) {
-                                    return Promise.resolve()
-                                }
-                                return Promise.reject(TwoPasswordDontMatchMsg)
-                            },
-                        }),
-                    ]}
+                    rules={validations.confirmPassword}
                 >
                     <Input.Password  style={INPUT_STYLE}/>
                 </Form.Item>

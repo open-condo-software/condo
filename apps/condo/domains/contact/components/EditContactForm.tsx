@@ -67,11 +67,11 @@ export const EditContactForm: React.FC = () => {
         })
     })
 
-    const { combiner, requiredValidator, phoneValidator, emailValidator, trimValidator } = useValidations()
+    const { requiredValidator, phoneValidator, emailValidator, trimValidator } = useValidations()
     const validations = {
-        phone: combiner(requiredValidator, phoneValidator),
+        phone: [requiredValidator, phoneValidator],
         email: [emailValidator],
-        name: combiner(requiredValidator, trimValidator),
+        name: [requiredValidator, trimValidator],
     }
 
     if (error) {

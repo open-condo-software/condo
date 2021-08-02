@@ -46,14 +46,10 @@ export const useCreateOrganizationModalForm = ({ onFinish }: ICreateOrganization
         },
     }
 
-    const { requiredValidator, combiner } = useValidations()
-    const minLengthValidator = {
-        min: INN_LENGTH,
-        message: InnTooShortMsg,
-    }
+    const { requiredValidator, minLengthValidator, changeMessage } = useValidations()
     const validations = {
         name: [requiredValidator],
-        inn: combiner(requiredValidator, minLengthValidator),
+        inn: [requiredValidator, changeMessage(minLengthValidator(INN_LENGTH), InnTooShortMsg)],
     }
 
     const ModalForm: React.FC = () => (

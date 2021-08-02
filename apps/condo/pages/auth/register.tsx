@@ -533,15 +533,22 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
     const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
 
-    const { combiner, requiredValidator, phoneValidator, messageChanger, emailValidator } = useValidations()
-    const minPasswordValidator = {
-        min: MIN_PASSWORD_LENGTH,
-        message: PasswordIsTooShortMsg,
-    }
+    const { requiredValidator, phoneValidator, changeMessage, emailValidator, minLengthValidator } = useValidations()
     const validations = {
-        phone: combiner(requiredValidator, phoneValidator),
-        email: combiner(messageChanger(requiredValidator, PleaseInputYourEmailMsg), emailValidator),
-        minPassword: combiner(requiredValidator, minPasswordValidator),
+        phone: [requiredValidator, phoneValidator],
+        email: [changeMessage(requiredValidator, PleaseInputYourEmailMsg), emailValidator],
+        minPassword: [requiredValidator, changeMessage(minLengthValidator(MIN_PASSWORD_LENGTH), PasswordIsTooShortMsg)],
+        confirmPassword: [
+            changeMessage(requiredValidator, PleaseConfirmYourPasswordMsg),
+            ({ getFieldValue }) => ({
+                validator (_, value) {
+                    if (!value || getFieldValue('password') === value) {
+                        return Promise.resolve()
+                    }
+                    return Promise.reject(TwoPasswordDontMatchMsg)
+                },
+            }),
+        ],
     }
 
     const ErrorToFormFieldMsgMapping = {
@@ -663,17 +670,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }}
                     dependencies={['password']}
-                    rules={[
-                        messageChanger(requiredValidator, PleaseConfirmYourPasswordMsg),
-                        ({ getFieldValue }) => ({
-                            validator (_, value) {
-                                if (!value || getFieldValue('password') === value) {
-                                    return Promise.resolve()
-                                }
-                                return Promise.reject(TwoPasswordDontMatchMsg)
-                            },
-                        }),
-                    ]}
+                    rules={validations.confirmPassword}
                 >
                     <Input.Password style={INPUT_STYLE} />
                 </Form.Item>

@@ -2,30 +2,25 @@ import { useIntl } from '@core/next/intl'
 import { Rule } from 'rc-field-form/lib/interface'
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
-type CombinerParams = Array<Rule | Array<Rule>>
-
-type ValidatorHookReturnType = {
-    combiner: (...rules: CombinerParams) => Rule[]
-    messageChanger: (rule: Rule, message: string) => Rule
+type ValidatorTypes = {
+    changeMessage: (rule: Rule, message: string) => Rule
     requiredValidator: Rule
     phoneValidator: Rule
     emailValidator: Rule
     trimValidator: Rule
+    minLengthValidator: (length: number) => Rule
 }
 
-const combiner = (...rules: CombinerParams) => {
-    return rules.map(rulesPart => Array.isArray(rulesPart) ? rulesPart : [rulesPart]).flat()
-}
-
-const messageChanger = (rule: Rule, message: string) => {
+const changeMessage = (rule: Rule, message: string) => {
     return { ...rule, message }
 }
 
-export const useValidations: () => ValidatorHookReturnType = () => {
+export const useValidations: () => ValidatorTypes = () => {
     const intl = useIntl()
     const ThisFieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
     const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
+    const FieldIsTooShortMessage = intl.formatMessage({ id: 'ValueIsTooShort' })
 
     const requiredValidator: Rule = {
         required: true,
@@ -53,12 +48,19 @@ export const useValidations: () => ValidatorHookReturnType = () => {
         },
     }
 
+    const minLengthValidator: (length: number) => Rule = (length) => {
+        return {
+            min: length,
+            message: FieldIsTooShortMessage,
+        }
+    }
+
     return {
-        combiner,
-        messageChanger,
+        changeMessage,
         requiredValidator,
         phoneValidator,
         emailValidator,
         trimValidator,
+        minLengthValidator,
     }
 }

@@ -40,14 +40,11 @@ export const UserProfileForm = () => {
     const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
     const formAction = (formValues) => updateUserAction(formValues, user)
 
-    const { combiner, requiredValidator, emailValidator, messageChanger } = useValidations()
-    const minLengthValidator = {
-        min: 2,
-        message: MinLengthError,
-    }
+    const { requiredValidator, emailValidator, changeMessage, minLengthValidator } = useValidations()
+    const minClientNameRule = changeMessage(minLengthValidator(2), MinLengthError)
     const validations = {
-        email: combiner(messageChanger(requiredValidator, PleaseInputYourEmailMessage), emailValidator),
-        name: combiner(requiredValidator, minLengthValidator),
+        email: [changeMessage(requiredValidator, PleaseInputYourEmailMessage), emailValidator],
+        name: [requiredValidator, minClientNameRule],
     }
 
     const initialValues = {
