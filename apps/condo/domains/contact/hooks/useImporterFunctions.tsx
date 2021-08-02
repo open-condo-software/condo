@@ -75,7 +75,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (!row.addons.property) return Promise.resolve(false)
         if (!row.addons.fullName) return Promise.resolve(false)
 
-        const rowEmail = row.row[4].value
+        const rowEmail = get(row.row, ['4', 'value'])
         if (rowEmail && !row.addons.email) {
             return Promise.resolve(false)
         }
