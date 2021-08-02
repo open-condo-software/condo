@@ -21,6 +21,43 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             isRequired: true,
         },
 
+        shortDescription: {
+            schemaDoc: 'Short integration description, that would be shown on settings card',
+            type: Text,
+            isRequired: false,
+        },
+
+        detailsTitle: {
+            schemaDoc: 'Title of confirmation/details page of integration',
+            type: Text,
+            isRequired: true,
+        },
+
+        detailsText: {
+            schemaDoc: 'Text of confirmation/details page of integration written in markdown',
+            type: Text,
+            isRequired: false,
+        },
+
+        detailsConfirmButtonText: {
+            schemaDoc: 'Text of button, which you click to start integration and create integration context',
+            type: Text,
+            isRequired: false,
+        },
+
+        detailsInstructionButtonText: {
+            schemaDoc: 'Text of button, which you click to redirect to more detailed instruction (pdf, external site, etc)',
+            type: Text,
+            isRequired: false,
+        },
+
+        detailsInstructionButtonLink: {
+            schemaDoc: 'Link to external resource, on which you will go by clicking on "Instruction" button',
+            type: Text,
+            isRequired: false,
+        },
+
+
         // settings data structure config (settings field for BillingIntegrationOrganizationContext)
         // state data structure config (state field for BillingIntegrationOrganizationContext)
         // log messages translation and adaptation (message field for BillingIntegrationLog)
