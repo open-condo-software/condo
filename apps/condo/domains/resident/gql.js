@@ -18,10 +18,21 @@ const REGISTER_RESIDENT_MUTATION = gql`
         result: registerResident(data: $data) { id v dv sender address addressMeta unitName }
     }
 `
+// TODO(codegen): write return type result!
+
+const REGISTER_CONSUMER_SERVICE_MUTATION = gql`
+    mutation registerConsumerService ($data: RegisterConsumerServiceInput!) {
+        result: registerConsumerService(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Resident,
     REGISTER_RESIDENT_MUTATION,
+
+    REGISTER_CONSUMER_SERVICE_MUTATION,
+
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
