@@ -15,6 +15,7 @@ const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/ut
 const { Resident: ResidentGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/resident/gql')
 const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
+const { REGISTER_CONSUMER_SERVICE_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Resident = generateGQLTestUtils(ResidentGQL)
@@ -112,11 +113,25 @@ async function updateTestServiceConsumer (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function registerConsumerServiceByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_CONSUMER_SERVICE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     Resident, createTestResident, updateTestResident,
     registerResidentByTestClient,
     ServiceConsumer, createTestServiceConsumer, updateTestServiceConsumer,
+registerConsumerServiceByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

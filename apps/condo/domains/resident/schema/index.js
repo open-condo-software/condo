@@ -6,11 +6,13 @@
 const { Resident } = require('./Resident')
 const { RegisterResidentService } = require('./RegisterResidentService')
 const { ServiceConsumer } = require('./ServiceConsumer')
+const { RegisterServiceConsumerService } = require('./RegisterServiceConsumerService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Resident,
     RegisterResidentService,
     ServiceConsumer,
+    RegisterServiceConsumerService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

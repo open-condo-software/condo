@@ -21,11 +21,22 @@ const REGISTER_RESIDENT_MUTATION = gql`
 const SERVICE_CONSUMER_FIELDS = `{ resident { id } billingAccount { id } accountNumber ${COMMON_FIELDS} }`
 const ServiceConsumer = generateGqlQueries('ServiceConsumer', SERVICE_CONSUMER_FIELDS)
 
+// TODO(codegen): write return type result!
+
+const REGISTER_CONSUMER_SERVICE_MUTATION = gql`
+    mutation registerConsumerService ($data: RegisterConsumerServiceInput!) {
+        result: registerConsumerService(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Resident,
     REGISTER_RESIDENT_MUTATION,
     ServiceConsumer,
+
+    REGISTER_CONSUMER_SERVICE_MUTATION,
+
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
