@@ -62,6 +62,7 @@ const MyApp = ({ Component, pageProps }) => {
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
     const HeaderAction = Component.headerAction
+    const RequiredAccess = Component.requiredAccess || React.Fragment
     return (
         <GlobalErrorBoundary>
             <CacheProvider value={cache}>
@@ -74,7 +75,9 @@ const MyApp = ({ Component, pageProps }) => {
                 </Head>
                 <GlobalStyle/>
                 <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
-                    <Component {...pageProps} />
+                    <RequiredAccess>
+                        <Component {...pageProps} />
+                    </RequiredAccess>
                 </LayoutComponent>
                 <GoogleAnalytics/>
                 <BehaviorRecorder engine="plerdy"/>

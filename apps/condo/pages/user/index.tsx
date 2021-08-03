@@ -35,81 +35,80 @@ export const UserInfoPage = () => {
                 <title>{name}</title>
             </Head>
             <PageWrapper>
-                <AuthRequired>
-                    <PageContent>
-                        <Row gutter={[0, 40]}>
-                            <Col span={3}>
-                                <UserAvatar borderRadius={24}/>
-                            </Col>
-                            <Col span={20} push={1}>
-                                <Row gutter={[0, 60]}>
-                                    <Col span={24}>
-                                        <Row gutter={[0, 40]}>
-                                            <Col span={24}>
-                                                <Typography.Title
-                                                    level={1}
-                                                    style={{ margin: 0, fontWeight: 'bold' }}
+                <PageContent>
+                    <Row gutter={[0, 40]}>
+                        <Col span={3}>
+                            <UserAvatar borderRadius={24}/>
+                        </Col>
+                        <Col span={20} push={1}>
+                            <Row gutter={[0, 60]}>
+                                <Col span={24}>
+                                    <Row gutter={[0, 40]}>
+                                        <Col span={24}>
+                                            <Typography.Title
+                                                level={1}
+                                                style={{ margin: 0, fontWeight: 'bold' }}
+                                            >
+                                                {name}
+                                            </Typography.Title>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Row gutter={[0, 24]}>
+                                                <Col span={3}>
+                                                    <Typography.Text type='secondary'>
+                                                        {PhoneMessage}
+                                                    </Typography.Text>
+                                                </Col>
+                                                <Col span={19} push={2}>
+                                                    <NotDefinedField value={get(user, 'phone')}/>
+                                                </Col>
+
+                                                <Col span={3}>
+                                                    <Typography.Text type='secondary'>
+                                                        {EmailMessage}
+                                                    </Typography.Text>
+                                                </Col>
+                                                <Col span={19} push={2}>
+                                                    <NotDefinedField value={get(user, 'email')}/>
+                                                </Col>
+
+                                                <Col span={3}>
+                                                    <Typography.Text type='secondary'>
+                                                        {PasswordMessage}
+                                                    </Typography.Text>
+                                                </Col>
+                                                <Col span={19} push={2}>
+                                                    <NotDefinedField value='******'/>
+                                                </Col>
+                                            </Row>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Link href={'/user/update'}>
+                                                <Button
+                                                    color={'green'}
+                                                    type={'sberPrimary'}
+                                                    secondary
+                                                    icon={<EditFilled />}
                                                 >
-                                                    {name}
-                                                </Typography.Title>
-                                            </Col>
-                                            <Col span={24}>
-                                                <Row gutter={[0, 24]}>
-                                                    <Col span={3}>
-                                                        <Typography.Text type='secondary'>
-                                                            {PhoneMessage}
-                                                        </Typography.Text>
-                                                    </Col>
-                                                    <Col span={19} push={2}>
-                                                        <NotDefinedField value={get(user, 'phone')}/>
-                                                    </Col>
-
-                                                    <Col span={3}>
-                                                        <Typography.Text type='secondary'>
-                                                            {EmailMessage}
-                                                        </Typography.Text>
-                                                    </Col>
-                                                    <Col span={19} push={2}>
-                                                        <NotDefinedField value={get(user, 'email')}/>
-                                                    </Col>
-
-                                                    <Col span={3}>
-                                                        <Typography.Text type='secondary'>
-                                                            {PasswordMessage}
-                                                        </Typography.Text>
-                                                    </Col>
-                                                    <Col span={19} push={2}>
-                                                        <NotDefinedField value='******'/>
-                                                    </Col>
-                                                </Row>
-                                            </Col>
-                                            <Col span={24}>
-                                                <Link href={'/user/update'}>
-                                                    <Button
-                                                        color={'green'}
-                                                        type={'sberPrimary'}
-                                                        secondary
-                                                        icon={<EditFilled />}
-                                                    >
-                                                        {UpdateMessage}
-                                                    </Button>
-                                                </Link>
-                                            </Col>
-                                        </Row>
-                                    </Col>
-                                    <Col span={24}>
-                                        <UserOrganizationsList/>
-                                    </Col>
-                                </Row>
-                            </Col>
-                        </Row>
-                    </PageContent>
-                </AuthRequired>
+                                                    {UpdateMessage}
+                                                </Button>
+                                            </Link>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col span={24}>
+                                    <UserOrganizationsList/>
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+                </PageContent>
             </PageWrapper>
         </>
     )
 }
 
 UserInfoPage.headerAction = <TitleHeaderAction descriptor={{ id: 'Account' }}/>
+UserInfoPage.requiredAccess = AuthRequired
 
 export default UserInfoPage

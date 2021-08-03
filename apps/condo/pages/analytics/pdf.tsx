@@ -119,13 +119,12 @@ const PdfView = () => {
 const DynamicPdfView = dynamic(() => Promise.resolve(PdfView), { ssr: false })
 
 const AnalyticsPdfPage = () => (
-    <OrganizationRequired>
-        <DynamicPdfView />
-    </OrganizationRequired>
+    <DynamicPdfView />
 )
 
 AnalyticsPdfPage.container = ({ children }) => (
     <Typography.Paragraph style={{ padding: 40 }}>{children}</Typography.Paragraph>
 )
+AnalyticsPdfPage.requiredAccess = OrganizationRequired
 
 export default AnalyticsPdfPage

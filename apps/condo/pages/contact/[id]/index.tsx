@@ -18,6 +18,7 @@ import { useOrganization } from '@core/next/organization'
 import  { TicketCard } from '@condo/domains/common/components/TicketCard/TicketCard'
 import { canManageContacts } from '@condo/domains/organization/permissions'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import CreateContactPage from '../create'
 
 
 const FieldPairRow = (props) => {
@@ -91,78 +92,76 @@ const ContactInfoPage = () => {
                 <title>{contactName}</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
-                    <Row gutter={[0, 40]}>
-                        <Col span={3}>
-                            <UserAvatar borderRadius={24}/>
-                        </Col>
-                        <Col span={20} push={1}>
-                            <Row gutter={[0, 60]}>
-                                <Col span={15}>
-                                    <Row gutter={[0, 40]}>
+                <Row gutter={[0, 40]}>
+                    <Col span={3}>
+                        <UserAvatar borderRadius={24}/>
+                    </Col>
+                    <Col span={20} push={1}>
+                        <Row gutter={[0, 60]}>
+                            <Col span={15}>
+                                <Row gutter={[0, 40]}>
+                                    <Col span={24}>
+                                        <Typography.Title>
+                                            {contactName}
+                                        </Typography.Title>
+                                        <Typography.Title
+                                            level={2}
+                                            style={{ margin: '8px 0 0', fontWeight: 400 }}
+                                        >
+                                            {ContactLabel}
+                                        </Typography.Title>
+                                    </Col>
+                                    <Col span={24}>
+                                        <FrontLayerContainer>
+                                            <Row gutter={[0, 24]}>
+                                                <FieldPairRow
+                                                    fieldTitle={AddressLabel}
+                                                    fieldValue={contactAddress}
+                                                />
+                                                <FieldPairRow
+                                                    fieldTitle={PhoneLabel}
+                                                    fieldValue={get(contact, ['phone'])}
+                                                />
+                                                <FieldPairRow
+                                                    fieldTitle={EmailLabel}
+                                                    fieldValue={get(contact, ['email'])}
+                                                />
+                                            </Row>
+                                        </FrontLayerContainer>
+                                    </Col>
+                                    {isContactEditable && (
                                         <Col span={24}>
-                                            <Typography.Title>
-                                                {contactName}
-                                            </Typography.Title>
-                                            <Typography.Title
-                                                level={2}
-                                                style={{ margin: '8px 0 0', fontWeight: 400 }}
-                                            >
-                                                {ContactLabel}
-                                            </Typography.Title>
+                                            <Space direction={'horizontal'} size={40}>
+                                                <Link href={`/contact/${contactId}/update`}>
+                                                    <Button
+                                                        color={'green'}
+                                                        type={'sberPrimary'}
+                                                        secondary
+                                                        icon={<EditFilled />}
+                                                    >
+                                                        {UpdateMessage}
+                                                    </Button>
+                                                </Link>
+                                            </Space>
                                         </Col>
-                                        <Col span={24}>
-                                            <FrontLayerContainer>
-                                                <Row gutter={[0, 24]}>
-                                                    <FieldPairRow
-                                                        fieldTitle={AddressLabel}
-                                                        fieldValue={contactAddress}
-                                                    />
-                                                    <FieldPairRow
-                                                        fieldTitle={PhoneLabel}
-                                                        fieldValue={get(contact, ['phone'])}
-                                                    />
-                                                    <FieldPairRow
-                                                        fieldTitle={EmailLabel}
-                                                        fieldValue={get(contact, ['email'])}
-                                                    />
-                                                </Row>
-                                            </FrontLayerContainer>
-                                        </Col>
-                                        {isContactEditable && (
-                                            <Col span={24}>
-                                                <Space direction={'horizontal'} size={40}>
-                                                    <Link href={`/contact/${contactId}/update`}>
-                                                        <Button
-                                                            color={'green'}
-                                                            type={'sberPrimary'}
-                                                            secondary
-                                                            icon={<EditFilled />}
-                                                        >
-                                                            {UpdateMessage}
-                                                        </Button>
-                                                    </Link>
-                                                </Space>
-                                            </Col>
-                                        )}
-                                    </Row>
-                                </Col>
-                                <Col span={1}/>
-                                <Col span={8}>
-                                    <Affix offsetTop={40}>
-                                        <TicketCard
-                                            organizationId={String(organization.id)}
-                                            contactId={String(contactId)}
-                                            contactName={contactName}
-                                            address={get(contact, ['property', 'address'])}
-                                            unitName={contactUnitName}
-                                        />
-                                    </Affix>
-                                </Col>
-                            </Row>
-                        </Col>
-                    </Row>
-                </OrganizationRequired>
+                                    )}
+                                </Row>
+                            </Col>
+                            <Col span={1}/>
+                            <Col span={8}>
+                                <Affix offsetTop={40}>
+                                    <TicketCard
+                                        organizationId={String(organization.id)}
+                                        contactId={String(contactId)}
+                                        contactName={contactName}
+                                        address={get(contact, ['property', 'address'])}
+                                        unitName={contactUnitName}
+                                    />
+                                </Affix>
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
             </PageWrapper>
         </>
     )
@@ -171,5 +170,6 @@ const ContactInfoPage = () => {
 ContactInfoPage.headerAction = <ReturnBackHeaderAction
     descriptor={{ id: 'pages.condo.contact.PageTitle' }}
     path={'/contact/'}/>
+ContactInfoPage.requiredAccess = OrganizationRequired
 
 export default ContactInfoPage

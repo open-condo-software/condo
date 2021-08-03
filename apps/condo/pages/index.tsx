@@ -20,16 +20,15 @@ const IndexPage = () => {
             </Head>
             <PageWrapper>
                 <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>{PageTitleMsg}</Typography.Title>}/>
-                <OrganizationRequired>
-                    <PageContent>
-                        <TicketsWidget />
-                    </PageContent>
-                </OrganizationRequired>
+                <PageContent>
+                    <TicketsWidget />
+                </PageContent>
             </PageWrapper>
         </>
     )
 }
 
 IndexPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Analytics' }}/>
+IndexPage.requiredAccess = OrganizationRequired
 
 export default IndexPage

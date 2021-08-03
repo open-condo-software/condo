@@ -110,79 +110,78 @@ const ContactPage = () => {
             </Head>
             <PageWrapper>
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
-                <OrganizationRequired>
-                    <PageContent>
-                        {
-                            !contacts.length && !filtersFromQuery
-                                ? <EmptyListView
-                                    label={EmptyListLabel}
-                                    message={EmptyListMessage}
-                                    createRoute={ADD_CONTACT_ROUTE}
-                                    createLabel={CreateContact} />
-                                : <Row gutter={[0, 40]} align={'middle'}>
-                                    <Col span={24}>
-                                        <Row justify={'space-between'}>
-                                            <Col span={6}>
-                                                <Input
-                                                    placeholder={SearchPlaceholder}
-                                                    onChange={(e) => {handleSearchChange(e.target.value)}}
-                                                    value={search}
-                                                />
-                                            </Col>
-                                            <Space size={16}>
-                                                <ImportWrapper
-                                                    objectsName={ContactsMessage}
-                                                    accessCheck={canManageContacts}
-                                                    onFinish={refetch}
-                                                    columns={columns}
-                                                    rowNormalizer={contactNormalizer}
-                                                    rowValidator={contactValidator}
-                                                    objectCreator={contactCreator}
-                                                >
-                                                    <Button
-                                                        type={'sberPrimary'}
-                                                        icon={<DiffOutlined />}
-                                                        secondary
-                                                    />
-                                                </ImportWrapper>
+                <PageContent>
+                    {
+                        !contacts.length && !filtersFromQuery
+                            ? <EmptyListView
+                                label={EmptyListLabel}
+                                message={EmptyListMessage}
+                                createRoute={ADD_CONTACT_ROUTE}
+                                createLabel={CreateContact} />
+                            : <Row gutter={[0, 40]} align={'middle'}>
+                                <Col span={24}>
+                                    <Row justify={'space-between'}>
+                                        <Col span={6}>
+                                            <Input
+                                                placeholder={SearchPlaceholder}
+                                                onChange={(e) => {handleSearchChange(e.target.value)}}
+                                                value={search}
+                                            />
+                                        </Col>
+                                        <Space size={16}>
+                                            <ImportWrapper
+                                                objectsName={ContactsMessage}
+                                                accessCheck={canManageContacts}
+                                                onFinish={refetch}
+                                                columns={columns}
+                                                rowNormalizer={contactNormalizer}
+                                                rowValidator={contactValidator}
+                                                objectCreator={contactCreator}
+                                            >
                                                 <Button
-                                                    key='left'
                                                     type={'sberPrimary'}
-                                                    onClick={() => router.push(ADD_CONTACT_ROUTE)}
-                                                >
-                                                    {CreateContact}
-                                                </Button>
-                                            </Space>
-                                        </Row>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Table
-                                            bordered
-                                            tableLayout={'fixed'}
-                                            loading={loading}
-                                            dataSource={contacts}
-                                            columns={tableColumns}
-                                            rowKey={record =>  record.id}
-                                            onRow={handleRowAction}
-                                            onChange={handleTableChange}
-                                            pagination={{
-                                                showSizeChanger: false,
-                                                total,
-                                                current: offsetFromQuery,
-                                                pageSize: CONTACT_PAGE_SIZE,
-                                                position: ['bottomLeft'],
-                                            }}
-                                        />
-                                    </Col>
-                                </Row>
-                        }
-                    </PageContent>
-                </OrganizationRequired>
+                                                    icon={<DiffOutlined />}
+                                                    secondary
+                                                />
+                                            </ImportWrapper>
+                                            <Button
+                                                key='left'
+                                                type={'sberPrimary'}
+                                                onClick={() => router.push(ADD_CONTACT_ROUTE)}
+                                            >
+                                                {CreateContact}
+                                            </Button>
+                                        </Space>
+                                    </Row>
+                                </Col>
+                                <Col span={24}>
+                                    <Table
+                                        bordered
+                                        tableLayout={'fixed'}
+                                        loading={loading}
+                                        dataSource={contacts}
+                                        columns={tableColumns}
+                                        rowKey={record =>  record.id}
+                                        onRow={handleRowAction}
+                                        onChange={handleTableChange}
+                                        pagination={{
+                                            showSizeChanger: false,
+                                            total,
+                                            current: offsetFromQuery,
+                                            pageSize: CONTACT_PAGE_SIZE,
+                                            position: ['bottomLeft'],
+                                        }}
+                                    />
+                                </Col>
+                            </Row>
+                    }
+                </PageContent>
             </PageWrapper>
         </>
     )
 }
 
 ContactPage.headerAction = <TitleHeaderAction descriptor={{ id: 'pages.condo.contact.PageTitle' }}/>
+ContactPage.requiredAccess = OrganizationRequired
 
 export default ContactPage

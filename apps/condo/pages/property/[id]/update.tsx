@@ -8,11 +8,12 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { useRouter } from 'next/router'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
-interface IPageWithHeaderAction extends React.FC {
+interface IUpdatePropertyPage extends React.FC {
     headerAction?: JSX.Element
+    requiredAccess?: React.FC
 }
 
-const UpdatePropertyPage: IPageWithHeaderAction = () => {
+const UpdatePropertyPage: IUpdatePropertyPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.property.index.UpdatePropertyTitle' })
     const { query: { id } } = useRouter()
@@ -22,16 +23,14 @@ const UpdatePropertyPage: IPageWithHeaderAction = () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
-                    <PageContent>
-                        <Row gutter={[0, 40]} style={{ height: '100%' }}>
-                            <Col span={24}>
-                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
-                            </Col>
-                            <PropertyForm id={id as string}/>
-                        </Row>
-                    </PageContent>
-                </OrganizationRequired>
+                <PageContent>
+                    <Row gutter={[0, 40]} style={{ height: '100%' }}>
+                        <Col span={24}>
+                            <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                        </Col>
+                        <PropertyForm id={id as string}/>
+                    </Row>
+                </PageContent>
             </PageWrapper>
         </>
     )
@@ -40,5 +39,6 @@ const UpdatePropertyPage: IPageWithHeaderAction = () => {
 UpdatePropertyPage.headerAction = <ReturnBackHeaderAction
     descriptor={{ id: 'Back' }}
     path={(id) => `/property/${id}/`}/>
+UpdatePropertyPage.requiredAccess = OrganizationRequired
 
 export default UpdatePropertyPage

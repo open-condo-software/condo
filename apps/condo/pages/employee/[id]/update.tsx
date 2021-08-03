@@ -16,11 +16,9 @@ export const EmployeeUpdatePage = () => {
                 <title>{ UpdateEmployeeMessage }</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
-                    <PageContent>
-                        <EmployeeProfileForm/>
-                    </PageContent>
-                </OrganizationRequired>
+                <PageContent>
+                    <EmployeeProfileForm/>
+                </PageContent>
             </PageWrapper>
         </>
     )
@@ -29,5 +27,6 @@ export const EmployeeUpdatePage = () => {
 EmployeeUpdatePage.headerAction = <ReturnBackHeaderAction
     descriptor={{ id: 'Back' }}
     path={(id) => `/employee/${id}/`}/>
+EmployeeUpdatePage.requiredAccess = OrganizationRequired
 
 export default EmployeeUpdatePage

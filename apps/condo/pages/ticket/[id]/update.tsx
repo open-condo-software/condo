@@ -20,16 +20,14 @@ const TicketUpdatePage = () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
-                    <PageContent>
-                        <Row gutter={[0, 40]} style={{ height: '100%' }}>
-                            <Col span={24}>
-                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
-                            </Col>
-                            <TicketForm id={query.id as string}/>
-                        </Row>
-                    </PageContent>
-                </OrganizationRequired>
+                <PageContent>
+                    <Row gutter={[0, 40]} style={{ height: '100%' }}>
+                        <Col span={24}>
+                            <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                        </Col>
+                        <TicketForm id={query.id as string}/>
+                    </Row>
+                </PageContent>
             </PageWrapper>
         </>
     )
@@ -38,5 +36,6 @@ const TicketUpdatePage = () => {
 TicketUpdatePage.headerAction = <ReturnBackHeaderAction
     descriptor={{ id: 'Back' }}
     path={(id) => `/ticket/${id}/`}/>
+TicketUpdatePage.requiredAccess = OrganizationRequired
 
 export default TicketUpdatePage

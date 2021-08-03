@@ -28,7 +28,7 @@ import { SortOrganizationEmployeesBy } from '../../schema'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 
-const TicketsPage = () => {
+const EmployeesPage = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -51,7 +51,7 @@ const TicketsPage = () => {
         fetchMore,
         loading,
         count: total,
-        objs: tickets,
+        objs: employees,
     } = OrganizationEmployee.useObjects({
         sortBy: sortFromQuery.length > 0  ? sortFromQuery : ['createdAt_DESC'] as Array<SortOrganizationEmployeesBy>, //TODO(Dimitreee):Find cleanest solution
         where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
@@ -123,73 +123,72 @@ const TicketsPage = () => {
             </Head>
             <PageWrapper>
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
-                <OrganizationRequired>
-                    <PageContent>
-                        {
-                            !tickets.length && !filtersFromQuery
-                                ? <EmptyListView
-                                    label={EmptyListLabel}
-                                    message={EmptyListMessage}
-                                    createRoute={ADD_EMPLOYEE_ROUTE}
-                                    createLabel={CreateEmployee} />
-                                : <Row gutter={[0, 40]} align={'middle'}>
-                                    <Col span={24}>
-                                        <Row justify={'space-between'}>
-                                            <Col span={6}>
-                                                <Input
-                                                    placeholder={SearchPlaceholder}
-                                                    onChange={(e)=>{handleSearchChange(e.target.value)}}
-                                                    value={search}
-                                                />
-                                            </Col>
-                                            <Dropdown.Button
-                                                overlay={dropDownMenu}
-                                                buttonsRender={() => [
-                                                    <Button
-                                                        key='left'
-                                                        type={'sberPrimary'}
-                                                        style={{ borderRight: '1px solid white' }}
-                                                        onClick={() => router.push(ADD_EMPLOYEE_ROUTE)}
-                                                    >
-                                                        {CreateEmployee}
-                                                    </Button>,
-                                                    <Button
-                                                        key='right'
-                                                        type={'sberPrimary'}
-                                                        style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
-                                                        icon={<EllipsisOutlined />}
-                                                    />,
-                                                ]}
+                <PageContent>
+                    {
+                        !employees.length && !filtersFromQuery
+                            ? <EmptyListView
+                                label={EmptyListLabel}
+                                message={EmptyListMessage}
+                                createRoute={ADD_EMPLOYEE_ROUTE}
+                                createLabel={CreateEmployee} />
+                            : <Row gutter={[0, 40]} align={'middle'}>
+                                <Col span={24}>
+                                    <Row justify={'space-between'}>
+                                        <Col span={6}>
+                                            <Input
+                                                placeholder={SearchPlaceholder}
+                                                onChange={(e)=>{handleSearchChange(e.target.value)}}
+                                                value={search}
                                             />
-                                        </Row>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Table
-                                            bordered
-                                            tableLayout={'fixed'}
-                                            loading={loading}
-                                            dataSource={tickets}
-                                            columns={tableColumns}
-                                            onRow={handleRowAction}
-                                            onChange={handleTableChange}
-                                            rowKey={record => record.id}
-                                            pagination={{
-                                                total,
-                                                current: offsetFromQuery,
-                                                pageSize: EMPLOYEE_PAGE_SIZE,
-                                                position: ['bottomLeft'],
-                                            }}
+                                        </Col>
+                                        <Dropdown.Button
+                                            overlay={dropDownMenu}
+                                            buttonsRender={() => [
+                                                <Button
+                                                    key='left'
+                                                    type={'sberPrimary'}
+                                                    style={{ borderRight: '1px solid white' }}
+                                                    onClick={() => router.push(ADD_EMPLOYEE_ROUTE)}
+                                                >
+                                                    {CreateEmployee}
+                                                </Button>,
+                                                <Button
+                                                    key='right'
+                                                    type={'sberPrimary'}
+                                                    style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
+                                                    icon={<EllipsisOutlined />}
+                                                />,
+                                            ]}
                                         />
-                                    </Col>
-                                </Row>
-                        }
-                    </PageContent>
-                </OrganizationRequired>
+                                    </Row>
+                                </Col>
+                                <Col span={24}>
+                                    <Table
+                                        bordered
+                                        tableLayout={'fixed'}
+                                        loading={loading}
+                                        dataSource={employees}
+                                        columns={tableColumns}
+                                        onRow={handleRowAction}
+                                        onChange={handleTableChange}
+                                        rowKey={record => record.id}
+                                        pagination={{
+                                            total,
+                                            current: offsetFromQuery,
+                                            pageSize: EMPLOYEE_PAGE_SIZE,
+                                            position: ['bottomLeft'],
+                                        }}
+                                    />
+                                </Col>
+                            </Row>
+                    }
+                </PageContent>
             </PageWrapper>
         </>
     )
 }
 
-TicketsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'pages.condo.employee.PageTitle' }}/>
+EmployeesPage.headerAction = <TitleHeaderAction descriptor={{ id: 'pages.condo.employee.PageTitle' }}/>
+EmployeesPage.requiredAccess = OrganizationRequired
 
-export default TicketsPage
+export default EmployeesPage

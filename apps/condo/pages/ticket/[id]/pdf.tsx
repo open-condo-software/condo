@@ -229,14 +229,13 @@ const DynamicPdfView = dynamic(() => Promise.resolve(PdfView), {
 
 function TicketPdfPage () {
     return (
-        <OrganizationRequired>
-            <PageContent>
-                <DynamicPdfView/>
-            </PageContent>
-        </OrganizationRequired>
+        <PageContent>
+            <DynamicPdfView/>
+        </PageContent>
     )
 }
 
 TicketPdfPage.container = ({ children }) => <div style={{ padding: '40px' }}>{children}</div>
+TicketPdfPage.requiredAccess = OrganizationRequired
 
 export default TicketPdfPage

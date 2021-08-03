@@ -32,6 +32,7 @@ import { TitleHeaderAction } from '@condo/domains/common/components/HeaderAction
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
+    requiredAccess?: React.FC
 }
 
 const verticalAlign = css`
@@ -143,83 +144,82 @@ const TicketsPage: IPageWithHeaderAction = () => {
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
-                    <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
-                    <PageContent>
-                        {
-                            !tickets.length && !filtersFromQuery
-                                ? <EmptyListView
-                                    label={EmptyListLabel}
-                                    message={EmptyListMessage}
-                                    createRoute='/ticket/create'
-                                    createLabel={CreateTicket} />
-                                : <Row gutter={[0, 40]} align={'middle'}>
-                                    <Col span={6}>
-                                        <Input
-                                            placeholder={SearchPlaceholder}
-                                            onChange={(e)=>{handleSearchChange(e.target.value)}}
-                                            value={search}
-                                        />
-                                    </Col>
-                                    <Col span={4} offset={1}>
-                                        <Checkbox
-                                            onChange={handleEmergencyChange}
-                                            checked={emergency}
-                                            style={{ paddingLeft: '0px', fontSize: '16px' }}
-                                        >{EmergencyLabel}</Checkbox>
-                                    </Col>
-                                    <Col span={6} push={1}>
-                                        {
-                                            downloadLink
-                                                ?
-                                                <Button
-                                                    type={'inlineLink'}
-                                                    icon={<DatabaseFilled />}
-                                                    loading={isXlsLoading}
-                                                    target='_blank'
-                                                    href={downloadLink}
-                                                    rel='noreferrer'>{DownloadExcelLabel}
-                                                </Button>
-                                                :
-                                                <Button
-                                                    type={'inlineLink'}
-                                                    icon={<DatabaseFilled />}
-                                                    loading={isXlsLoading}
-                                                    onClick={
-                                                        () => exportToExcel({ variables: { data: { where: where, sortBy: sortBy, timeZone } } })
-                                                    }>{ExportAsExcel}
-                                                </Button>
-                                        }
-                                    </Col>
-                                    <Col span={24}>
-                                        <Table
-                                            bordered
-                                            css={verticalAlign}
-                                            tableLayout={'fixed'}
-                                            loading={loading}
-                                            dataSource={tickets}
-                                            columns={tableColumns}
-                                            onRow={handleRowAction}
-                                            onChange={handleTableChange}
-                                            rowKey={record => record.id}
-                                            pagination={{
-                                                showSizeChanger: false,
-                                                total,
-                                                current: offsetFromQuery,
-                                                pageSize: pagesizeFromQuey,
-                                                position: ['bottomLeft'],
-                                            }}
-                                        />
-                                    </Col>
-                                </Row>
-                        }
-                    </PageContent>
-                </OrganizationRequired>
+                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
+                <PageContent>
+                    {
+                        !tickets.length && !filtersFromQuery
+                            ? <EmptyListView
+                                label={EmptyListLabel}
+                                message={EmptyListMessage}
+                                createRoute='/ticket/create'
+                                createLabel={CreateTicket} />
+                            : <Row gutter={[0, 40]} align={'middle'}>
+                                <Col span={6}>
+                                    <Input
+                                        placeholder={SearchPlaceholder}
+                                        onChange={(e)=>{handleSearchChange(e.target.value)}}
+                                        value={search}
+                                    />
+                                </Col>
+                                <Col span={4} offset={1}>
+                                    <Checkbox
+                                        onChange={handleEmergencyChange}
+                                        checked={emergency}
+                                        style={{ paddingLeft: '0px', fontSize: '16px' }}
+                                    >{EmergencyLabel}</Checkbox>
+                                </Col>
+                                <Col span={6} push={1}>
+                                    {
+                                        downloadLink
+                                            ?
+                                            <Button
+                                                type={'inlineLink'}
+                                                icon={<DatabaseFilled />}
+                                                loading={isXlsLoading}
+                                                target='_blank'
+                                                href={downloadLink}
+                                                rel='noreferrer'>{DownloadExcelLabel}
+                                            </Button>
+                                            :
+                                            <Button
+                                                type={'inlineLink'}
+                                                icon={<DatabaseFilled />}
+                                                loading={isXlsLoading}
+                                                onClick={
+                                                    () => exportToExcel({ variables: { data: { where: where, sortBy: sortBy, timeZone } } })
+                                                }>{ExportAsExcel}
+                                            </Button>
+                                    }
+                                </Col>
+                                <Col span={24}>
+                                    <Table
+                                        bordered
+                                        css={verticalAlign}
+                                        tableLayout={'fixed'}
+                                        loading={loading}
+                                        dataSource={tickets}
+                                        columns={tableColumns}
+                                        onRow={handleRowAction}
+                                        onChange={handleTableChange}
+                                        rowKey={record => record.id}
+                                        pagination={{
+                                            showSizeChanger: false,
+                                            total,
+                                            current: offsetFromQuery,
+                                            pageSize: pagesizeFromQuey,
+                                            position: ['bottomLeft'],
+                                        }}
+                                    />
+                                </Col>
+                            </Row>
+                    }
+                </PageContent>
             </PageWrapper>
         </>
     )
 }
 
 TicketsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.ControlRoom' }}/>
+TicketsPage.requiredAccess = OrganizationRequired
 
 export default TicketsPage
