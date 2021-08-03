@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { createContext } from 'react'
 import { Alert, Progress } from 'antd'
 import get from 'lodash/get'
 import { Columns, ProcessedRow } from '../../utils/importer'
 import XLSX from 'xlsx'
 
-export const ModalContext = React.createContext({ progress: 0, error: null, isImported: false })
+export const ModalContext = createContext({ progress: 0, error: null, isImported: false })
 
 export const getUploadSuccessModalConfig = (title: string, content: string, okText: string) => {
     return {
@@ -46,8 +46,12 @@ export const getUploadErrorModalConfig = (title: string, defaultErrorText: strin
     }
 }
 
-export const getUploadProgressModalConfig = (title: string, processingMessage: string, okText: string,
-    onButtonClick: () => void) => {
+export const getUploadProgressModalConfig = (
+    title: string,
+    processingMessage: string,
+    okText: string,
+    onButtonClick: () => void
+) => {
     return {
         title: title,
         closable: false,
@@ -88,8 +92,13 @@ function fitToColumn (arrayOfArray) {
     ))
 }
 
-export const getPartlyLoadedModalConfig = (title: string, content: string, okText: string, cancelText: string,
-    errors: Array<ProcessedRow>, columns: Columns) => {
+export const getPartlyLoadedModalConfig = (
+    title: string,
+    content: string,
+    okText: string,
+    cancelText: string,
+    errors: Array<ProcessedRow>,
+    columns: Columns) => {
     return {
         title: title,
         closable: false,
