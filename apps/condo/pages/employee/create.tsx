@@ -1,61 +1,41 @@
 /** @jsx jsx */
-import { Typography, Row, Col, Card } from 'antd'
+import { Typography, Row, Col } from 'antd'
 import Head from 'next/head'
 import React from 'react'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from 'react-intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { colors, shadows } from '@condo/domains/common/constants/style'
 import { CreateEmployeeForm } from '@condo/domains/organization/components/CreateEmployeeForm'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { jsx } from '@emotion/core'
 
-import { useState } from 'react'
-import { Loader } from '../../domains/common/components/Loader'
-import { css, jsx } from '@emotion/core'
-import CreatePropertyPage from '../property/create'
-interface ICreateEmployeePage extends React.FC {
+interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
 }
-const CardCss = css`
-    width: 300px;
-    height: fit-content;
-    ${shadows.cardShadow}
-`
-const CreateEmployeePage: ICreateEmployeePage = () => {
+
+const CreateEmployeePage: IPageWithHeaderAction = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'employee.AddEmployee' })
-    
-    const [selectedRole, setSelectedRole] = useState<{ title: string, description: string } | null>(null)
-    
+        
     return (
         <>
             <Head>
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <PageContent>
-                    <Row gutter={[12, 40]}>
-                        <Col span={24}>
-                            <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
-                        </Col>
-                        <Col span={10}>
-                            <CreateEmployeeForm onRoleSelect={(role) => setSelectedRole(role)} />
-                        </Col>
-                        {roleTranslations ? <Card
-                            title={roleTranslations.title}
-                            bordered={false}
-                            css={CardCss}
-                            headStyle={{
-                                color: colors.lightGrey[10],
-                                fontSize: 24,
-                                fontWeight: 'bold',
-                            }}
-                        >
-                            {roleTranslations.description}
-                        </Card> : <Loader />}
-                    </Row>
-                </PageContent>
+                <OrganizationRequired>
+                    <PageContent>
+                        <Row gutter={[12, 40]}>
+                            <Col span={24}>
+                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                            </Col>
+                            <Col span={17}>
+                                <CreateEmployeeForm />
+                            </Col>
+                        </Row>
+                    </PageContent>
+                </OrganizationRequired>
             </PageWrapper>
         </>
     )

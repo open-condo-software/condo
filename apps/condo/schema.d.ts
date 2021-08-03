@@ -9478,6 +9478,7 @@ export type OrganizationEmployeeRole = {
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
   /**  Employee status transitions map  */
   statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
