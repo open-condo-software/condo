@@ -160,6 +160,7 @@ export const expectToThrowAuthenticationErrorToObj = async (testFunc) => {
         expect(data).toEqual({ 'obj': null })
     })
 }
+
 export const expectToThrowAuthenticationErrorToObjects = async (testFunc) => {
     await catchErrorFrom(testFunc, ({ errors, data }) => {
         expect(errors[0]).toMatchObject({
@@ -171,5 +172,19 @@ export const expectToThrowAuthenticationErrorToObjects = async (testFunc) => {
             }
         })
         expect(data).toEqual({ 'objs': null })
+    })
+}
+
+export const expectToThrowAuthenticationErrorToResult = async (testFunc) => {
+    await catchErrorFrom(testFunc, ({ errors, data }) => {
+        expect(errors[0]).toMatchObject({
+            'message': 'No or incorrect authentication credentials',
+            'name': 'AuthenticationError',
+            'path': ['result'],
+            'extensions': {
+                'code': 'UNAUTHENTICATED'
+            }
+        })
+        expect(data).toEqual({ 'result': null })
     })
 }

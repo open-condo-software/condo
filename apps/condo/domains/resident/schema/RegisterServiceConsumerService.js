@@ -68,11 +68,8 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     }
                 )
 
-                if (applicableBillingAccounts.length === 1) {
-                    attrs.billingAccount = { connect: { id: applicableBillingAccounts[0].id } }
-                }
-
                 // todo (toplenboren) learn what to do if there are a lot of applicable billing accounts
+                attrs.billingAccount = { connect: { id: applicableBillingAccounts[0].id } }
 
                 const serviceConsumer = await ServiceConsumer.create(context, attrs)
                 return serviceConsumer
