@@ -1,4 +1,7 @@
 const Queue = require('bull')
+const falsey = require('falsey')
+const pino = require('pino')
+const { serializeError } = require('serialize-error')
 
 const conf = require('@core/config')
 const { prepareKeystoneExpressApp } = require('./test.utils')
@@ -11,6 +14,8 @@ const FAKE_WORKER_MODE = conf.FAKE_WORKER_MODE
 const WORKER_REDIS_URL = conf.WORKER_REDIS_URL || conf.REDIS_URL
 if (!WORKER_REDIS_URL) throw new Error('No WORKER_REDIS_URL environment')
 const taskQueue = new Queue('tasks', WORKER_REDIS_URL)
+// NOTE: same as keystone logger
+const taskLogger = pino({ name: 'worker', enabled: falsey(process.env.DISABLE_LOGGING) })
 const globalTaskOptions = {}
 const TASKS = new Map()
 let isWorkerCreated = false
@@ -116,40 +121,40 @@ function executeTask (name, args, job = null) {
 async function createWorker (keystoneModule) {
     // NOTE: we should have only one worker per node process!
     if (isWorkerCreated) {
-        console.warn('Call createWorker() more than one time! (ignored)')
+        taskLogger.warn({ message: 'Call createWorker() more than one time! (ignored)' })
         return
     } else {
         isWorkerCreated = true
-        console.log('Creating worker process')
+        taskLogger.info({ message: 'Creating worker process' })
     }
 
     // we needed to prepare keystone to use it inside tasks logic!
     if (keystoneModule) {
         await prepareKeystoneExpressApp(keystoneModule)
     } else {
-        console.warn('Keystone APP context is not prepared! You can\'t use Keystone GQL query inside the tasks!')
+        taskLogger.warn({ message: 'Keystone APP context is not prepared! You can\'t use Keystone GQL query inside the tasks!' })
     }
 
     taskQueue.process('*', WORKER_CONCURRENCY, async function (job) {
-        console.log(`Job:${job.id} status=processing (${JSON.stringify(job.toJSON())})`)
+        taskLogger.info({ job: job.id, status: 'processing', task: job.toJSON() })
         try {
             return await executeTask(job.name, job.data.args, job)
         } catch (e) {
-            console.error(e)
+            taskLogger.error({ job: job.id, status: 'error', error: serializeError(e), task: job.toJSON() })
             throw e
         }
     })
 
     taskQueue.on('failed', function (job) {
-        console.log(`Job:${job.id} status=error (${JSON.stringify(job.toJSON())})`)
+        taskLogger.info({ job: job.id, status: 'failed', task: job.toJSON() })
     })
 
     taskQueue.on('completed', function (job) {
-        console.log(`Job:${job.id} status=completed t0=${job.finishedOn - job.timestamp}ms t1=${job.processedOn - job.timestamp}ms t2=${job.finishedOn - job.processedOn} (${JSON.stringify(job.toJSON())})`)
+        taskLogger.info({ job: job.id, status: 'completed', task: job.toJSON(), t0: job.finishedOn - job.timestamp, t1: job.processedOn - job.timestamp, t2: job.finishedOn - job.processedOn })
     })
 
     await taskQueue.isReady()
-    console.log('Worker: ready to work!')
+    taskLogger.info({ message: 'Worker: ready to work!' })
 }
 
 module.exports = {
