@@ -138,6 +138,7 @@
   "OperationCompleted": "Операция выполнена",
   "Owner": "Владелец",
   "pages.auth.AlreadyRegistered": "Я уже зарегистрирован",
+  "pages.auth.register.error.smstimeout": "Следующее СМС собщение может быть отправлено через {timeRemain} с",
   "pages.auth.ChangePasswordTitle": "Изменение пароля",
   "pages.auth.EmailIsAlreadyRegistered": "Данный адрес уже зарегистрирован",
   "pages.auth.EmailIsNoFound": "Email не найден",

@@ -2,7 +2,7 @@ import { useIntl } from '@core/next/intl'
 import { MaskedInput } from 'antd-mask-input'
 import { FormattedMessage } from 'react-intl'
 import Router, { useRouter } from 'next/router'
-import { Form, Input, Typography } from 'antd'
+import { Form, Input, Typography, notification } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout, { AuthLayoutContext, AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 import React, { createContext, useEffect, useState, useContext, useCallback, Dispatch, SetStateAction } from 'react'
@@ -24,7 +24,7 @@ import { SMS_CODE_LENGTH, SMS_CODE_TTL } from '@condo/domains/user/constants/com
 import { colors } from '@condo/domains/common/constants/style'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { isEmpty } from 'lodash'
+import { isEmpty, has } from 'lodash'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
@@ -229,12 +229,6 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
             },
         ],
     }
-    const ErrorToFormFieldMsgMapping = {
-        [TOO_MANY_REQUESTS]: {
-            name: 'phone',
-            errors: [SMSTooManyRequestsError],
-        },
-    }
     const startConfirmPhone = async () => {
         const registerExtraData = {
             dv: 1,
@@ -258,10 +252,21 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
             onFinally: () => {
                 setIsLoading(false)
             },
+            OnErrorMsg: null,
             intl,
             form,
-            ErrorToFormFieldMsgMapping,
         }).catch(error => {
+            // We expect only 1 type of error here. That's why - we override standard behaviour with OnErrorMsg = null
+            if (has(error, 'graphQLErrors')) {
+                const smsTimeoutError = error.graphQLErrors.find((err) => (err.name.indexOf(TOO_MANY_REQUESTS) === 0))
+                if (smsTimeoutError) {
+                    const { data: { timeRemain = 0 } } = smsTimeoutError
+                    notification.error({
+                        message: SMSTooManyRequestsError,
+                        description: intl.formatMessage({ id: 'pages.auth.register.error.smstimeout' }, { timeRemain }),
+                    })
+                }
+            }
             setIsLoading(false)
         })
     }
@@ -360,10 +365,6 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
             name: 'smsCode',
             errors: [SMSMaxRetriesReachedError],
         },
-        [TOO_MANY_REQUESTS]: {
-            name: 'smsCode',
-            errors: [SMSTooManyRequestsError],
-        },
     }
 
     const [isPhoneVisible, setIsPhoneVisible] = useState(false)
@@ -392,9 +393,18 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
             variables,
             intl,
             form,
-            ErrorToFormFieldMsgMapping,
+            OnErrorMsg: null,
         }).catch(error => {
-            console.error(error)
+            if (has(error, 'graphQLErrors')) {
+                const smsTimeoutError = error.graphQLErrors.find((err) => (err.name.indexOf(TOO_MANY_REQUESTS) === 0))
+                if (smsTimeoutError) {
+                    const { data: { timeRemain = 0 } } = smsTimeoutError
+                    notification.error({
+                        message: SMSTooManyRequestsError,
+                        description: intl.formatMessage({ id: 'pages.auth.register.error.smstimeout' }, { timeRemain }),
+                    })
+                }
+            }
         })
     }
     const [completeConfirmPhoneMutation] = useMutation(COMPLETE_CONFIRM_PHONE_MUTATION)
