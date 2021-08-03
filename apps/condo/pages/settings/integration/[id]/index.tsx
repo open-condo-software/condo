@@ -17,7 +17,6 @@ import { Button } from '@condo/domains/common/components/Button'
 import Link from 'next/link'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { SortBillingIntegrationOrganizationContextsBy } from '../../../../schema'
 import styled from '@emotion/styled'
 
 
@@ -74,7 +73,6 @@ const BillingIntegrationDetailsPage = () => {
                 id: organizationId,
             },
         },
-        sortBy: ['createdAt_DESC'] as SortBillingIntegrationOrganizationContextsBy[],
     })
 
     const sender = getClientSideSenderInfo()

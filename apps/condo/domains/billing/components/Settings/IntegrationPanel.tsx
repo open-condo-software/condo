@@ -1,16 +1,17 @@
 import React from 'react'
 import styled from '@emotion/styled'
-import { css } from '@emotion/core'
 import { colors, shadows } from '@condo/domains/common/constants/style'
 import { Tooltip, Typography, Tag } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 
+export type CardStatuses = 'available' | 'inProgress' | 'chosen' | 'disabled'
+
 interface IIntegrationPanelProps {
     integrationId: string
     title: string
     shortDescription: string
-    status: 'available' | 'inProgress' | 'chosen' | 'disabled'
+    status: CardStatuses
 }
 
 const CardContainer = styled.div`
@@ -21,16 +22,14 @@ const CardContainer = styled.div`
   border-radius: 8px;
   padding: 24px;
   transition: all 0.2s ease-in-out;
-  cursor: ${props => props['data-status'] !== 'disabled' ? 'pointer' : 'default'};
-  background-color: ${props => (props['data-status'] === 'chosen' || props['data-status'] === 'inProgress') 
+  cursor: pointer;
+  background-color: ${props => (props['data-status'] !== 'disabled' && props['data-status'] !== 'available') 
         ? colors.lightGrey[4] 
         : 'transparent'};
-  ${props => props['data-status'] !== 'disabled' && css`
-    &:hover {
-      border-color: transparent;
-      ${shadows.elevatedShadow}
-    }
-  `}
+  &:hover {
+    border-color: transparent;
+    ${shadows.elevatedShadow}
+  }
 `
 
 const TwoLineClamp = styled.div`
@@ -73,13 +72,9 @@ export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
 
     const router = useRouter()
     const onSelectPushRoute = `/settings/integration/${integrationId}/`
-    const onClickEvent = status !== 'disabled'
-        ? (
-            () => {
-                router.push(onSelectPushRoute)
-            }
-        )
-        : undefined
+    const onClickEvent = () => {
+        router.push(onSelectPushRoute)
+    }
 
     return (
         <Tooltip title={TooltipMessage}>
