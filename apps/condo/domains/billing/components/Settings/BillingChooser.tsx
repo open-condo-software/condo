@@ -5,14 +5,22 @@ import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 import { IntegrationPanel } from './IntegrationPanel'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { BillingIntegration } from '@condo/domains/billing/utils/clientSchema'
+import { Loader } from '@condo/domains/common/components/Loader'
 
 export const BillingChooser: React.FC = () => {
     const intl = useIntl()
+
     const OneBillingWarningMessage = intl.formatMessage({ id: 'OneBillingWarning' })
     const NoPermissionMessage = intl.formatMessage({ id: 'NoPermissionToSettings' })
 
     const userOrganization = useOrganization()
     const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
+    const {
+        objs: integrations,
+        loading: integrationsLoading,
+        error: integrationsError,
+    } = BillingIntegration.useObjects({})
 
     if (!canManageIntegrations) {
         return (
@@ -23,44 +31,43 @@ export const BillingChooser: React.FC = () => {
             </BasicEmptyListView>
         )
     }
+
+    if (integrationsLoading) {
+        return (
+            <Loader fill size={'large'}/>
+        )
+    }
+
+    if (integrationsError) {
+        return (
+            <BasicEmptyListView>
+                <Typography.Title level={4}>
+                    {integrationsError}
+                </Typography.Title>
+            </BasicEmptyListView>
+        )
+    }
+
     return (
         <>
             <Space direction={'vertical'} size={40} style={{ width: '100%' }}>
                 <Alert message={OneBillingWarningMessage} showIcon type="warning" style={{ width: 'fit-content' }} />
                 <Col span={24}>
                     <Row gutter={[44, 44]}>
-                        <Col span={12}>
-                            <IntegrationPanel
-                                integrationId={'1'}
-                                title={'Интеграция через загрузку вашего реестра'}
-                                shortDescription={'Возможные шаблоны: СБ Бизнес Онлайн 8_2 и 9_1'}
-                                status={'chosen'}
-                            />
-                        </Col>
-                        <Col span={12}>
-                            <IntegrationPanel
-                                integrationId={'2'}
-                                title={'ГИС ЖКХ'}
-                                shortDescription={'Государственная информационная система ЖКХ'}
-                                status={'inProgress'}
-                            />
-                        </Col>
-                        <Col span={12}>
-                            <IntegrationPanel
-                                integrationId={'3'}
-                                title={'Интеграция через загрузку вашего реестра'}
-                                shortDescription={'Возможные шаблоны: СБ Бизнес Онлайн 8_2 и 9_1 очень очень очень очень долгий текст'}
-                                status={'available'}
-                            />
-                        </Col>
-                        <Col span={12}>
-                            <IntegrationPanel
-                                integrationId={'3'}
-                                title={'Интеграция через загрузку вашего ajdkjsakdjaklsdjaklsjdklasjdklajsdlkjlk'}
-                                shortDescription={'Возможные шаблоны: СБ Бизнес Онлайн 8_2 и 9_1 очень очень очень очень долгий текст'}
-                                status={'disabled'}
-                            />
-                        </Col>
+                        {
+                            integrations.map((integration) => {
+                                return (
+                                    <Col span={12} key={integration.id}>
+                                        <IntegrationPanel
+                                            integrationId={integration.id}
+                                            title={integration.name}
+                                            shortDescription={get(integration, 'shortDescription')}
+                                            status={'available'}
+                                        />
+                                    </Col>
+                                )
+                            })
+                        }
                     </Row>
                 </Col>
             </Space>

@@ -524,5 +524,7 @@
   "TableHasInvalidHeaders": "У вашей таблицы неправильные заголовки. Для корректного импорта они должны быть: {value}",
   "ImportRequiredFields": "обязательные поля",
   "ConnectionInProgress": "Подключение в процессе",
-  "Connected": "Подключено"
+  "Connected": "Подключено",
+  "StartIntegration": "Начать подключение интеграции",
+  "Instruction": "Инструкция"
 }
