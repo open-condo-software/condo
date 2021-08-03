@@ -73,6 +73,8 @@ const BillingIntegrationDetailsPage = () => {
                 id: organizationId,
             },
         },
+    }, {
+        fetchPolicy: 'network-only',
     })
 
     const sender = getClientSideSenderInfo()

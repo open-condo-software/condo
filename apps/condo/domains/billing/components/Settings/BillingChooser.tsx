@@ -33,6 +33,8 @@ export const BillingChooser: React.FC = () => {
                 id: organizationId,
             },
         },
+    }, {
+        fetchPolicy: 'network-only',
     })
 
     if (!canManageIntegrations) {
