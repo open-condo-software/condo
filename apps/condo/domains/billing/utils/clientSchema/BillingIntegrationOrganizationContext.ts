@@ -10,11 +10,12 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { BillingIntegrationOrganizationContext as BillingIntegrationOrganizationContextGQL } from '@condo/domains/billing/gql'
 import { BillingIntegrationOrganizationContext, BillingIntegrationOrganizationContextUpdateInput, QueryAllBillingIntegrationOrganizationContextsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'integration', 'organization', 'settings', 'state']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'integration', 'organization', 'settings', 'state', 'status']
 const RELATIONS = ['integration', 'organization']
 
 export interface IBillingIntegrationOrganizationContextUIState extends BillingIntegrationOrganizationContext {
     id: string
+    status: string
     // TODO(codegen): write IBillingIntegrationOrganizationContextUIState or extends it from
 }
 
