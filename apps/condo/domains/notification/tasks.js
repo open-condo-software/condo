@@ -9,6 +9,7 @@ const email = require('./transports/email')
 const { SMS_TRANSPORT, EMAIL_TRANSPORT, MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS, MESSAGE_PROCESSING_STATUS, MESSAGE_ERROR_STATUS, MESSAGE_DELIVERED_STATUS } = require('./constants')
 
 const SEND_TO_CONSOLE = conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE || false
+const DISABLE_LOGGING = conf.NOTIFICATION__DISABLE_LOGGING || false
 
 const TRANSPORTS = {
     [SMS_TRANSPORT]: sms,
@@ -17,7 +18,7 @@ const TRANSPORTS = {
 
 async function _sendMessageByAdapter (transport, adapter, messageContext) {
     if (SEND_TO_CONSOLE) {
-        console.info(`MESSAGE by ${transport.toUpperCase()} ADAPTER: ${JSON.stringify(messageContext)}`)
+        if (!DISABLE_LOGGING) console.info(`MESSAGE by ${transport.toUpperCase()} ADAPTER: ${JSON.stringify(messageContext)}`)
         return [true, { fakeAdapter: true }]
     }
     return await adapter.send(messageContext)

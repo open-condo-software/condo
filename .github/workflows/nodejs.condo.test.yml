@@ -55,6 +55,7 @@ jobs:
           cp .env.example .env
           export NODE_ENV=test
           export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
+          export NOTIFICATION__DISABLE_LOGGING=true
           export WORKER_CONCURRENCY=50
 
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
