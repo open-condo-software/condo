@@ -56,11 +56,12 @@ function menuDataRender () {
             icon: UserIcon,
             locale: 'menu.Employees',
         },
-        {
-            path: '/settings',
-            icon: GearIcon,
-            locale: 'menu.Settings',
-        },
+        // TODO (savelevMatthew): Toggle this feature later
+        // {
+        //     path: '/settings',
+        //     icon: GearIcon,
+        //     locale: 'menu.Settings',
+        // },
     ]
 }
 
