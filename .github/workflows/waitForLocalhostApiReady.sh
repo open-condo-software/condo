@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -xe
+set -e
 
 API_SLEEP_INTERVAL=3
 API_WAIT_TIMEOUT=120
