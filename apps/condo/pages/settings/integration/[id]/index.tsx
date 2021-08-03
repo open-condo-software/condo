@@ -3,17 +3,23 @@ import Head from 'next/head'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useIntl } from '@core/next/intl'
-import { BillingIntegration } from '@condo/domains/billing/utils/clientSchema'
+import { BillingIntegration, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { Typography, Col, Row, Space } from 'antd'
+import { Typography, Col, Row, Space, Modal, Alert } from 'antd'
 const ReactMarkdown = require('react-markdown')
 const gfm = require('remark-gfm')
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { useOrganization } from '@core/next/organization'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
+import Link from 'next/link'
+import { ExclamationCircleOutlined } from '@ant-design/icons'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+
+
+const SETTINGS_PAGE_ROUTE = '/settings/'
 
 const BillingIntegrationDetailsPage = () => {
     const intl = useIntl()
@@ -22,9 +28,15 @@ const BillingIntegrationDetailsPage = () => {
     const NoPermissionMessage = intl.formatMessage({ id: 'NoPermissionToSettings' })
     const DefaultStartButtonMessage = intl.formatMessage({ id: 'StartIntegration' })
     const DefaultInstructionButtonText = intl.formatMessage({ id: 'Instruction' })
+    const ContinueMessage = intl.formatMessage({ id: 'property.Continue' })
+    const ConfirmModalTitle = intl.formatMessage({ id: 'BillingIntegrationContextConfirmQuestion' })
+    const CancelMessage = intl.formatMessage({ id: 'Cancel' })
+    const CreateContextRestrictionMessage = intl.formatMessage({ id:'BillingIntegrationContextNoReturns' }, {
+        buttonValue: ContinueMessage,
+    })
 
-    const { query } = useRouter()
-    const integrationId = get(query, 'id', '')
+    const { query, push } = useRouter()
+    const integrationId = get(query, 'id')
 
     const userOrganization = useOrganization()
     const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
@@ -38,6 +50,35 @@ const BillingIntegrationDetailsPage = () => {
             id: String(integrationId),
         },
     })
+
+    const sender = getClientSideSenderInfo()
+    const createContextAction = BillingIntegrationOrganizationContext.useCreate({
+        integration: String(integrationId),
+        organization: get(userOrganization, ['organization', 'id']),
+        // @ts-ignore
+        state: { dv: 1, sender },
+        // @ts-ignore
+        settings: { dv: 1, sender },
+    }, () => {
+        push(SETTINGS_PAGE_ROUTE)
+    })
+
+    const { confirm } = Modal
+    const showConfirmModal = () => {
+        confirm({
+            title: ConfirmModalTitle,
+            icon: <ExclamationCircleOutlined />,
+            content: (
+                <Alert message={CreateContextRestrictionMessage} type={'warning'}/>
+            ),
+            okText: ContinueMessage,
+            cancelText: CancelMessage,
+            onOk () {
+                // @ts-ignore
+                return createContextAction({})
+            },
+        })
+    }
 
     if (integrationLoading || integrationError) {
         return (
@@ -83,15 +124,19 @@ const BillingIntegrationDetailsPage = () => {
                                                     )
                                                 }
                                                 <Col span={24}>
-                                                    <Space size={20}>
-                                                        <Button type='sberPrimary'>
+                                                    <Space size={20} style={{ width: '100%', flexWrap: 'wrap' }}>
+                                                        <Button type='sberPrimary' onClick={showConfirmModal}>
                                                             {startButtonMessage}
                                                         </Button>
                                                         {
                                                             instructionsButtonLink && (
-                                                                <Button type='sberPrimary' secondary>
-                                                                    {instructionsButtonText}
-                                                                </Button>
+                                                                <Link href={instructionsButtonLink}>
+                                                                    <a target='_blank'>
+                                                                        <Button type='sberPrimary' secondary>
+                                                                            {instructionsButtonText}
+                                                                        </Button>
+                                                                    </a>
+                                                                </Link>
                                                             )
                                                         }
                                                     </Space>
@@ -117,7 +162,7 @@ const BillingIntegrationDetailsPage = () => {
 
 BillingIntegrationDetailsPage.headerAction = <ReturnBackHeaderAction
     descriptor={{ id: 'menu.Settings' }}
-    path={'/settings/'}
+    path={SETTINGS_PAGE_ROUTE}
 />
 
 export default BillingIntegrationDetailsPage

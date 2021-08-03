@@ -25,6 +25,8 @@ function convertToUIState (item: BillingIntegrationOrganizationContext): IBillin
 
 export interface IBillingIntegrationOrganizationContextFormState {
     id?: undefined
+    integration: string
+    organization: string
     // TODO(codegen): write IBillingIntegrationOrganizationContextUIFormState or extends it from
 }
 

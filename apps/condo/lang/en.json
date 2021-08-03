@@ -526,5 +526,7 @@
   "ConnectionInProgress": "Connection in progress",
   "Connected": "Connected",
   "StartIntegration": "Start integration",
-  "Instruction": "Instruction"
+  "Instruction": "Instruction",
+  "BillingIntegrationContextConfirmQuestion": "Do you want to integrate with this billing?",
+  "BillingIntegrationContextNoReturns": "By pressing the \"{buttonValue}\" button, you agree to the integration with this billing. After that, it will be impossible to change the integration manually"
 }
