@@ -10,7 +10,8 @@
 			"canManageProperties": true,
 			"canManageTickets": true,
 			"canManageContacts": true,
-			"canManageTicketComments": true
+			"canManageTicketComments": true,
+			"canShareTickets": true
 		},
 		"Dispatcher": {
 			"name": "employee.role.Dispatcher.name",
@@ -22,7 +23,8 @@
 			"canManageProperties": true,
 			"canManageTickets": true,
 			"canManageContacts": true,
-			"canManageTicketComments": true
+			"canManageTicketComments": true,
+			"canShareTickets": true
 		},
 		"Manager": {
 			"name": "employee.role.Manager.name",
@@ -34,7 +36,8 @@
 			"canManageProperties": true,
 			"canManageTickets": true,
 			"canManageContacts": true,
-			"canManageTicketComments": true
+			"canManageTicketComments": true,
+			"canShareTickets": true
 		},
 		"Foreman": {
 			"name": "employee.role.Foreman.name",
@@ -46,7 +49,8 @@
 			"canManageProperties": false,
 			"canManageTickets": true,
 			"canManageContacts": false,
-			"canManageTicketComments": true
+			"canManageTicketComments": true,
+			"canShareTickets": true
 		},
 		"Technician": {
 			"name": "employee.role.Technician.name",
@@ -58,56 +62,8 @@
 			"canManageProperties": false,
 			"canManageTickets": true,
 			"canManageContacts": false,
-			"canManageTicketComments": true
+			"canManageTicketComments": true,
+			"canShareTickets": true
 		}
-	},
-	"statuses": {
-		"types": [
-			{
-				"type": "OPEN",
-				"name": "ticket.status.OPEN.name"
-			},
-			{
-				"type": "IN_PROGRESS",
-				"name": "ticket.status.IN_PROGRESS.name"
-			},
-			{
-				"type": "DECLINED",
-				"name": "ticket.status.DECLINED.name"
-			},
-			{
-				"type": "COMPLETED",
-				"name": "ticket.status.COMPLETED.name"
-			},
-			{
-				"type": "DEFERRED",
-				"name": "ticket.status.DEFERRED.name"
-			},
-			{
-				"type": "CLOSED",
-				"name": "ticket.status.CLOSED.name"
-			}
-		],
-		"transitions": {
-			"OPEN": [
-				"IN_PROGRESS",
-				"DECLINED"
-			],
-			"IN_PROGRESS": [
-				"DEFERRED",
-				"COMPLETED",
-				"OPEN",
-				"DECLINED"
-			],
-			"COMPLETED": [
-				"OPEN",
-				"CLOSED"
-			],
-			"DECLINED": [],
-			"DEFERRED": [
-				"OPEN"
-			]
-		}
-	},
-	"classifiers": {}
+	}
 }
