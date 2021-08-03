@@ -167,6 +167,15 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             >
                 {({ handleSave, isLoading, form }) => (
                     <>
+                        <Prompt
+                            title={PromptTitle}
+                            form={form}
+                            handleSave={handleSave}
+                        >
+                            <Typography.Paragraph>
+                                {PromptHelpMessage}
+                            </Typography.Paragraph>
+                        </Prompt>
                         <Col span={13}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
@@ -380,15 +389,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 </Form.Item>
                             </Row>
                         </Col>
-                        <Prompt
-                            title={PromptTitle}
-                            form={form}
-                            handleSave={handleSave}
-                        >
-                            <Typography.Paragraph>
-                                {PromptHelpMessage}
-                            </Typography.Paragraph>
-                        </Prompt>
                         {props.children({ handleSave, isLoading, form })}
                     </>
                 )}
