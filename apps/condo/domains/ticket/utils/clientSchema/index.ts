@@ -8,6 +8,9 @@ export * as TicketStatus from './TicketStatus'
 export * as TicketChange from './TicketChange'
 export * as TicketFile from './TicketFile'
 export * as TicketClassifier from './TicketClassifier'
-
+export * as TicketPlaceClassifier from './TicketPlaceClassifier'
+export * as TicketCategoryClassifier from './TicketCategoryClassifier'
+export * as TicketDescriptionClassifier from './TicketDescriptionClassifier'
+export * as TicketClassifierRule from './TicketClassifierRule'
 export * as TicketComment from './TicketComment'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

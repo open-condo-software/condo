@@ -10,8 +10,8 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { TICKET_STATUS_TYPES } = require('../../constants')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
-const { 
-    TicketStatus: TicketStatusGQL, 
+const {
+    TicketStatus: TicketStatusGQL,
     TicketChange: TicketChangeGQL,
     TicketSource: TicketSourceGQL,
     TicketFile: TicketFileGQL
@@ -21,6 +21,10 @@ const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
 const { GET_ALL_RESIDENT_TICKETS_QUERY } = require('@condo/domains/ticket/gql')
 const { UPDATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
+const { TicketPlaceClassifier: TicketPlaceClassifierGQL } = require('@condo/domains/ticket/gql')
+const { TicketCategoryClassifier: TicketCategoryClassifierGQL } = require('@condo/domains/ticket/gql')
+const { TicketDescriptionClassifier: TicketDescriptionClassifierGQL } = require('@condo/domains/ticket/gql')
+const { TicketClassifierRule: TicketClassifierRuleGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -34,6 +38,10 @@ const TicketChange = generateGQLTestUtils(TicketChangeGQL)
 const TicketSource = generateGQLTestUtils(TicketSourceGQL)
 const TicketClassifier = generateGQLTestUtils(TicketClassifierGQL)
 const TicketComment = generateGQLTestUtils(TicketCommentGQL)
+const TicketPlaceClassifier = generateGQLTestUtils(TicketPlaceClassifierGQL)
+const TicketCategoryClassifier = generateGQLTestUtils(TicketCategoryClassifierGQL)
+const TicketDescriptionClassifier = generateGQLTestUtils(TicketDescriptionClassifierGQL)
+const TicketClassifierRule = generateGQLTestUtils(TicketClassifierRuleGQL)
 const ResidentTicket = generateGQLTestUtils(ResidentTicketGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -223,6 +231,130 @@ async function updateTestTicketComment (client, id, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await TicketComment.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestTicketPlaceClassifier (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestTicketPlaceClassifier logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketPlaceClassifier.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketPlaceClassifier (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestTicketPlaceClassifier logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketPlaceClassifier.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestTicketCategoryClassifier (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestTicketCategoryClassifier logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketCategoryClassifier.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketCategoryClassifier (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestTicketCategoryClassifier logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketCategoryClassifier.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestTicketDescriptionClassifier (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestTicketDescriptionClassifier logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketDescriptionClassifier.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketDescriptionClassifier (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestTicketDescriptionClassifier logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketDescriptionClassifier.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestTicketClassifierRule (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestTicketClassifierRule logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketClassifierRule.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketClassifierRule (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestTicketClassifierRule logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketClassifierRule.update(client, id, attrs)
     return [obj, attrs]
 }
 

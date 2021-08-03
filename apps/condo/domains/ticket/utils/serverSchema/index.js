@@ -12,6 +12,10 @@ const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
 const { TicketFile: TicketFileGQL } = require('@condo/domains/ticket/gql')
 const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
+const { TicketPlaceClassifier: TicketPlaceClassifierGQL } = require('@condo/domains/ticket/gql')
+const { TicketCategoryClassifier: TicketCategoryClassifierGQL } = require('@condo/domains/ticket/gql')
+const { TicketDescriptionClassifier: TicketDescriptionClassifierGQL } = require('@condo/domains/ticket/gql')
+const { TicketClassifierRule: TicketClassifierRuleGQL } = require('@condo/domains/ticket/gql')
 const { CREATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 const { GET_ALL_RESIDENT_TICKETS_QUERY } = require('@condo/domains/ticket/gql')
 const { UPDATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
@@ -67,6 +71,11 @@ async function updateResidentTicket (context, data) {
     })
 }
 
+const TicketPlaceClassifier = generateServerUtils(TicketPlaceClassifierGQL)
+const TicketCategoryClassifier = generateServerUtils(TicketCategoryClassifierGQL)
+const TicketDescriptionClassifier = generateServerUtils(TicketDescriptionClassifierGQL)
+const TicketClassifierRule = generateServerUtils(TicketClassifierRuleGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -77,6 +86,10 @@ module.exports = {
     TicketFile,
     TicketClassifier,
     TicketComment,
+    TicketPlaceClassifier,
+    TicketCategoryClassifier,
+    TicketDescriptionClassifier,
+    TicketClassifierRule,
     createResidentTicket,
     getAllResidentTickets,
     updateResidentTicket,
