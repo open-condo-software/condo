@@ -37,6 +37,7 @@ import { useImporterFunctions } from '@condo/domains/property/hooks/useImporterF
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import CreatePropertyPage from './create'
 
 const PropertyPageViewMap = (): React.FC => {
     const userOrganization = useOrganization()
@@ -261,38 +262,37 @@ const PropertyPage = (): React.FC => {
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
-                    <PageContent>
-                        <Row gutter={[0, 40]} align={'top'} style={{ zIndex: 1, position: 'relative' }}>
-                            <Col span={6} >
-                                <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>
-                                    {PageTitleMessage}
-                                </Typography.Title>} />
-                            </Col>
-                            <Col span={6} push={12} align={'right'} style={{ top: 10 }}>
-                                <Radio.Group className={'sberRadioGroup'} value={viewMode} buttonStyle="outline" onChange={e => changeViewMode(e.target.value)}>
-                                    <Radio.Button value="list">{ShowTable}</Radio.Button>
-                                    <Radio.Button value="map">{ShowMap}</Radio.Button>
-                                </Radio.Group>
-                            </Col>
-                            <Col span={24}>
-                                {
-                                    viewMode !== 'map' ? <PropertyPageViewTable /> : null
-                                }
-                            </Col>
-                        </Row>
-                        <>
+                <PageContent>
+                    <Row gutter={[0, 40]} align={'top'} style={{ zIndex: 1, position: 'relative' }}>
+                        <Col span={6} >
+                            <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>
+                                {PageTitleMessage}
+                            </Typography.Title>} />
+                        </Col>
+                        <Col span={6} push={12} align={'right'} style={{ top: 10 }}>
+                            <Radio.Group className={'sberRadioGroup'} value={viewMode} buttonStyle="outline" onChange={e => changeViewMode(e.target.value)}>
+                                <Radio.Button value="list">{ShowTable}</Radio.Button>
+                                <Radio.Button value="map">{ShowMap}</Radio.Button>
+                            </Radio.Group>
+                        </Col>
+                        <Col span={24}>
                             {
-                                viewMode === 'map' ? <PropertyPageViewMap /> : null
+                                viewMode !== 'map' ? <PropertyPageViewTable /> : null
                             }
-                        </>
-                    </PageContent>
-                </OrganizationRequired>
+                        </Col>
+                    </Row>
+                    <>
+                        {
+                            viewMode === 'map' ? <PropertyPageViewMap /> : null
+                        }
+                    </>
+                </PageContent>
             </PageWrapper>
         </>
     )
 }
 
 PropertyPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Property' }}/>
+PropertyPage.requiredAccess = OrganizationRequired
 
 export default PropertyPage

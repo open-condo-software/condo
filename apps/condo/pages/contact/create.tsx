@@ -7,11 +7,12 @@ import React from 'react'
 import { CreateContactForm } from '@condo/domains/contact/components/CreateContactForm'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
-interface IPageWithHeaderAction extends React.FC {
+interface ICreateContactPage extends React.FC {
     headerAction?: JSX.Element
+    requiredAccess?: React.FC
 }
 
-const CreateContactPage: IPageWithHeaderAction = () => {
+const CreateContactPage: ICreateContactPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'contact.AddContact' })
 
@@ -21,18 +22,16 @@ const CreateContactPage: IPageWithHeaderAction = () => {
                 <title>{PageTitle}</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
-                    <PageContent>
-                        <Row gutter={[12, 40]}>
-                            <Col span={24}>
-                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitle}</Typography.Title>
-                            </Col>
-                            <Col span={24}>
-                                <CreateContactForm/>
-                            </Col>
-                        </Row>
-                    </PageContent>
-                </OrganizationRequired>
+                <PageContent>
+                    <Row gutter={[12, 40]}>
+                        <Col span={24}>
+                            <Typography.Title level={1} style={{ margin: 0 }}>{PageTitle}</Typography.Title>
+                        </Col>
+                        <Col span={24}>
+                            <CreateContactForm/>
+                        </Col>
+                    </Row>
+                </PageContent>
             </PageWrapper>
         </>
     )
@@ -41,5 +40,6 @@ const CreateContactPage: IPageWithHeaderAction = () => {
 CreateContactPage.headerAction = <ReturnBackHeaderAction
     descriptor={{ id:'pages.condo.contact.PageTitle' }}
     path={'/contact'}/>
+CreateContactPage.requiredAccess = OrganizationRequired
 
 export default CreateContactPage

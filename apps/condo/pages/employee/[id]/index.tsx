@@ -21,7 +21,6 @@ import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
-
 export const EmployeeInfoPage = () => {
     const intl = useIntl()
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
@@ -83,152 +82,150 @@ export const EmployeeInfoPage = () => {
                 <title>{name}</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
-                    <PageContent>
-                        <Row gutter={[0, 40]}>
-                            <Col span={3}>
-                                <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked}/>
-                            </Col>
-                            <Col span={20} push={1}>
-                                <Row gutter={[0, 60]}>
-                                    <Col span={24}>
-                                        <Row gutter={[0, 40]}>
-                                            <Col span={24}>
-                                                <Typography.Title
-                                                    level={1}
-                                                    style={{ margin: 0, fontWeight: 'bold' }}
-                                                >
-                                                    {name}
-                                                </Typography.Title>
-                                                <NotDefinedField
-                                                    showMessage={false}
-                                                    value={get(employee, ['position'])}
-                                                    render={(value) => (
-                                                        <Typography.Title
-                                                            level={2}
-                                                            style={{ margin: '8px 0 0', fontWeight: 400 }}
-                                                        >
-                                                            {value}
-                                                        </Typography.Title>
-                                                    )}
-                                                />
-                                            </Col>
-                                            {isEmployeeReinvitable && (
-                                                <Alert showIcon type='warning' message={
-                                                    <>
-                                                        {EmployeeDidntEnteredMessage}
+                <PageContent>
+                    <Row gutter={[0, 40]}>
+                        <Col span={3}>
+                            <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked}/>
+                        </Col>
+                        <Col span={20} push={1}>
+                            <Row gutter={[0, 60]}>
+                                <Col span={24}>
+                                    <Row gutter={[0, 40]}>
+                                        <Col span={24}>
+                                            <Typography.Title
+                                                level={1}
+                                                style={{ margin: 0, fontWeight: 'bold' }}
+                                            >
+                                                {name}
+                                            </Typography.Title>
+                                            <NotDefinedField
+                                                showMessage={false}
+                                                value={get(employee, ['position'])}
+                                                render={(value) => (
+                                                    <Typography.Title
+                                                        level={2}
+                                                        style={{ margin: '8px 0 0', fontWeight: 400 }}
+                                                    >
+                                                        {value}
+                                                    </Typography.Title>
+                                                )}
+                                            />
+                                        </Col>
+                                        {isEmployeeReinvitable && (
+                                            <Alert showIcon type='warning' message={
+                                                <>
+                                                    {EmployeeDidntEnteredMessage}
                                                         .&nbsp;
-                                                        <EmployeeInviteRetryButton employee={employee}/>
-                                                    </>
-                                                }/>
-                                            )}
-                                            {isEmployeeEditable && (
-                                                <Col span={24}>
-                                                    <label>
-                                                        <Space direction={'horizontal'} size={8}>
-                                                            <Switch
-                                                                onChange={handleEmployeeBlock}
-                                                                defaultChecked={isEmployeeBlocked}
-                                                            />
-                                                            <Typography.Text type='danger' style={{ fontSize: '16px' }}>
-                                                                {BlockUserMessage}
-                                                            </Typography.Text>
-                                                        </Space>
-                                                    </label>
-                                                </Col>
-                                            )}
+                                                    <EmployeeInviteRetryButton employee={employee}/>
+                                                </>
+                                            }/>
+                                        )}
+                                        {isEmployeeEditable && (
                                             <Col span={24}>
-                                                <FrontLayerContainer showLayer={isEmployeeBlocked}>
-                                                    <Row gutter={[0, 24]}>
-                                                        <Col span={3}>
-                                                            <Typography.Text type='secondary'>
-                                                                {PhoneMessage}
-                                                            </Typography.Text>
-                                                        </Col>
-                                                        <Col span={19} push={2}>
-                                                            <NotDefinedField value={get(employee, 'phone')}/>
-                                                        </Col>
-
-                                                        <Col span={3}>
-                                                            <Typography.Text type='secondary'>
-                                                                {RoleMessage}
-                                                            </Typography.Text>
-                                                        </Col>
-                                                        <Col span={19} push={2}>
-                                                            <NotDefinedField
-                                                                value={get(employee, ['role', 'name'])}
-                                                                render={
-                                                                    (roleName) => (
-                                                                        <Tag color='default'>{roleName}</Tag>
-                                                                    )
-                                                                }
-                                                            />
-                                                        </Col>
-
-                                                        <Col span={3}>
-                                                            <Typography.Text type='secondary'>
-                                                                {EmailMessage}
-                                                            </Typography.Text>
-                                                        </Col>
-                                                        <Col span={19} push={2}>
-                                                            <NotDefinedField value={get(employee, 'email')}/>
-                                                        </Col>
-                                                    </Row>
-                                                </FrontLayerContainer>
-                                            </Col>
-                                            {isEmployeeEditable && (
-                                                <Col span={24}>
-                                                    <Space direction={'horizontal'} size={40}>
-                                                        <Link href={`/employee/${employeeId}/update`}>
-                                                            <Button
-                                                                color={'green'}
-                                                                type={'sberPrimary'}
-                                                                secondary
-                                                                icon={<EditFilled />}
-                                                            >
-                                                                {UpdateMessage}
-                                                            </Button>
-                                                        </Link>
-                                                        <Button
-                                                            type='sberDanger'
-                                                            secondary
-                                                            onClick={showConfirm}>
-                                                            <DeleteFilled />
-                                                        </Button>
+                                                <label>
+                                                    <Space direction={'horizontal'} size={8}>
+                                                        <Switch
+                                                            onChange={handleEmployeeBlock}
+                                                            defaultChecked={isEmployeeBlocked}
+                                                        />
+                                                        <Typography.Text type='danger' style={{ fontSize: '16px' }}>
+                                                            {BlockUserMessage}
+                                                        </Typography.Text>
                                                     </Space>
-                                                </Col>
-                                            )}
-                                        </Row>
-                                    </Col>
-                                </Row>
-                            </Col>
-                        </Row>
-                        <Modal
-                            title={
-                                <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
-                                    {ConfirmDeleteTitle}
-                                </Typography.Title>
-                            }
-                            visible={isConfirmVisible}
-                            onCancel={handleCancel}
-                            footer={[
-                                <Button
-                                    key='submit'
-                                    type='sberDanger'
-                                    secondary
-                                    onClick={handleOk}
-                                    style={{ margin: '15px' }}
-                                >
-                                    {DeletePropertyLabel}
-                                </Button>,
-                            ]}
-                        >
-                            <Typography.Text>
-                                {ConfirmDeleteMessage}
-                            </Typography.Text>
-                        </Modal>
-                    </PageContent>
-                </OrganizationRequired>
+                                                </label>
+                                            </Col>
+                                        )}
+                                        <Col span={24}>
+                                            <FrontLayerContainer showLayer={isEmployeeBlocked}>
+                                                <Row gutter={[0, 24]}>
+                                                    <Col span={3}>
+                                                        <Typography.Text type='secondary'>
+                                                            {PhoneMessage}
+                                                        </Typography.Text>
+                                                    </Col>
+                                                    <Col span={19} push={2}>
+                                                        <NotDefinedField value={get(employee, 'phone')}/>
+                                                    </Col>
+
+                                                    <Col span={3}>
+                                                        <Typography.Text type='secondary'>
+                                                            {RoleMessage}
+                                                        </Typography.Text>
+                                                    </Col>
+                                                    <Col span={19} push={2}>
+                                                        <NotDefinedField
+                                                            value={get(employee, ['role', 'name'])}
+                                                            render={
+                                                                (roleName) => (
+                                                                    <Tag color='default'>{roleName}</Tag>
+                                                                )
+                                                            }
+                                                        />
+                                                    </Col>
+
+                                                    <Col span={3}>
+                                                        <Typography.Text type='secondary'>
+                                                            {EmailMessage}
+                                                        </Typography.Text>
+                                                    </Col>
+                                                    <Col span={19} push={2}>
+                                                        <NotDefinedField value={get(employee, 'email')}/>
+                                                    </Col>
+                                                </Row>
+                                            </FrontLayerContainer>
+                                        </Col>
+                                        {isEmployeeEditable && (
+                                            <Col span={24}>
+                                                <Space direction={'horizontal'} size={40}>
+                                                    <Link href={`/employee/${employeeId}/update`}>
+                                                        <Button
+                                                            color={'green'}
+                                                            type={'sberPrimary'}
+                                                            secondary
+                                                            icon={<EditFilled />}
+                                                        >
+                                                            {UpdateMessage}
+                                                        </Button>
+                                                    </Link>
+                                                    <Button
+                                                        type='sberDanger'
+                                                        secondary
+                                                        onClick={showConfirm}>
+                                                        <DeleteFilled />
+                                                    </Button>
+                                                </Space>
+                                            </Col>
+                                        )}
+                                    </Row>
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+                    <Modal
+                        title={
+                            <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
+                                {ConfirmDeleteTitle}
+                            </Typography.Title>
+                        }
+                        visible={isConfirmVisible}
+                        onCancel={handleCancel}
+                        footer={[
+                            <Button
+                                key='submit'
+                                type='sberDanger'
+                                secondary
+                                onClick={handleOk}
+                                style={{ margin: '15px' }}
+                            >
+                                {DeletePropertyLabel}
+                            </Button>,
+                        ]}
+                    >
+                        <Typography.Text>
+                            {ConfirmDeleteMessage}
+                        </Typography.Text>
+                    </Modal>
+                </PageContent>
             </PageWrapper>
         </>
     )
@@ -237,5 +234,6 @@ export const EmployeeInfoPage = () => {
 EmployeeInfoPage.headerAction = <ReturnBackHeaderAction
     descriptor={{ id: 'pages.condo.employee.PageTitle' }}
     path={'/employee/'}/>
+EmployeeInfoPage.requiredAccess = OrganizationRequired
 
 export default EmployeeInfoPage

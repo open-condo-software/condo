@@ -35,11 +35,12 @@ const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, 
 
 }
 
-interface IPageWithHeaderAction extends React.FC {
+interface IPropertyIdPage extends React.FC {
     headerAction?: JSX.Element
+    requiredAccess?: React.FC
 }
 
-const PropertyIdPage: IPageWithHeaderAction = () => {
+const PropertyIdPage: IPropertyIdPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
@@ -61,55 +62,54 @@ const PropertyIdPage: IPageWithHeaderAction = () => {
             <title>{PageTitleMsg}</title>
         </Head>
         <PageWrapper>
-            <OrganizationRequired>
-                <PageContent>
-                    <Row gutter={[12, 40]} align='top'>
-                        <Col span={24}>
-                            <Typography.Title level={1} style={{ margin: 0 }}>{property.address}</Typography.Title>
-                            {
-                                property.name ?
-                                    <Tag style={{ marginTop: '25px', borderColor: 'transparent', backgroundColor: colors.ultraLightGrey }}>{property.name}</Tag> :
-                                    null
-                            }
-                        </Col>
-                    </Row>
-                    <Row gutter={[47, 40]} style={{ marginTop: '40px' }} justify='start'>
-                        <Col flex={0} >
-                            <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} />
-                        </Col>
-                        <Col flex={0}>
-                            <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type='success' />
-                        </Col>
-                        <Col flex={0}>
-                            <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork}  type='warning' />
-                        </Col>
-                    </Row>
-                    <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
-                        <Col span={24}>
-                            <PropertyPanels mode='view' map={property.map} address={property.address} />
-                        </Col>
-                    </Row>
-                    <ActionBar>
-                        <Link href={`/property/${property.id}/update`}>
-                            <span>
-                                <Button
-                                    color={'green'}
-                                    type={'sberPrimary'}
-                                    secondary
-                                    icon={<EditFilled />}
-                                    size={'large'}
-                                >
-                                    {UpdateTitle}
-                                </Button>
-                            </span>
-                        </Link>
-                    </ActionBar>
-                </PageContent>
-            </OrganizationRequired>
+            <PageContent>
+                <Row gutter={[12, 40]} align='top'>
+                    <Col span={24}>
+                        <Typography.Title level={1} style={{ margin: 0 }}>{property.address}</Typography.Title>
+                        {
+                            property.name ?
+                                <Tag style={{ marginTop: '25px', borderColor: 'transparent', backgroundColor: colors.ultraLightGrey }}>{property.name}</Tag> :
+                                null
+                        }
+                    </Col>
+                </Row>
+                <Row gutter={[47, 40]} style={{ marginTop: '40px' }} justify='start'>
+                    <Col flex={0} >
+                        <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} />
+                    </Col>
+                    <Col flex={0}>
+                        <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type='success' />
+                    </Col>
+                    <Col flex={0}>
+                        <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork}  type='warning' />
+                    </Col>
+                </Row>
+                <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
+                    <Col span={24}>
+                        <PropertyPanels mode='view' map={property.map} address={property.address} />
+                    </Col>
+                </Row>
+                <ActionBar>
+                    <Link href={`/property/${property.id}/update`}>
+                        <span>
+                            <Button
+                                color={'green'}
+                                type={'sberPrimary'}
+                                secondary
+                                icon={<EditFilled />}
+                                size={'large'}
+                            >
+                                {UpdateTitle}
+                            </Button>
+                        </span>
+                    </Link>
+                </ActionBar>
+            </PageContent>
         </PageWrapper>
     </>
 }
 
 PropertyIdPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllProperties' }} path={'/property/'}/>
+PropertyIdPage.requiredAccess = OrganizationRequired
 
 export default PropertyIdPage

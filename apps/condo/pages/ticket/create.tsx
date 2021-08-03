@@ -17,21 +17,20 @@ const CreateTicketPage = () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
-                    <PageContent>
-                        <Row gutter={[0, 40]}>
-                            <Col span={24}>
-                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
-                            </Col>
-                            <TicketForm/>
-                        </Row>
-                    </PageContent>
-                </OrganizationRequired>
+                <PageContent>
+                    <Row gutter={[0, 40]}>
+                        <Col span={24}>
+                            <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                        </Col>
+                        <TicketForm/>
+                    </Row>
+                </PageContent>
             </PageWrapper>
         </>
     )
 }
 
 CreateTicketPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllTickets' }} path={'/ticket/'} />
+CreateTicketPage.requiredAccess = OrganizationRequired
 
 export default CreateTicketPage

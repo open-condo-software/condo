@@ -47,8 +47,9 @@ import { filterToQuery, specificationTypes, ticketAnalyticsPageFilters } from '@
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
-interface IPageWithHeaderAction extends React.FC {
+interface ITicketAnalyticsPage extends React.FC {
     headerAction?: JSX.Element
+    requiredAccess?: React.FC
 }
 interface ITicketAnalyticsPageWidgetProps {
     data: null | AnalyticsDataType;
@@ -541,99 +542,97 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
             <title>{PageTitle}</title>
         </Head>
         <PageWrapper>
-            <OrganizationRequired>
-                <PageContent>
-                    <Row gutter={[0, 40]}>
-                        <Col span={18}>
-                            <PageHeader style={{ width: '100%' }} title={<Typography.Title>{PageTitle}</Typography.Title>} />
-                        </Col>
-                        <Col span={6} style={{ textAlign: 'right', marginTop: 4 }}>
-                            <Tooltip title={NotImplementedYetMessage}>
-                                <Button icon={<PlusCircleFilled />} type='sberPrimary' secondary>{HeaderButtonTitle}</Button>
-                            </Tooltip>
-                        </Col>
-                    </Row>
-                    <Row gutter={[0, 20]} align={'top'} justify={'space-between'}>
-                        <Col span={24}>
-                            <Tabs
-                                defaultActiveKey='status'
-                                activeKey={groupTicketsBy}
-                                onChange={(key) => setGroupTicketsBy(key as groupTicketsByTypes)}
+            <PageContent>
+                <Row gutter={[0, 40]}>
+                    <Col span={18}>
+                        <PageHeader style={{ width: '100%' }} title={<Typography.Title>{PageTitle}</Typography.Title>} />
+                    </Col>
+                    <Col span={6} style={{ textAlign: 'right', marginTop: 4 }}>
+                        <Tooltip title={NotImplementedYetMessage}>
+                            <Button icon={<PlusCircleFilled />} type='sberPrimary' secondary>{HeaderButtonTitle}</Button>
+                        </Tooltip>
+                    </Col>
+                </Row>
+                <Row gutter={[0, 20]} align={'top'} justify={'space-between'}>
+                    <Col span={24}>
+                        <Tabs
+                            defaultActiveKey='status'
+                            activeKey={groupTicketsBy}
+                            onChange={(key) => setGroupTicketsBy(key as groupTicketsByTypes)}
+                        >
+                            <Tabs.TabPane key='status' tab={StatusFilterLabel} />
+                            <Tabs.TabPane disabled key='property' tab={PropertyFilterLabel} />
+                            <Tabs.TabPane disabled key='category' tab={CategoryFilterLabel} />
+                            <Tabs.TabPane disabled key='user' tab={UserFilterLabel} />
+                            <Tabs.TabPane disabled key='responsible' tab={ResponsibleFilterLabel} />
+                        </Tabs>
+                    </Col>
+                    <Col span={24}>
+                        <TicketAnalyticsPageFilter onChange={onFilterChange} />
+                        <Divider />
+                    </Col>
+                    <Col span={16}>
+                        <Typography.Title level={3}>
+                            {ViewModeTitle} {selectedPeriod} {addressFilterTitle} {AllCategories}
+                        </Typography.Title>
+                    </Col>
+                    <Col span={4} style={{ textAlign: 'right', flexWrap: 'nowrap' }}>
+                        <RadioGroupWithIcon
+                            value={viewMode}
+                            size='small'
+                            buttonStyle='outline'
+                            onChange={(e) => setViewMode(e.target.value)}>
+                            <Radio.Button value='line'>
+                                <LinearChartIcon height={32} width={24} />
+                            </Radio.Button>
+                            <Radio.Button value='bar'>
+                                <BarChartIcon height={32} width={24} />
+                            </Radio.Button>
+                        </RadioGroupWithIcon>
+                    </Col>
+                    <Col span={24}>
+                        {useMemo(() => (
+                            <TicketAnalyticsPageChartView
+                                data={analyticsData}
+                                loading={loading}
+                                viewMode={viewMode}
+                                animationEnabled
                             >
-                                <Tabs.TabPane key='status' tab={StatusFilterLabel} />
-                                <Tabs.TabPane disabled key='property' tab={PropertyFilterLabel} />
-                                <Tabs.TabPane disabled key='category' tab={CategoryFilterLabel} />
-                                <Tabs.TabPane disabled key='user' tab={UserFilterLabel} />
-                                <Tabs.TabPane disabled key='responsible' tab={ResponsibleFilterLabel} />
-                            </Tabs>
-                        </Col>
-                        <Col span={24}>
-                            <TicketAnalyticsPageFilter onChange={onFilterChange} />
-                            <Divider />
-                        </Col>
-                        <Col span={16}>
-                            <Typography.Title level={3}>
-                                {ViewModeTitle} {selectedPeriod} {addressFilterTitle} {AllCategories}
-                            </Typography.Title>
-                        </Col>
-                        <Col span={4} style={{ textAlign: 'right', flexWrap: 'nowrap' }}>
-                            <RadioGroupWithIcon
-                                value={viewMode}
-                                size='small'
-                                buttonStyle='outline'
-                                onChange={(e) => setViewMode(e.target.value)}>
-                                <Radio.Button value='line'>
-                                    <LinearChartIcon height={32} width={24} />
-                                </Radio.Button>
-                                <Radio.Button value='bar'>
-                                    <BarChartIcon height={32} width={24} />
-                                </Radio.Button>
-                            </RadioGroupWithIcon>
-                        </Col>
-                        <Col span={24}>
-                            {useMemo(() => (
-                                <TicketAnalyticsPageChartView
-                                    data={analyticsData}
-                                    loading={loading}
-                                    viewMode={viewMode}
-                                    animationEnabled
+                                <Select
+                                    value={ticketType}
+                                    onChange={(e) => setTicketType(e)}
+                                    style={{ position: 'absolute', top: 0, right: 0, minWidth: '132px' }}
+                                    disabled={loading}
                                 >
-                                    <Select
-                                        value={ticketType}
-                                        onChange={(e) => setTicketType(e)}
-                                        style={{ position: 'absolute', top: 0, right: 0, minWidth: '132px' }}
-                                        disabled={loading}
-                                    >
-                                        <Select.Option value='all'>{TicketTypeAll}</Select.Option>
-                                        <Select.Option value='default'>{TicketTypeDefault}</Select.Option>
-                                        <Select.Option value='paid'>{TicketTypePaid}</Select.Option>
-                                        <Select.Option value='emergency'>{TicketTypeEmergency}</Select.Option>
-                                    </Select>
-                                </TicketAnalyticsPageChartView>
-                            ), [analyticsData, loading, viewMode, ticketType])}
-                        </Col>
-                        <Col span={24}>
-                            <Typography.Title level={4} style={{ marginBottom: 20 }}>{TableTitle}</Typography.Title>
-                            {useMemo(() => (
-                                <TicketAnalyticsPageListView
-                                    data={analyticsData}
-                                    loading={loading}
-                                    viewMode={viewMode}
-                                    filters={filtersRef.current}
-                                />
-                            ), [analyticsData, loading, viewMode])}
-                        </Col>
-                        <ActionBar fullscreen>
-                            <Button onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
-                                {PrintTitle}
-                            </Button>
-                            <Tooltip title={NotImplementedYetMessage}>
-                                <Button icon={<EditFilled />} type='sberPrimary' secondary>{ExcelTitle}</Button>
-                            </Tooltip>
-                        </ActionBar>
-                    </Row>
-                </PageContent>
-            </OrganizationRequired>
+                                    <Select.Option value='all'>{TicketTypeAll}</Select.Option>
+                                    <Select.Option value='default'>{TicketTypeDefault}</Select.Option>
+                                    <Select.Option value='paid'>{TicketTypePaid}</Select.Option>
+                                    <Select.Option value='emergency'>{TicketTypeEmergency}</Select.Option>
+                                </Select>
+                            </TicketAnalyticsPageChartView>
+                        ), [analyticsData, loading, viewMode, ticketType])}
+                    </Col>
+                    <Col span={24}>
+                        <Typography.Title level={4} style={{ marginBottom: 20 }}>{TableTitle}</Typography.Title>
+                        {useMemo(() => (
+                            <TicketAnalyticsPageListView
+                                data={analyticsData}
+                                loading={loading}
+                                viewMode={viewMode}
+                                filters={filtersRef.current}
+                            />
+                        ), [analyticsData, loading, viewMode])}
+                    </Col>
+                    <ActionBar fullscreen>
+                        <Button onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
+                            {PrintTitle}
+                        </Button>
+                        <Tooltip title={NotImplementedYetMessage}>
+                            <Button icon={<EditFilled />} type='sberPrimary' secondary>{ExcelTitle}</Button>
+                        </Tooltip>
+                    </ActionBar>
+                </Row>
+            </PageContent>
         </PageWrapper>
     </>
 }
@@ -650,6 +649,7 @@ const HeaderAction = () => {
 }
 
 TicketAnalyticsPage.headerAction = <HeaderAction />
+TicketAnalyticsPage.requiredAccess = OrganizationRequired
 TicketAnalyticsPage.whyDidYouRender = false
 
 

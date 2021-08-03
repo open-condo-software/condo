@@ -12,15 +12,17 @@ import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderA
 import { useState } from 'react'
 import { Loader } from '../../domains/common/components/Loader'
 import { css, jsx } from '@emotion/core'
-interface IPageWithHeaderAction extends React.FC {
+import CreatePropertyPage from '../property/create'
+interface ICreateEmployeePage extends React.FC {
     headerAction?: JSX.Element
+    requiredAccess?: React.FC
 }
 const CardCss = css`
     width: 300px;
     height: fit-content;
     ${shadows.cardShadow}
 `
-const CreateEmployeePage: IPageWithHeaderAction = () => {
+const CreateEmployeePage: ICreateEmployeePage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'employee.AddEmployee' })
 
@@ -37,30 +39,28 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
-                    <PageContent>
-                        <Row gutter={[12, 40]}>
-                            <Col span={24}>
-                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
-                            </Col>
-                            <Col span={10}>
-                                <CreateEmployeeForm onRoleSelect={(role) => setSelectedRole(role)} />
-                            </Col>
-                            {roleTranslations ? <Card
-                                title={roleTranslations.title}
-                                bordered={false}
-                                css={CardCss}
-                                headStyle={{
-                                    color: colors.lightGrey[10],
-                                    fontSize: 24,
-                                    fontWeight: 'bold',
-                                }}
-                            >
-                                {roleTranslations.description}
-                            </Card> : <Loader />}
-                        </Row>
-                    </PageContent>
-                </OrganizationRequired>
+                <PageContent>
+                    <Row gutter={[12, 40]}>
+                        <Col span={24}>
+                            <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                        </Col>
+                        <Col span={10}>
+                            <CreateEmployeeForm onRoleSelect={(role) => setSelectedRole(role)} />
+                        </Col>
+                        {roleTranslations ? <Card
+                            title={roleTranslations.title}
+                            bordered={false}
+                            css={CardCss}
+                            headStyle={{
+                                color: colors.lightGrey[10],
+                                fontSize: 24,
+                                fontWeight: 'bold',
+                            }}
+                        >
+                            {roleTranslations.description}
+                        </Card> : <Loader />}
+                    </Row>
+                </PageContent>
             </PageWrapper>
         </>
     )
@@ -72,5 +72,6 @@ CreateEmployeePage.headerAction = (
         path={'/employee/'}
     />
 )
+CreateEmployeePage.requiredAccess = OrganizationRequired
 
 export default CreateEmployeePage

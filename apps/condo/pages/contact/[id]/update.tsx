@@ -22,11 +22,9 @@ const ContactUpdatePage = () => {
                 </title>
             </Head>
             <PageWrapper>
-                <OrganizationRequired>
-                    <PageContent>
-                        <EditContactForm/>
-                    </PageContent>
-                </OrganizationRequired>
+                <PageContent>
+                    <EditContactForm/>
+                </PageContent>
             </PageWrapper>
         </>
     )
@@ -48,5 +46,6 @@ const HeaderAction = () => {
 }
 
 ContactUpdatePage.headerAction = <HeaderAction/>
+ContactUpdatePage.requiredAccess = OrganizationRequired
 
 export default ContactUpdatePage
