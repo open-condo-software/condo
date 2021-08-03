@@ -16,7 +16,10 @@ const { STATUS_SELECT_COLORS } = require('@condo/domains/ticket/constants/style'
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketStatus, createTestTicketStatus, updateTestTicketStatus } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
+const { getTranslations, getAvailableLocales } = require('@condo/domains/common/utils/localesLoader')
+const { STATUS_IDS } = require('../constants/statusTransitions')
+const { find } = require('@core/keystone/schema')
 
 describe('TicketStatus', () => {
     test('admin: create TicketStatus', async () => {
@@ -190,6 +193,29 @@ describe('TicketStatus', () => {
         const client = await makeClient()
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await TicketStatus.delete(client, objCreated.id)
+        })
+    })
+    
+    test.each(getAvailableLocales())('localization [%s]: static statuses correctly localized', async (locale) => {
+        const translations = getTranslations(locale)
+
+        const admin = await makeLoggedInAdminClient({
+            headers: {
+                'Accept-Language': locale,
+            },
+        })
+
+        const statuses = await TicketStatus.getAll(admin)
+        expect(statuses.length).toBeGreaterThanOrEqual(6)
+
+        const rawStatuses = await find('TicketStatus', {})
+
+        Object.entries(STATUS_IDS).forEach(([key, id]) => {
+            const rawStatus = rawStatuses.find(x => x.id === id)
+            const status = statuses.find(x => x.id === id)
+            expect(rawStatus).toBeDefined()
+            expect(translations[rawStatus.name]).toBeDefined()
+            expect(translations[rawStatus.name]).toStrictEqual(status.name)
         })
     })
 })
