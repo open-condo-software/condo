@@ -5,12 +5,11 @@ const octokit = new Octokit({
 const AVAILABLE_TASK_TYPES = ['SBERDOMA']
 
 export const getPullRequestMessage = (link, userName, users) => (`
-******************************
-Pull request opened.
-Author: ${userName}.
+---------------------------------
+${userName} opened a pull request.
+${link}.
 ${users.map(([userName]) => `@${userName}`).join(', ')}
-Link: ${link}.
-******************************
+---------------------------------
 `)
 
 export const getFormattedCommits = (commits) => {
@@ -57,6 +56,10 @@ export const getCommitsFromRange = async (lastCommitSha: string, firstCommitSha?
         while (!isLastCommitFound && !isFirstCommitFound) {
             const response = await fetchCommitsList(page, 100)
 
+            if (response.data.length === 0) {
+                break
+            }
+
             response.data.forEach(({ sha, commit }) => {
                 if (sha === firstCommitSha) {
                     isFirstCommitFound = true
@@ -77,6 +80,10 @@ export const getCommitsFromRange = async (lastCommitSha: string, firstCommitSha?
     } else {
         while (!isLastCommitFound) {
             const response = await fetchCommitsList(page, 100)
+
+            if (response.data.length === 0) {
+                break
+            }
 
             response.data.forEach(({ sha, commit }) => {
                 if (sha !== lastCommitSha) {
