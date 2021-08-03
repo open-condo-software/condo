@@ -9,6 +9,7 @@ const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.uti
 const { createResidentTicketByTestClient } = require('@condo/domains/ticket/utils/testSchema')
 const { UUID_RE } = require('@core/keystone/test.utils')
 const faker = require('faker')
+const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
@@ -29,7 +30,7 @@ describe('CreateResidentTicketService', () => {
             await createResidentTicketByTestClient(userClient, userClient.property, { unitName: faker.random.alphaNumeric(10) })
         } catch (error) {
             expect(error.errors).toHaveLength(1)
-            expect(error.errors[0].message).toEqual('unitName is wrong')
+            expect(error.errors[0].message).toEqual(`${NOT_FOUND_ERROR}unitName] unitName not found`)
         }
     })
 
@@ -56,7 +57,7 @@ describe('CreateResidentTicketService', () => {
             await createResidentTicketByTestClient(userClient, wrongProperty)
         } catch (error) {
             expect(error.errors).toHaveLength(1)
-            expect(error.errors[0].message).toEqual('In our system there is no property with this id')
+            expect(error.errors[0].message).toEqual(`${NOT_FOUND_ERROR}property] property not found`)
         }
     })
 
