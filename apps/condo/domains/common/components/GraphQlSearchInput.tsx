@@ -6,7 +6,7 @@ import { Select, SelectProps } from 'antd'
 import { ApolloClient } from '@apollo/client'
 
 // TODO: add apollo cache shape typings
-interface ISearchInputProps extends SelectProps {
+interface ISearchInputProps extends SelectProps<string> {
     search: (client: ApolloClient<Record<string, unknown>>, queryArguments: string) => Promise<Array<Record<string, unknown>>>
     onSelect?: (...args: Array<unknown>) => void
     onChange?: (...args: Array<unknown>) => void
@@ -20,7 +20,6 @@ interface ISearchInputProps extends SelectProps {
     autoFocus?: boolean
     initialValue?: string
     formatLabel?: (option: { value: string, text: string }) => JSX.Element
-    maxTagCount?: 'responsive' | number
 }
 
 export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {

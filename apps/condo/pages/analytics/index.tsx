@@ -418,7 +418,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                             mode={'multiple'}
                             value={addressList}
                             onChange={onAddressChange}
-                            maxTagCount={'responsive' as const}
+                            maxTagCount='responsive'
                             placeholder={AllAddressesPlaceholder}
                         />
                     </Form.Item>
