@@ -279,6 +279,8 @@
   "pages.condo.ticket.title.ClientInfo": "Client information",
   "pages.condo.ticket.title.TicketInfo": "Task information",
   "pages.condo.ticket.title.UserInfo": "Resident information",
+  "pages.condo.ticket.warning.modal.Title": "Do not save ticket?",
+  "pages.condo.ticket.warning.modal.HelpMessage": "Ticket will not be saved if you leave the page. \n Sorry",
   "pages.condo.ticket.title.TicketChanges": "Change log of the ticket",
   "pages.condo.ticket.title.TicketFromResident": "Ticket from resident",
   "pages.condo.ticket.title.TicketNotFromResident": "Ticket not from resident",
