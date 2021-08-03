@@ -22,8 +22,7 @@ describe('RegisterResidentService', () => {
         expect(obj.v).toEqual(1)
         expect(obj.address).toEqual(attrs.address)
         expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
-        const [resident] = await Resident.getAll(userClient, { id: obj.id })
-        expect(resident.user.id).toEqual(userClient.user.id)
+        expect(obj.user.id).toEqual(userClient.user.id)
     })
 
     test('cannot be executed by user', async () => {
@@ -49,8 +48,7 @@ describe('RegisterResidentService', () => {
         expect(obj.v).toEqual(1)
         expect(obj.address).toEqual(attrs.address)
         expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
-        const [resident] = await Resident.getAll(adminClient, { id: obj.id })
-        expect(resident.user.id).toEqual(adminClient.user.id)
+        expect(obj.user.id).toEqual(adminClient.user.id)
     })
 
     it('connects property with matched address to resident', async () => {
@@ -71,10 +69,9 @@ describe('RegisterResidentService', () => {
         expect(obj.v).toEqual(1)
         expect(obj.address).toEqual(attrs.address)
         expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
-        const [resident] = await Resident.getAll(adminClient, { id: obj.id })
-        expect(resident.user.id).toEqual(adminClient.user.id)
-        expect(resident.property.id).toEqual(property.id)
-        expect(resident.organization.id).toEqual(organization.id)
+        expect(obj.user.id).toEqual(adminClient.user.id)
+        expect(obj.property.id).toEqual(property.id)
+        expect(obj.organization.id).toEqual(organization.id)
     })
 
     test('cannot be executed for staff', async () => {

@@ -15,7 +15,7 @@ const Resident = generateGqlQueries('Resident', RESIDENT_FIELDS)
 
 const REGISTER_RESIDENT_MUTATION = gql`
     mutation registerResident ($data: RegisterResidentInput!) {
-        result: registerResident(data: $data) { id v dv sender address addressMeta unitName }
+        result: registerResident(data: $data) ${RESIDENT_FIELDS}
     }
 `
 /* AUTOGENERATE MARKER <CONST> */
