@@ -3,13 +3,14 @@ import { Modal, Typography, FormInstance } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { Button } from '@condo/domains/common/components/Button'
-import isEqual from 'lodash/isEqual'
+import { isEqual, pick } from 'lodash'
 
 interface IPromptProps {
     title: string
     form: FormInstance<unknown>
     handleSave: () => void
 }
+
 
 const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: formSubmit }) => {
     const intl = useIntl()
@@ -32,17 +33,20 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
         hideModal()
         formSubmit()
     }
+    // TODO(zuch): find a solution to watch for file changes and contact changes
+    // as they are using custom hooks and their fields do not present on initial form state
     const isFormChanged = () => {
-        return !isEqual(initialFormState.current, form.getFieldsValue())
+        const newFormFields = pick(form.getFieldsValue(), Object.keys(initialFormState.current))
+        return !isEqual(initialFormState.current, newFormFields)
     }
     useEffect(() => {
         initialFormState.current = form.getFieldsValue()
         // Todo(zuch): find a better way to turn off Prompt on form submit
-        const oldFormSubmit = form.submit 
+        const oldFormSubmit = form.submit
         form.submit = () => {
             isIgnoringPrompt.current = true
             oldFormSubmit.call(form)
-        }        
+        }
         const onRouteChange = url => {
             if (!isIgnoringPrompt.current) {
                 if (isFormChanged()) {
