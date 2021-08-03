@@ -37,7 +37,11 @@ import RadioGroupWithIcon, { radioButtonBorderlessCss } from '@condo/domains/com
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import DateRangePicker from '@condo/domains/common/components/DateRangePicker'
-import TicketChart, { viewModeTypes, AnalyticsDataType } from '@condo/domains/ticket/components/TicketChart'
+import TicketChart, {
+    viewModeTypes,
+    AnalyticsDataType,
+    ticketSelectTypes,
+} from '@condo/domains/ticket/components/TicketChart'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { filterToQuery, specificationTypes, ticketAnalyticsPageFilters } from '@condo/domains/ticket/utils/helpers'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
@@ -78,7 +82,7 @@ const DATE_RANGE_PRESETS = {
     year: [moment().subtract(1, 'year'), moment()],
 }
 type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
-type ticketSelectTypes = 'all' | 'default' | 'paid' | 'emergency'
+
 const DATE_DISPLAY_FORMAT = 'DD.MM.YYYY'
 const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5], colors.volcano[5], colors.purple[5],
     colors.lime[7], colors.sberGrey[7], colors.magenta[5], colors.blue[4], colors.gold[6], colors.cyan[6],
@@ -498,25 +502,8 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const getAnalyticsData = () => {
         if (filtersRef.current !== null) {
             setLoading(true)
-            const groupBy = []
-            if (viewMode === 'line') {
-                groupBy.push(...['status', filtersRef.current.specification])
-            } else {
-                groupBy.push(...['status', 'property'])
-            }
-
-            const where = {
-                organization: { id: userOrganizationId },
-                AND: [...filterToQuery(filtersRef.current)],
-            }
-
-            if (ticketType !== 'all') {
-                where.AND.push(...[
-                    { isEmergency: ticketType === 'emergency' },
-                    { isPaid: ticketType === 'paid' },
-                ])
-            }
-
+            const { AND, groupBy } = filterToQuery(filtersRef.current, viewMode, ticketType)
+            const where = { organization: { id: userOrganizationId }, AND }
             loadTicketAnalytics({ variables: { data: { groupBy, where } } })
         }
     }

@@ -475,7 +475,7 @@ describe('Helpers', () => {
                     id: randomUUID(),
                     value: 'property address',
                 }
-                const selectedRange: [Moment, Moment] = [moment().subtract(1, 'week'), moment()]
+                const selectedRange: [Moment, Moment] = [moment().subtract(1, 'week').startOf('day'), moment().endOf('day')]
 
                 it('filter contains property', () => {
                     const filter: ticketAnalyticsPageFilters = {
@@ -483,11 +483,16 @@ describe('Helpers', () => {
                         addressList: [property],
                         specification: 'day',
                     }
-                    expect(filterToQuery(filter)).toStrictEqual([
-                        { createdAt_gte: selectedRange[0].toISOString() },
-                        { createdAt_lte: selectedRange[1].toISOString() },
-                        { property: { id_in: [property.id] } },
-                    ])
+                    const expectedResult = {
+                        AND: [
+                            { createdAt_gte: selectedRange[0].toISOString() },
+                            { createdAt_lte: selectedRange[1].toISOString() },
+                            { property: { id_in: [property.id] } },
+                        ],
+                        groupBy: ['status', 'day'],
+                    }
+
+                    expect(filterToQuery(filter, 'line', 'all')).toStrictEqual(expectedResult)
                 })
 
                 it('filter not contains property', () => {
@@ -496,10 +501,50 @@ describe('Helpers', () => {
                         specification: 'day',
                         addressList: [],
                     }
-                    expect(filterToQuery(filter)).toStrictEqual([
-                        { createdAt_gte: selectedRange[0].toISOString() },
-                        { createdAt_lte: selectedRange[1].toISOString() },
-                    ])
+                    const expectedResult = {
+                        AND: [
+                            { createdAt_gte: selectedRange[0].toISOString() },
+                            { createdAt_lte: selectedRange[1].toISOString() },
+                        ],
+                        groupBy: ['status', 'day'],
+                    }
+                    expect(filterToQuery(filter, 'line', 'all')).toStrictEqual(expectedResult)
+                })
+
+                it('filter with emergency ticket type',  () => {
+                    const filter: ticketAnalyticsPageFilters = {
+                        range: selectedRange,
+                        specification: 'day',
+                        addressList: [],
+                    }
+                    const expectedResult = {
+                        AND: [
+                            { createdAt_gte: selectedRange[0].toISOString() },
+                            { createdAt_lte: selectedRange[1].toISOString() },
+                            { isEmergency: true },
+                            { isPaid: false },
+                        ],
+                        groupBy: ['status', 'day'],
+                    }
+                    expect(filterToQuery(filter, 'line', 'emergency')).toStrictEqual(expectedResult)
+                })
+
+                it('filter with paid ticket type',  () => {
+                    const filter: ticketAnalyticsPageFilters = {
+                        range: selectedRange,
+                        specification: 'day',
+                        addressList: [],
+                    }
+                    const expectedResult = {
+                        AND: [
+                            { createdAt_gte: selectedRange[0].toISOString() },
+                            { createdAt_lte: selectedRange[1].toISOString() },
+                            { isEmergency: false },
+                            { isPaid: true },
+                        ],
+                        groupBy: ['status', 'day'],
+                    }
+                    expect(filterToQuery(filter, 'line', 'paid')).toStrictEqual(expectedResult)
                 })
             })
         })

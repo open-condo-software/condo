@@ -1,5 +1,5 @@
 import { TableColumnsType, TableProps } from 'antd'
-
+export type ticketSelectTypes = 'all' | 'default' | 'paid' | 'emergency'
 export type viewModeTypes = 'bar' | 'line' | 'pie'
 interface IGetChartConfig {
     (viewMode: viewModeTypes, data: AnalyticsDataType): {
