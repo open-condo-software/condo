@@ -530,5 +530,7 @@
   "StartIntegration": "Start integration",
   "Instruction": "Instruction",
   "BillingIntegrationContextConfirmQuestion": "Do you want to integrate with this billing?",
-  "BillingIntegrationContextNoReturns": "By pressing the \"{buttonValue}\" button, you agree to the integration with this billing. After that, it will be impossible to change the integration manually"
+  "BillingIntegrationContextNoReturns": "By pressing the \"{buttonValue}\" button, you agree to the integration with this billing. After that, it will be impossible to change the integration manually",
+  "AnotherContextAlreadyCreated": "You've already connected to another integration. To change the current one, contact support of \"{companyName}\"",
+  "ContextAlreadyCreated": "You've already connected to integration"
 }
