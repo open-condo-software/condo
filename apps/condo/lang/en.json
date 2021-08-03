@@ -138,6 +138,7 @@
   "OperationCompleted": "Operation completed",
   "Owner": "Owner",
   "pages.auth.AlreadyRegistered": "Already registered",
+  "pages.auth.register.error.smstimeout": "The next SMS can be sent in {timeRemain} s",
   "pages.auth.ChangePasswordTitle": "Change password",
   "pages.auth.EmailIsAlreadyRegistered": "This email is already registered!",
   "pages.auth.EmailIsNoFound": "Email is not found",
