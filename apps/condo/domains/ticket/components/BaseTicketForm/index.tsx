@@ -22,6 +22,7 @@ import { useOrganization } from '@core/next/organization'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import { InputWithCounter } from '@condo/domains/common/components/InputWithCounter'
+import Prompt from '@condo/domains/common/components/Prompt'
 
 const { TabPane } = Tabs
 
@@ -68,6 +69,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
     const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
+    const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
+    const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
 
     const { action: _action, initialValues, organization, afterActionCompleted, files } = props
     const validations = useTicketValidations()
@@ -377,6 +380,15 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 </Form.Item>
                             </Row>
                         </Col>
+                        <Prompt
+                            title={PromptTitle}
+                            form={form}
+                            handleSave={handleSave}
+                        >
+                            <Typography.Paragraph>
+                                {PromptHelpMessage}
+                            </Typography.Paragraph>
+                        </Prompt>
                         {props.children({ handleSave, isLoading, form })}
                     </>
                 )}
