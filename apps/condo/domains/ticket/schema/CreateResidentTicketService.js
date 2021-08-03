@@ -6,6 +6,7 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Ticket } = require('../utils/serverSchema')
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/CreateResidentTicketService')
+const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
 
 const TICKET_MOBILE_SOURCE_ID = '3068d49a-a45c-4c3a-a02d-ea1a53e1febb'
@@ -36,10 +37,10 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                 const { data } = args
                 const { dv: newTicketDv, sender: newTicketSender, details, propertyId, unitName } = data
                 const [property] = await Property.getAll(context, { id: propertyId })
-                if (!property) throw Error('In our system there is no property with this id')
+                if (!property) throw Error(`${NOT_FOUND_ERROR}property] property not found`)
                 const organizationId = property.organization?.id
                 const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
-                if (unitName && (!sectionName || !floorName)) throw Error('unitName is wrong')
+                if (unitName && (!sectionName || !floorName)) throw Error(`${NOT_FOUND_ERROR}unitName] unitName not found`)
                 const user = context?.req?.user
 
                 const [contact] = await Contact.getAll(context, {
