@@ -1,7 +1,10 @@
 import styled from '@emotion/styled'
 import { Tooltip } from 'antd'
+import { gql } from 'graphql-tag'
 import { useRouter } from 'next/router'
 import React from 'react'
+import { useApolloClient } from '@core/next/apollo'
+import { Organization as OrganizationGQL } from '@condo/domains/organization/gql'
 
 const FocusWrapper = styled.div`
   position: relative;
@@ -57,6 +60,17 @@ const FocusWrapper = styled.div`
 
 export const FocusElement: React.FC = ({ children }) => {
     const router = useRouter()
+    const client = useApolloClient()
+
+    console.log(OrganizationGQL.GET_ALL_OBJS_QUERY)
+
+    client.watchQuery({
+        query: OrganizationGQL.GET_ALL_OBJS_QUERY,
+        fetchPolicy: 'network-only',
+    }).result().then((res) => {
+        console.log(res)
+    })
+
     const { query } = router
 
     return (
