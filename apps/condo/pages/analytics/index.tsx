@@ -78,7 +78,7 @@ const DATE_RANGE_PRESETS = {
     year: [moment().subtract(1, 'year'), moment()],
 }
 type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
-type ticketSelectTypes = 'default' | 'paid' | 'emergency'
+type ticketSelectTypes = 'all' | 'default' | 'paid' | 'emergency'
 const DATE_DISPLAY_FORMAT = 'DD.MM.YYYY'
 const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5], colors.volcano[5], colors.purple[5],
     colors.lime[7], colors.sberGrey[7], colors.magenta[5], colors.blue[4], colors.gold[6], colors.cyan[6],
@@ -199,6 +199,7 @@ const ticketChartDataMapper = new TicketChart({
     },
 })
 
+// TODO(sitozzz): move to separate component & make more abstract
 const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     children,
     data,
@@ -210,7 +211,11 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
     const intl = useIntl()
     const NoData = intl.formatMessage({ id: 'NoData' })
     if (data === null) {
-        return <Skeleton loading={loading} active paragraph={{ rows: 6 }} />
+        return (
+            <Skeleton loading={loading} active paragraph={{ rows: 6 }} >
+                {children}
+            </Skeleton>
+        )
     }
 
     const { series, legend, axisData, tooltip } = ticketChartDataMapper.getChartConfig(viewMode, data)
@@ -240,13 +245,21 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
         ...axisData,
         series,
     }
-    const isEmptyDataSet = Object.values(data).every(ticketStatus => isEmpty(ticketStatus)) && !loading
+
+    const isEmptyDataSet = Object.values(data).every(ticketStatus => {
+        if (viewMode === 'line') {
+            return isEmpty(ticketStatus)
+        }
+        return Object.values(ticketStatus).every(count => count === 0)
+    }) && !loading
+
     return <Typography.Paragraph style={{ position: 'relative' }}>
         {isEmptyDataSet ? (
             <Typography.Paragraph>
                 <BasicEmptyListView>
                     <Typography.Text>{NoData}</Typography.Text>
                 </BasicEmptyListView>
+                {children}
             </Typography.Paragraph>
         ) : (
             <>
@@ -441,6 +454,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const CategoryFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })
     const UserFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.User' })
     const ResponsibleFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Responsible' })
+    const TicketTypeAll = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.AllTypes' })
     const TicketTypeDefault = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Default' })
     const TicketTypePaid = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Paid' })
     const TicketTypeEmergency = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency' })
@@ -463,7 +477,7 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
     const [analyticsData, setAnalyticsData] = useState(null)
     const [loading, setLoading] = useState<boolean>(false)
 
-    const [ticketType, setTicketType] = useState<ticketSelectTypes>('default')
+    const [ticketType, setTicketType] = useState<ticketSelectTypes>('all')
     const [dateFrom, dateTo] = filtersRef.current !== null ? filtersRef.current.range : []
     const selectedPeriod = filtersRef.current !== null ? filtersRef.current.range.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
     const selectedAddresses = filtersRef.current !== null ? filtersRef.current.addressList : []
@@ -490,21 +504,20 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
             } else {
                 groupBy.push(...['status', 'property'])
             }
-            loadTicketAnalytics({
-                variables: {
-                    data: {
-                        groupBy,
-                        where: {
-                            organization: { id: userOrganizationId },
-                            AND: [
-                                { isEmergency: ticketType === 'emergency' },
-                                { isPaid: ticketType === 'paid' },
-                                ...filterToQuery(filtersRef.current),
-                            ],
-                        },
-                    },
-                },
-            })
+
+            const where = {
+                organization: { id: userOrganizationId },
+                AND: [...filterToQuery(filtersRef.current)],
+            }
+
+            if (ticketType !== 'all') {
+                where.AND.push(...[
+                    { isEmergency: ticketType === 'emergency' },
+                    { isPaid: ticketType === 'paid' },
+                ])
+            }
+
+            loadTicketAnalytics({ variables: { data: { groupBy, where } } })
         }
     }
 
@@ -602,7 +615,9 @@ const TicketAnalyticsPage: IPageWithHeaderAction = () => {
                                         value={ticketType}
                                         onChange={(e) => setTicketType(e)}
                                         style={{ position: 'absolute', top: 0, right: 0, minWidth: '132px' }}
+                                        disabled={loading}
                                     >
+                                        <Select.Option value='all'>{TicketTypeAll}</Select.Option>
                                         <Select.Option value='default'>{TicketTypeDefault}</Select.Option>
                                         <Select.Option value='paid'>{TicketTypePaid}</Select.Option>
                                         <Select.Option value='emergency'>{TicketTypeEmergency}</Select.Option>
