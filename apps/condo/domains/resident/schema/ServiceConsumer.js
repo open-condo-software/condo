@@ -27,14 +27,15 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         },
 
         billingAccount: {
-            schemaDoc: 'System-wide billing account, that will allow to pay for all services from all organizations',
+            schemaDoc: 'Billing account, that will allow this resident to pay for certain service',
             type: Relationship,
             ref: 'BillingAccount',
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            knexOptions: { isNotNullable: true }, // Required relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
         accountNumber: {
-            schemaDoc: 'Account number from resident',
+            schemaDoc: 'Account number taken from resident. This is what resident think his account number is',
             type: Text,
             isRequired: true,
         },
@@ -46,33 +47,6 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         update: access.canManageServiceConsumers,
         delete: false,
         auth: true,
-    },
-    hooks: {
-        beforeChange: async ({ context, resolvedData }) => {
-            const { resident, accountNumber } = resolvedData
-            if (resolvedData.billingAccount) {
-                return
-            }
-            const [ residentAttrs ] = await Resident.getAll(context, { id: resident })
-            const applicableBillingAccounts = await BillingAccount.getAll(
-                context,
-                {
-                    OR: [
-                        {
-                            number: accountNumber,
-                            unitName: residentAttrs.unitName,
-                        },
-                        {
-                            globalId: accountNumber,
-                            unitName: residentAttrs.unitName,
-                        },
-                    ],
-                }
-            )
-            if (applicableBillingAccounts.length >= 1) {
-                resolvedData.billingAccount = applicableBillingAccounts[0].id
-            }
-        },
     },
 })
 
