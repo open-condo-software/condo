@@ -30,6 +30,7 @@ const getAvailableLocales = () => {
     }
     return Object.keys(translations)
 }
+
 module.exports = {
     loadTranslations,
     getTranslations,
