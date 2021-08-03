@@ -58,13 +58,17 @@ const PdfView = () => {
         const addressList = JSON.parse(queryParams.addressList)
         const AND: unknown[] = [
             { organization: { id: userOrganizationId } },
-            { isEmergency: queryParams.ticketType === 'emergency' },
-            { isPaid: queryParams.ticketType === 'paid' },
             { createdAt_gte: queryParams.dateFrom },
             { createdAt_lte: queryParams.dateTo },
         ]
         if (addressList.length) {
             AND.push({ property: { id_in: addressList.map(({ id }) => id) } })
+        }
+        if (queryParams.ticketType !== 'all') {
+            AND.push(...[
+                { isEmergency: queryParams.ticketType === 'emergency' },
+                { isPaid: queryParams.ticketType === 'paid' },
+            ])
         }
         loadTicketAnalyticsData({ variables: { data: { groupBy, where: { AND } } } })
 
