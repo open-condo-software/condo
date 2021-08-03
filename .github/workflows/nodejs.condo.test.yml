@@ -64,7 +64,7 @@ jobs:
           bash ./.github/workflows/waitForLocalhostApiReady.sh
 
           # check migrations
-          yarn workspace @app/condo makemigrations --check
+          yarn workspace @app/condo makemigrations --check &> /dev/null
 
           yarn workspace @app/condo worker &
           sleep 3
