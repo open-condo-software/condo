@@ -13,6 +13,7 @@ import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 import { createPdf } from '@condo/domains/common/utils/pdf'
 import moment from 'moment'
+import { filterToQuery } from '@condo/domains/ticket/utils/helpers'
 
 const PdfView = () => {
     const intl = useIntl()
@@ -49,28 +50,22 @@ const PdfView = () => {
     useEffect(() => {
         const queryParams = getQueryParams()
         queryParamsRef.current = queryParams
-        const groupBy = []
-        if (queryParams.viewMode === 'line') {
-            groupBy.push(...['status', queryParams.specification])
-        } else {
-            groupBy.push(...['status', 'property'])
-        }
-        const addressList = JSON.parse(queryParams.addressList)
-        const AND: unknown[] = [
-            { organization: { id: userOrganizationId } },
-            { createdAt_gte: queryParams.dateFrom },
-            { createdAt_lte: queryParams.dateTo },
-        ]
-        if (addressList.length) {
-            AND.push({ property: { id_in: addressList.map(({ id }) => id) } })
-        }
-        if (queryParams.ticketType !== 'all') {
-            AND.push(...[
-                { isEmergency: queryParams.ticketType === 'emergency' },
-                { isPaid: queryParams.ticketType === 'paid' },
-            ])
-        }
-        loadTicketAnalyticsData({ variables: { data: { groupBy, where: { AND } } } })
+        const dateFrom = get(queryParams, 'dateFrom', moment().subtract(1, 'week'))
+        const dateTo = get(queryParams, 'dateTo', moment())
+        const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
+        const specification = get(queryParams, 'specification', 'day')
+        const viewMode = get(queryParams, 'viewMode', 'line')
+        const ticketType = get(queryParams, 'ticketType', 'all')
+        const { AND, groupBy } = filterToQuery(
+            {
+                range: [moment(dateFrom), moment(dateTo)],
+                addressList,
+                specification,
+            }, viewMode, ticketType
+        )
+        const where = { organization: { id: userOrganizationId }, AND }
+
+        loadTicketAnalyticsData({ variables: { data: { groupBy, where } } })
 
     }, [userOrganizationId])
 

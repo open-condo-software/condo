@@ -5,6 +5,7 @@ import { LOCALES } from '@condo/domains/common/constants/locale'
 import moment, { Moment } from 'moment'
 import { ParsedUrlQuery } from 'querystring'
 import { Ticket, TicketStatus, TicketStatusWhereInput, TicketWhereInput } from '../../../schema'
+import { ticketSelectTypes, viewModeTypes } from '../components/TicketChart'
 
 export const getTicketCreateMessage = (intl, ticket) => {
     if (!ticket) {
@@ -371,19 +372,34 @@ export type ticketAnalyticsPageFilters = {
 }
 
 interface IFilterToQuery {
-    (filter: ticketAnalyticsPageFilters): unknown[]
+    (filter: ticketAnalyticsPageFilters, viewMode: viewModeTypes, ticketType: ticketSelectTypes ): { AND: unknown[], groupBy: unknown[] }
 }
 
-export const filterToQuery: IFilterToQuery = (filter) => {
+export const filterToQuery: IFilterToQuery = (filter, viewMode, ticketType) => {
     const [dateFrom, dateTo] = filter.range
-    const result: unknown[] = [
+    const groupBy = []
+
+    if (viewMode === 'line') {
+        groupBy.push(...['status', filter.specification])
+    } else {
+        groupBy.push(...['status', 'property'])
+    }
+
+    const AND: unknown[] = [
         { createdAt_gte: dateFrom.startOf('day').toISOString() },
         { createdAt_lte: dateTo.endOf('day').toISOString() },
     ]
 
     if (filter.addressList.length) {
-        result.push({ property: { id_in: filter.addressList.map(({ id }) => id) } })
+        AND.push({ property: { id_in: filter.addressList.map(({ id }) => id) } })
     }
 
-    return result
+    if (ticketType !== 'all') {
+        AND.push(...[
+            { isEmergency: ticketType === 'emergency' },
+            { isPaid: ticketType === 'paid' },
+        ])
+    }
+
+    return { AND, groupBy }
 }
