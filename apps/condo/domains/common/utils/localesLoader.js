@@ -1,24 +1,37 @@
 const path = require('path')
 const fs = require('fs')
 const process = require('process')
-const { defaultLocale } = require('./locales')
-const { isEmpty } = require('lodash')
-function loadTranslations() {
+const isEmpty = require('lodash/isEmpty')
+const conf = require('@core/config')
+
+let translations = {}
+
+const loadTranslations = () => {
     const translationsDir = path.join(process.cwd(), 'lang')
     const localeFiles = fs.readdirSync(translationsDir)
-    const translations = localeFiles.map(x => ({
-        [x.split('.json')[0]]: require(path.join(translationsDir, x)),
-    })).reduce((prev, curr) => ({ ...prev, ...curr }))
-    return translations
+    translations = localeFiles.map(x => {
+        const languageCode = x.split('.json')[0]
+        return {
+            [languageCode]: require(path.join(translationsDir, x)),
+        }
+    }).reduce((prev, curr) => ({ ...prev, ...curr }))
 }
-let translations = {}
-const getTranslations = (lang = defaultLocale) => {
+
+const getTranslations = (lang = conf.DEFAULT_LOCALE) => {
     if (isEmpty(translations)) {
-        translations = loadTranslations()
+        loadTranslations()
     }
-    return translations[lang] || translations[defaultLocale]
+    return translations[lang] || translations[conf.DEFAULT_LOCALE]
+}
+
+const getAvailableLocales = () => {
+    if (isEmpty(translations)) {
+        loadTranslations()
+    }
+    return Object.keys(translations)
 }
 module.exports = {
     loadTranslations,
     getTranslations,
+    getAvailableLocales,
 }

@@ -1,13 +1,8 @@
-
-// TODO(mrfoxpro): typescript enum is good here
-const defaultLocale = 'en'
-
-const extractReqLocale = (req) => {
+const extractReqLocale = (req, defaultLocale) => {
     const headersLocale = req.headers['accept-language'] && req.headers['accept-language'].slice(0, 2)
-    return headersLocale || defaultLocale
+    return headersLocale
 }
 
 module.exports = {
-    defaultLocale,
     extractReqLocale,
 }
