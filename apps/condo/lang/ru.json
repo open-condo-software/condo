@@ -528,5 +528,7 @@
   "ConnectionInProgress": "Подключение в процессе",
   "Connected": "Подключено",
   "StartIntegration": "Начать подключение интеграции",
-  "Instruction": "Инструкция"
+  "Instruction": "Инструкция",
+  "BillingIntegrationContextConfirmQuestion": "Вы действительно хотите интегрироваться с данным биллингом?",
+  "BillingIntegrationContextNoReturns": "Нажимая на кнопку \"{buttonValue}\", вы соглашаетесь на интеграцию с данным билингом. После этого поменять интеграцию вручную будет невозможно"
 }
