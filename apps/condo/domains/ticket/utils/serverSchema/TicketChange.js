@@ -64,6 +64,18 @@ const ticketChangeDisplayNameResolversForSingleRelations = {
         const item = await getById('TicketClassifier', itemId)
         return get(item, 'name')
     },
+    'placeClassifier': async (itemId) => {
+        const item = await getById('TicketPlaceClassifier', itemId)
+        return get(item, 'name')
+    },
+    'categoryClassifier': async (itemId) => {
+        const item = await getById('TicketCategoryClassifier', itemId)
+        return get(item, 'name')
+    },
+    'descriptionClassifier': async (itemId) => {
+        const item = await getById('TicketDescriptionClassifier', itemId)
+        return get(item, 'name')
+    },
     'source': async (itemId) => {
         const item = await getById('TicketSource', itemId)
         return get(item, 'name')

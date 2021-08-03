@@ -10,7 +10,7 @@ const access = require('@condo/domains/ticket/access/TicketClassifier')
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 
 const TicketClassifier = new GQLListSchema('TicketClassifier', {
-    schemaDoc: 'Ticket typification/classification. We have a organization specific classification. We check the ticket attrs differently depending on the classifier',
+    schemaDoc: '[DEPRECATED] Ticket typification/classification. Will be removed after migration',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,

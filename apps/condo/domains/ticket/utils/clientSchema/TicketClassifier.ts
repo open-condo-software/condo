@@ -18,7 +18,7 @@ export interface ITicketClassifierUIState extends TicketClassifier {
     // TODO(codegen): write ITicketClassifierUIState or extends it from
 }
 
-export type TicketClassifierSelectWhereInput = Pick<TicketClassifierWhereInput, 'parent' | 'parent_is_null' | 'id'>
+export type TicketClassifierSelectWhereInput = Pick<TicketClassifierWhereInput, 'parent' | 'parent_is_null' | 'id' | 'name_contains'>
 
 function convertToUIState (item: TicketClassifier): ITicketClassifierUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')

@@ -7,7 +7,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { searchEmployee, searchTicketClassifier } from '../../utils/clientSchema/search'
+import { searchEmployee } from '../../utils/clientSchema/search'
+import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
@@ -72,6 +73,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
+    const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
+    const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
+    const DescriptionClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.DescriptionLabel' })
+
 
     const { action: _action, initialValues, organization, afterActionCompleted, files } = props
     const validations = useTicketValidations()
@@ -84,6 +89,19 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const selectedUnitNameRef = useRef(selectedUnitName)
 
     const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(initialValues.details ? initialValues.details.length : 0)
+
+    const {
+        ClassifierRuleHiddenInput,
+        PlaceSelect,
+        CategorySelect,
+        DescriptionSelect,
+    } = useTicketThreeLevelsClassifierHook({ initialValues })
+
+    console.log(ClassifierRuleHiddenInput,
+        PlaceSelect,
+        CategorySelect,
+        DescriptionSelect)
+
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
@@ -272,7 +290,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 </Col>
                                 <Form.Item noStyle dependencies={['property']}>
                                     {
-                                        ({ getFieldsValue }) => {
+                                        ({ getFieldsValue, setFieldsValue }) => {
                                             const { property } = getFieldsValue(['property'])
                                             const disableUserInteraction = !property
 
@@ -285,8 +303,40 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     <Col span={24}>
                                                                         <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
                                                                     </Col>
+                                                                    <Col span={12} style={{ paddingRight: '20px' }}>
+                                                                        <Form.Item name={'placeClassifier'} rules={validations.placeClassifier} >
+                                                                            <ClassifierRuleHiddenInput/>
+                                                                        </Form.Item>
+                                                                        <Form.Item label={PlaceClassifierLabel} name={'placeClassifier'} rules={validations.placeClassifier} >
+                                                                            <PlaceSelect disabled={disableUserInteraction}  />
+                                                                        </Form.Item>
+                                                                    </Col>
+                                                                    <Col span={12} style={{ paddingLeft: '20px' }}>
+                                                                        <Form.Item label={CategoryClassifierLabel} rules={validations.categoryClassifier} >
+                                                                            <CategorySelect disabled={disableUserInteraction}  />
+                                                                        </Form.Item>
+                                                                    </Col>
                                                                     <Col span={24}>
-                                                                        <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
+                                                                        <Form.Item label={DescriptionClassifierLabel}>
+                                                                            <DescriptionSelect  disabled={disableUserInteraction} />
+                                                                        </Form.Item>
+                                                                    </Col>
+                                                                    <Col span={24}>
+                                                                        <Row>
+                                                                            <Col span={6}>
+                                                                                <Form.Item name={'isEmergency'} valuePropName='checked'>
+                                                                                    <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
+                                                                                </Form.Item>
+                                                                            </Col>
+                                                                            <Col span={6}>
+                                                                                <Form.Item name={'isPaid'}  valuePropName='checked'>
+                                                                                    <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
+                                                                                </Form.Item>
+                                                                            </Col>
+                                                                        </Row>
+                                                                    </Col>
+                                                                    <Col span={24}>
+                                                                        <Form.Item name={'details'} label={DescriptionLabel}>
                                                                             <InputWithCounter
                                                                                 InputComponent={Input.TextArea}
                                                                                 currentLength={currentDetailsLength}
@@ -303,33 +353,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                         >
                                                                             <UploadComponent />
                                                                         </Form.Item>
-                                                                    </Col>
-                                                                </Row>
-                                                            </Col>
-                                                            <Col span={24}>
-                                                                <Row align={'top'} >
-                                                                    <Col span={11}>
-                                                                        <Form.Item name={'classifier'} rules={validations.classifier} label={ClassifierLabel} >
-                                                                            <GraphQlSearchInput
-                                                                                search={searchTicketClassifier}
-                                                                                allowClear={false}
-                                                                                disabled={disableUserInteraction}
-                                                                            />
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                    <Col push={2} span={11}>
-                                                                        <Row>
-                                                                            <Col span={12}>
-                                                                                <Form.Item name={'isEmergency'} label={' '} valuePropName='checked'>
-                                                                                    <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
-                                                                                </Form.Item>
-                                                                            </Col>
-                                                                            <Col span={12}>
-                                                                                <Form.Item name={'isPaid'} label={' '} valuePropName='checked'>
-                                                                                    <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
-                                                                                </Form.Item>
-                                                                            </Col>
-                                                                        </Row>
                                                                     </Col>
                                                                 </Row>
                                                             </Col>

@@ -159,6 +159,30 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 remove: ClassifierRemoveMessage,
             },
         },
+        {
+            title: 'placeClassifierDisplayName',
+            messages: {
+                add: ClassifierAddMessage,
+                change: ClassifierChangeMessage,
+                remove: ClassifierRemoveMessage,
+            },
+        },
+        {
+            title: 'categoryClassifierDisplayName',
+            messages: {
+                add: ClassifierAddMessage,
+                change: ClassifierChangeMessage,
+                remove: ClassifierRemoveMessage,
+            },
+        },
+        {
+            title: 'descriptionClassifierDisplayName',
+            messages: {
+                add: ClassifierAddMessage,
+                change: ClassifierChangeMessage,
+                remove: ClassifierRemoveMessage,
+            },
+        },
     ]
 
     const BooleanToString = {

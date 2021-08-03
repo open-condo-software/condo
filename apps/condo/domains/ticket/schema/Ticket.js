@@ -147,20 +147,55 @@ const Ticket = new GQLListSchema('Ticket', {
             ref: 'User',
             many: true,
         },
-        // classifierMeta
         classifier: {
-            schemaDoc: 'Typification / classification / types of work',
+            schemaDoc: '[DEPRECATED] Old classifier',
             type: Relationship,
             ref: 'TicketClassifier',
             // Classifier can be null because mobile app users don't pass it when creating a Ticket
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            isRequired: false,
+            knexOptions: { isNotNullable: false }, // Required relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
-
+        // TODO(zuch): make it required
+        placeClassifier: {
+            schemaDoc: 'Describe where incident took place',
+            type: Relationship,
+            ref: 'TicketPlaceClassifier',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+        },
+        // TODO(zuch): make it required
+        categoryClassifier: {
+            schemaDoc: 'Describe type of work needed',
+            type: Relationship,
+            ref: 'TicketPlaceClassifier',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+        },
+        descriptionClassifier: {
+            schemaDoc: 'Details of incident',
+            type: Relationship,
+            ref: 'TicketPlaceClassifier',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+        },
+        // TODO(zuch): make it required
+        classifierRule: {
+            schemaDoc: 'Valid combination of 3 classifiers',
+            type: Relationship,
+            ref: 'TicketClassifierRule',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+        },
         // description / title
         details: {
             schemaDoc: 'Text description of the issue. Maybe written by a user or an operator',
             type: Text,
-            isRequired: true,
+            isRequired: false,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
                     return normalizeText(resolvedData['details'])
@@ -204,7 +239,6 @@ const Ticket = new GQLListSchema('Ticket', {
                 },
             },
         },
-
         // Where?
         // building/community
         // entrance/section
@@ -257,7 +291,8 @@ const Ticket = new GQLListSchema('Ticket', {
             return resolvedData
         },
         validateInput: ({ resolvedData, existingItem, addValidationError, operation }) => {
-            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'source', 'status', 'details'], resolvedData, existingItem, addValidationError)) return
+            // Todo(zuch): add placeClassifier, categoryClassifier and classifierRule
+            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'source', 'status'], resolvedData, existingItem, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic
