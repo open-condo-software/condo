@@ -6,11 +6,7 @@ const { createTestServiceConsumer } = require(
     '@condo/domains/resident/utils/testSchema')
 const { createTestResident } = require(
     '@condo/domains/resident/utils/testSchema')
-const { createTestBillingAccount } = require(
-    '@condo/domains/billing/utils/testSchema')
-const { createTestBillingProperty } = require(
-    '@condo/domains/billing/utils/testSchema')
-const { makeContextWithOrganizationAndIntegrationAsAdmin } = require(
+const { createTestBillingProperty, createTestBillingAccount, createTestBillingIntegration, createTestBillingIntegrationOrganizationContext } = require(
     '@condo/domains/billing/utils/testSchema')
 const { makeClientWithProperty } = require(
     '@condo/domains/property/utils/testSchema')
@@ -24,7 +20,8 @@ describe('RegisterServiceConsumerService', () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
 
-        const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+        const [integration] = await createTestBillingIntegration(adminClient)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
         const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
         const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
