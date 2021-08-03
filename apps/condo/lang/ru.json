@@ -528,5 +528,7 @@
   "StartIntegration": "Начать подключение интеграции",
   "Instruction": "Инструкция",
   "BillingIntegrationContextConfirmQuestion": "Вы действительно хотите интегрироваться с данным биллингом?",
-  "BillingIntegrationContextNoReturns": "Нажимая на кнопку \"{buttonValue}\", вы соглашаетесь на интеграцию с данным билингом. После этого поменять интеграцию вручную будет невозможно"
+  "BillingIntegrationContextNoReturns": "Нажимая на кнопку \"{buttonValue}\", вы соглашаетесь на интеграцию с данным билингом. После этого поменять интеграцию вручную будет невозможно",
+  "AnotherContextAlreadyCreated": "У вас уже подключена другая интеграция, чтобы поменять текущую, обратитесь в тех. поддержку \"{companyName}\"",
+  "ContextAlreadyCreated": "У вас уже подключена интеграция"
 }

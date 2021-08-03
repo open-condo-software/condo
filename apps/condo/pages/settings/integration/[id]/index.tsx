@@ -7,7 +7,7 @@ import { BillingIntegration, BillingIntegrationOrganizationContext } from '@cond
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { Typography, Col, Row, Space, Modal, Alert } from 'antd'
+import { Typography, Col, Row, Space, Modal, Alert, Tooltip } from 'antd'
 const ReactMarkdown = require('react-markdown')
 const gfm = require('remark-gfm')
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -17,9 +17,16 @@ import { Button } from '@condo/domains/common/components/Button'
 import Link from 'next/link'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { SortBillingIntegrationOrganizationContextsBy } from '../../../../schema'
+import styled from '@emotion/styled'
 
 
 const SETTINGS_PAGE_ROUTE = '/settings/'
+
+const ButtonWrap = styled.div`
+   width: fit-content;
+   cursor: ${({ disabled }: { disabled: boolean }) => disabled ? 'not-allowed' : 'pointer'};
+ `
 
 const BillingIntegrationDetailsPage = () => {
     const intl = useIntl()
@@ -34,11 +41,17 @@ const BillingIntegrationDetailsPage = () => {
     const CreateContextRestrictionMessage = intl.formatMessage({ id:'BillingIntegrationContextNoReturns' }, {
         buttonValue: ContinueMessage,
     })
+    const ContextAlreadyCreatedMessage = intl.formatMessage({ id: 'ContextAlreadyCreated' })
+    const CompanyNameLabel = intl.formatMessage({ id: 'CompanyName' })
+    const AnotherContextAlreadyCreatedMessage = intl.formatMessage({ id: 'AnotherContextAlreadyCreated' }, {
+        companyName: CompanyNameLabel,
+    })
 
     const { query, push } = useRouter()
     const integrationId = get(query, 'id')
 
     const userOrganization = useOrganization()
+    const organizationId = get(userOrganization, ['organization', 'id'])
     const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
 
     const {
@@ -51,10 +64,23 @@ const BillingIntegrationDetailsPage = () => {
         },
     })
 
+    const {
+        obj: currentContext,
+        error: contextError,
+        loading: contextLoading,
+    } = BillingIntegrationOrganizationContext.useObject({
+        where: {
+            organization: {
+                id: organizationId,
+            },
+        },
+        sortBy: ['createdAt_DESC'] as SortBillingIntegrationOrganizationContextsBy[],
+    })
+
     const sender = getClientSideSenderInfo()
     const createContextAction = BillingIntegrationOrganizationContext.useCreate({
         integration: String(integrationId),
-        organization: get(userOrganization, ['organization', 'id']),
+        organization: organizationId,
         // @ts-ignore
         state: { dv: 1, sender },
         // @ts-ignore
@@ -80,12 +106,12 @@ const BillingIntegrationDetailsPage = () => {
         })
     }
 
-    if (integrationLoading || integrationError) {
+    if (integrationLoading || integrationError || contextLoading || contextError) {
         return (
             <LoadingOrErrorPage
                 title={LoadingMessage}
-                loading={integrationLoading}
-                error={integrationError ? ErrorMessage : null}
+                loading={integrationLoading || contextLoading}
+                error={integrationError || contextError ? ErrorMessage : null}
             />
         )
     }
@@ -95,6 +121,9 @@ const BillingIntegrationDetailsPage = () => {
     const startButtonMessage = get(integration, 'detailsConfirmButtonText', DefaultStartButtonMessage)
     const instructionsButtonText = get(integration, 'detailsInstructionButtonText', DefaultInstructionButtonText)
     const instructionsButtonLink = get(integration, 'detailsInstructionButtonLink')
+
+    const disabledIntegration = !!currentContext
+    const shouldNotifyWithAlert = !!currentContext && currentContext.integration.id !== integrationId
 
     return (
         <>
@@ -113,7 +142,19 @@ const BillingIntegrationDetailsPage = () => {
                                     />
                                     <PageContent>
                                         <Col span={20}>
-                                            <Row gutter={[0, 60]}>
+                                            <Row gutter={[0, 50]}>
+                                                {
+                                                    shouldNotifyWithAlert && (
+                                                        <Col span={24}>
+                                                            <Alert
+                                                                message={AnotherContextAlreadyCreatedMessage}
+                                                                type={'warning'}
+                                                                showIcon
+                                                                style={{ width: 'fit-content' }}
+                                                            />
+                                                        </Col>
+                                                    )
+                                                }
                                                 {
                                                     markDownText && (
                                                         <Col span={24} style={{ fontSize: 16 }}>
@@ -125,9 +166,18 @@ const BillingIntegrationDetailsPage = () => {
                                                 }
                                                 <Col span={24}>
                                                     <Space size={20} style={{ width: '100%', flexWrap: 'wrap' }}>
-                                                        <Button type='sberPrimary' onClick={showConfirmModal}>
-                                                            {startButtonMessage}
-                                                        </Button>
+                                                        <Tooltip title={ContextAlreadyCreatedMessage}>
+                                                            <ButtonWrap disabled={disabledIntegration}>
+                                                                <Button
+                                                                    type='sberPrimary'
+                                                                    onClick={showConfirmModal}
+                                                                    disabled={disabledIntegration}
+                                                                    style={{ pointerEvents: disabledIntegration ? 'none' : 'auto' }}
+                                                                >
+                                                                    {startButtonMessage}
+                                                                </Button>
+                                                            </ButtonWrap>
+                                                        </Tooltip>
                                                         {
                                                             instructionsButtonLink && (
                                                                 <Link href={instructionsButtonLink}>
