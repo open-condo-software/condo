@@ -1,9 +1,10 @@
-import { Col, Form, Input, Row } from 'antd'
+/** @jsx jsx */
+import { Card, Col, Form, Input, Row } from 'antd'
 import { Rule } from 'rc-field-form/lib/interface'
 import React from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from 'react-intl'
 import get from 'lodash/get'
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 import { Button } from '@condo/domains/common/components/Button'
@@ -17,6 +18,8 @@ import { ErrorsContainer } from '@condo/domains/organization/components/ErrorsCo
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { EmployeeRoleSelect } from './EmployeeRoleSelect'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { colors, shadows } from '@condo/domains/common/constants/style'
+import { css, jsx } from '@emotion/core'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -29,10 +32,14 @@ const INPUT_LAYOUT_PROPS = {
         paddingBottom: '24px',
     },
 }
-type CreateEmplyeeFormProps = {
-    onRoleSelect?: (string) => void
-}
-export const CreateEmployeeForm: React.FC<CreateEmplyeeFormProps> = (props) => {
+
+const CardCss = css`
+    width: 300px;
+    height: fit-content;
+    ${shadows.cardShadow}
+`
+
+export const CreateEmployeeForm: React.FC = () => {
     const intl = useIntl()
     const InviteEmployeeLabel = intl.formatMessage({ id: 'employee.InviteEmployee' })
 
@@ -111,90 +118,112 @@ export const CreateEmployeeForm: React.FC<CreateEmplyeeFormProps> = (props) => {
                 ({ handleSave, isLoading }) => {
 
                     return (
-                        <Row gutter={[0, 40]}>
-                            <Col span={24}>
-                                <Row gutter={[0, 24]}>
+                        <Row>
+                            <Col span={14}>
+                                <Row gutter={[0, 40]}>
                                     <Col span={24}>
-                                        <Form.Item
-                                            name={'name'}
-                                            label={FullNameLabel}
-                                            {...INPUT_LAYOUT_PROPS}
-                                            labelAlign={'left'}
-                                        >
-                                            <Input placeholder={FullNamePlaceholder}/>
-                                        </Form.Item>
+                                        <Row gutter={[0, 24]}>
+                                            <Col span={24}>
+                                                <Form.Item
+                                                    name={'name'}
+                                                    label={FullNameLabel}
+                                                    {...INPUT_LAYOUT_PROPS}
+                                                    labelAlign={'left'}
+                                                >
+                                                    <Input placeholder={FullNamePlaceholder} />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={24}>
+                                                <Form.Item name={'position'} label={PositionLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'}>
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={24}>
+                                                <Form.Item
+                                                    name={'phone'}
+                                                    label={PhoneLabel}
+                                                    labelAlign={'left'}
+                                                    required
+                                                    validateFirst
+                                                    rules={validations.phone}
+                                                    {...INPUT_LAYOUT_PROPS}
+                                                >
+                                                    <PhoneInput placeholder={ExamplePhoneMsg} style={{ width: '100%' }} />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={24}>
+                                                <Form.Item
+                                                    name={'email'}
+                                                    label={EmailLabel}
+                                                    labelAlign={'left'}
+                                                    required
+                                                    validateFirst
+                                                    rules={validations.email}
+                                                    {...INPUT_LAYOUT_PROPS}
+                                                >
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={24}>
+                                                <Form.Item name={'role'} label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'} >
+                                                    <EmployeeRoleSelect
+                                                        loading={loading}
+                                                        error={Boolean(error)}
+                                                        employeeRoles={employeeRoles}
+                                                    />
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
                                     </Col>
                                     <Col span={24}>
-                                        <Form.Item name={'position'} label={PositionLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'}>
-                                            <Input/>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            name={'phone'}
-                                            label={PhoneLabel}
-                                            labelAlign={'left'}
-                                            required
-                                            validateFirst
-                                            rules={validations.phone}
-                                            {...INPUT_LAYOUT_PROPS}
-                                        >
-                                            <PhoneInput placeholder={ExamplePhoneMsg} style={{ width: '100%' }}/>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            name={'email'}
-                                            label={EmailLabel}
-                                            labelAlign={'left'}
-                                            required
-                                            validateFirst
-                                            rules={validations.email}
-                                            {...INPUT_LAYOUT_PROPS}
-                                        >
-                                            <Input/>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Form.Item name={'role'} label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'}>
-                                            <EmployeeRoleSelect
-                                                loading={loading}
-                                                error={Boolean(error)}
-                                                employeeRoles={employeeRoles}
-                                                onSelect={(_, option) => {
-                                                    if (props.onRoleSelect) {
-                                                        props.onRoleSelect(option)
-                                                    }
-                                                }}
-                                            />
+                                        <Form.Item noStyle dependencies={['phone', 'email']}>
+                                            {
+                                                ({ getFieldsValue }) => {
+                                                    const { phone, email } = getFieldsValue(['phone', 'email'])
+
+                                                    return (
+                                                        <Row gutter={[0, 24]}>
+                                                            <ErrorsContainer phone={phone} email={email} />
+                                                            <Col span={24}>
+                                                                <Button
+                                                                    key='submit'
+                                                                    onClick={handleSave}
+                                                                    type='sberPrimary'
+                                                                    loading={isLoading}
+                                                                    disabled={!phone || !email}
+                                                                >
+                                                                    {InviteEmployeeLabel}
+                                                                </Button>
+                                                            </Col>
+                                                        </Row>
+                                                    )
+                                                }
+                                            }
                                         </Form.Item>
                                     </Col>
                                 </Row>
                             </Col>
-                            <Col span={24}>
-                                <Form.Item noStyle dependencies={['phone', 'email']}>
-                                    {
-                                        ({ getFieldsValue }) => {
-                                            const { phone, email } = getFieldsValue(['phone', 'email'])
-
-                                            return (
-                                                <Row gutter={[0, 24]}>
-                                                    <ErrorsContainer phone={phone} email={email}/>
-                                                    <Col span={24}>
-                                                        <Button
-                                                            key='submit'
-                                                            onClick={handleSave}
-                                                            type='sberPrimary'
-                                                            loading={isLoading}
-                                                            disabled={!phone || !email}
-                                                        >
-                                                            {InviteEmployeeLabel}
-                                                        </Button>
-                                                    </Col>
-                                                </Row>
-                                            )
-                                        }
-                                    }
+                            <Col span={10}>
+                                <Form.Item dependencies={['role']}>
+                                    {({ getFieldValue }) => {
+                                        const roleId = getFieldValue('role')
+                                        const role = employeeRoles.find(x => x.id === roleId)
+                                        if (!role) return null
+                                        return (
+                                            <Card
+                                                title={role.name}
+                                                bordered={false}
+                                                css={CardCss}
+                                                headStyle={{
+                                                    color: colors.lightGrey[10],
+                                                    fontSize: 24,
+                                                    fontWeight: 'bold',
+                                                }}
+                                            >
+                                                {role.description}
+                                            </Card>
+                                        )
+                                    }}
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -203,5 +232,6 @@ export const CreateEmployeeForm: React.FC<CreateEmplyeeFormProps> = (props) => {
                 }
             }
         </FormWithAction>
+
     )
 }
