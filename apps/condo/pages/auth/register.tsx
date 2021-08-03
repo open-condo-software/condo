@@ -101,6 +101,7 @@ const Register = ({ children }): React.ReactElement => {
             })
         } else {
             setPhone('')
+            setToken('')
             setIsConfirmed(false)
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -133,11 +134,14 @@ const RegisterSteps = (): React.ReactElement => {
 
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useContext(RegisterContext)
     const [state, setState] = useState('inputPhone')
+
     useEffect(() => {
         if (token && isConfirmed) {
             setState('register')
         } else if (token) {
             setState('validatePhone')
+        } else {
+            setState('inputPhone')
         }
     }, [token, isConfirmed])
 
@@ -271,6 +275,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
                 colon={false}
                 style={{ marginTop: '40px' }}
                 requiredMark={false}
+                validateTrigger={['onBlur', 'onSubmit']}
             >
 
                 <Form.Item
