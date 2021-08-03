@@ -6972,6 +6972,7 @@ export type Mutation = {
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
   registerResident?: Maybe<Resident>;
+  registerConsumerService?: Maybe<ServiceConsumer>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -9001,6 +9002,11 @@ export type MutationResendMessageArgs = {
 
 export type MutationRegisterResidentArgs = {
   data: RegisterResidentInput;
+};
+
+
+export type MutationRegisterConsumerServiceArgs = {
+  data: RegisterConsumerServiceInput;
 };
 
 
@@ -13412,6 +13418,14 @@ export type ReInviteOrganizationEmployeeInput = {
   organization: OrganizationWhereUniqueInput;
   email: Scalars['String'];
   phone?: Maybe<Scalars['String']>;
+};
+
+export type RegisterConsumerServiceInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  residentId: Scalars['String'];
+  unitName: Scalars['String'];
+  accountNumber: Scalars['String'];
 };
 
 export type RegisterNewOrganizationInput = {
