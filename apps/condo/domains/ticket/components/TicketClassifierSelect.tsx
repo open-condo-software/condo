@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
-import { Select, Input, Col, Form, Typography, Skeleton } from 'antd'
+import { Select, Input, Col, Form } from 'antd'
 const { Option } = Select
 import { useApolloClient } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 
 
-import { uniqBy, isEmpty } from 'lodash'
-import { ClassifiersQueryLocal, IClassifiersSearch, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import { uniqBy, isEmpty, find } from 'lodash'
+import { ClassifiersQueryLocal, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
 
 
@@ -20,19 +20,18 @@ interface ITicketThreeLevelsClassifierHookInput {
 
 interface ITicketClassifierSelectHookInput {
     onChange: (id: string) => void
-    type: TicketClassifierTypes
-    helper: IClassifiersSearch
+    onSearch: (id: string) => void
 }
 
-type ClassifierSelectComponent = React.FC<{
+interface ClassifierSelectComponent extends React.FC {
     disabled?: boolean
     style?: React.CSSProperties
-}>
-
+}
 interface ITicketClassifierSelectHookOutput {
     set: {
         all: React.Dispatch<React.SetStateAction<Options[]>>
         one: React.Dispatch<React.SetStateAction<string>>
+        search: React.Dispatch<React.SetStateAction<Options[]>>
     }
     SelectComponent: ClassifierSelectComponent
     ref: React.MutableRefObject<HTMLSelectElement>
@@ -40,33 +39,18 @@ interface ITicketClassifierSelectHookOutput {
 
 const useTicketClassifierSelectHook = ({
     onChange,
-    type,
-    helper,
+    onSearch,
 }: ITicketClassifierSelectHookInput): ITicketClassifierSelectHookOutput => {
     const [selected, setSelected] = useState<string>(null)
-    const [classifiers, setClassifiersFromLinks] = useState<Options[]>([])
+    const [classifiers, setClassifiersFromRules] = useState<Options[]>([])
     const [searchClassifiers, setSearchClassifiers] = useState<Options[]>([])
-    const [isLoading, setIsLoading] = useState<boolean>(false)
     const classifiersRef = useRef<HTMLSelectElement>(null)
     const optionsRef = useRef<Options[]>([])
 
     const setClassifiers = (classifiers) => {
-        setClassifiersFromLinks(classifiers)
-        // We need to remove search classifiers
+        setClassifiersFromRules(classifiers)
+        // We need to remove search classifiers when rules start to work
         setSearchClassifiers([])
-    }
-
-    useEffect(() => {
-        helper.search('', type)
-        return () => console.log('Select destroyed', type)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    const handleSearch = async (input) => {
-        setIsLoading(true)
-        const loaded = await helper.search(input, type)
-        setSearchClassifiers(loaded)
-        setIsLoading(false)
     }
 
     useEffect(() => {
@@ -75,20 +59,19 @@ const useTicketClassifierSelectHook = ({
 
     const SelectComponent = useMemo(() => {
         const SelectComponentWrapper: React.FC<{ disabled?: boolean, style?: React.CSSProperties }> = (props) => {
-            const { disabled, style } = props
+            const { disabled, style, value } = props
             return (
                 <Select
                     showSearch
                     style={style}
                     allowClear={true}
                     onSelect={onChange}
-                    onSearch={handleSearch}
+                    onSearch={onSearch}
                     onClear={() => onChange(null)}
                     optionFilterProp={'title'}
                     defaultActiveFirstOption={false}
-                    value={selected}
                     disabled={disabled}
-                    loading={isLoading}
+                    value={value}
                     ref={classifiersRef}
                     showAction={['focus', 'click']}
                 >
@@ -110,6 +93,7 @@ const useTicketClassifierSelectHook = ({
         set: {
             all: setClassifiers,
             one: setSelected,
+            search: setSearchClassifiers,
         },
         ref: classifiersRef,
     }
@@ -121,6 +105,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
     const DescriptionClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.DescriptionLabel' })
     const threeLvlSelectState = useRef({ id: classifierRule, place: null, category:null, description: null })
+
     const client = useApolloClient()
     const helper = new ClassifiersQueryLocal(client)
     const validations = useTicketValidations()
@@ -130,14 +115,16 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
         threeLvlSelectState.current = { ...threeLvlSelectState.current, [type]: id }
         updateLevels({ [type]: id })
     }
-
+    const onUserSearch = async (input, type) => {
+        const classifiers = await helper.search(input, type)
+        Setter[type].search(classifiers)
+    }
     const {
         set: descriptionSet,
         SelectComponent: DescriptionSelect,
     } = useTicketClassifierSelectHook({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.description),
-        helper,
-        type: TicketClassifierTypes.place,
+        onSearch: (id) => onUserSearch(id, TicketClassifierTypes.description),
     })
 
     const {
@@ -146,8 +133,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
         ref: categoryRef,
     } = useTicketClassifierSelectHook({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.category),
-        helper,
-        type: TicketClassifierTypes.category,
+        onSearch: (id) => onUserSearch(id, TicketClassifierTypes.category),
     })
 
     const {
@@ -156,8 +142,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
         ref: placeRef,
     } = useTicketClassifierSelectHook({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.place),
-        helper,
-        type: TicketClassifierTypes.place,
+        onSearch: (id) => onUserSearch(id, TicketClassifierTypes.place),
     })
 
     const Setter = {
@@ -169,24 +154,30 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
     useEffect(() => {
         helper.init().then(_ => {
             if (threeLvlSelectState.current.id) {
-                helper.findRules({ id: threeLvlSelectState.current.id }).then(([link]) => {
-                    const { place, category, description } = link
+                helper.findRules({ id: threeLvlSelectState.current.id }).then(([rule]) => {
+                    const { place, category, description } = rule
                     threeLvlSelectState.current = { ...threeLvlSelectState.current, ...{ place: place.id, category: category.id, description: description.id } }
                     updateLevels(threeLvlSelectState.current).then(_ => updateRuleId())
+                })
+            } else {
+                helper.search('', 'place').then(classifiers => {
+                    Setter['place'].all(classifiers)
+                })
+                helper.search('', 'category').then(classifiers => {
+                    Setter['category'].all(classifiers)
                 })
             }
         })
         return () => {
+            // clear all loaded data from helper
             helper.clear()
-            return console.log('3 lvl select destroyed')
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const load3levels = async () => {
-        console.log('load3levels')
         const { place, category, description } = threeLvlSelectState.current
-        const loadedLinks = await Promise.all([
+        const loadedRules = await Promise.all([
             { category, description, type: 'place' },
             { place, description, type: 'category' },
             { place, category, type: 'description' },
@@ -202,7 +193,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
                 helper.findRules(query).then(data => resolve([type, helper.rulesToOptions(data, type)]))
             })
         }))
-        const result = Object.fromEntries(loadedLinks)
+        const result = Object.fromEntries(loadedRules)
         return result
     }
 
@@ -214,7 +205,6 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
     }
 
     const updateRuleId = async () => {
-        console.log('updateRuleId', threeLvlSelectState.current)
         const { id, ...querySelectors } = threeLvlSelectState.current
         const query = {}
         for (const key in querySelectors) {
@@ -223,10 +213,13 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
             }
         }
         const matchingRules = await helper.findRules(query)
-        console.log('matchingRules', matchingRules)
         if (matchingRules.length === 1) {
-            console.log('switch rule from ', id, ' to ', matchingRules[0].id)
             threeLvlSelectState.current = { ...threeLvlSelectState.current, id: matchingRules[0].id }
+        } else if (threeLvlSelectState.current.place && threeLvlSelectState.current.category) {
+            const withEmptyDescription = find(matchingRules, { description: null })
+            if (withEmptyDescription){
+                threeLvlSelectState.current = { ...threeLvlSelectState.current, id: withEmptyDescription.id }
+            }
         }
     }
 
@@ -258,33 +251,35 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
         }
     }
 
-    const ClassifiersEditorComponent = ({ form }) => {
-        return (
-            <>
-                <Col span={24}>
-                    <Form.Item name={'classifierRule'} rules={validations.classifierRule} >
-                        <Input type='text' value={threeLvlSelectState.current.id}></Input>
-                    </Form.Item>
-                </Col>
-                <Col span={12} style={{ paddingRight: '20px' }}>
-                    <Form.Item label={PlaceClassifierLabel} name={'placeClassifier'} rules={validations.placeClassifier} valuePropName='selected'>
-                        <PlaceSelect />
-                    </Form.Item>
-                </Col>
-                <Col span={12} style={{ paddingLeft: '20px' }}>
-                    <Form.Item label={CategoryClassifierLabel} name={'categoryClassifier'} rules={validations.categoryClassifier} valuePropName='selected'>
-                        <CategorySelect />
-                    </Form.Item>
-                </Col>
-                <Col span={24}>
-                    <Form.Item name={'descriptionClassifier'}  label={DescriptionClassifierLabel} valuePropName='selected'>
-                        <DescriptionSelect />
-                    </Form.Item>
-                </Col>
-            </>
-        )
-    }
-
+    const ClassifiersEditorComponent = useMemo(() => {
+        const ClassifiersEditorWrapper = ({ form, disabled }) => {
+            return (
+                <>
+                    <Col span={24}>
+                        <Form.Item name={'classifierRule'} rules={validations.classifierRule} >
+                            <Input type='text' value={threeLvlSelectState.current.id}></Input>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12} style={{ paddingRight: '20px' }}>
+                        <Form.Item label={PlaceClassifierLabel} name={'placeClassifier'} rules={validations.placeClassifier} valuePropName='selected'>
+                            <PlaceSelect disabled={disabled} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12} style={{ paddingLeft: '20px' }}>
+                        <Form.Item label={CategoryClassifierLabel} name={'categoryClassifier'} rules={validations.categoryClassifier} valuePropName='selected'>
+                            <CategorySelect disabled={disabled} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item name={'descriptionClassifier'}  label={DescriptionClassifierLabel} valuePropName='selected'>
+                            <DescriptionSelect disabled={disabled} />
+                        </Form.Item>
+                    </Col>
+                </>
+            )
+        }
+        return ClassifiersEditorWrapper
+    }, [])
 
     return {
         ClassifiersEditorComponent,
