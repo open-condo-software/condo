@@ -22,7 +22,7 @@ const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAccess
 describe('Resident', () => {
 
     describe('validations', async () => {
-        it('throws error on create record with same set of fields: "property", "unitName"', async () => {
+        it('throws error on create record with same set of fields: "property", "unitName" for current user', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const duplicatedFields = {
@@ -35,9 +35,22 @@ describe('Resident', () => {
                 await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot create resident, because another resident with the same provided set of "property", "unitName"')
+                expect(errors[0].data.messages[0]).toMatch('Cannot create resident, because another resident with the same provided "property", "unitName" fields already exists for current user')
                 expect(data).toEqual({ 'obj': null })
             })
+        })
+
+        it('allows to create record with same set of fields: "property", "unitName" for different user', async () => {
+            const userClient = await makeClientWithProperty()
+            const userClient2 = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const duplicatedFields = {
+                property: { connect: { id: userClient.property.id } },
+                unitName: faker.random.alphaNumeric(3),
+            }
+            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
+            const [obj] = await createTestResident(adminClient, userClient2.user, userClient.organization, userClient.property, duplicatedFields)
+            expect(obj.id).toMatch(UUID_RE)
         })
 
         it('throws error, when trying to connect new resident to billing account, that is connected to another resident', async () => {
