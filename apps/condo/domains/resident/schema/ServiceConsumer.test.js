@@ -176,20 +176,11 @@ describe('ServiceConsumer', () => {
 
     describe('Delete', () => {
         it('cannot be deleted by anybody', async () => {
-            const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
+            const [obj, _, adminClient] = await createTestServiceConsumerForUserAsAdmin()
 
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-            const [billingProperty] = await createTestBillingProperty(adminClient, context)
-            const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-
-            const fields = {
-                billingAccount: { connect: { id: billingAccount.id } },
-            }
-
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, fields)
-            const [consumer] = await createTestServiceConsumer(adminClient, resident)
-            expect(consumer.resident.id).toEqual(resident.id)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await ServiceConsumer.delete(adminClient, obj.id)
+            })
         })
     })
 })
