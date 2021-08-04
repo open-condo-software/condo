@@ -1,14 +1,13 @@
 import { IntlProvider, useIntl } from 'react-intl'
 import React, { useEffect, useState } from 'react'
 import cookie from 'js-cookie'
-import nextCookie from 'next-cookies'
-
-const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
+import getConfig from 'next/config'
+import { extractReqLocale } from '@condo/domains/common/utils/locale'
+import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 
 const LocaleContext = React.createContext({})
 
-// TODO(pahaz): probably it's better to get it from next config!
-let defaultLocale = 'en'
+const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 
 let messagesImporter = (locale) => {
     throw new Error('You should define your own "messagesImporter(locale)" function. ' +
@@ -41,15 +40,6 @@ let getLocale = () => {
     return locale || defaultLocale
 }
 
-let extractReqLocale = (req) => {
-    try {
-        const cookieLocale = nextCookie({ req }).locale
-        const headersLocale = req.headers['accept-language'] && req.headers['accept-language'].slice(0, 2)
-        return cookieLocale || headersLocale || defaultLocale
-    } catch (e) {
-        return null
-    }
-}
 
 const initOnRestore = async (ctx) => {
     let locale, messages
@@ -57,7 +47,7 @@ const initOnRestore = async (ctx) => {
     if (isOnServerSide) {
         const inAppContext = Boolean(ctx.ctx)
         const req = (inAppContext) ? ctx.ctx.req : ctx.req
-        locale = extractReqLocale(req)
+        locale = extractReqLocale(req) || defaultLocale
         messages = await getMessages(locale)
     } else {
         locale = getLocale()
@@ -81,9 +71,9 @@ const Intl = ({ children, initialLocale, initialMessages, onError }) => {
     if (DEBUG_RERENDERS) console.log('IntlProvider()', locale)
 
     return (
-        <IntlProvider key={locale} locale={locale} messages={messages} onError={onError}>
-            <LocaleContext.Provider value={{ locale, setLocale }}>
-                {children}
+        <IntlProvider key={ locale } locale={ locale } messages={ messages } onError={ onError }>
+            <LocaleContext.Provider value={ { locale, setLocale } }>
+                { children }
             </LocaleContext.Provider>
         </IntlProvider>
     )
@@ -98,7 +88,7 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
     getMessages = opts.getMessages ? opts.getMessages : getMessages
     getLocale = opts.getLocale ? opts.getLocale : getLocale
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    const onIntlError = opts.hideErrors ? (() => {}) : undefined
+    const onIntlError = opts.hideErrors ? (() => { }) : undefined
 
     const WithIntl = ({ locale, messages, ...pageProps }) => {
         // in there is no locale and no messages => client side rerender (we should use some client side cache)
@@ -106,8 +96,8 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
         if (!messages) messages = {}
         if (DEBUG_RERENDERS) console.log('WithIntl()', locale)
         return (
-            <Intl initialLocale={locale} initialMessages={messages} onError={onIntlError}>
-                <PageComponent {...pageProps} />
+            <Intl initialLocale={ locale } initialMessages={ messages } onError={ onIntlError }>
+                <PageComponent { ...pageProps } />
             </Intl>
         )
     }
