@@ -5,13 +5,14 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/property/access/CheckPropertyWithAddressExistService')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
+const get = require('lodash/get')
 
 
 const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyWithAddressExistService', {
     types: [
         {
             access: true,
-            type: 'input CheckPropertyWithAddressExistInput { address: String! }',
+            type: 'input CheckPropertyWithAddressExistInput { addressMeta: JSON! }',
         },
         {
             access: true,
@@ -25,9 +26,23 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
             schema: 'checkPropertyWithAddressExist (data: CheckPropertyWithAddressExistInput!): CheckPropertyWithAddressExistOutput',
             resolver: async (parent, args, context = {}) => {
                 const { data } = args
-                const { address } = data
+                const { addressMeta } = data
+                if (!addressMeta) throw new Error('No object specified!')
+                const metaData = get(addressMeta, 'data')
+                if (!metaData) throw new Error('No meta data specified')
+                const suggestion = get(addressMeta, 'value')
+                if (!suggestion || typeof suggestion !== 'string') throw new Error('No suggestion specified')
+                const flat = get(metaData, 'flat')
+                let search = suggestion
+                if (flat) {
+                    if (typeof flat !== 'string' && typeof flat !== 'number') throw new Error('Flat should be number of string')
+                    const flatType = get(metaData, 'flat_type')
+                    if (!flatType || typeof flatType !== 'string') throw new Error('Flat is specified, but flat type is not!')
+                    const suffix = `, ${flatType} ${flat}`
+                    search = search.substring(0, search.length - suffix.length)
+                }
                 const count = await Property.count(context, {
-                    address,
+                    address: search,
                 })
                 return {
                     isFound: count > 0,

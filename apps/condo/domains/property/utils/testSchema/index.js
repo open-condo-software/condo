@@ -17,13 +17,13 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 const Property = generateGQLTestUtils(PropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestProperty (client, organization, extraAttrs = {}) {
+async function createTestProperty (client, organization, extraAttrs = {}, withFlat = false) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.address.streetAddress(true)
     const address = faker.address.streetAddress(true)
-    const addressMeta = buildFakeAddressMeta(address)
+    const addressMeta = buildFakeAddressMeta(address, withFlat)
     const attrs = {
         dv: 1,
         sender,
@@ -62,6 +62,13 @@ async function makeClientWithResidentUserAndProperty () {
     return userClient
 }
 
+async function makeClientWithFlatAndProperty () {
+    const client = await makeClientWithRegisteredOrganization()
+    const [property] = await createTestProperty(client, client.organization, { map: buildingMapJson }, true)
+    client.property = property
+    return client
+}
+
 async function checkPropertyWithAddressExistByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
@@ -80,6 +87,7 @@ module.exports = {
     createTestProperty,
     updateTestProperty,
     makeClientWithProperty,
+    makeClientWithFlatAndProperty,
     checkPropertyWithAddressExistByTestClient,
     makeClientWithResidentUserAndProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
