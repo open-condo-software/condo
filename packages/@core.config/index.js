@@ -64,7 +64,7 @@ function getConfig (namespace) {
         MEDIA_ROOT: process.env.MEDIA_ROOT || path.join(root, '__media'),
         MEDIA_URL: process.env.MEDIA_URL || '/media',
         DEFAULTS: getDefaults(),
-        DEFAULT_LOCALE: process.env.DEFAULT_LOCALE,
+        DEFAULT_LOCALE: process.env.DEFAULT_LOCALE || 'en',
     }
     const getter = (obj, name) => {
         if (name in obj) return obj[name]

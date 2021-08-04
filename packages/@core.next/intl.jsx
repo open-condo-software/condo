@@ -82,7 +82,6 @@ const Intl = ({ children, initialLocale, initialMessages, onError }) => {
 if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) Intl.whyDidYouRender = true
 
 const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
-    defaultLocale = opts.defaultLocale ? opts.defaultLocale : 'en'
     // TODO(pahaz): refactor it. No need to patch globals here!
     messagesImporter = opts.messagesImporter ? opts.messagesImporter : messagesImporter
     getMessages = opts.getMessages ? opts.getMessages : getMessages
