@@ -1,5 +1,6 @@
 import html2canvas from 'html2canvas'
 import Jspdf from 'jspdf'
+import html2pdf from 'html2pdf.js'
 
 const PDF_FORMAT_SETTINGS = {
     // pdfWidth - width of final image (in mm)
@@ -30,7 +31,11 @@ interface ICreatePdfOptions {
     format: string
 }
 
-export function createPdf (options: ICreatePdfOptions) {
+interface ICreatePdf {
+    (options: ICreatePdfOptions): Promise<void | Jspdf>
+}
+
+export const createPdf: ICreatePdf = (options) => {
     const {
         element,
         fileName,
@@ -60,7 +65,6 @@ export function createPdf (options: ICreatePdfOptions) {
         freeSpace -= lineSpace
         linesCounter++
     }
-
     const pdfImageHeight = getPdfHeightFromElement(element, pdfWidth)
     return  html2canvas(element).then(canvas => {
         const doc = new Jspdf('p', 'mm', [pdfWidth, pdfHeight])
@@ -77,3 +81,32 @@ export function createPdf (options: ICreatePdfOptions) {
     })
 }
 
+
+export const createPagedPdf: ICreatePdf = (options) => {
+    const {
+        element,
+        fileName,
+        format,
+    } = options
+    const settings = format in PDF_FORMAT_SETTINGS ? PDF_FORMAT_SETTINGS[format] : PDF_FORMAT_SETTINGS['a4']
+    const { pdfWidth, pdfHeight, elementOffset } = settings
+
+    // Calculating image ratio
+    // Width = pdfWidth - leftOffset - rightOffset = pdfWidth - elementOffset * 2
+    // Same for height
+    const imageRatio = (pdfHeight - elementOffset * 2) / (pdfWidth - elementOffset * 2)
+    // Now let's define what's max css height with this ratio
+    const maxElHeight = (element.clientWidth) * imageRatio
+
+    return html2pdf().set({
+        filename: fileName,
+        margin: elementOffset,
+        html2canvas: {
+            width: element.clientWidth,
+            // x: elementOffset,
+            // y: elementOffset,
+            // width: pdfWidth - elementOffset * 2,
+            // height: pdfImageHeight,
+        },
+    }).from(element).toCanvas().toPdf().save()
+}

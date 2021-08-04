@@ -11,7 +11,7 @@ import { TICKET_ANALYTICS_REPORT_MUTATION } from '@condo/domains/ticket/gql'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
-import { createPdf } from '@condo/domains/common/utils/pdf'
+import { createPagedPdf } from '@condo/domains/common/utils/pdf'
 import moment from 'moment'
 import { filterToQuery } from '@condo/domains/ticket/utils/helpers'
 
@@ -71,7 +71,7 @@ const PdfView = () => {
 
     useEffect(() => {
         if (!loading && data !== null) {
-            createPdf({ element: containerRef.current, fileName: 'analytics_result.pdf', format: 'a4' })
+            createPagedPdf({ element: containerRef.current, fileName: 'analytics_result.pdf', format: 'a4' })
                 .catch((e) => {
                     notification.error({
                         message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
