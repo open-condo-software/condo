@@ -5,7 +5,7 @@ async function canReadServiceConsumers ({ authentication: { item: user } }) {
     if (user.isAdmin) return {}
     if (user.type === RESIDENT) {
         return {
-            user: { id: user.id },
+            resident: { user: { id: user.id } },
         }
     }
     return false
@@ -14,7 +14,6 @@ async function canReadServiceConsumers ({ authentication: { item: user } }) {
 async function canManageServiceConsumers ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin) return true
-    return operation === 'create' && user.type === RESIDENT
 }
 
 /*
