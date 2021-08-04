@@ -1,6 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { css } from '@emotion/core'
 import { Typography } from 'antd'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
@@ -29,7 +28,7 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     if (!link) {
         return (
             <>
-                <Typography.Title css={css`display: block; text-align: center;`}>
+                <Typography.Title style={{ textAlign: 'center' }}>
                     {SelectOrganizationRequiredMessage}
                 </Typography.Title>
             </>
