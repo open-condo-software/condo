@@ -18,6 +18,10 @@ const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident
 const { REGISTER_CONSUMER_SERVICE_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+
 const Resident = generateGQLTestUtils(ResidentGQL)
 const ServiceConsumer = generateGQLTestUtils(ServiceConsumerGQL)
 /* AUTOGENERATE MARKER <CONST> */
@@ -128,10 +132,29 @@ async function registerConsumerServiceByTestClient(client, extraAttrs = {}) {
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 
+async function createTestServiceConsumerForUserAsAdmin() {
+    const userClient = await makeClientWithProperty()
+    const adminClient = await makeLoggedInAdminClient()
+
+    const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+    const [billingProperty] = await createTestBillingProperty(adminClient, context)
+    const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
+
+    const fields = {
+        billingAccount: { connect: { id: billingAccount.id } },
+    }
+
+    const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, fields)
+    const [consumer] = await createTestServiceConsumer(adminClient, resident)
+
+    return [consumer, userClient, adminClient]
+}
+
 module.exports = {
     Resident, createTestResident, updateTestResident,
     registerResidentByTestClient,
     ServiceConsumer, createTestServiceConsumer, updateTestServiceConsumer,
+    createTestServiceConsumerForUserAsAdmin,
 registerConsumerServiceByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
