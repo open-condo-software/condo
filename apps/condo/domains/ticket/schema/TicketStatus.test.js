@@ -19,7 +19,6 @@ const { TicketStatus, createTestTicketStatus, updateTestTicketStatus } = require
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { getTranslations, getAvailableLocales } = require('@condo/domains/common/utils/localesLoader')
 const { STATUS_IDS } = require('../constants/statusTransitions')
-const { find } = require('@core/keystone/schema')
 
 describe('TicketStatus', () => {
     test('admin: create TicketStatus', async () => {
@@ -196,27 +195,20 @@ describe('TicketStatus', () => {
         })
     })
     
-    test.each(getAvailableLocales())('localization [%s]: static statuses correctly localized', async (locale) => {
-        const translations = getTranslations(locale)
+    test.each(getAvailableLocales())('localization [%s]: static statuses has translations', async (locale) => {
+        const translations = Object.values(getTranslations(locale))
 
-        const admin = await makeLoggedInAdminClient({
-            headers: {
-                'Accept-Language': locale,
-            },
+        const admin = await makeLoggedInAdminClient()
+        admin.setHeaders({
+            'Accept-Language': locale,
         })
 
-        const statutsesLength = await TicketStatus.count(admin)
-        expect(statutsesLength).toBeGreaterThanOrEqual(6)
-
-        const rawStatuses = await find('TicketStatus', {})
-        
-        const tests = Object.values(STATUS_IDS).map(() => async (id) => {
-            const rawStatus = rawStatuses.find(x => x.id === id)
-            const status = await TicketStatus.getAll(admin, { id })
-            expect(rawStatus).toBeDefined()
-            expect(translations[rawStatus.name]).toBeDefined()
-            expect(translations[rawStatus.name]).toStrictEqual(status.name)
+        const statuses = await TicketStatus.getAll(admin, {
+            OR: Object.values(STATUS_IDS).map(id => ({ id })),
         })
-        await Promise.all(tests)
+
+        const isTranslationCompleted = Object.values(statuses).every(status => translations.includes(status.name))
+
+        expect(isTranslationCompleted).toBeTruthy()
     })
 })

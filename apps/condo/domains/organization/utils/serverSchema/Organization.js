@@ -2,7 +2,7 @@ const { Organization, OrganizationEmployee } = require('../../gql')
 const { OrganizationEmployeeRole } = require('./index')
 const { execGqlWithoutAccess } = require('./utils')
 
-const conf = require('@core/config')
+const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common')
 
 async function createOrganization (context, data) {
     return await execGqlWithoutAccess(context, {
@@ -36,8 +36,7 @@ async function createDefaultRoles (context, organization, data) {
     if (!organization.id) throw new Error('wrong organization.id argument')
     if (!organization.country) throw new Error('wrong organization.country argument')
     // TODO: place to another file?
-    const defaultRoles = conf.DEFAULTS.roles || {}
-    const tasks = Object.entries(defaultRoles).map(([roleId, roleInfo]) =>
+    const tasks = Object.entries(DEFAULT_ROLES).map(([roleId, roleInfo]) =>
         OrganizationEmployeeRole.create(context, {
             organization: { connect: { id: organization.id } },
             ...roleInfo,

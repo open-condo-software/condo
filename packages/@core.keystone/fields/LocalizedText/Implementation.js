@@ -15,7 +15,7 @@ class LocalizedText extends Text.implementation {
     gqlOutputFieldResolvers () {
         return {
             [this.path]: (item, args, context, info) => {
-                const locale = context.req ? extractReqLocale(context.req) : conf.DEFAULT_LOCALE
+                const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
                 const translations = getTranslations(locale)
                 const fieldValue = item[this.path]
                 // collision detection

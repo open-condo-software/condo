@@ -12,7 +12,8 @@ const { makeLoggedInAdminClient } = require ('@core/keystone/test.utils');
 
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { Organization: OrganizationGQL, OrganizationEmployee: OrganizationEmployeeGQL, OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@condo/domains/organization/gql')
-const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql')
+const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql');
+const { DEFAULT_ROLES } = require('../../constants/common');
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
@@ -50,7 +51,22 @@ async function createTestOrganization (client, extraAttrs = {}) {
     const obj = await Organization.create(client, attrs)
     return [obj, attrs]
 }
-
+async function createDefaultOrganizationEmployeeRoles(client, organization, extraAttrs = {}) {
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const tasks = Object.entries(DEFAULT_ROLES).map(([roleId, roleInfo]) =>
+        OrganizationEmployeeRole.create(client, {
+            organization: { connect: { id: organization.id } },
+            ...roleInfo,
+            ...attrs,
+        }).then(x => ({ [roleId]: x }))
+    )
+    return await Promise.all(tasks).then(r => r.reduce((prev, curr) => ({ ...prev, ...curr })))
+}
 async function updateTestOrganization (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
@@ -238,6 +254,7 @@ module.exports = {
     createTestOrganization,
     updateTestOrganization,
     createTestOrganizationEmployee,
+    createDefaultOrganizationEmployeeRoles,
     softDeleteTestOrganizationEmployee,
     makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
     updateTestOrganizationEmployee, createTestOrganizationWithAccessToAnotherOrganization,
