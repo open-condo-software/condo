@@ -111,8 +111,8 @@ const BillingIntegrationDetailsPage = () => {
 
     const pageTitle = get(integration, 'detailsTitle')
     const markDownText = get(integration, 'detailsText')
-    const startButtonMessage = get(integration, 'detailsConfirmButtonText', DefaultStartButtonMessage)
-    const instructionsButtonText = get(integration, 'detailsInstructionButtonText', DefaultInstructionButtonText)
+    const startButtonMessage = get(integration, 'detailsConfirmButtonText') || DefaultStartButtonMessage
+    const instructionsButtonText = get(integration, 'detailsInstructionButtonText') || DefaultInstructionButtonText
     const instructionsButtonLink = get(integration, 'detailsInstructionButtonLink')
 
     const disabledIntegration = !!currentContext
