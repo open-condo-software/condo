@@ -9,7 +9,10 @@ const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { OrganizationEmployeeRole, createTestOrganizationEmployeeRole, updateTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
+const {  expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
+const { getTranslations, getAvailableLocales } = require('@condo/domains/common/utils/localesLoader')
+const conf = require('@core/config')
+const { find } = require('../../../../../packages/@core.keystone/schema')
 
 describe('OrganizationEmployeeRole', () => {
     describe('user: create OrganizationEmployeeRole', () => {
@@ -201,5 +204,33 @@ describe('OrganizationEmployeeRole', () => {
         // We don't know this suggestions list in advance.
         expect(thrownError.errors[0].message).toMatch('Cannot query field "deleteOrganizationEmployeeRole" on type "Mutation"')
         expect(thrownError.errors[0].name).toMatch('ValidationError')
+    })
+
+    test.each(getAvailableLocales())('localization [%s]: static roles correctly localized', async (locale) => {
+        const admin = await makeLoggedInAdminClient({
+            headers: {
+                'Accept-Language': locale,
+            },
+        })
+        await createTestOrganization(admin)
+
+        const translations = getTranslations(locale)
+
+        const rawRoles = await find('OrganizationEmployeeRole', {})
+
+        // Get static role names (should be equal to translation dictionary)
+        const templatedNames = Object.values(conf.DEFAULTS.roles).map(x => x.name)
+
+        rawRoles.forEach((rawRole)=> {
+            // if role is created from template
+            if (templatedNames.includes(rawRole.name)){
+                // finding processed role with translations for locale
+                const relatedRole = OrganizationEmployeeRole.getAll(admin, {
+                    id: rawRole.id,
+                })
+                expect(relatedRole).toBeDefined()
+                expect(translations[rawRole.name]).toStrictEqual(relatedRole.name)
+            }
+        })
     })
 })

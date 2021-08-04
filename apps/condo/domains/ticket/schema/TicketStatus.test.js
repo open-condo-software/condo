@@ -205,14 +205,14 @@ describe('TicketStatus', () => {
             },
         })
 
-        const statuses = await TicketStatus.getAll(admin)
-        expect(statuses.length).toBeGreaterThanOrEqual(6)
+        const statutsesLength = await TicketStatus.count(admin)
+        expect(statutsesLength).toBeGreaterThanOrEqual(6)
 
         const rawStatuses = await find('TicketStatus', {})
 
         Object.entries(STATUS_IDS).forEach(([key, id]) => {
             const rawStatus = rawStatuses.find(x => x.id === id)
-            const status = statuses.find(x => x.id === id)
+            const status = TicketStatus.getAll(admin, { id })
             expect(rawStatus).toBeDefined()
             expect(translations[rawStatus.name]).toBeDefined()
             expect(translations[rawStatus.name]).toStrictEqual(status.name)

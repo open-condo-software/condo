@@ -1,9 +1,9 @@
 import { IntlProvider, useIntl } from 'react-intl'
 import React, { useEffect, useState } from 'react'
 import cookie from 'js-cookie'
+import nextCookie from 'next-cookies'
 
-import { extractReqLocale } from '@condo/domains/common/utils/locales'
-import { preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
+const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
 const LocaleContext = React.createContext({})
 
@@ -41,6 +41,15 @@ let getLocale = () => {
     return locale || defaultLocale
 }
 
+let extractReqLocale = (req) => {
+    try {
+        const cookieLocale = nextCookie({ req }).locale
+        const headersLocale = req.headers['accept-language'] && req.headers['accept-language'].slice(0, 2)
+        return cookieLocale || headersLocale || defaultLocale
+    } catch (e) {
+        return null
+    }
+}
 
 const initOnRestore = async (ctx) => {
     let locale, messages
@@ -63,10 +72,13 @@ const Intl = ({ children, initialLocale, initialMessages, onError }) => {
     useEffect(() => {
         getMessages(locale).then(importedMessages => {
             if (JSON.stringify(messages) === JSON.stringify(importedMessages)) return
+            if (DEBUG_RERENDERS) console.log('IntlProvider() newMessages and newLocale', locale)
             setMessages(importedMessages)
             cookie.set('locale', locale, { expires: 365 })
         })
     }, [locale])
+
+    if (DEBUG_RERENDERS) console.log('IntlProvider()', locale)
 
     return (
         <IntlProvider key={locale} locale={locale} messages={messages} onError={onError}>
@@ -76,6 +88,8 @@ const Intl = ({ children, initialLocale, initialMessages, onError }) => {
         </IntlProvider>
     )
 }
+
+if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) Intl.whyDidYouRender = true
 
 const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
     defaultLocale = opts.defaultLocale ? opts.defaultLocale : 'en'
@@ -90,6 +104,7 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
         // in there is no locale and no messages => client side rerender (we should use some client side cache)
         if (!locale) locale = getLocale()
         if (!messages) messages = {}
+        if (DEBUG_RERENDERS) console.log('WithIntl()', locale)
         return (
             <Intl initialLocale={locale} initialMessages={messages} onError={onIntlError}>
                 <PageComponent {...pageProps} />
@@ -97,6 +112,7 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
         )
     }
 
+    if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) WithIntl.whyDidYouRender = true
 
     // Set the correct displayName in development
     if (process.env.NODE_ENV !== 'production') {
@@ -106,6 +122,7 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
 
     if (ssr || PageComponent.getInitialProps) {
         WithIntl.getInitialProps = async ctx => {
+            if (DEBUG_RERENDERS) console.log('WithIntl.getInitialProps()', ctx)
             const isOnServerSide = typeof window === 'undefined'
             const { locale, messages } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
