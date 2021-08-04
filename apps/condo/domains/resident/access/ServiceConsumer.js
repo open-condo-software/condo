@@ -1,6 +1,5 @@
-// @ts-nocheck
-import { ServiceConsumer, Resident } from '@condo/domains/resident/utils/serverSchema'
 
+const { ServiceConsumer, Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 async function canReadServiceConsumers ({ authentication: { item: user } }) {
     if (!user) return false
