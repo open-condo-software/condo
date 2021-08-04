@@ -10,8 +10,7 @@
 			"canManageProperties": true,
 			"canManageTickets": true,
 			"canManageContacts": true,
-			"canManageTicketComments": true,
-			"canShareTickets": true
+			"canManageTicketComments": true
 		},
 		"Dispatcher": {
 			"name": "employee.role.Dispatcher.name",
@@ -23,8 +22,7 @@
 			"canManageProperties": true,
 			"canManageTickets": true,
 			"canManageContacts": true,
-			"canManageTicketComments": true,
-			"canShareTickets": true
+			"canManageTicketComments": true
 		},
 		"Manager": {
 			"name": "employee.role.Manager.name",
@@ -36,8 +34,7 @@
 			"canManageProperties": true,
 			"canManageTickets": true,
 			"canManageContacts": true,
-			"canManageTicketComments": true,
-			"canShareTickets": true
+			"canManageTicketComments": true
 		},
 		"Foreman": {
 			"name": "employee.role.Foreman.name",
@@ -49,8 +46,7 @@
 			"canManageProperties": false,
 			"canManageTickets": true,
 			"canManageContacts": false,
-			"canManageTicketComments": true,
-			"canShareTickets": true
+			"canManageTicketComments": true
 		},
 		"Technician": {
 			"name": "employee.role.Technician.name",
@@ -62,8 +58,7 @@
 			"canManageProperties": false,
 			"canManageTickets": true,
 			"canManageContacts": false,
-			"canManageTicketComments": true,
-			"canShareTickets": true
+			"canManageTicketComments": true
 		}
 	}
 }
