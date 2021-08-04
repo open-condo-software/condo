@@ -210,9 +210,9 @@ describe('TicketStatus', () => {
 
         const rawStatuses = await find('TicketStatus', {})
 
-        Object.entries(STATUS_IDS).forEach(([key, id]) => {
+        Object.entries(STATUS_IDS).forEach(async ([key, id]) => {
             const rawStatus = rawStatuses.find(x => x.id === id)
-            const status = TicketStatus.getAll(admin, { id })
+            const status = await TicketStatus.getAll(admin, { id })
             expect(rawStatus).toBeDefined()
             expect(translations[rawStatus.name]).toBeDefined()
             expect(translations[rawStatus.name]).toStrictEqual(status.name)
