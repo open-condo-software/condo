@@ -221,7 +221,7 @@ describe('OrganizationEmployeeRole', () => {
         // Get static role names (should be equal to translation dictionary)
         const templatedNames = Object.values(conf.DEFAULTS.roles).map(x => x.name)
 
-        rawRoles.forEach(async (rawRole)=> {
+        const tests = rawRoles.map(() => async (rawRole)=> {
             // if role is created from template
             if (templatedNames.includes(rawRole.name)){
                 // finding processed role with translations for locale
@@ -240,5 +240,6 @@ describe('OrganizationEmployeeRole', () => {
                 expect(translations[rawRole.description]).toStrictEqual(relatedRole.description)
             }
         })
+        await Promise.all(tests)
     })
 })

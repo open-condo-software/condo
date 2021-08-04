@@ -136,6 +136,7 @@ async function createTestOrganizationEmployeeRole (client, organization, extraAt
         dv: 1,
         sender,
         name: faker.random.alphaNumeric(8),
+        description: faker.random.words(8),
         organization: { connect: { id: organization.id } },
         ...extraAttrs,
     }

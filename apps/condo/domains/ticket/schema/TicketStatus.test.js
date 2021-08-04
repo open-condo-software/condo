@@ -209,13 +209,14 @@ describe('TicketStatus', () => {
         expect(statutsesLength).toBeGreaterThanOrEqual(6)
 
         const rawStatuses = await find('TicketStatus', {})
-
-        Object.entries(STATUS_IDS).forEach(async ([key, id]) => {
+        
+        const tests = Object.values(STATUS_IDS).map(() => async (id) => {
             const rawStatus = rawStatuses.find(x => x.id === id)
             const status = await TicketStatus.getAll(admin, { id })
             expect(rawStatus).toBeDefined()
             expect(translations[rawStatus.name]).toBeDefined()
             expect(translations[rawStatus.name]).toStrictEqual(status.name)
         })
+        await Promise.all(tests)
     })
 })
