@@ -3,6 +3,8 @@ import { TicketClassifierRule as TicketClassifierRuleGQL } from '@condo/domains/
 import { ApolloClient } from '@core/next/apollo'
 import { sortBy, isEmpty, filter } from 'lodash'
 
+const MAX_SEARCH_COUNT = 20
+
 type Options = {
     id: string
     name: string
@@ -78,11 +80,20 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
 
     public async search (input: string, type: string): Promise<Options[]> {
         if (isEmpty(input)) {
-            return this[type].slice(0, 20)
+            return this[type].slice(0, MAX_SEARCH_COUNT)
         } else {
             const search = input.toLocaleLowerCase()
-            const founded = this[type].filter(place => place.name.toLowerCase().indexOf(search) !== -1)
-            return founded
+            const result = []
+            for (const classifier of this[type]) {
+                if (classifier.name.toLowerCase().indexOf(search) !== -1) {
+                    result.push(classifier)
+                }
+                if (result.length > MAX_SEARCH_COUNT) {
+                    break
+                }
+            }
+            //const result = this[type].filter(place => place.name.toLowerCase().indexOf(search) !== -1)
+            return result
         }
     }
 
