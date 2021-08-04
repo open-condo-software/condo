@@ -3,6 +3,7 @@
  */
 
 const faker = require('faker')
+const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { updateTestUser } = require('@condo/domains/user/utils/testSchema/')
 const { createTestResident } = require('../utils/testSchema')
@@ -88,15 +89,28 @@ describe('ServiceConsumer', () => {
             expect(updatedConsumer.accountNumber).toEqual(newAccountNumber)
         })
 
-        it('cannot be updated by user with type === resident', async () => {
+        it('can be updated by user with type === resident only if this is his serviceConsumer', async () => {
             const [consumer, userClient, adminClient] = await createTestServiceConsumerForUserAsAdmin()
 
-            await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
+            await addResidentAccess(userClient.user)
+            const newAccountNumber = faker.random.alphaNumeric(8)
+
+            const [updatedConsumer] = await updateTestServiceConsumer(userClient, consumer.id, { accountNumber: newAccountNumber })
+            expect(updatedConsumer.id).toEqual(consumer.id)
+            expect(updatedConsumer.accountNumber).toEqual(newAccountNumber)
+        })
+
+        it('cannot be updated by user with type === resident', async () => {
+            const [consumer1, userClient1] = await createTestServiceConsumerForUserAsAdmin()
+            const [consumer2, userClient2] = await createTestServiceConsumerForUserAsAdmin()
+
+            await addResidentAccess(userClient1.user)
+            await addResidentAccess(userClient2.user)
 
             const newAccountNumber = faker.random.alphaNumeric(8)
 
             expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestServiceConsumer(userClient, consumer.id, { accountNumber: newAccountNumber })
+                await updateTestServiceConsumer(userClient2, consumer1.id, { accountNumber: newAccountNumber })
             })
         })
 
