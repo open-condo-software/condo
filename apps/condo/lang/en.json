@@ -353,6 +353,7 @@
   "pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Month": "Month",
   "pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Quarter": "Quarter",
   "pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Year": "Year",
+  "pages.condo.analytics.TicketAnalyticsPage.PDF.LoadingTip": "Generating report",
   "pages.organizations.CreateOrganizationButtonLabel": "Create new organization",
   "pages.organizations.CreateOrganizationModalTitle": "New organization form",
   "pages.organizations.EditOrganizationModalTitle": "Edit organization form",

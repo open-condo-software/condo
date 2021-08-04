@@ -1,5 +1,7 @@
 const MAX_TICKET_REPORT_COUNT = 1000
+const PDF_REPORT_WIDTH = 1920
 
 module.exports = {
     MAX_TICKET_REPORT_COUNT,
+    PDF_REPORT_WIDTH,
 }

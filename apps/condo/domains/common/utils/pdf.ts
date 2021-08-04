@@ -1,7 +1,6 @@
 import html2canvas from 'html2canvas'
 import Jspdf from 'jspdf'
-import html2pdf from 'html2pdf.js'
-
+import { PDF_REPORT_WIDTH } from '@condo/domains/ticket/constants/common'
 const PDF_FORMAT_SETTINGS = {
     // pdfWidth - width of final image (in mm)
     // pdfHeight - height of final image (in mm)
@@ -10,6 +9,7 @@ const PDF_FORMAT_SETTINGS = {
     // lineSpace - margin right for rest of lines (in css pixels)
     'a4': { pdfWidth: 210, pdfHeight: 297, elementOffset: 10, firstLineOffset: 23, lineSpace: 80 },
     'a5': { pdfWidth: 148, pdfHeight: 210, elementOffset: 10, firstLineOffset: 23, lineSpace: 80 },
+    'fullscreen': { pdfWidth: PDF_REPORT_WIDTH, elementOffset: 10 },
 }
 
 function getPdfHeightFromElement (element: HTMLElement, expectedWidth: number) {
@@ -32,9 +32,14 @@ interface ICreatePdfOptions {
 }
 
 interface ICreatePdf {
-    (options: ICreatePdfOptions): Promise<void | Jspdf>
+    (options: ICreatePdfOptions): Promise<Jspdf>
 }
 
+interface ICreatePagedPdf {
+    (options: Omit<ICreatePdfOptions, 'format'>)
+}
+
+// TODO(sitozzz): rewrite with html2pdf.js syntax & remove unused dependencies
 export const createPdf: ICreatePdf = (options) => {
     const {
         element,
@@ -82,31 +87,16 @@ export const createPdf: ICreatePdf = (options) => {
 }
 
 
-export const createPagedPdf: ICreatePdf = (options) => {
-    const {
-        element,
-        fileName,
-        format,
-    } = options
-    const settings = format in PDF_FORMAT_SETTINGS ? PDF_FORMAT_SETTINGS[format] : PDF_FORMAT_SETTINGS['a4']
-    const { pdfWidth, pdfHeight, elementOffset } = settings
-
-    // Calculating image ratio
-    // Width = pdfWidth - leftOffset - rightOffset = pdfWidth - elementOffset * 2
-    // Same for height
-    const imageRatio = (pdfHeight - elementOffset * 2) / (pdfWidth - elementOffset * 2)
-    // Now let's define what's max css height with this ratio
-    const maxElHeight = (element.clientWidth) * imageRatio
-
+export const createPagedPdf: ICreatePagedPdf = (options) => {
+    const html2pdf = require('html2pdf.js')
+    const { fileName, element } = options
+    const { elementOffset, pdfWidth } = PDF_FORMAT_SETTINGS.fullscreen
     return html2pdf().set({
         filename: fileName,
         margin: elementOffset,
+        pagebreak: { mode: ['avoid-all', 'css'] },
         html2canvas: {
-            width: element.clientWidth,
-            // x: elementOffset,
-            // y: elementOffset,
-            // width: pdfWidth - elementOffset * 2,
-            // height: pdfImageHeight,
+            width: pdfWidth,
         },
-    }).from(element).toCanvas().toPdf().save()
+    }).from(element).save()
 }
