@@ -42,7 +42,7 @@ const BillingIntegrationDetailsPage = () => {
     const ContextAlreadyCreatedMessage = intl.formatMessage({ id: 'ContextAlreadyCreated' })
     const CompanyNameLabel = intl.formatMessage({ id: 'CompanyName' })
     const AnotherContextAlreadyCreatedMessage = intl.formatMessage({ id: 'AnotherContextAlreadyCreated' }, {
-        companyName: CompanyNameLabel,
+        company: CompanyNameLabel,
     })
 
     const { query, push } = useRouter()

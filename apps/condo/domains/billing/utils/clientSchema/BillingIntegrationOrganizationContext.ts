@@ -16,7 +16,6 @@ const RELATIONS = ['integration', 'organization']
 export interface IBillingIntegrationOrganizationContextUIState extends BillingIntegrationOrganizationContext {
     id: string
     status: string
-    // TODO(codegen): write IBillingIntegrationOrganizationContextUIState or extends it from
 }
 
 function convertToUIState (item: BillingIntegrationOrganizationContext): IBillingIntegrationOrganizationContextUIState {

@@ -529,6 +529,8 @@
   "Instruction": "Instruction",
   "BillingIntegrationContextConfirmQuestion": "Do you want to integrate with this billing?",
   "BillingIntegrationContextNoReturns": "By pressing the \"{buttonValue}\" button, you agree to the integration with this billing. After that, it will be impossible to change the integration manually",
-  "AnotherContextAlreadyCreated": "You've already connected to another integration. To change the current one, contact support of \"{companyName}\"",
-  "ContextAlreadyCreated": "You've already connected to integration"
+  "AnotherContextAlreadyCreated": "You've already connected to another integration. To change the current one, contact support of «{company}»",
+  "ContextAlreadyCreated": "You've already connected to integration",
+  "ErrorHappenedDuringIntegration": "An error occurred during the integration process. Please, contact support of «{company}»",
+  "ErrorOccurred": "Error occurred"
 }

@@ -46,12 +46,12 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             schemaDoc: 'Status of integration process. Can be: "inProgress", "Finished", "Error"',
             type: Text,
             isRequired: true,
-            defaultValue: 'inProgress',
+            defaultValue: 'InProgress',
             hooks: {
                 validateInput: (args) => {
                     const { resolvedData, fieldPath, addFieldValidationError } = args
                     const value = resolvedData[fieldPath]
-                    const expectedValues = ['inProgress', 'Finished', 'Error']
+                    const expectedValues = ['InProgress', 'Finished', 'Error']
                     if (!expectedValues.includes(value)) {
                         addFieldValidationError(`Integration status has invalid input! Expected one of this: ${expectedValues.join(', ')}. But got: ${value}`)
                     }

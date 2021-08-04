@@ -5,7 +5,7 @@ import { Tooltip, Typography, Tag } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 
-export type CardStatuses = 'available' | 'inProgress' | 'chosen' | 'disabled'
+export type CardStatuses = 'available' | 'inProgress' | 'done' | 'disabled' | 'error'
 
 interface IIntegrationPanelProps {
     integrationId: string
@@ -55,19 +55,34 @@ export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
     const ContactSupportForCancellingMessage = intl.formatMessage({ id: 'ContactSupportToCancelIntegration' }, {
         company: CompanyLabel,
     })
+    const IntegrationErrorMessage = intl.formatMessage({ id: 'ErrorHappenedDuringIntegration' }, {
+        company: CompanyLabel,
+    })
     const ClickToSeeMoreMessage = intl.formatMessage({ id: 'ClickToSeeMore' })
+    const ErrorOccurredMessage = intl.formatMessage({ id: 'ErrorOccurred' })
 
-    const TooltipMessage = (status === 'chosen' || status === 'inProgress')
-        ? ContactSupportForCancellingMessage
-        : (
-            status === 'available'
-                ? ClickToSeeMoreMessage
-                : NoMoreBillingsAllowedMessage
-        )
+    let TooltipMessage = ContactSupportForCancellingMessage
+    if (status === 'available') {
+        TooltipMessage = ClickToSeeMoreMessage
+    } else if (status === 'error') {
+        TooltipMessage = IntegrationErrorMessage
+    } else if (status === 'disabled') {
+        TooltipMessage = NoMoreBillingsAllowedMessage
+    }
 
-    const tagBackgroundColor = status === 'chosen' ? colors.green[2] : colors.orange[3]
-    const tagTextColor = status === 'chosen' ? colors.green[7] : colors.orange[7]
-    const tagText = status === 'chosen' ? IntegrationConnectedMessage : IntegrationInProgressMessage
+    let tagBackgroundColor = colors.green[2]
+    let tagTextColor = colors.green[7]
+    let tagText = IntegrationConnectedMessage
+
+    if (status === 'inProgress') {
+        tagBackgroundColor = colors.orange[3]
+        tagTextColor = colors.orange[7]
+        tagText = IntegrationInProgressMessage
+    } else if (status === 'error') {
+        tagBackgroundColor = colors.red[2]
+        tagTextColor = colors.red[5]
+        tagText = ErrorOccurredMessage
+    }
 
 
     const router = useRouter()
@@ -79,7 +94,7 @@ export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
     return (
         <Tooltip title={TooltipMessage}>
             <CardContainer data-status={status} onClick={onClickEvent}>
-                {(status === 'inProgress' || status === 'chosen') && (
+                {['inProgress', 'done', 'error'].includes(status)  && (
                     <Tag
                         color={tagBackgroundColor}
                         style={{ position: 'absolute', top: 12, right: 4 }}
