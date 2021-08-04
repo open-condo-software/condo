@@ -4913,7 +4913,8 @@ export type CreateResidentTicketInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
   details: Scalars['String'];
-  propertyId: Scalars['String'];
+  source: TicketSourceRelateToOneInput;
+  property: PropertyRelateToOneInput;
   unitName?: Maybe<Scalars['String']>;
 };
 
