@@ -13,6 +13,7 @@ function getSectionAndFloorByUnitName (property, unitName) {
                     if (unit.label === unitName) {
                         res.sectionName = section.name
                         res.floorName = floor.name
+                        break
                     }
                 }
             }
