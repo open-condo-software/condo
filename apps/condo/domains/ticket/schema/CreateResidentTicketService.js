@@ -42,7 +42,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                 const user = context?.req?.user
 
                 const [contact] = await Contact.getAll(context, {
-                    email: user?.email, organization: { id: organizationId }, property: { id: propertyId },
+                    phone: user?.phone, organization: { id: organizationId }, property: { id: propertyId },
                 })
                 if (!contact) {
                     await Contact.create(context, {
