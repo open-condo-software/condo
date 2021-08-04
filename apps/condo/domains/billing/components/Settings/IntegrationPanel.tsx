@@ -1,9 +1,10 @@
 import React from 'react'
 import styled from '@emotion/styled'
 import { colors, shadows } from '@condo/domains/common/constants/style'
-import { Tooltip, Typography, Tag } from 'antd'
+import { Tooltip, Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
+import { Tag, TagType } from '@condo/domains/common/components/Tag'
 
 export type CardStatuses = 'available' | 'inProgress' | 'done' | 'disabled' | 'error'
 
@@ -70,17 +71,14 @@ export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
         TooltipMessage = NoMoreBillingsAllowedMessage
     }
 
-    let tagBackgroundColor = colors.green[2]
-    let tagTextColor = colors.green[7]
+    let tagType: TagType = 'green'
     let tagText = IntegrationConnectedMessage
 
     if (status === 'inProgress') {
-        tagBackgroundColor = colors.orange[3]
-        tagTextColor = colors.orange[7]
+        tagType = 'orange'
         tagText = IntegrationInProgressMessage
     } else if (status === 'error') {
-        tagBackgroundColor = colors.red[2]
-        tagTextColor = colors.red[5]
+        tagType = 'red'
         tagText = ErrorOccurredMessage
     }
 
@@ -96,12 +94,10 @@ export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
             <CardContainer data-status={status} onClick={onClickEvent}>
                 {['inProgress', 'done', 'error'].includes(status)  && (
                     <Tag
-                        color={tagBackgroundColor}
+                        type={tagType}
                         style={{ position: 'absolute', top: 12, right: 4 }}
                     >
-                        <Typography.Text style={{ color: tagTextColor }}>
-                            {tagText}
-                        </Typography.Text>
+                        {tagText}
                     </Tag>
                 )}
                 <TwoLineClamp style={{ marginTop: 5 }}>
