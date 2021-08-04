@@ -4,7 +4,7 @@ import get from 'lodash/get'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import moment, { Moment } from 'moment'
 import { ParsedUrlQuery } from 'querystring'
-import { Ticket, TicketStatus, TicketStatusWhereInput, TicketWhereInput } from '../../../schema'
+import { Ticket, TicketAnalyticsGroupBy, TicketStatus, TicketStatusWhereInput, TicketWhereInput } from '../../../schema'
 import { ticketSelectTypes, viewModeTypes } from '../components/TicketChart'
 
 export const getTicketCreateMessage = (intl, ticket) => {
@@ -372,7 +372,11 @@ export type ticketAnalyticsPageFilters = {
 }
 
 interface IFilterToQuery {
-    (filter: ticketAnalyticsPageFilters, viewMode: viewModeTypes, ticketType: ticketSelectTypes ): { AND: unknown[], groupBy: unknown[] }
+    (
+        filter: ticketAnalyticsPageFilters,
+        viewMode: viewModeTypes,
+        ticketType: ticketSelectTypes
+    ): { AND: TicketWhereInput['AND'], groupBy: TicketAnalyticsGroupBy[] }
 }
 
 export const filterToQuery: IFilterToQuery = (filter, viewMode, ticketType) => {
@@ -385,7 +389,7 @@ export const filterToQuery: IFilterToQuery = (filter, viewMode, ticketType) => {
         groupBy.push(...['status', 'property'])
     }
 
-    const AND: unknown[] = [
+    const AND: TicketWhereInput['AND'] = [
         { createdAt_gte: dateFrom.startOf('day').toISOString() },
         { createdAt_lte: dateTo.endOf('day').toISOString() },
     ]
