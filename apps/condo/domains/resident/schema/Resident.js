@@ -98,13 +98,6 @@ const Resident = new GQLListSchema('Resident', {
             access: true,
         },
 
-        billingAccount: {
-            schemaDoc: 'System-wide billing account, that will allow to pay for all services from all organizations',
-            type: Relationship,
-            ref: 'BillingAccount',
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-        },
-
         address: {
             schemaDoc: 'Normalized address',
             type: Text,
@@ -122,15 +115,7 @@ const Resident = new GQLListSchema('Resident', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
-            const { property, address, addressMeta, unitName, billingAccount, user: userId } = resolvedData
-            if (billingAccount) {
-                const [residentWithSameBillingAccount] = await ResidentAPI.getAll(context, {
-                    billingAccount: { id: billingAccount },
-                })
-                if (residentWithSameBillingAccount) {
-                    return addValidationError('Specified billing account is already connected to another resident')
-                }
-            }
+            const { property, address, addressMeta, unitName, user: userId } = resolvedData
             if (operation === 'create') {
                 const [resident] = await ResidentAPI.getAll(context, {
                     property: { id: property },
