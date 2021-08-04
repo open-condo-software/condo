@@ -56,7 +56,12 @@ export function useTicketValidations (): IFormFieldsRuleMap {
         placeClassifier: [
             {
                 required: true,
-                min: 20,
+                message: intl.formatMessage({ id: 'field.Classifier.requiredError' }),
+            },
+        ],
+        classifierRule: [
+            {
+                required: true,
                 message: intl.formatMessage({ id: 'field.Classifier.requiredError' }),
             },
         ],

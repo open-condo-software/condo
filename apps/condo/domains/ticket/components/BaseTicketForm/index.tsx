@@ -58,7 +58,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorNameLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const DescriptionLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
-    const ClassifierLabel = intl.formatMessage({ id: 'Classifier' })
     const ExecutorLabel = intl.formatMessage({ id: 'field.Executor' })
     const ResponsibleLabel = intl.formatMessage({ id: 'field.Responsible' })
     const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
@@ -90,18 +89,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(initialValues.details ? initialValues.details.length : 0)
 
-    const {
-        ClassifierRuleHiddenInput,
-        PlaceSelect,
-        CategorySelect,
-        DescriptionSelect,
-    } = useTicketThreeLevelsClassifierHook({ initialValues })
-
-    console.log(ClassifierRuleHiddenInput,
-        PlaceSelect,
-        CategorySelect,
-        DescriptionSelect)
-
+    const { ClassifiersEditorComponent } = useTicketThreeLevelsClassifierHook({ initialValues })
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
@@ -303,24 +291,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     <Col span={24}>
                                                                         <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
                                                                     </Col>
-                                                                    <Col span={12} style={{ paddingRight: '20px' }}>
-                                                                        <Form.Item name={'placeClassifier'} rules={validations.placeClassifier} >
-                                                                            <ClassifierRuleHiddenInput/>
-                                                                        </Form.Item>
-                                                                        <Form.Item label={PlaceClassifierLabel} name={'placeClassifier'} rules={validations.placeClassifier} >
-                                                                            <PlaceSelect disabled={disableUserInteraction}  />
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                    <Col span={12} style={{ paddingLeft: '20px' }}>
-                                                                        <Form.Item label={CategoryClassifierLabel} rules={validations.categoryClassifier} >
-                                                                            <CategorySelect disabled={disableUserInteraction}  />
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                    <Col span={24}>
-                                                                        <Form.Item label={DescriptionClassifierLabel}>
-                                                                            <DescriptionSelect  disabled={disableUserInteraction} />
-                                                                        </Form.Item>
-                                                                    </Col>
+                                                                    <ClassifiersEditorComponent form={form} />
                                                                     <Col span={24}>
                                                                         <Row>
                                                                             <Col span={6}>
