@@ -7,9 +7,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 async function canReadTicketClassifiers ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
-    return {
-        // TODO(codegen): write canReadTicketClassifiers logic!
-    }
+    return {}
 }
 
 async function canManageTicketClassifiers ({ authentication: { item: user }, originalInput, operation, itemId }) {
