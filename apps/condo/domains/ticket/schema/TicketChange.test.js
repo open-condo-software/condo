@@ -6,7 +6,6 @@ const { catchErrorFrom, expectToThrowAuthenticationErrorToObjects } = require('.
 const faker = require('faker')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { updateTestTicket } = require('../utils/testSchema')
 
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
@@ -18,6 +17,7 @@ const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keys
 const { TicketChange, TicketStatus, TicketSource, TicketClassifier, createTestTicketChange, updateTestTicketChange } = require('@condo/domains/ticket/utils/testSchema')
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
+const { getTranslations } = require('../../common/utils/localesLoader')
 
 describe('TicketChange', () => {
 
@@ -131,8 +131,10 @@ describe('TicketChange', () => {
 
             expect(objs[0].statusIdFrom).toEqual(ticket.status.id)
             expect(objs[0].statusIdTo).toEqual(payload.status.connect.id)
-            expect(objs[0].statusDisplayNameFrom).toEqual(openedStatus.name)
-            expect(objs[0].statusDisplayNameTo).toEqual(inProgressStatus.name)
+
+            const translations = getTranslations()
+            expect(translations[objs[0].statusDisplayNameFrom]).toEqual(openedStatus.name)
+            expect(translations[objs[0].statusDisplayNameTo]).toEqual(inProgressStatus.name)
 
             expect(objs[0].clientIdFrom).toEqual(ticket.client.id)
             expect(objs[0].clientIdTo).toEqual(payload.client.connect.id)
