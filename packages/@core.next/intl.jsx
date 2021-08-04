@@ -1,13 +1,12 @@
 import { IntlProvider, useIntl } from 'react-intl'
 import React, { useEffect, useState } from 'react'
 import cookie from 'js-cookie'
-import getConfig from 'next/config'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 
 const LocaleContext = React.createContext({})
 
-const { publicRuntimeConfig: { defaultLocale } } = getConfig()
+let defaultLocale = 'en'
 
 let messagesImporter = (locale) => {
     throw new Error('You should define your own "messagesImporter(locale)" function. ' +
@@ -83,6 +82,7 @@ if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) Intl.whyDidYouRender = true
 
 const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
+    defaultLocale = opts.defaultLocale || defaultLocale
     messagesImporter = opts.messagesImporter ? opts.messagesImporter : messagesImporter
     getMessages = opts.getMessages ? opts.getMessages : getMessages
     getLocale = opts.getLocale ? opts.getLocale : getLocale

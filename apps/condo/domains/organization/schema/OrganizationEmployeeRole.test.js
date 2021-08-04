@@ -9,10 +9,10 @@ const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { OrganizationEmployeeRole, createTestOrganizationEmployeeRole, updateTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const {  expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
+const {  expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { getTranslations, getAvailableLocales } = require('@condo/domains/common/utils/localesLoader')
 const conf = require('@core/config')
-const { find } = require('../../../../../packages/@core.keystone/schema')
+const { find } = require('@core/keystone/schema')
 
 describe('OrganizationEmployeeRole', () => {
     describe('user: create OrganizationEmployeeRole', () => {

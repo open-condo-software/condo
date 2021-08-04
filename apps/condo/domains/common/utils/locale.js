@@ -10,6 +10,7 @@ const extractReqLocale = (req) => {
         return null
     }
 }
+
 module.exports = {
     extractReqLocale,
 }
