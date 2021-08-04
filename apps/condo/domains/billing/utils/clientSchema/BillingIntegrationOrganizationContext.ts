@@ -26,9 +26,8 @@ function convertToUIState (item: BillingIntegrationOrganizationContext): IBillin
 
 export interface IBillingIntegrationOrganizationContextFormState {
     id?: undefined
-    integration: string
-    organization: string
-    // TODO(codegen): write IBillingIntegrationOrganizationContextUIFormState or extends it from
+    integration?: string
+    organization?: string
 }
 
 function convertToUIFormState (state: IBillingIntegrationOrganizationContextUIState): IBillingIntegrationOrganizationContextFormState | undefined {
@@ -43,7 +42,8 @@ function convertToUIFormState (state: IBillingIntegrationOrganizationContextUISt
 
 function convertToGQLInput (state: IBillingIntegrationOrganizationContextFormState): BillingIntegrationOrganizationContextUpdateInput {
     const sender = getClientSideSenderInfo()
-    const result = { dv: 1, sender }
+    const defaultDv = { dv: 1, sender }
+    const result = { ...defaultDv, state: defaultDv, settings: defaultDv }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
         result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]

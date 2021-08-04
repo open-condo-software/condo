@@ -16,7 +16,6 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { Button } from '@condo/domains/common/components/Button'
 import Link from 'next/link'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import styled from '@emotion/styled'
 
 
@@ -77,14 +76,9 @@ const BillingIntegrationDetailsPage = () => {
         fetchPolicy: 'network-only',
     })
 
-    const sender = getClientSideSenderInfo()
     const createContextAction = BillingIntegrationOrganizationContext.useCreate({
         integration: String(integrationId),
         organization: organizationId,
-        // @ts-ignore
-        state: { dv: 1, sender },
-        // @ts-ignore
-        settings: { dv: 1, sender },
     }, () => {
         push(SETTINGS_PAGE_ROUTE)
     })
@@ -100,7 +94,6 @@ const BillingIntegrationDetailsPage = () => {
             okText: ContinueMessage,
             cancelText: CancelMessage,
             onOk () {
-                // @ts-ignore
                 return createContextAction({})
             },
         })
