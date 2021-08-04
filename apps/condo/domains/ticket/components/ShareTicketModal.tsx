@@ -194,7 +194,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const { date, number, details, id, locale } = props
     const cipher = crypto.createCipher(ALGORITHM, SALT)
 
-    let cutDetails = details
+    let cutDetails = details || ''
     if (cutDetails.length >= 110) {
         cutDetails = `${cutDetails.substr(0, 100)}…`
     }
