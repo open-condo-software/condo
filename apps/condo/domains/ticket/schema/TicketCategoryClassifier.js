@@ -7,22 +7,19 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketCategoryClassifier')
-const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
+const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 
 const TicketCategoryClassifier = new GQLListSchema('TicketCategoryClassifier', {
     schemaDoc: 'Describes what type of work needs to be done to fix incident ',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
-
-        organization: ORGANIZATION_OWNED_FIELD,
-
+        organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
         name: {
             schemaDoc: 'text description',
             type: Text,
             isRequired: true,
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
