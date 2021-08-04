@@ -132,19 +132,7 @@ const TICKET_ANALYTICS_REPORT_MUTATION = gql`
 `
 
 const RESIDENT_TICKET_FIELDS = '{ organization { id name } property { id name address } unitName sectionName floorName number client { id name } clientName clientEmail clientPhone status { id name type organization { id } colors } classifier { id name organization { id } parent { id name } } details related { id details } isEmergency isPaid source { id name type } id dv sender v deletedAt newId createdAt updatedAt }'
-const ResidentTicket = generateGqlQueries('Ticket', RESIDENT_TICKET_FIELDS)
-
-const CREATE_RESIDENT_TICKET_MUTATION = gql`
-    mutation createResidentTicket ($data: CreateResidentTicketInput!) {
-        obj: createResidentTicket (data: $data) ${RESIDENT_TICKET_FIELDS}
-    }
-`
-
-const GET_ALL_RESIDENT_TICKETS_QUERY = gql`
-    query getAllResidentTickets ($where: TicketWhereInput!, $first: Int!, $skip: Int!) {
-        objs: getAllResidentTickets (where: $where, first: $first, skip: $skip) ${RESIDENT_TICKET_FIELDS}
-    }
-`
+const ResidentTicket = generateGqlQueries('ResidentTicket', RESIDENT_TICKET_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
@@ -174,8 +162,8 @@ module.exports = {
     TicketComment,
     TICKET_ANALYTICS_REPORT_MUTATION,
     SHARE_TICKET_MUTATION,
-    CREATE_RESIDENT_TICKET_MUTATION,
-    GET_ALL_RESIDENT_TICKETS_QUERY,
+    // CREATE_RESIDENT_TICKET_MUTATION,
+    // GET_ALL_RESIDENT_TICKETS_QUERY,
     RESIDENT_TICKET_FIELDS,
 
 /* AUTOGENERATE MARKER <EXPORTS> */
