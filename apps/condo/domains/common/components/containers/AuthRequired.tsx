@@ -1,6 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { css } from '@emotion/core'
 import { Typography } from 'antd'
 import { useEffect } from 'react'
 import Router, { useRouter } from 'next/router'
@@ -25,7 +24,7 @@ function RedirectToLogin () {
             clearTimeout(clearHandle)
         }
     })
-    return <Typography.Text css={css`display: block; text-align: center;`}>{RedirectingMessage}</Typography.Text>
+    return <Typography.Text style={{ textAlign: 'center' }}>{RedirectingMessage}</Typography.Text>
 }
 
 export function AuthRequired ({ children }) {
@@ -41,7 +40,7 @@ export function AuthRequired ({ children }) {
 
     if (!isAuthenticated) {
         return <>
-            <Typography.Title css={css`display: block; text-align: center;`}>{SignInRequiredMessage}</Typography.Title>
+            <Typography.Title style={{ textAlign: 'center' }}>{SignInRequiredMessage}</Typography.Title>
             <RedirectToLogin/>
         </>
     }
