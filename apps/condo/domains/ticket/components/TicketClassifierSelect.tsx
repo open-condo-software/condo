@@ -14,7 +14,12 @@ interface Options {
     name: string
 }
 interface ITicketThreeLevelsClassifierHookInput {
-    initialValues: { classifierRule: string }
+    initialValues: {
+        classifierRule: string
+        placeClassifier: string
+        categoryClassifier: string
+        descriptionClassifier?: string
+    }
 }
 interface ITicketThreeLevelsClassifierHookOutput {
     ClassifiersEditorComponent: React.FC<{ form, disabled }>
@@ -23,6 +28,7 @@ interface ITicketThreeLevelsClassifierHookOutput {
 interface ITicketClassifierSelectHookInput {
     onChange: (id: string) => void
     onSearch: (id: string) => void
+    initialValue: string | null
 }
 
 type ClassifierSelectComponent = React.FC<{ disabled?: boolean, style?: React.CSSProperties, value?: string }>
@@ -39,8 +45,9 @@ interface ITicketClassifierSelectHookOutput {
 const useTicketClassifierSelectHook = ({
     onChange,
     onSearch,
+    initialValue,
 }: ITicketClassifierSelectHookInput): ITicketClassifierSelectHookOutput => {
-    const [selected, setSelectedInitial] = useState<string>(null)
+    const [selected, setSelected] = useState<string>(null)
     const [classifiers, setClassifiersFromRules] = useState<Options[]>([])
     const [searchClassifiers, setSearchClassifiers] = useState<Options[]>([])
     const classifiersRef = useRef<HTMLSelectElement>(null)
@@ -50,10 +57,6 @@ const useTicketClassifierSelectHook = ({
         setClassifiersFromRules(classifiers)
         // We need to remove search classifiers when rules start to work
         setSearchClassifiers([])
-    }
-
-    const setSelected = (value) => {
-        setSelectedInitial(value)
     }
 
     useEffect(() => {
@@ -74,6 +77,7 @@ const useTicketClassifierSelectHook = ({
                     optionFilterProp={'title'}
                     defaultActiveFirstOption={false}
                     disabled={disabled}
+                    defaultValue={initialValue}
                     ref={classifiersRef}
                     showAction={['focus', 'click']}
                 >
@@ -101,7 +105,12 @@ const useTicketClassifierSelectHook = ({
     }
 }
 
-export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifierRule } }: ITicketThreeLevelsClassifierHookInput): ITicketThreeLevelsClassifierHookOutput => {
+export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
+    classifierRule,
+    placeClassifier,
+    categoryClassifier,
+    descriptionClassifier,
+} }: ITicketThreeLevelsClassifierHookInput): ITicketThreeLevelsClassifierHookOutput => {
     const intl = useIntl()
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
@@ -127,6 +136,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
     } = useTicketClassifierSelectHook({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.description),
         onSearch: (id) => onUserSearch(id, TicketClassifierTypes.description),
+        initialValue: descriptionClassifier,
     })
 
     const {
@@ -136,6 +146,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
     } = useTicketClassifierSelectHook({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.category),
         onSearch: (id) => onUserSearch(id, TicketClassifierTypes.category),
+        initialValue: categoryClassifier,
     })
 
     const {
@@ -145,6 +156,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
     } = useTicketClassifierSelectHook({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.place),
         onSearch: (id) => onUserSearch(id, TicketClassifierTypes.place),
+        initialValue: placeClassifier,
     })
 
     const Setter = {
@@ -156,11 +168,10 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
     useEffect(() => {
         helper.init().then(_ => {
             if (threeLvlSelectState.current.id) {
-                console.log('init: ', { id: threeLvlSelectState.current.id })
                 helper.findRules({ id: threeLvlSelectState.current.id }).then(([rule]) => {
                     const { place, category, description } = rule
                     threeLvlSelectState.current = { ...threeLvlSelectState.current, ...{ place: place.id, category: category.id, description: description.id } }
-                    updateLevels(threeLvlSelectState.current).then(_ => updateRuleId())
+                    updateLevels(threeLvlSelectState.current)
                 })
             } else {
                 helper.search('', 'place').then(places => {
@@ -226,6 +237,12 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
                 threeLvlSelectState.current = { ...threeLvlSelectState.current, id: withEmptyDescription.id }
             }
         }
+        console.log('SET FIELDS: ', [
+            { name: 'classifierRule', value: threeLvlSelectState.current.id },
+            { name: 'placeClassifier', value: threeLvlSelectState.current.place },
+            { name: 'categoryClassifier', value: threeLvlSelectState.current.category },
+            { name: 'descriptionClassifier', value: threeLvlSelectState.current.description },
+        ])
         ticketForm.current.setFields([
             { name: 'classifierRule', value: threeLvlSelectState.current.id },
             { name: 'placeClassifier', value: threeLvlSelectState.current.place },
