@@ -11,6 +11,7 @@ const extractReqLocale = (req) => {
     }
 }
 
+
 module.exports = {
     extractReqLocale,
 }
