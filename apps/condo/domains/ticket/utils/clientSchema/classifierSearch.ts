@@ -15,7 +15,11 @@ type Options = {
     name: string
 }
 
-export enum TicketClassifierTypes { place, category, description }
+export enum TicketClassifierTypes {
+    place = 'place',
+    category = 'category',
+    description =  'description',
+}
 export interface IClassifiersSearch {
     init: () => Promise<void>
     rulesToOptions: (rules: ITicketClassifierRuleUIState[], type: string) => Options[]

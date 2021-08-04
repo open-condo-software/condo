@@ -10,8 +10,8 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { Ticket, TicketUpdateInput, Organization, QueryAllTicketsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'unitName', 'sectionName', 'floorName', 'watchers', 'operator', 'assignee', 'classifier', 'details', 'related', 'isEmergency', 'isPaid', 'meta', 'source', 'property', 'executor']
-const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'classifier', 'organization', 'source', 'property', 'executor', 'related']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'unitName', 'sectionName', 'floorName', 'watchers', 'operator', 'assignee', 'classifier', 'placeClassifier', 'categoryClassifier', 'descriptionClassifier', 'classifierRule', 'details', 'related', 'isEmergency', 'isPaid', 'meta', 'source', 'property', 'executor']
+const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'classifier', 'organization', 'source', 'property', 'executor', 'related', 'placeClassifier', 'categoryClassifier', 'descriptionClassifier', 'classifierRule']
 
 export interface ITicketUIState extends Ticket {
     id: string
@@ -29,6 +29,10 @@ export interface ITicketFormState {
     status?: string
     source?: string
     classifier?: string
+    placeClassifier: string
+    categoryClassifier: string
+    descriptionClassifier: string
+    classifierRule: string
     assignee?: string
     operator?: string
     client?: string

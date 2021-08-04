@@ -5,8 +5,8 @@ import { useApolloClient } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 
 
-import { uniqBy, isEmpty, find } from 'lodash'
-import { ClassifiersQueryLocal, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import { uniqBy, isEmpty, find, pick } from 'lodash'
+import { ClassifiersQueryLocal, ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
 
 interface Options {
@@ -156,6 +156,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
     useEffect(() => {
         helper.init().then(_ => {
             if (threeLvlSelectState.current.id) {
+                console.log('init: ', { id: threeLvlSelectState.current.id })
                 helper.findRules({ id: threeLvlSelectState.current.id }).then(([rule]) => {
                     const { place, category, description } = rule
                     threeLvlSelectState.current = { ...threeLvlSelectState.current, ...{ place: place.id, category: category.id, description: description.id } }
@@ -179,6 +180,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
 
     const load3levels = async () => {
         const { place, category, description } = threeLvlSelectState.current
+        console.log('load3levels: >>> threeLvlSelectState.current', threeLvlSelectState.current)
         const loadedRules = await Promise.all([
             { category, description, type: 'place' },
             { place, description, type: 'category' },
@@ -192,6 +194,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
                         query[key] = { id: querySelectors[key] }
                     }
                 }
+                console.log('load3levels - query: ', query)
                 helper.findRules(query).then(data => resolve([type, helper.rulesToOptions(data, type)]))
             })
         }))
@@ -206,12 +209,8 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
         }
     }
 
-    const _setValue = (id) => {
-        return id ? { connect: { id } } : null
-    }
-
     const updateRuleId = async () => {
-        const { id, ...querySelectors } = threeLvlSelectState.current
+        const querySelectors = pick(threeLvlSelectState.current, ['place', 'category', 'description'])
         const query = {}
         for (const key in querySelectors) {
             if (querySelectors[key]) {
@@ -228,10 +227,10 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
             }
         }
         ticketForm.current.setFields([
-            { name: 'classifierRule', value: _setValue(threeLvlSelectState.current.id) },
-            { name: 'placeClassifier', value: _setValue(threeLvlSelectState.current.place) },
-            { name: 'categoryClassifier', value: _setValue(threeLvlSelectState.current.category) },
-            { name: 'descriptionClassifier', value: _setValue(threeLvlSelectState.current.description) },
+            { name: 'classifierRule', value: threeLvlSelectState.current.id },
+            { name: 'placeClassifier', value: threeLvlSelectState.current.place },
+            { name: 'categoryClassifier', value: threeLvlSelectState.current.category },
+            { name: 'descriptionClassifier', value: threeLvlSelectState.current.description },
         ])
     }
 
@@ -273,11 +272,9 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: { classifier
             ticketForm.current = form
             return (
                 <>
-                    <Col span={24}>
-                        <Form.Item name={'classifierRule'} rules={validations.classifierRule} noStyle={true}>
-                            <Input type='text'></Input>
-                        </Form.Item>
-                    </Col>
+                    <Form.Item name={'classifierRule'} rules={validations.classifierRule} noStyle={true}>
+                        <Input type='hidden'></Input>
+                    </Form.Item>
                     <Col span={12} style={{ paddingRight: '20px' }}>
                         <Form.Item label={PlaceClassifierLabel} name={'placeClassifier'} rules={validations.placeClassifier}>
                             <PlaceSelect disabled={disabled} />
