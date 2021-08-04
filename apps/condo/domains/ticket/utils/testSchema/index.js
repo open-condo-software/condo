@@ -224,6 +224,8 @@ async function updateTestTicketComment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+const TICKET_MOBILE_SOURCE_ID = '3068d49a-a45c-4c3a-a02d-ea1a53e1febb'
+
 async function createResidentTicketByTestClient(client, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -232,7 +234,8 @@ async function createResidentTicketByTestClient(client, property, extraAttrs = {
         dv: 1,
         sender,
         details: faker.lorem.words(),
-        propertyId: property ? property.id : null,
+        property: { connect: { id: property?.id } },
+        source: { connect: { id: TICKET_MOBILE_SOURCE_ID } },
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(CREATE_RESIDENT_TICKET_MUTATION, { data: attrs })

@@ -9,22 +9,19 @@ const access = require('@condo/domains/ticket/access/CreateResidentTicketService
 const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
 
-const TICKET_MOBILE_SOURCE_ID = '3068d49a-a45c-4c3a-a02d-ea1a53e1febb'
-
 const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketService', {
     types: [
         {
             access: true,
-            type: 'input CreateResidentTicketInput { dv: Int!, sender: JSON!, details: String!, propertyId: String!, unitName: String }',
+            type: 'input CreateResidentTicketInput { dv: Int!, sender: JSON!, details: String!, source: TicketSourceRelateToOneInput!, property: PropertyRelateToOneInput!, unitName: String }',
         },
         {
             access: true,
-            type: 'type ResidentTicketOutput { organization: Organization!, property: Property!, unitName: String,' +
+            type:
+                'type ResidentTicketOutput { organization: Organization!, property: Property!, unitName: String,' +
                 'sectionName: String, floorName: String, number: Int!, client: User!, clientName: String,' +
-                'clientEmail: String, clientPhone: String, contact: Contact, operator: User, assignee: User, executor: User,' +
-                'details: String!, related: Ticket, isEmergency: Boolean,' +
-                'isPaid: Boolean, source: TicketSource!, id: String!, createdBy: User!, createdAt: String!,' +
-                'updatedAt: String, updatedBy: User, watchers: [User], classifier: TicketClassifier, meta: JSON, sourceMeta: JSON,' +
+                'clientEmail: String, clientPhone: String, details: String!, related: Ticket, isEmergency: Boolean, status: TicketStatus!' +
+                'isPaid: Boolean, source: TicketSource!, id: String!, createdBy: User!, createdAt: String!, updatedAt: String, classifier: TicketClassifier,' +
                 'dv: Int, sender: JSON, v: Int, deletedAt: String, newId: String }',
         },
     ],
@@ -35,7 +32,8 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
             schema: 'createResidentTicket(data: CreateResidentTicketInput!): ResidentTicketOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { dv: newTicketDv, sender: newTicketSender, details, propertyId, unitName } = data
+                const { dv: newTicketDv, sender: newTicketSender, details, source, property: PropertyRelateToOneInput, unitName } = data
+                const { connect: { id: propertyId } } = PropertyRelateToOneInput
                 const [property] = await Property.getAll(context, { id: propertyId })
                 if (!property) throw Error(`${NOT_FOUND_ERROR}property] property not found`)
                 const organizationId = property.organization?.id
@@ -51,7 +49,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                         dv: newTicketDv,
                         sender: newTicketSender,
                         organization: { connect: { id: organizationId } },
-                        property: { connect: { id: propertyId } },
+                        property: PropertyRelateToOneInput,
                         unitName,
                         email: user?.email,
                         phone: user?.phone,
@@ -64,11 +62,11 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                     sender: newTicketSender,
                     organization: { connect: { id: organizationId } },
                     client: { connect: { id: user.id } },
-                    property: { connect: { id: propertyId } },
+                    property: PropertyRelateToOneInput,
                     unitName,
                     sectionName,
                     floorName,
-                    source: { connect: { id: TICKET_MOBILE_SOURCE_ID } },
+                    source,
                     details,
                 })
             },
