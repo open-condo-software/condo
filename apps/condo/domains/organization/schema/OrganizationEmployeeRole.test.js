@@ -221,15 +221,23 @@ describe('OrganizationEmployeeRole', () => {
         // Get static role names (should be equal to translation dictionary)
         const templatedNames = Object.values(conf.DEFAULTS.roles).map(x => x.name)
 
-        rawRoles.forEach((rawRole)=> {
+        rawRoles.forEach(async (rawRole)=> {
             // if role is created from template
             if (templatedNames.includes(rawRole.name)){
                 // finding processed role with translations for locale
-                const relatedRole = OrganizationEmployeeRole.getAll(admin, {
+                const relatedRole = await OrganizationEmployeeRole.getAll(admin, {
                     id: rawRole.id,
                 })
                 expect(relatedRole).toBeDefined()
                 expect(translations[rawRole.name]).toStrictEqual(relatedRole.name)
+            }
+            if (templatedNames.includes(rawRole.description)){
+                // finding processed role with translations for locale
+                const relatedRole = await OrganizationEmployeeRole.getAll(admin, {
+                    id: rawRole.id,
+                })
+                expect(relatedRole).toBeDefined()
+                expect(translations[rawRole.description]).toStrictEqual(relatedRole.description)
             }
         })
     })
