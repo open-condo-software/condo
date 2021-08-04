@@ -22,7 +22,7 @@ exports.down = async (knex) => {
 -- Alter field classifier on ticket
 --
 SET CONSTRAINTS "Ticket_classifier_7a786997_fk_TicketClassifier_id" IMMEDIATE; ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_classifier_7a786997_fk_TicketClassifier_id";
-ALTER TABLE "Ticket" ALTER COLUMN "classifier" SET NOT NULL;
+UPDATE "Ticket" SET classifier = '2e5e5950-f695-4948-a388-4430f4790305' WHERE classifier IS NULL;
 ALTER TABLE "Ticket" ADD CONSTRAINT "Ticket_classifier_7a786997_fk_TicketClassifier_id" FOREIGN KEY ("classifier") REFERENCES "TicketClassifier" ("id") DEFERRABLE INITIALLY DEFERRED;
 COMMIT;
 
