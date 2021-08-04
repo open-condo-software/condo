@@ -3,7 +3,7 @@
  */
 
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { createTestOrganizationEmployee } = require('../utils/testSchema')
+const { createTestOrganizationEmployee, createDefaultOrganizationEmployeeRoles } = require('../utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
@@ -11,8 +11,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 const { OrganizationEmployeeRole, createTestOrganizationEmployeeRole, updateTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const {  expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { getTranslations, getAvailableLocales } = require('@condo/domains/common/utils/localesLoader')
-const conf = require('@core/config')
-const { find } = require('@core/keystone/schema')
+const { DEFAULT_ROLES } = require('../constants/common')
 
 describe('OrganizationEmployeeRole', () => {
     describe('user: create OrganizationEmployeeRole', () => {
@@ -206,40 +205,24 @@ describe('OrganizationEmployeeRole', () => {
         expect(thrownError.errors[0].name).toMatch('ValidationError')
     })
 
-    test.each(getAvailableLocales())('localization [%s]: static roles correctly localized', async (locale) => {
-        const admin = await makeLoggedInAdminClient({
-            headers: {
-                'Accept-Language': locale,
-            },
-        })
-        await createTestOrganization(admin)
-
+    test.each(getAvailableLocales())('localization [%s]: static roles has translations', async (locale) => {
+        
         const translations = getTranslations(locale)
 
-        const rawRoles = await find('OrganizationEmployeeRole', {})
-
-        // Get static role names (should be equal to translation dictionary)
-        const templatedNames = Object.values(conf.DEFAULTS.roles).map(x => x.name)
-
-        const tests = rawRoles.map(() => async (rawRole)=> {
-            // if role is created from template
-            if (templatedNames.includes(rawRole.name)){
-                // finding processed role with translations for locale
-                const relatedRole = await OrganizationEmployeeRole.getAll(admin, {
-                    id: rawRole.id,
-                })
-                expect(relatedRole).toBeDefined()
-                expect(translations[rawRole.name]).toStrictEqual(relatedRole.name)
-            }
-            if (templatedNames.includes(rawRole.description)){
-                // finding processed role with translations for locale
-                const relatedRole = await OrganizationEmployeeRole.getAll(admin, {
-                    id: rawRole.id,
-                })
-                expect(relatedRole).toBeDefined()
-                expect(translations[rawRole.description]).toStrictEqual(relatedRole.description)
-            }
+        const admin = await makeLoggedInAdminClient()
+        admin.setHeaders({
+            'Accept-Language': locale,
         })
-        await Promise.all(tests)
+
+        const [organization] = await createTestOrganization(admin)
+
+        const defaultRolesInstances = await createDefaultOrganizationEmployeeRoles(admin, organization)
+
+        Object.values(DEFAULT_ROLES).forEach(staticRole => {
+            const nameTranslation = translations[staticRole.name]
+            const descriptionTranslation = translations[staticRole.description]
+            const defaultRoleInstance = Object.values(defaultRolesInstances).find(x => x.name === nameTranslation && x.description === descriptionTranslation)
+            expect(defaultRoleInstance).toBeDefined()
+        })
     })
 })

@@ -8,7 +8,6 @@ const express = require('express')
 const { GQL_LIST_SCHEMA_TYPE } = require('@core/keystone/schema')
 const util = require('util')
 const conf = require('@core/config')
-const deepMerge = require('lodash/merge')
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
 
 const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
@@ -93,35 +92,22 @@ const prepareNextExpressApp = async (dir) => {
     const app = nextApp.getRequestHandler()
     return { app }
 }
-/**
- * 
- * @typedef {{query: (query: any, variables?: {}) => Promise<any>, mutate: (query: any, variables?: {}) => Promise<any>}} ClientBase
- */
 
-/**
- * 
- * @param {import('express').Application} app 
- * @param {import("axios").AxiosRequestConfig} [clientOptions]
- * @returns 
- */
-const makeFakeClient = async (app, clientOptions) => {
+const makeFakeClient = async (app) => {
     const request = require('supertest')
 
     const client = request(app)
 
     let cookies = {}
 
+    let customHeaders = {}
     /**
      * 
      * @param {import('supertest').Test} test 
      * @returns 
      */
     function setupSupertest (test) {
-        if (!clientOptions) return test
-        const { headers } = clientOptions
-        if (headers) {
-            test = test.set(headers)
-        }
+        test = test.set(customHeaders)
         return test
     }
     function extractCookies (cookies) {
@@ -138,6 +124,9 @@ const makeFakeClient = async (app, clientOptions) => {
 
     return {
         ...client,
+        setHeaders: (headers) => {
+            customHeaders = {...customHeaders, ...headers}
+        },
         mutate: async (query, variables = {}) => {
             if (query.kind !== 'Document') throw new Error('query is not a gql object')
             return new Promise((resolve, reject) => {
@@ -186,14 +175,11 @@ const makeFakeClient = async (app, clientOptions) => {
         },
     }
 }
-/**
- * 
- * @param {import('axios').AxiosRequestConfig} clientOptions 
- */
-const makeRealClient = async (clientOptions) => {
+
+const makeRealClient = async () => {
     // TODO(pahaz): remove axios! need something else ... may be apollo client
     const cookieJar = new CookieJar()
-    const client = axios.create(deepMerge({
+    const client = axios.create({
         withCredentials: true,
         adapter: require('axios/lib/adapters/http'),
         headers: {
@@ -202,12 +188,15 @@ const makeRealClient = async (clientOptions) => {
             Cache: 'no-cache',
         },
         validateStatus: (status) => status >= 200 && status < 500,
-    }, clientOptions))
+    })
     axiosCookieJarSupport(client)
     client.defaults.jar = cookieJar
 
     return {
         ...client,
+        setHeaders: (headers) => {
+            client.defaults.headers = {...client.defaults.headers, ...headers}
+        },
         mutate: async (query, variables = {}) => {
             if (query.kind !== 'Document') throw new Error('query is not a gql object')
             const response = await client.post(TESTS_REAL_CLIENT_REMOTE_API_URL, {
@@ -237,25 +226,15 @@ const makeRealClient = async (clientOptions) => {
     }
 }
 
-/**
- * Create fake client
- * @param {import('axios').AxiosRequestConfig} [clientOptions] 
- */
-const makeClient = async (clientOptions) => {
+const makeClient = async () => {
     if (__expressApp) {
-        return await makeFakeClient(__expressApp, clientOptions)
+        return await makeFakeClient(__expressApp)
     }
 
-    return await makeRealClient(/** @type {import('axios').AxiosRequestConfig} */(clientOptions))
+    return await makeRealClient()
 }
 
-/**
- * 
- * @param {*} args 
- * @param {import("axios").AxiosRequestConfig} [clientOptions]
- * @returns 
- */
-const makeLoggedInClient = async (args, clientOptions) => {
+const makeLoggedInClient = async (args) => {
     if (!args) {
         args = {
             email: DEFAULT_TEST_USER_IDENTITY,
@@ -263,7 +242,7 @@ const makeLoggedInClient = async (args, clientOptions) => {
         }
     }
     if (!args.email && !args.password) throw new Error('no credentials')
-    const client = await makeClient(clientOptions)
+    const client = await makeClient()
     const { data, errors } = await client.mutate(SIGNIN_MUTATION, {
         identity: args.email,
         secret: args.password,
@@ -279,13 +258,8 @@ const makeLoggedInClient = async (args, clientOptions) => {
     return client
 }
 
-/**
- * Creates authentificated admin client
- * @param {import("axios").AxiosRequestConfig} [clientOptions]
- * @returns 
- */
-const makeLoggedInAdminClient = async (clientOptions) => {
-    return await makeLoggedInClient({ email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET }, clientOptions)
+const makeLoggedInAdminClient = async () => {
+    return await makeLoggedInClient({ email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET })
 }
 
 const createUser = async (args = {}) => {
