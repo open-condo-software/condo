@@ -14,6 +14,8 @@ import get from 'lodash/get'
 import { createPagedPdf } from '@condo/domains/common/utils/pdf'
 import moment from 'moment'
 import { filterToQuery } from '@condo/domains/ticket/utils/helpers'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { PDF_REPORT_WIDTH } from '@condo/domains/ticket/constants/common'
 
 const PdfView = () => {
     const intl = useIntl()
@@ -24,6 +26,7 @@ const PdfView = () => {
     const DefaultTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.DefaultTickets' })
     const PaidTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PaidTickets' })
     const EmergencyTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.EmergencyTickets' })
+    const LoadingTip = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PDF.LoadingTip' })
     const containerRef = useRef<null | HTMLDivElement>(null)
     const queryParamsRef = useRef(null)
 
@@ -71,7 +74,7 @@ const PdfView = () => {
 
     useEffect(() => {
         if (!loading && data !== null) {
-            createPagedPdf({ element: containerRef.current, fileName: 'analytics_result.pdf', format: 'a4' })
+            createPagedPdf({ element: containerRef.current, fileName: 'analytics_result.pdf' })
                 .catch((e) => {
                     notification.error({
                         message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
@@ -92,8 +95,9 @@ const PdfView = () => {
     const addressListParsed = JSON.parse(addressList)
     const addressFilterTitle = addressListParsed.length ? `${SingleAddress} «${addressListParsed[0].value}»` : AllAddresses
     return <>
-        <Row ref={containerRef} gutter={[0, 40]}>
-            <Col span={24}>
+        {loading && <Loader fill spinning tip={LoadingTip} /> }
+        <Row ref={containerRef} gutter={[0, 40]} style={{ width: PDF_REPORT_WIDTH }}>
+            <Col span={24} style={{ visibility: loading ? 'hidden' : 'visible' }}>
                 <Typography.Title level={3}>{PageTitle}</Typography.Title>
                 <Typography.Title level={4}>
                     {ticketTypeTitle} {moment(dateFrom).format('DD.MM.YYYY')} - {moment(dateTo).format('DD.MM.YYYY')} {addressFilterTitle} {AllCategories}
@@ -102,7 +106,10 @@ const PdfView = () => {
                     data={data}
                     viewMode={viewMode}
                     onChartReady={() => setLoading(false)}
-                    chartHeight={800}
+                    chartConfig={{
+                        animationEnabled: false,
+                        chartOptions: { renderer: 'svg', height: window.innerHeight - 200, width: PDF_REPORT_WIDTH },
+                    }}
                 />
             </Col>
             <Col span={24}>

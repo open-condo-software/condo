@@ -52,18 +52,20 @@ interface ITicketAnalyticsPage extends React.FC {
     requiredAccess?: React.FC
 }
 interface ITicketAnalyticsPageWidgetProps {
-    data: null | AnalyticsDataType;
-    viewMode: viewModeTypes;
-    loading?: boolean;
+    data: null | AnalyticsDataType
+    viewMode: viewModeTypes
+    loading?: boolean
 }
 interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps {
-    onChartReady?: () => void;
-    animationEnabled?: boolean;
-    chartHeight?: number;
+    onChartReady?: () => void
+    chartConfig: {
+        animationEnabled: boolean
+        chartOptions?: ReactECharts['props']['opts']
+    }
 }
 
 interface ITicketAnalyticsPageListViewProps extends ITicketAnalyticsPageWidgetProps {
-    filters: null | ticketAnalyticsPageFilters;
+    filters: null | ticketAnalyticsPageFilters
 }
 interface ITicketAnalyticsPageFilterProps {
     onChange?: ({ range, specification, addressList }: ticketAnalyticsPageFilters) => void
@@ -211,8 +213,8 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
     viewMode,
     loading = false,
     onChartReady,
-    animationEnabled = false,
-    chartHeight }) => {
+    chartConfig,
+}) => {
     const intl = useIntl()
     const NoData = intl.formatMessage({ id: 'NoData' })
     if (data === null) {
@@ -222,7 +224,7 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
             </Skeleton>
         )
     }
-
+    const { animationEnabled, chartOptions } = chartConfig
     const { series, legend, axisData, tooltip } = ticketChartDataMapper.getChartConfig(viewMode, data)
     const option = {
         animation: animationEnabled,
@@ -257,7 +259,7 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
         }
         return Object.values(ticketStatus).every(count => count === 0)
     }) && !loading
-
+    const chartHeight = get(chartOptions, 'height', 'auto')
     return <Typography.Paragraph style={{ position: 'relative' }}>
         {isEmptyDataSet ? (
             <Typography.Paragraph>
@@ -269,11 +271,11 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
         ) : (
             <>
                 <ReactECharts
-                    opts={{ renderer: 'svg', height: chartHeight ? chartHeight : 'auto' }}
+                    opts={{ ...chartOptions, renderer: 'svg', height: chartHeight }}
                     onChartReady={onChartReady}
                     notMerge
                     showLoading={loading}
-                    style={{ height: chartHeight ? 'unset' : 300 }}
+                    style={{ height: chartHeight !== 'auto' ? 'unset' : 300 }}
                     option={option}/>
                 {children}
             </>
@@ -306,17 +308,15 @@ const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageListViewProps> =
     }
     const { tableColumns, dataSource } = ticketChartDataMapper.getTableConfig(viewMode, data, restOptions)
     return (
-        <>
-            <Table
-                bordered
-                tableLayout={'fixed'}
-                scroll={{ scrollToFirstRowOnChange: false }}
-                loading={loading}
-                dataSource={dataSource}
-                columns={tableColumns as TableColumnsType}
-                pagination={false}
-            />
-        </>
+        <Table
+            bordered
+            tableLayout={'fixed'}
+            scroll={{ scrollToFirstRowOnChange: false }}
+            loading={loading}
+            dataSource={dataSource}
+            columns={tableColumns as TableColumnsType}
+            pagination={false}
+        />
     )
 }
 
@@ -596,7 +596,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 data={analyticsData}
                                 loading={loading}
                                 viewMode={viewMode}
-                                animationEnabled
+                                chartConfig={{ animationEnabled: true, chartOptions: { renderer: 'svg' } }}
                             >
                                 <Select
                                     value={ticketType}
