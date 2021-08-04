@@ -9,7 +9,7 @@ const PDF_FORMAT_SETTINGS = {
     // lineSpace - margin right for rest of lines (in css pixels)
     'a4': { pdfWidth: 210, pdfHeight: 297, elementOffset: 10, firstLineOffset: 23, lineSpace: 80 },
     'a5': { pdfWidth: 148, pdfHeight: 210, elementOffset: 10, firstLineOffset: 23, lineSpace: 80 },
-    'fullscreen': { pdfWidth: PDF_REPORT_WIDTH, elementOffset: 10 },
+    'fullscreen': { pdfWidth: PDF_REPORT_WIDTH, pdfHeight: 297, elementOffset: 15, firstLineOffset: 23, lineSpace: 80 },
 }
 
 function getPdfHeightFromElement (element: HTMLElement, expectedWidth: number) {
@@ -35,11 +35,6 @@ interface ICreatePdf {
     (options: ICreatePdfOptions): Promise<Jspdf>
 }
 
-interface ICreatePagedPdf {
-    (options: Omit<ICreatePdfOptions, 'format'>)
-}
-
-// TODO(sitozzz): rewrite with html2pdf.js syntax & remove unused dependencies
 export const createPdf: ICreatePdf = (options) => {
     const {
         element,
@@ -70,9 +65,10 @@ export const createPdf: ICreatePdf = (options) => {
         freeSpace -= lineSpace
         linesCounter++
     }
+    const docHeight = format === 'fullscreen' ? element.clientHeight : pdfHeight
     const pdfImageHeight = getPdfHeightFromElement(element, pdfWidth)
     return  html2canvas(element).then(canvas => {
-        const doc = new Jspdf('p', 'mm', [pdfWidth, pdfHeight])
+        const doc = new Jspdf('p', 'mm', [pdfWidth, docHeight])
         const imageOptions = {
             imageData: canvas,
             x: elementOffset,
@@ -84,19 +80,4 @@ export const createPdf: ICreatePdf = (options) => {
         doc.addImage(imageOptions)
         return doc.save(fileName, { returnPromise: true })
     })
-}
-
-
-export const createPagedPdf: ICreatePagedPdf = (options) => {
-    const html2pdf = require('html2pdf.js')
-    const { fileName, element } = options
-    const { elementOffset, pdfWidth } = PDF_FORMAT_SETTINGS.fullscreen
-    return html2pdf().set({
-        filename: fileName,
-        margin: elementOffset,
-        pagebreak: { mode: ['avoid-all', 'css'] },
-        html2canvas: {
-            width: pdfWidth,
-        },
-    }).from(element).save()
 }
