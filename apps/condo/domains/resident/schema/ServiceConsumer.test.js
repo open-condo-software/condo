@@ -3,6 +3,8 @@
  */
 
 const faker = require('faker')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { updateTestUser } = require('@condo/domains/user/utils/testSchema/')
 const { createTestResident } = require('../utils/testSchema')
 const { createTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
@@ -10,65 +12,14 @@ const { buildingMapJson } = require('@condo/domains/property/constants/property'
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const { createTestServiceConsumer, updateTestServiceConsumer, createTestServiceConsumerForUserAsAdmin } = require('@condo/domains/resident/utils/testSchema')
+const { ServiceConsumer } = require('../utils/testSchema')
 
 
 describe('ServiceConsumer', () => {
-
-    describe('BillingAccountConnection', () => {
-
-        it('connects to billing account if there is one with relevant Number', async () => {
-            const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
-
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-            const [billingProperty] = await createTestBillingProperty(adminClient, context)
-            const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
-                unitName: billingAccountAttrs.unitName,
-            })
-            const [consumer] = await createTestServiceConsumer(adminClient, resident, {
-                number: billingAccountAttrs.number,
-            })
-
-            expect(consumer.billingAccount.id).toEqual(billingAccount.id)
-        })
-
-        it('connects to billing account if there is one with relevant globalId', async () => {
-            const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
-
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-            const [billingProperty] = await createTestBillingProperty(adminClient, context)
-            const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
-                unitName: billingAccountAttrs.unitName,
-            })
-            const [consumer] = await createTestServiceConsumer(adminClient, resident, {
-                number: billingAccountAttrs.globalId,
-            })
-
-            expect(consumer.billingAccount.id).toEqual(billingAccount.id)
-        })
-
-        it('does not connect to billing account if there are none', async () => {
-            const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
-
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
-                unitName: faker.random.alphaNumeric(8).toString(),
-            })
-            const [consumer] = await createTestServiceConsumer(adminClient, resident, {
-                number: faker.random.alphaNumeric(9).toString(),
-            })
-
-            expect(consumer.billingAccount).toEqual(null)
-        })
-
-    })
 
     describe('Create', () => {
         it('can be created by admin', async () => {
@@ -88,15 +39,16 @@ describe('ServiceConsumer', () => {
             expect(consumer.resident.id).toEqual(resident.id)
         })
 
-        it('can be created by user with type === resident', async () => {
+        it('cannot be created by user with type === resident', async () => {
             const userClient = await makeClientWithResidentUser()
             const [organization] = await registerNewOrganization(userClient)
             const [property] = await createTestProperty(userClient, organization, { map: buildingMapJson })
 
             const [resident] = await createTestResident(userClient, userClient.user, organization, property)
 
-            const [consumer] = await createTestServiceConsumer(userClient, resident)
-            expect(consumer.resident.id).toEqual(resident.id)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestServiceConsumer(userClient, resident)
+            })
         })
 
         it('cannot be created by other users', async () => {
@@ -113,17 +65,6 @@ describe('ServiceConsumer', () => {
             })
         })
 
-        it('cannot be created by user, who is not employed in specified organization', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeClientWithProperty()
-            const anotherUser = await makeClientWithProperty()
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
-
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestServiceConsumer(anotherUser, resident)
-            })
-        })
-
         it('cannot be created by anonymous', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
@@ -133,6 +74,108 @@ describe('ServiceConsumer', () => {
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestServiceConsumer(anonymous, resident)
             })
+        })
+    })
+
+    describe('Update', () => {
+        it('can be updated by admin', async () => {
+            const [consumer, _, adminClient] = await createTestServiceConsumerForUserAsAdmin()
+
+            const newAccountNumber = faker.random.alphaNumeric(8)
+
+            const [updatedConsumer] = await updateTestServiceConsumer(adminClient, consumer.id, { accountNumber: newAccountNumber })
+            expect(updatedConsumer.id).toEqual(consumer.id)
+            expect(updatedConsumer.accountNumber).toEqual(newAccountNumber)
+        })
+
+        it('cannot be updated by user with type === resident', async () => {
+            const [consumer, userClient, adminClient] = await createTestServiceConsumerForUserAsAdmin()
+
+            await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
+
+            const newAccountNumber = faker.random.alphaNumeric(8)
+
+            expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestServiceConsumer(userClient, consumer.id, { accountNumber: newAccountNumber })
+            })
+        })
+
+        it('cannot be updated by other users', async () => {
+            const [consumer, userClient] = await createTestServiceConsumerForUserAsAdmin()
+
+            const newAccountNumber = faker.random.alphaNumeric(8)
+
+            expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestServiceConsumer(userClient, consumer.id, { accountNumber: newAccountNumber })
+            })
+        })
+
+        it('cannot be updated by anonymous', async () => {
+            const anonymousClient = makeClient()
+            const [consumer] = await createTestServiceConsumerForUserAsAdmin()
+
+            const newAccountNumber = faker.random.alphaNumeric(8)
+
+            expectToThrowAuthenticationErrorToObj(async () => {
+                await updateTestServiceConsumer(anonymousClient, consumer.id, { accountNumber: newAccountNumber })
+            })
+        })
+    })
+
+    describe('Read', () => {
+        it('can be read by admin', async () => {
+            const [obj, _, adminClient] = await createTestServiceConsumerForUserAsAdmin()
+
+            const objs = await ServiceConsumer.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
+            expect(objs.length >= 1).toBeTruthy()
+            expect(objs[0].id).toMatch(obj.id)
+        })
+
+        it('can be read by user with type === resident who created it', async () => {
+            const [obj, userClient, adminClient] = await createTestServiceConsumerForUserAsAdmin()
+            await createTestServiceConsumerForUserAsAdmin() // Create second service consumer
+
+            await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
+
+            const objs = await ServiceConsumer.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
+            expect(objs.length === 1).toBeTruthy()
+            expect(objs[0].id).toMatch(obj.id)
+        })
+
+        it('cannot be read by user with type === resident', async () => {
+            await createTestServiceConsumerForUserAsAdmin()
+
+            const userClient = await makeClientWithResidentUser() // Other user
+
+            const objs = await ServiceConsumer.getAll(userClient)
+            expect(objs.length >= 1).toBeFalsy()
+        })
+
+        it('cannot be read by other users', async () => {
+            const [_, userClient] = await createTestServiceConsumerForUserAsAdmin()
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await ServiceConsumer.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
+            })
+        })
+    })
+
+    describe('Delete', () => {
+        it('cannot be deleted by anybody', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [billingProperty] = await createTestBillingProperty(adminClient, context)
+            const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
+
+            const fields = {
+                billingAccount: { connect: { id: billingAccount.id } },
+            }
+
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, fields)
+            const [consumer] = await createTestServiceConsumer(adminClient, resident)
+            expect(consumer.resident.id).toEqual(resident.id)
         })
     })
 })
