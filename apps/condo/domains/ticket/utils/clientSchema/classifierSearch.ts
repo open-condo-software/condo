@@ -1,5 +1,10 @@
 import { ITicketClassifierRuleUIState, ITicketClassifierRuleWhereInput } from './TicketClassifierRule'
-import { TicketClassifierRule as TicketClassifierRuleGQL } from '@condo/domains/ticket/gql'
+import {
+    TicketClassifierRule as TicketClassifierRuleGQL,
+    TicketPlaceClassifier as TicketPlaceClassifierGQL,
+    TicketCategoryClassifier as TicketCategoryClassifierGQL,
+    TicketDescriptionClassifier as TicketDescriptionClassifierGQL,
+} from '@condo/domains/ticket/gql'
 import { ApolloClient } from '@core/next/apollo'
 import { sortBy, isEmpty, filter } from 'lodash'
 
@@ -10,11 +15,7 @@ type Options = {
     name: string
 }
 
-export enum TicketClassifierTypes {
-    place = 'place',
-    category = 'category',
-    description = 'description',
-}
+export enum TicketClassifierTypes { place, category, description }
 export interface IClassifiersSearch {
     init: () => Promise<void>
     rulesToOptions: (rules: ITicketClassifierRuleUIState[], type: string) => Options[]
@@ -24,8 +25,8 @@ export interface IClassifiersSearch {
 
 interface ILoadClassifierRulesVariables {
     where?: ITicketClassifierRuleWhereInput
-    skip: number
-    first: number
+    skip?: number
+    first?: number
     sortBy?: string
 }
 
@@ -37,7 +38,7 @@ async function loadClassifierRules (client: ApolloClient, variables: ILoadClassi
     return data.data.objs
 }
 
-
+// We load all rules to client and do not make any requests later when select changes
 export class ClassifiersQueryLocal implements IClassifiersSearch {
 
     constructor (private client: ApolloClient, private rules = [], private place = [], private category = [], private description = []) {}
@@ -102,5 +103,82 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         this.description = []
         this.category = []
         this.place = []
+    }
+}
+
+// We do not load all rules to client but load them on request (looks a little bit slow)
+
+async function searchClassifiers (client: ApolloClient, query, input: string) {
+    const data = await client.query({
+        query,
+        variables: {
+            where: {
+                name_contains_i: input,
+            },
+            first: MAX_SEARCH_COUNT,
+            sortBy: 'name_ASC',
+        },
+    })
+    return data.data.objs
+}
+async function searchPlaceClassifiers (client: ApolloClient, input: string): Promise<Options[]> {
+    const result = await searchClassifiers(client, TicketPlaceClassifierGQL.GET_ALL_OBJS_QUERY, input)
+    return result
+}
+async function searchCategoryClassifiers (client: ApolloClient, input: string): Promise<Options[]> {
+    const result = await searchClassifiers(client, TicketCategoryClassifierGQL.GET_ALL_OBJS_QUERY, input)
+    return result
+}
+
+async function searchDescriptionClassifiers (client: ApolloClient, input: string): Promise<Options[]> {
+    const result = await searchClassifiers(client, TicketDescriptionClassifierGQL.GET_ALL_OBJS_QUERY, input)
+    return result
+}
+
+const searchClassifiersByType = {
+    place: searchPlaceClassifiers,
+    category: searchCategoryClassifiers,
+    description: searchDescriptionClassifiers,
+}
+
+
+export class ClassifiersQueryRemote implements IClassifiersSearch {
+
+    constructor (private client: ApolloClient, private rules = [], private place = [], private category = [], private description = []) {}
+
+    public async init (): Promise<void> {
+        return
+    }
+
+    public rulesToOptions (data: ITicketClassifierRuleUIState[], field: string): Options[] {
+        const fromRules = Object.fromEntries(data.map(link => {
+            if (link[field]) {
+                return [link[field].id, link[field]]
+            } else {
+                return [null, { id: null, name: '' }]
+            }
+        }))
+        if (isEmpty(fromRules)) {
+            return []
+        } else {
+            return sortBy(Object.values(fromRules), 'name')
+        }
+    }
+
+    public async findRules (query: ITicketClassifierRuleWhereInput): Promise<ITicketClassifierRuleUIState[]> {
+        const filtered = await loadClassifierRules(this.client, {
+            where: query,
+            first: 100,
+        })
+        return filtered
+    }
+
+    public async search (input: string, type: string): Promise<Options[]> {
+        const result = await searchClassifiersByType[type](this.client, input)
+        return result
+    }
+
+    public clear (): void {
+        return
     }
 }

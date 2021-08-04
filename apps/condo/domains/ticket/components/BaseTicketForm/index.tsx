@@ -250,7 +250,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     <Col span={24}>
                                                                         <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
                                                                     </Col>
-                                                                    <ClassifiersEditorComponent form={form} />
+                                                                    <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
                                                                     <Col span={24}>
                                                                         <Row>
                                                                             <Col span={6}>
