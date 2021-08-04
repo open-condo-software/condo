@@ -57,9 +57,9 @@ const convertGQLItemToFormSelectState = (item: OrganizationEmployeeRole): IOrgan
     if (!item) {
         return
     }
-    const { name, id, description } = item
+    const { name, id } = item
 
-    return { value: id, label: name, description }
+    return { value: id, label: name }
 }
 
 const {

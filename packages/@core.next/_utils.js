@@ -1,10 +1,10 @@
 import App from 'next/app'
 
-const errors = {}
-export const DEBUG_RERENDERS = false
-export const DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER = false
+let errors = {}
+const DEBUG_RERENDERS = false
+const DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER = false
 
-export function preventInfinityLoop (ctx) {
+function preventInfinityLoop (ctx) {
     const inAppContext = Boolean(ctx.ctx)
     if (inAppContext && ctx.router.route === '/_error' && !ctx.router.asPath.startsWith('/404')) {
         // prevent infinity loop: https://github.com/zeit/next.js/issues/6973
@@ -25,7 +25,7 @@ export function preventInfinityLoop (ctx) {
     }
 }
 
-export async function getContextIndependentWrappedInitialProps (PageComponent, ctx) {
+async function getContextIndependentWrappedInitialProps (PageComponent, ctx) {
     const inAppContext = Boolean(ctx.ctx)
     let pageProps = {}
     if (PageComponent.getInitialProps) {
@@ -34,4 +34,11 @@ export async function getContextIndependentWrappedInitialProps (PageComponent, c
         pageProps = await App.getInitialProps(ctx)
     }
     return pageProps
+}
+
+module.exports = {
+    DEBUG_RERENDERS,
+    DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER,
+    preventInfinityLoop,
+    getContextIndependentWrappedInitialProps,
 }
