@@ -449,7 +449,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     )
 }
 
-const TicketAnalyticsPage: IPageWithHeaderAction = () => {
+const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' })
     const HeaderButtonTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.HeaderButtonTitle' })
