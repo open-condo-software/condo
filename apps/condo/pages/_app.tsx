@@ -2,6 +2,7 @@
 // @ts-nocheck
 import React from 'react'
 import Head from 'next/head'
+import getConfig from 'next/config'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import { ThunderboltFilled, HomeFilled, PieChartFilled } from '@ant-design/icons'
@@ -22,6 +23,7 @@ import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 import { GearIcon } from '@condo/domains/common/components/icons/GearIcon'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
+
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -92,6 +94,7 @@ const MyApp = ({ Component, pageProps }) => {
         </GlobalErrorBoundary>
     )
 }
+const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 
 async function messagesImporter (locale) {
     const locale_data = await import(`../lang/${locale}`)
@@ -111,7 +114,7 @@ const apolloCacheConfig = {}
 
 export default (
     withApollo({ ssr: true, apolloCacheConfig })(
-        withIntl({ ssr: true, messagesImporter })(
+        withIntl({ ssr: true, messagesImporter, defaultLocale })(
             withAuth({ ssr: true })(
                 withOrganization({
                     ssr: true,
