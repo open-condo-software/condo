@@ -531,6 +531,8 @@
   "Instruction": "Инструкция",
   "BillingIntegrationContextConfirmQuestion": "Вы действительно хотите интегрироваться с данным биллингом?",
   "BillingIntegrationContextNoReturns": "Нажимая на кнопку \"{buttonValue}\", вы соглашаетесь на интеграцию с данным билингом. После этого поменять интеграцию вручную будет невозможно",
-  "AnotherContextAlreadyCreated": "У вас уже подключена другая интеграция, чтобы поменять текущую, обратитесь в тех. поддержку \"{companyName}\"",
-  "ContextAlreadyCreated": "У вас уже подключена интеграция"
+  "AnotherContextAlreadyCreated": "У вас уже подключена другая интеграция, чтобы поменять текущую, обратитесь в тех. поддержку «{company}»",
+  "ContextAlreadyCreated": "У вас уже подключена интеграция",
+  "ErrorHappenedDuringIntegration": "В процессе интеграции возникла ошибка. Пожалуйста, обратитесь в техю поддержку «{company}»",
+  "ErrorOccurred": "Возникла ошибка"
 }

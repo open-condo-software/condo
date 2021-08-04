@@ -76,13 +76,19 @@ export const BillingChooser: React.FC = () => {
                         {
                             integrations.map((integration) => {
                                 const isActiveIntegration = !!currentContext && integration.id === currentContext.integration.id
-                                const status = isActiveIntegration
-                                    ? (
-                                        currentContext.status as CardStatuses
-                                    )
-                                    : (
-                                        currentContext ? 'disabled' : 'available'
-                                    )
+                                let status: CardStatuses = 'disabled'
+                                if (isActiveIntegration) {
+                                    if (currentContext.status === 'InProgress') {
+                                        status = 'inProgress'
+                                    } else if (currentContext.status === 'Error') {
+                                        status = 'error'
+                                    } else {
+                                        status = 'done'
+                                    }
+                                } else if (!currentContext) {
+                                    status = 'available'
+                                }
+
                                 return (
                                     <Col
                                         span={12}
