@@ -146,7 +146,7 @@ const TicketCategoryClassifier = generateGqlQueries('TicketCategoryClassifier', 
 const TICKET_DESCRIPTION_CLASSIFIER_FIELDS = `{ organization { id } name ${COMMON_FIELDS} }`
 const TicketDescriptionClassifier = generateGqlQueries('TicketDescriptionClassifier', TICKET_DESCRIPTION_CLASSIFIER_FIELDS)
 
-const TICKET_CLASSIFIER_RULE_FIELDS = '{ place { id name } category { id name } description { id name } id dv }'
+const TICKET_CLASSIFIER_RULE_FIELDS = `{ place { id name } category { id name } description { id name } ${COMMON_FIELDS} }`
 const TicketClassifierRule = generateGqlQueries('TicketClassifierRule', TICKET_CLASSIFIER_RULE_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
