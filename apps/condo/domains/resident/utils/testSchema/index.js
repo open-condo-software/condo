@@ -5,6 +5,7 @@
  */
 const faker = require('faker')
 const { get } = require('lodash')
+// TODO (savelevMatthew): Fix this
 const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')

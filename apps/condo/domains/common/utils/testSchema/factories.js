@@ -1,26 +1,62 @@
 const faker = require('faker')
+const { AddressMetaDataFields } = require('../addressApi/AddressMetaSchema')
 
-export const buildFakeAddressMeta = (address, withFlat = false) => {
-    let extraAttrs = {}
-    let full_address = address
+export const buildFakeAddressMeta = (withFlat = false) => {
+    const emptyData = Object.assign({}, ...AddressMetaDataFields.map((field) => ({[field]: null})))
+    emptyData.postal_code = faker.address.zipCode()
+    emptyData.country = faker.address.country()
+    emptyData.country_iso_code = faker.address.countryCode()
 
-    // SHOULD CONTAINS value = DADATA_SUGGESTION (OPTIONAL FLAT + FLAT_TYPE
-    if (withFlat) {
-        const flat = faker.datatype.number({min: 1, max: 50})
-        const flat_type = 'кв'
-        full_address = `${address}, ${flat_type} ${flat}`
-        extraAttrs = {
-            flat,
-            flat_type
-        }
+    emptyData.city = faker.address.city()
+    emptyData.city_type = 'c'
+    emptyData.city_type_full = 'city'
+    emptyData.city_with_type = `${emptyData.city_type} ${emptyData.city}`
+
+    emptyData.street = faker.address.streetName()
+    emptyData.street_type = 'st'
+    emptyData.street_type_full = 'street'
+    emptyData.street_with_type = `${emptyData.street_type} ${emptyData.street}`
+
+    emptyData.house = String(faker.datatype.number())
+    emptyData.house_type = 'h'
+    emptyData.house_type_full = 'house'
+
+    if (faker.datatype.boolean()) {
+        emptyData.block = String(faker.datatype.number())
+        emptyData.block_type = 'b'
+        emptyData.block_type_full= 'block'
     }
 
+    if (faker.datatype.boolean()) {
+        emptyData.region = faker.address.state()
+        emptyData.region_iso_code = faker.address.stateAbbr()
+        emptyData.region_type_full = 'region'
+        emptyData.region_type = 'r'
+        emptyData.region_with_type = `${emptyData.region_type} ${emptyData.region}`
+    }
+
+    if (withFlat) {
+        emptyData.flat = String(faker.datatype.number())
+        emptyData.flat_type = 'fl'
+        emptyData.flat_type_full = 'flat'
+    }
+
+    emptyData.geo_lat = faker.address.latitude()
+    emptyData.geo_lon = faker.address.longitude()
+
+    const fullHouseName = [emptyData.house_type, emptyData.house, emptyData.block_type, emptyData.block]
+        .filter(Boolean)
+        .join(' ')
+    const flat = emptyData.flat ? `${emptyData.flat_type} ${emptyData.flat}` : null
+    const value = [emptyData.region_with_type, emptyData.city_with_type, emptyData.street_with_type, fullHouseName, flat]
+        .filter(Boolean)
+        .join(', ')
+    const unrestrictedValue = [emptyData.postal_code, value].join(', ')
     return {
-        dv: 1, city: faker.address.city(), zipCode: faker.address.zipCode(),
-        street: faker.address.streetName(), number: faker.address.secondaryAddress(),
-        county: faker.address.county(),
-        address,
-        value: full_address,
-        ...extraAttrs
+        dv: 1,
+        data: emptyData,
+        value,
+        unrestricted_value: unrestrictedValue,
+        address: value
     }
 }
