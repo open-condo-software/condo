@@ -40,7 +40,12 @@ export const TicketsWidget = () => {
     }
 
     return (
-        <StatsCard title={TicketsWidgetTitle} link='/' onFilterChange={filterChange} loading={loading} dependencyArray={[userOrganizationId]}>
+        <StatsCard
+            title={TicketsWidgetTitle}
+            link='/analytics/detail/report_by_tickets'
+            onFilterChange={filterChange}
+            loading={loading}
+            dependencyArray={[userOrganizationId]}>
             <Row gutter={[40, 20]} justify={'center'}>
                 {
                     ticketData === null ?

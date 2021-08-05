@@ -1,7 +1,6 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const { Ticket, TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const moment = require('moment')
-const { checkUserBelongsToOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const access = require('@condo/domains/ticket/access/TicketReportService')
 const { TICKET_STATUS_TYPES: ticketStatusTypes } = require('@condo/domains/ticket/constants')
 
@@ -21,10 +20,6 @@ const countTicketsByStatuses = async (context, dateStart, dateEnd, organizationI
 }
 
 const getOrganizationStatuses = async (context, userOrganizationId) => {
-    const hasAccess = await checkUserBelongsToOrganization(context.authedItem.id, userOrganizationId, 'canManageTickets')
-    if (!hasAccess) {
-        throw new Error('[error] you do not have access to this organization')
-    }
     const statuses = await TicketStatus.getAll(context, { OR: [
         { organization: { id: userOrganizationId } },
         { organization_is_null: true },
