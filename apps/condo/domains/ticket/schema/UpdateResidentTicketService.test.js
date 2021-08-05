@@ -5,6 +5,11 @@ const { createResidentTicketByTestClient } = require('@condo/domains/ticket/util
 const { makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { updateResidentTicketByTestClient } = require('@condo/domains/ticket/utils/testSchema')
 const faker = require('faker')
+const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { makeClient } = require('@core/keystone/test.utils')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
  
 describe('UpdateResidentTicketService', () => {
     test('resident: can update ticket', async () => {
@@ -12,35 +17,83 @@ describe('UpdateResidentTicketService', () => {
         const [ticket] = await createResidentTicketByTestClient(userClient, userClient.property)
         const newDetails = faker.random.alphaNumeric(21)
         const payload = {
-            details:newDetails,
+            details: newDetails,
         }
-        const [updatedTicket] = await updateResidentTicketByTestClient(userClient, payload)
+        const [updatedTicket] = await updateResidentTicketByTestClient(userClient, ticket.id, payload)
 
         expect(updatedTicket.id).toEqual(ticket.id)
         expect(updatedTicket.details).toEqual(newDetails)
     })
 
     test('resident: cannot update not own ticket', async () => {
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient1 = await makeClientWithResidentUserAndProperty()
 
-    })
-
-    test('resident: cannot update ticket with short details', async () => {
-
+        const [ticket] = await createResidentTicketByTestClient(userClient1, userClient.property)
+        const newDetails = faker.random.alphaNumeric(21)
+        const payload = {
+            details: newDetails,
+        }
+        try {
+            await updateResidentTicketByTestClient(userClient, ticket.id, payload)
+        } catch (error) {
+            expect(error.errors).toHaveLength(1)
+            expect(error.errors[0].message).toEqual(`${NOT_FOUND_ERROR}ticket] no ticket was found with this id for this user`)
+        }
     })
 
     test('resident: cannot update ticket fields which not in ResidentTicketUpdateInput', async () => {
-
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const [ticket] = await createResidentTicketByTestClient(userClient, userClient.property)
+        const payload = {
+            unitName:  faker.random.alphaNumeric(5),
+        }
+        try {
+            await updateResidentTicketByTestClient(userClient, ticket.id, payload)
+        } catch (error) {
+            expect(error.errors).toHaveLength(1)
+            expect(error.errors[0].message).toContain('Field "unitName" is not defined by type "ResidentTicketUpdateInput"')
+        }
     })
 
     test('admin: can update resident ticket', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const [ticket] = await createResidentTicketByTestClient(userClient, userClient.property)
+        const newDetails = faker.random.alphaNumeric(21)
+        const payload = {
+            details: newDetails,
+        }
+        const [updatedTicket] = await updateResidentTicketByTestClient(admin, ticket.id, payload)
 
+        expect(updatedTicket.id).toEqual(ticket.id)
+        expect(updatedTicket.details).toEqual(newDetails)
     })
 
     test('user: cannot update resident ticket', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const residentClient = await makeClientWithResidentUserAndProperty()
+        const [ticket] = await createResidentTicketByTestClient(residentClient, residentClient.property)
+        const newDetails = faker.random.alphaNumeric(21)
+        const payload = {
+            details: newDetails,
+        }
 
+        try {
+            await updateResidentTicketByTestClient(client, ticket.id, payload)
+        } catch (error) {
+            expect(error.errors).toHaveLength(1)
+            expect(error.errors[0].message).toEqual(`${NOT_FOUND_ERROR}ticket] no ticket was found with this id for this user`)
+        }
     })
 
     test('anonymous: cannot update resident ticket', async () => {
+        const residentClient = await makeClientWithResidentUserAndProperty()
+        const [ticket] = await createResidentTicketByTestClient(residentClient, residentClient.property)
 
+        const client = await makeClient()
+        await expectToThrowAuthenticationErrorToObj(async () => {
+            await updateResidentTicketByTestClient(client, ticket.id, {})
+        })
     })
 })
