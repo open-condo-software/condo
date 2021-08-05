@@ -44,7 +44,7 @@ const Resident = new GQLListSchema('Resident', {
         },
         // The reason for this field is to avoid adding check for resident user into global Organization read access.
         // This field have specific use case for mobile client.
-        organizationForResident: {
+        residentOrganization: {
             schemaDoc: 'Organization data, that is returned for current resident in mobile client',
             type: Virtual,
             extendGraphQLTypes: ['type ResidentOrganization { id: ID!, name: String }'],
@@ -82,7 +82,7 @@ const Resident = new GQLListSchema('Resident', {
 
         // The reason for this field is to avoid adding check for resident user into global Property read access.
         // This field have specific use case for mobile client.
-        propertyForResident: {
+        residentProperty: {
             schemaDoc: 'Property data, that is returned for current resident in mobile client',
             type: Virtual,
             extendGraphQLTypes: ['type ResidentProperty { id: ID!, name: String }'],
