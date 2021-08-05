@@ -85,7 +85,7 @@ const Resident = new GQLListSchema('Resident', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
-            const { property, unitName, billingAccount, user: userId } = resolvedData
+            const { property, address, addressMeta, unitName, billingAccount, user: userId } = resolvedData
             if (billingAccount) {
                 const [residentWithSameBillingAccount] = await ResidentAPI.getAll(context, {
                     billingAccount: { id: billingAccount },
@@ -94,18 +94,18 @@ const Resident = new GQLListSchema('Resident', {
                     return addValidationError('Specified billing account is already connected to another resident')
                 }
             }
-            const [resident] = await ResidentAPI.getAll(context, {
-                property: { id: property },
-                unitName,
-                user: { id: userId },
-            })
             if (operation === 'create') {
+                const [resident] = await ResidentAPI.getAll(context, {
+                    property: { id: property },
+                    unitName,
+                    user: { id: userId },
+                })
                 if (resident) {
                     return addValidationError('Cannot create resident, because another resident with the same provided "property", "unitName" fields already exists for current user')
                 }
             } else if (operation === 'update') {
-                if (resident && resident.id !== existingItem.id) {
-                    return addValidationError('Cannot update resident, because another resident already exists with the same provided "property", "unitName" fields already exists for current user')
+                if (property || address || addressMeta || unitName) {
+                    return addValidationError('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
                 }
             }
         },
