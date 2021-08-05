@@ -26,6 +26,7 @@ const { BillingAccountMeter: BillingAccountMeterGQL } = require('@condo/domains/
 const { BillingAccountMeterReading: BillingAccountMeterReadingGQL } = require('@condo/domains/billing/gql')
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
+const { BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -453,6 +454,19 @@ async function updateTestBillingOrganization (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function billingReceiptsByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(BILLING_RECEIPTS_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithIntegrationAccess () {
@@ -512,6 +526,7 @@ module.exports = {
     makeContextWithOrganizationAndIntegrationAsAdmin: createContextWithOrganizationAndIntegrationAsAdmin,
     makeOrganizationIntegrationManager: createOrganizationIntegrationManager,
     BillingOrganization, createTestBillingOrganization, updateTestBillingOrganization,
+billingReceiptsByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
