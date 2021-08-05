@@ -189,9 +189,8 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const load3levels = async () => {
+    const loadLevels = async () => {
         const { place, category, description } = threeLvlSelectState.current
-        console.log('load3levels: >>> threeLvlSelectState.current', threeLvlSelectState.current)
         const loadedRules = await Promise.all([
             { category, description, type: 'place' },
             { place, description, type: 'category' },
@@ -205,7 +204,6 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                         query[key] = { id: querySelectors[key] }
                     }
                 }
-                console.log('load3levels - query: ', query)
                 helper.findRules(query).then(data => resolve([type, helper.rulesToOptions(data, type)]))
             })
         }))
@@ -237,12 +235,6 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                 threeLvlSelectState.current = { ...threeLvlSelectState.current, id: withEmptyDescription.id }
             }
         }
-        console.log('SET FIELDS: ', [
-            { name: 'classifierRule', value: threeLvlSelectState.current.id },
-            { name: 'placeClassifier', value: threeLvlSelectState.current.place },
-            { name: 'categoryClassifier', value: threeLvlSelectState.current.category },
-            { name: 'descriptionClassifier', value: threeLvlSelectState.current.description },
-        ])
         ticketForm.current.setFields([
             { name: 'classifierRule', value: threeLvlSelectState.current.id },
             { name: 'placeClassifier', value: threeLvlSelectState.current.place },
@@ -253,11 +245,11 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
 
     const updateLevels = async (selected = {}, maxUpdates = 2 ) => {
         threeLvlSelectState.current = { ...threeLvlSelectState.current, ...selected }
-        const options = await load3levels()
+        const options = await loadLevels()
         const state = threeLvlSelectState.current
         const updateEmptyState = {}
         Object.keys(Setter).forEach(type => {
-            const isExisted = options[type].find(x => x.id === state[type])
+            const isExisted = options[type].find(option => option.id === state[type])
             if (!isExisted && state[type]) {
                 updateEmptyState[type] = null
             }
@@ -273,7 +265,6 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             Setter[type].all(options[type])
             const isExisted = options[type].find(option => option.id === state[type])
             Setter[type].one(isExisted ? state[type] : null)
-            console.log('type: ', type, 'one: ', isExisted ? state[type] : null, 'all: ', options[type])
         })
         await updateRuleId()
         if (!state.place && state.category) {
