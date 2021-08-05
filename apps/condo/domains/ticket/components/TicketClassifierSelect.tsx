@@ -42,6 +42,11 @@ interface ITicketClassifierSelectHookOutput {
     ref: React.MutableRefObject<HTMLSelectElement>
 }
 
+
+
+
+
+
 const useTicketClassifierSelectHook = ({
     onChange,
     onSearch,
@@ -132,6 +137,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     const {
         set: descriptionSet,
         SelectComponent: DescriptionSelect,
+        ref: descriptionRef,
     } = useTicketClassifierSelectHook({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.description),
         onSearch: (id) => onUserSearch(id, TicketClassifierTypes.description),
@@ -188,6 +194,12 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    // We build options for every select with care - not to break selection
+    // that's why we are making 3 requests here with Promise.all
+    // For example, all 3 levels are set - in this case, we have only one matching rule and the number of options on every select will be exactly 1
+    // So when we build options for place => we make query with { category: set, description: set, place: not set}
+    // Now we have all possible options for places that will not break selection in the category select and description select  after choosing
+    // Same thing for all selects
     const loadLevels = async () => {
         const { place, category, description } = ruleRef.current
         const loadedRules = await Promise.all([
@@ -216,7 +228,8 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             setTimeout(ref.current.focus, 0)
         }
     }
-
+    // Every time user choose some option from select we are trying to find what exact rule is matching for this combination
+    // When  place and category are chosen we set rule with description=null
     const updateRuleId = async () => {
         const querySelectors = pick(ruleRef.current, ['place', 'category', 'description'])
         const query = {}
@@ -241,7 +254,10 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             { name: 'descriptionClassifier', value: ruleRef.current.description },
         ])
     }
-
+    // We need to find out whether user is still following classifiers rules
+    // or he just make a search in one of a selects and runied all dependencies
+    // so we load rules and search if selected value still presence in options
+    // if not => we set all not matching selects values to null
     const updateLevels = async (selected = {}, maxUpdates = 2 ) => {
         ruleRef.current = { ...ruleRef.current, ...selected }
         const options = await loadLevels()
@@ -254,7 +270,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             }
         })
         if (!isEmpty(updateEmptyState)) {
-            // we need to rebuild all options except selected
+            // here we need to rebuild all options except selected
             ruleRef.current = { ...ruleRef.current, ...updateEmptyState, id: null, ...selected }
             if (maxUpdates > 0) {
                 return await updateLevels(selected, --maxUpdates)
