@@ -4,8 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const { execGqlWithoutAccess } = require('@condo/domains/organization/utils/serverSchema/utils')
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
-
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationOrganizationContext: BillingIntegrationOrganizationContextGQL } = require('@condo/domains/billing/gql')
@@ -17,6 +17,7 @@ const { BillingAccountMeter: BillingAccountMeterGQL } = require('@condo/domains/
 const { BillingAccountMeterReading: BillingAccountMeterReadingGQL } = require('@condo/domains/billing/gql')
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
+const { BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateServerUtils(BillingIntegrationGQL)
@@ -30,6 +31,20 @@ const BillingAccountMeter = generateServerUtils(BillingAccountMeterGQL)
 const BillingAccountMeterReading = generateServerUtils(BillingAccountMeterReadingGQL)
 const BillingReceipt = generateServerUtils(BillingReceiptGQL)
 const BillingOrganization = generateServerUtils(BillingOrganizationGQL)
+async function billingReceipts (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write billingReceipts serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: BILLING_RECEIPTS_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to billingReceipts',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -44,5 +59,6 @@ module.exports = {
     BillingAccountMeterReading,
     BillingReceipt,
     BillingOrganization,
+    billingReceipts,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
