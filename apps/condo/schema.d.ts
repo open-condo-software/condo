@@ -6972,7 +6972,7 @@ export type Mutation = {
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
   registerResident?: Maybe<Resident>;
-  registerConsumerService?: Maybe<ServiceConsumer>;
+  registerServiceConsumer?: Maybe<ServiceConsumer>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -9005,8 +9005,8 @@ export type MutationRegisterResidentArgs = {
 };
 
 
-export type MutationRegisterConsumerServiceArgs = {
-  data: RegisterConsumerServiceInput;
+export type MutationRegisterServiceConsumerArgs = {
+  data: RegisterServiceConsumerInput;
 };
 
 
@@ -13420,14 +13420,6 @@ export type ReInviteOrganizationEmployeeInput = {
   phone?: Maybe<Scalars['String']>;
 };
 
-export type RegisterConsumerServiceInput = {
-  dv: Scalars['Int'];
-  sender: Scalars['JSON'];
-  residentId: Scalars['String'];
-  unitName: Scalars['String'];
-  accountNumber: Scalars['String'];
-};
-
 export type RegisterNewOrganizationInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -13455,6 +13447,14 @@ export type RegisterResidentInput = {
   address: Scalars['String'];
   addressMeta: Scalars['JSON'];
   unitName: Scalars['String'];
+};
+
+export type RegisterServiceConsumerInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  residentId: Scalars['ID'];
+  unitName: Scalars['String'];
+  accountNumber: Scalars['String'];
 };
 
 export type ResendConfirmPhoneActionSmsInput = {
