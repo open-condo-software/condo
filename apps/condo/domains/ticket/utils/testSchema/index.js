@@ -20,7 +20,7 @@ const {
     TicketComment: TicketCommentGQL,
     TicketPlaceClassifier: TicketPlaceClassifierGQL,
     TicketCategoryClassifier: TicketCategoryClassifierGQL,
-    TicketDescriptionClassifier: TicketDescriptionClassifierGQL,
+    TicketProblemClassifier: TicketProblemClassifierGQL,
     TicketClassifierRule: TicketClassifierRuleGQL,
 } = require('@condo/domains/ticket/gql')
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
@@ -41,7 +41,7 @@ const TicketClassifier = generateGQLTestUtils(TicketClassifierGQL)
 const TicketComment = generateGQLTestUtils(TicketCommentGQL)
 const TicketPlaceClassifier = generateGQLTestUtils(TicketPlaceClassifierGQL)
 const TicketCategoryClassifier = generateGQLTestUtils(TicketCategoryClassifierGQL)
-const TicketDescriptionClassifier = generateGQLTestUtils(TicketDescriptionClassifierGQL)
+const TicketProblemClassifier = generateGQLTestUtils(TicketProblemClassifierGQL)
 const TicketClassifierRule = generateGQLTestUtils(TicketClassifierRuleGQL)
 const ResidentTicket = generateGQLTestUtils(ResidentTicketGQL)
 /* AUTOGENERATE MARKER <CONST> */
@@ -287,7 +287,7 @@ async function updateTestTicketCategoryClassifier (client, id, extraAttrs = {}) 
     return [obj, attrs]
 }
 
-async function createTestTicketDescriptionClassifier (client, extraAttrs = {}) {
+async function createTestTicketProblemClassifier (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const attrs = {
@@ -296,11 +296,11 @@ async function createTestTicketDescriptionClassifier (client, extraAttrs = {}) {
         name: faker.lorem.word(),
         ...extraAttrs,
     }
-    const obj = await TicketDescriptionClassifier.create(client, attrs)
+    const obj = await TicketProblemClassifier.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestTicketDescriptionClassifier (client, id, extraAttrs = {}) {
+async function updateTestTicketProblemClassifier (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -309,7 +309,7 @@ async function updateTestTicketDescriptionClassifier (client, id, extraAttrs = {
         sender,
         ...extraAttrs,
     }
-    const obj = await TicketDescriptionClassifier.update(client, id, attrs)
+    const obj = await TicketProblemClassifier.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -319,13 +319,13 @@ async function createTestTicketClassifierRule (client, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
     const [place] = await createTestTicketPlaceClassifier(admin)
     const [category] = await createTestTicketCategoryClassifier(admin)
-    const [description] = await createTestTicketDescriptionClassifier(admin)
+    const [problem] = await createTestTicketProblemClassifier(admin)
     const attrs = {
         dv: 1,
         sender,
         place: { connect: { id: place.id } },
         category: { connect: { id: category.id } },
-        description: { connect: { id: description.id } },
+        problem: { connect: { id: problem.id } },
         ...extraAttrs,
     }
     const obj = await TicketClassifierRule.create(client, attrs)
@@ -403,11 +403,11 @@ module.exports = {
     makeClientWithTicket,
     TicketPlaceClassifier,
     TicketCategoryClassifier,
-    TicketDescriptionClassifier,
+    TicketProblemClassifier,
     TicketClassifierRule,
     TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier,
     TicketComment, createTestTicketComment, updateTestTicketComment,
-    createTestTicketPlaceClassifier, updateTestTicketPlaceClassifier, createTestTicketCategoryClassifier, updateTestTicketCategoryClassifier, createTestTicketDescriptionClassifier, updateTestTicketDescriptionClassifier, createTestTicketClassifierRule, updateTestTicketClassifierRule,
+    createTestTicketPlaceClassifier, updateTestTicketPlaceClassifier, createTestTicketCategoryClassifier, updateTestTicketCategoryClassifier, createTestTicketProblemClassifier, updateTestTicketProblemClassifier, createTestTicketClassifierRule, updateTestTicketClassifierRule,
     createResidentTicketByTestClient,
     updateResidentTicketByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */

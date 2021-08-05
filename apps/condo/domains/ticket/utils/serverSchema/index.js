@@ -14,7 +14,7 @@ const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket
 const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
 const { TicketPlaceClassifier: TicketPlaceClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketCategoryClassifier: TicketCategoryClassifierGQL } = require('@condo/domains/ticket/gql')
-const { TicketDescriptionClassifier: TicketDescriptionClassifierGQL } = require('@condo/domains/ticket/gql')
+const { TicketProblemClassifier: TicketProblemClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketClassifierRule: TicketClassifierRuleGQL } = require('@condo/domains/ticket/gql')
 const { CREATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 const { GET_ALL_RESIDENT_TICKETS_QUERY } = require('@condo/domains/ticket/gql')
@@ -73,7 +73,7 @@ async function updateResidentTicket (context, data) {
 
 const TicketPlaceClassifier = generateServerUtils(TicketPlaceClassifierGQL)
 const TicketCategoryClassifier = generateServerUtils(TicketCategoryClassifierGQL)
-const TicketDescriptionClassifier = generateServerUtils(TicketDescriptionClassifierGQL)
+const TicketProblemClassifier = generateServerUtils(TicketProblemClassifierGQL)
 const TicketClassifierRule = generateServerUtils(TicketClassifierRuleGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
@@ -88,7 +88,7 @@ module.exports = {
     TicketComment,
     TicketPlaceClassifier,
     TicketCategoryClassifier,
-    TicketDescriptionClassifier,
+    TicketProblemClassifier,
     TicketClassifierRule,
     createResidentTicket,
     getAllResidentTickets,

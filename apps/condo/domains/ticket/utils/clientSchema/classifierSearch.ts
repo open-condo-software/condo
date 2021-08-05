@@ -3,7 +3,7 @@ import {
     TicketClassifierRule as TicketClassifierRuleGQL,
     TicketPlaceClassifier as TicketPlaceClassifierGQL,
     TicketCategoryClassifier as TicketCategoryClassifierGQL,
-    TicketDescriptionClassifier as TicketDescriptionClassifierGQL,
+    TicketProblemClassifier as TicketProblemClassifierGQL,
 } from '@condo/domains/ticket/gql'
 import { ApolloClient } from '@core/next/apollo'
 import { sortBy, isEmpty, filter } from 'lodash'
@@ -18,7 +18,7 @@ type Options = {
 export enum TicketClassifierTypes {
     place = 'place',
     category = 'category',
-    description =  'description',
+    problem =  'problem',
 }
 export interface IClassifiersSearch {
     init: () => Promise<void>
@@ -45,7 +45,7 @@ async function loadClassifierRules (client: ApolloClient, variables: ILoadClassi
 // We load all rules to client and do not make any requests later when select changes
 export class ClassifiersQueryLocal implements IClassifiersSearch {
 
-    constructor (private client: ApolloClient, private rules = [], private place = [], private category = [], private description = []) {}
+    constructor (private client: ApolloClient, private rules = [], private place = [], private category = [], private problem = []) {}
 
     public async init (): Promise<void> {
         let skip = 0
@@ -60,7 +60,7 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         this.rules = allRules
         this.place = this.rulesToOptions(allRules, 'place')
         this.category = this.rulesToOptions(allRules, 'category')
-        this.description = this.rulesToOptions(allRules, 'description')
+        this.problem = this.rulesToOptions(allRules, 'problem')
     }
 
     public rulesToOptions (data: ITicketClassifierRuleUIState[], field: string): Options[] {
@@ -104,7 +104,7 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
 
     public clear (): void {
         this.rules = []
-        this.description = []
+        this.problem = []
         this.category = []
         this.place = []
     }
@@ -134,21 +134,21 @@ async function searchCategoryClassifiers (client: ApolloClient, input: string): 
     return result
 }
 
-async function searchDescriptionClassifiers (client: ApolloClient, input: string): Promise<Options[]> {
-    const result = await searchClassifiers(client, TicketDescriptionClassifierGQL.GET_ALL_OBJS_QUERY, input)
+async function searchProblemClassifiers (client: ApolloClient, input: string): Promise<Options[]> {
+    const result = await searchClassifiers(client, TicketProblemClassifierGQL.GET_ALL_OBJS_QUERY, input)
     return result
 }
 
 const searchClassifiersByType = {
     place: searchPlaceClassifiers,
     category: searchCategoryClassifiers,
-    description: searchDescriptionClassifiers,
+    problem: searchProblemClassifiers,
 }
 
 
 export class ClassifiersQueryRemote implements IClassifiersSearch {
 
-    constructor (private client: ApolloClient, private rules = [], private place = [], private category = [], private description = []) {}
+    constructor (private client: ApolloClient, private rules = [], private place = [], private category = [], private problem = []) {}
 
     public async init (): Promise<void> {
         return
