@@ -9,14 +9,15 @@ import { GET_TICKET_WIDGET_REPORT_DATA } from '@condo/domains/ticket/gql'
 import { useLazyQuery } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { TicketReportData } from '../../../schema'
 
 export const TicketsWidget = () => {
     const intl = useIntl()
-    const noDataTitle = intl.formatMessage({ id: 'NoData' })
-    const ticketsWidgetTitle = intl.formatMessage({ id: 'component.ticketswidget.Title' })
+    const NoDataTitle = intl.formatMessage({ id: 'NoData' })
+    const TicketsWidgetTitle = intl.formatMessage({ id: 'component.ticketswidget.Title' })
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const [ticketData, setTicketData] = useState([])
+    const [ticketData, setTicketData] = useState<TicketReportData[]>([])
     const [loading, setLoading] = useState(false)
 
     const [loadTicketsWidgetData] = useLazyQuery(GET_TICKET_WIDGET_REPORT_DATA, {
@@ -39,12 +40,12 @@ export const TicketsWidget = () => {
     }
 
     return (
-        <StatsCard title={ticketsWidgetTitle} link='/' onFilterChange={filterChange} loading={loading} dependencyArray={[userOrganizationId]}>
+        <StatsCard title={TicketsWidgetTitle} link='/' onFilterChange={filterChange} loading={loading} dependencyArray={[userOrganizationId]}>
             <Row gutter={[40, 20]} justify={'center'}>
                 {
                     ticketData === null ?
                         <BasicEmptyListView>
-                            <Typography.Text>{noDataTitle}</Typography.Text>
+                            <Typography.Text>{NoDataTitle}</Typography.Text>
                         </BasicEmptyListView> :
                         ticketData.map((e, i) => (
                             <StatsContainer key={i}>

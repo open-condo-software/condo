@@ -18047,7 +18047,8 @@ export type TicketReportData = {
 export enum TicketReportPeriodType {
   Week = 'week',
   Month = 'month',
-  Quarter = 'quarter'
+  Quarter = 'quarter',
+  Year = 'year'
 }
 
 export type TicketReportWidgetInput = {

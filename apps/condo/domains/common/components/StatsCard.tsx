@@ -42,6 +42,7 @@ export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, lo
         week: intl.formatMessage({ id: 'component.statscard.periodtypes.Week' }),
         month: intl.formatMessage({ id: 'component.statscard.periodtypes.Month' }),
         quarter: intl.formatMessage({ id: 'component.statscard.periodtypes.Quarter' }),
+        year: intl.formatMessage({ id: 'component.statscard.periodtypes.Year' }),
     }
 
     const [selectedPeriod, setSelectedPeriod] = useState<string>(Object.keys(SELECTED_PERIOD)[0])
