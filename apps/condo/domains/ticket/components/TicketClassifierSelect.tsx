@@ -5,7 +5,7 @@ import { useApolloClient } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 
 
-import { uniqBy, isEmpty, find, pick } from 'lodash'
+import { uniqBy, isEmpty, find, pick, get } from 'lodash'
 import { ClassifiersQueryLocal, ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
 
@@ -91,8 +91,7 @@ const useTicketClassifierSelectHook = ({
             )
         }
         return SelectComponentWrapper
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selected, classifiers])
+    }, [initialValue, onSearch, onChange])
 
     return {
         SelectComponent,
@@ -115,18 +114,18 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
     const DescriptionClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.DescriptionLabel' })
-    const threeLvlSelectState = useRef({ id: classifierRule, place: null, category:null, description: null })
+    const ruleRef = useRef({ id: classifierRule, place: null, category:null, description: null })
     const client = useApolloClient()
-    const helper = new ClassifiersQueryLocal(client)
+    const ClassifierLoader = new ClassifiersQueryLocal(client)
     const validations = useTicketValidations()
     const ticketForm = useRef(null)
 
     const onUserSelect = (id, type) => {
-        threeLvlSelectState.current = { ...threeLvlSelectState.current, [type]: id }
+        ruleRef.current = { ...ruleRef.current, [type]: id }
         updateLevels({ [type]: id })
     }
     const onUserSearch = async (input, type) => {
-        const classifiers = await helper.search(input, type)
+        const classifiers = await ClassifierLoader.search(input, type)
         Setter[type].search(classifiers)
     }
 
@@ -166,31 +165,31 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     }
 
     useEffect(() => {
-        helper.init().then(_ => {
-            if (threeLvlSelectState.current.id) {
-                helper.findRules({ id: threeLvlSelectState.current.id }).then(([rule]) => {
+        ClassifierLoader.init().then(() => {
+            if (ruleRef.current.id) {
+                ClassifierLoader.findRules({ id: ruleRef.current.id }).then(([rule]) => {
                     const { place, category, description } = rule
-                    threeLvlSelectState.current = { ...threeLvlSelectState.current, ...{ place: place.id, category: category.id, description: description.id } }
-                    updateLevels(threeLvlSelectState.current)
+                    ruleRef.current = { ...ruleRef.current, ...{ place: place.id, category: category.id, description: get(description, 'id', null) } }
+                    updateLevels(ruleRef.current)
                 })
             } else {
-                helper.search('', 'place').then(places => {
-                    Setter.place.all(places)
-                })
-                helper.search('', 'category').then(categories => {
-                    Setter.category.all(categories)
+                // fill options on empty classifier
+                [TicketClassifierTypes.place, TicketClassifierTypes.category].forEach(type => {
+                    ClassifierLoader.search('', type).then(classifiers => {
+                        Setter[type].all(classifiers)
+                    })
                 })
             }
         })
         return () => {
             // clear all loaded data from helper
-            helper.clear()
+            ClassifierLoader.clear()
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const loadLevels = async () => {
-        const { place, category, description } = threeLvlSelectState.current
+        const { place, category, description } = ruleRef.current
         const loadedRules = await Promise.all([
             { category, description, type: 'place' },
             { place, description, type: 'category' },
@@ -204,7 +203,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                         query[key] = { id: querySelectors[key] }
                     }
                 }
-                helper.findRules(query).then(data => resolve([type, helper.rulesToOptions(data, type)]))
+                ClassifierLoader.findRules(query).then(data => resolve([type, ClassifierLoader.rulesToOptions(data, type)]))
             })
         }))
         const result = Object.fromEntries(loadedRules)
@@ -219,34 +218,34 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     }
 
     const updateRuleId = async () => {
-        const querySelectors = pick(threeLvlSelectState.current, ['place', 'category', 'description'])
+        const querySelectors = pick(ruleRef.current, ['place', 'category', 'description'])
         const query = {}
         for (const key in querySelectors) {
             if (querySelectors[key]) {
                 query[key] = { id: querySelectors[key] }
             }
         }
-        const matchingRules = await helper.findRules(query)
+        const matchingRules = await ClassifierLoader.findRules(query)
         if (matchingRules.length === 1) {
-            threeLvlSelectState.current = { ...threeLvlSelectState.current, id: matchingRules[0].id }
-        } else if (threeLvlSelectState.current.place && threeLvlSelectState.current.category) {
+            ruleRef.current = { ...ruleRef.current, id: matchingRules[0].id }
+        } else if (ruleRef.current.place && ruleRef.current.category) {
             const withEmptyDescription = find(matchingRules, { description: null })
             if (withEmptyDescription){
-                threeLvlSelectState.current = { ...threeLvlSelectState.current, id: withEmptyDescription.id }
+                ruleRef.current = { ...ruleRef.current, id: withEmptyDescription.id }
             }
         }
         ticketForm.current.setFields([
-            { name: 'classifierRule', value: threeLvlSelectState.current.id },
-            { name: 'placeClassifier', value: threeLvlSelectState.current.place },
-            { name: 'categoryClassifier', value: threeLvlSelectState.current.category },
-            { name: 'descriptionClassifier', value: threeLvlSelectState.current.description },
+            { name: 'classifierRule', value: ruleRef.current.id },
+            { name: 'placeClassifier', value: ruleRef.current.place },
+            { name: 'categoryClassifier', value: ruleRef.current.category },
+            { name: 'descriptionClassifier', value: ruleRef.current.description },
         ])
     }
 
     const updateLevels = async (selected = {}, maxUpdates = 2 ) => {
-        threeLvlSelectState.current = { ...threeLvlSelectState.current, ...selected }
+        ruleRef.current = { ...ruleRef.current, ...selected }
         const options = await loadLevels()
-        const state = threeLvlSelectState.current
+        const state = ruleRef.current
         const updateEmptyState = {}
         Object.keys(Setter).forEach(type => {
             const isExisted = options[type].find(option => option.id === state[type])
@@ -256,7 +255,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         })
         if (!isEmpty(updateEmptyState)) {
             // we need to rebuild all options except selected
-            threeLvlSelectState.current = { ...threeLvlSelectState.current, ...updateEmptyState, id: null, ...selected }
+            ruleRef.current = { ...ruleRef.current, ...updateEmptyState, id: null, ...selected }
             if (maxUpdates > 0) {
                 return await updateLevels(selected, --maxUpdates)
             }
