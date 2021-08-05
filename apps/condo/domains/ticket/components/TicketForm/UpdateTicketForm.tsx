@@ -12,14 +12,48 @@ import { FormResetButton } from '@condo/domains/common/components/FormResetButto
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
+
+export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
+    const intl = useIntl()
+    const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
+
+    return (
+        <Form.Item noStyle dependencies={['property']}>
+            {
+                ({ getFieldsValue }) => {
+                    const { property } = getFieldsValue(['property'])
+
+                    return (
+                        <ActionBar>
+                            <FormResetButton
+                                type='sberPrimary'
+                                secondary
+                            />
+                            <Space size={12}>
+                                <Button
+                                    key='submit'
+                                    onClick={handleSave}
+                                    type='sberPrimary'
+                                    loading={isLoading}
+                                    disabled={!property}
+                                >
+                                    {ApplyChangesMessage}
+                                </Button>
+                                <ErrorsContainer property={property} />
+                            </Space>
+                        </ActionBar>
+                    )
+                }
+            }
+        </Form.Item>
+    )
+}
+
 interface IUpdateTicketForm {
     id: string
 }
 
 export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
-    const intl = useIntl()
-    const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-
     const { push } = useRouter()
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -56,38 +90,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
                 push(`/ticket/${ticket.id}`)
             }}
         >
-            {({ handleSave, isLoading }) => {
-                return (
-                    <Form.Item noStyle dependencies={['property']}>
-                        {
-                            ({ getFieldsValue }) => {
-                                const { property } = getFieldsValue(['property'])
-
-                                return (
-                                    <ActionBar>
-                                        <FormResetButton
-                                            type='sberPrimary'
-                                            secondary
-                                        />
-                                        <Space size={12}>
-                                            <Button
-                                                key='submit'
-                                                onClick={handleSave}
-                                                type='sberPrimary'
-                                                loading={isLoading}
-                                                disabled={!property}
-                                            >
-                                                {ApplyChangesMessage}
-                                            </Button>
-                                            <ErrorsContainer property={property} />
-                                        </Space>
-                                    </ActionBar>
-                                )
-                            }
-                        }
-                    </Form.Item>
-                )
-            }}
+            {({ handleSave, isLoading }) => <ApplyChangesActionBar handleSave={handleSave} isLoading={isLoading}/>}
         </BaseTicketForm>
     )
 }

@@ -10,13 +10,42 @@ import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 
-const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
-const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
+export const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
+export const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
 
-export const CreateTicketForm: React.FC = () => {
+export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
     const intl = useIntl()
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
 
+    return (
+        <Form.Item noStyle dependencies={['property']}>
+            {
+                ({ getFieldsValue }) => {
+                    const { property } = getFieldsValue(['property'])
+
+                    return (
+                        <ActionBar>
+                            <Space size={12}>
+                                <Button
+                                    key='submit'
+                                    onClick={handleSave}
+                                    type='sberPrimary'
+                                    loading={isLoading}
+                                    disabled={!property}
+                                >
+                                    {CreateTicketMessage}
+                                </Button>
+                                <ErrorsContainer property={property}/>
+                            </Space>
+                        </ActionBar>
+                    )
+                }
+            }
+        </Form.Item>
+    )
+}
+
+export const CreateTicketForm: React.FC = () => {
     const { organization } = useOrganization()
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
@@ -42,34 +71,7 @@ export const CreateTicketForm: React.FC = () => {
             initialValues={initialValues}
             organization={organization}
         >
-            {({ handleSave, isLoading }) => {
-                return (
-                    <Form.Item noStyle dependencies={['property']}>
-                        {
-                            ({ getFieldsValue }) => {
-                                const { property } = getFieldsValue(['property'])
-
-                                return (
-                                    <ActionBar>
-                                        <Space size={12}>
-                                            <Button
-                                                key='submit'
-                                                onClick={handleSave}
-                                                type='sberPrimary'
-                                                loading={isLoading}
-                                                disabled={!property}
-                                            >
-                                                {CreateTicketMessage}
-                                            </Button>
-                                            <ErrorsContainer property={property}/>
-                                        </Space>
-                                    </ActionBar>
-                                )
-                            }
-                        }
-                    </Form.Item>
-                )
-            }}
+            {({ handleSave, isLoading }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading}/>}
         </BaseTicketForm>
     )
 }

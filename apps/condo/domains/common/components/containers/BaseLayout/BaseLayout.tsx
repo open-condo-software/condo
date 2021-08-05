@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
-import { createContext, CSSProperties, FunctionComponent, useContext, useState } from 'react'
+import React, { createContext, CSSProperties, FunctionComponent, useContext, useState } from 'react'
 import { ConfigProvider, Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import { useTopNotificationsHook, ITopNotification } from '@condo/domains/common/components/TopNotifications'
 import { SideMenu } from './components/SideMenu'
@@ -9,7 +9,7 @@ import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
 import classnames from 'classnames'
 import 'antd/dist/antd.less'
-import { TopMenuItems } from './components/TopMenuItems'
+import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
 import { useIntl } from '@core/next/intl'
 import { useAntdMediaQuery } from '../../../utils/mediaQuery.utils'
 import { layoutCss, pageContentCss, pageHeaderCss, pageWrapperCss, subLayoutCss, topMenuCss } from './components/styles'
@@ -43,7 +43,8 @@ interface IBaseLayoutProps {
     headerAction?: ElementType<unknown>
     onLogoClick?: () => void
     menuDataRender?: () => MenuItem[]
-    logoLocation?: string;
+    TopMenuItems?: React.FC<ITopMenuItemsProps>
+    logoLocation?: string
 }
 
 const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
@@ -55,6 +56,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
         headerAction,
         onLogoClick = () => Router.push('/'),
         menuDataRender = () => [],
+        TopMenuItems: TopMenuItemsFromProps,
     } = props
     const intl = useIntl()
     const colSize = useAntdMediaQuery()
@@ -72,6 +74,10 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
         className
     )
     const toggleSideMenuCollapsed = () => setIsSideMenuCollapsed(!isSideMenuCollapsed)
+
+    // TODO(nomerdvadcatpyat): Component.TopMenuItems?
+    const ResTopMenuItems = TopMenuItemsFromProps ? TopMenuItemsFromProps : TopMenuItems
+
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
             <LayoutContext.Provider value={{ isMobile, addNotification }}>
@@ -86,7 +92,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
                     }} />
                     <Layout css={subLayoutCss}>
                         <Header css={topMenuCss}>
-                            <TopMenuItems
+                            <ResTopMenuItems
                                 headerAction={headerAction}
                                 isMobile={isMobile}
                                 isSideMenuCollapsed={isSideMenuCollapsed}

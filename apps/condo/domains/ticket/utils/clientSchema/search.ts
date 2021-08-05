@@ -116,6 +116,7 @@ export async function searchTicketClassifier (client, value) {
 }
 
 export function searchEmployee (organizationId) {
+    if (!organizationId) return
     return async function (client, value) {
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
         if (error) console.warn(error)

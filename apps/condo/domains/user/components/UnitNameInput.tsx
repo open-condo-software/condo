@@ -4,15 +4,16 @@ import get from 'lodash/get'
 import flattenDeep from 'lodash/flattenDeep'
 import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 
-interface IUnitNameInputProps extends Pick<SelectProps<string>, 'onChange' | 'onSelect'> {
+export interface IUnitNameInputProps extends Pick<SelectProps<string>, 'onChange' | 'onSelect'> {
     property: IPropertyUIState
     placeholder?: string
-    allowClear?: false,
+    allowClear?: false
     loading: boolean
+    reSearchDependencies?: Array<unknown>
 }
 
-const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
-    const { placeholder, property, loading, ...restInputProps } = props
+export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
+    const { placeholder, property, loading, reSearchDependencies = [], ...restInputProps } = props
 
     // TODO(Dimitreee): move search to serverside
     const options = useMemo(() => {
@@ -32,7 +33,7 @@ const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
             )
         )
 
-    }, [property])
+    }, [...reSearchDependencies, property])
 
     return (
         <Select

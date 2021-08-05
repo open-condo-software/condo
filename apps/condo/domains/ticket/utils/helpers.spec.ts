@@ -126,6 +126,7 @@ describe('Helpers', () => {
                     const executor = 'executor'
                     const number = 12
                     const property = 'property'
+                    const organization = 'organization'
                     const search = 'search'
 
                     expect(filtersToQuery({
@@ -137,6 +138,7 @@ describe('Helpers', () => {
                         executor,
                         number,
                         property,
+                        organization,
                         search,
                     })).toStrictEqual({
                         AND: [
@@ -155,6 +157,7 @@ describe('Helpers', () => {
                             { assignee: { AND: [{ name_contains_i: 'assignee' }] } },
                             { number: number },
                             { property: { AND: [{ address_contains_i: 'property' }] } },
+                            { organization: { AND: [{ name_contains_i: 'organization' }] } },
                             { OR: [
                                 { clientName_contains_i: 'search' },
                                 { details_contains_i: 'search' },
@@ -162,6 +165,7 @@ describe('Helpers', () => {
                                 { assignee: { AND: [{ name_contains_i: 'search' }] } },
                                 { property: { AND: [{ address_contains_i: 'search' }] } },
                                 { status: { AND: [{ name_contains_i: 'search' }] } },
+                                { organization: { AND: [{ name_contains_i: 'search' }] } },
                             ] },
                         ],
                     })
@@ -277,6 +281,7 @@ describe('Helpers', () => {
                                     { assignee: { AND: [{ name_contains_i: 'search' }] } },
                                     { property: { AND: [{ address_contains_i: 'search' }] } },
                                     { status: { AND: [{ name_contains_i: 'search' }] } },
+                                    { organization: { AND: [{ name_contains_i: 'search' }] } },
                                 ] },
                             ],
                         })
@@ -446,6 +451,7 @@ describe('Helpers', () => {
                         { assignee: { AND: [{ name_contains_i: search }] } },
                         { property: { AND: [{ address_contains_i: search }] } },
                         { status: { AND: [{ name_contains_i: search }] } },
+                        { organization: { AND: [{ name_contains_i: 'search' }] } },
                     ])
                 })
 
@@ -460,6 +466,7 @@ describe('Helpers', () => {
                         { number: 10 },
                         { property: { AND: [{ address_contains_i: search2 }] } },
                         { status: { AND: [{ name_contains_i: search2 }] } },
+                        { organization: { AND: [{ name_contains_i: search2 }] } },
                     ])
                 })
 
