@@ -3,8 +3,6 @@ import { Select, Input, Col, Form } from 'antd'
 const { Option } = Select
 import { useApolloClient } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
-
-
 import { uniqBy, isEmpty, find, pick, get } from 'lodash'
 import { ClassifiersQueryLocal, ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
@@ -41,11 +39,6 @@ interface ITicketClassifierSelectHookOutput {
     SelectComponent: ClassifierSelectComponent
     ref: React.MutableRefObject<HTMLSelectElement>
 }
-
-
-
-
-
 
 const useTicketClassifierSelectHook = ({
     onChange,
@@ -288,7 +281,6 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             openSelect(categoryRef)
         }
     }
-
 
     const ClassifiersEditorComponent = useMemo(() => {
         const ClassifiersEditorWrapper: React.FC<{ form, disabled }> = ({ form, disabled }) => {
