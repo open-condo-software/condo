@@ -14,17 +14,17 @@ const {
     TicketStatus: TicketStatusGQL,
     TicketChange: TicketChangeGQL,
     TicketSource: TicketSourceGQL,
-    TicketFile: TicketFileGQL
+    TicketFile: TicketFileGQL,
+    TicketClassifier: TicketClassifierGQL,
+    TicketComment: TicketCommentGQL,
+    TicketPlaceClassifier: TicketPlaceClassifierGQL,
+    TicketCategoryClassifier: TicketCategoryClassifierGQL,
+    TicketDescriptionClassifier: TicketDescriptionClassifierGQL,
+    TicketClassifierRule: TicketClassifierRuleGQL,
 } = require('@condo/domains/ticket/gql')
-const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
-const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
 const { GET_ALL_RESIDENT_TICKETS_QUERY } = require('@condo/domains/ticket/gql')
 const { UPDATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
-const { TicketPlaceClassifier: TicketPlaceClassifierGQL } = require('@condo/domains/ticket/gql')
-const { TicketCategoryClassifier: TicketCategoryClassifierGQL } = require('@condo/domains/ticket/gql')
-const { TicketDescriptionClassifier: TicketDescriptionClassifierGQL } = require('@condo/domains/ticket/gql')
-const { TicketClassifierRule: TicketClassifierRuleGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -399,6 +399,10 @@ module.exports = {
     createTestTicketChange,
     updateTestTicketChange,
     makeClientWithTicket,
+    TicketPlaceClassifier,
+    TicketCategoryClassifier,
+    TicketDescriptionClassifier,
+    TicketClassifierRule,
     TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier,
     TicketComment, createTestTicketComment, updateTestTicketComment,
     createTestTicketPlaceClassifier, updateTestTicketPlaceClassifier, createTestTicketCategoryClassifier, updateTestTicketCategoryClassifier, createTestTicketDescriptionClassifier, updateTestTicketDescriptionClassifier, createTestTicketClassifierRule, updateTestTicketClassifierRule,
