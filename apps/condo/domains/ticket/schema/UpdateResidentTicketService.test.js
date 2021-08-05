@@ -5,6 +5,7 @@ const { createResidentTicketByTestClient } = require('@condo/domains/ticket/util
 const { makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { updateResidentTicketByTestClient } = require('@condo/domains/ticket/utils/testSchema')
 const faker = require('faker')
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
@@ -34,12 +35,14 @@ describe('UpdateResidentTicketService', () => {
         const payload = {
             details: newDetails,
         }
-        try {
+
+        await catchErrorFrom(async () => {
             await updateResidentTicketByTestClient(userClient, ticket.id, payload)
-        } catch (error) {
-            expect(error.errors).toHaveLength(1)
-            expect(error.errors[0].message).toEqual(`${NOT_FOUND_ERROR}ticket] no ticket was found with this id for this user`)
-        }
+        }, ({ errors, data }) => {
+            expect(errors).toHaveLength(1)
+            expect(errors[0].message).toEqual(`${NOT_FOUND_ERROR}ticket] no ticket was found with this id for this user`)
+            expect(data).toEqual({ 'obj': null })
+        })
     })
 
     test('resident: cannot update ticket fields which not in ResidentTicketUpdateInput', async () => {
@@ -48,12 +51,13 @@ describe('UpdateResidentTicketService', () => {
         const payload = {
             unitName:  faker.random.alphaNumeric(5),
         }
-        try {
+
+        await catchErrorFrom(async () => {
             await updateResidentTicketByTestClient(userClient, ticket.id, payload)
-        } catch (error) {
-            expect(error.errors).toHaveLength(1)
-            expect(error.errors[0].message).toContain('Field "unitName" is not defined by type "ResidentTicketUpdateInput"')
-        }
+        }, ({ errors, data }) => {
+            expect(errors).toHaveLength(1)
+            expect(errors[0].message).toContain('Field "unitName" is not defined by type "ResidentTicketUpdateInput"')
+        })
     })
 
     test('admin: can update resident ticket', async () => {
@@ -79,12 +83,12 @@ describe('UpdateResidentTicketService', () => {
             details: newDetails,
         }
 
-        try {
+        await catchErrorFrom(async () => {
             await updateResidentTicketByTestClient(client, ticket.id, payload)
-        } catch (error) {
-            expect(error.errors).toHaveLength(1)
-            expect(error.errors[0].message).toEqual(`${NOT_FOUND_ERROR}ticket] no ticket was found with this id for this user`)
-        }
+        }, ({ errors, data }) => {
+            expect(errors).toHaveLength(1)
+            expect(errors[0].message).toEqual(`${NOT_FOUND_ERROR}ticket] no ticket was found with this id for this user`)
+        })
     })
 
     test('anonymous: cannot update resident ticket', async () => {
