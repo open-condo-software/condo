@@ -3,6 +3,11 @@ import { getCommitsFromRange } from './utils'
 
 export class BotController {
     constructor (private token?: string) {
+        const initialUsers = process.env.NOTIFICATION_BOT_CONFIG && JSON.parse(process.env.NOTIFICATION_BOT_CONFIG)?.intitial_listeners
+
+        if (initialUsers) {
+            this.users = new Map(Object.entries(initialUsers))
+        }
     }
 
     public init (): void {
@@ -21,8 +26,8 @@ export class BotController {
         return Array.from(this.users)
     }
 
-    private addListeners (): void {
-        this.bot.on('message', (message) => {
+    private addListeners () {
+        this.bot.on('message', async (message) => {
             const { text } = message
             const command = text.split(' ')[0]
 
@@ -34,13 +39,16 @@ export class BotController {
                     this.handleStop(message)
                     break
                 case '/join':
-                    this.handleJoin(message)
+                    await this.handleJoin(message)
                     break
                 case '/create_release_report':
-                    this.handleCreateReleaseReport(message)
+                    await this.handleCreateReleaseReport(message)
+                    break
+                case '/list_active_listeners':
+                    await this.listActiveListeners(message)
                     break
                 case '/leave':
-                    this.handleLeave(message)
+                    await this.handleLeave(message)
                     break
             }
         })
@@ -54,19 +62,32 @@ export class BotController {
         this.chatIds.delete(message.chat.id)
     }
 
-    private handleJoin (message) {
+    private async listActiveListeners (message) {
+        const users = this.getUsers()
+
+        if (!users.length) {
+            await this.bot.sendMessage(message.chat.id, 'No listeners found')
+            return
+        }
+
+        const listeners = users.map(([userName]) => `@${userName}`).join(', ')
+
+        await this.bot.sendMessage(message.chat.id, `Active listeners ${listeners}`)
+    }
+
+    private async handleJoin (message) {
         const { text } = message
         const formattedMessage = text.split(' ')
 
         if (formattedMessage.length != 3 || formattedMessage[1] !== 'as') {
-            this.bot.sendMessage(message.chat.id, '/join wrong username, please follow pattern: \'as {{ github_username }}\'')
+            await this.bot.sendMessage(message.chat.id, '/join wrong username, please follow pattern: \'as {{ github_username }}\'')
             return
         }
 
         const userName = formattedMessage[2]
 
         this.users.set(message.from.username, userName)
-        this.bot.sendMessage(message.chat.id, `@${message.from.username} successfully joined as ${userName}.`)
+        await this.bot.sendMessage(message.chat.id, `@${message.from.username} successfully joined as ${userName}.`)
     }
 
     private async handleCreateReleaseReport (message) {
@@ -74,7 +95,7 @@ export class BotController {
         const formattedMessage = text.split(' ')
 
         if (formattedMessage.length < 2) {
-            this.bot.sendMessage(message.chat.id, '/create_release_report sha was not provided')
+            await this.bot.sendMessage(message.chat.id, '/create_release_report sha was not provided')
             return
         }
 
@@ -93,9 +114,9 @@ export class BotController {
             })
     }
 
-    private handleLeave (message) {
+    private async handleLeave (message) {
         this.users.delete(message.from.username)
-        this.bot.sendMessage(message.chat.id, `@${message.from.username} successfully left.`)
+        await this.bot.sendMessage(message.chat.id, `@${message.from.username} successfully left.`)
     }
 
     private static getToken (): string {

@@ -32,8 +32,8 @@ app.post('/pullRequestUpdate/', (req, res) => {
         return
     }
 
-    const signature = req.headers['http_x_hub_signature_256']
-    verify_signature(signature)
+    // const signature = req.headers['http_x_hub_signature_256']
+    // verify_signature(signature)
 
     const message = getPullRequestMessage(pullRequest._links.html.href, pullRequest.user.login, bot.getUsers())
     bot.sendMessage(message)
