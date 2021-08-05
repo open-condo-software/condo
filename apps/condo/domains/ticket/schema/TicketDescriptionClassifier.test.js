@@ -38,7 +38,7 @@ describe('TicketDescriptionClassifier CRUD', () => {
         })
         it('can not update', async () => {
             const admin = await makeLoggedInAdminClient()
-            const [_, userAttrs] = await createTestUser(admin)
+            const [, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
             const [objCreated] = await createTestTicketDescriptionClassifier(admin)
             const payload = { name: faker.lorem.word() }

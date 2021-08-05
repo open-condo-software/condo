@@ -7,6 +7,7 @@
 const faker = require('faker')
 const { get } = require('lodash')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { TICKET_STATUS_TYPES } = require('../../constants')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
@@ -280,7 +281,6 @@ async function updateTestTicketCategoryClassifier (client, id, extraAttrs = {}) 
     const attrs = {
         dv: 1,
         sender,
-        name: faker.lorem.word(),
         ...extraAttrs,
     }
     const obj = await TicketCategoryClassifier.update(client, id, attrs)
@@ -293,6 +293,7 @@ async function createTestTicketDescriptionClassifier (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
+        name: faker.lorem.word(),
         ...extraAttrs,
     }
     const obj = await TicketDescriptionClassifier.create(client, attrs)
@@ -315,15 +316,16 @@ async function updateTestTicketDescriptionClassifier (client, id, extraAttrs = {
 async function createTestTicketClassifierRule (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const [place] = await createTestTicketPlaceClassifier()
-    const [category] = await createTestTicketCategoryClassifier()
-    const [description] = await createTestTicketDescriptionClassifier()
+    const admin = await makeLoggedInAdminClient()
+    const [place] = await createTestTicketPlaceClassifier(admin)
+    const [category] = await createTestTicketCategoryClassifier(admin)
+    const [description] = await createTestTicketDescriptionClassifier(admin)
     const attrs = {
         dv: 1,
         sender,
-        place: { connect: place.id },
-        category: { connect: category.id },
-        description: { connect: description.id },
+        place: { connect: { id: place.id } },
+        category: { connect: { id: category.id } },
+        description: { connect: { id: description.id } },
         ...extraAttrs,
     }
     const obj = await TicketClassifierRule.create(client, attrs)
