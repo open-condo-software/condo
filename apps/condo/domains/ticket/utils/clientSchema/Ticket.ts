@@ -12,7 +12,7 @@ import { Ticket, TicketUpdateInput, Organization, QueryAllTicketsArgs } from '..
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'unitName', 'sectionName', 'floorName', 'watchers', 'operator', 'assignee', 'classifier', 'placeClassifier', 'categoryClassifier', 'descriptionClassifier', 'classifierRule', 'details', 'related', 'isEmergency', 'isPaid', 'meta', 'source', 'property', 'executor']
 const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'classifier', 'organization', 'source', 'property', 'executor', 'related', 'placeClassifier', 'categoryClassifier', 'descriptionClassifier', 'classifierRule']
-
+const DISCONNECT_ON_NULL = ['descriptionClassifier']
 export interface ITicketUIState extends Ticket {
     id: string
     organization: Organization
@@ -72,7 +72,16 @@ function convertToGQLInput (state: ITicketFormState): TicketUpdateInput {
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        if (RELATIONS.includes(attr)) {
+            if (state[attr]) {
+                result[attr] = { connect: { id: (attrId || state[attr]) } }
+            // TODO(zuch): make this optional as not sure if contact on null should be disconnected
+            } else if (DISCONNECT_ON_NULL.includes(attr)) {
+                result[attr] = { disconnectAll: true }
+            } else {
+                result[attr] = state[attr]
+            }
+        }
     }
     return result
 }
