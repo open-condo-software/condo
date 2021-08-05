@@ -23,7 +23,7 @@ import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 import { GearIcon } from '@condo/domains/common/components/icons/GearIcon'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
-
+import { extractReqLocale } from '@condo/domains/common/utils/locale'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -114,7 +114,7 @@ const apolloCacheConfig = {}
 
 export default (
     withApollo({ ssr: true, apolloCacheConfig })(
-        withIntl({ ssr: true, messagesImporter, defaultLocale })(
+        withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale })(
             withAuth({ ssr: true })(
                 withOrganization({
                     ssr: true,

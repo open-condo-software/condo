@@ -1,7 +1,7 @@
 import { IntlProvider, useIntl } from 'react-intl'
 import React, { useEffect, useState } from 'react'
 import cookie from 'js-cookie'
-import { extractReqLocale } from '@condo/domains/common/utils/locale'
+import nextCookie from 'next-cookies'
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 
 const LocaleContext = React.createContext({})
@@ -21,6 +21,16 @@ let getMessages = async (locale) => {
         console.error('getMessages error:', error)
         const module = await import('./lang/en.json')
         return module.default
+    }
+}
+
+let extractReqLocale = (req) => {
+    try {
+        const cookieLocale = nextCookie({ req }).locale
+        const headersLocale = req.headers['accept-language'] && req.headers['accept-language'].slice(0, 2)
+        return cookieLocale || headersLocale || defaultLocale
+    } catch (e) {
+        return null
     }
 }
 
@@ -83,6 +93,7 @@ if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) Intl.whyDidYouRender = true
 const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     defaultLocale = opts.defaultLocale || defaultLocale
+    extractReqLocale = opts.extractReqLocale || extractReqLocale
     messagesImporter = opts.messagesImporter ? opts.messagesImporter : messagesImporter
     getMessages = opts.getMessages ? opts.getMessages : getMessages
     getLocale = opts.getLocale ? opts.getLocale : getLocale
