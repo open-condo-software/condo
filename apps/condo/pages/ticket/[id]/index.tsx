@@ -220,8 +220,8 @@ const TicketIdPage = ({ employee: employeeFromProps, organization: organizationF
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
-    // TODO(nomerdvadcatpyat) separate organization logic
     const organization = organizationFromProps ? organizationFromProps : userOrganization
+    const employee = employeeFromProps ? employeeFromProps : link
 
     if (!ticket) {
         return (
@@ -243,7 +243,6 @@ const TicketIdPage = ({ employee: employeeFromProps, organization: organizationF
         ticketChangesResult.refetch()
     }
 
-    // TODO(nomerdvadcatpyat) change TicketStatusSelect organization={organization} employee={employeeFromProps} in props
     return (
         <>
             <Head>
@@ -278,8 +277,8 @@ const TicketIdPage = ({ employee: employeeFromProps, organization: organizationF
                                         <Col span={6}>
                                             <Row justify={'end'}>
                                                 <TicketStatusSelect
-                                                    organization={organizationFromProps}
-                                                    employee={employeeFromProps}
+                                                    organization={organization}
+                                                    employee={employee}
                                                     ticket={ticket}
                                                     onUpdate={handleTicketStatusChanged}
                                                     loading={loading}
@@ -297,7 +296,7 @@ const TicketIdPage = ({ employee: employeeFromProps, organization: organizationF
                                         {
                                             organizationFromProps ? (
                                                 <TicketFieldRow title={OrganizationMessage}>
-                                                    {organizationFromProps.name}
+                                                    {organization.name}
                                                 </TicketFieldRow>
                                             ) : null
                                         }
@@ -405,7 +404,7 @@ const TicketIdPage = ({ employee: employeeFromProps, organization: organizationF
                                     // @ts-ignore
                                     createAction={createCommentAction}
                                     comments={comments}
-                                    canCreateComments={get(auth, ['user', 'isAdmin']) || get(link, ['role', 'canManageTicketComments']) || get(employeeFromProps, ['role', 'canManageTicketComments'])}
+                                    canCreateComments={get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments'])}
                                     actionsFor={comment => {
                                         const isAuthor = comment.user.id === auth.user.id
                                         const isAdmin = get(auth, ['user', 'isAdmin'])

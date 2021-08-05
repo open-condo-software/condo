@@ -8,12 +8,10 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
-//TODO(nomerdvadcatpyat) убрать эту логику, тупо скопировать
-const TicketUpdatePage = ({ TicketForm: TicketFormFromProps }) => {
+const TicketUpdatePage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.EditTicketModalTitle' })
     const { query } = useRouter()
-    const ResTicketForm = TicketFormFromProps ? TicketFormFromProps : TicketForm
 
     return (
         <>
@@ -26,7 +24,7 @@ const TicketUpdatePage = ({ TicketForm: TicketFormFromProps }) => {
                         <Col span={24}>
                             <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                         </Col>
-                        <ResTicketForm id={query.id as string}/>
+                        <TicketForm id={query.id as string}/>
                     </Row>
                 </PageContent>
             </PageWrapper>
