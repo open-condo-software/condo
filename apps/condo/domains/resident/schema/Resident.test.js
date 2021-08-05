@@ -127,6 +127,35 @@ describe('Resident', () => {
                 expect(obj.organizationForResident).toBeNull()
             })
         })
+
+        describe('propertyForResident', () => {
+            it('returns id and name of related property', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                await addResidentAccess(userClient.user)
+                const [obj] = await Resident.getAll(userClient, { id })
+                expect(obj.propertyForResident).toBeDefined()
+                expect(obj.propertyForResident.id).toEqual(userClient.property.id)
+                expect(obj.propertyForResident.name).toEqual(userClient.property.name)
+                expect(Object.keys(obj.propertyForResident).length).toEqual(2)
+            })
+
+            it('returns null if no related property', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const attrs = {
+                    address: faker.lorem.words(),
+                }
+
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, null, attrs)
+                await addResidentAccess(userClient.user)
+                const [obj] = await Resident.getAll(userClient, { id })
+                expect(obj.propertyForResident).toBeNull()
+            })
+        })
     })
 
     describe('Create', () => {
