@@ -5,18 +5,20 @@
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 const { canManageBillingEntityWithContext } = require('@condo/domains/billing/utils/accessSchema')
 
+
+async function _getBillingAccountByUser (user, context) {
+    const [ resident ] = await Resident.getAll(context, { user: { id: user.id } })
+    if (!resident) return null
+
+    const [ serviceConsumer ] = await ServiceConsumer.getAll(context, { resident: { id: resident.id } })
+    if ( !serviceConsumer ) return null
+
+    if (!serviceConsumer.billingAccount) return null
+    return serviceConsumer.billingAccount.id
+}
+
+
 async function canReadBillingReceipts ({ context, authentication: { item: user } }) {
-
-    async function _getBillingAccountByUser (user) {
-        const [ resident ] = await Resident.getAll(context, { user: { id: user.id } })
-        if (!resident) return null
-
-        const [ serviceConsumer ] = await ServiceConsumer.getAll(context, { resident: { id: resident.id } })
-        if ( !serviceConsumer ) return null
-
-        if (!serviceConsumer.billingAccount) return null
-        return serviceConsumer.billingAccount.id
-    }
 
     if (!user) return false
     if (user.isAdmin) return true
