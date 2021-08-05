@@ -5,7 +5,6 @@
  */
 
 const faker = require('faker')
-const {throwIfError} = require("@condo/domains/common/utils/codegeneration/generate.test.utils");
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { TICKET_STATUS_TYPES } = require('../../constants')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
@@ -244,18 +243,7 @@ async function createResidentTicketByTestClient(client, property, extraAttrs = {
     return [obj, attrs]
 }
 
-// async function getAllResidentTicketsByTestClient(client, where = {}, first, skip, extraAttrs = {}) {
-//     if (!client) throw new Error('no client')
-//
-//     const attrs = {
-//         ...extraAttrs,
-//     }
-//     // const { data, errors } = await client.query(GET_ALL_RESIDENT_TICKETS_QUERY, { data: attrs, where, first, skip })
-//     // throwIfError(data, errors)
-//     // return [data.objs, attrs]
-// }
-
-async function updateResidentTicketByTestClient(client, extraAttrs = {}) {
+async function updateResidentTicketByTestClient(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -296,7 +284,6 @@ module.exports = {
     TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier,
     TicketComment, createTestTicketComment, updateTestTicketComment,
     createResidentTicketByTestClient,
-    // getAllResidentTicketsByTestClient,
     updateResidentTicketByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
