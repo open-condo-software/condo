@@ -174,10 +174,10 @@ const Ticket = new GQLListSchema('Ticket', {
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
-        descriptionClassifier: {
+        problemClassifier: {
             schemaDoc: 'Details of incident',
             type: Relationship,
-            ref: 'TicketDescriptionClassifier',
+            ref: 'TicketProblemClassifier',
             isRequired: false,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },

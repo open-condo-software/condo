@@ -16,7 +16,7 @@ const { TicketAnalyticsReportService } = require('./TicketAnalyticsReportService
 const { ShareTicketService } = require('./ShareTicketService')
 const { TicketPlaceClassifier } = require('./TicketPlaceClassifier')
 const { TicketCategoryClassifier } = require('./TicketCategoryClassifier')
-const { TicketDescriptionClassifier } = require('./TicketDescriptionClassifier')
+const { TicketProblemClassifier } = require('./TicketProblemClassifier')
 const { TicketClassifierRule } = require('./TicketClassifierRule')
 
 const { CreateResidentTicketService } = require('./CreateResidentTicketService')
@@ -41,7 +41,7 @@ module.exports = {
     UpdateResidentTicketService,
     TicketPlaceClassifier,
     TicketCategoryClassifier,
-    TicketDescriptionClassifier,
+    TicketProblemClassifier,
     TicketClassifierRule,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -10,7 +10,7 @@ export * as TicketFile from './TicketFile'
 export * as TicketClassifier from './TicketClassifier'
 export * as TicketPlaceClassifier from './TicketPlaceClassifier'
 export * as TicketCategoryClassifier from './TicketCategoryClassifier'
-export * as TicketDescriptionClassifier from './TicketDescriptionClassifier'
+export * as TicketProblemClassifier from './TicketProblemClassifier'
 export * as TicketClassifierRule from './TicketClassifierRule'
 export * as TicketComment from './TicketComment'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

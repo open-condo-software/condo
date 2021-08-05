@@ -73,7 +73,7 @@ const ticketChangeDisplayNameResolversForSingleRelations = {
         return get(item, 'name')
     },
     'descriptionClassifier': async (itemId) => {
-        const item = await getById('TicketDescriptionClassifier', itemId)
+        const item = await getById('TicketProblemClassifier', itemId)
         return get(item, 'name')
     },
     'source': async (itemId) => {

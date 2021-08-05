@@ -5,8 +5,8 @@ const { v4: uuid } = require('uuid')
 
 const CLASSIFIER_PLACE_TEMPLATE = 'INSERT INTO public."TicketPlaceClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null);'
 const CLASSIFIER_CATEGORY_TEMPLATE = 'INSERT INTO public."TicketCategoryClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null);'
-const CLASSIFIER_DESCRIPTION_TEMPLATE = 'INSERT INTO public."TicketDescriptionClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null);'
-const CLASSIFIER_RULE_TEMPLATE = 'INSERT INTO public."TicketClassifierRule" ("dv", "sender", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "category", "createdBy", "place", "description", "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, \'{category}\', null, \'{place}\', {description}, null);'
+const CLASSIFIER_PROBLEM_TEMPLATE = 'INSERT INTO public."TicketProblemClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null);'
+const CLASSIFIER_RULE_TEMPLATE = 'INSERT INTO public."TicketClassifierRule" ("dv", "sender", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "category", "createdBy", "place", "problem", "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, \'{category}\', null, \'{place}\', {problem}, null);'
 
 // Example:
 // Чердаки, подвалы;Доступ;Ограничение доступа
@@ -15,10 +15,10 @@ const CLASSIFIER_RULE_TEMPLATE = 'INSERT INTO public."TicketClassifierRule" ("dv
 
 // type=place =  Чердаки, подвалы
 // type=category = Доступ
-// type=description = Ограничение доступа
+// type=problem = Ограничение доступа
 
 // or - this one will is chosen
-// relations (2): place + category + description (+ null)
+// relations (2): place + category + problem (+ null)
 // Чердаки, подвалы => Доступ => Ограничение доступа
 // Чердаки, подвалы => Доступ => null
 
@@ -334,7 +334,7 @@ class ClassifiersToSql {
 
     places = {}
     categories = {}
-    descriptions = {}
+    problems = {}
 
     relations = []
 
@@ -343,7 +343,7 @@ class ClassifiersToSql {
     uuids = {
         places: {},
         categories: {},
-        descriptions: {},
+        problems: {},
     }
 
     toKey (name) {
@@ -356,23 +356,23 @@ class ClassifiersToSql {
         }
     }
 
-    setUUIDS (place, category, description){
+    setUUIDS (place, category, problem){
         this.setUUID(this.uuids.places, place)
         this.setUUID(this.uuids.categories, category)
-        this.setUUID(this.uuids.descriptions, description)
+        this.setUUID(this.uuids.problems, problem)
     }
 
-    setRelation (place, category, description) {
-        this.setUUIDS(place, category, description)
+    setRelation (place, category, problem) {
+        this.setUUIDS(place, category, problem)
         this.relations.push({
             place: this.uuids.places[place],
             category: this.uuids.categories[category],
-            description: this.uuids.descriptions[description],
+            problem: this.uuids.problems[problem],
         })
         this.nullRelations[[place, category].join('_')] = {
             place: this.uuids.places[place],
             category: this.uuids.categories[category],
-            description: null,
+            problem: null,
         }
     }
 
@@ -382,12 +382,12 @@ class ClassifiersToSql {
             line = line.trim()
             const semiColonsCount =  (line.match(/;/g) || []).length
             if (line.length && semiColonsCount === 2) {
-                const [place, category, description] = line.trim().split(';')
-                const [placeKey, categoryKey, descriptionKey] = [place, category, description].map( key => this.toKey(key) )
+                const [place, category, problem] = line.trim().split(';')
+                const [placeKey, categoryKey, problemKey] = [place, category, problem].map( key => this.toKey(key) )
                 this.places[placeKey] = place
                 this.categories[categoryKey] = category
-                this.descriptions[descriptionKey] = description
-                this.setRelation(placeKey, categoryKey, descriptionKey)
+                this.problems[problemKey] = problem
+                this.setRelation(placeKey, categoryKey, problemKey)
             }
         })
     }
@@ -408,19 +408,19 @@ class ClassifiersToSql {
         for (const categoryKey in this.categories) {
             this.printClassifier({ name: this.categories[categoryKey], uuid: this.uuids.categories[categoryKey] }, CLASSIFIER_CATEGORY_TEMPLATE)
         }
-        for (const descriptionKey in this.descriptions) {
-            this.printClassifier({ name: this.descriptions[descriptionKey], uuid: this.uuids.descriptions[descriptionKey] }, CLASSIFIER_DESCRIPTION_TEMPLATE)
+        for (const problemKey in this.problems) {
+            this.printClassifier({ name: this.problems[problemKey], uuid: this.uuids.problems[problemKey] }, CLASSIFIER_PROBLEM_TEMPLATE)
         }
     }
 
     printRelations () {
-        [...this.relations, ...Object.values(this.nullRelations)].forEach(({ place, category, description }) => {
+        [...this.relations, ...Object.values(this.nullRelations)].forEach(({ place, category, problem }) => {
             process.stdout.write(
                 CLASSIFIER_RULE_TEMPLATE
                     .split('{uuid}').join(uuid())
                     .split('{place}').join(place)
                     .split('{category}').join(category)
-                    .split('{description}').join(description ? `'${description}'` : null)
+                    .split('{problem}').join(problem ? `'${problem}'` : null)
             )
             process.stdout.write('\n')
         })
