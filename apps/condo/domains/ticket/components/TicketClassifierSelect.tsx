@@ -45,16 +45,20 @@ const useTicketClassifierSelectHook = ({
     onSearch,
     initialValue,
 }: ITicketClassifierSelectHookInput): ITicketClassifierSelectHookOutput => {
-    const [selected, setSelected] = useState<string>(null)
     const [classifiers, setClassifiersFromRules] = useState<Options[]>([])
     const [searchClassifiers, setSearchClassifiers] = useState<Options[]>([])
     const classifiersRef = useRef<HTMLSelectElement>(null)
     const optionsRef = useRef<Options[]>([])
+    const selectedRef = useRef<string>(null)
 
     const setClassifiers = (classifiers) => {
         setClassifiersFromRules(classifiers)
         // We need to remove search classifiers when rules start to work
         setSearchClassifiers([])
+    }
+
+    function setSelected (value) {
+        selectedRef.current = value
     }
 
     useEffect(() => {
@@ -77,6 +81,7 @@ const useTicketClassifierSelectHook = ({
                     disabled={disabled}
                     defaultValue={initialValue}
                     ref={classifiersRef}
+                    value={selectedRef.current}
                     showAction={['focus', 'click']}
                 >
                     {
@@ -161,6 +166,12 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         place: placeSet,
         category: categorySet,
         description: descriptionSet,
+    }
+
+    const Refs = {
+        place: placeRef,
+        category: categoryRef,
+        description: descriptionRef,
     }
 
     useEffect(() => {
@@ -264,6 +275,9 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         })
         if (!isEmpty(updateEmptyState)) {
             // here we need to rebuild all options except selected
+            for (const type in updateEmptyState) {
+                Refs[type].setV
+            }
             ruleRef.current = { ...ruleRef.current, ...updateEmptyState, id: null, ...selected }
             if (maxUpdates > 0) {
                 return await updateLevels(selected, --maxUpdates)
