@@ -323,6 +323,7 @@
   "pages.condo.ticket.TicketChanges.fetchMore": "Show more {count}",
   "pages.index.PageTitle": "Analytics",
   "pages.organizations.CreateOrganizationMessage": "Creating new organization",
+  "pages.condo.analytics.index.PageTitle": "Analytics",
   "pages.condo.analytics.TicketAnalyticsPage.PageTitle": "Ticket analytics",
   "pages.condo.analytics.TicketAnalyticsPage.HeaderButtonTitle": "Add custom report",
   "pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Status": "By status",

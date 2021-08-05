@@ -31,7 +31,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 function menuDataRender () {
     return [
         {
-            path: '/',
+            path: '/analytics',
             icon: PieChartFilled,
             locale: 'menu.Analytics',
         },
