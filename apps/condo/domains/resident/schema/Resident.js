@@ -48,7 +48,7 @@ const Resident = new GQLListSchema('Resident', {
             schemaDoc: 'Organization data, that is returned for current resident in mobile client',
             type: Virtual,
             extendGraphQLTypes: ['type ResidentOrganization { id: ID!, name: String }'],
-            graphQLReturnType: 'JSON',
+            graphQLReturnType: 'ResidentOrganization',
             resolver: async (item) => {
                 if (item.organization) {
                     const organization = await getById('Organization', item.organization)
@@ -86,7 +86,7 @@ const Resident = new GQLListSchema('Resident', {
             schemaDoc: 'Property data, that is returned for current resident in mobile client',
             type: Virtual,
             extendGraphQLTypes: ['type ResidentProperty { id: ID!, name: String }'],
-            graphQLReturnType: 'JSON',
+            graphQLReturnType: 'ResidentProperty',
             resolver: async (item) => {
                 if (item.property) {
                     const property = await getById('Property', item.property)
