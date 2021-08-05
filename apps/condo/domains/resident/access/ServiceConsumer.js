@@ -1,6 +1,7 @@
 
 const { ServiceConsumer, Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+
 async function canReadServiceConsumers ({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
@@ -20,7 +21,19 @@ async function canManageServiceConsumers ({ authentication: { item: user }, cont
             const [serviceConsumer] = await ServiceConsumer.getAll(context, { id: itemId })
             if (!serviceConsumer) return false
             const [resident] = await Resident.getAll(context, { id: serviceConsumer.resident.id })
-            return resident.user.id === user.id
+            const isOwnBillingAccount = resident.user.id === user.id
+
+            let isSoftDeleteOperation = true
+
+            const SAFE_FIELDS = ['dv', 'sender', 'deletedAt']
+            for (let prop in originalInput) {
+                if (!originalInput.hasOwnProperty(prop)) { continue }
+                if ( !SAFE_FIELDS.includes(prop) && !prop.startsWith('_') ) {
+                    isSoftDeleteOperation = false
+                }
+            }
+
+            return isOwnBillingAccount && isSoftDeleteOperation
         }
     }
 }
