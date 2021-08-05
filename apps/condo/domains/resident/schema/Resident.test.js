@@ -102,6 +102,33 @@ describe('Resident', () => {
         })
     })
 
+    describe('Virtual fields', () => {
+        describe('organizationForResident', () => {
+            it('returns id and name of related organization', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                await addResidentAccess(userClient.user)
+                const [obj] = await Resident.getAll(userClient, { id })
+                expect(obj.organizationForResident).toBeDefined()
+                expect(obj.organizationForResident.id).toEqual(userClient.organization.id)
+                expect(obj.organizationForResident.name).toEqual(userClient.organization.name)
+                expect(Object.keys(obj.organizationForResident).length).toEqual(2)
+            })
+
+            it('returns null if no related organization', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const [{ id }] = await createTestResident(adminClient, userClient.user, null, userClient.property)
+                await addResidentAccess(userClient.user)
+                const [obj] = await Resident.getAll(userClient, { id })
+                expect(obj.organizationForResident).toBeNull()
+            })
+        })
+    })
+
     describe('Create', () => {
         it('can be created by admin', async () => {
             const userClient = await makeClientWithProperty()
