@@ -4,12 +4,12 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const has = require('lodash/has')
 const faker = require('faker')
 const {
     SMS_CODE_LENGTH,
 } = require('@condo/domains/user/constants/common')
-
 
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
@@ -37,11 +37,27 @@ const generateSmsCode = (phone) => {
     })
 }
 
+const updateEmployeesRelatedToUser = async (context, user) => {
+    const acceptedInviteEmployees = await OrganizationEmployee.getAll(context, { user: { id: user.id }, isAccepted: true })
+    if (acceptedInviteEmployees.length > 0) {
+        acceptedInviteEmployees.forEach(employee => {
+            OrganizationEmployee.update(context, employee.id, {
+                dv: user.dv,
+                sender: user.sender,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+            })
+        })
+    }
+}
+
 
 module.exports = {
     User,
     ConfirmPhoneAction,
     generateSmsCode,
     ForgotPasswordAction,
+    updateEmployeesRelatedToUser,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

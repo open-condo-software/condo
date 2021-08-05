@@ -13,6 +13,7 @@ const access = require('@condo/domains/user/access/User')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { updateEmployeesRelatedToUser } = require('@condo/domains/user/utils/serverSchema')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 
@@ -139,19 +140,7 @@ const User = new GQLListSchema('User', {
                 updatedItem.email !== existingItem.email ||
                 updatedItem.name !== existingItem.name)
             ) {
-                const employees = await OrganizationEmployee.getAll(context, { user: { id: updatedItem.id } })
-                const acceptedInviteEmployees = employees.filter(employee => employee.isAccepted)
-                if (acceptedInviteEmployees.length > 0) {
-                    acceptedInviteEmployees.forEach(employee => {
-                        OrganizationEmployee.update(context, employee.id, {
-                            dv: updatedItem.dv,
-                            sender: updatedItem.sender,
-                            name: updatedItem.name,
-                            email: updatedItem.email,
-                            phone: updatedItem.phone,
-                        })
-                    })
-                }
+                await updateEmployeesRelatedToUser(context, updatedItem)
             }
         },
     },
