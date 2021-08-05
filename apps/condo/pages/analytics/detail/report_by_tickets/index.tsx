@@ -620,9 +620,11 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         ), [analyticsData, loading, viewMode])}
                     </Col>
                     <ActionBar fullscreen>
-                        <Button onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
-                            {PrintTitle}
-                        </Button>
+                        <Tooltip title={NotImplementedYetMessage}>
+                            <Button icon={<FilePdfFilled />} type='sberPrimary' secondary>
+                                {PrintTitle}
+                            </Button>
+                        </Tooltip>
                         <Tooltip title={NotImplementedYetMessage}>
                             <Button icon={<EditFilled />} type='sberPrimary' secondary>{ExcelTitle}</Button>
                         </Tooltip>
