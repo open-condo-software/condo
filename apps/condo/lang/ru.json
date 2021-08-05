@@ -323,6 +323,7 @@
   "pages.condo.ticket.TicketChanges.fetchMore": "Показать ещё {count}",
   "pages.index.PageTitle": "Аналитика",
   "pages.organizations.CreateOrganizationMessage": "Давайте создадим вашу управляющую компанию",
+  "pages.condo.analytics.index.PageTitle": "Аналитика",
   "pages.condo.analytics.TicketAnalyticsPage.PageTitle": "Аналитика по заявкам",
   "pages.condo.analytics.TicketAnalyticsPage.HeaderButtonTitle": "Добавить свой отчет",
   "pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Status": "Общая по статусам",

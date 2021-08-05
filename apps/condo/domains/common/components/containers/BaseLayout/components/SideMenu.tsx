@@ -28,7 +28,7 @@ const MenuItems = (props) => {
         if (path === '/') {
             return router.route === path
         }
-
+        // TODO(sitozzz): rewrite match logic for support nested navigation like /domain/group/another_domain
         return router.route.includes(path)
     }, [router])
 

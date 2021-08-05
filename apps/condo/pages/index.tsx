@@ -1,34 +1,16 @@
-import React from 'react'
-import Head from 'next/head'
-import { Typography } from 'antd'
-import { useIntl } from '@core/next/intl'
-
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import React, { useEffect } from 'react'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { TicketsWidget } from '@condo/domains/ticket/components/TicketsWidget'
-import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { useRouter } from 'next/router'
 
 
 const IndexPage = () => {
-    const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.index.PageTitle' })
-
-    return (
-        <>
-            <Head>
-                <title>{PageTitleMsg}</title>
-            </Head>
-            <PageWrapper>
-                <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>{PageTitleMsg}</Typography.Title>}/>
-                <PageContent>
-                    <TicketsWidget />
-                </PageContent>
-            </PageWrapper>
-        </>
-    )
+    const router = useRouter()
+    useEffect(() => {
+        router.push('/analytics')
+    }, [])
+    return <></>
 }
 
-IndexPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Analytics' }}/>
 IndexPage.requiredAccess = OrganizationRequired
 
 export default IndexPage
