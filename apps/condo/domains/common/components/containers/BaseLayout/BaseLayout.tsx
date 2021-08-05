@@ -9,7 +9,7 @@ import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
 import classnames from 'classnames'
 import 'antd/dist/antd.less'
-import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
+import { ITopMenuItemsProps, TopMenuItems as BaseTopMenuItems } from './components/TopMenuItems'
 import { useIntl } from '@core/next/intl'
 import { useAntdMediaQuery } from '../../../utils/mediaQuery.utils'
 import { layoutCss, pageContentCss, pageHeaderCss, pageWrapperCss, subLayoutCss, topMenuCss } from './components/styles'
@@ -75,8 +75,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
     )
     const toggleSideMenuCollapsed = () => setIsSideMenuCollapsed(!isSideMenuCollapsed)
 
-    // TODO(nomerdvadcatpyat): Component.TopMenuItems?
-    const ResTopMenuItems = TopMenuItemsFromProps ? TopMenuItemsFromProps : TopMenuItems
+    const TopMenuItems = TopMenuItemsFromProps ? TopMenuItemsFromProps : BaseTopMenuItems
 
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
@@ -92,7 +91,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
                     }} />
                     <Layout css={subLayoutCss}>
                         <Header css={topMenuCss}>
-                            <ResTopMenuItems
+                            <TopMenuItems
                                 headerAction={headerAction}
                                 isMobile={isMobile}
                                 isSideMenuCollapsed={isSideMenuCollapsed}

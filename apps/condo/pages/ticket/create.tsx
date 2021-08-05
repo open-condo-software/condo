@@ -7,11 +7,9 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
-//TODO(nomerdvadcatpyat) убрать эту логику, скопировать
-const CreateTicketPage = ({ TicketForm: TicketFormFromProps }) => {
+const CreateTicketPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.CreateTicketModalTitle' })
-    const ResTicketForm = TicketFormFromProps ? TicketFormFromProps : TicketForm
 
     return (
         <>
@@ -24,7 +22,7 @@ const CreateTicketPage = ({ TicketForm: TicketFormFromProps }) => {
                         <Col span={24}>
                             <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                         </Col>
-                        <ResTicketForm/>
+                        <TicketForm/>
                     </Row>
                 </PageContent>
             </PageWrapper>
