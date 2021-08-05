@@ -45,7 +45,10 @@ let createApolloClient = (initialState, ctx, apolloCacheConfig) => {
         ssrMode: Boolean(ctx),
         link: createUploadLink({
             uri: apolloGraphQLUrl, // Server URL (must be absolute)
-            credentials: 'same-origin', // Additional fetch() options like `credentials` or `headers`
+            credentials: 'include',
+            fetchOptions: {
+                mode: 'cors',
+            },
             fetch: (isOnClientSide && window.fetch) ? window.fetch : fetch,
             headers: (ctx && ctx.req) ? ctx.req.headers : undefined,  // allow to use client cookies on server side requests
         }),

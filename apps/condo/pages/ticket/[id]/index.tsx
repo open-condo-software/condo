@@ -31,6 +31,7 @@ import { Comments } from '@condo/domains/common/components/Comments'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { Organization, OrganizationEmployee } from '@core/keystone/schema'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 
@@ -147,7 +148,12 @@ const TicketTag = styled(Tag)`
   line-height: 24px;
 `
 
-const TicketIdPage = () => {
+export interface TicketIdPageProps {
+    employee?: OrganizationEmployee
+    organization?: Organization
+}
+
+const TicketIdPage = ({ employee: employeeFromProps, organization: organizationFromProps }: TicketIdPageProps) => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
@@ -166,6 +172,7 @@ const TicketIdPage = () => {
     const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' })
     const FilesFieldLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Files' })
+    const OrganizationMessage = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
 
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
@@ -207,11 +214,14 @@ const TicketIdPage = () => {
         user: auth.user && auth.user.id,
     }, () => { refetchComments() })
 
-    const { link, organization } = useOrganization()
+    const { link, organization: userOrganization } = useOrganization()
 
     const canShareTickets = get(link, 'role.canShareTickets')
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
+
+    // TODO(nomerdvadcatpyat) separate organization logic
+    const organization = organizationFromProps ? organizationFromProps : userOrganization
 
     if (!ticket) {
         return (
@@ -233,6 +243,7 @@ const TicketIdPage = () => {
         ticketChangesResult.refetch()
     }
 
+    // TODO(nomerdvadcatpyat) change TicketStatusSelect organization={organization} employee={employeeFromProps} in props
     return (
         <>
             <Head>
@@ -266,7 +277,13 @@ const TicketIdPage = () => {
                                         </Col>
                                         <Col span={6}>
                                             <Row justify={'end'}>
-                                                <TicketStatusSelect ticket={ticket} onUpdate={handleTicketStatusChanged} loading={loading}/>
+                                                <TicketStatusSelect
+                                                    organization={organizationFromProps}
+                                                    employee={employeeFromProps}
+                                                    ticket={ticket}
+                                                    onUpdate={handleTicketStatusChanged}
+                                                    loading={loading}
+                                                />
                                             </Row>
                                         </Col>
                                     </Row>
@@ -277,6 +294,13 @@ const TicketIdPage = () => {
                                 </Col>
                                 <Col span={24}>
                                     <Row style={{ rowGap: '1.6em' }}>
+                                        {
+                                            organizationFromProps ? (
+                                                <TicketFieldRow title={OrganizationMessage}>
+                                                    {organizationFromProps.name}
+                                                </TicketFieldRow>
+                                            ) : null
+                                        }
                                         <TicketFieldRow title={AddressMessage} highlight>
                                             {ticketAddress}
                                             {ticketAddressExtra && (
@@ -349,6 +373,7 @@ const TicketIdPage = () => {
                                         </Button>
                                     </Link>
                                     {canShareTickets ? <ShareTicketModal
+                                        organization={organization}
                                         date={get(ticket, 'createdAt')}
                                         number={get(ticket, 'number')}
                                         details={get(ticket, 'details')}
@@ -380,7 +405,7 @@ const TicketIdPage = () => {
                                     // @ts-ignore
                                     createAction={createCommentAction}
                                     comments={comments}
-                                    canCreateComments={get(auth, ['user', 'isAdmin']) || get(link, ['role', 'canManageTicketComments'])}
+                                    canCreateComments={get(auth, ['user', 'isAdmin']) || get(link, ['role', 'canManageTicketComments']) || get(employeeFromProps, ['role', 'canManageTicketComments'])}
                                     actionsFor={comment => {
                                         const isAuthor = comment.user.id === auth.user.id
                                         const isAdmin = get(auth, ['user', 'isAdmin'])

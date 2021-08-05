@@ -37,7 +37,6 @@ describe('SIGNIN', () => {
             'secret': 'wrong password',
         })
         expect(data).toEqual({ 'auth': null })
-        console.log()
         expect(JSON.stringify(errors)).toMatch((WRONG_PASSWORD_ERROR))
     })
 

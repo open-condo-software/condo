@@ -27,10 +27,18 @@ import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySear
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
-import { SortTicketsBy } from '../../schema'
+import { SortTicketsBy, TicketWhereInput } from '../../schema'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { ColumnType } from 'antd/lib/table'
+import { ITableColumn } from '../../domains/property/hooks/useTableColumns'
 
-interface IPageWithHeaderAction extends React.FC {
+interface TicketIndexPage {
+    ticketsSearchQuery?: TicketWhereInput
+    useTableColumns?: (sort: Array<string>, filters: IFilters,
+        setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => ColumnType<ITableColumn>[]
+}
+
+interface ITicketIndexPage extends React.FC<TicketIndexPage> {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
 }
@@ -41,7 +49,7 @@ const verticalAlign = css`
     }
 `
 
-const TicketsPage: IPageWithHeaderAction = () => {
+const TicketsPage: ITicketIndexPage = ({ ticketsSearchQuery: ticketsSearchQuery, useTableColumns: useTableColumnsFromProps  }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -62,8 +70,11 @@ const TicketsPage: IPageWithHeaderAction = () => {
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC' //TODO(Dimitreee):Find cleanest solution
-    const where = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
 
+    const getResTicketProps: () => TicketWhereInput = () => {
+        return ticketsSearchQuery ? ticketsSearchQuery : { organization: { id: userOrganizationId } }
+    }
+    const where = { ...filtersToQuery(filtersFromQuery), ...getResTicketProps() }
     const {
         fetchMore,
         loading,
@@ -95,7 +106,9 @@ const TicketsPage: IPageWithHeaderAction = () => {
     )
 
     const [filtersApplied, setFiltersApplied] = useState(false)
-    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
+
+    const useTableColumnsHook = useTableColumnsFromProps ? useTableColumnsFromProps : useTableColumns
+    const tableColumns = useTableColumnsHook(sortFromQuery, filtersFromQuery, setFiltersApplied)
 
     const handleRowAction = useCallback((record) => {
         return {

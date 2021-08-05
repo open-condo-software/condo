@@ -135,7 +135,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE}>
             <GoogleReCaptchaProvider
-                reCaptchaKey={googleCaptcha.SITE_KEY}
+                reCaptchaKey={googleCaptcha && googleCaptcha.SITE_KEY}
                 language={intl.locale}
                 useRecaptchaNet
                 scriptProps={{
