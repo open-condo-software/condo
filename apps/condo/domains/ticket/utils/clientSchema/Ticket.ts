@@ -29,10 +29,10 @@ export interface ITicketFormState {
     status?: string
     source?: string
     classifier?: string
-    placeClassifier: string
-    categoryClassifier: string
-    descriptionClassifier: string
-    classifierRule: string
+    placeClassifier?: string
+    categoryClassifier?: string
+    descriptionClassifier?: string
+    classifierRule?: string
     assignee?: string
     operator?: string
     client?: string
