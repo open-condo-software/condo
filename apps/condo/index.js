@@ -71,8 +71,6 @@ registerTasks([
 
 registerTriggers([
     require('@condo/domains/ticket/triggers'),
-    require('@condo/domains/organization/triggers'),
-    require('@condo/domains/property/triggers'),
 ])
 
 function verifySchema (keystone) {
