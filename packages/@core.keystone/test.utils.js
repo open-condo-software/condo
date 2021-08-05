@@ -21,6 +21,7 @@ const DEFAULT_TEST_USER_SECRET = conf.DEFAULT_TEST_USER_SECRET || '1a92b3a07c78'
 const DEFAULT_TEST_ADMIN_IDENTITY = conf.DEFAULT_TEST_ADMIN_IDENTITY || 'admin@example.com'
 const DEFAULT_TEST_ADMIN_SECRET = conf.DEFAULT_TEST_ADMIN_SECRET || '3a74b3f07978'
 const TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS = conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
+const TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS = !conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
 const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `http://127.0.0.1:3000${API_PATH}`
 
 const SIGNIN_MUTATION = gql`
@@ -126,10 +127,11 @@ const makeFakeClient = async (app) => {
                         console.error(err)
                         return reject(err)
                     }
-                    if (res.body && res.body.errors && TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS) {
-                        console.warn(util.inspect(res.body.errors, { showHidden: false, depth: null }))
+                    const body = res.body
+                    if (body && body.errors && TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS) {
+                        console.warn(util.inspect(body.errors, { showHidden: false, depth: null }))
                     }
-                    return resolve(res.body)
+                    return resolve(body)
                 })
             })
         },
@@ -148,10 +150,11 @@ const makeFakeClient = async (app) => {
                         console.error(err)
                         return reject(err)
                     }
-                    if (res.body && res.body.errors && TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS) {
-                        console.warn(util.inspect(res.body.errors, { showHidden: false, depth: null }))
+                    const body = res.body
+                    if (body && body.errors && TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS) {
+                        console.warn(util.inspect(body.errors, { showHidden: false, depth: null }))
                     }
-                    return resolve(res.body)
+                    return resolve(body)
                 })
             })
         },
@@ -181,7 +184,11 @@ const makeRealClient = async () => {
                 query: print(query),
                 variables: JSON.stringify(variables),
             })
-            return response.data
+            const body = response.data
+            if (body && body.errors && TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS) {
+                console.warn(util.inspect(body.errors, { showHidden: false, depth: null }))
+            }
+            return body
         },
         query: async (query, variables = {}) => {
             if (query.kind !== 'Document') throw new Error('query is not a gql object')
@@ -191,7 +198,11 @@ const makeRealClient = async () => {
                     variables: JSON.stringify(variables),
                 },
             })
-            return response.data
+            const body = response.data
+            if (body && body.errors && TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS) {
+                console.warn(util.inspect(body.errors, { showHidden: false, depth: null }))
+            }
+            return body
         },
     }
 }
