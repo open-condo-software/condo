@@ -41,31 +41,36 @@ exports.up = async (knex) => {
     -- Roles
         -- Administrator
         UPDATE "OrganizationEmployeeRole"
-        SET name = 'employee.role.Administrator.name'
+        SET name = 'employee.role.Administrator.name',
+            description = 'employee.role.Administrator.description'
         WHERE name = 'Administrator' OR name = 'Администратор';
         COMMIT;
 
         -- Dispatcher
         UPDATE "OrganizationEmployeeRole"
-        SET name = 'employee.role.Dispatcher.name'
+        SET name = 'employee.role.Dispatcher.name',
+            description = 'employee.role.Dispatcher.description'
         WHERE name = 'Dispatcher' OR name = 'Диспетчер';
         COMMIT;
 
         -- Manager
         UPDATE "OrganizationEmployeeRole"
-        SET name = 'employee.role.Manager.name'
+        SET name = 'employee.role.Manager.name',
+            description = 'employee.role.Manager.description'
         WHERE name = 'Manager' OR name = 'Управляющий';
         COMMIT;
 
         -- Foreman
         UPDATE "OrganizationEmployeeRole"
-        SET name = 'employee.role.Foreman.name'
+        SET name = 'employee.role.Foreman.name',
+            description = 'employee.role.Foreman.description'
         WHERE name = 'Foreman' OR name = 'Мастер участка';
         COMMIT;
 
         -- Technician
         UPDATE "OrganizationEmployeeRole"
-        SET name = 'employee.role.Foreman.name'
+        SET name = 'employee.role.Technician.name',
+            description = 'employee.role.Technician.description'
         WHERE name = 'Technician' OR name = 'Техник';
         COMMIT;
     END;
