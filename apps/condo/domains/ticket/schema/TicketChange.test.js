@@ -17,7 +17,6 @@ const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keys
 const { TicketChange, TicketStatus, TicketSource, TicketClassifier, createTestTicketChange, updateTestTicketChange } = require('@condo/domains/ticket/utils/testSchema')
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
-const { getTranslations } = require('../../common/utils/localesLoader')
 
 describe('TicketChange', () => {
 

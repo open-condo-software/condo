@@ -2,7 +2,7 @@ const { keys, transform, pick, pickBy, omit, difference } = require('lodash')
 const { Text, Uuid } = require('@keystonejs/fields')
 const { Relationship } = require('@keystonejs/fields')
 const { Json, LocalizedText } = require('@core/keystone/fields')
-const localizedTrackableFields = require('./localizedTrackableFields')
+const { TicketStatus } = require('@condo/domains/ticket/schema/TicketStatus')
 
 /**
  * Utilities to make a GQLListSchema item trackable for changes.
@@ -324,6 +324,8 @@ const mapScalar = (field) => (
     pick(field, ['schemaDoc', 'type'])
 )
 
+const localizedTrackableFields = new Map([['status', TicketStatus.schema.fields.name.template]])
+
 /**
  * Produces "Change storage set" of fields (see Terms) for a single relationship field
  * Used in lodash `transform` function
@@ -332,7 +334,6 @@ const mapScalar = (field) => (
  * @param {String} key - key of a field being iterated
  */
 const mapRelationSingle = (acc, value, key) => {
-
     acc[`${key}IdFrom`] = {
         schemaDoc: `Old id of related entity. ${value.schemaDoc}`,
         type: Uuid,
