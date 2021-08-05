@@ -37,10 +37,10 @@ describe('TicketClassifierRule CRUD', () => {
         })
         it('can not update', async () => {
             const admin = await makeLoggedInAdminClient()
-            const [_, userAttrs] = await createTestUser(admin)
+            const [, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
             const [objCreated] = await createTestTicketClassifierRule(admin)
-            const payload = { description: { disconnectAll: true } }
+            const payload = { problem: { disconnectAll: true } }
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestTicketClassifierRule(client, objCreated.id, payload)
             })
@@ -90,10 +90,10 @@ describe('TicketClassifierRule CRUD', () => {
             const admin = await makeLoggedInAdminClient()
             const support = await makeClientWithSupportUser()
             const [objCreated] = await createTestTicketClassifierRule(admin)
-            const payload = { description: { disconnectAll: true } }
+            const payload = { problem: { disconnectAll: true } }
             const [obj] = await updateTestTicketClassifierRule(support, objCreated.id, payload)
             expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
-            expect(obj.description).toBe(null)
+            expect(obj.problem).toBe(null)
         })
         it('can not delete', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -121,7 +121,7 @@ describe('TicketClassifierRule CRUD', () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestTicketClassifierRule(admin)
             const client = await makeClient()
-            const payload = { description: { disconnectAll: true } }
+            const payload = { problem: { disconnectAll: true } }
             await expectToThrowAuthenticationErrorToObj(async () => {
                 await updateTestTicketClassifierRule(client, objCreated.id, payload)
             })

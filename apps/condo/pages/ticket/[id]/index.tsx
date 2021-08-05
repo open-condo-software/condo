@@ -324,7 +324,7 @@ const TicketIdPage = () => {
                                                             get(ticket, ['classifier', 'name']),
                                                             get(ticket, ['placeClassifier', 'name']),
                                                             get(ticket, ['categoryClassifier', 'name']),
-                                                            get(ticket, ['descriptionClassifier', 'name']),
+                                                            get(ticket, ['problemClassifier', 'name']),
                                                         ]).map(name => {
                                                             return (
                                                                 <Breadcrumb.Item key={name}>{name}</Breadcrumb.Item>

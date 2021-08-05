@@ -195,7 +195,7 @@ const Ticket = new GQLListSchema('Ticket', {
         details: {
             schemaDoc: 'Text description of the issue. Maybe written by a user or an operator',
             type: Text,
-            isRequired: false,
+            isRequired: true,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
                     return normalizeText(resolvedData['details'])
