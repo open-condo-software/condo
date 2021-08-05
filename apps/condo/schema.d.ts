@@ -1480,6 +1480,18 @@ export type BillingIntegration = {
   sender?: Maybe<Scalars['JSON']>;
   /**  The name of the `integration component` that the developer remembers  */
   name?: Maybe<Scalars['String']>;
+  /**  Short integration description, that would be shown on settings card  */
+  shortDescription?: Maybe<Scalars['String']>;
+  /**  Title of confirmation/details page of integration  */
+  detailsTitle?: Maybe<Scalars['String']>;
+  /**  Text of confirmation/details page of integration written in markdown  */
+  detailsText?: Maybe<Scalars['String']>;
+  /**  Text of button, which you click to start integration and create integration context  */
+  detailsConfirmButtonText?: Maybe<Scalars['String']>;
+  /**  Text of button, which you click to redirect to more detailed instruction (pdf, external site, etc)  */
+  detailsInstructionButtonText?: Maybe<Scalars['String']>;
+  /**  Link to external resource, on which you will go by clicking on "Instruction" button  */
+  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
   accessRights: Array<BillingIntegrationAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
   id: Scalars['ID'];
@@ -1776,6 +1788,12 @@ export type BillingIntegrationCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  detailsTitle?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1800,6 +1818,12 @@ export type BillingIntegrationHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  detailsTitle?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1817,6 +1841,12 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  detailsTitle?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1839,6 +1869,12 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  detailsTitle?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1884,6 +1920,114 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  shortDescription?: Maybe<Scalars['String']>;
+  shortDescription_not?: Maybe<Scalars['String']>;
+  shortDescription_contains?: Maybe<Scalars['String']>;
+  shortDescription_not_contains?: Maybe<Scalars['String']>;
+  shortDescription_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_i?: Maybe<Scalars['String']>;
+  shortDescription_not_i?: Maybe<Scalars['String']>;
+  shortDescription_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_not_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsTitle?: Maybe<Scalars['String']>;
+  detailsTitle_not?: Maybe<Scalars['String']>;
+  detailsTitle_contains?: Maybe<Scalars['String']>;
+  detailsTitle_not_contains?: Maybe<Scalars['String']>;
+  detailsTitle_starts_with?: Maybe<Scalars['String']>;
+  detailsTitle_not_starts_with?: Maybe<Scalars['String']>;
+  detailsTitle_ends_with?: Maybe<Scalars['String']>;
+  detailsTitle_not_ends_with?: Maybe<Scalars['String']>;
+  detailsTitle_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_i?: Maybe<Scalars['String']>;
+  detailsTitle_contains_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_contains_i?: Maybe<Scalars['String']>;
+  detailsTitle_starts_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_ends_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsTitle_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsText?: Maybe<Scalars['String']>;
+  detailsText_not?: Maybe<Scalars['String']>;
+  detailsText_contains?: Maybe<Scalars['String']>;
+  detailsText_not_contains?: Maybe<Scalars['String']>;
+  detailsText_starts_with?: Maybe<Scalars['String']>;
+  detailsText_not_starts_with?: Maybe<Scalars['String']>;
+  detailsText_ends_with?: Maybe<Scalars['String']>;
+  detailsText_not_ends_with?: Maybe<Scalars['String']>;
+  detailsText_i?: Maybe<Scalars['String']>;
+  detailsText_not_i?: Maybe<Scalars['String']>;
+  detailsText_contains_i?: Maybe<Scalars['String']>;
+  detailsText_not_contains_i?: Maybe<Scalars['String']>;
+  detailsText_starts_with_i?: Maybe<Scalars['String']>;
+  detailsText_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailsText_ends_with_i?: Maybe<Scalars['String']>;
+  detailsText_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailsText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsConfirmButtonText?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_contains?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not_contains?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_starts_with?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not_starts_with?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_ends_with?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not_ends_with?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_contains_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not_contains_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_starts_with_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_ends_with_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsConfirmButtonText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsInstructionButtonText?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_contains?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not_contains?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_starts_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not_starts_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_ends_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not_ends_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_contains_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not_contains_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_starts_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_ends_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsInstructionButtonText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_contains?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not_contains?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_starts_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not_starts_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_ends_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not_ends_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_contains_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not_contains_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_starts_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_ends_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsInstructionButtonLink_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -2165,6 +2309,8 @@ export type BillingIntegrationOrganizationContext = {
   organization?: Maybe<Organization>;
   /**  Settings that are required to get data from the `billing data source`. It can also contain fine-tuning optional integration settings. The data structure depends on the integration and defined there  */
   settings?: Maybe<Scalars['JSON']>;
+  /**  Status of integration process. Can be: InProgress, Error, Finished  */
+  status?: Maybe<Scalars['String']>;
   /**  The current state of the integration process. Some integration need to store past state or data related to cache files/folders for past state. The data structure depends on the integration and defined there  */
   state?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -2183,6 +2329,7 @@ export type BillingIntegrationOrganizationContextCreateInput = {
   integration?: Maybe<BillingIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   settings?: Maybe<Scalars['JSON']>;
+  status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2209,6 +2356,7 @@ export type BillingIntegrationOrganizationContextHistoryRecord = {
   integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
+  status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -2229,6 +2377,7 @@ export type BillingIntegrationOrganizationContextHistoryRecordCreateInput = {
   integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
+  status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2254,6 +2403,7 @@ export type BillingIntegrationOrganizationContextHistoryRecordUpdateInput = {
   integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
+  status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2294,6 +2444,24 @@ export type BillingIntegrationOrganizationContextHistoryRecordWhereInput = {
   settings_not?: Maybe<Scalars['JSON']>;
   settings_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   settings_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  status?: Maybe<Scalars['String']>;
+  status_not?: Maybe<Scalars['String']>;
+  status_contains?: Maybe<Scalars['String']>;
+  status_not_contains?: Maybe<Scalars['String']>;
+  status_starts_with?: Maybe<Scalars['String']>;
+  status_not_starts_with?: Maybe<Scalars['String']>;
+  status_ends_with?: Maybe<Scalars['String']>;
+  status_not_ends_with?: Maybe<Scalars['String']>;
+  status_i?: Maybe<Scalars['String']>;
+  status_not_i?: Maybe<Scalars['String']>;
+  status_contains_i?: Maybe<Scalars['String']>;
+  status_not_contains_i?: Maybe<Scalars['String']>;
+  status_starts_with_i?: Maybe<Scalars['String']>;
+  status_not_starts_with_i?: Maybe<Scalars['String']>;
+  status_ends_with_i?: Maybe<Scalars['String']>;
+  status_not_ends_with_i?: Maybe<Scalars['String']>;
+  status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   state?: Maybe<Scalars['JSON']>;
   state_not?: Maybe<Scalars['JSON']>;
   state_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -2390,6 +2558,7 @@ export type BillingIntegrationOrganizationContextUpdateInput = {
   integration?: Maybe<BillingIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   settings?: Maybe<Scalars['JSON']>;
+  status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2423,6 +2592,10 @@ export type BillingIntegrationOrganizationContextWhereInput = {
   settings_not?: Maybe<Scalars['JSON']>;
   settings_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   settings_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  status?: Maybe<Scalars['String']>;
+  status_not?: Maybe<Scalars['String']>;
+  status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   state?: Maybe<Scalars['JSON']>;
   state_not?: Maybe<Scalars['JSON']>;
   state_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -2497,6 +2670,12 @@ export type BillingIntegrationUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  detailsTitle?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2540,6 +2719,114 @@ export type BillingIntegrationWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  shortDescription?: Maybe<Scalars['String']>;
+  shortDescription_not?: Maybe<Scalars['String']>;
+  shortDescription_contains?: Maybe<Scalars['String']>;
+  shortDescription_not_contains?: Maybe<Scalars['String']>;
+  shortDescription_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_i?: Maybe<Scalars['String']>;
+  shortDescription_not_i?: Maybe<Scalars['String']>;
+  shortDescription_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_not_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsTitle?: Maybe<Scalars['String']>;
+  detailsTitle_not?: Maybe<Scalars['String']>;
+  detailsTitle_contains?: Maybe<Scalars['String']>;
+  detailsTitle_not_contains?: Maybe<Scalars['String']>;
+  detailsTitle_starts_with?: Maybe<Scalars['String']>;
+  detailsTitle_not_starts_with?: Maybe<Scalars['String']>;
+  detailsTitle_ends_with?: Maybe<Scalars['String']>;
+  detailsTitle_not_ends_with?: Maybe<Scalars['String']>;
+  detailsTitle_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_i?: Maybe<Scalars['String']>;
+  detailsTitle_contains_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_contains_i?: Maybe<Scalars['String']>;
+  detailsTitle_starts_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_ends_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsTitle_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsText?: Maybe<Scalars['String']>;
+  detailsText_not?: Maybe<Scalars['String']>;
+  detailsText_contains?: Maybe<Scalars['String']>;
+  detailsText_not_contains?: Maybe<Scalars['String']>;
+  detailsText_starts_with?: Maybe<Scalars['String']>;
+  detailsText_not_starts_with?: Maybe<Scalars['String']>;
+  detailsText_ends_with?: Maybe<Scalars['String']>;
+  detailsText_not_ends_with?: Maybe<Scalars['String']>;
+  detailsText_i?: Maybe<Scalars['String']>;
+  detailsText_not_i?: Maybe<Scalars['String']>;
+  detailsText_contains_i?: Maybe<Scalars['String']>;
+  detailsText_not_contains_i?: Maybe<Scalars['String']>;
+  detailsText_starts_with_i?: Maybe<Scalars['String']>;
+  detailsText_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailsText_ends_with_i?: Maybe<Scalars['String']>;
+  detailsText_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailsText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsConfirmButtonText?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_contains?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not_contains?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_starts_with?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not_starts_with?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_ends_with?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not_ends_with?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_contains_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not_contains_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_starts_with_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_ends_with_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailsConfirmButtonText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsConfirmButtonText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsInstructionButtonText?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_contains?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not_contains?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_starts_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not_starts_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_ends_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not_ends_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_contains_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not_contains_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_starts_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_ends_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsInstructionButtonText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_contains?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not_contains?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_starts_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not_starts_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_ends_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not_ends_with?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_contains_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not_contains_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_starts_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_ends_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailsInstructionButtonLink_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsInstructionButtonLink_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   /**  condition must be true for all nodes  */
   accessRights_every?: Maybe<BillingIntegrationAccessRightWhereInput>;
   /**  condition must be true for at least 1 node  */
@@ -13335,6 +13622,18 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   DvDesc = 'dv_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  ShortDescriptionAsc = 'shortDescription_ASC',
+  ShortDescriptionDesc = 'shortDescription_DESC',
+  DetailsTitleAsc = 'detailsTitle_ASC',
+  DetailsTitleDesc = 'detailsTitle_DESC',
+  DetailsTextAsc = 'detailsText_ASC',
+  DetailsTextDesc = 'detailsText_DESC',
+  DetailsConfirmButtonTextAsc = 'detailsConfirmButtonText_ASC',
+  DetailsConfirmButtonTextDesc = 'detailsConfirmButtonText_DESC',
+  DetailsInstructionButtonTextAsc = 'detailsInstructionButtonText_ASC',
+  DetailsInstructionButtonTextDesc = 'detailsInstructionButtonText_DESC',
+  DetailsInstructionButtonLinkAsc = 'detailsInstructionButtonLink_ASC',
+  DetailsInstructionButtonLinkDesc = 'detailsInstructionButtonLink_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -13379,6 +13678,8 @@ export enum SortBillingIntegrationLogsBy {
 export enum SortBillingIntegrationOrganizationContextHistoryRecordsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -13402,6 +13703,8 @@ export enum SortBillingIntegrationOrganizationContextsBy {
   IntegrationDesc = 'integration_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -13423,6 +13726,18 @@ export enum SortBillingIntegrationsBy {
   DvDesc = 'dv_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  ShortDescriptionAsc = 'shortDescription_ASC',
+  ShortDescriptionDesc = 'shortDescription_DESC',
+  DetailsTitleAsc = 'detailsTitle_ASC',
+  DetailsTitleDesc = 'detailsTitle_DESC',
+  DetailsTextAsc = 'detailsText_ASC',
+  DetailsTextDesc = 'detailsText_DESC',
+  DetailsConfirmButtonTextAsc = 'detailsConfirmButtonText_ASC',
+  DetailsConfirmButtonTextDesc = 'detailsConfirmButtonText_DESC',
+  DetailsInstructionButtonTextAsc = 'detailsInstructionButtonText_ASC',
+  DetailsInstructionButtonTextDesc = 'detailsInstructionButtonText_DESC',
+  DetailsInstructionButtonLinkAsc = 'detailsInstructionButtonLink_ASC',
+  DetailsInstructionButtonLinkDesc = 'detailsInstructionButtonLink_DESC',
   AccessRightsAsc = 'accessRights_ASC',
   AccessRightsDesc = 'accessRights_DESC',
   IdAsc = 'id_ASC',
