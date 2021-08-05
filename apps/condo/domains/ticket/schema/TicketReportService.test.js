@@ -8,8 +8,6 @@ const { GET_TICKET_WIDGET_REPORT_DATA } = require('@condo/domains/ticket/gql')
 const { makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
-const ORGANIZATION_ACCESS_ERROR = '[error] you do not have access to this organization'
-
 describe('TicketReportService', () => {
     describe('User', () => {
         it('can get ticket report without role in organization', async () => {
@@ -44,19 +42,6 @@ describe('TicketReportService', () => {
             expect(clientTicket).toBeDefined()
             expect(clientTicket.currentValue).toEqual(0)
             expect(clientTicket.growth).toEqual(0)
-        })
-
-        it('can not get ticket report with another organization', async () => {
-            const clientWithProperty = await makeClientWithProperty()
-            await createTestTicket(clientWithProperty, clientWithProperty.organization, clientWithProperty.property)
-
-            const client = await makeClientWithProperty()
-            const { errors, data: { result } } = await client.query(GET_TICKET_WIDGET_REPORT_DATA, {
-                data: { userOrganizationId: clientWithProperty.organization.id, periodType: 'week' } }
-            )
-            expect(errors).toHaveLength(1)
-            expect(errors[0].message).toEqual(ORGANIZATION_ACCESS_ERROR)
-            expect(result).toBeNull()
         })
 
         it('can get ticket report with multiple organization invites',  async () => {
