@@ -22,7 +22,7 @@ import { useOrganization } from '@core/next/organization'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import { InputWithCounter } from '@condo/domains/common/components/InputWithCounter'
-import Prompt from '@condo/domain/common/components/Prompt'
+import Prompt from '@condo/domains/common/components/Prompt'
 
 const { TabPane } = Tabs
 

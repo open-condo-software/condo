@@ -119,6 +119,7 @@
   "CompanyName": "Domá",
   "ContactSupportToCancelIntegration": "To cancel integration contact support of «{company}».",
   "ClickToSeeMore": "Click to see more information",
+  "menu.ContactCenter": "Contact Center",
   "component.uploadlist.AttachedFilesLabel": "Files list",
   "component.uploadlist.AddFileLabel": "Add file",
   "component.uploadlist.error.FileTooBig": "File size is too big, max size is {maxSizeInMb} MB",
