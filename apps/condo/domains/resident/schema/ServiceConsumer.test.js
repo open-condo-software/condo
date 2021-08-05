@@ -31,12 +31,8 @@ describe('ServiceConsumer', () => {
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
 
-            const fields = {
-                billingAccount: { connect: { id: billingAccount.id } },
-            }
-
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, fields)
-            const [consumer] = await createTestServiceConsumer(adminClient, resident)
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [consumer] = await createTestServiceConsumer(adminClient, resident, billingAccount)
             expect(consumer.resident.id).toEqual(resident.id)
         })
 
