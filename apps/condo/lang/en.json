@@ -129,7 +129,7 @@
   "component.statscard.periodtypes.Year": "year",
   "component.statscard.ExtraTitle": "More details",
   "component.ticketswidget.Title": "Tickets for the",
-  "component.ticketclassifier.DescriptionLabel": "What happened",
+  "component.ticketclassifier.ProblemLabel": "What happened",
   "component.ticketclassifier.CategoryLabel": "Category",
   "component.ticketclassifier.PlaceLabel": "Location",
   "Name": "Name",

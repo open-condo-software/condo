@@ -16,7 +16,7 @@ interface ITicketThreeLevelsClassifierHookInput {
         classifierRule: string
         placeClassifier: string
         categoryClassifier: string
-        descriptionClassifier?: string
+        problemClassifier?: string
     }
 }
 interface ITicketThreeLevelsClassifierHookOutput {
@@ -111,13 +111,13 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     classifierRule,
     placeClassifier,
     categoryClassifier,
-    descriptionClassifier,
+    problemClassifier,
 } }: ITicketThreeLevelsClassifierHookInput): ITicketThreeLevelsClassifierHookOutput => {
     const intl = useIntl()
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
-    const DescriptionClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.DescriptionLabel' })
-    const ruleRef = useRef({ id: classifierRule, place: null, category:null, description: null })
+    const ProblemClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.ProblemLabel' })
+    const ruleRef = useRef({ id: classifierRule, place: null, category:null, problem: null })
     const client = useApolloClient()
     const ClassifierLoader = new ClassifiersQueryLocal(client)
     const validations = useTicketValidations()
@@ -133,13 +133,13 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     }
 
     const {
-        set: descriptionSet,
-        SelectComponent: DescriptionSelect,
-        ref: descriptionRef,
+        set: problemSet,
+        SelectComponent: ProblemSelect,
+        ref: problemRef,
     } = useTicketClassifierSelectHook({
-        onChange: (id) => onUserSelect(id, TicketClassifierTypes.description),
-        onSearch: (id) => onUserSearch(id, TicketClassifierTypes.description),
-        initialValue: descriptionClassifier,
+        onChange: (id) => onUserSelect(id, TicketClassifierTypes.problem),
+        onSearch: (id) => onUserSearch(id, TicketClassifierTypes.problem),
+        initialValue: problemClassifier,
     })
 
     const {
@@ -165,21 +165,21 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     const Setter = {
         place: placeSet,
         category: categorySet,
-        description: descriptionSet,
+        problem: problemSet,
     }
 
     const Refs = {
         place: placeRef,
         category: categoryRef,
-        description: descriptionRef,
+        problem: problemRef,
     }
 
     useEffect(() => {
         ClassifierLoader.init().then(() => {
             if (ruleRef.current.id) {
                 ClassifierLoader.findRules({ id: ruleRef.current.id }).then(([rule]) => {
-                    const { place, category, description } = rule
-                    ruleRef.current = { ...ruleRef.current, ...{ place: place.id, category: category.id, description: get(description, 'id', null) } }
+                    const { place, category, problem } = rule
+                    ruleRef.current = { ...ruleRef.current, ...{ place: place.id, category: category.id, problem: get(problem, 'id', null) } }
                     updateLevels(ruleRef.current)
                 })
             } else {
@@ -201,15 +201,15 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     // We build options for every select with care - not to break selection
     // that's why we are making 3 requests here with Promise.all
     // For example, all 3 levels are set - in this case, we have only one matching rule and the number of options on every select will be exactly 1
-    // So when we build options for place => we make query with { category: set, description: set, place: not set}
-    // Now we have all possible options for places that will not break selection in the category select and description select  after choosing
+    // So when we build options for place => we make query with { category: set, problem: set, place: not set}
+    // Now we have all possible options for places that will not break selection in the category select and problem select  after choosing
     // Same thing for all selects
     const loadLevels = async () => {
-        const { place, category, description } = ruleRef.current
+        const { place, category, problem } = ruleRef.current
         const loadedRules = await Promise.all([
-            { category, description, type: 'place' },
-            { place, description, type: 'category' },
-            { place, category, type: 'description' },
+            { category, problem, type: 'place' },
+            { place, problem, type: 'category' },
+            { place, category, type: 'problem' },
         ].map(selector => {
             const { type, ...querySelectors } = selector
             return new Promise<[string, Options[]]>(resolve => {
@@ -233,9 +233,9 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         }
     }
     // Every time user choose some option from select we are trying to find what exact rule is matching for this combination
-    // When  place and category are chosen we set rule with description=null
+    // When  place and category are chosen we set rule with problem=null
     const updateRuleId = async () => {
-        const querySelectors = pick(ruleRef.current, ['place', 'category', 'description'])
+        const querySelectors = pick(ruleRef.current, ['place', 'category', 'problem'])
         const query = {}
         for (const key in querySelectors) {
             if (querySelectors[key]) {
@@ -246,16 +246,16 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         if (matchingRules.length === 1) {
             ruleRef.current = { ...ruleRef.current, id: matchingRules[0].id }
         } else if (ruleRef.current.place && ruleRef.current.category) {
-            const withEmptyDescription = find(matchingRules, { description: null })
-            if (withEmptyDescription){
-                ruleRef.current = { ...ruleRef.current, id: withEmptyDescription.id }
+            const withEmptyProblem = find(matchingRules, { problem: null })
+            if (withEmptyProblem){
+                ruleRef.current = { ...ruleRef.current, id: withEmptyProblem.id }
             }
         }
         ticketForm.current.setFields([
             { name: 'classifierRule', value: ruleRef.current.id },
             { name: 'placeClassifier', value: ruleRef.current.place },
             { name: 'categoryClassifier', value: ruleRef.current.category },
-            { name: 'descriptionClassifier', value: ruleRef.current.description },
+            { name: 'problemClassifier', value: ruleRef.current.problem },
         ])
     }
     // We need to find out whether user is still following classifiers rules
@@ -315,8 +315,8 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                         </Form.Item>
                     </Col>
                     <Col span={24}>
-                        <Form.Item name={'descriptionClassifier'}  label={DescriptionClassifierLabel}>
-                            <DescriptionSelect disabled={disabled} />
+                        <Form.Item name={'problemClassifier'}  label={ProblemClassifierLabel}>
+                            <ProblemSelect disabled={disabled} />
                         </Form.Item>
                     </Col>
                 </>
