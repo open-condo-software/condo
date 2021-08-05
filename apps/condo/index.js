@@ -1,3 +1,4 @@
+const Sentry = require('@sentry/node')
 const { identity } = require('lodash')
 const { Keystone } = require('@keystonejs/keystone')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
@@ -22,7 +23,14 @@ const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV 
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
+const IS_SENTRY_ENABLED = conf.SENTRY_BACKEND_DSN && conf.NODE_ENV !== 'test'
 
+if (IS_SENTRY_ENABLED) {
+    // https://docs.sentry.io/platforms/node/guides/express/
+    Sentry.init({
+        dsn: conf.SENTRY_BACKEND_DSN,
+    })
+}
 
 if (IS_ENABLE_DD_TRACE) {
     require('dd-trace').init({
@@ -128,8 +136,97 @@ class CustomBodyParserMiddleware {
     }
 }
 
+class SentryApp {
+    prepareMiddleware () {
+        // The error handler must be before any other error middleware and after all controllers
+        return Sentry.Handlers.errorHandler()
+    }
+}
+
+class SentryFallthroughApp {
+    prepareMiddleware () {
+        // The error id is attached to `res.sentry` to be returned
+        // and optionally displayed to the user for support.
+        return function onError (err, req, res, next) {
+            // The error id is attached to `res.sentry` to be returned
+            // and optionally displayed to the user for support.
+            res.statusCode = 500
+            res.end(res.sentry + '\n')
+        }
+    }
+}
+
+class SentryApolloPlugin {
+    // https://blog.sentry.io/2020/07/22/handling-graphql-errors-using-sentry
+    didEncounterErrors (ctx) {
+        // NOTE(pahaz): if you want understand whats going on here look at: https://github.com/apollographql/apollo-server/blob/0aa0e4b/packages/apollo-server-core/src/requestPipeline.ts#L126
+        // NOTE(pahaz): we don't want to catch GraphQL syntax errors. Look at: https://github.com/apollographql/apollo-server/blob/0aa0e4b/packages/apollo-server-core/src/requestPipeline.ts#L344
+        if (!ctx.operation) {
+            return
+        }
+
+        // public user email
+
+        Sentry.withScope(scope => {
+            // Annotate whether failing operation was query/mutation/subscription
+            // Log query and variables as extras
+            // (make sure to strip out sensitive data!)
+            scope.addEventProcessor(event => Sentry.Handlers.parseRequest(event, req))
+            scope.setTags({
+                graphql: ctx.operation.operation,
+            })
+            scope.setExtras({
+                variables: ctx.request.variables,
+                query: ctx.request.query,
+            })
+
+            const userId = (ctx.context).req?.session?.userId
+            const email = (ctx.context).req?.session?.email
+            if (userId) {
+                scope.setUser({
+                    // id?: string;
+                    ip_address: (ctx.context).req?.ip,
+                    userId: userId,
+                    email: email,
+                })
+            }
+
+        })
+
+        for (const error of ctx.errors) {
+            // NOTE: each error has fields: stack locations name message time_thrown path internalData data
+            Sentry.withScope(scope => {
+                scope.setExtras({
+                    uid: error.uid,
+                    extensions: error.extensions,
+                    path: error.path,
+                    locations: error.locations,
+                    developerMessage: error.developerMessage,
+                    data: error.data,
+                    internalData: error.internalData,
+                    errors: error.errors,
+                    time_thrown: error.time_thrown,
+                })
+            })
+            Sentry.captureException(error)
+        }
+    }
+
+    requestDidStart () {
+        return this
+    }
+}
 
 module.exports = {
+    configureExpress: (app) => {
+        if (IS_SENTRY_ENABLED) {
+            // The request handler must be the first middleware on the app
+            app.use(Sentry.Handlers.requestHandler())
+            app.get('/debug-sentry', function mainHandler (req, res) {
+                throw new Error('My first Sentry error!')
+            })
+        }
+    },
     keystone,
     apps: [
         new CustomBodyParserMiddleware(),
@@ -139,6 +236,7 @@ module.exports = {
                 debug: IS_ENABLE_APOLLO_DEBUG,
                 introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                 playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+                plugins: [new SentryApolloPlugin()],
             },
         }),
         new OBSFilesMiddleware(),
@@ -148,5 +246,7 @@ module.exports = {
             authStrategy,
         }),
         conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' }),
+        (IS_SENTRY_ENABLED) ? new SentryApp() : undefined,
+        (IS_SENTRY_ENABLED) ? new SentryFallthroughApp() : undefined,
     ].filter(identity),
 }
