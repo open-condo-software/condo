@@ -292,7 +292,7 @@ const Ticket = new GQLListSchema('Ticket', {
         },
         validateInput: ({ resolvedData, existingItem, addValidationError, operation }) => {
             // Todo(zuch): add placeClassifier, categoryClassifier and classifierRule
-            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'source', 'status'], resolvedData, existingItem, addValidationError)) return
+            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'source', 'status', 'details'], resolvedData, existingItem, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic

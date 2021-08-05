@@ -10,7 +10,7 @@ const access = require('@condo/domains/ticket/access/TicketCategoryClassifier')
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 
 const TicketCategoryClassifier = new GQLListSchema('TicketCategoryClassifier', {
-    schemaDoc: 'Describes what type of work needs to be done to fix incident ',
+    schemaDoc: 'Describes what type of work needs to be done to fix incident',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
