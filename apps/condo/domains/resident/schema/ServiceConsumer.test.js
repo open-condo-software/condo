@@ -146,7 +146,7 @@ describe('ServiceConsumer', () => {
     })
 
     describe('Read', () => {
-        it('can be read by admin 2', async () => {
+        it('can be read by admin', async () => {
             const [obj, _, adminClient] = await createTestServiceConsumerForUserAsAdmin()
 
             const objs = await ServiceConsumer.getAll(adminClient, {})
