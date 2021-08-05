@@ -7,8 +7,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { searchEmployee } from '@condo/domains/ticket/utils/clientSchema/search'
-import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
+import { searchEmployee, searchTicketClassifier } from '../../utils/clientSchema/search'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
@@ -23,52 +22,272 @@ import { useOrganization } from '@core/next/organization'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import { InputWithCounter } from '@condo/domains/common/components/InputWithCounter'
-import Prompt from '@condo/domains/common/components/Prompt'
-import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit'
+import Prompt from '@condo/domain/common/components/Prompt'
 
 const { TabPane } = Tabs
 
-const LAYOUT = {
+export const LAYOUT = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
+}
+
+export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
+    const intl = useIntl()
+    const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
+    const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+    const FloorNameLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+
+    const updateSectionAndFloor = (form, unitName) => {
+        if (unitName) {
+            const sections = get(property, ['map', 'sections'], [])
+            for (const section of sections) {
+                for (const floor of section.floors) {
+                    for (const unit of floor.units) {
+                        if (unit.label === unitName) {
+                            return form.setFieldsValue({ sectionName: section.name, floorName: floor.name })
+                        }
+                    }
+                }
+            }
+        }
+        form.setFieldsValue({ sectionName: null, floorName: null })
+    }
+
+    return (
+        <Col span={16}>
+            <Row justify={'space-between'}>
+                <Col span={6}>
+                    <Form.Item name={'unitName'} label={FlatNumberLabel}>
+                        <UnitNameInput
+                            property={property}
+                            loading={loading}
+                            allowClear={true}
+                            onChange={(_, option) => {
+                                if (!option) {
+                                    setSelectedUnitName(null)
+                                    updateSectionAndFloor(form, null)
+                                } else {
+                                    setSelectedUnitName(option.key)
+                                    updateSectionAndFloor(form, option.key)
+                                }
+                            }}
+                        />
+                    </Form.Item>
+                </Col>
+                <Col span={6}>
+                    <Form.Item name={'sectionName'} label={SectionNameLabel}>
+                        <Input disabled/>
+                    </Form.Item>
+                </Col>
+                <Col span={6}>
+                    <Form.Item name={'floorName'} label={FloorNameLabel}>
+                        <Input disabled/>
+                    </Form.Item>
+                </Col>
+            </Row>
+        </Col>
+    )
+}
+
+export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
+    const intl = useIntl()
+    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
+    const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
+    const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
+
+    return (
+        <Col span={24}>
+            <Form.Item shouldUpdate noStyle>
+                {({ getFieldsValue }) => {
+                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
+
+                    const value = {
+                        id: get(initialValues, ['contact', 'id']),
+                        name: get(initialValues, 'clientName'),
+                        phone: get(initialValues, 'clientPhone'),
+                    }
+
+                    return (
+                        <FocusContainer className={!property && 'disabled'}>
+                            <Tabs defaultActiveKey="1" style={{ width: '100%' }}>
+                                <TabPane tab={TicketFromResidentMessage} key="1">
+                                    <ContactsEditorComponent
+                                        form={form}
+                                        fields={{
+                                            id: 'contact',
+                                            phone: 'clientPhone',
+                                            name: 'clientName',
+                                        }}
+                                        value={value}
+                                        // Local `property` cannot be used here, because `PropertyAddressSearchInput`
+                                        // sets `Property.address` as its value, but we need `Property.id` here
+                                        property={selectedPropertyId}
+                                        unitName={unitName}
+                                    />
+                                </TabPane>
+                                <TabPane
+                                    tab={
+                                        <Tooltip title={NotImplementedYetMessage}>
+                                            {TicketNotFromResidentMessage}
+                                        </Tooltip>
+                                    }
+                                    key="2"
+                                    disabled
+                                />
+                            </Tabs>
+                        </FocusContainer>
+                    )
+                }}
+            </Form.Item>
+        </Col>
+    )
+}
+
+export const TicketInfo = ({ validations, UploadComponent, initialValues, disableUserInteraction }) => {
+    const intl = useIntl()
+    const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
+    const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
+    const DescriptionLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
+    const ClassifierLabel = intl.formatMessage({ id: 'Classifier' })
+    const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
+    const PaidLabel = intl.formatMessage({ id: 'Paid' })
+    const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
+
+    const details = get(initialValues, 'details')
+    const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(details ? details.length : 0)
+
+    return (
+        <>
+            <Col span={24}>
+                <Row gutter={[0, 24]}>
+                    <Col span={24}>
+                        <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
+                            <InputWithCounter
+                                InputComponent={Input.TextArea}
+                                currentLength={currentDetailsLength}
+                                maxLength={500}
+                                onChange={e => setCurrentDetailsLength(e.target.value.length)}
+                                placeholder={DescriptionPlaceholder}
+                                disabled={disableUserInteraction}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col flex={0}>
+                        <Form.Item
+                            label={AttachedFilesLabel}
+                        >
+                            <UploadComponent/>
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Col>
+            <Col span={24}>
+                <Row align={'top'}>
+                    <Col span={11}>
+                        <Form.Item name={'classifier'} rules={validations.classifier} label={ClassifierLabel}>
+                            <GraphQlSearchInput
+                                search={searchTicketClassifier}
+                                allowClear={false}
+                                disabled={disableUserInteraction}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col push={2} span={11}>
+                        <Row>
+                            <Col span={12}>
+                                <Form.Item name={'isEmergency'} label={' '} valuePropName='checked'>
+                                    <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item name={'isPaid'} label={' '} valuePropName='checked'>
+                                    <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+            </Col>
+        </>
+    )
+}
+
+const TicketPurpose = ({ validations, organizationId, disableUserInteraction }) => {
+    const intl = useIntl()
+
+    const TicketPurposeTitle = intl.formatMessage({ id: 'TicketPurpose' })
+    const ExecutorLabel = intl.formatMessage({ id: 'field.Executor' })
+    const ResponsibleLabel = intl.formatMessage({ id: 'field.Responsible' })
+    const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
+    const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
+
+    const formatUserFieldLabel = ({ text, value }) => (
+        <UserNameField user={{ name: text, id: value }}>
+            {({ name, postfix }) => <>{name} {postfix}</>}
+        </UserNameField>
+    )
+
+    return (
+        <Col span={24}>
+            <Row justify={'space-between'} gutter={[0, 24]}>
+                <Col span={24}>
+                    <Typography.Title level={5} style={{ margin: '0' }}>{TicketPurposeTitle}</Typography.Title>
+                </Col>
+                <Col span={11}>
+                    <Form.Item
+                        name={'executor'}
+                        rules={validations.executor}
+                        label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel}/>}
+                    >
+                        <GraphQlSearchInput
+                            formatLabel={formatUserFieldLabel}
+                            search={searchEmployee(organizationId)}
+                            allowClear={false}
+                            showArrow={false}
+                            disabled={disableUserInteraction}
+                        />
+                    </Form.Item>
+                </Col>
+                <Col span={11}>
+                    <Form.Item
+                        name={'assignee'}
+                        rules={validations.assignee}
+                        label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
+                    >
+                        <GraphQlSearchInput
+                            formatLabel={formatUserFieldLabel}
+                            search={searchEmployee(organizationId)}
+                            allowClear={false}
+                            showArrow={false}
+                            disabled={disableUserInteraction}
+                        />
+                    </Form.Item>
+                </Col>
+            </Row>
+        </Col>
+    )
 }
 
 interface IOrganization {
     id: string
 }
 
-interface ITicketFormProps {
-    organization: IOrganization
+export interface ITicketFormProps {
+    organization?: IOrganization
     initialValues?: ITicketFormState
     action?: (...args) => void,
     files?: ITicketFileUIState[],
     afterActionCompleted?: (ticket: ITicketFormState) => void,
 }
 
-// TODO(Dimitreee): decompose this huge component to field groups
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const intl = useIntl()
-
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
-    const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
-    const TicketPurposeTitle = intl.formatMessage({ id: 'TicketPurpose' })
-    const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
-    const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
-    const FloorNameLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
-    const DescriptionLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
-    const ExecutorLabel = intl.formatMessage({ id: 'field.Executor' })
-    const ResponsibleLabel = intl.formatMessage({ id: 'field.Responsible' })
-    const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
-    const PaidLabel = intl.formatMessage({ id: 'Paid' })
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
-    const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
-    const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
-    const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
-    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
-    const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
-    const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
@@ -82,10 +301,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
     const selectedUnitNameRef = useRef(selectedUnitName)
-
-    const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(initialValues.details ? initialValues.details.length : 0)
-
-    const { ClassifiersEditorComponent } = useTicketThreeLevelsClassifierHook({ initialValues })
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
@@ -132,21 +347,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         return result
     }
 
-    const formatUserFieldLabel = ({ text, value }) => (
-        <UserNameField user={{ name: text, id: value }}>
-            {({ name, postfix }) => <>{name} {postfix}</>}
-        </UserNameField>
-    )
-
-    const updateSectionAndFloor = (form, unitName) => {
-        const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
-        if (sectionName && floorName) {
-            return form.setFieldsValue({ sectionName, floorName })
-        }
-        form.setFieldsValue({ sectionName: null, floorName: null })
-    }
-
-
     return (
         <>
             <FormWithAction
@@ -176,14 +376,20 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 <Col span={24}>
                                     <Row justify={'space-between'} gutter={[0, 15]}>
                                         <Col span={24}>
-                                            <Typography.Title level={5} style={{ margin: '0' }}>{UserInfoTitle}</Typography.Title>
+                                            <Typography.Title level={5}
+                                                style={{ margin: '0' }}>{UserInfoTitle}</Typography.Title>
                                         </Col>
                                         <Col span={24}>
-                                            <Form.Item name={'property'} label={AddressLabel} rules={validations.property}>
+                                            <Form.Item name={'property'} label={AddressLabel}
+                                                rules={validations.property}>
                                                 <PropertyAddressSearchInput
                                                     autoFocus={true}
                                                     onSelect={(_, option) => {
-                                                        form.setFieldsValue({ unitName: null, sectionName: null, floorName: null })
+                                                        form.setFieldsValue({
+                                                            unitName: null,
+                                                            sectionName: null,
+                                                            floorName: null,
+                                                        })
                                                         setSelectedPropertyId(option.key)
                                                     }}
                                                     placeholder={AddressPlaceholder}
@@ -192,89 +398,24 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             </Form.Item>
                                         </Col>
                                         {selectedPropertyId && (
-                                            <Col span={16}>
-                                                <Row justify={'space-between'}>
-                                                    <Col span={6}>
-                                                        <Form.Item name={'unitName'} label={FlatNumberLabel}>
-                                                            <UnitNameInput
-                                                                property={property}
-                                                                loading={loading}
-                                                                allowClear={true}
-                                                                onChange={(_, option) => {
-                                                                    if (!option) {
-                                                                        setSelectedUnitName(null)
-                                                                        updateSectionAndFloor(form, null)
-                                                                    }
-                                                                    else {
-                                                                        setSelectedUnitName(option.key)
-                                                                        updateSectionAndFloor(form, option.key)
-                                                                    }
-                                                                }}
-                                                            />
-                                                        </Form.Item>
-                                                    </Col>
-                                                    <Col span={6}>
-                                                        <Form.Item name={'sectionName'} label={SectionNameLabel}>
-                                                            <Input disabled />
-                                                        </Form.Item>
-                                                    </Col>
-                                                    <Col span={6}>
-                                                        <Form.Item name={'floorName'} label={FloorNameLabel}>
-                                                            <Input disabled />
-                                                        </Form.Item>
-                                                    </Col>
-                                                </Row>
-                                            </Col>
+                                            <UnitInfo
+                                                property={property}
+                                                loading={loading}
+                                                setSelectedUnitName={setSelectedUnitName}
+                                                form={form}
+                                            />
                                         )}
                                     </Row>
                                 </Col>
-                                <Col span={24}>
-                                    <Form.Item shouldUpdate noStyle>
-                                        {({ getFieldsValue }) => {
-                                            const { property, unitName } = getFieldsValue(['property', 'unitName'])
-
-                                            const value = {
-                                                id: get(initialValues.contact, 'id'),
-                                                name: initialValues.clientName,
-                                                phone: initialValues.clientPhone,
-                                            }
-
-                                            return (
-                                                <FocusContainer className={!property && 'disabled'}>
-                                                    <Tabs defaultActiveKey="1" style={{ width: '100%' }}>
-                                                        <TabPane tab={TicketFromResidentMessage} key="1">
-                                                            <ContactsEditorComponent
-                                                                form={form}
-                                                                fields={{
-                                                                    id: 'contact',
-                                                                    phone: 'clientPhone',
-                                                                    name: 'clientName',
-                                                                }}
-                                                                value={value}
-                                                                // Local `property` cannot be used here, because `PropertyAddressSearchInput`
-                                                                // sets `Property.address` as its value, but we need `Property.id` here
-                                                                property={selectedPropertyId}
-                                                                unitName={unitName}
-                                                            />
-                                                        </TabPane>
-                                                        <TabPane
-                                                            tab={
-                                                                <Tooltip title={NotImplementedYetMessage}>
-                                                                    {TicketNotFromResidentMessage}
-                                                                </Tooltip>
-                                                            }
-                                                            key="2"
-                                                            disabled
-                                                        />
-                                                    </Tabs>
-                                                </FocusContainer>
-                                            )
-                                        }}
-                                    </Form.Item>
-                                </Col>
+                                <ContactsInfo
+                                    ContactsEditorComponent={ContactsEditorComponent}
+                                    form={form}
+                                    initialValues={initialValues}
+                                    selectedPropertyId={selectedPropertyId}
+                                />
                                 <Form.Item noStyle dependencies={['property']}>
                                     {
-                                        ({ getFieldsValue, setFieldsValue }) => {
+                                        ({ getFieldsValue }) => {
                                             const { property } = getFieldsValue(['property'])
                                             const disableUserInteraction = !property
 
@@ -282,84 +423,18 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 <Col span={24}>
                                                     <FrontLayerContainer showLayer={disableUserInteraction}>
                                                         <Row gutter={[0, 40]}>
-                                                            <Col span={24}>
-                                                                <Row gutter={[0, 24]}>
-                                                                    <Col span={24}>
-                                                                        <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
-                                                                    </Col>
-                                                                    <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
-                                                                    <Col span={24}>
-                                                                        <Row>
-                                                                            <Col span={6}>
-                                                                                <Form.Item name={'isEmergency'} valuePropName='checked'>
-                                                                                    <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
-                                                                                </Form.Item>
-                                                                            </Col>
-                                                                            <Col span={6}>
-                                                                                <Form.Item name={'isPaid'}  valuePropName='checked'>
-                                                                                    <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
-                                                                                </Form.Item>
-                                                                            </Col>
-                                                                        </Row>
-                                                                    </Col>
-                                                                    <Col span={24}>
-                                                                        <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
-                                                                            <InputWithCounter
-                                                                                InputComponent={Input.TextArea}
-                                                                                currentLength={currentDetailsLength}
-                                                                                maxLength={500}
-                                                                                onChange={e => setCurrentDetailsLength(e.target.value.length)}
-                                                                                placeholder={DescriptionPlaceholder}
-                                                                                disabled={disableUserInteraction}
-                                                                            />
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                    <Col flex={0}>
-                                                                        <Form.Item
-                                                                            label={AttachedFilesLabel}
-                                                                        >
-                                                                            <UploadComponent />
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                </Row>
-                                                            </Col>
-                                                            <Col span={24}>
-                                                                <Row justify={'space-between'} gutter={[0, 24]}>
-                                                                    <Col span={24}>
-                                                                        <Typography.Title level={5} style={{ margin: '0' }}>{TicketPurposeTitle}</Typography.Title>
-                                                                    </Col>
-                                                                    <Col span={11}>
-                                                                        <Form.Item
-                                                                            name={'executor'}
-                                                                            rules={validations.executor}
-                                                                            label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel} />}
-                                                                        >
-                                                                            <GraphQlSearchInput
-                                                                                formatLabel={formatUserFieldLabel}
-                                                                                search={searchEmployee(get(organization, 'id'))}
-                                                                                allowClear={false}
-                                                                                showArrow={false}
-                                                                                disabled={disableUserInteraction}
-                                                                            />
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                    <Col span={11}>
-                                                                        <Form.Item
-                                                                            name={'assignee'}
-                                                                            rules={validations.assignee}
-                                                                            label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel} />}
-                                                                        >
-                                                                            <GraphQlSearchInput
-                                                                                formatLabel={formatUserFieldLabel}
-                                                                                search={searchEmployee(get(organization, 'id'))}
-                                                                                allowClear={false}
-                                                                                showArrow={false}
-                                                                                disabled={disableUserInteraction}
-                                                                            />
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                </Row>
-                                                            </Col>
+                                                            <TicketInfo
+                                                                UploadComponent={UploadComponent}
+                                                                validations={validations}
+                                                                organizationId={organization.id}
+                                                                initialValues={initialValues}
+                                                                disableUserInteraction={disableUserInteraction}
+                                                            />
+                                                            <TicketPurpose
+                                                                disableUserInteraction={disableUserInteraction}
+                                                                validations={validations}
+                                                                organizationId={organization.id}
+                                                            />
                                                         </Row>
                                                     </FrontLayerContainer>
                                                 </Col>
@@ -368,7 +443,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                     }
                                 </Form.Item>
                                 <Form.Item name={'source'} hidden>
-                                    <Input />
+                                    <Input/>
                                 </Form.Item>
                             </Row>
                         </Col>
@@ -379,3 +454,4 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         </>
     )
 }
+
