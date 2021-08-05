@@ -14,6 +14,7 @@ const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket
 const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
 const { CREATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 const { GET_ALL_RESIDENT_TICKETS_QUERY } = require('@condo/domains/ticket/gql')
+const { UPDATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -52,6 +53,20 @@ async function getAllResidentTickets (context, data) {
     })
 }
 
+async function updateResidentTicket (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write updateResidentTicket serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: UPDATE_RESIDENT_TICKET_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to updateResidentTicket',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -64,5 +79,6 @@ module.exports = {
     TicketComment,
     createResidentTicket,
     getAllResidentTickets,
+    updateResidentTicket,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
