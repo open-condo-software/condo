@@ -79,6 +79,23 @@ const Resident = new GQLListSchema('Resident', {
             },
         },
 
+        // The reason for this field is to avoid adding check for resident user into global Property read access.
+        // This field have specific use case for mobile client.
+        propertyForResident: {
+            schemaDoc: 'Property data, that is returned for current resident in mobile client',
+            type: Virtual,
+            graphQLReturnType: 'JSON',
+            resolver: async (item) => {
+                if (item.property) {
+                    const property = await getById('Property', item.property)
+                    return pick(property, ['id', 'name'])
+                } else {
+                    return null
+                }
+            },
+            access: true,
+        },
+
         billingAccount: {
             schemaDoc: 'System-wide billing account, that will allow to pay for all services from all organizations',
             type: Relationship,
