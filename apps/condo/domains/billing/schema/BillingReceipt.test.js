@@ -13,7 +13,7 @@ const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('../utils/t
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
-const { catchErrorFrom } = require('../../common/utils/testSchema')
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 
