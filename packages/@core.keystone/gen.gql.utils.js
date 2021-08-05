@@ -129,96 +129,10 @@ function genTestGQLUtils (key, fields) {
     }
 }
 
-function generateQueryWhereInput (schemaName, fieldsObj) {
-    const resFields = Object.entries(fieldsObj).map(([ name, type ]) => {
-        switch (type) {
-            case 'ID': {
-                return `
-                    ${name}: ID,
-                    ${name}_not: ID,
-                    ${name}_in: [ID],
-                    ${name}_not_in: [ID]
-                `
-            }
-            case 'Int': {
-                return `
-                    ${name}: Int,
-                    ${name}_not: Int,
-                    ${name}_lt: Int,
-                    ${name}_gt: Int,
-                    ${name}_lte: Int,
-                    ${name}_gte: Int,
-                    ${name}_in: [Int],
-                    ${name}_not_in: [Int]
-                `
-            }
-            case 'Boolean': {
-                return `
-                    ${name}: Boolean,
-                    ${name}_not: Boolean
-                    `
-            }
-            case 'String': {
-                return `
-                    ${name}: String,
-                    ${name}_not: String,
-                    ${name}_contains: String,
-                    ${name}_not_contains: String,
-                    ${name}_starts_with: String,
-                    ${name}_not_starts_with: String,
-                    ${name}_ends_with: String,
-                    ${name}_not_ends_with: String,
-                    ${name}_i: String,
-                    ${name}_not_i: String,
-                    ${name}_contains_i: String,
-                    ${name}_not_contains_i: String,
-                    ${name}_starts_with_i: String,
-                    ${name}_not_starts_with_i: String,
-                    ${name}_ends_with_i: String,
-                    ${name}_not_ends_with_i: String
-                `
-            }
-            // default is a Model type, change it after
-            default: {
-                return `
-                    ${name}: ${type}WhereInput,
-                    ${name}_is_null: Boolean,
-                `
-            }
-        }
-    }).join(',')
-
-    return `
-        input ${schemaName}WhereInput {
-            AND: [${schemaName}WhereInput],
-            OR: [${schemaName}WhereInput],
-            ${resFields}
-        }
-    `
-}
-
-function generateQuerySortBy (schemaName, fields) {
-    const resFields = fields.map(field => (
-        `
-        ${field}_ASC,
-        ${field}_DESC
-        `
-    )).join(',')
-
-    //TODO(nomerdvadcatpyat): generate normal plural name
-    return `
-        enum Sort${schemaName}sBy {
-            ${resFields}
-        }
-    `
-}
-
 module.exports = {
     genGetAllGQL,
     genCreateGQL,
     genUpdateGQL,
     genDeleteGQL,
     genTestGQLUtils,
-    generateQueryWhereInput,
-    generateQuerySortBy,
 }
