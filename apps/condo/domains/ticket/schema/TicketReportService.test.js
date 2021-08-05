@@ -85,6 +85,31 @@ describe('TicketReportService', () => {
             expect(clientTicket.currentValue).toEqual(0)
             expect(clientTicket.growth).toEqual(0)
         })
+
+        it('can get ticket report with allowed period types [year]', async () => {
+            const client = await makeClientWithProperty()
+            await createTestTicket(client, client.organization, client.property)
+            const { data: { result: { data } } } = await client.query(GET_TICKET_WIDGET_REPORT_DATA, {
+                data: { userOrganizationId: client.organization.id, periodType: 'year' },
+            })
+            expect(data).toBeInstanceOf(Array)
+            expect(data.length).toBeGreaterThanOrEqual(1)
+            const clientTicket = data.find(e => e.statusType === NEW_OR_REOPENED_STATUS_TYPE)
+            expect(clientTicket).toBeDefined()
+            expect(clientTicket.currentValue).toEqual(1)
+            expect(clientTicket.growth).toEqual(0)
+        })
+
+        it('can not get ticket report with restricted period type', async () => {
+            const client = await makeClientWithProperty()
+            const { errors } = await client.query(GET_TICKET_WIDGET_REPORT_DATA, {
+                data: { userOrganizationId: client.organization.id, periodType: 'hour' },
+            })
+            console.log(errors)
+            expect(errors).toBeDefined()
+            expect(errors).toHaveLength(1)
+            expect(errors[0].name).toEqual('UserInputError')
+        })
     })
 
     describe('Anonymous', () => {
