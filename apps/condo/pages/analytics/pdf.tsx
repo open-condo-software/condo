@@ -74,7 +74,7 @@ const PdfView = () => {
 
     useEffect(() => {
         if (!loading && data !== null) {
-            createPdf({ element: containerRef.current, fileName: 'analytics_result.pdf', format: 'fullscreen' })
+            createPdf({ element: containerRef.current, fileName: 'analytics_result.pdf', format: '1080p' })
                 .catch((e) => {
                     notification.error({
                         message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),

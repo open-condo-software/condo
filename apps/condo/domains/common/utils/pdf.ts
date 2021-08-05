@@ -9,7 +9,7 @@ const PDF_FORMAT_SETTINGS = {
     // lineSpace - margin right for rest of lines (in css pixels)
     'a4': { pdfWidth: 210, pdfHeight: 297, elementOffset: 10, firstLineOffset: 23, lineSpace: 80 },
     'a5': { pdfWidth: 148, pdfHeight: 210, elementOffset: 10, firstLineOffset: 23, lineSpace: 80 },
-    'fullscreen': { pdfWidth: PDF_REPORT_WIDTH, pdfHeight: 297, elementOffset: 15, firstLineOffset: 23, lineSpace: 80 },
+    '1080p': { pdfWidth: PDF_REPORT_WIDTH, pdfHeight: 297, elementOffset: 15, firstLineOffset: 23, lineSpace: 80 },
 }
 
 function getPdfHeightFromElement (element: HTMLElement, expectedWidth: number) {
@@ -65,7 +65,7 @@ export const createPdf: ICreatePdf = (options) => {
         freeSpace -= lineSpace
         linesCounter++
     }
-    const docHeight = format === 'fullscreen' ? element.clientHeight : pdfHeight
+    const docHeight = format === '1080p' ? element.clientHeight : pdfHeight
     const pdfImageHeight = getPdfHeightFromElement(element, pdfWidth)
     return  html2canvas(element).then(canvas => {
         const doc = new Jspdf('p', 'mm', [pdfWidth, docHeight])
