@@ -46,10 +46,10 @@ async function makeClientWithOrganization (extraAttrs = {}) {
         meta,
         ...extraAttrs,
     }
-    const organization = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+    const { data: { obj } } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
         data: attrs
     })
-    client.organization = organization
+    client.organization = obj
 
     return client
 }
