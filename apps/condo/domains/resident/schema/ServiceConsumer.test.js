@@ -13,7 +13,7 @@ const { buildingMapJson } = require('@condo/domains/property/constants/property'
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { createTestServiceConsumer, updateTestServiceConsumer, createTestServiceConsumerForUserAsAdmin } = require('@condo/domains/resident/utils/testSchema')
@@ -87,6 +87,29 @@ describe('ServiceConsumer', () => {
         })
     })
 
+    describe('SoftDelete', () => {
+        it('can be soft-deleted by user with type === resident if this is his own serviceConsumer', async () => {
+            const [consumer, userClient] = await createTestServiceConsumerForUserAsAdmin()
+
+            await addResidentAccess(userClient.user)
+
+            const [deleted] = await updateTestServiceConsumer(userClient, consumer.id, { deletedAt: 'true' })
+            expect(deleted.id).toEqual(consumer.id)
+            expect(deleted.deletedAt).not.toBeNull()
+        })
+
+        it('cannot be soft-deleted by user with type === resident if this is not his own serviceConsumer', async () => {
+            const [_, userClient] = await createTestServiceConsumerForUserAsAdmin()
+            const [consumer2] = await createTestServiceConsumerForUserAsAdmin()
+
+            await addResidentAccess(userClient.user)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestServiceConsumer(userClient, consumer2.id, { deletedAt: 'true' })
+            })
+        })
+    })
+
     describe('Update', () => {
         it('can be updated by admin', async () => {
             const [consumer, _, adminClient] = await createTestServiceConsumerForUserAsAdmin()
@@ -98,15 +121,15 @@ describe('ServiceConsumer', () => {
             expect(updatedConsumer.accountNumber).toEqual(newAccountNumber)
         })
 
-        it('can be updated by user with type === resident only if this is his serviceConsumer', async () => {
-            const [consumer, userClient, adminClient] = await createTestServiceConsumerForUserAsAdmin()
+        it('cannot be updated by user with type === resident even if this is his own serviceConsumer', async () => {
+            const [consumer, userClient] = await createTestServiceConsumerForUserAsAdmin()
 
             await addResidentAccess(userClient.user)
             const newAccountNumber = faker.random.alphaNumeric(8)
 
-            const [updatedConsumer] = await updateTestServiceConsumer(userClient, consumer.id, { accountNumber: newAccountNumber })
-            expect(updatedConsumer.id).toEqual(consumer.id)
-            expect(updatedConsumer.accountNumber).toEqual(newAccountNumber)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestServiceConsumer(userClient, consumer.id, { accountNumber: newAccountNumber })
+            })
         })
 
         it('cannot be updated by user with type === resident', async () => {
