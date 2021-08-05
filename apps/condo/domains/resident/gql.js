@@ -10,7 +10,7 @@ const gql = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const RESIDENT_FIELDS = `{ user { id name } organization { id } organizationForResident property { id } propertyForResident billingAccount { id } address addressMeta unitName ${COMMON_FIELDS} }`
+const RESIDENT_FIELDS = `{ user { id name } organization { id } residentOrganization property { id } residentProperty billingAccount { id } address addressMeta unitName ${COMMON_FIELDS} }`
 const Resident = generateGqlQueries('Resident', RESIDENT_FIELDS)
 
 const REGISTER_RESIDENT_MUTATION = gql`

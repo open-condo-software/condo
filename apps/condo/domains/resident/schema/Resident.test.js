@@ -103,7 +103,7 @@ describe('Resident', () => {
     })
 
     describe('Virtual fields', () => {
-        describe('organizationForResident', () => {
+        describe('residentOrganization', () => {
             it('returns id and name of related organization', async () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
@@ -111,10 +111,10 @@ describe('Resident', () => {
                 const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
-                expect(obj.organizationForResident).toBeDefined()
-                expect(obj.organizationForResident.id).toEqual(userClient.organization.id)
-                expect(obj.organizationForResident.name).toEqual(userClient.organization.name)
-                expect(Object.keys(obj.organizationForResident).length).toEqual(2)
+                expect(obj.residentOrganization).toBeDefined()
+                expect(obj.residentOrganization.id).toEqual(userClient.organization.id)
+                expect(obj.residentOrganization.name).toEqual(userClient.organization.name)
+                expect(Object.keys(obj.residentOrganization).length).toEqual(2)
             })
 
             it('returns null if no related organization', async () => {
@@ -124,11 +124,11 @@ describe('Resident', () => {
                 const [{ id }] = await createTestResident(adminClient, userClient.user, null, userClient.property)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
-                expect(obj.organizationForResident).toBeNull()
+                expect(obj.residentOrganization).toBeNull()
             })
         })
 
-        describe('propertyForResident', () => {
+        describe('residentProperty', () => {
             it('returns id and name of related property', async () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
@@ -136,10 +136,10 @@ describe('Resident', () => {
                 const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
-                expect(obj.propertyForResident).toBeDefined()
-                expect(obj.propertyForResident.id).toEqual(userClient.property.id)
-                expect(obj.propertyForResident.name).toEqual(userClient.property.name)
-                expect(Object.keys(obj.propertyForResident).length).toEqual(2)
+                expect(obj.residentProperty).toBeDefined()
+                expect(obj.residentProperty.id).toEqual(userClient.property.id)
+                expect(obj.residentProperty.name).toEqual(userClient.property.name)
+                expect(Object.keys(obj.residentProperty).length).toEqual(2)
             })
 
             it('returns null if no related property', async () => {
@@ -153,7 +153,7 @@ describe('Resident', () => {
                 const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, null, attrs)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
-                expect(obj.propertyForResident).toBeNull()
+                expect(obj.residentProperty).toBeNull()
             })
         })
     })
