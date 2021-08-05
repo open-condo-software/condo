@@ -1,7 +1,8 @@
 const { keys, transform, pick, pickBy, omit, difference } = require('lodash')
 const { Text, Uuid } = require('@keystonejs/fields')
 const { Relationship } = require('@keystonejs/fields')
-const { Json } = require('@core/keystone/fields')
+const { Json, LocalizedText } = require('@core/keystone/fields')
+const localizedTrackableFields = require('./localizedTrackableFields')
 
 /**
  * Utilities to make a GQLListSchema item trackable for changes.
@@ -331,6 +332,7 @@ const mapScalar = (field) => (
  * @param {String} key - key of a field being iterated
  */
 const mapRelationSingle = (acc, value, key) => {
+
     acc[`${key}IdFrom`] = {
         schemaDoc: `Old id of related entity. ${value.schemaDoc}`,
         type: Uuid,
@@ -339,13 +341,16 @@ const mapRelationSingle = (acc, value, key) => {
         schemaDoc: `New id of related entity. ${value.schemaDoc}`,
         type: Uuid,
     }
+    
     acc[`${key}DisplayNameFrom`] = {
         schemaDoc: `Old display name of related entity. ${value.schemaDoc}`,
-        type: Text,
+        type: localizedTrackableFields.has(key) ? LocalizedText : Text,
+        template: localizedTrackableFields.get(key),
     }
     acc[`${key}DisplayNameTo`] = {
         schemaDoc: `New display name of related entity. ${value.schemaDoc}`,
-        type: Text,
+        type: localizedTrackableFields.has(key) ? LocalizedText : Text,
+        template: localizedTrackableFields.get(key),
     }
 }
 

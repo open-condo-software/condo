@@ -131,10 +131,8 @@ describe('TicketChange', () => {
 
             expect(objs[0].statusIdFrom).toEqual(ticket.status.id)
             expect(objs[0].statusIdTo).toEqual(payload.status.connect.id)
-
-            const translations = getTranslations()
-            expect(translations[objs[0].statusDisplayNameFrom]).toEqual(openedStatus.name)
-            expect(translations[objs[0].statusDisplayNameTo]).toEqual(inProgressStatus.name)
+            expect(objs[0].statusDisplayNameFrom).toEqual(openedStatus.name)
+            expect(objs[0].statusDisplayNameTo).toEqual(inProgressStatus.name)
 
             expect(objs[0].clientIdFrom).toEqual(ticket.client.id)
             expect(objs[0].clientIdTo).toEqual(payload.client.connect.id)
