@@ -24,7 +24,7 @@ const ServiceConsumer = generateGqlQueries('ServiceConsumer', SERVICE_CONSUMER_F
 
 const REGISTER_SERVICE_CONSUMER_MUTATION = gql`
     mutation registerServiceConsumer ($data: RegisterServiceConsumerInput!) {
-        result: registerServiceConsumer(data: $data) ${SERVICE_CONSUMER_FIELDS}
+        obj: registerServiceConsumer(data: $data) ${SERVICE_CONSUMER_FIELDS}
     }
 `
 
@@ -35,6 +35,5 @@ module.exports = {
     REGISTER_RESIDENT_MUTATION,
     ServiceConsumer,
     REGISTER_SERVICE_CONSUMER_MUTATION,
-
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
