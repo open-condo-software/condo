@@ -35,7 +35,7 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
                 const flat = get(metaData, 'flat')
                 let search = suggestion
                 if (flat) {
-                    if (typeof flat !== 'string' && typeof flat !== 'number') throw new Error('Flat should be number of string')
+                    if (typeof flat !== 'string' && typeof flat !== 'number') throw new Error('Flat should be number or string')
                     const flatType = get(metaData, 'flat_type')
                     if (!flatType || typeof flatType !== 'string') throw new Error('Flat is specified, but flat type is not!')
                     const suffix = `, ${flatType} ${flat}`
