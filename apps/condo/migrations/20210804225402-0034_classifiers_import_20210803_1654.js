@@ -620,10 +620,10 @@ COMMIT;
 exports.down = async (knex) => {
     await knex.raw(`
     BEGIN;
-    DELETE FROM public."TicketPlaceClassifier" WHERE 1=1;
-    DELETE FROM public."TicketCategoryClassifier" WHERE 1=1;
-    DELETE FROM public."TicketDescriptionClassifier" WHERE 1=1;
-    DELETE FROM public."TicketClassifierRule" WHERE 1=1;
+    DELETE FROM public."TicketPlaceClassifier";
+    DELETE FROM public."TicketCategoryClassifier";
+    DELETE FROM public."TicketDescriptionClassifier";
+    DELETE FROM public."TicketClassifierRule";
 
 COMMIT;
 
