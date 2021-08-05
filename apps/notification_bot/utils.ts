@@ -66,12 +66,11 @@ export const getCommitsFromRange = async (lastCommitSha: string, firstCommitSha?
                 }
 
                 if (isFirstCommitFound && !isLastCommitFound) {
-                    if (sha !== lastCommitSha) {
-                        commitsList.push(commit)
-                    } else {
-                        commitsList.push(commit)
+                    if (sha === lastCommitSha) {
                         isLastCommitFound = true
                     }
+
+                    commitsList.push(commit)
                 }
             })
 
@@ -86,11 +85,12 @@ export const getCommitsFromRange = async (lastCommitSha: string, firstCommitSha?
             }
 
             response.data.forEach(({ sha, commit }) => {
-                if (sha !== lastCommitSha) {
+                if (!isLastCommitFound) {
+                    if (sha === lastCommitSha) {
+                        isLastCommitFound = true
+                    }
+
                     commitsList.push(commit)
-                } else {
-                    commitsList.push(commit)
-                    isLastCommitFound = true
                 }
             })
 
