@@ -152,6 +152,7 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Typification / classification / types of work',
             type: Relationship,
             ref: 'TicketClassifier',
+            // Classifier can be null because mobile app users don't pass it when creating a Ticket
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
