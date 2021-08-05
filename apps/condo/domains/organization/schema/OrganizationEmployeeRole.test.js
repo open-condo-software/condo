@@ -3,13 +3,13 @@
  */
 
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { createTestOrganizationEmployee, createDefaultOrganizationEmployeeRoles } = require('../utils/testSchema')
+const { createTestOrganizationEmployee, makeClientWithOrganization } = require('../utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { OrganizationEmployeeRole, createTestOrganizationEmployeeRole, updateTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const {  expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { getTranslations, getAvailableLocales } = require('@condo/domains/common/utils/localesLoader')
 const { DEFAULT_ROLES } = require('../constants/common')
 
@@ -209,14 +209,14 @@ describe('OrganizationEmployeeRole', () => {
         
         const translations = getTranslations(locale)
 
-        const admin = await makeLoggedInAdminClient()
-        admin.setHeaders({
+        const client = await makeClientWithOrganization()
+        client.setHeaders({
             'Accept-Language': locale,
         })
 
-        const [organization] = await createTestOrganization(admin)
-
-        const defaultRolesInstances = await createDefaultOrganizationEmployeeRoles(admin, organization)
+        const defaultRolesInstances = await OrganizationEmployeeRole.getAll(client, {
+            organization: { id: client.organization.id },
+        })
 
         Object.values(DEFAULT_ROLES).forEach(staticRole => {
             const nameTranslation = translations[staticRole.name]

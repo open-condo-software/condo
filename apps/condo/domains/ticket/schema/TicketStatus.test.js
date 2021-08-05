@@ -204,7 +204,7 @@ describe('TicketStatus', () => {
         })
 
         const statuses = await TicketStatus.getAll(admin, {
-            OR: Object.values(STATUS_IDS).map(id => ({ id })),
+            id_in: Object.values(STATUS_IDS),
         })
 
         const isTranslationCompleted = Object.values(statuses).every(status => translations.includes(status.name))

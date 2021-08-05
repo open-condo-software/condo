@@ -1,6 +1,7 @@
 const INN_LENGTH = 10
 const DEFAULT_ORGANIZATION_TIMEZONE = 'Europe/Moscow'
 const DEFAULT_ROLES = {
+    // Administrator role is required for mutation logic
     'Administrator': {
         'name': 'employee.role.Administrator.name',
         'description': 'employee.role.Administrator.description',
