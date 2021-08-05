@@ -22,14 +22,20 @@ async function createTestProperty (client, organization, extraAttrs = {}, withFl
     if (!organization) throw new Error('no organization')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.address.streetAddress(true)
-    const address = faker.address.streetAddress(true)
-    const addressMeta = buildFakeAddressMeta(address, withFlat)
+    const addressMeta = buildFakeAddressMeta(withFlat)
+    let address = addressMeta.address
+    if (withFlat) {
+        const index = address.lastIndexOf(',')
+        address = address.substring(0, index)
+    }
     const attrs = {
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
         type: 'building',
-        name, address, addressMeta,
+        name,
+        address,
+        addressMeta,
         ...extraAttrs,
     }
     const obj = await Property.create(client, attrs)
@@ -49,9 +55,9 @@ async function updateTestProperty (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function makeClientWithProperty () {
+async function makeClientWithProperty (includeFlat = false) {
     const client = await makeClientWithRegisteredOrganization()
-    const [property] = await createTestProperty(client, client.organization, { map: buildingMapJson })
+    const [property] = await createTestProperty(client, client.organization, { map: buildingMapJson }, includeFlat)
     client.property = property
     return client
 }
@@ -60,13 +66,6 @@ async function makeClientWithResidentUserAndProperty () {
     const userClient = await makeClientWithProperty()
     await addResidentAccess(userClient.user)
     return userClient
-}
-
-async function makeClientWithFlatAndProperty () {
-    const client = await makeClientWithRegisteredOrganization()
-    const [property] = await createTestProperty(client, client.organization, { map: buildingMapJson }, true)
-    client.property = property
-    return client
 }
 
 async function checkPropertyWithAddressExistByTestClient(client, extraAttrs = {}) {
@@ -87,7 +86,6 @@ module.exports = {
     createTestProperty,
     updateTestProperty,
     makeClientWithProperty,
-    makeClientWithFlatAndProperty,
     checkPropertyWithAddressExistByTestClient,
     makeClientWithResidentUserAndProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
