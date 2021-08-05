@@ -237,11 +237,9 @@ async function updateTestTicketComment (client, id, extraAttrs = {}) {
 async function createTestTicketPlaceClassifier (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestTicketPlaceClassifier logic for generate fields
-
     const attrs = {
         dv: 1,
+        name: faker.lorem.word(),
         sender,
         ...extraAttrs,
     }
@@ -253,9 +251,6 @@ async function updateTestTicketPlaceClassifier (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestTicketPlaceClassifier logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -268,12 +263,10 @@ async function updateTestTicketPlaceClassifier (client, id, extraAttrs = {}) {
 async function createTestTicketCategoryClassifier (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestTicketCategoryClassifier logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
+        name: faker.lorem.word(),
         ...extraAttrs,
     }
     const obj = await TicketCategoryClassifier.create(client, attrs)
@@ -284,12 +277,10 @@ async function updateTestTicketCategoryClassifier (client, id, extraAttrs = {}) 
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestTicketCategoryClassifier logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
+        name: faker.lorem.word(),
         ...extraAttrs,
     }
     const obj = await TicketCategoryClassifier.update(client, id, attrs)
@@ -299,9 +290,6 @@ async function updateTestTicketCategoryClassifier (client, id, extraAttrs = {}) 
 async function createTestTicketDescriptionClassifier (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestTicketDescriptionClassifier logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -315,9 +303,6 @@ async function updateTestTicketDescriptionClassifier (client, id, extraAttrs = {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestTicketDescriptionClassifier logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -330,12 +315,15 @@ async function updateTestTicketDescriptionClassifier (client, id, extraAttrs = {
 async function createTestTicketClassifierRule (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestTicketClassifierRule logic for generate fields
-
+    const [place] = await createTestTicketPlaceClassifier()
+    const [category] = await createTestTicketCategoryClassifier()
+    const [description] = await createTestTicketDescriptionClassifier()
     const attrs = {
         dv: 1,
         sender,
+        place: { connect: place.id },
+        category: { connect: category.id },
+        description: { connect: description.id },
         ...extraAttrs,
     }
     const obj = await TicketClassifierRule.create(client, attrs)
@@ -346,9 +334,6 @@ async function updateTestTicketClassifierRule (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestTicketClassifierRule logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -416,6 +401,7 @@ module.exports = {
     makeClientWithTicket,
     TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier,
     TicketComment, createTestTicketComment, updateTestTicketComment,
+    createTestTicketPlaceClassifier, updateTestTicketPlaceClassifier, createTestTicketCategoryClassifier, updateTestTicketCategoryClassifier, createTestTicketDescriptionClassifier, updateTestTicketDescriptionClassifier, createTestTicketClassifierRule, updateTestTicketClassifierRule,
     createResidentTicketByTestClient,
     updateResidentTicketByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
