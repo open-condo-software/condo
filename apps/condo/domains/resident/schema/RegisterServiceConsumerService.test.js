@@ -10,7 +10,7 @@ const { createTestResident } = require('@condo/domains/resident/utils/testSchema
 const { createTestBillingProperty, createTestBillingAccount, createTestBillingIntegration, createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { registerConsumerServiceByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
  
 describe('RegisterServiceConsumerService', () => {
     it('creates b2b-integration serviceConsumer for valid input as resident', async () => {
@@ -33,7 +33,7 @@ describe('RegisterServiceConsumerService', () => {
             unitName: billingAccountAttrs.unitName,
             accountNumber: billingAccountAttrs.number,
         }
-        const [consumerId] = await registerConsumerServiceByTestClient(userClient, payload)
+        const [consumerId] = await registerServiceConsumerByTestClient(userClient, payload)
 
         expect(consumerId).not.toEqual(undefined)
     })
@@ -60,7 +60,7 @@ describe('RegisterServiceConsumerService', () => {
         }
 
         await catchErrorFrom(async () => {
-            await registerConsumerServiceByTestClient(userClient, payload)
+            await registerServiceConsumerByTestClient(userClient, payload)
         }, (e) => {
             expect(e.message).not.toEqual(undefined)
         })
@@ -77,7 +77,7 @@ describe('RegisterServiceConsumerService', () => {
         }
 
         await expectToThrowAccessDeniedErrorToResult(async () => {
-            await registerConsumerServiceByTestClient(userClient, payload)
+            await registerServiceConsumerByTestClient(userClient, payload)
         })
     })
 
@@ -92,7 +92,7 @@ describe('RegisterServiceConsumerService', () => {
         }
 
         await expectToThrowAuthenticationErrorToResult(async () => {
-            await registerConsumerServiceByTestClient(userClient, payload)
+            await registerServiceConsumerByTestClient(userClient, payload)
         })
     })
 })

@@ -14,15 +14,15 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
     types: [
         {
             access: true,
-            type: 'input RegisterConsumerServiceInput { dv: Int!, sender: JSON!, residentId: String!, unitName: String!, accountNumber: String! }',
+            type: 'input RegisterServiceConsumerInput { dv: Int!, sender: JSON!, residentId: String!, unitName: String!, accountNumber: String! }',
         },
     ],
 
     mutations: [
         {
             schemaDoc: 'This mutation tries to create service consumer',
-            access: access.canRegisterConsumerService,
-            schema: 'registerConsumerService(data: RegisterConsumerServiceInput!): ServiceConsumer',
+            access: access.canRegisterServiceConsumer,
+            schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { dv, sender, residentId, unitName, accountNumber } } = args
 
