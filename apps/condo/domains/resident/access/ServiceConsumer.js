@@ -36,6 +36,7 @@ async function canManageServiceConsumers ({ authentication: { item: user }, cont
             return isOwnBillingAccount && isSoftDeleteOperation
         }
     }
+    return false
 }
 
 /*
