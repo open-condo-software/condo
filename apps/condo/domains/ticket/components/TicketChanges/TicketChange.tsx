@@ -176,7 +176,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             },
         },
         {
-            title: 'descriptionClassifierDisplayName',
+            title: 'problemClassifierDisplayName',
             messages: {
                 add: ClassifierAddMessage,
                 change: ClassifierChangeMessage,

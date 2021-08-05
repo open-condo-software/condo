@@ -83,7 +83,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         classifier: get(ticket.classifier, 'name', ''),
                         place: get(ticket.placeClassifier, 'name', ''),
                         category: get(ticket.categoryClassifier, 'name', ''),
-                        description: get(ticket.descriptionClassifier, 'name', ''),
+                        description: get(ticket.problemClassifier, 'name', ''),
                         createdAt: formatDate(ticket.createdAt),
                         inworkAt: inWork ? formatDate(inWork) : '',
                         completedAt: completed ? formatDate(completed) : '',
