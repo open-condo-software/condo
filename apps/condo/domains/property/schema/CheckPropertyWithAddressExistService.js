@@ -6,6 +6,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/property/access/CheckPropertyWithAddressExistService')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const get = require('lodash/get')
+const { jsonAddressMetaValidator } = require('../utils/validation.utils')
 
 
 const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyWithAddressExistService', {
@@ -25,19 +26,19 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
             access: access.canCheckPropertyWithAddressExist,
             schema: 'checkPropertyWithAddressExist (data: CheckPropertyWithAddressExistInput!): CheckPropertyWithAddressExistOutput',
             resolver: async (parent, args, context = {}) => {
-                const { data } = args
-                const { addressMeta } = data
+                const { data: inputData } = args
+                const { addressMeta } = inputData
                 if (!addressMeta) throw new Error('No object specified!')
-                const metaData = get(addressMeta, 'data')
-                if (!metaData) throw new Error('No meta data specified')
-                const suggestion = get(addressMeta, 'value')
-                if (!suggestion || typeof suggestion !== 'string') throw new Error('No suggestion specified')
-                const flat = get(metaData, 'flat')
-                let search = suggestion
+                if (!jsonAddressMetaValidator(addressMeta)) throw new Error('Json had incorrect format!')
+
+                const data = get(addressMeta, 'data')
+                const value = get(addressMeta, 'value')
+
+                const flat = get(data, 'flat')
+                let search = value
                 if (flat) {
-                    if (typeof flat !== 'string' && typeof flat !== 'number') throw new Error('Flat should be number or string')
-                    const flatType = get(metaData, 'flat_type')
-                    if (!flatType || typeof flatType !== 'string') throw new Error('Flat is specified, but flat type is not!')
+                    const flatType = get(data, 'flat_type')
+                    if (!flatType) throw new Error('Flat is specified, but flat type is not!')
                     const suffix = `, ${flatType} ${flat}`
                     search = search.substring(0, search.length - suffix.length)
                 }
