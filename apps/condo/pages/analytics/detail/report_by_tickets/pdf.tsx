@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Col, notification, Row, Typography } from 'antd'
@@ -30,6 +31,7 @@ const PdfView = () => {
     const containerRef = useRef<null | HTMLDivElement>(null)
     const queryParamsRef = useRef(null)
 
+    const router = useRouter()
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
     const userOrganization = useOrganization()
@@ -46,10 +48,14 @@ const PdfView = () => {
         },
         fetchPolicy: 'network-only',
         onCompleted: response => {
+            setLoading(false)
             const { result: { result } } = response
             setData(result)
         },
     })
+    useEffect(() => {
+        router.push('/')
+    }, [])
     useEffect(() => {
         const queryParams = getQueryParams()
         queryParamsRef.current = queryParams
@@ -72,17 +78,17 @@ const PdfView = () => {
 
     }, [userOrganizationId])
 
-    useEffect(() => {
-        if (!loading && data !== null) {
-            createPdf({ element: containerRef.current, fileName: 'analytics_result.pdf', format: '1080p' })
-                .catch((e) => {
-                    notification.error({
-                        message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
-                        description: e.message,
-                    })
-                })
-        }
-    }, [loading, data])
+    // useEffect(() => {
+    //     if (!loading && data !== null) {
+    //         createPdf({ element: containerRef.current, fileName: 'analytics_result.pdf', format: '1080p' })
+    //             .catch((e) => {
+    //                 notification.error({
+    //                     message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
+    //                     description: e.message,
+    //                 })
+    //             })
+    //     }
+    // }, [loading, data])
 
 
     if (queryParamsRef.current === null ) {
