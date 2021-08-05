@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from '@emotion/styled'
-import { colors, shadows } from '@condo/domains/common/constants/style'
-import { Tooltip, Typography } from 'antd'
+import { colors, shadows, transitions } from '@condo/domains/common/constants/style'
+import { Row, Tooltip, Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { Tag, TagType } from '@condo/domains/common/components/Tag'
@@ -17,12 +17,11 @@ interface IIntegrationPanelProps {
 
 const CardContainer = styled.div`
   position: relative;
-  height: 229px;
   box-sizing: border-box;
   border: 1px solid ${colors.lightGrey[5]};
   border-radius: 8px;
-  padding: 24px;
-  transition: all 0.2s ease-in-out;
+  padding: 29px 24px 80px 24px;
+  transition: ${transitions.elevateTransition};
   cursor: pointer;
   background-color: ${props => (props['data-status'] !== 'disabled' && props['data-status'] !== 'available') 
         ? colors.lightGrey[4] 
@@ -31,14 +30,6 @@ const CardContainer = styled.div`
     border-color: transparent;
     ${shadows.elevatedShadow}
   }
-`
-
-const TwoLineClamp = styled.div`
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  text-overflow: ellipsis;
 `
 
 export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
@@ -100,16 +91,18 @@ export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
                         {tagText}
                     </Tag>
                 )}
-                <TwoLineClamp style={{ marginTop: 5 }}>
-                    <Typography.Title level={4}>
-                        {title}
-                    </Typography.Title>
-                </TwoLineClamp>
-                <TwoLineClamp style={{ height: 48, marginTop: 8 }}>
-                    <Typography.Text style={{ lineHeight: '24px', fontSize: 16 }}>
-                        {shortDescription}
-                    </Typography.Text>
-                </TwoLineClamp>
+                <Row gutter={[0, 8]}>
+                    <Typography.Paragraph style={{ height: 56, margin: 0 }} ellipsis={{ rows: 2 }}>
+                        <Typography.Title level={4} style={{ margin: 0 }}>
+                            {title}
+                        </Typography.Title>
+                    </Typography.Paragraph>
+                    <Typography.Paragraph style={{ height: 48, margin: 0 }} ellipsis={{ rows: 2 }}>
+                        <Typography.Text style={{ lineHeight: '24px', fontSize: 16, margin: 0 }}>
+                            {shortDescription}
+                        </Typography.Text>
+                    </Typography.Paragraph>
+                </Row>
             </CardContainer>
         </Tooltip>
     )
