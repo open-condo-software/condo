@@ -53,13 +53,11 @@ async function updateTestResident (client, id, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        unitName: faker.random.alphaNumeric(3),
         ...extraAttrs,
     }
     const obj = await Resident.update(client, id, attrs)
     return [obj, attrs]
 }
-
 
 async function registerResidentByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -85,5 +83,6 @@ async function registerResidentByTestClient(client, extraAttrs = {}) {
 module.exports = {
     Resident, createTestResident, updateTestResident,
     registerResidentByTestClient,
+    softDeleteTestResident,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
