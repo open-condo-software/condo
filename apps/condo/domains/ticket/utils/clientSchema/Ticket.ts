@@ -72,15 +72,10 @@ function convertToGQLInput (state: ITicketFormState): TicketUpdateInput {
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        if (RELATIONS.includes(attr)) {
-            if (state[attr]) {
-                result[attr] = { connect: { id: (attrId || state[attr]) } }
-            // TODO(zuch): make this optional as not sure if contact on null should be disconnected
-            } else if (DISCONNECT_ON_NULL.includes(attr)) {
-                result[attr] = { disconnectAll: true }
-            } else {
-                result[attr] = state[attr]
-            }
+        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        // TODO(zuch): need better logic here (contact can be ocasionally deleted from ticket)
+        if (RELATIONS.includes(attr) && !state[attr] && !attrId && DISCONNECT_ON_NULL.includes(attr)) {
+            result[attr] = { disconnectAll: true }
         }
     }
     return result
