@@ -4,7 +4,7 @@ import { Rule } from 'rc-field-form/lib/interface'
 import React from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
-import { useIntl } from 'react-intl'
+import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 import { Button } from '@condo/domains/common/components/Button'
