@@ -1,9 +1,15 @@
 import get from 'lodash/get'
+import Router from 'next/router'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from '@core/next/auth'
 import { useApolloClient } from '@core/next/apollo'
 import { OnBoarding, OnBoardingStep } from '../utils/clientSchema'
 import { OnBoarding as IOnBoarding, OnBoardingStep as IOnBoardingStep } from '../../../schema'
+import {
+    Organization as OrganizationGql,
+    OrganizationEmployee as OrganizationEmployeeGql,
+} from '@condo/domains/organization/gql'
+import { Property as PropertyGql } from '@condo/domains/property/gql'
 
 interface OnBoardingContext {
     stepCompleted: boolean
@@ -23,27 +29,37 @@ export const OnBoardingProvider: React.FC = (props) => {
     const { user } = useAuth()
     const client = useApolloClient()
 
-    const { loading: onBoardingLoading, obj: onBoarding, error: onBoardingError } = OnBoarding
+    const { loading: onBoardingLoading, obj: onBoarding } = OnBoarding
         .useObject({ where: { user: { id: get(user, 'id') } } })
 
-    const { loading: stepsLoading, objs: onBoardingSteps, error: stepsError, refetch } = OnBoardingStep
-        .useObjects({ where: { onBoarding: { id: get(onBoarding, 'id') } } }, {
-            fetchPolicy: 'network-only',
-        })
+    const { loading: stepsLoading, objs: onBoardingSteps, refetch } = OnBoardingStep
+        .useObjects({ where: { onBoarding: { id: get(onBoarding, 'id') } } })
 
     const updateAction = OnBoardingStep.useUpdate({}, () => refetch())
 
-    useEffect(() => {
-        onBoardingSteps.forEach(async (step) => {
-            const { action, entity, id, completed } = step
+    const onBoardingQueriesMap = {
+        'create.Organization': OrganizationGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
+        'create.Property': PropertyGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
+        'create.OrganizationEmployee': OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
+    }
 
-            if (!completed) {
-                import(`../../${entity.toLowerCase()}/gql`).then((module) => {
-                    console.log(module)
-                })
-            }
-        })
-    }, [onBoardingSteps])
+    onBoardingSteps.forEach(async (step) => {
+        const { action, entity, completed } = step
+        const key = `${action}.${entity}`
+
+        const query = onBoardingQueriesMap[key]
+
+        if (!completed && query) {
+            client.watchQuery({ query }).result().then((res) => {
+                console.log(res)
+                if (res.data.objs.length > 0) {
+                    updateAction({ completed: true }, step).then(() => {
+                        refetch()
+                    })
+                }
+            })
+        }
+    })
 
     /*
     *
