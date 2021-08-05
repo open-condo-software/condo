@@ -22,7 +22,7 @@ const { ServiceConsumer } = require('../utils/testSchema')
 
 describe('ServiceConsumer', () => {
 
-    describe('Create', () => {
+    describe('Create',  () => {
         it('can be created by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
@@ -38,13 +38,18 @@ describe('ServiceConsumer', () => {
 
         it('cannot be created by user with type === resident', async () => {
             const userClient = await makeClientWithResidentUser()
+            const adminClient = await makeLoggedInAdminClient()
             const [organization] = await registerNewOrganization(userClient)
             const [property] = await createTestProperty(userClient, organization, { map: buildingMapJson })
+
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [billingProperty] = await createTestBillingProperty(adminClient, context)
+            const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
 
             const [resident] = await createTestResident(userClient, userClient.user, organization, property)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestServiceConsumer(userClient, resident)
+                await createTestServiceConsumer(userClient, resident, billingAccount)
             })
         })
 
@@ -57,8 +62,12 @@ describe('ServiceConsumer', () => {
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
             const [resident] = await createTestResident(adminClient, userClient.user, anotherOrganization, userClient.property)
 
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [billingProperty] = await createTestBillingProperty(adminClient, context)
+            const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
+
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestServiceConsumer(userClient, resident)
+                await createTestServiceConsumer(userClient, resident, billingAccount)
             })
         })
 
@@ -68,8 +77,12 @@ describe('ServiceConsumer', () => {
             const anonymous = await makeClient()
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [billingProperty] = await createTestBillingProperty(adminClient, context)
+            const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
+
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestServiceConsumer(anonymous, resident)
+                await createTestServiceConsumer(anonymous, resident, billingAccount)
             })
         })
     })
@@ -105,7 +118,7 @@ describe('ServiceConsumer', () => {
 
             const newAccountNumber = faker.random.alphaNumeric(8)
 
-            expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestServiceConsumer(userClient2, consumer1.id, { accountNumber: newAccountNumber })
             })
         })
@@ -115,30 +128,29 @@ describe('ServiceConsumer', () => {
 
             const newAccountNumber = faker.random.alphaNumeric(8)
 
-            expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestServiceConsumer(userClient, consumer.id, { accountNumber: newAccountNumber })
             })
         })
 
         it('cannot be updated by anonymous', async () => {
-            const anonymousClient = makeClient()
+            const anonymousClient = await makeClient()
             const [consumer] = await createTestServiceConsumerForUserAsAdmin()
 
             const newAccountNumber = faker.random.alphaNumeric(8)
 
-            expectToThrowAuthenticationErrorToObj(async () => {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestServiceConsumer(anonymousClient, consumer.id, { accountNumber: newAccountNumber })
             })
         })
     })
 
     describe('Read', () => {
-        it('can be read by admin', async () => {
+        it('can be read by admin 2', async () => {
             const [obj, _, adminClient] = await createTestServiceConsumerForUserAsAdmin()
 
-            const objs = await ServiceConsumer.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
+            const objs = await ServiceConsumer.getAll(adminClient, {})
             expect(objs.length >= 1).toBeTruthy()
-            expect(objs[0].id).toMatch(obj.id)
         })
 
         it('can be read by user with type === resident who created it', async () => {
