@@ -10,7 +10,7 @@ const gql = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const RESIDENT_FIELDS = `{ user { id name } organization { id } residentOrganization { id name } property { id } residentProperty { id name address } billingAccount { id } address addressMeta unitName ${COMMON_FIELDS} }`
+const RESIDENT_FIELDS = `{ user { id name } organization { id } residentOrganization { id name } property { id } residentProperty { id name address } address addressMeta unitName ${COMMON_FIELDS} }`
 const Resident = generateGqlQueries('Resident', RESIDENT_FIELDS)
 
 const REGISTER_RESIDENT_MUTATION = gql`
@@ -25,7 +25,7 @@ const ServiceConsumer = generateGqlQueries('ServiceConsumer', SERVICE_CONSUMER_F
 
 const REGISTER_CONSUMER_SERVICE_MUTATION = gql`
     mutation registerConsumerService ($data: RegisterConsumerServiceInput!) {
-        result: registerConsumerService(data: $data) { id }
+        result: registerConsumerService(data: $data) ${SERVICE_CONSUMER_FIELDS}
     }
 `
 
@@ -35,7 +35,6 @@ module.exports = {
     Resident,
     REGISTER_RESIDENT_MUTATION,
     ServiceConsumer,
-
     REGISTER_CONSUMER_SERVICE_MUTATION,
 
 /* AUTOGENERATE MARKER <EXPORTS> */

@@ -80,12 +80,10 @@ describe('Resident', () => {
 
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
-            const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
 
             const [propertyWithAnotherAddress] = await createTestProperty(userClient, userClient.organization, { map: buildingMapJson })
 
             const attrs = {
-                billingAccount: { connect: { id: billingAccount.id } },
                 address: userClient.property.address,
             }
 
@@ -168,11 +166,7 @@ describe('Resident', () => {
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
 
-            const fields = {
-                billingAccount: { connect: { id: billingAccount.id } },
-            }
-
-            const [obj, attrs] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, fields)
+            const [obj, attrs] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
             expect(obj.id).toMatch(UUID_RE)
             expect(obj.dv).toEqual(1)
             expect(obj.sender).toEqual(attrs.sender)
@@ -186,7 +180,6 @@ describe('Resident', () => {
             expect(obj.user.id).toEqual(userClient.user.id)
             expect(obj.organization.id).toEqual(userClient.organization.id)
             expect(obj.property.id).toEqual(userClient.property.id)
-            expect(obj.billingAccount.id).toEqual(billingAccount.id)
         })
 
         it('cannot be created by user', async () => {
