@@ -5,6 +5,7 @@
  */
 
 const faker = require('faker')
+const { get } = require('lodash')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { TICKET_STATUS_TYPES } = require('../../constants')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
@@ -235,7 +236,7 @@ async function createResidentTicketByTestClient(client, property, extraAttrs = {
         dv: 1,
         sender,
         details: faker.lorem.words(),
-        property: { connect: { id: property?.id } },
+        property: { connect: { id: get(property, 'id') } },
         source: { connect: { id: TICKET_MOBILE_SOURCE_ID } },
         ...extraAttrs,
     }

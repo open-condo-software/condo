@@ -8,6 +8,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/CreateResidentTicketService')
 const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
+const { get } = require('lodash')
 
 const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketService', {
     types: [
@@ -36,13 +37,13 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                 const { connect: { id: propertyId } } = PropertyRelateToOneInput
                 const [property] = await Property.getAll(context, { id: propertyId })
                 if (!property) throw Error(`${NOT_FOUND_ERROR}property] property not found`)
-                const organizationId = property.organization?.id
+                const organizationId = get(property, ['organization', 'id'])
                 const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
                 if (unitName && (!sectionName || !floorName)) throw Error(`${NOT_FOUND_ERROR}unitName] unitName not found`)
-                const user = context?.req?.user
+                const user = get(context, ['req', 'user'])
 
                 const [contact] = await Contact.getAll(context, {
-                    phone: user?.phone, organization: { id: organizationId }, property: { id: propertyId },
+                    phone: user.phone, organization: { id: organizationId }, property: { id: propertyId },
                 })
                 if (!contact) {
                     await Contact.create(context, {
@@ -51,9 +52,9 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                         organization: { connect: { id: organizationId } },
                         property: PropertyRelateToOneInput,
                         unitName,
-                        email: user?.email,
-                        phone: user?.phone,
-                        name: user?.name,
+                        email: user.email,
+                        phone: user.phone,
+                        name: user.name,
                     })
                 }
 

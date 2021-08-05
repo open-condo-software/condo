@@ -5,6 +5,7 @@ const { Ticket } = require('../utils/serverSchema')
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/UpdateResidentTicketService')
 const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
+const { get } = require('lodash')
 
 const UpdateResidentTicketService = new GQLCustomSchema('UpdateResidentTicketService', {
     types: [
@@ -21,10 +22,10 @@ const UpdateResidentTicketService = new GQLCustomSchema('UpdateResidentTicketSer
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { id: ticketId, data } = args
                 const { dv: newTicketDv, sender: newTicketSender, details } = data
-                const user = context.req?.user
+                const user = get(context, ['req', 'user'])
 
                 if (!user.isAdmin) {
-                    const [residentTicket] = await Ticket.getAll(context, { id: ticketId, client: { id: user?.id } })
+                    const [residentTicket] = await Ticket.getAll(context, { id: ticketId, client: { id: user.id } })
                     if (!residentTicket) throw Error(`${NOT_FOUND_ERROR}ticket] no ticket was found with this id for this user`)
                 }
 
