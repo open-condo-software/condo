@@ -3,7 +3,7 @@
  */
 
 const { makeClient } = require('@core/keystone/test.utils')
-const { catchErrorFrom, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@condo/domains/common/utils/testSchema')
+const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { updateTestUser } = require('@condo/domains/user/utils/testSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
@@ -33,9 +33,9 @@ describe('RegisterServiceConsumerService', () => {
             unitName: billingAccountAttrs.unitName,
             accountNumber: billingAccountAttrs.number,
         }
-        const [consumerId] = await registerServiceConsumerByTestClient(userClient, payload)
+        const out = await registerServiceConsumerByTestClient(userClient, payload)
 
-        expect(consumerId).not.toEqual(undefined)
+        expect(out).not.toEqual(undefined)
     })
 
     it('does not create b2b-integration serviceConsumer for not valid input as resident', async () => {
@@ -76,7 +76,7 @@ describe('RegisterServiceConsumerService', () => {
             accountNumber: 'test-number',
         }
 
-        await expectToThrowAccessDeniedErrorToResult(async () => {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await registerServiceConsumerByTestClient(userClient, payload)
         })
     })
@@ -91,7 +91,7 @@ describe('RegisterServiceConsumerService', () => {
             accountNumber: 'test-number',
         }
 
-        await expectToThrowAuthenticationErrorToResult(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await registerServiceConsumerByTestClient(userClient, payload)
         })
     })
