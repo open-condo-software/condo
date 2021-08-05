@@ -7,12 +7,11 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { HouseIcon } from '@condo/domains/common/components/icons/HouseIcon'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 import { OnBoardingStepItem, OnBoardingStepType } from '@condo/domains/onboarding/components/OnBoardingStepItem'
-import { OnBoarding, OnBoardingStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { CheckOutlined, WechatFilled, ProfileFilled, CreditCardFilled, BankOutlined } from '@ant-design/icons'
 import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
-import LoadingOrErrorPage from '../domains/common/components/containers/LoadingOrErrorPage'
+import { useOnBoardingContext } from '../domains/onboarding/components/OnBoardingContext'
 import { useCreateOrganizationModalForm } from '../domains/organization/hooks/useCreateOrganizationModalForm'
 import { useApplySubscriptionModal } from '../domains/subscription/hooks/useSubscriptionModal'
 import { IPageInterface } from '../next-env'
@@ -72,22 +71,14 @@ const OnBoardingPage: IPageInterface = () => {
     const Title = intl.formatMessage({ id: 'onboarding.title' })
     const SubTitle = intl.formatMessage({ id: 'onboarding.subtitle' })
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const { onBoardingSteps, onBoarding, isLoading } = useOnBoardingContext()
 
     const { user } = useAuth()
-
-    const { loading: onBordingLoading, obj: onBoarding, error: onBoardingError } = OnBoarding
-        .useObject({ where: { user: { id: get(user, 'id') } } })
-
-    const { loading: stepsLoading, objs: steps, error: stepsError, refetch } = OnBoardingStep
-        .useObjects({ where: { onBoarding: { id: get(onBoarding, 'id') } } }, {
-            fetchPolicy: 'network-only',
-        })
 
     const { setVisible: showApplySubscription, SubscriptionModal } = useApplySubscriptionModal()
     const { setVisible: showCreateOrganizationModal, ModalForm } = useCreateOrganizationModalForm({
         onFinish: () => {
             showApplySubscription(true)
-            refetch()
         },
     })
 
@@ -116,9 +107,9 @@ const OnBoardingPage: IPageInterface = () => {
         }
     }, [onBoarding])
 
-    const onBoardingSteps = useMemo(() => {
-        if (onBoarding && Array.isArray(steps) && steps.length > 0) {
-            return steps
+    const steps = useMemo(() => {
+        if (onBoarding && Array.isArray(onBoardingSteps) && onBoardingSteps.length > 0) {
+            return onBoardingSteps
                 .sort((leftStep, rightStep) => leftStep.order > rightStep.order ? 1 : -1)
                 .map((step) => {
                     const { title, description, icon } = step
@@ -131,20 +122,14 @@ const OnBoardingPage: IPageInterface = () => {
                             title={title}
                             description={description}
                             icon={step.completed ? CheckOutlined : onBoardingIconsMap[icon]}
-                            type={getStepType(step, get(onBoarding, 'stepsTransitions'), steps)}
+                            type={getStepType(step, get(onBoarding, 'stepsTransitions'), onBoardingSteps)}
                         />
                     )
                 })
         }
 
         return []
-    }, [steps, onBoarding])
-
-    if (onBoardingError || stepsError) {
-        return (
-            <LoadingOrErrorPage title={Title} error={ServerErrorMessage}/>
-        )
-    }
+    }, [onBoardingSteps, onBoarding])
 
     return (
         <>
@@ -162,7 +147,7 @@ const OnBoardingPage: IPageInterface = () => {
                                 </Space>
                             </Col>
                             <Col span={24}>
-                                {onBordingLoading || stepsLoading
+                                {isLoading
                                     ? (
                                         <React.Fragment>
                                             <Skeleton active/>
@@ -173,7 +158,7 @@ const OnBoardingPage: IPageInterface = () => {
                                     )
                                     : (
                                         <Row gutter={[0, 0]}>
-                                            {onBoardingSteps}
+                                            {steps}
                                         </Row>
                                     )}
                             </Col>
