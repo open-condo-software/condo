@@ -9,17 +9,13 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegrationOrganizationContext')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const {
+    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_STATUSES,
+    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
+} = require('../constants')
 
 // TODO(pahaz): move if after Organization refactoring
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
-
-// WARNING!
-// Changing this Array will resolve to creating mutation
-const BillingIntegrationOrganizationContextStatuses = [
-    'InProgress',
-    'Error',
-    'Finished',
-]
 
 const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrationOrganizationContext', {
     schemaDoc: 'Integration state and settings for all organizations. The existence of this object means that there is a configured integration between the `billing data source` and `this API`',
@@ -50,12 +46,12 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
         },
 
         status: {
-            schemaDoc: `Status of integration process. Can be: ${BillingIntegrationOrganizationContextStatuses.join(', ')}`,
+            schemaDoc: `Status of integration process. Can be: ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_STATUSES.join(', ')}`,
             type: Select,
             dataType: 'string',
             isRequired: true,
-            options: BillingIntegrationOrganizationContextStatuses,
-            defaultValue: BillingIntegrationOrganizationContextStatuses[0],
+            options: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_STATUSES,
+            defaultValue: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
         },
 
         state: {
