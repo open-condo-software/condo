@@ -18,6 +18,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 
 describe('BillingReceipt', () => {
+
     describe('Validators', async () => {
         test('organization integration manager: update BillingReceipt toPayDetail', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
@@ -318,18 +319,6 @@ describe('BillingReceipt', () => {
             const objs = await BillingReceipt.getAll(user, { id: billingAccount.id })
 
             expect(objs).toHaveLength(0)
-        })
-
-        test('anonymous cant read BillingReceipt', async () => {
-            const anonymous = await makeClient()
-            const admin = await makeLoggedInAdminClient()
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-            const [property] = await createTestBillingProperty(admin, context)
-            const [billingAccount] = await createTestBillingAccount(admin, context, property)
-
-            expectToThrowAccessDeniedErrorToObj(async () => {
-                await BillingReceipt.getAll(anonymous, { id: billingAccount.id })
-            })
         })
     })
 
