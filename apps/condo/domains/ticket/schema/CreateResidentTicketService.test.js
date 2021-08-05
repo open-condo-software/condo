@@ -18,8 +18,8 @@ describe('CreateResidentTicketService', () => {
     test('resident: can create resident ticket', async () => {
         const userClient = await makeClientWithResidentUserAndProperty()
 
-        const [data] = await createResidentTicketByTestClient(userClient, userClient.property)
-        expect(data.id).toMatch(UUID_RE)
+        const [ticket] = await createResidentTicketByTestClient(userClient, userClient.property)
+        expect(ticket.id).toMatch(UUID_RE)
     })
 
     test('resident: cannot create resident ticket with wrong unitName', async () => {

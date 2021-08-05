@@ -18,8 +18,9 @@ const {
 } = require('@condo/domains/ticket/gql')
 const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
-const { CREATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
+const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
 const { GET_ALL_RESIDENT_TICKETS_QUERY } = require('@condo/domains/ticket/gql')
+const { UPDATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -33,6 +34,7 @@ const TicketChange = generateGQLTestUtils(TicketChangeGQL)
 const TicketSource = generateGQLTestUtils(TicketSourceGQL)
 const TicketClassifier = generateGQLTestUtils(TicketClassifierGQL)
 const TicketComment = generateGQLTestUtils(TicketCommentGQL)
+const ResidentTicket = generateGQLTestUtils(ResidentTicketGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -238,20 +240,32 @@ async function createResidentTicketByTestClient(client, property, extraAttrs = {
         source: { connect: { id: TICKET_MOBILE_SOURCE_ID } },
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(CREATE_RESIDENT_TICKET_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.obj, attrs]
+    const obj = await ResidentTicket.create(client, attrs)
+    return [obj, attrs]
 }
 
-async function getAllResidentTicketsByTestClient(client, where = {}, first, skip, extraAttrs = {}) {
+// async function getAllResidentTicketsByTestClient(client, where = {}, first, skip, extraAttrs = {}) {
+//     if (!client) throw new Error('no client')
+//
+//     const attrs = {
+//         ...extraAttrs,
+//     }
+//     // const { data, errors } = await client.query(GET_ALL_RESIDENT_TICKETS_QUERY, { data: attrs, where, first, skip })
+//     // throwIfError(data, errors)
+//     // return [data.objs, attrs]
+// }
+
+async function updateResidentTicketByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
+        dv: 1,
+        sender,
         ...extraAttrs,
     }
-    const { data, errors } = await client.query(GET_ALL_RESIDENT_TICKETS_QUERY, { data: attrs, where, first, skip })
-    throwIfError(data, errors)
-    return [data.objs, attrs]
+    const obj = await ResidentTicket.update(client, id, attrs)
+    return [obj, attrs]
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 
@@ -268,6 +282,7 @@ module.exports = {
     TicketChange,
     TicketStatus,
     TicketSource,
+    ResidentTicket,
     createTestTicket,
     updateTestTicket,
     ticketStatusByType,
@@ -281,6 +296,7 @@ module.exports = {
     TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier,
     TicketComment, createTestTicketComment, updateTestTicketComment,
     createResidentTicketByTestClient,
-    getAllResidentTicketsByTestClient
+    // getAllResidentTicketsByTestClient,
+    updateResidentTicketByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

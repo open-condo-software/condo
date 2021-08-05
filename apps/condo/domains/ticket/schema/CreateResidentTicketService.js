@@ -13,7 +13,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
     types: [
         {
             access: true,
-            type: 'input CreateResidentTicketInput { dv: Int!, sender: JSON!, details: String!, source: TicketSourceRelateToOneInput!, property: PropertyRelateToOneInput!, unitName: String }',
+            type: 'input ResidentTicketCreateInput { dv: Int!, sender: JSON!, details: String!, source: TicketSourceRelateToOneInput!, property: PropertyRelateToOneInput!, unitName: String }',
         },
         {
             access: true,
@@ -21,7 +21,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                 'type ResidentTicketOutput { organization: Organization!, property: Property!, unitName: String,' +
                 'sectionName: String, floorName: String, number: Int!, client: User!, clientName: String,' +
                 'clientEmail: String, clientPhone: String, details: String!, related: Ticket, isEmergency: Boolean, status: TicketStatus!' +
-                'isPaid: Boolean, source: TicketSource!, id: String!, createdBy: User!, createdAt: String!, updatedAt: String, classifier: TicketClassifier,' +
+                'isPaid: Boolean, source: TicketSource!, id: ID!, createdAt: String!, updatedAt: String, classifier: TicketClassifier,' +
                 'dv: Int, sender: JSON, v: Int, deletedAt: String, newId: String }',
         },
     ],
@@ -29,7 +29,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
     mutations: [
         {
             access: access.canCreateResidentTicket,
-            schema: 'createResidentTicket(data: CreateResidentTicketInput!): ResidentTicketOutput',
+            schema: 'createResidentTicket(data: ResidentTicketCreateInput): ResidentTicketOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
                 const { dv: newTicketDv, sender: newTicketSender, details, source, property: PropertyRelateToOneInput, unitName } = data
