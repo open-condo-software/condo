@@ -226,6 +226,48 @@ describe('Resident', () => {
     })
 
     describe('Update', () => {
+        it('cannot be updated by changing address, addressMeta, property or unitName', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+
+            await catchErrorFrom(async () => {
+                const payload = {
+                    unitName: faker.random.alphaNumeric(3),
+                }
+                await updateTestResident(adminClient, obj.id, payload)
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                expect(errors[0].data.messages[0]).toMatch('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
+                expect(data).toEqual({ 'obj': null })
+            })
+
+            await catchErrorFrom(async () => {
+                const payload = {
+                    address: faker.lorem.words(),
+                }
+                await updateTestResident(adminClient, obj.id, payload)
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                expect(errors[0].data.messages[0]).toMatch('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
+                expect(data).toEqual({ 'obj': null })
+            })
+
+            await catchErrorFrom(async () => {
+                const [property] = await createTestProperty(userClient, userClient.organization, { map: buildingMapJson })
+                // `property` should correspond to `address` to not overlap with another test case of `property` validation with will cause error "Cannot connect property, because its address differs from address of resident"
+                const payload = {
+                    address: property.address,
+                    property: { connect: { id: property.id } },
+                }
+                await updateTestResident(adminClient, obj.id, payload)
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                expect(errors[0].data.messages[0]).toMatch('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
         it('can be updated by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
