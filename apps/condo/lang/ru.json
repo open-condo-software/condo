@@ -117,6 +117,7 @@
   "component.statscard.periodtypes.Week": "неделю",
   "component.statscard.periodtypes.Month": "месяц",
   "component.statscard.periodtypes.Quarter": "квартал",
+  "component.statscard.periodtypes.Year": "год",
   "component.statscard.ExtraTitle": "Подробнее",
   "component.ticketswidget.Title": "Заявки за",
   "Name": "Имя",

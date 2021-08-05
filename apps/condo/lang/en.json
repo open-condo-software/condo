@@ -117,6 +117,7 @@
   "component.statscard.periodtypes.Week": "week",
   "component.statscard.periodtypes.Month": "month",
   "component.statscard.periodtypes.Quarter": "quarter",
+  "component.statscard.periodtypes.Year": "year",
   "component.statscard.ExtraTitle": "More details",
   "component.ticketswidget.Title": "Tickets for the",
   "Name": "Name",
