@@ -38,7 +38,7 @@ describe('RegisterServiceConsumerService', () => {
         expect(out).not.toEqual(undefined)
     })
 
-    it('does not create b2b-integration serviceConsumer for not valid input as resident', async () => {
+    it('does not create b2b-integration serviceConsumer for not valid unit name', async () => {
 
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
@@ -61,6 +61,86 @@ describe('RegisterServiceConsumerService', () => {
 
         await catchErrorFrom(async () => {
             await registerServiceConsumerByTestClient(userClient, payload)
+        }, (e) => {
+            expect(e.message).not.toEqual(undefined)
+        })
+    })
+
+    it('does not create b2b-integration serviceConsumer for not valid account number', async () => {
+
+        const userClient = await makeClientWithProperty()
+        const adminClient = await makeLoggedInAdminClient()
+
+        const [integration] = await createTestBillingIntegration(adminClient)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+        const [billingProperty] = await createTestBillingProperty(adminClient, context)
+        const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+
+        await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+            unitName: billingAccountAttrs.unitName,
+        })
+
+        const payload = {
+            residentId: resident.id,
+            unitName: billingAccountAttrs.unitName,
+            accountNumber: billingAccountAttrs.number + 'not-valid-buddy',
+        }
+
+        await catchErrorFrom(async () => {
+            await registerServiceConsumerByTestClient(userClient, payload)
+        }, (e) => {
+            expect(e.message).not.toEqual(undefined)
+        })
+    })
+
+    it('does not create b2b-integration serviceConsumer for nullish data', async () => {
+
+        const userClient = await makeClientWithProperty()
+        const adminClient = await makeLoggedInAdminClient()
+
+        const [integration] = await createTestBillingIntegration(adminClient)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+        const [billingProperty] = await createTestBillingProperty(adminClient, context)
+        const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+
+        await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+            unitName: billingAccountAttrs.unitName,
+        })
+
+        const payloadWithNullishAccountName = {
+            residentId: resident.id,
+            unitName: billingAccountAttrs.unitName,
+            accountNumber: '',
+        }
+
+        await catchErrorFrom(async () => {
+            await registerServiceConsumerByTestClient(userClient, payloadWithNullishAccountName)
+        }, (e) => {
+            expect(e.message).not.toEqual(undefined)
+        })
+
+        const payloadWithNullishUnitName = {
+            residentId: resident.id,
+            unitName: billingAccountAttrs.unitName,
+            accountNumber: '',
+        }
+
+        await catchErrorFrom(async () => {
+            await registerServiceConsumerByTestClient(userClient, payloadWithNullishUnitName)
+        }, (e) => {
+            expect(e.message).not.toEqual(undefined)
+        })
+
+        const payloadWithNullishUnitNameAndAccountName = {
+            residentId: resident.id,
+            unitName: billingAccountAttrs.unitName,
+            accountNumber: '',
+        }
+
+        await catchErrorFrom(async () => {
+            await registerServiceConsumerByTestClient(userClient, payloadWithNullishUnitNameAndAccountName)
         }, (e) => {
             expect(e.message).not.toEqual(undefined)
         })
