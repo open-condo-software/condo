@@ -18,7 +18,6 @@ async function registerResident (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write registerResident serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: REGISTER_RESIDENT_MUTATION,
@@ -27,12 +26,13 @@ async function registerResident (context, data) {
         dataPath: 'obj',
     })
 }
+
+
 const ServiceConsumer = generateServerUtils(ServiceConsumerGQL)
 async function registerConsumerService (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write registerConsumerService serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: REGISTER_CONSUMER_SERVICE_MUTATION,
