@@ -60,17 +60,6 @@ const FocusWrapper = styled.div`
 
 export const FocusElement: React.FC = ({ children }) => {
     const router = useRouter()
-    const client = useApolloClient()
-
-    console.log(OrganizationGQL.GET_ALL_OBJS_QUERY)
-
-    client.watchQuery({
-        query: OrganizationGQL.GET_ALL_OBJS_QUERY,
-        fetchPolicy: 'network-only',
-    }).result().then((res) => {
-        console.log(res)
-    })
-
     const { query } = router
 
     return (

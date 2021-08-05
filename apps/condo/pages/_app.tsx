@@ -2,7 +2,6 @@
 // @ts-nocheck
 import React from 'react'
 import Head from 'next/head'
-import getConfig from 'next/config'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import { ThunderboltFilled, HomeFilled, PieChartFilled, SettingFilled, ApiFilled } from '@ant-design/icons'
@@ -23,6 +22,7 @@ import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
+import { OnBoardingProvider } from '../domains/onboarding/components/OnBoardingContext'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { SubscriptionContextProvider } from '../domains/subscription/components/SubscriptionContext'
@@ -102,9 +102,11 @@ const MyApp = ({ Component, pageProps }) => {
                     </Head>
                     <GlobalStyle/>
                     <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
-                        <RequiredAccess>
-                        <Component {...pageProps} />
-                    </RequiredAccess>
+                        <OnBoardingProvider>
+                            <RequiredAccess>
+                                <Component {...pageProps} />
+                            </RequiredAccess>
+                        </OnBoardingProvider>
                     </LayoutComponent>
                     <GoogleAnalytics/>
                     <BehaviorRecorder engine="plerdy"/>

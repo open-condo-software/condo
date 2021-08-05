@@ -13,7 +13,7 @@ import { OnBoardingStep, OnBoardingStepUpdateInput, QueryAllOnBoardingStepsArgs 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'icon', 'title', 'description', 'action', 'entity', 'onBoarding', 'completed', 'order', 'required']
 const RELATIONS = ['onBoarding']
 
-export interface IOnBoardingStepUIState extends OnBoardingStep {
+export interface IOnBoardingStepUIState extends Partial<OnBoardingStep> {
     id: string
     // TODO(codegen): write IOnBoardingStepUIState or extends it from
 }
