@@ -3,7 +3,7 @@
  */
 
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { createTestOrganizationEmployee, makeClientWithOrganization } = require('../utils/testSchema')
+const { createTestOrganizationEmployee } = require('../utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
@@ -12,6 +12,7 @@ const { OrganizationEmployeeRole, createTestOrganizationEmployeeRole, updateTest
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { getTranslations, getAvailableLocales } = require('@condo/domains/common/utils/localesLoader')
 const { DEFAULT_ROLES } = require('../constants/common')
+const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Organization')
 
 describe('OrganizationEmployeeRole', () => {
     describe('user: create OrganizationEmployeeRole', () => {
@@ -209,7 +210,7 @@ describe('OrganizationEmployeeRole', () => {
         
         const translations = getTranslations(locale)
 
-        const client = await makeClientWithOrganization()
+        const client = await makeClientWithRegisteredOrganization()
         client.setHeaders({
             'Accept-Language': locale,
         })
@@ -217,7 +218,6 @@ describe('OrganizationEmployeeRole', () => {
         const defaultRolesInstances = await OrganizationEmployeeRole.getAll(client, {
             organization: { id: client.organization.id },
         })
-
         Object.values(DEFAULT_ROLES).forEach(staticRole => {
             const nameTranslation = translations[staticRole.name]
             const descriptionTranslation = translations[staticRole.description]

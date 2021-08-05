@@ -12,6 +12,7 @@ class LocalizedText extends Text.implementation {
             throw new Error(`Provide template id from language dictionary for localized text field: ${this.listKey}.${this.path}. Example: "employee.role.title.*'`)
         }
     }
+
     gqlOutputFieldResolvers () {
         return {
             [this.path]: (item, args, context, info) => {
@@ -27,6 +28,7 @@ class LocalizedText extends Text.implementation {
         }
     }
 }
+
 module.exports = {
     LocalizedText,
 }

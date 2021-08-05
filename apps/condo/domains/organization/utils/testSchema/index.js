@@ -11,7 +11,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, registerNewUser } = require 
 const { makeLoggedInAdminClient, makeLoggedInClient } = require ('@core/keystone/test.utils');
 
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-const { Organization: OrganizationGQL, OrganizationEmployee: OrganizationEmployeeGQL, OrganizationEmployeeRole: OrganizationEmployeeRoleGQL, REGISTER_NEW_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
+const { Organization: OrganizationGQL, OrganizationEmployee: OrganizationEmployeeGQL, OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@condo/domains/organization/gql')
 const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql');
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -20,39 +20,6 @@ const Organization = generateGQLTestUtils(OrganizationGQL)
 const OrganizationEmployee = generateGQLTestUtils(OrganizationEmployeeGQL)
 const OrganizationLink = generateGQLTestUtils(OrganizationLinkGQL)
 /* AUTOGENERATE MARKER <CONST> */
-
-async function makeClientWithOrganization (extraAttrs = {}) {
-    const client = await makeLoggedInClient()
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric (8) }
-    const country = DEFAULT_ENGLISH_COUNTRY
-    const name = faker.company.companyName()
-    const description = faker.company.catchPhrase()
-    const meta = {
-        dv: 1,
-        inn: faker.random.alphaNumeric(10),
-        kpp: faker.random.alphaNumeric(9),
-        city: faker.address.city(),
-        zipCode: faker.address.zipCode(),
-        street: faker.address.streetName(),
-        number: faker.address.secondaryAddress(),
-        country: faker.address.country(),
-    }
-    const attrs = {
-        dv: 1,
-        sender,
-        country,
-        name,
-        description,
-        meta,
-        ...extraAttrs,
-    }
-    const { data: { obj } } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
-        data: attrs
-    })
-    client.organization = obj
-
-    return client
-}
 
 async function createTestOrganization (client, extraAttrs = {}) {
     if (!client) throw new Error ('no client')
@@ -275,7 +242,6 @@ module.exports = {
     makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
     updateTestOrganizationEmployee, createTestOrganizationWithAccessToAnotherOrganization,
     OrganizationLink, createTestOrganizationLink, updateTestOrganizationLink,
-    makeClientWithOrganization,
 }
 
     /* AUTOGENERATE MARKER <EXPORTS> */
