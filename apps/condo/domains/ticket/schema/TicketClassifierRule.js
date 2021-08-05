@@ -27,7 +27,7 @@ const TicketClassifierRule = new GQLListSchema('TicketClassifierRule', {
             ref: 'TicketCategoryClassifier',
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
-        description: {
+        problem: {
             schemaDoc: 'What needs to be done',
             type: Relationship,
             ref: 'TicketProblemClassifier',

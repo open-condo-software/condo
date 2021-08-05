@@ -71,6 +71,13 @@ export function useTicketValidations (): IFormFieldsRuleMap {
                 message: intl.formatMessage({ id: 'field.Classifier.requiredError' }),
             },
         ],
+        details: [
+            {
+                required: true,
+                min: 20,
+                message: intl.formatMessage({ id: 'field.Description.lengthError' }),
+            },
+        ],
         executor: [],
         assignee: [
             {

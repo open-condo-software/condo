@@ -303,7 +303,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                         </Row>
                                                                     </Col>
                                                                     <Col span={24}>
-                                                                        <Form.Item name={'details'} label={DescriptionLabel}>
+                                                                        <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
                                                                             <InputWithCounter
                                                                                 InputComponent={Input.TextArea}
                                                                                 currentLength={currentDetailsLength}
