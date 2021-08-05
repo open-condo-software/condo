@@ -18,6 +18,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 
 const { Resident, createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const { softDeleteTestResident } = require('../utils/testSchema')
 
 describe('Resident', () => {
 
@@ -334,6 +335,21 @@ describe('Resident', () => {
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await Resident.delete(anonymousClient, obj.id)
             })
+        })
+
+        it('can be soft-deleted using update operation', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+
+            const [objUpdated, attrs] = await softDeleteTestResident(adminClient, obj.id)
+
+            expect(objUpdated.id).toEqual(obj.id)
+            expect(objUpdated.dv).toEqual(1)
+            expect(objUpdated.sender).toEqual(attrs.sender)
+            expect(objUpdated.deletedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
         })
     })
 })
