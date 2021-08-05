@@ -91,13 +91,11 @@ const OnBoardingPage: IPageInterface = () => {
         creditCard: CreditCardFilled,
     }
 
-    const onBoardingActionMap = useMemo(() => {
-        return {
-            'create.Organization': () => showCreateOrganizationModal(true),
-            'create.Property': () => Router.push('property/create'),
-            'create.OrganizationEmployee': () => Router.push('employee/create'),
-        }
-    }, [])
+    const onBoardingActionMap = {
+        'create.Organization': () => showCreateOrganizationModal(true),
+        'create.Property': () => Router.push('property/create'),
+        'create.OrganizationEmployee': () => Router.push('employee/create'),
+    }
 
     useEffect(() => {
         const isOnBoardingCompleted = get(onBoarding, 'completed')
