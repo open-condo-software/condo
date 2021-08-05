@@ -59,6 +59,21 @@ async function updateTestResident (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function softDeleteTestResident (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        deletedAt: 'true',
+        ...extraAttrs,
+    }
+    const obj = await Resident.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 async function registerResidentByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
