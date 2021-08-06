@@ -129,7 +129,7 @@ describe('Resident', () => {
         })
 
         describe('residentProperty', () => {
-            it('returns id and name of related property', async () => {
+            it('returns id, name and address of related property', async () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
 
@@ -139,7 +139,8 @@ describe('Resident', () => {
                 expect(obj.residentProperty).toBeDefined()
                 expect(obj.residentProperty.id).toEqual(userClient.property.id)
                 expect(obj.residentProperty.name).toEqual(userClient.property.name)
-                expect(Object.keys(obj.residentProperty).length).toEqual(2)
+                expect(obj.residentProperty.address).toEqual(userClient.property.address)
+                expect(Object.keys(obj.residentProperty).length).toEqual(3)
             })
 
             it('returns null if no related property', async () => {
