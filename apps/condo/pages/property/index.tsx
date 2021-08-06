@@ -38,12 +38,12 @@ import { TitleHeaderAction } from '@condo/domains/common/components/HeaderAction
 import { useOrganization  } from '@core/next/organization'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
-export const PropertyPageViewMap = ({ propertyWhereQuery }): React.FC => {
+export const PropertyPageViewMap = ({ searchPropertyQuery }): React.FC => {
     const {
         objs: properties,
     } = Property.useObjects({
         where: {
-            ...propertyWhereQuery(),
+            ...searchPropertyQuery(),
         },
     }, {
         fetchPolicy: 'network-only',
@@ -66,7 +66,7 @@ export const PropertyPageViewMap = ({ propertyWhereQuery }): React.FC => {
     )
 }
 
-export const PropertyPageViewTable = ({ propertyWhereQuery, role }): React.FC => {
+export const PropertyPageViewTable = ({ searchPropertyQuery, role }): React.FC => {
     const intl = useIntl()
 
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
@@ -99,7 +99,7 @@ export const PropertyPageViewTable = ({ propertyWhereQuery, role }): React.FC =>
         sortBy: sortFromQuery,
         where: {
             ...filtersToQuery(filtersFromQuery),
-            ...propertyWhereQuery(),
+            ...searchPropertyQuery(),
         },
         skip: (offsetFromQuery * PROPERTY_PAGE_SIZE) - PROPERTY_PAGE_SIZE,
         first: PROPERTY_PAGE_SIZE,
@@ -251,7 +251,7 @@ const PropertyPage = (): React.FC => {
 
     const { organization, link } = useOrganization()
 
-    const propertyWhereQuery = () => (
+    const searchPropertyQuery = () => (
         { organization: { id: organization.id } }
     )
 
@@ -276,13 +276,13 @@ const PropertyPage = (): React.FC => {
                         </Col>
                         <Col span={24}>
                             {
-                                viewMode !== 'map' ? <PropertyPageViewTable propertyWhereQuery={propertyWhereQuery} role={link.role} /> : null
+                                viewMode !== 'map' ? <PropertyPageViewTable searchPropertyQuery={searchPropertyQuery} role={link.role} /> : null
                             }
                         </Col>
                     </Row>
                     <>
                         {
-                            viewMode === 'map' ? <PropertyPageViewMap propertyWhereQuery={propertyWhereQuery} /> : null
+                            viewMode === 'map' ? <PropertyPageViewMap searchPropertyQuery={searchPropertyQuery} /> : null
                         }
                     </>
                 </PageContent>
