@@ -7,7 +7,7 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import ReactECharts from 'echarts-for-react'
 import { AnalyticsDataType, ViewModeTypes } from '@condo/domains/ticket/components/TicketChart'
 import { ticketChartDataMapper } from '@condo/domains/ticket/utils/helpers'
-import { COLOR_SET } from '@condo/domains/common/constants/style'
+import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
 
 export interface ITicketAnalyticsPageWidgetProps {
     data: null | AnalyticsDataType
@@ -40,7 +40,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     const { series, legend, axisData, tooltip } = ticketChartDataMapper.getChartConfig(viewMode, data)
     const option = {
         animation: animationEnabled,
-        color: COLOR_SET,
+        color: CHART_COLOR_SET,
         tooltip,
         legend: {
             data: legend,
