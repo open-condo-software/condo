@@ -9,7 +9,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/billing/access/GetBillingReceiptsForServiceConsumerService')
 
 
-const GetBillingReceiptsForServiceConsumer = new GQLCustomSchema('GetBillingReceiptsForServiceConsumerService', {
+const AllBillingReceiptsForServiceConsumer = new GQLCustomSchema('GetBillingReceiptsForServiceConsumerService', {
     types: [
         {
             access: true,
@@ -24,7 +24,7 @@ const GetBillingReceiptsForServiceConsumer = new GQLCustomSchema('GetBillingRece
     queries: [
         {
             access: access.canGetBillingReceiptsForServiceConsumer,
-            schema: 'executeBillingReceiptsForServiceConsumer (data: BillingReceiptsForServiceConsumerInput!): BillingReceiptsForServiceConsumerOutput',
+            schema: 'allBillingReceiptsForServiceConsumer (data: BillingReceiptsForServiceConsumerInput!): BillingReceiptsForServiceConsumerOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { serviceConsumerId } = args
 
@@ -55,5 +55,5 @@ const GetBillingReceiptsForServiceConsumer = new GQLCustomSchema('GetBillingRece
 })
 
 module.exports = {
-    GetBillingReceiptsForServiceConsumer,
+    AllBillingReceiptsForServiceConsumer,
 }

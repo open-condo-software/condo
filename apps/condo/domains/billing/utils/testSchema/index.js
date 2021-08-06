@@ -28,7 +28,7 @@ const { BillingAccountMeter: BillingAccountMeterGQL } = require('@condo/domains/
 const { BillingAccountMeterReading: BillingAccountMeterReadingGQL } = require('@condo/domains/billing/gql')
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
-const { BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY } = require('@condo/domains/billing/gql')
+const { ALL_BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -410,8 +410,6 @@ async function updateTestBillingReceipt (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestBillingReceipt logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -445,8 +443,6 @@ async function updateTestBillingOrganization (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestBillingOrganization logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -466,7 +462,7 @@ async function getBillingReceiptsForServiceConsumerByTestClient(client, serviceC
         serviceConsumerId,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY, { data: attrs })
+    const { data, errors } = await client.mutate(ALL_BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
