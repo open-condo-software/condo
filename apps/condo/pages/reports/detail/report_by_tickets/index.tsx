@@ -10,20 +10,15 @@ import {
     Col,
     Radio,
     Row,
-    Table,
     Typography,
     Tabs,
-    Skeleton,
     Divider,
     Select,
-    TableColumnsType,
     Tooltip, Form, notification,
 } from 'antd'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import ReactECharts from 'echarts-for-react'
-import { colors } from '@condo/domains/common/constants/style'
 import { TICKET_ANALYTICS_REPORT_MUTATION } from '@condo/domains/ticket/gql'
 import { useLazyQuery } from '@core/next/apollo'
 
@@ -36,37 +31,20 @@ import RadioGroupWithIcon, { radioButtonBorderlessCss } from '@condo/domains/com
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import DateRangePicker from '@condo/domains/common/components/DateRangePicker'
-import TicketChart, {
-    viewModeTypes,
-    AnalyticsDataType,
-    ticketSelectTypes,
-} from '@condo/domains/ticket/components/TicketChart'
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { ViewModeTypes, TicketSelectTypes } from '@condo/domains/ticket/components/TicketChart'
 import { filterToQuery, specificationTypes, ticketAnalyticsPageFilters } from '@condo/domains/ticket/utils/helpers'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
+import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
+import { DATE_DISPLAY_FORMAT } from '@condo/domains/ticket/constants/common'
 
 interface ITicketAnalyticsPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
 }
-interface ITicketAnalyticsPageWidgetProps {
-    data: null | AnalyticsDataType
-    viewMode: viewModeTypes
-    loading?: boolean
-}
-interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps {
-    onChartReady?: () => void
-    chartConfig: {
-        animationEnabled: boolean
-        chartOptions?: ReactECharts['props']['opts']
-    }
-}
 
-interface ITicketAnalyticsPageListViewProps extends ITicketAnalyticsPageWidgetProps {
-    filters: null | ticketAnalyticsPageFilters
-}
 interface ITicketAnalyticsPageFilterProps {
     onChange?: ({ range, specification, addressList }: ticketAnalyticsPageFilters) => void
 }
@@ -85,15 +63,7 @@ const DATE_RANGE_PRESETS = {
     year: [moment().subtract(1, 'year'), moment()],
 }
 type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
-
-const DATE_DISPLAY_FORMAT = 'DD.MM.YYYY'
-const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5], colors.volcano[5], colors.purple[5],
-    colors.lime[7], colors.sberGrey[7], colors.magenta[5], colors.blue[4], colors.gold[6], colors.cyan[6],
-    colors.blue[7], colors.volcano[6], colors.green[5], colors.geekblue[7], colors.sberGrey[7], colors.gold[7],
-    colors.magenta[7], colors.yellow[5], colors.lime[7], colors.blue[8], colors.cyan[5], colors.yellow[6],
-    colors.purple[7], colors.lime[8], colors.red[6] ]
 const SPECIFICATIONS = ['day', 'week']
-
 const tabsCss = css`
   & .ant-tabs-tab.ant-tabs-tab-active {
     font-weight: bold;
@@ -105,242 +75,6 @@ const tabsCss = css`
     border-bottom: unset;
   }
 `
-
-const ticketChartDataMapper = new TicketChart({
-    line: {
-        chart: (viewMode, data) => {
-            const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
-            const legend = Object.keys(data)
-            const series = []
-            Object.entries(data).map(([groupBy, dataObj]) => {
-                series.push({
-                    name: groupBy,
-                    type: viewMode,
-                    symbol: 'none',
-                    stack: groupBy,
-                    data: Object.values(dataObj),
-                    emphasis: {
-                        focus: 'none',
-                        blurScope: 'none',
-                    },
-                })
-            })
-            const axisData = { yAxis: { type: 'value', data: null }, xAxis: { type: 'category', data: axisLabels } }
-            const tooltip = { trigger: 'axis', axisPointer: { type: 'line' } }
-            return { series, legend, axisData, tooltip }
-        },
-        table: (viewMode, data, restOptions) => {
-            const dataSource = []
-            const { translations, filters } = restOptions
-            const tableColumns: TableColumnsType = [
-                { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
-                {
-                    title: translations['date'],
-                    dataIndex: 'date',
-                    key: 'date',
-                    defaultSortOrder: 'descend',
-                    sorter: (a, b) => moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
-                },
-                ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) =>a[key] - b[key] })),
-            ]
-            const uniqueDates = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
-            uniqueDates.forEach((date, key) => {
-                const restTableColumns = {}
-                Object.keys(data).forEach(ticketType => (restTableColumns[ticketType] = data[ticketType][date]))
-                let address = translations['allAddresses']
-                const addressList = get(filters, 'addresses')
-                if (addressList && addressList.length) {
-                    address = addressList.join(', ')
-                }
-                dataSource.push({ key, address, date, ...restTableColumns })
-            })
-            return { dataSource, tableColumns }
-        },
-    },
-    bar: {
-        chart: (viewMode, data) => {
-            const series = []
-            const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
-            const legend = Object.keys(data)
-            Object.entries(data).map(([groupBy, dataObj]) => {
-                series.push({
-                    name: groupBy,
-                    type: viewMode,
-                    symbol: 'none',
-                    stack: 'total',
-                    data: Object.values(dataObj),
-                    emphasis: {
-                        focus: 'self',
-                        blurScope: 'self',
-                    },
-                })
-            })
-            const axisData = { yAxis: { type: 'category', data: axisLabels }, xAxis: { type: 'value', data: null } }
-            const tooltip = { trigger: 'item', axisPointer: { type: 'line' } }
-            return { series, legend, axisData, tooltip }
-        },
-        table: (viewMode, data, restOptions) => {
-            const { translations, filters } = restOptions
-            const dataSource = []
-            const tableColumns: TableColumnsType = [
-                { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
-                ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
-            ]
-            const restTableColumns = {}
-            const addressList = get(filters, 'addresses')
-            const aggregateSummary = addressList !== undefined && addressList.length === 0
-            if (aggregateSummary) {
-                Object.entries(data).forEach((rowEntry) => {
-                    const [ticketType, dataObj] = rowEntry
-                    const counts = Object.values(dataObj) as number[]
-                    restTableColumns[ticketType] = counts.reduce((a, b) => a + b, 0)
-                })
-                dataSource.push({
-                    key: 0,
-                    address: translations['allAddresses'],
-                    ...restTableColumns,
-                })
-            } else {
-                addressList.forEach((address, key) => {
-                    const tableRow = { key, address }
-                    Object.entries(data).forEach(rowEntry => {
-                        const [ticketType, dataObj] = rowEntry
-                        const counts = Object.entries(dataObj)
-                            .filter(obj => obj[0] === address).map(e => e[1]) as number[]
-                        tableRow[ticketType] = counts.reduce((a, b) => a + b, 0)
-                    })
-                    dataSource.push(tableRow)
-                })
-            }
-            return { dataSource, tableColumns }
-        },
-
-    },
-})
-
-// TODO(sitozzz): move to separate component & make more abstract
-const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
-    children,
-    data,
-    viewMode,
-    loading = false,
-    onChartReady,
-    chartConfig,
-}) => {
-    const intl = useIntl()
-    const NoData = intl.formatMessage({ id: 'NoData' })
-    if (data === null) {
-        return <Skeleton loading={loading} active paragraph={{ rows: 6 }} />
-    }
-    const { animationEnabled, chartOptions } = chartConfig
-    const { series, legend, axisData, tooltip } = ticketChartDataMapper.getChartConfig(viewMode, data)
-    const option = {
-        animation: animationEnabled,
-        color: COLOR_SET,
-        tooltip,
-        legend: {
-            data: legend,
-            x: 'left',
-            top: 10,
-            padding: [5, 135, 0, 0],
-            icon: 'circle',
-            itemWidth: 7,
-            itemHeight: 7,
-            itemGap: 28,
-            textStyle: {
-                fontSize: '16px',
-            },
-        },
-        grid: {
-            left: 0,
-            right: 0,
-            bottom: 0,
-            containLabel: true,
-            borderWidth: 1,
-        },
-        ...axisData,
-        series,
-    }
-
-    const isEmptyDataSet = Object.values(data).every(ticketStatus => {
-        if (viewMode === 'line') {
-            return isEmpty(ticketStatus)
-        }
-        return Object.values(ticketStatus).every(count => count === 0)
-    }) && !loading
-    const chartHeight = get(chartOptions, 'height', 'auto')
-    const chartStyle = {}
-    if (chartHeight !== 'auto') {
-        chartStyle['height'] = chartHeight
-    }
-
-    if (viewMode === 'bar' && chartHeight === 'auto') {
-        const axisLabels = get(axisData, 'yAxis.data')
-        if (axisLabels && axisLabels.length > 5) {
-            chartStyle['height'] = axisLabels.length * 50
-        }
-    }
-
-    return <Typography.Paragraph style={{ position: 'relative' }}>
-        {isEmptyDataSet ? (
-            <Typography.Paragraph>
-                <BasicEmptyListView>
-                    <Typography.Text>{NoData}</Typography.Text>
-                </BasicEmptyListView>
-                {children}
-            </Typography.Paragraph>
-        ) : (
-            <>
-                <ReactECharts
-                    opts={{ ...chartOptions, renderer: 'svg', height: chartHeight }}
-                    onChartReady={onChartReady}
-                    notMerge
-                    showLoading={loading}
-                    style={{ ...chartStyle }}
-                    option={option}/>
-                {children}
-            </>
-        )}
-
-    </Typography.Paragraph>
-}
-
-const TicketAnalyticsPageListView: React.FC<ITicketAnalyticsPageListViewProps> = ({
-    loading = false,
-    data,
-    viewMode,
-    filters }) => {
-    const intl = useIntl()
-    const DateTitle = intl.formatMessage({ id: 'Date' })
-    const AddressTitle = intl.formatMessage({ id: 'field.Address' })
-    const AllAddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses' })
-    if (data === null || filters === null) {
-        return <Skeleton loading={loading} active paragraph={{ rows: 10 }} />
-    }
-    const restOptions = {
-        translations: {
-            date: DateTitle,
-            address: AddressTitle,
-            allAddresses: AllAddressTitle,
-        },
-        filters: {
-            addresses: filters.addressList.map(({ value }) => value),
-        },
-    }
-    const { tableColumns, dataSource } = ticketChartDataMapper.getTableConfig(viewMode, data, restOptions)
-    return (
-        <Table
-            bordered
-            tableLayout={'fixed'}
-            scroll={{ scrollToFirstRowOnChange: false }}
-            loading={loading}
-            dataSource={dataSource}
-            columns={tableColumns as TableColumnsType}
-            pagination={false}
-        />
-    )
-}
-
 
 const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ onChange }) => {
     const router = useRouter()
@@ -499,11 +233,11 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 
     const filtersRef = useRef(null)
     const [groupTicketsBy, setGroupTicketsBy] = useState<groupTicketsByTypes>('status')
-    const [viewMode, setViewMode] = useState<viewModeTypes>('line')
+    const [viewMode, setViewMode] = useState<ViewModeTypes>('line')
     const [analyticsData, setAnalyticsData] = useState(null)
     const [loading, setLoading] = useState<boolean>(false)
 
-    const [ticketType, setTicketType] = useState<ticketSelectTypes>('all')
+    const [ticketType, setTicketType] = useState<TicketSelectTypes>('all')
     const [dateFrom, dateTo] = filtersRef.current !== null ? filtersRef.current.range : []
     const selectedPeriod = filtersRef.current !== null ? filtersRef.current.range.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
     const selectedAddresses = filtersRef.current !== null ? filtersRef.current.addressList : []
@@ -616,7 +350,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                     </Col>
                     <Col span={24}>
                         {useMemo(() => (
-                            <TicketAnalyticsPageChartView
+                            <TicketChartView
                                 data={analyticsData}
                                 loading={loading}
                                 viewMode={viewMode}
@@ -636,13 +370,13 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     <Select.Option value='paid'>{TicketTypePaid}</Select.Option>
                                     <Select.Option value='emergency'>{TicketTypeEmergency}</Select.Option>
                                 </Select>
-                            </TicketAnalyticsPageChartView>
+                            </TicketChartView>
                         ), [analyticsData, loading, viewMode, ticketType])}
                     </Col>
                     <Col span={24}>
                         <Typography.Title level={4} style={{ marginBottom: 20 }}>{TableTitle}</Typography.Title>
                         {useMemo(() => (
-                            <TicketAnalyticsPageListView
+                            <TicketListView
                                 data={analyticsData}
                                 loading={loading}
                                 viewMode={viewMode}
@@ -672,4 +406,3 @@ TicketAnalyticsPage.whyDidYouRender = false
 
 
 export default TicketAnalyticsPage
-export { TicketAnalyticsPageChartView, TicketAnalyticsPageListView }

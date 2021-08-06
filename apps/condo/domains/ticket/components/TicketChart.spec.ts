@@ -1,4 +1,4 @@
-import TicketChart, { chartConfigMapType } from './TicketChart'
+import TicketChart, { ChartConfigMapType } from './TicketChart'
 
 const CHART_RESULT_DATA = {
     axisData: { xAxis: { type: '', data: [] }, yAxis: { type: '', data: [] } },
@@ -27,7 +27,7 @@ const TABLE_ADDITIONAL_DATA = {
     translations: {},
 }
 
-const TICKET_CHART_CONFIG: chartConfigMapType = {
+const TICKET_CHART_CONFIG: ChartConfigMapType = {
     bar: {
         chart: (viewMode, data) => CHART_RESULT_DATA,
         table: (viewMode, data, restTableOptions) => TABLE_RESULT_DATA,

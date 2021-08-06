@@ -3,9 +3,8 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { Col, notification, Row, Typography } from 'antd'
 import dynamic from 'next/dynamic'
 import { useIntl } from '@core/next/intl'
-import {
-    TicketAnalyticsPageChartView, TicketAnalyticsPageListView,
-} from './index'
+import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
+import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
 import { useLazyQuery } from '@core/next/apollo'
 import { TICKET_ANALYTICS_REPORT_MUTATION } from '@condo/domains/ticket/gql'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
@@ -107,7 +106,7 @@ const PdfView = () => {
                 <Typography.Title level={4}>
                     {ticketTypeTitle} {moment(dateFrom).format('DD.MM.YYYY')} - {moment(dateTo).format('DD.MM.YYYY')} {addressFilterTitle} {AllCategories}
                 </Typography.Title>
-                <TicketAnalyticsPageChartView
+                <TicketChartView
                     data={data}
                     viewMode={viewMode}
                     onChartReady={() => setLoading(false)}
@@ -118,7 +117,7 @@ const PdfView = () => {
                 />
             </Col>
             <Col flex={1} >
-                <TicketAnalyticsPageListView data={data} viewMode={viewMode} filters={{
+                <TicketListView data={data} viewMode={viewMode} filters={{
                     range: [dateFrom, dateTo],
                     addressList: addressListParsed,
                     specification: specification,
