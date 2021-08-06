@@ -9,11 +9,10 @@ export interface IUnitNameInputProps extends Pick<SelectProps<string>, 'onChange
     placeholder?: string
     allowClear?: false
     loading: boolean
-    reSearchDependencies?: Array<unknown>
 }
 
 export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
-    const { placeholder, property, loading, reSearchDependencies = [], ...restInputProps } = props
+    const { placeholder, property, loading, ...restInputProps } = props
 
     // TODO(Dimitreee): move search to serverside
     const options = useMemo(() => {
@@ -33,7 +32,7 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
             )
         )
 
-    }, [...reSearchDependencies, property])
+    }, [property])
 
     return (
         <Select

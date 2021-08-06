@@ -7,11 +7,9 @@ import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import Head from 'next/head'
 import { MapGL } from '@condo/domains/common/components/MapGL'
 import { Button } from '@condo/domains/common/components/Button'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { IFilters } from '@condo/domains/property/utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
-import { useOrganization } from '@core/next/organization'
 
 import qs from 'qs'
 import pickBy from 'lodash/pickBy'
@@ -37,16 +35,15 @@ import { useImporterFunctions } from '@condo/domains/property/hooks/useImporterF
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import CreatePropertyPage from './create'
+import { useOrganization  } from '@core/next/organization'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
-const PropertyPageViewMap = (): React.FC => {
-    const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+export const PropertyPageViewMap = ({ propertyWhereQuery }): React.FC => {
     const {
         objs: properties,
     } = Property.useObjects({
         where: {
-            organization: { id: userOrganizationId },
+            ...propertyWhereQuery(),
         },
     }, {
         fetchPolicy: 'network-only',
@@ -69,12 +66,10 @@ const PropertyPageViewMap = (): React.FC => {
     )
 }
 
-const PropertyPageViewTable = (): React.FC => {
+export const PropertyPageViewTable = ({ propertyWhereQuery, role }): React.FC => {
     const intl = useIntl()
 
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
-    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
@@ -89,8 +84,6 @@ const PropertyPageViewTable = (): React.FC => {
     const createRoute = '/property/create'
 
     const router = useRouter()
-    const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const sortFromQuery = getSortStringFromQuery(router.query)
     const offsetFromQuery = getPageIndexFromQuery(router.query)
@@ -106,7 +99,7 @@ const PropertyPageViewTable = (): React.FC => {
         sortBy: sortFromQuery,
         where: {
             ...filtersToQuery(filtersFromQuery),
-            organization: { id: userOrganizationId },
+            ...propertyWhereQuery(),
         },
         skip: (offsetFromQuery * PROPERTY_PAGE_SIZE) - PROPERTY_PAGE_SIZE,
         first: PROPERTY_PAGE_SIZE,
@@ -190,7 +183,7 @@ const PropertyPageViewTable = (): React.FC => {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
     }
 
-    const canManageProperties = get(userOrganization, ['link', 'role', 'canManageProperties'], false)
+    const canManageProperties = get(role, 'canManageProperties', false)
 
     return (
         <Row align={'middle'} gutter={[0, 40]}>
@@ -256,6 +249,12 @@ const PropertyPage = (): React.FC => {
     const ShowTable = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeTable' })
     const [viewMode, changeViewMode] = useState('list')
 
+    const { organization, link } = useOrganization()
+
+    const propertyWhereQuery = () => (
+        { organization: { id: organization.id } }
+    )
+
     return (
         <>
             <Head>
@@ -277,13 +276,13 @@ const PropertyPage = (): React.FC => {
                         </Col>
                         <Col span={24}>
                             {
-                                viewMode !== 'map' ? <PropertyPageViewTable /> : null
+                                viewMode !== 'map' ? <PropertyPageViewTable propertyWhereQuery={propertyWhereQuery} role={link.role} /> : null
                             }
                         </Col>
                     </Row>
                     <>
                         {
-                            viewMode === 'map' ? <PropertyPageViewMap /> : null
+                            viewMode === 'map' ? <PropertyPageViewMap propertyWhereQuery={propertyWhereQuery} /> : null
                         }
                     </>
                 </PageContent>
