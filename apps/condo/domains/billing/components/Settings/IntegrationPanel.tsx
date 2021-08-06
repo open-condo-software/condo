@@ -92,12 +92,12 @@ export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
                     </Tag>
                 )}
                 <Row gutter={[0, 8]}>
-                    <Typography.Paragraph style={{ height: 56, margin: 0 }} ellipsis={{ rows: 2 }}>
+                    <Typography.Paragraph style={{ height: 56, margin: 0, width: '100%' }} ellipsis={{ rows: 2 }}>
                         <Typography.Title level={4} style={{ margin: 0 }}>
                             {title}
                         </Typography.Title>
                     </Typography.Paragraph>
-                    <Typography.Paragraph style={{ height: 48, margin: 0 }} ellipsis={{ rows: 2 }}>
+                    <Typography.Paragraph style={{ height: 48, margin: 0, width: '100%' }} ellipsis={{ rows: 2 }}>
                         <Typography.Text style={{ lineHeight: '24px', fontSize: 16, margin: 0 }}>
                             {shortDescription}
                         </Typography.Text>

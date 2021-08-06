@@ -33,7 +33,7 @@ const BillingIntegrationDetailsPage = () => {
     const NoPermissionMessage = intl.formatMessage({ id: 'NoPermissionToSettings' })
     const DefaultStartButtonMessage = intl.formatMessage({ id: 'StartIntegration' })
     const DefaultInstructionButtonText = intl.formatMessage({ id: 'Instruction' })
-    const ContinueMessage = intl.formatMessage({ id: 'property.Continue' })
+    const ContinueMessage = intl.formatMessage({ id: 'Continue' })
     const ConfirmModalTitle = intl.formatMessage({ id: 'BillingIntegrationContextConfirmQuestion' })
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
     const CreateContextRestrictionMessage = intl.formatMessage({ id:'BillingIntegrationContextNoReturns' }, {
