@@ -13464,8 +13464,12 @@ export type Resident = {
   user?: Maybe<User>;
   /**  Organization, that provides service to this resident. Can be missing, when a resident has been registered, but there is no Organization, that serves specified address in our system yet  */
   organization?: Maybe<Organization>;
+  /**  Organization data, that is returned for current resident in mobile client  */
+  residentOrganization?: Maybe<ResidentOrganization>;
   /**  Property, in which this person resides. Can be missing, when a resident has been registered, but there is no Property in our system yet  */
   property?: Maybe<Property>;
+  /**  Property data, that is returned for current resident in mobile client  */
+  residentProperty?: Maybe<ResidentProperty>;
   /**  System-wide billing account, that will allow to pay for all services from all organizations  */
   billingAccount?: Maybe<BillingAccount>;
   /**  Normalized address  */
@@ -13518,7 +13522,9 @@ export type ResidentHistoryRecord = {
   sender?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  residentOrganization?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
+  residentProperty?: Maybe<Scalars['JSON']>;
   billingAccount?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
@@ -13541,7 +13547,9 @@ export type ResidentHistoryRecordCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  residentOrganization?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
+  residentProperty?: Maybe<Scalars['JSON']>;
   billingAccount?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
@@ -13569,7 +13577,9 @@ export type ResidentHistoryRecordUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  residentOrganization?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
+  residentProperty?: Maybe<Scalars['JSON']>;
   billingAccount?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
@@ -13609,10 +13619,18 @@ export type ResidentHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  residentOrganization?: Maybe<Scalars['JSON']>;
+  residentOrganization_not?: Maybe<Scalars['JSON']>;
+  residentOrganization_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  residentOrganization_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   property?: Maybe<Scalars['String']>;
   property_not?: Maybe<Scalars['String']>;
   property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  residentProperty?: Maybe<Scalars['JSON']>;
+  residentProperty_not?: Maybe<Scalars['JSON']>;
+  residentProperty_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  residentProperty_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   billingAccount?: Maybe<Scalars['String']>;
   billingAccount_not?: Maybe<Scalars['String']>;
   billingAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -13734,6 +13752,19 @@ export type ResidentHistoryRecordsCreateInput = {
 export type ResidentHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<ResidentHistoryRecordUpdateInput>;
+};
+
+export type ResidentOrganization = {
+  __typename?: 'ResidentOrganization';
+  id: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
+};
+
+export type ResidentProperty = {
+  __typename?: 'ResidentProperty';
+  id: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
+  address: Scalars['String'];
 };
 
 export type ResidentTicketCreateInput = {
