@@ -456,13 +456,14 @@ async function updateTestBillingOrganization (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function getBillingReceiptsForServiceConsumerByTestClient(client, extraAttrs = {}) {
+async function getBillingReceiptsForServiceConsumerByTestClient(client, serviceConsumerId, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
+        serviceConsumerId,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY, { data: attrs })

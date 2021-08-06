@@ -129,7 +129,7 @@ async function registerServiceConsumerByTestClient (client, extraAttrs = {}) {
     }
     const { data, errors } = await client.mutate(REGISTER_SERVICE_CONSUMER_MUTATION, { data: attrs })
     throwIfError(data, errors)
-    return [data.result, attrs]
+    return [data.obj, attrs]
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 
