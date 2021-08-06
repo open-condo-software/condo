@@ -9532,8 +9532,8 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['JSON']>;
-  description?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
@@ -9558,8 +9558,8 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['JSON']>;
-  description?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
@@ -9589,8 +9589,8 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['JSON']>;
-  description?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
@@ -9629,14 +9629,42 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  name?: Maybe<Scalars['JSON']>;
-  name_not?: Maybe<Scalars['JSON']>;
-  name_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  name_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  description?: Maybe<Scalars['JSON']>;
-  description_not?: Maybe<Scalars['JSON']>;
-  description_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  description_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description?: Maybe<Scalars['String']>;
+  description_not?: Maybe<Scalars['String']>;
+  description_contains?: Maybe<Scalars['String']>;
+  description_not_contains?: Maybe<Scalars['String']>;
+  description_starts_with?: Maybe<Scalars['String']>;
+  description_not_starts_with?: Maybe<Scalars['String']>;
+  description_ends_with?: Maybe<Scalars['String']>;
+  description_not_ends_with?: Maybe<Scalars['String']>;
+  description_i?: Maybe<Scalars['String']>;
+  description_not_i?: Maybe<Scalars['String']>;
+  description_contains_i?: Maybe<Scalars['String']>;
+  description_not_contains_i?: Maybe<Scalars['String']>;
+  description_starts_with_i?: Maybe<Scalars['String']>;
+  description_not_starts_with_i?: Maybe<Scalars['String']>;
+  description_ends_with_i?: Maybe<Scalars['String']>;
+  description_not_ends_with_i?: Maybe<Scalars['String']>;
+  description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   statusTransitions_not?: Maybe<Scalars['JSON']>;
   statusTransitions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -14810,6 +14838,10 @@ export enum SortOrganizationEmployeeHistoryRecordsBy {
 export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
   CanManageOrganizationAsc = 'canManageOrganization_ASC',
   CanManageOrganizationDesc = 'canManageOrganization_DESC',
   CanManageEmployeesAsc = 'canManageEmployees_ASC',
@@ -15734,6 +15766,8 @@ export enum SortTicketStatusHistoryRecordsBy {
   DvDesc = 'dv_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -20928,7 +20962,7 @@ export type TicketStatusHistoryRecord = {
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
   colors?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -20948,7 +20982,7 @@ export type TicketStatusHistoryRecordCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
   colors?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -20973,7 +21007,7 @@ export type TicketStatusHistoryRecordUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
   colors?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -21024,10 +21058,24 @@ export type TicketStatusHistoryRecordWhereInput = {
   type_not_ends_with_i?: Maybe<Scalars['String']>;
   type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  name?: Maybe<Scalars['JSON']>;
-  name_not?: Maybe<Scalars['JSON']>;
-  name_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  name_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   colors?: Maybe<Scalars['JSON']>;
   colors_not?: Maybe<Scalars['JSON']>;
   colors_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;

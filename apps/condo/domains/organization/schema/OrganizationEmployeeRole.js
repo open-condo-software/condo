@@ -30,7 +30,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         },
         description: {
             type: LocalizedText,
-            isRequired: true,
+            isRequired: false,
             template: 'employee.role.*.description',
         },
         statusTransitions: {
