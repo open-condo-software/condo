@@ -96,6 +96,9 @@ const AddressMetaJSONSchema = {
         'unrestricted_value': {
             'type': 'string',
         },
+        'dv': {
+            'type': 'integer',
+        },
         'data': {
             'type': 'object',
             'properties': Object.assign({}, ...AddressMetaDataFields.map((x) => ({ [x]: { 'type': ['string', 'null'] } }))),
@@ -108,6 +111,7 @@ const AddressMetaJSONSchema = {
         'value',
         'unrestricted_value',
         'data',
+        'dv',
     ],
 }
 

@@ -13,7 +13,7 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
     types: [
         {
             access: true,
-            type: 'input CheckPropertyWithAddressExistInput { addressMeta: JSON! }',
+            type: 'input CheckPropertyWithAddressExistInput { address: String!, addressMeta: JSON! }',
         },
         {
             access: true,
@@ -27,6 +27,7 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
             schema: 'checkPropertyWithAddressExist (data: CheckPropertyWithAddressExistInput!): CheckPropertyWithAddressExistOutput',
             resolver: async (parent, args, context = {}) => {
                 const { data: inputData } = args
+                // Later we will use "address" without "addressMeta"
                 const { addressMeta } = inputData
                 if (!addressMeta) throw new Error('No object specified!')
                 if (!jsonAddressMetaValidator(addressMeta)) throw new Error('Json had incorrect format!')
