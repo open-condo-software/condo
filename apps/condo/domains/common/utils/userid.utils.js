@@ -11,11 +11,11 @@ function makeId (length) {
 }
 
 function getCurrentUserId () {
-    let current = cookie.get('userId')
+    let current = cookie.get('fingerprint')
     if (!current) {
         current = makeId(12)
     }
-    cookie.set('userId', current, { expires: 365 })
+    cookie.set('fingerprint', current, { expires: 365 })
     return current
 }
 

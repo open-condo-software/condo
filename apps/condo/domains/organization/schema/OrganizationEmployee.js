@@ -122,8 +122,8 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         auth: true,
     },
     hooks: {
-        validateInput: ({ resolvedData, existingItem, addValidationError }) => {
-            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization'], resolvedData, existingItem, addValidationError)) return
+        validateInput: ({ resolvedData, existingItem, addValidationError, context }) => {
+            if (!hasRequestAndDbFields(['dv', { field: 'sender', checkCookies: true }], ['organization'], resolvedData, existingItem, context, addValidationError)) return
             if (!hasOneOfFields(['email', 'name', 'phone'], resolvedData, existingItem, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {

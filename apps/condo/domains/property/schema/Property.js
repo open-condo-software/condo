@@ -174,8 +174,8 @@ const Property = new GQLListSchema('Property', {
         update: access.canManageProperties,
     },
     hooks: {
-        validateInput: ({ resolvedData, existingItem, addValidationError }) => {
-            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'type', 'address', 'addressMeta'], resolvedData, existingItem, addValidationError)) return
+        validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
+            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'type', 'address', 'addressMeta'], resolvedData, existingItem, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic

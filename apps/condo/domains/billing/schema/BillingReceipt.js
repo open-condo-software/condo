@@ -76,8 +76,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         auth: true,
     },
     hooks: {
-        validateInput: ({ resolvedData, existingItem, addValidationError }) => {
-            if (!hasRequestAndDbFields(['dv', 'sender'], [], resolvedData, existingItem, addValidationError)) return
+        validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
+            if (!hasRequestAndDbFields(['dv', 'sender'], [], resolvedData, existingItem, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic
