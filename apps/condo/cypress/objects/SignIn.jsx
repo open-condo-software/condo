@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable no-undef */
+import { HOME_PAGE_URL } from './HomePage'
 
-class SignInPage {
+const SIGNIN_URL = `${HOME_PAGE_URL}/auth/signin/`
 
-    static url = 'http://localhost:3000/auth/signin/'
+class SignIn {
 
     visit () {
-        cy.visit(SignInPage.url)
+        cy.visit(SIGNIN_URL)
     }
 
     fillPhone (value) {
@@ -20,14 +21,16 @@ class SignInPage {
         const field = cy.get('[data-ci=signin-password-item] input')
         field.clear()
         field.type(value)
-
         return this
     }
 
-    submit () {
+    signin () {
         const button = cy.get('[data-ci=signin-button]')
         button.click()
     }
 }
 
-export default SignInPage
+export {
+    SignIn,
+    SIGNIN_URL,
+}

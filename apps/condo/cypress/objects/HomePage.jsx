@@ -1,13 +1,16 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable no-undef */
 
+const HOME_PAGE_URL = 'http://localhost:3000'
+
 class HomePage {
 
-    static url = 'http://localhost:3000/'
-
     visit () {
-        cy.visit(HomePage.url)
+        cy.visit(HOME_PAGE_URL)
     }
 }
 
-export default HomePage
+export {
+    HomePage,
+    HOME_PAGE_URL,
+}

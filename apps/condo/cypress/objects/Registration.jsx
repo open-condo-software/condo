@@ -1,12 +1,28 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable no-undef */
+/*
+Step 1
+register-phone-item
+register-button
 
-class RegistrationPage {
+Step 2
+register-smscode-item
 
-    static url = 'http://localhost:3000/auth/register/'
+Step 3
+register-name-item
+register-email-item
+register-password-item
+register-confirmpassword-item
+registercomplete-button
+*/
+import { HOME_PAGE_URL } from './HomePage'
+
+const REGISTER_URL = `${HOME_PAGE_URL}/auth/register/`
+
+class Registration {
 
     visit () {
-        cy.visit(RegistrationPage.url)
+        cy.visit(REGISTER_URL)
     }
 
     fillPhone (value) {
@@ -23,7 +39,7 @@ class RegistrationPage {
         return this
     }
 
-    fillFIO (value) {
+    fillName (value) {
         const field = cy.get('[data-ci=register-name-item] input')
         field.clear()
         field.type(value)
@@ -37,29 +53,32 @@ class RegistrationPage {
         return this
     }
 
-    fillPass (value) {
+    fillPassword (value) {
         const field = cy.get('[data-ci=register-password-item] input')
         field.clear()
         field.type(value)
         return this
     }
 
-    fillPass2 (value) {
+    fillConfirmPassword (value) {
         const field = cy.get('[data-ci=register-confirmpassword-item] input')
         field.clear()
         field.type(value)
         return this
     }
 
-    submit () {
+    startRegistration () {
         const button = cy.get('[data-ci=register-button]')
         button.click()
     }
 
-    submit_second () {
+    completeRegistration () {
         const button = cy.get('[data-ci=registercomplete-button]')
         button.click()
     }
 }
 
-export default RegistrationPage
+export {
+    Registration,
+    REGISTER_URL,
+}
