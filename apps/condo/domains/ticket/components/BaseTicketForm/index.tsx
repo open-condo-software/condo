@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { searchEmployee, searchTicketClassifier } from '../../utils/clientSchema/search'
+import { searchEmployee } from '@condo/domains/ticket/utils/clientSchema/search'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
@@ -18,7 +18,7 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
-import { useOrganization } from '@core/next/organization'
+import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import { InputWithCounter } from '@condo/domains/common/components/InputWithCounter'
@@ -150,12 +150,11 @@ export const TicketInfo = ({ validations, UploadComponent, initialValues, disabl
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
     const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
     const DescriptionLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
-    const ClassifierLabel = intl.formatMessage({ id: 'Classifier' })
     const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
     const PaidLabel = intl.formatMessage({ id: 'Paid' })
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
 
-    // const { ClassifiersEditorComponent } = useTicketThreeLevelsClassifierHook({ initialValues })
+    const { ClassifiersEditorComponent } = useTicketThreeLevelsClassifierHook({ initialValues })
 
     const details = get(initialValues, 'details')
     const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(details ? details.length : 0)
@@ -166,6 +165,21 @@ export const TicketInfo = ({ validations, UploadComponent, initialValues, disabl
                 <Row gutter={[0, 24]}>
                     <Col span={24}>
                         <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
+                    </Col>
+                    <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
+                    <Col span={24}>
+                        <Row>
+                            <Col span={6}>
+                                <Form.Item name={'isEmergency'} valuePropName='checked'>
+                                    <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
+                                </Form.Item>
+                            </Col>
+                            <Col span={6}>
+                                <Form.Item name={'isPaid'}  valuePropName='checked'>
+                                    <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
+                                </Form.Item>
+                            </Col>
+                        </Row>
                     </Col>
                     <Col span={24}>
                         <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
@@ -183,35 +197,8 @@ export const TicketInfo = ({ validations, UploadComponent, initialValues, disabl
                         <Form.Item
                             label={AttachedFilesLabel}
                         >
-                            <UploadComponent/>
+                            <UploadComponent />
                         </Form.Item>
-                    </Col>
-                </Row>
-            </Col>
-            <Col span={24}>
-                <Row align={'top'}>
-                    <Col span={11}>
-                        <Form.Item name={'classifier'} rules={validations.classifier} label={ClassifierLabel}>
-                            <GraphQlSearchInput
-                                search={searchTicketClassifier}
-                                allowClear={false}
-                                disabled={disableUserInteraction}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col push={2} span={11}>
-                        <Row>
-                            <Col span={12}>
-                                <Form.Item name={'isEmergency'} label={' '} valuePropName='checked'>
-                                    <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item name={'isPaid'} label={' '} valuePropName='checked'>
-                                    <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
-                                </Form.Item>
-                            </Col>
-                        </Row>
                     </Col>
                 </Row>
             </Col>
