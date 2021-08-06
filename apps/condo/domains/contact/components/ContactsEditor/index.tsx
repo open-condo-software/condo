@@ -61,14 +61,12 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
     const CannotCreateContactMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.CannotCreateContact' })
 
-    const { form, fields, value: initialValue, onChange, organization, role: roleFromProps, property, unitName } = props
+    const { form, fields, value: initialValue, onChange, organization, role, property, unitName } = props
 
     const [contacts, setContacts] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState()
-    const { link } = useOrganization()
     const client = useApolloClient()
-    const role = roleFromProps ? roleFromProps : link ? link.role : null
 
     searchContacts(client, {
         organizationId: organization,

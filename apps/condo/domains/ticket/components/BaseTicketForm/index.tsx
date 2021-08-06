@@ -23,6 +23,8 @@ import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import { InputWithCounter } from '@condo/domains/common/components/InputWithCounter'
 import Prompt from '@condo/domains/common/components/Prompt'
+import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
+import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSchema/Organization'
 
 const { TabPane } = Tabs
 
@@ -271,12 +273,9 @@ const TicketPurpose = ({ validations, organizationId, disableUserInteraction }) 
     )
 }
 
-interface IOrganization {
-    id: string
-}
-
 export interface ITicketFormProps {
-    organization?: IOrganization
+    organization?: IOrganizationUIState
+    role?: IOrganizationEmployeeRoleUIState
     initialValues?: ITicketFormState
     action?: (...args) => void,
     files?: ITicketFileUIState[],
@@ -292,7 +291,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
 
-    const { action: _action, initialValues, organization, afterActionCompleted, files } = props
+    const { action: _action, initialValues, organization, role, afterActionCompleted, files } = props
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState(get(initialValues, 'property'))
     const selectPropertyIdRef = useRef(selectedPropertyId)
@@ -319,6 +318,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const { createContact, canCreateContact, ContactsEditorComponent } = useContactsEditorHook({
         organization: organization.id,
+        role,
     })
 
     const canCreateContactRef = useRef(canCreateContact)
@@ -326,8 +326,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     useEffect(() => {
         canCreateContactRef.current = canCreateContact
     }, [canCreateContact])
-
-    const { link: { role } } = useOrganization()
 
     const action = async (variables, ...args) => {
         const { details, ...otherVariables } = variables

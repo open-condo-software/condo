@@ -57,9 +57,9 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const { push } = useRouter()
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const { organization } = useOrganization()
     const { obj, loading, refetch, error } = Ticket.useObject({ where: { id } })
     const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id } } })
+    const { organization, link } = useOrganization()
     
     // no redirect after mutation as we need to wait for ticket files to save
     const action = Ticket.useUpdate({}, () => null)
@@ -85,6 +85,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
             action={updateAction}
             initialValues={Ticket.convertToUIFormState(obj)}
             organization={organization}
+            role={link.role}
             files={files}
             afterActionCompleted={(ticket) => {
                 push(`/ticket/${ticket.id}`)
