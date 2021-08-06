@@ -1,6 +1,5 @@
 import html2canvas from 'html2canvas'
 import Jspdf from 'jspdf'
-import { PDF_REPORT_WIDTH } from '@condo/domains/ticket/constants/common'
 const PDF_FORMAT_SETTINGS = {
     // pdfWidth - width of final image (in mm)
     // pdfHeight - height of final image (in mm)
@@ -9,7 +8,6 @@ const PDF_FORMAT_SETTINGS = {
     // lineSpace - margin right for rest of lines (in css pixels)
     'a4': { pdfWidth: 210, pdfHeight: 297, elementOffset: 10, firstLineOffset: 23, lineSpace: 80 },
     'a5': { pdfWidth: 148, pdfHeight: 210, elementOffset: 10, firstLineOffset: 23, lineSpace: 80 },
-    '1080p': { pdfWidth: PDF_REPORT_WIDTH, pdfHeight: 297, elementOffset: 15, firstLineOffset: 23, lineSpace: 80 },
 }
 
 function getPdfHeightFromElement (element: HTMLElement, expectedWidth: number) {
@@ -33,6 +31,10 @@ interface ICreatePdfOptions {
 
 interface ICreatePdf {
     (options: ICreatePdfOptions): Promise<Jspdf>
+}
+
+interface ICreatePdfWithPageBreaks {
+    (options: Omit<ICreatePdfOptions, 'format'>): Promise<Jspdf>
 }
 
 export const createPdf: ICreatePdf = (options) => {
@@ -65,10 +67,10 @@ export const createPdf: ICreatePdf = (options) => {
         freeSpace -= lineSpace
         linesCounter++
     }
-    const docHeight = format === '1080p' ? element.clientHeight : pdfHeight
+
     const pdfImageHeight = getPdfHeightFromElement(element, pdfWidth)
     return  html2canvas(element).then(canvas => {
-        const doc = new Jspdf('p', 'mm', [pdfWidth, docHeight])
+        const doc = new Jspdf('p', 'mm', [pdfWidth, pdfHeight])
         const imageOptions = {
             imageData: canvas,
             x: elementOffset,
@@ -79,5 +81,30 @@ export const createPdf: ICreatePdf = (options) => {
 
         doc.addImage(imageOptions)
         return doc.save(fileName, { returnPromise: true })
+    })
+}
+
+export const createPdfWithPageBreaks: ICreatePdfWithPageBreaks = (options) => {
+    const { element, fileName } = options
+    const elementWidth = element.clientWidth
+    const elementHeight = element.clientHeight
+    const topLeftMargin = 15
+    const pdfWidth = elementWidth + (topLeftMargin * 2)
+    const pdfHeight = (pdfWidth * 1.5) + (topLeftMargin * 2)
+
+    const totalPDFPages = Math.ceil(elementHeight / pdfHeight) - 1
+
+    return html2canvas(element, { allowTaint: true }).then(canvas => {
+        const imgData = canvas.toDataURL('image/jpeg', 1.0)
+        const pdf = new Jspdf('p', 'pt',  [pdfWidth, pdfHeight])
+        pdf.addImage(imgData, 'JPG', topLeftMargin, topLeftMargin, elementWidth, elementHeight)
+
+
+        for (let i = 1; i <= totalPDFPages; i++) {
+            pdf.addPage([pdfWidth, pdfHeight], 'p')
+            pdf.addImage(imgData, 'JPG', topLeftMargin, -(pdfHeight * i) + (topLeftMargin * 4), elementWidth, elementHeight)
+        }
+
+        return pdf.save(fileName, { returnPromise: true })
     })
 }

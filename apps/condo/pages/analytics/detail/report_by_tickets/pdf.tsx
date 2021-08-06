@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Col, notification, Row, Typography } from 'antd'
@@ -12,7 +11,7 @@ import { TICKET_ANALYTICS_REPORT_MUTATION } from '@condo/domains/ticket/gql'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
-import { createPdf } from '@condo/domains/common/utils/pdf'
+import { createPdfWithPageBreaks } from '@condo/domains/common/utils/pdf'
 import moment from 'moment'
 import { filterToQuery } from '@condo/domains/ticket/utils/helpers'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -31,7 +30,6 @@ const PdfView = () => {
     const containerRef = useRef<null | HTMLDivElement>(null)
     const queryParamsRef = useRef(null)
 
-    const router = useRouter()
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
     const userOrganization = useOrganization()
@@ -54,9 +52,6 @@ const PdfView = () => {
         },
     })
     useEffect(() => {
-        router.push('/')
-    }, [])
-    useEffect(() => {
         const queryParams = getQueryParams()
         queryParamsRef.current = queryParams
         const dateFrom = get(queryParams, 'dateFrom', moment().subtract(1, 'week'))
@@ -78,18 +73,17 @@ const PdfView = () => {
 
     }, [userOrganizationId])
 
-    // useEffect(() => {
-    //     if (!loading && data !== null) {
-    //         createPdf({ element: containerRef.current, fileName: 'analytics_result.pdf', format: '1080p' })
-    //             .catch((e) => {
-    //                 notification.error({
-    //                     message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
-    //                     description: e.message,
-    //                 })
-    //             })
-    //     }
-    // }, [loading, data])
-
+    useEffect(() => {
+        if (!loading && data !== null) {
+            createPdfWithPageBreaks({ element: containerRef.current, fileName: 'analytics_result.pdf' })
+                .catch((e) => {
+                    notification.error({
+                        message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
+                        description: e.message,
+                    })
+                })
+        }
+    }, [loading, data])
 
     if (queryParamsRef.current === null ) {
         return null
