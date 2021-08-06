@@ -145,7 +145,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     )
 }
 
-export const TicketInfo = ({ validations, UploadComponent, initialValues, disableUserInteraction }) => {
+export const TicketInfo = ({ form, validations, UploadComponent, initialValues, disableUserInteraction }) => {
     const intl = useIntl()
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
     const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
@@ -411,6 +411,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                     <FrontLayerContainer showLayer={disableUserInteraction}>
                                                         <Row gutter={[0, 40]}>
                                                             <TicketInfo
+                                                                form={form}
                                                                 UploadComponent={UploadComponent}
                                                                 validations={validations}
                                                                 organizationId={organization.id}
