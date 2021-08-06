@@ -105,6 +105,7 @@ export const CreateContactForm: React.FC = () => {
                                             {...INPUT_LAYOUT_PROPS}
                                             wrapperCol={{ span: 14 }}>
                                             <PropertyAddressSearchInput
+                                                organization={organization}
                                                 onSelect={(_, option) => {
                                                     form.setFieldsValue({ 'unitName': null })
                                                     setSelectedPropertyId(option.key)

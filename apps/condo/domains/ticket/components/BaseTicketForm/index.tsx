@@ -370,6 +370,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             <Form.Item name={'property'} label={AddressLabel}
                                                 rules={validations.property}>
                                                 <PropertyAddressSearchInput
+                                                    organization={organization}
                                                     autoFocus={true}
                                                     onSelect={(_, option) => {
                                                         form.setFieldsValue({
