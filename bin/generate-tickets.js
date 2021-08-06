@@ -1,4 +1,4 @@
-const { Ticket, TicketStatus, TicketClassifier } = require('@condo/domains/ticket/utils/serverSchema')
+const { Ticket, TicketStatus, TicketClassifierRule } = require('@condo/domains/ticket/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { demoProperties } = require('./constants')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
@@ -7,6 +7,8 @@ const moment = require('moment')
 const faker = require('faker')
 const path = require('path')
 const { Client } = require('pg')
+const { GraphQLApp } = require('@keystonejs/app-graphql')
+
 const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
 class TicketGenerator {
 
@@ -30,7 +32,9 @@ class TicketGenerator {
     async connect () {
         const resolved = path.resolve('./index.js')
         const { distDir, keystone, apps } = require(resolved)
-        await keystone.prepare({ apps, distDir, dev: true })
+        const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
+        // we need only apollo
+        await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
         await keystone.connect()
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
@@ -49,6 +53,7 @@ class TicketGenerator {
         do {
             const arr = Array(faker.datatype.number(this.ticketsByDay)).fill('')
             for (const _ of arr) {
+                // we cannot generate tickets in parallel as their autoincrement number will fail to fill
                 await this.generateTicket(current.valueOf())
                 console.log(`ticket ${++counter} `)
             }
@@ -58,6 +63,7 @@ class TicketGenerator {
 
     async generateTicket (timeStamp) {
         const unit = this.unit
+        const problem = this.problem
         const data = {
             dv: 1,
             sender: { dv: 1, fingerprint: 'import' },
@@ -69,7 +75,10 @@ class TicketGenerator {
             floorName: unit.floor,
             unitName: unit.unit,
             source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
-            classifier: { connect: { id: this.problem.id } },
+            classifierRule: { connect: { id: problem.id } },
+            placeClassifier: { connect: { id: problem.place.id } },
+            categoryClassifier: { connect: { id: problem.category.id } },
+            problemClassifier: { connect: { id: problem.problem.id } },
             operator: { connect: { id: this.user.id } },
             assignee: { connect: { id: this.user.id } },
             executor: { connect: { id: this.user.id } },
@@ -85,10 +94,10 @@ class TicketGenerator {
 
     async prepareModels (propertyInfo) {
         this.statuses = await TicketStatus.getAll(this.context, { organization_is_null: true })
-        this.classifiers = await TicketClassifier.getAll(this.context, { parent_is_null: true })
+        this.classifiers = await TicketClassifierRule.getAll(this.context, { })
         const [property] = await Property.getAll(this.context, { address: propertyInfo.address })
         if (property){
-            throw new Error('Property already exists')
+            throw new Error('Property already exists [SKIP!]')
         }
         const [user] = await User.getAll(this.context, { name_not_in: ['Admin', 'JustUser'] })
         this.user = user
@@ -141,7 +150,6 @@ class TicketGenerator {
 
 const createTickets = async () => {
     const TicketManager = new TicketGenerator({ ticketsByDay: { min: 20, max: 50 } })
-    console.log('[INIT] prepare keystone')
     console.time('keystone')
     await TicketManager.connect()
     console.timeEnd('keystone')
@@ -151,6 +159,7 @@ const createTickets = async () => {
             await TicketManager.generate(info)
             console.log(`[END] ${info.address}`)
         } catch (error) {
+            console.log('error', error)
             console.log(`[SKIP] ${info.address}`)
         }
     }
