@@ -37,12 +37,22 @@ const BillingAccountMeterReading = generateGqlQueries('BillingAccountMeterReadin
 
 const BILLING_RECEIPT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id } account { id } recipient period raw toPay printableNumber toPayDetails services ${COMMON_FIELDS} }`
 const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
- 
-const BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY = `
-    query getBillingReceiptsForServiceConsumer ($data: BillingReceiptsForServiceConsumerInput!) {
-        obj: getBillingReceiptsForServiceConsumer(where: {id: $id}) recipient period toPay printableNumber toPayDetails services ${COMMON_FIELDS} 
+
+const ALL_BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY = `
+    query allBillingReceiptsForServiceConsumer ($data: BillingReceiptsForServiceConsumerInput!) {
+        objs: allBillingReceiptsForServiceConsumer(where: {id: $id}) {
+            id,
+            recipient,
+            period,
+            toPay,
+            printableNumber,
+            toPayDetails,
+            services,
+        }
     }
 `
+
+// result: getPhoneByConfirmPhoneActionToken(data: $data) { phone, isPhoneVerified }
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -57,6 +67,6 @@ module.exports = {
     BillingAccountMeter,
     BillingAccountMeterReading,
     BillingReceipt,
-    BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY,
+    ALL_BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

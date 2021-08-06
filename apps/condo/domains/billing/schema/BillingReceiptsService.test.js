@@ -11,7 +11,7 @@ const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 describe('GetBillingReceiptsForServiceConsumerService', () => {
 
-    test('user with valid serviceAccount can read BillingReceipt in normal form', async () => {
+    test('user with valid serviceAccount can read BillingReceipt without raw data', async () => {
 
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
