@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from '@emotion/styled'
 import { colors, shadows, transitions } from '@condo/domains/common/constants/style'
-import { Row, Tooltip, Typography } from 'antd'
+import { Row, Tooltip, Typography, Col } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { Tag, TagType } from '@condo/domains/common/components/Tag'
@@ -92,16 +92,18 @@ export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
                     </Tag>
                 )}
                 <Row gutter={[0, 8]}>
-                    <Typography.Paragraph style={{ height: 56, margin: 0, width: '100%' }} ellipsis={{ rows: 2 }}>
-                        <Typography.Title level={4} style={{ margin: 0 }}>
-                            {title}
-                        </Typography.Title>
-                    </Typography.Paragraph>
-                    <Typography.Paragraph style={{ height: 48, margin: 0, width: '100%' }} ellipsis={{ rows: 2 }}>
-                        <Typography.Text style={{ lineHeight: '24px', fontSize: 16, margin: 0 }}>
-                            {shortDescription}
-                        </Typography.Text>
-                    </Typography.Paragraph>
+                    <Col span={24}>
+                        <Typography.Paragraph style={{ height: 56, margin: 0 }} ellipsis={{ rows: 2 }}>
+                            <Typography.Title level={4} style={{ margin: 0 }}>
+                                {title}
+                            </Typography.Title>
+                        </Typography.Paragraph>
+                        <Typography.Paragraph style={{ height: 48, margin: 0 }} ellipsis={{ rows: 2 }}>
+                            <Typography.Text style={{ lineHeight: '24px', fontSize: 16, margin: 0 }}>
+                                {shortDescription}
+                            </Typography.Text>
+                        </Typography.Paragraph>
+                    </Col>
                 </Row>
             </CardContainer>
         </Tooltip>
