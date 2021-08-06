@@ -24,9 +24,11 @@ class ForgotPassword {
         return this
     }
 
-    startPasswordRecovery () {
+    startPasswordRecoveryClick () {
         const button = cy.get('[data-ci=forgot-button]')
-        button.click()
+        button
+            .trigger('mouseover')
+            .click()
         return this
     }
 

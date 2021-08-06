@@ -93,15 +93,6 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     expiresAt,
                 })
 
-                console.log({
-                    dv,
-                    sender,
-                    user: { connect: { id: userId } },
-                    token: extraToken,
-                    requestedAt,
-                    expiresAt,
-                })
-
                 // prepare emit context
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
                 await sendMessage(context, {

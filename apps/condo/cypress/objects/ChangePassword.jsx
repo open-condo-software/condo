@@ -32,7 +32,7 @@ class ChangePassword {
         return this
     }
 
-    changePassword () {
+    changePasswordClick () {
         const button = cy.get('[data-ci=changepassword-button]')
         button.click()
         return this

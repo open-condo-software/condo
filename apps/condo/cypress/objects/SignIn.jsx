@@ -25,7 +25,7 @@ class SignIn {
         return this
     }
 
-    signin () {
+    signinClick () {
         const button = cy.get('[data-ci=signin-button]')
         button.click()
         return this

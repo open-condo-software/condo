@@ -68,13 +68,13 @@ class Registration {
         return this
     }
 
-    startRegistration () {
+    startRegistrationClick () {
         const button = cy.get('[data-ci=register-button]')
         button.click()
         return this
     }
 
-    completeRegistration () {
+    completeRegistrationClick () {
         const button = cy.get('[data-ci=registercomplete-button]')
         button.click()
         return this

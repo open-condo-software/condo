@@ -16,15 +16,15 @@ describe('Auth', () => {
             const registration = new Registration()
 
             registration
-                .visit()
+                .visit() // step 1
                 .fillPhone(user.phone)
-                .startRegistration()
-                .fillSMSCode(user.sms)
-                .fillName(user.name)
+                .startRegistrationClick()
+                .fillSMSCode(user.sms) // step 2
+                .fillName(user.name) // step 3
                 .fillEmail(user.email)
                 .fillPassword(user.password)
                 .fillConfirmPassword(user.password)
-                .completeRegistration()
+                .completeRegistrationClick()
 
             cy.url().should('eq', `${HOME_PAGE_URL}/`)
         })
@@ -36,7 +36,7 @@ describe('Auth', () => {
                 .visit()
                 .fillPhone(user.phone)
                 .fillPassword(user.password)
-                .signin()
+                .signinClick()
 
             cy.url().should('eq', `${HOME_PAGE_URL}/`)
         })
@@ -47,7 +47,7 @@ describe('Auth', () => {
             forgotPassword
                 .visit()
                 .fillEmail(user.email)
-                .startPasswordRecovery()
+                .startPasswordRecoveryClick()
                 .checkSuccess()
 
             cy.url().should('contain', `${HOME_PAGE_URL}/`)
@@ -60,7 +60,7 @@ describe('Auth', () => {
                 .visit()
                 .fillPassword(user.password)
                 .fillConfirmPassword(user.password)
-                .changePassword()
+                .changePasswordClick()
 
             cy.url().should('contain', `${HOME_PAGE_URL}/`)
             const home = new Home()

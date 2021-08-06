@@ -119,15 +119,29 @@ const ResetPage: AuthPage = () => {
                     <Input placeholder={EmailPlaceholder}  style={INPUT_STYLE}/>
                 </Form.Item>
                 <Form.Item style={{ textAlign: 'left', marginTop: '36px' }}>
-                    <Button
-                        type={'sberPrimary'}
-                        loading={isLoading}
-                        htmlType='submit'
-                        style={{ marginTop: '24px' }}
-                        data-ci={'forgot-button'}
-                    >
-                        {RestorePasswordMsg}
-                    </Button>
+                    <CountDownTimer action={forgotAction} id={'FORGOT_ACTION'} timeout={LOCK_TIMEOUT}>
+                        {({ countdown, runAction }) => {
+                            const isCountDownActive = countdown > 0
+                            return (
+                                <Button
+                                    onClick={() => {
+                                        form.validateFields().then(() => {
+                                            runAction()
+                                        }).catch(_ => {
+                                            // validation check failed - don't invoke runAction
+                                        })
+                                    }}
+                                    type={isCountDownActive ? 'sberGrey' : 'sberPrimary'}
+                                    disabled={isCountDownActive}
+                                    loading={isLoading}
+                                    htmlType='submit'
+                                    style={{ marginTop: '24px' }}
+                                >
+                                    {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
+                                </Button>
+                            )
+                        }}
+                    </CountDownTimer>
                 </Form.Item>
             </Form>
         </div>
