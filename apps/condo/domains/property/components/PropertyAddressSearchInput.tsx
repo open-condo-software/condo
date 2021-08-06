@@ -6,18 +6,19 @@ import get from 'lodash/get'
 import React, { useCallback } from 'react'
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { useApolloClient } from '@core/next/apollo'
-import { useOrganization } from '@core/next/organization'
 import { searchProperty, searchSingleProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-import { Property } from '../../../schema'
+import { Organization, Property } from '../../../schema'
 import { Highliter } from '@condo/domains/common/components/Highliter'
 import { colors } from '@condo/domains/common/constants/style'
 
-type IAddressSearchInput = SelectProps<string>
+type IAddressSearchInput = SelectProps<string> & {
+    organization: Organization
+}
 
 export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props) => {
     // TODO(Dimitree):remove ts ignore after useOrganizationTypo
     // @ts-ignore
-    const { organization } = useOrganization()
+    const { organization } = props
     const client = useApolloClient()
     const organizationId = get(organization, 'id')
 
