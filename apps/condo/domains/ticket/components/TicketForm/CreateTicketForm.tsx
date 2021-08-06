@@ -46,7 +46,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
 }
 
 export const CreateTicketForm: React.FC = () => {
-    const { organization } = useOrganization()
+    const { organization, link } = useOrganization()
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
 
@@ -70,6 +70,7 @@ export const CreateTicketForm: React.FC = () => {
             action={action}
             initialValues={initialValues}
             organization={organization}
+            role={link.role}
         >
             {({ handleSave, isLoading }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading}/>}
         </BaseTicketForm>

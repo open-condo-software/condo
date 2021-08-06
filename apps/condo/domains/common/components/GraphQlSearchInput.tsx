@@ -49,6 +49,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     }, [])
 
     async function handleSearch (value) {
+        if (!search) return
         setLoading(true)
 
         const data = await search(
