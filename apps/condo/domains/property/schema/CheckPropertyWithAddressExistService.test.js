@@ -8,6 +8,7 @@ describe('CheckPropertyWithAddressExistService', async () => {
     test('user: execute on existing address', async () => {
         const client = await makeClientWithProperty(true)
         const payload = {
+            address: client.property.address,
             addressMeta: client.property.addressMeta,
         }
         const expectedResult = {
@@ -19,6 +20,7 @@ describe('CheckPropertyWithAddressExistService', async () => {
     test('user: execute on non-existent address', async () => {
         const client = await makeClientWithProperty(false)
         const payload = {
+            address: 'address',
             addressMeta: { ...client.property.addressMeta, value: 'address' },
         }
         const expectedResult = {
