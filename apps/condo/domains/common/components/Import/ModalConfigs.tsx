@@ -109,6 +109,7 @@ export const getPartlyLoadedModalConfig = (
                 type='warning'
             />
         ),
+        width: 'fit-content',
         okText: okText,
         onOk: () => {
             return new Promise<void>((resolve, reject) => {
