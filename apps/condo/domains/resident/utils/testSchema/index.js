@@ -25,7 +25,7 @@ async function createTestResident (client, user, organization, property, extraAt
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const address = extraAttrs.address || get(property, 'address')
-    const addressMeta = address ? buildFakeAddressMeta(address) : null
+    const addressMeta = extraAttrs.addressMeta || get(property, 'addressMeta')
 
     const attrs = {
         dv: 1,
