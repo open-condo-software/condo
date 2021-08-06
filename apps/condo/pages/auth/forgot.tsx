@@ -136,6 +136,7 @@ const ResetPage: AuthPage = () => {
                                     loading={isLoading}
                                     htmlType='submit'
                                     style={{ marginTop: '24px' }}
+                                    data-ci={'forgot-button'}
                                 >
                                     {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
                                 </Button>
