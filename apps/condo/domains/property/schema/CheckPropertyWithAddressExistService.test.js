@@ -3,6 +3,8 @@
  */
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { checkPropertyWithAddressExistByTestClient } = require('@condo/domains/property/utils/testSchema')
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { DV_VERSION_MISMATCH_MESSAGE, FLAT_WITHOUT_FLAT_TYPE_MESSAGE, META_INCORRECT_JSON_MESSAGE } = require('./CheckPropertyWithAddressExistService')
  
 describe('CheckPropertyWithAddressExistService', async () => {
     test('user: execute on existing address', async () => {
@@ -28,5 +30,48 @@ describe('CheckPropertyWithAddressExistService', async () => {
         }
         const [result] = await checkPropertyWithAddressExistByTestClient(client, payload)
         expect(result).toStrictEqual(expectedResult)
+    })
+
+    describe('should throw error if ', () => {
+        it('if meta dv is not specified', async () => {
+            const client = await makeClientWithProperty()
+            client.property.addressMeta.dv = 2
+            const payload = {
+                address: client.property.address,
+                addressMeta: client.property.addressMeta,
+            }
+            await catchErrorFrom(async () => {
+                await checkPropertyWithAddressExistByTestClient(client, payload)
+            }, ({ errors }) => {
+                expect(errors[0].message).toEqual(DV_VERSION_MISMATCH_MESSAGE)
+            })
+        })
+        it('if flat is specified without flat type', async () => {
+            const client = await makeClientWithProperty(true)
+            client.property.addressMeta.data.flat_type = null
+            const payload = {
+                address: client.property.address,
+                addressMeta: client.property.addressMeta,
+            }
+            await catchErrorFrom(async () => {
+                await checkPropertyWithAddressExistByTestClient(client, payload)
+            }, ({ errors }) => {
+                expect(errors[0].message).toEqual(FLAT_WITHOUT_FLAT_TYPE_MESSAGE)
+            })
+        })
+        it('if Json has invalid format ', async () => {
+            const client = await makeClientWithProperty(true)
+            const payload = {
+                address: client.property.address,
+                addressMeta: {
+                    invalidField: 'invalid data',
+                },
+            }
+            await catchErrorFrom(async () => {
+                await checkPropertyWithAddressExistByTestClient(client, payload)
+            }, ({ errors }) => {
+                expect(errors[0].message).toEqual(META_INCORRECT_JSON_MESSAGE)
+            })
+        })
     })
 })

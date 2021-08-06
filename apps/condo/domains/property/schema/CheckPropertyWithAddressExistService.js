@@ -8,6 +8,10 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const get = require('lodash/get')
 const { jsonAddressMetaValidator } = require('../utils/validation.utils')
 
+const NO_OBJECT_MESSAGE = 'No object specified!'
+const META_INCORRECT_JSON_MESSAGE = 'AddressMeta Json had incorrect format!'
+const DV_VERSION_MISMATCH_MESSAGE = 'Unknown version of addressMeta! Expected "dv" to equal 1'
+const FLAT_WITHOUT_FLAT_TYPE_MESSAGE = 'Flat is specified, but flat type is not!'
 
 const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyWithAddressExistService', {
     types: [
@@ -29,8 +33,13 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
                 const { data: inputData } = args
                 // Later we will use "address" without "addressMeta"
                 const { addressMeta } = inputData
-                if (!addressMeta) throw new Error('No object specified!')
-                if (!jsonAddressMetaValidator(addressMeta)) throw new Error('Json had incorrect format!')
+                if (!addressMeta) throw new Error(NO_OBJECT_MESSAGE)
+                if (!jsonAddressMetaValidator(addressMeta)) throw new Error(META_INCORRECT_JSON_MESSAGE)
+
+                const dv = get(addressMeta, 'dv')
+                if (dv !== 1) {
+                    throw new Error(DV_VERSION_MISMATCH_MESSAGE)
+                }
 
                 const data = get(addressMeta, 'data')
                 const value = get(addressMeta, 'value')
@@ -39,7 +48,7 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
                 let search = value
                 if (flat) {
                     const flatType = get(data, 'flat_type')
-                    if (!flatType) throw new Error('Flat is specified, but flat type is not!')
+                    if (!flatType) throw new Error(FLAT_WITHOUT_FLAT_TYPE_MESSAGE)
                     const suffix = `, ${flatType} ${flat}`
                     search = search.substring(0, search.length - suffix.length)
                 }
@@ -57,4 +66,8 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
 
 module.exports = {
     CheckPropertyWithAddressExistService,
+    NO_OBJECT_MESSAGE,
+    META_INCORRECT_JSON_MESSAGE,
+    DV_VERSION_MISMATCH_MESSAGE,
+    FLAT_WITHOUT_FLAT_TYPE_MESSAGE,
 }
