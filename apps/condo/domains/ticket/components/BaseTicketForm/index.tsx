@@ -155,6 +155,8 @@ export const TicketInfo = ({ validations, UploadComponent, initialValues, disabl
     const PaidLabel = intl.formatMessage({ id: 'Paid' })
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
 
+    // const { ClassifiersEditorComponent } = useTicketThreeLevelsClassifierHook({ initialValues })
+
     const details = get(initialValues, 'details')
     const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(details ? details.length : 0)
 
