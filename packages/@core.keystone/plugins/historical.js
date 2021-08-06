@@ -58,6 +58,7 @@ function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFi
         Url: (field) => ({ type: Text }),
         Slug: (field) => ({ type: Text }),
         Text: (field) => ({ type: Text }),
+        LocalizedText: (field) => ({ type: Text }),
         AuthedRelationship: (field) => ({
             type: HiddenRelationship,
             ref: field.ref,
