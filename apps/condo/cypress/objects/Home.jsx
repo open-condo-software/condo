@@ -3,14 +3,16 @@
 
 const HOME_PAGE_URL = 'http://localhost:3000'
 
-class HomePage {
+
+class Home {
 
     visit () {
         cy.visit(HOME_PAGE_URL)
+        return this
     }
 }
 
 export {
-    HomePage,
+    Home,
     HOME_PAGE_URL,
 }

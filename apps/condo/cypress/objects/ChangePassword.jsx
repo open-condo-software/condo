@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable no-undef */
-import { HOME_PAGE_URL } from './HomePage'
+import { HOME_PAGE_URL } from './Home'
 import { resetToken } from '../fixtures/user.json'
 
 const CHANGE_PASSWORD_URL = `${HOME_PAGE_URL}/auth/change-password?token=${resetToken}`
@@ -15,6 +15,7 @@ class ChangePassword {
 
     visit () {
         cy.visit(CHANGE_PASSWORD_URL)
+        return this
     }
 
     fillPassword (value) {
@@ -34,6 +35,7 @@ class ChangePassword {
     changePassword () {
         const button = cy.get('[data-ci=changepassword-button]')
         button.click()
+        return this
     }
 }
 

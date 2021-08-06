@@ -64,7 +64,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             schema: 'startPasswordRecovery(data: StartPasswordRecoveryInput!): StartPasswordRecoveryOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { email, sender, dv } } = args
-                const extraToken = extra.extraToken || generateResetPasswordToken()
+                const extraToken = extra.extraToken || generateResetPasswordToken(email)
                 const extraTokenExpiration = extra.extraTokenExpiration || parseInt(RESET_PASSWORD_TOKEN_EXPIRY)
                 const extraNowTimestamp = extra.extraNowTimestamp || Date.now()
 
@@ -85,6 +85,15 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
 
                 const userId = users[0].id
                 await ForgotPasswordActionUtil.create(context, {
+                    dv,
+                    sender,
+                    user: { connect: { id: userId } },
+                    token: extraToken,
+                    requestedAt,
+                    expiresAt,
+                })
+
+                console.log({
                     dv,
                     sender,
                     user: { connect: { id: userId } },

@@ -106,7 +106,7 @@ const ResetPage: AuthPage = () => {
                 colon={false}
                 style={{ marginTop: '40px' }}
                 requiredMark={false}
-                data-ci={'forgot-email-item'}
+                onFinish={forgotAction}
             >
                 <Form.Item
                     name='email'
@@ -114,34 +114,20 @@ const ResetPage: AuthPage = () => {
                     rules={validations.email}
                     labelAlign='left'
                     labelCol={{ flex: 1 }}
+                    data-ci={'forgot-email-item'}
                 >
                     <Input placeholder={EmailPlaceholder}  style={INPUT_STYLE}/>
                 </Form.Item>
                 <Form.Item style={{ textAlign: 'left', marginTop: '36px' }}>
-                    <CountDownTimer action={forgotAction} id={'FORGOT_ACTION'} timeout={LOCK_TIMEOUT}>
-                        {({ countdown, runAction }) => {
-                            const isCountDownActive = countdown > 0
-                            return (
-                                <Button
-                                    onClick={() => {
-                                        form.validateFields().then(() => {
-                                            runAction()
-                                        }).catch(_ => {
-                                            // validation check failed - don't invoke runAction
-                                        })
-                                    }}
-                                    type={isCountDownActive ? 'sberGrey' : 'sberPrimary'}
-                                    disabled={isCountDownActive}
-                                    loading={isLoading}
-                                    htmlType='submit'
-                                    style={{ marginTop: '24px' }}
-                                    data-ci={'forgot-button'}
-                                >
-                                    {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
-                                </Button>
-                            )
-                        }}
-                    </CountDownTimer>
+                    <Button
+                        type={'sberPrimary'}
+                        loading={isLoading}
+                        htmlType='submit'
+                        style={{ marginTop: '24px' }}
+                        data-ci={'forgot-button'}
+                    >
+                        {RestorePasswordMsg}
+                    </Button>
                 </Form.Item>
             </Form>
         </div>

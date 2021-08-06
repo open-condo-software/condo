@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable no-undef */
-import { HOME_PAGE_URL } from './HomePage'
+import { HOME_PAGE_URL } from './Home'
 
 const FORGOT_PASSWORD_URL = `${HOME_PAGE_URL}/auth/forgot`
 
@@ -14,6 +14,7 @@ class ForgotPassword {
 
     visit () {
         cy.visit(FORGOT_PASSWORD_URL)
+        return this
     }
 
     fillEmail (value) {
@@ -26,6 +27,12 @@ class ForgotPassword {
     startPasswordRecovery () {
         const button = cy.get('[data-ci=forgot-button]')
         button.click()
+        return this
+    }
+
+    checkSuccess () {
+        cy.get('[data-ci=forgot-success-message]')
+        return this
     }
 
 }

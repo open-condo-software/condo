@@ -15,7 +15,7 @@ register-password-item
 register-confirmpassword-item
 registercomplete-button
 */
-import { HOME_PAGE_URL } from './HomePage'
+import { HOME_PAGE_URL } from './Home'
 
 const REGISTER_URL = `${HOME_PAGE_URL}/auth/register/`
 
@@ -23,6 +23,7 @@ class Registration {
 
     visit () {
         cy.visit(REGISTER_URL)
+        return this
     }
 
     fillPhone (value) {
@@ -70,11 +71,13 @@ class Registration {
     startRegistration () {
         const button = cy.get('[data-ci=register-button]')
         button.click()
+        return this
     }
 
     completeRegistration () {
         const button = cy.get('[data-ci=registercomplete-button]')
         button.click()
+        return this
     }
 }
 

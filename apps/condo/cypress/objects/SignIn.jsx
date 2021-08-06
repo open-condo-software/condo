@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable no-undef */
-import { HOME_PAGE_URL } from './HomePage'
+import { HOME_PAGE_URL } from './Home'
 
 const SIGNIN_URL = `${HOME_PAGE_URL}/auth/signin/`
 
@@ -8,6 +8,7 @@ class SignIn {
 
     visit () {
         cy.visit(SIGNIN_URL)
+        return this
     }
 
     fillPhone (value) {
@@ -27,6 +28,7 @@ class SignIn {
     signin () {
         const button = cy.get('[data-ci=signin-button]')
         button.click()
+        return this
     }
 }
 

@@ -28,6 +28,7 @@ const ForgotPasswordAction = generateServerUtils(ForgotPasswordActionGQL)
 const whiteListPhone = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
 const whiteListEmail = conf.EMAIL_WHITE_LIST ? JSON.parse(conf.EMAIL_WHITE_LIST) : {}
 
+console.log('WHITE', whiteListEmail)
 
 const generateSmsCode = (phone) => {
     if (has(whiteListPhone, phone)) { // Emulate Firebase white list for development - no real send sms
