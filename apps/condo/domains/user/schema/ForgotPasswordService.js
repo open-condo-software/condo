@@ -9,6 +9,7 @@ const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/c
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ForgotPasswordAction: ForgotPasswordActionUtil, User } = require('@condo/domains/user/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
+const { generateResetPasswordToken } = require('@condo/domains/user/utils/serverSchema')
 
 const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
     types: [
@@ -63,7 +64,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             schema: 'startPasswordRecovery(data: StartPasswordRecoveryInput!): StartPasswordRecoveryOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { email, sender, dv } } = args
-                const extraToken = extra.extraToken || uuid()
+                const extraToken = extra.extraToken || generateResetPasswordToken()
                 const extraTokenExpiration = extra.extraTokenExpiration || parseInt(RESET_PASSWORD_TOKEN_EXPIRY)
                 const extraNowTimestamp = extra.extraNowTimestamp || Date.now()
 
