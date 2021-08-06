@@ -1,16 +1,26 @@
 const validate = require('validate.js')
-
+const nextCookies = require('next-cookies')
 const { JSON_WRONG_VERSION_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const { REQUIRED_NO_VALUE_ERROR } = require('@condo/domains/common/constants/errors')
 
-function hasRequestAndDbFields (requestRequired, databaseRequired, resolvedData, existingItem, addFieldValidationError) {
+function hasRequestAndDbFields (requestRequired, databaseRequired, resolvedData, existingItem, context, addFieldValidationError) {
     if (typeof resolvedData === 'undefined') throw new Error('unexpected undefined resolvedData arg')
     if (typeof existingItem === 'undefined') existingItem = {}
     let hasAllFields = true
     for (let field of requestRequired) {
-        if (!resolvedData.hasOwnProperty(field)) {
+        let fieldName = field.field || field
+
+        if (!resolvedData.hasOwnProperty(fieldName)) {
+        
+            if (field.checkCookies && context.req) {
+                const cookies = nextCookies({ req: context.req } )
+                if (cookies.hasOwnProperty(fieldName)) {
+                    continue
+                }
+            }
+        
             addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${field}] Value is required`)
             hasAllFields = false
         }
