@@ -12,7 +12,7 @@ class SberCloudObsAcl {
             this.s3 = new ObsClient(config.s3Options)
             this.server = config.s3Options.server
         } else {
-            console.error('[error] OBS is not configured')
+            console.log('[error] OBS is not configured')
         }
     }
 
