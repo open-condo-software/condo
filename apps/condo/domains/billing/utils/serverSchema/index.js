@@ -17,7 +17,7 @@ const { BillingAccountMeter: BillingAccountMeterGQL } = require('@condo/domains/
 const { BillingAccountMeterReading: BillingAccountMeterReadingGQL } = require('@condo/domains/billing/gql')
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
-const { BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY } = require('@condo/domains/billing/gql')
+const { ALL_BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateServerUtils(BillingIntegrationGQL)
@@ -39,7 +39,7 @@ async function getBillingReceiptsForServiceConsumer (context, data) {
     if (!data.sender) throw new Error('no data.sender')
 
     return await execGqlWithoutAccess(context, {
-        query: BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY,
+        query: ALL_BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to getBillingReceiptsForServiceConsumer',
         dataPath: 'obj',

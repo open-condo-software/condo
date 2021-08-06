@@ -5,6 +5,7 @@
  */
 
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
+const gql = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
@@ -38,10 +39,11 @@ const BillingAccountMeterReading = generateGqlQueries('BillingAccountMeterReadin
 const BILLING_RECEIPT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id } account { id } recipient period raw toPay printableNumber toPayDetails services ${COMMON_FIELDS} }`
 const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
 
-const ALL_BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY = `
+
+const ALL_BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY = gql`
     query allBillingReceiptsForServiceConsumer ($data: BillingReceiptsForServiceConsumerInput!) {
-        objs: allBillingReceiptsForServiceConsumer(where: {id: $id}) {
-            id,
+        objs: allBillingReceiptsForServiceConsumer(data: $data) {
+            dv,
             recipient,
             period,
             toPay,

@@ -4,14 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { makeLoggedInAdminClient } = require("@core/keystone/test.utils");
-const {
-    createTestOrganizationEmployee,
-    createTestOrganizationEmployeeRole
-} = require("@condo/domains/organization/utils/testSchema");
+const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require("@condo/domains/organization/utils/testSchema");
 const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
 const faker = require('faker')
-const { throwIfError } = require(
-    '@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { makeClient } = require('@core/keystone/test.utils')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestOrganization } = require("@condo/domains/organization/utils/testSchema");
@@ -464,7 +460,7 @@ async function getBillingReceiptsForServiceConsumerByTestClient(client, serviceC
     }
     const { data, errors } = await client.mutate(ALL_BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY, { data: attrs })
     throwIfError(data, errors)
-    return [data.result, attrs]
+    return [data.objs, attrs]
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 
