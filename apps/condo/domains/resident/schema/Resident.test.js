@@ -19,6 +19,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { Resident, createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 const { softDeleteTestResident } = require('../utils/testSchema')
+const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
 
 describe('Resident', () => {
 
@@ -147,9 +148,12 @@ describe('Resident', () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
 
+                const address = faker.lorem.words()
                 const attrs = {
-                    address: faker.lorem.words(),
+                    address,
+                    addressMeta: buildFakeAddressMeta(address),
                 }
+                console.log('user and admin clients created')
 
                 const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, null, attrs)
                 await addResidentAccess(userClient.user)
