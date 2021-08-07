@@ -102,7 +102,6 @@
     "@types/react": "^17.0.1",
     "babel-jest": "^26.6.3",
     "cypress": "^8.2.0",
-    "expect": "^27.0.6",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^26.6.3",
     "jest-watch-typeahead": "^0.6.1",

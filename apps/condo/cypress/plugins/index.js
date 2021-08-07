@@ -23,8 +23,6 @@ module.exports = async (on, config) => {
         },
         async 'keystone:getConfirmPhoneAction' (phone) {
             const result = await ConfirmPhoneAction.getAll(admin, {  phone })
-
-            console.log('result: ', result)
             return result
         },
     })
