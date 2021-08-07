@@ -146,7 +146,7 @@ const ChangePasswordPage: AuthPage = () => {
                     labelAlign='left'
                     labelCol={{ flex: 1 }}
                     rules={validations.password}
-                    data-ci={'changepassword-password-item'}
+                    data-cy={'changepassword-password-item'}
                 >
                     <Input.Password style={INPUT_STYLE}/>
                 </Form.Item>
@@ -158,7 +158,7 @@ const ChangePasswordPage: AuthPage = () => {
                     style={{ marginTop: '40px' }}
                     dependencies={['password']}
                     rules={validations.confirmPassword}
-                    data-ci={'changepassword-confirm-item'}
+                    data-cy={'changepassword-confirm-item'}
                 >
                     <Input.Password  style={INPUT_STYLE}/>
                 </Form.Item>
@@ -169,7 +169,7 @@ const ChangePasswordPage: AuthPage = () => {
                             type='sberPrimary'
                             loading={isSaving}
                             htmlType="submit"
-                            data-ci={'changepassword-button'}
+                            data-cy={'changepassword-button'}
                         >
                             {SaveMsg}
                         </Button>

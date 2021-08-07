@@ -285,7 +285,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
                     labelAlign='left'
                     style={{ marginTop: '40px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }}
-                    data-ci={'register-phone-item'}
+                    data-cy={'register-phone-item'}
                     rules={[
                         ...validations.phone,
                         () => ({
@@ -315,7 +315,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
                         htmlType='submit'
                         loading={isloading}
                         style={{ marginTop: '40px' }}
-                        data-ci={'register-button'}
+                        data-cy={'register-button'}
                     >
                         {RegisterMsg}
                     </Button>
@@ -462,7 +462,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
                     labelAlign='left'
                     style={{ marginTop: '40px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }}
-                    data-ci={'register-smscode-item'}
+                    data-cy={'register-smscode-item'}
                     rules={[
                         requiredValidator,
                         () => ({
@@ -628,7 +628,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     labelAlign='left'
                     style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }}
-                    data-ci={'register-name-item'}
+                    data-cy={'register-name-item'}
                     rules={[{
                         required: true,
                         message: PleaseInputYourNameMsg,
@@ -653,7 +653,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     labelAlign='left'
                     style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }}
-                    data-ci={'register-email-item'}
+                    data-cy={'register-email-item'}
                     rules={validations.email}
                 >
                     <Input autoComplete='chrome-off' placeholder={EmailPlaceholder} style={INPUT_STYLE} />
@@ -664,7 +664,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     labelAlign='left'
                     style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }}
-                    data-ci={'register-password-item'}
+                    data-cy={'register-password-item'}
                     rules={validations.minPassword}
                 >
                     <Input.Password autoComplete='new-password' style={INPUT_STYLE} />
@@ -676,7 +676,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                     style={{ marginTop: '24px', textAlign: 'left' }}
                     labelCol={{ flex: 1 }}
                     dependencies={['password']}
-                    data-ci={'register-confirmpassword-item'}
+                    data-cy={'register-confirmpassword-item'}
                     rules={validations.confirmPassword}
                 >
                     <Input.Password style={INPUT_STYLE} />
@@ -688,7 +688,7 @@ const RegisterForm = ({ onFinish }): React.ReactElement<IRegisterFormProps> => {
                         type='sberPrimary'
                         htmlType='submit'
                         loading={isLoading}
-                        data-ci={'registercomplete-button'}
+                        data-cy={'registercomplete-button'}
                     >
                         {RegisterMsg}
                     </Button>

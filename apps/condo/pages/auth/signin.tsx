@@ -101,7 +101,7 @@ const SignInForm = (): React.ReactElement => {
                 labelAlign='left'
                 labelCol={{ flex: 1 }}
                 rules={[requiredValidator]}
-                data-ci={'signin-phone-item'}
+                data-cy={'signin-phone-item'}
             >
                 <PhoneInput placeholder={ExamplePhoneMsg} style={INPUT_STYLE} tabIndex={1} />
             </Form.Item>
@@ -113,7 +113,7 @@ const SignInForm = (): React.ReactElement => {
                 labelCol={{ flex: 1 }}
                 style={{ marginTop: '24px' }}
                 rules={[requiredValidator]}
-                data-ci={'signin-password-item'}
+                data-cy={'signin-password-item'}
             >
                 <Input.Password style={INPUT_STYLE} tabIndex={2} />
             </Form.Item>
@@ -125,7 +125,7 @@ const SignInForm = (): React.ReactElement => {
                     htmlType="submit"
                     style={{ justifySelf: 'flex-start' }}
                     loading={isLoading}
-                    data-ci={'signin-button'}
+                    data-cy={'signin-button'}
                 >
                     {SignInMsg}
                 </Button>

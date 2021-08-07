@@ -57,7 +57,7 @@ const ResetPage: AuthPage = () => {
     }
     if (isSuccessMessage) {
         return (
-            <Typography.Paragraph style={{ textAlign: 'left' }} data-ci={'forgot-success-message'}>
+            <Typography.Paragraph style={{ textAlign: 'left' }} data-cy={'forgot-success-message'}>
                 <Typography.Title>{CheckEmailMsg}</Typography.Title>
                 <Typography.Paragraph >
                     <FormattedMessage id='pages.auth.reset.ResetSuccessMessage' values={{ email: form.getFieldValue('email') }} />
@@ -114,7 +114,7 @@ const ResetPage: AuthPage = () => {
                     rules={validations.email}
                     labelAlign='left'
                     labelCol={{ flex: 1 }}
-                    data-ci={'forgot-email-item'}
+                    data-cy={'forgot-email-item'}
                 >
                     <Input placeholder={EmailPlaceholder}  style={INPUT_STYLE}/>
                 </Form.Item>
@@ -136,7 +136,7 @@ const ResetPage: AuthPage = () => {
                                     loading={isLoading}
                                     htmlType='submit'
                                     style={{ marginTop: '24px' }}
-                                    data-ci={'forgot-button'}
+                                    data-cy={'forgot-button'}
                                 >
                                     {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
                                 </Button>
