@@ -106,7 +106,6 @@ const ResetPage: AuthPage = () => {
                 colon={false}
                 style={{ marginTop: '40px' }}
                 requiredMark={false}
-                onFinish={forgotAction}
             >
                 <Form.Item
                     name='email'

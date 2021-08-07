@@ -1,4 +1,4 @@
-# Some advanced topics #
+# Some advanced topics # 
 
 ## Update from 8iq repo
 
@@ -191,7 +191,7 @@ Run by `yarn makemigrations` and `yarn migrate`
 ## Upgrade packages versions
 
 ```bash
-# just run the command, and select packages for update (this command will fix the package.json files)
+# just run the command, and select packages for update (this command will fix the package.json files) 
 yarn upgrade-interactive --latest
 ```
 
@@ -199,7 +199,7 @@ yarn upgrade-interactive --latest
 
 `@core/keystone/test.utils` can work in two modes:
  1. Real client mode. Allow sending HTTP/1.1 requests to a remote server
- 2. Fake client mode. Allow using fake express requests by `supertest` lib
+ 2. Fake client mode. Allow using fake express requests by `supertest` lib 
 
 The Real mode is better for end-to-end testing. You can also use it to test your production.
 
@@ -207,7 +207,7 @@ The Fake mode is better for debugging. Because it uses one process for the whole
 It's better for TDD like development process and to easy debug end-to-end request/response process.
 
 You can use `TESTS_FAKE_CLIENT_MODE` to change test mode. This option setup the express app and the fake client in one process.
-This allows you to put debugger breakpoints in any part of the request/response process.
+This allows you to put debugger breakpoints in any part of the request/response process. 
 And use IDE integrations for easy debugging.
 
 ## Debug database queries
@@ -228,7 +228,7 @@ You can use `bin/run-multiple-apps` to run more then one app.
 
 Example:
 ```bash
-node ./bin/run-multiple-apps @app/ex02back @app/ex02front @app/ex03sockeio
+node ./bin/run-multiple-apps @app/ex02back @app/ex02front @app/ex03sockeio 
 ```
 
 Every app should have `multi-app-support.js` file. Check `ex02back`, `ex02front` and `ex02sockio` examples.
