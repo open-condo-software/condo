@@ -27,18 +27,10 @@ import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySear
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
-import { SortTicketsBy, TicketWhereInput } from '../../schema'
+import { SortTicketsBy } from '../../schema'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { ColumnType } from 'antd/lib/table'
-import { ITableColumn } from '../../domains/property/hooks/useTableColumns'
 
-interface TicketIndexPage {
-    ticketsSearchQuery?: TicketWhereInput
-    useTableColumns?: (sort: Array<string>, filters: IFilters,
-        setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => ColumnType<ITableColumn>[]
-}
-
-interface ITicketIndexPage extends React.FC<TicketIndexPage> {
+interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
 }
@@ -49,7 +41,7 @@ const verticalAlign = css`
     }
 `
 
-const TicketsPage: ITicketIndexPage = ({ ticketsSearchQuery: ticketsSearchQuery, useTableColumns: useTableColumnsFromProps  }) => {
+export const TicketsPageContent = ({ searchTicketsQuery, tableColumns, sortBy, filtersApplied, setFiltersApplied }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -60,21 +52,13 @@ const TicketsPage: ITicketIndexPage = ({ ticketsSearchQuery: ticketsSearchQuery,
     const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
+
     const router = useRouter()
-    const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
     const pagesizeFromQuey: number = getPageSizeFromQuery(router.query)
 
-    const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
-
-    const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC' //TODO(Dimitreee):Find cleanest solution
-
-    const getResTicketProps: () => TicketWhereInput = () => {
-        return ticketsSearchQuery ? ticketsSearchQuery : { organization: { id: userOrganizationId } }
-    }
-    const where = { ...filtersToQuery(filtersFromQuery), ...getResTicketProps() }
+    const where = { ...filtersToQuery(filtersFromQuery), ...searchTicketsQuery }
     const {
         fetchMore,
         loading,
@@ -88,6 +72,7 @@ const TicketsPage: ITicketIndexPage = ({ ticketsSearchQuery: ticketsSearchQuery,
     }, {
         fetchPolicy: 'network-only',
     })
+
     const [downloadLink, setDownloadLink] = useState(null)
 
     const [
@@ -104,11 +89,6 @@ const TicketsPage: ITicketIndexPage = ({ ticketsSearchQuery: ticketsSearchQuery,
             },
         },
     )
-
-    const [filtersApplied, setFiltersApplied] = useState(false)
-
-    const useTableColumnsHook = useTableColumnsFromProps ? useTableColumnsFromProps : useTableColumns
-    const tableColumns = useTableColumnsHook(sortFromQuery, filtersFromQuery, setFiltersApplied)
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -229,6 +209,30 @@ const TicketsPage: ITicketIndexPage = ({ ticketsSearchQuery: ticketsSearchQuery,
                 </PageContent>
             </PageWrapper>
         </>
+    )
+}
+
+const TicketsPage: ITicketIndexPage = () => {
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+
+    const router = useRouter()
+    const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
+    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
+    const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC' //TODO(Dimitreee):Find cleanest solution
+    const [filtersApplied, setFiltersApplied] = useState(false)
+
+    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
+    const searchTicketsQuery = { organization: { id: userOrganizationId } }
+
+    return (
+        <TicketsPageContent
+            searchTicketsQuery={searchTicketsQuery}
+            tableColumns={tableColumns}
+            sortBy={sortBy}
+            filtersApplied={filtersApplied}
+            setFiltersApplied={setFiltersApplied}
+        />
     )
 }
 
