@@ -208,7 +208,6 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
 
 const TicketPurpose = ({ validations, organizationId, disableUserInteraction }) => {
     const intl = useIntl()
-
     const TicketPurposeTitle = intl.formatMessage({ id: 'TicketPurpose' })
     const ExecutorLabel = intl.formatMessage({ id: 'field.Executor' })
     const ResponsibleLabel = intl.formatMessage({ id: 'field.Responsible' })
