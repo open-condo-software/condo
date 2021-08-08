@@ -210,6 +210,7 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
     const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
     const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
     const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const { setToken, setPhone, handleReCaptchaVerify } = useContext(RegisterContext)
     const [smsSendError, setSmsSendError] = useState(null)
     const [isloading, setIsLoading] = useState(false)
@@ -256,16 +257,23 @@ const InputPhoneForm = ({ onFinish }): React.ReactElement<IInputPhoneFormProps> 
             intl,
             form,
         }).catch(error => {
-            // We expect only 1 type of error here. That's why - we override standard behaviour with OnErrorMsg = null
+            let isSmsTimeoutError = false
             if (has(error, 'graphQLErrors')) {
                 const smsTimeoutError = error.graphQLErrors.find((err) => (err.name.indexOf(TOO_MANY_REQUESTS) === 0))
                 if (smsTimeoutError) {
+                    isSmsTimeoutError = true
                     const { data: { timeRemain = 0 } } = smsTimeoutError
                     notification.error({
                         message: SMSTooManyRequestsError,
                         description: intl.formatMessage({ id: 'pages.auth.register.error.smstimeout' }, { timeRemain }),
                     })
                 }
+            }
+            if (!isSmsTimeoutError) {
+                notification.error({
+                    message: ServerErrorMsg,
+                    description: error.message,
+                })
             }
             setIsLoading(false)
         })
@@ -340,7 +348,7 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
     const ChangePhoneNumberLabel = intl.formatMessage({ id: 'pages.auth.register.ChangePhoneNumber' })
     const SmsCodeTitle = intl.formatMessage({ id: 'pages.auth.register.field.SmsCode' })
     const ResendSmsLabel = intl.formatMessage({ id: 'pages.auth.register.ResendSmsLabel' })
-
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const SMSCodeMismatchError = intl.formatMessage({ id: 'pages.auth.register.SMSCodeMismatchError' })
     const SMSExpiredError = intl.formatMessage({ id: 'pages.auth.register.SMSExpiredError' })
     const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
@@ -395,15 +403,23 @@ const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidateP
             form,
             OnErrorMsg: null,
         }).catch(error => {
+            let isSmsTimeoutError = false
             if (has(error, 'graphQLErrors')) {
                 const smsTimeoutError = error.graphQLErrors.find((err) => (err.name.indexOf(TOO_MANY_REQUESTS) === 0))
                 if (smsTimeoutError) {
+                    isSmsTimeoutError = true
                     const { data: { timeRemain = 0 } } = smsTimeoutError
                     notification.error({
                         message: SMSTooManyRequestsError,
                         description: intl.formatMessage({ id: 'pages.auth.register.error.smstimeout' }, { timeRemain }),
                     })
                 }
+            }
+            if (!isSmsTimeoutError) {
+                notification.error({
+                    message: ServerErrorMsg,
+                    description: error.message,
+                })
             }
         })
     }
