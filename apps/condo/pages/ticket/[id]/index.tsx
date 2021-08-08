@@ -31,7 +31,6 @@ import { Comments } from '@condo/domains/common/components/Comments'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { Organization, OrganizationEmployee } from '@core/keystone/schema'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 
@@ -52,7 +51,7 @@ const UploadListWrapperStyles = css`
     }
 `
 
-const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
+export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
     const uploadFiles = files.map(({ file }) => {
         const fileInList = {
             uid: file.id,
@@ -73,7 +72,7 @@ interface ITicketUserInfoFieldProps {
     user?: IUser
 }
 
-const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
+export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
     const id = get(props, ['user', 'id'])
     const name = get(props, ['user', 'name'])
     const phone = get(props, ['user', 'phone'])
@@ -125,7 +124,7 @@ interface ITicketFieldRowProps {
     children: React.ReactNode
 }
 
-const TicketFieldRow: React.FC<ITicketFieldRowProps> = ({ title, children, highlight, style }) => {
+export const TicketFieldRow: React.FC<ITicketFieldRowProps> = ({ title, children, highlight, style }) => {
     return (
         <>
             <Col span={8} style={{ fontSize: '16px' }}>
@@ -148,31 +147,106 @@ const TicketTag = styled(Tag)`
   line-height: 24px;
 `
 
-export interface TicketIdPageProps {
-    employee?: OrganizationEmployee
-    organization?: Organization
+const TicketContent = ({ ticket }) => {
+    const intl = useIntl()
+    const TicketInfoMessage = intl.formatMessage({ id: 'Problem' })
+    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
+    const ClientMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Client' })
+    const FilesFieldLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Files' })
+    const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
+    const ClassifierMessage = intl.formatMessage({ id: 'Classifier' })
+    const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+    const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+
+    const ticketUnit = ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : ''
+    const ticketAddress = get(ticket, ['property', 'address']) + ticketUnit
+    const ticketAddressExtra = ticket.sectionName && ticket.floorName
+        ? `${SectionName.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName}`
+        : ''
+
+    const { objs: files } = TicketFile.useObjects({
+        where: { ticket: { id: ticket ? ticket.id : null } },
+    }, {
+        fetchPolicy: 'network-only',
+    })
+
+    return (
+        <Col span={24}>
+            <Row style={{ rowGap: '1.6em' }}>
+                <TicketFieldRow title={AddressMessage} highlight>
+                    {ticketAddress}
+                    {ticketAddressExtra && (
+                        <>
+                            <br/>
+                            <Typography.Text>
+                                {ticketAddressExtra}
+                            </Typography.Text>
+                        </>
+                    )}
+                </TicketFieldRow>
+                <TicketFieldRow title={ClientMessage} highlight>
+                    <TicketUserInfoField
+                        user={{
+                            name: get(ticket, 'clientName'),
+                            phone: get(ticket, 'clientPhone'),
+                        }}
+                    />
+                </TicketFieldRow>
+                <TicketFieldRow title={TicketInfoMessage}>
+                    {ticket.details}
+                </TicketFieldRow>
+                {!isEmpty(files) && (
+                    <TicketFieldRow title={FilesFieldLabel}>
+                        <TicketFileList files={files} />
+                    </TicketFieldRow>
+                )}
+            </Row>
+            <FocusContainer style={{ marginTop: '1.6em' }}>
+                <Row style={{ rowGap: '1.6em' }}>
+                    <TicketFieldRow title={ExecutorMessage} highlight>
+                        <TicketUserInfoField
+                            user={get(ticket, ['executor'])}
+                        />
+                    </TicketFieldRow>
+                    <TicketFieldRow title={AssigneeMessage} highlight>
+                        <TicketUserInfoField
+                            user={get(ticket, ['assignee'])}
+                        />
+                    </TicketFieldRow>
+                    <TicketFieldRow title={ClassifierMessage}>
+                        <Breadcrumb separator="≫">
+                            {
+                                compact([
+                                    // TODO(zuch): remove classifier after migrations
+                                    get(ticket, ['classifier', 'name']),
+                                    get(ticket, ['placeClassifier', 'name']),
+                                    get(ticket, ['categoryClassifier', 'name']),
+                                    get(ticket, ['problemClassifier', 'name']),
+                                ]).map(name => {
+                                    return (
+                                        <Breadcrumb.Item key={name}>{name}</Breadcrumb.Item>
+                                    )
+                                })
+                            }
+                        </Breadcrumb>
+                    </TicketFieldRow>
+                </Row>
+            </FocusContainer>
+        </Col>
+    )
 }
 
-const TicketIdPage = ({ employee: employeeFromProps, organization: organizationFromProps }: TicketIdPageProps) => {
+export const TicketPageContent = ({ organization, employee, TicketContent }) => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const PrintMessage = intl.formatMessage({ id: 'Print' })
-    const TicketInfoMessage = intl.formatMessage({ id: 'Problem' })
-    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const ClientMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Client' })
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
-    const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
-    const ClassifierMessage = intl.formatMessage({ id: 'Classifier' })
-    const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
-    const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
-    const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' })
-    const FilesFieldLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Files' })
-    const OrganizationMessage = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
 
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
@@ -182,11 +256,6 @@ const TicketIdPage = ({ employee: employeeFromProps, organization: organizationF
 
     const { refetch: refetchTicket, loading, obj: ticket, error } = Ticket.useObject({
         where: { id },
-    }, {
-        fetchPolicy: 'network-only',
-    })
-    const { objs: files } = TicketFile.useObjects({
-        where: { ticket: { id: id } },
     }, {
         fetchPolicy: 'network-only',
     })
@@ -214,26 +283,15 @@ const TicketIdPage = ({ employee: employeeFromProps, organization: organizationF
         user: auth.user && auth.user.id,
     }, () => { refetchComments() })
 
-    const { link, organization: userOrganization } = useOrganization()
-
-    const canShareTickets = get(link, 'role.canShareTickets')
+    const canShareTickets = get(employee, 'role.canShareTickets')
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
-
-    const organization = organizationFromProps ? organizationFromProps : userOrganization
-    const employee = employeeFromProps ? employeeFromProps : link
 
     if (!ticket) {
         return (
             <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={error ? ServerErrorMessage : null}/>
         )
     }
-
-    const ticketUnit = ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : ''
-    const ticketAddress = get(ticket, ['property', 'address']) + ticketUnit
-    const ticketAddressExtra = ticket.sectionName && ticket.floorName
-        ? `${SectionName.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName}`
-        : ''
 
     const isEmergency = get(ticket, 'isEmergency')
     const isPaid = get(ticket, 'isPaid')
@@ -291,75 +349,7 @@ const TicketIdPage = ({ employee: employeeFromProps, organization: organizationF
                                         {isPaid && <TicketTag color={'orange'}>{PaidMessage.toLowerCase()}</TicketTag>}
                                     </Space>
                                 </Col>
-                                <Col span={24}>
-                                    <Row style={{ rowGap: '1.6em' }}>
-                                        {
-                                            organizationFromProps ? (
-                                                <TicketFieldRow title={OrganizationMessage}>
-                                                    {organization.name}
-                                                </TicketFieldRow>
-                                            ) : null
-                                        }
-                                        <TicketFieldRow title={AddressMessage} highlight>
-                                            {ticketAddress}
-                                            {ticketAddressExtra && (
-                                                <>
-                                                    <br/>
-                                                    <Typography.Text>
-                                                        {ticketAddressExtra}
-                                                    </Typography.Text>
-                                                </>
-                                            )}
-                                        </TicketFieldRow>
-                                        <TicketFieldRow title={ClientMessage} highlight>
-                                            <TicketUserInfoField
-                                                user={{
-                                                    name: get(ticket, 'clientName'),
-                                                    phone: get(ticket, 'clientPhone'),
-                                                }}
-                                            />
-                                        </TicketFieldRow>
-                                        <TicketFieldRow title={TicketInfoMessage}>
-                                            {ticket.details}
-                                        </TicketFieldRow>
-                                        {!isEmpty(files) && (
-                                            <TicketFieldRow title={FilesFieldLabel}>
-                                                <TicketFileList files={files} />
-                                            </TicketFieldRow>
-                                        )}
-                                    </Row>
-                                    <FocusContainer style={{ marginTop: '1.6em' }}>
-                                        <Row style={{ rowGap: '1.6em' }}>
-                                            <TicketFieldRow title={ExecutorMessage} highlight>
-                                                <TicketUserInfoField
-                                                    user={get(ticket, ['executor'])}
-                                                />
-                                            </TicketFieldRow>
-                                            <TicketFieldRow title={AssigneeMessage} highlight>
-                                                <TicketUserInfoField
-                                                    user={get(ticket, ['assignee'])}
-                                                />
-                                            </TicketFieldRow>
-                                            <TicketFieldRow title={ClassifierMessage}>
-                                                <Breadcrumb separator="≫">
-                                                    {
-                                                        compact([
-                                                            // TODO(zuch): remove classifier after migrations
-                                                            get(ticket, ['classifier', 'name']),
-                                                            get(ticket, ['placeClassifier', 'name']),
-                                                            get(ticket, ['categoryClassifier', 'name']),
-                                                            get(ticket, ['problemClassifier', 'name']),
-                                                        ]).map(name => {
-                                                            return (
-                                                                <Breadcrumb.Item key={name}>{name}</Breadcrumb.Item>
-                                                            )
-                                                        })
-                                                    }
-                                                </Breadcrumb>
-                                            </TicketFieldRow>
-                                        </Row>
-                                    </FocusContainer>
-                                </Col>
+                                <TicketContent ticket={ticket}/>
                                 <ActionBar>
                                     <Link href={`/ticket/${ticket.id}/update`}>
                                         <Button
@@ -421,6 +411,12 @@ const TicketIdPage = ({ employee: employeeFromProps, organization: organizationF
             </PageWrapper>
         </>
     )
+}
+
+const TicketIdPage = () => {
+    const { link, organization } = useOrganization()
+
+    return <TicketPageContent organization={organization} employee={link} TicketContent={TicketContent} />
 }
 
 TicketIdPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllTickets' }} path={'/ticket/'}/>
