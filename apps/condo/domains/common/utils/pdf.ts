@@ -88,21 +88,21 @@ export const createPdfWithPageBreaks: ICreatePdfWithPageBreaks = (options) => {
     const { element, fileName } = options
     const elementWidth = element.clientWidth
     const elementHeight = element.clientHeight
-    const topLeftMargin = 15
-    const pdfWidth = elementWidth + (topLeftMargin * 2)
-    const pdfHeight = (pdfWidth * 1.5) + (topLeftMargin * 2)
+    const { elementOffset } = PDF_FORMAT_SETTINGS['a4']
+    const pdfWidth = elementWidth + (elementOffset * 2)
+    const pdfHeight = (pdfWidth * 1.5) + (elementOffset * 2)
 
     const totalPDFPages = Math.ceil(elementHeight / pdfHeight) - 1
 
-    return html2canvas(element, { allowTaint: true }).then(canvas => {
+    return html2canvas(element).then(canvas => {
         const imgData = canvas.toDataURL('image/jpeg', 1.0)
         const pdf = new Jspdf('p', 'pt',  [pdfWidth, pdfHeight])
-        pdf.addImage(imgData, 'JPG', topLeftMargin, topLeftMargin, elementWidth, elementHeight)
+        pdf.addImage(imgData, 'JPG', elementOffset, elementOffset, elementWidth, elementHeight)
 
 
         for (let i = 1; i <= totalPDFPages; i++) {
             pdf.addPage([pdfWidth, pdfHeight], 'p')
-            pdf.addImage(imgData, 'JPG', topLeftMargin, -(pdfHeight * i) + (topLeftMargin * 4), elementWidth, elementHeight)
+            pdf.addImage(imgData, 'JPG', elementOffset, -(pdfHeight * i) + (elementOffset * 4), elementWidth, elementHeight)
         }
 
         return pdf.save(fileName, { returnPromise: true })
