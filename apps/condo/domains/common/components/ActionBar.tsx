@@ -23,12 +23,10 @@ interface IActionBarProps {
 
 const ActionBar: React.FC<IActionBarProps> = ({ children, fullscreen = false }) => {
     return (
-        <Affix offsetBottom={24} style={{ width: fullscreen ? '100%' : 'unset' }}>
-            <div css={actionBar}>
-                <Space wrap={true} size={[40, 24]} style={{ marginBottom: '0 !important' }}>
-                    { children }
-                </Space>
-            </div>
+        <Affix offsetBottom={48} style={{ width: fullscreen ? '100%' : 'unset' }}>
+            <Space wrap={true} size={[40, 24]} css={actionBar}>
+                { children }
+            </Space>
         </Affix>
     )
 }
