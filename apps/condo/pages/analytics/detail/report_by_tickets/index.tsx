@@ -239,9 +239,9 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
             },
         },
         grid: {
-            left: 0,
-            right: 0,
-            bottom: 0,
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
             containLabel: true,
             borderWidth: 1,
         },
@@ -271,7 +271,7 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
                     onChartReady={onChartReady}
                     notMerge
                     showLoading={loading}
-                    style={{ height: chartHeight !== 'auto' ? 'unset' : 450 }}
+                    style={{ height: chartHeight !== 'auto' ? 'unset' : 300 }}
                     option={option}/>
                 {children}
             </>
@@ -395,7 +395,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
 
     return (
         <Form>
-            <Row gutter={[40, 8]} wrap>
+            <Row gutter={[40, 25]} wrap>
                 <Col flex={0}>
                     <Form.Item label={PeriodTitle} {...FORM_ITEM_STYLE}>
                         <DateRangePicker
@@ -549,7 +549,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         </Tooltip>
                     </Col>
                 </Row>
-                <Row gutter={[0, 40]} align={'top'} justify={'space-between'}>
+                <Row gutter={[0, 20]} align={'top'} justify={'space-between'}>
                     <Col span={24}>
                         <Tabs
                             defaultActiveKey='status'
