@@ -5,7 +5,7 @@
 const faker = require('faker')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithResidentUser, addResidentAccess } = require('@condo/domains/user/utils/testSchema')
-const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty, makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
@@ -398,12 +398,27 @@ describe('Resident', () => {
             })
         })
 
-        it('can be soft-deleted using update operation', async () => {
+        it('can be soft-deleted using update operation by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
             const [objUpdated, attrs] = await softDeleteTestResident(adminClient, obj.id)
+
+            expect(objUpdated.id).toEqual(obj.id)
+            expect(objUpdated.dv).toEqual(1)
+            expect(objUpdated.sender).toEqual(attrs.sender)
+            expect(objUpdated.deletedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+        })
+
+        it('can be soft-deleted using update operation by current user with type resident', async () => {
+            const userClient = await makeClientWithResidentUserAndProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+
+            const [objUpdated, attrs] = await softDeleteTestResident(userClient, obj.id)
 
             expect(objUpdated.id).toEqual(obj.id)
             expect(objUpdated.dv).toEqual(1)

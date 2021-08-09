@@ -18,8 +18,14 @@ async function canReadResidents ({ authentication: { item: user } }) {
 async function canManageResidents ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return false
     if (user.isAdmin) return true
-    if (operation === 'create' && user.type === RESIDENT) {
-        return true
+    if (user.type === RESIDENT) {
+        if (operation === 'create') return true
+        // Only soft-delete is allowed for current resident
+        if (operation === 'update') {
+            if (originalInput.deletedAt !== null) {
+                return true
+            }
+        }
     }
     return false
 }
