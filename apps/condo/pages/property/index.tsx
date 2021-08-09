@@ -42,9 +42,7 @@ export const PropertyPageViewMap = ({ searchPropertyQuery }): React.FC => {
     const {
         objs: properties,
     } = Property.useObjects({
-        where: {
-            ...searchPropertyQuery(),
-        },
+        where: searchPropertyQuery,
     }, {
         fetchPolicy: 'network-only',
     })
@@ -66,7 +64,13 @@ export const PropertyPageViewMap = ({ searchPropertyQuery }): React.FC => {
     )
 }
 
-export const PropertyPageViewTable = ({ searchPropertyQuery, role }): React.FC => {
+export const PropertyPageViewTable = ({
+    searchPropertyQuery,
+    tableColumns,
+    role,
+    filtersApplied,
+    setFiltersApplied,
+}): React.FC => {
     const intl = useIntl()
 
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
@@ -84,10 +88,10 @@ export const PropertyPageViewTable = ({ searchPropertyQuery, role }): React.FC =
     const createRoute = '/property/create'
 
     const router = useRouter()
-
     const sortFromQuery = getSortStringFromQuery(router.query)
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
+
     const {
         refetch,
         fetchMore,
@@ -97,18 +101,12 @@ export const PropertyPageViewTable = ({ searchPropertyQuery, role }): React.FC =
         objs: properties,
     } = Property.useObjects({
         sortBy: sortFromQuery,
-        where: {
-            ...filtersToQuery(filtersFromQuery),
-            ...searchPropertyQuery(),
-        },
+        where: searchPropertyQuery,
         skip: (offsetFromQuery * PROPERTY_PAGE_SIZE) - PROPERTY_PAGE_SIZE,
         first: PROPERTY_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
     })
-
-    const [filtersApplied, setFiltersApplied] = useState(false)
-    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
 
     const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
         const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
@@ -130,7 +128,6 @@ export const PropertyPageViewTable = ({ searchPropertyQuery, role }): React.FC =
                 )
                 router.push(router.route + query)
             })
-
         }
     }, 400), [loading])
 
@@ -242,18 +239,18 @@ export const PropertyPageViewTable = ({ searchPropertyQuery, role }): React.FC =
     )
 }
 
-const PropertyPage = (): React.FC => {
+export const PropertyPageContent = ({
+    searchPropertyQuery,
+    tableColumns,
+    role,
+    filtersApplied,
+    setFiltersApplied,
+}) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.PageTitle' })
     const ShowMap = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeMap' })
     const ShowTable = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeTable' })
     const [viewMode, changeViewMode] = useState('list')
-
-    const { organization, link } = useOrganization()
-
-    const searchPropertyQuery = () => (
-        { organization: { id: organization.id } }
-    )
 
     return (
         <>
@@ -276,18 +273,52 @@ const PropertyPage = (): React.FC => {
                         </Col>
                         <Col span={24}>
                             {
-                                viewMode !== 'map' ? <PropertyPageViewTable searchPropertyQuery={searchPropertyQuery} role={link.role} /> : null
+                                viewMode !== 'map' ? (
+                                    <PropertyPageViewTable
+                                        filtersApplied={filtersApplied}
+                                        setFiltersApplied={setFiltersApplied}
+                                        tableColumns={tableColumns}
+                                        searchPropertyQuery={searchPropertyQuery}
+                                        role={role}
+                                    />
+                                ) : null
                             }
                         </Col>
                     </Row>
                     <>
                         {
-                            viewMode === 'map' ? <PropertyPageViewMap searchPropertyQuery={searchPropertyQuery} /> : null
+                            viewMode === 'map' ? (
+                                <PropertyPageViewMap
+                                    searchPropertyQuery={searchPropertyQuery}
+                                />
+                            ) : null
                         }
                     </>
                 </PageContent>
             </PageWrapper>
         </>
+    )
+}
+
+const PropertyPage = (): React.FC => {
+    const router = useRouter()
+    const { organization, link } = useOrganization()
+
+    const [filtersApplied, setFiltersApplied] = useState(false)
+    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
+    const sortFromQuery = getSortStringFromQuery(router.query)
+    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
+
+    const searchPropertyQuery = {  ...filtersToQuery(filtersFromQuery), organization: { id: organization.id } }
+
+    return (
+        <PropertyPageContent
+            filtersApplied={filtersApplied}
+            setFiltersApplied={setFiltersApplied}
+            searchPropertyQuery={searchPropertyQuery}
+            role={link.role}
+            tableColumns={tableColumns}
+        />
     )
 }
 

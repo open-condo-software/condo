@@ -12,7 +12,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { Button } from '@condo/domains/common/components/Button'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { PropertyPanels } from '@condo/domains/property/components/panels/index'
+import { PropertyPanels } from '@condo/domains/property/components/panels'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
