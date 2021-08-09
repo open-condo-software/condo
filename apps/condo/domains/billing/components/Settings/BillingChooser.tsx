@@ -60,7 +60,7 @@ export const BillingChooser: React.FC = () => {
     if (integrationsError || contextError) {
         return (
             <BasicEmptyListView>
-                <Typography.Title level={4}>
+                <Typography.Title level={3}>
                     {integrationsError ? integrationsError : contextError}
                 </Typography.Title>
             </BasicEmptyListView>
