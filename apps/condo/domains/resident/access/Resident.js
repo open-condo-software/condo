@@ -3,6 +3,7 @@
  */
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { Resident } = require('../utils/serverSchema')
 
 async function canReadResidents ({ authentication: { item: user } }) {
     if (!user) return false
@@ -22,6 +23,16 @@ async function canManageResidents ({ authentication: { item: user }, originalInp
         if (operation === 'create') return true
         // Only soft-delete is allowed for current resident
         if (operation === 'update') {
+            if (!itemId) {
+                return false
+            }
+            const [resident] = await Resident.getAll(context, { id: itemId })
+            if (!resident) {
+                return false
+            }
+            if (user.id !== resident.user.id) {
+                return false
+            }
             if (originalInput.deletedAt !== null) {
                 return true
             }
