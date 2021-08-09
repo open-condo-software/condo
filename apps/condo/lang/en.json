@@ -270,6 +270,7 @@
   "pages.condo.property.warning.modal.AddressValidationErrorMsg": "You didn't select a building or selected building type is not supported",
   "pages.condo.property.warning.modal.UnsupportedPropertyErrorMsg": "Property type «{propertyType}» not supported yet",
   "pages.condo.property.warning.modal.SameUnitNamesErrorMsg": "Unit names must be unique",
+  "pages.condo.property.warning.modal.SamePropertyErrorMsg": "Property with this address has already been added to the organization",
   "pages.condo.property.warning.modal.Title": "Do not save property?",
   "pages.condo.warning.modal.SaveLabel": "Save",
   "pages.condo.warning.modal.LeaveLabel": "Leave",

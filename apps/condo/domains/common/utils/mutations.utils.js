@@ -43,7 +43,7 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
                 let notificationContext = null
                 if (ErrorToFormFieldMsgMapping) {
                     const errors = []
-                    const errorString = `${e}`
+                    const errorString = `${JSON.stringify(e.graphQLErrors)}`
                     Object.keys(ErrorToFormFieldMsgMapping).forEach((msg) => {
                         if (errorString.includes(msg)) {
                             errors.push(ErrorToFormFieldMsgMapping[msg])
