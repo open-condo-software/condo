@@ -11,8 +11,9 @@ import { PropertyPanels } from '../panels'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { AddressMeta } from '@condo/domains/common/utils/addressApi/AddressMeta'
 import { useState } from 'react'
-import { validHouseTypes, validSettlementTypes } from '@condo/domains/property/constants/property'
+import { validHouseTypes } from '@condo/domains/property/constants/property'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { PROPERTY_WITH_SAME_ADDRESS_EXIST } from '../../constants/errors'
 
 interface IOrganization {
     id: string
@@ -37,6 +38,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const AddressValidationErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
     const UnsupportedPropertyErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.UnsupportedPropertyErrorMsg' })
     const SameUnitNamesErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
+    const SamePropertyErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SamePropertyErrorMsg' })
 
     const { addressApi } = useAddressApi()
 
@@ -79,6 +81,13 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         address: [requiredValidator, addressValidator],
     }
 
+    const ErrorToFormFieldMsgMapping = {
+        [PROPERTY_WITH_SAME_ADDRESS_EXIST]: {
+            name: 'address',
+            errors: [SamePropertyErrorMsg],
+        },
+    }
+
     return (
         <>
             <FormWithAction
@@ -86,6 +95,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                 initialValues={initialValues}
                 validateTrigger={['onBlur', 'onSubmit']}
                 formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
+                ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
             >
                 {({ handleSave, isLoading, form }) => {
                     return (
