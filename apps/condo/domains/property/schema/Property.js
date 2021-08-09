@@ -15,6 +15,7 @@ const { DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR, JSON_SCHEMA_VALIDA
 const { GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 const Ajv = require('ajv')
+const { Property: PropertyAPI } = require('../utils/serverSchema')
 const { ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
@@ -38,6 +39,18 @@ const Property = new GQLListSchema('Property', {
             schemaDoc: 'Normalized address',
             type: Text,
             isRequired: true,
+            hooks: {
+                validateInput: async ({ resolvedData, fieldPath, addFieldValidationError, context, existingItem }) => {
+                    const value = resolvedData[fieldPath]
+                    // if we create property or we update property address
+                    if (!existingItem || (existingItem && resolvedData.address !== existingItem.address)) {
+                        const [propertyWithSameAddressInOrganization] = await PropertyAPI.getAll(context, { address: value })
+                        if (propertyWithSameAddressInOrganization) {
+                            addFieldValidationError(`${fieldPath} field validation error. Property with same address exist in current organization`)
+                        }
+                    }
+                },
+            },
         },
 
         addressMeta: ADDRESS_META_FIELD,
