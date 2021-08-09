@@ -7,6 +7,10 @@ import { CardStatuses, IntegrationPanel } from './IntegrationPanel'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { BillingIntegration, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
+import {
+    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
+    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS,
+} from '@condo/domains/billing/constants'
 
 export const BillingChooser: React.FC = () => {
     const intl = useIntl()
@@ -78,9 +82,9 @@ export const BillingChooser: React.FC = () => {
                                 const isActiveIntegration = !!currentContext && integration.id === currentContext.integration.id
                                 let status: CardStatuses = 'disabled'
                                 if (isActiveIntegration) {
-                                    if (currentContext.status === 'InProgress') {
+                                    if (currentContext.status === BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS) {
                                         status = 'inProgress'
-                                    } else if (currentContext.status === 'Error') {
+                                    } else if (currentContext.status === BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS) {
                                         status = 'error'
                                     } else {
                                         status = 'done'
