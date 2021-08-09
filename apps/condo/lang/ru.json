@@ -464,6 +464,7 @@
   "ticket.shareTitle": "Заявка №{number} от {date}",
   "ticket.shareDetails": "Текст заявки: «{details}»",
   "ticket.shareWarningEmail": "Некоторым сотрудникам не будет отправлена заявка, так как мы не знаем их эл. почты. Вы можете добавить их почту в разделе «{link}».\nНет почты у:\n{employees}\n",
+  "ticket.shareWarningEmailAndMore": "… и ещё сотрудников {length}",
   "ticket.shareHeader": "Отправить ссылку на заявку",
   "ticket.shareSent": "Заявка отправлена",
   "ticket.shareSentToEmail": "Ссылка на заявку успешно отправлена сотрудникам на почту",

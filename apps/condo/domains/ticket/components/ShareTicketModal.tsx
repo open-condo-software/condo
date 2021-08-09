@@ -129,6 +129,12 @@ const Warning = (props) => {
         employees: `${props.children[0]} ${props.children[1] ? (`\n${props.children[1]}`) : ''}`,
     })
     const length = props.children.length - 2
+
+    const ShareWarningEmailAndMoreMessage = intl.formatMessage({ id: 'ticket.shareWarningEmailAndMore' }, {
+        length,
+        ending: length > 1 ? 's' : '',
+    })
+
     const WarningContainer = styled.div`
       background: ${colors.lightRed};
       border-radius: 2px;
@@ -162,9 +168,7 @@ const Warning = (props) => {
             `} />
 
             {ShareWarningEmailMessage}
-            {length > 0 && (intl.locale === EN_LOCALE
-                ? `… and more ${length} employee${length > 1 ? 's' : ''}`
-                : `… и ещё сотрудников ${length}`)}
+            {length > 0 ? ShareWarningEmailAndMoreMessage : ''}
         </WarningContainer>
     )
 }
