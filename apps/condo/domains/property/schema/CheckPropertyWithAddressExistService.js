@@ -53,7 +53,7 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
                     search = search.substring(0, search.length - suffix.length)
                 }
                 const count = await Property.count(context, {
-                    address: search,
+                    address_i: search,
                 })
                 return {
                     isFound: count > 0,
