@@ -47,7 +47,7 @@ export const TicketsPageContent = ({
     sortBy,
     filtersApplied,
     setFiltersApplied,
-    filtersFromQuery,
+    filtersToQuery,
 }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
@@ -61,6 +61,7 @@ export const TicketsPageContent = ({
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
     const router = useRouter()
+    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const pagesizeFromQuey: number = getPageSizeFromQuery(router.query)
 
@@ -232,12 +233,12 @@ const TicketsPage: ITicketIndexPage = () => {
 
     return (
         <TicketsPageContent
-            filtersFromQuery={filtersFromQuery}
-            searchTicketsQuery={searchTicketsQuery}
             tableColumns={tableColumns}
             sortBy={sortBy}
             filtersApplied={filtersApplied}
             setFiltersApplied={setFiltersApplied}
+            filtersToQuery={filtersToQuery}
+            searchTicketsQuery={searchTicketsQuery}
         />
     )
 }
