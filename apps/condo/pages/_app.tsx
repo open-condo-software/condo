@@ -5,7 +5,7 @@ import Head from 'next/head'
 import getConfig from 'next/config'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
-import { ThunderboltFilled, HomeFilled, PieChartFilled } from '@ant-design/icons'
+import { ThunderboltFilled, HomeFilled, PieChartFilled, SettingFilled, ApiFilled } from '@ant-design/icons'
 
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
@@ -20,7 +20,6 @@ import BehaviorRecorder from '@condo/domains/common/components/containers/Behavi
 import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
-import { GearIcon } from '@condo/domains/common/components/icons/GearIcon'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
@@ -63,8 +62,13 @@ function menuDataRender () {
 
     if (hasFeature('billing')) {
         menuDataItems.push({
+            path: '/billing',
+            icon: ApiFilled,
+            locale: 'menu.Billing',
+        })
+        menuDataItems.push({
             path: '/settings',
-            icon: GearIcon,
+            icon: SettingFilled,
             locale: 'menu.Settings',
         })
     }
