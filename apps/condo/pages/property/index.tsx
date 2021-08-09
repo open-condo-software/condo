@@ -65,6 +65,7 @@ export const PropertyPageViewMap = ({ searchPropertyQuery }): React.FC => {
 }
 
 export const PropertyPageViewTable = ({
+    filtersToQuery,
     searchPropertyQuery,
     tableColumns,
     role,
@@ -240,6 +241,7 @@ export const PropertyPageViewTable = ({
 }
 
 export const PropertyPageContent = ({
+    filtersToQuery,
     searchPropertyQuery,
     tableColumns,
     role,
@@ -275,6 +277,7 @@ export const PropertyPageContent = ({
                             {
                                 viewMode !== 'map' ? (
                                     <PropertyPageViewTable
+                                        filtersToQuery={filtersToQuery}
                                         filtersApplied={filtersApplied}
                                         setFiltersApplied={setFiltersApplied}
                                         tableColumns={tableColumns}
@@ -313,6 +316,7 @@ const PropertyPage = (): React.FC => {
 
     return (
         <PropertyPageContent
+            filtersToQuery={filtersToQuery}
             filtersApplied={filtersApplied}
             setFiltersApplied={setFiltersApplied}
             searchPropertyQuery={searchPropertyQuery}
