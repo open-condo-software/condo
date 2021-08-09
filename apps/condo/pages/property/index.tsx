@@ -196,26 +196,30 @@ export const PropertyPageViewTable = ({
                 <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData} >{ExportAsExcel}</Button>
             </Col>
             <Col span={6} push={6} align={'right'}>
-                <Space size={16}>
-                    <ImportWrapper
-                        objectsName={PropertiesMessage}
-                        accessCheck={canManageProperties}
-                        onFinish={refetch}
-                        columns={columns}
-                        rowNormalizer={propertyNormalizer}
-                        rowValidator={propertyValidator}
-                        objectCreator={propertyCreator}
-                    >
-                        <Button
-                            type={'sberPrimary'}
-                            icon={<DiffOutlined />}
-                            secondary
-                        />
-                    </ImportWrapper>
-                    <Button type='sberPrimary' onClick={() => router.push(createRoute)}>
-                        {CreateLabel}
-                    </Button>
-                </Space>
+                {
+                    canManageProperties ? (
+                        <Space size={16}>
+                            <ImportWrapper
+                                objectsName={PropertiesMessage}
+                                accessCheck={canManageProperties}
+                                onFinish={refetch}
+                                columns={columns}
+                                rowNormalizer={propertyNormalizer}
+                                rowValidator={propertyValidator}
+                                objectCreator={propertyCreator}
+                            >
+                                <Button
+                                    type={'sberPrimary'}
+                                    icon={<DiffOutlined />}
+                                    secondary
+                                />
+                            </ImportWrapper>
+                            <Button type='sberPrimary' onClick={() => router.push(createRoute)}>
+                                {CreateLabel}
+                            </Button>
+                        </Space>
+                    ) : null
+                }
             </Col>
             <Col span={24}>
                 <Table
@@ -316,12 +320,12 @@ const PropertyPage = (): React.FC => {
 
     return (
         <PropertyPageContent
+            tableColumns={tableColumns}
             filtersToQuery={filtersToQuery}
             filtersApplied={filtersApplied}
             setFiltersApplied={setFiltersApplied}
             searchPropertyQuery={searchPropertyQuery}
             role={link.role}
-            tableColumns={tableColumns}
         />
     )
 }
