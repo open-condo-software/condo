@@ -59,6 +59,8 @@ const useTicketClassifierSelectHook = ({
 
     function setSelected (value) {
         selectedRef.current = value
+        // Remove search classifiers when user chosen smth - only classifiers will work for now
+        setSearchClassifiers([])
     }
 
     useEffect(() => {
@@ -124,7 +126,8 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     const ticketForm = useRef(null)
 
     const onUserSelect = (id, type) => {
-        ruleRef.current = { ...ruleRef.current, [type]: id }
+        const clearProblem = (id === null && type !== 'problem') ? { problem: null } : {}
+        ruleRef.current = { ...ruleRef.current, [type]: id, ...clearProblem }
         updateLevels({ [type]: id })
     }
     const onUserSearch = async (input, type) => {
