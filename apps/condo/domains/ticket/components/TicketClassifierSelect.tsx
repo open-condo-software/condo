@@ -235,6 +235,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             setTimeout(ref.current.focus, 0)
         }
     }
+
     // Every time user choose some option from select we are trying to find what exact rule is matching for this combination
     // When  place and category are chosen we set rule with problem=null
     const updateRuleId = async () => {

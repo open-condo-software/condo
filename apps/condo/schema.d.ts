@@ -4247,6 +4247,7 @@ export type CheckPasswordRecoveryTokenOutput = {
 
 export type CheckPropertyWithAddressExistInput = {
   address: Scalars['String'];
+  addressMeta: Scalars['JSON'];
 };
 
 export type CheckPropertyWithAddressExistOutput = {
@@ -18182,7 +18183,7 @@ export type TicketClassifierRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
-/**  Rules for  all possible valid combinations of classifiers  */
+/**  Rules for all possible valid combinations of classifiers  */
 export type TicketClassifierRule = {
   __typename?: 'TicketClassifierRule';
   /**

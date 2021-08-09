@@ -10,7 +10,7 @@ const access = require('@condo/domains/ticket/access/TicketClassifierRule')
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 
 const TicketClassifierRule = new GQLListSchema('TicketClassifierRule', {
-    schemaDoc: 'Rules for  all possible valid combinations of classifiers',
+    schemaDoc: 'Rules for all possible valid combinations of classifiers',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
