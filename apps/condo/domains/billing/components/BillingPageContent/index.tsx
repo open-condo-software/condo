@@ -20,6 +20,9 @@ interface IBillingPageContentProps {
     context: IBillingIntegrationOrganizationContextUIState
 }
 
+export interface IContextProps {
+    context: IBillingIntegrationOrganizationContextUIState
+}
 
 export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access, contextLoading, contextError, context }) => {
     const intl = useIntl()
@@ -103,7 +106,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
 
     return (
         <>
-            <MainContent organizationId={context.organization.id} integrationId={context.integration.id}/>
+            <MainContent context={context}/>
         </>
     )
 }

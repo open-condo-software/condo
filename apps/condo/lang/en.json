@@ -59,6 +59,8 @@
   "example.Name": "Jon Johnson",
   "example.Phone": "+1 (300) 300 22 22",
   "ExportAsExcel": "Export to Excel",
+  "field.AccountNumberShort": "Account Number",
+  "field.TotalPayment": "TOTAL payable",
   "field.Address": "Address",
   "field.Address.notFound": "Address not found. Maybe this house is not added into CRM",
   "field.Assignee.requiredError": "Set Responsible",
@@ -543,7 +545,9 @@
   "AvailableBillings": "Unified Payment Service, 1C, loading registers",
   "CanIntegrateWithThisBillings": "You can connect {billingList} and others",
   "ConnectBilling": "Connect billing",
-  "WillBeReadySoon": "Everything will be ready soon"
+  "WillBeReadySoon": "Everything will be ready soon",
+  "Accruals": "Accruals",
+  "Meters": "Meters",
   "FeatureFlags.Modal.Title": "Feature Flags menu",
   "FeatureFlags.Modal.Description": "Any changes made here would apply only after reload"
 }
