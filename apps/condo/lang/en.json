@@ -115,6 +115,7 @@
   "RolesAndAccess": "Roles and accesses",
   "OneBillingWarning": "Attention! It's impossible to integrate with more than one billing",
   "NoPermissionToSettings": "You have no permission to view this tab content...",
+  "NoPermissionToPage": "You have no permission to view this page",
   "NoMoreIntegrationsAllowed" : "You can integrate only with one billing at the same time. Contact support of «{company}» to resolve this conflict.",
   "CompanyName": "Domá",
   "ContactSupportToCancelIntegration": "To cancel integration contact support of «{company}».",
@@ -538,6 +539,11 @@
   "ContextAlreadyCreated": "You've already connected to integration",
   "ErrorHappenedDuringIntegration": "An error occurred during the integration process. Please, contact support of «{company}»",
   "ErrorOccurred": "Error occurred",
+  "NoBillingIntegrationYet": "You haven't integrated billing yet",
+  "AvailableBillings": "Unified Payment Service, 1C, loading registers",
+  "CanIntegrateWithThisBillings": "You can connect {billingList} and others",
+  "ConnectBilling": "Connect billing",
+  "WillBeReadySoon": "Everything will be ready soon"
   "FeatureFlags.Modal.Title": "Feature Flags menu",
   "FeatureFlags.Modal.Description": "Any changes made here would apply only after reload"
 }
