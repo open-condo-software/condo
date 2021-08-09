@@ -330,6 +330,18 @@ describe('Resident', () => {
             })
         })
 
+        it('cannot be updated by other user with type resident', async () => {
+            const userClient = await makeClientWithResidentUserAndProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+
+            const otherUserClient = await makeClientWithResidentUserAndProperty()
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestResident(otherUserClient, obj.id, {})
+            })
+        })
+
         it('can be updated by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
@@ -426,6 +438,18 @@ describe('Resident', () => {
             expect(objUpdated.deletedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+        })
+
+        it('cannot be soft-deleted using update operation by other user with type resident', async () => {
+            const userClient = await makeClientWithResidentUserAndProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+
+            const otherUserClient = await makeClientWithResidentUserAndProperty()
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await softDeleteTestResident(otherUserClient, obj.id)
+            })
         })
     })
 })
