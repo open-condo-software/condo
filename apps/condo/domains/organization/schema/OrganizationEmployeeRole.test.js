@@ -15,6 +15,24 @@ const { DEFAULT_ROLES } = require('../constants/common')
 const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Organization')
 
 describe('OrganizationEmployeeRole', () => {
+    describe('defaults', () => {
+        it('has `false` value in all roles except `canManageTicketComments`', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [obj] = await createTestOrganizationEmployeeRole(admin, organization)
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.canManageOrganization).toBeFalsy()
+            expect(obj.canManageEmployees).toBeFalsy()
+            expect(obj.canManageRoles).toBeFalsy()
+            expect(obj.canManageIntegrations).toBeFalsy()
+            expect(obj.canManageProperties).toBeFalsy()
+            expect(obj.canManageTickets).toBeFalsy()
+            expect(obj.canManageContacts).toBeFalsy()
+            expect(obj.canManageTicketComments).toBeTruthy()
+            expect(obj.canBeAssignedAsResponsibleInDivisions).toBeFalsy()
+            expect(obj.canBeAssignedAsExecutorInDivisions).toBeFalsy()
+        })
+    })
     describe('user: create OrganizationEmployeeRole', () => {
 
         it('can with granted "canManageRoles" permission', async () => {
