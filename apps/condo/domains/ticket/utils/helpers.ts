@@ -96,7 +96,6 @@ export interface IFilters extends Pick<Ticket, 'clientName' | 'createdAt' | 'det
     assignee?: string
     executor?: string
     property?: string
-    organization?: string
     search?: string
 }
 
@@ -171,16 +170,6 @@ export const statusToQueryByName = (statusName?: string) => {
     }
 }
 
-export const organizationToQueryByName = (organizationName?: string) => {
-    if (!organizationName) {
-        return
-    }
-
-    return {
-        AND: [{ name_contains_i: organizationName }],
-    }
-}
-
 
 export const searchToQuery = (search?: string): TicketWhereInput[] => {
     if (!search) {
@@ -191,7 +180,6 @@ export const searchToQuery = (search?: string): TicketWhereInput[] => {
     const assigneeQuery = assigneeToQuery(search)
     const propertyQuery = propertyToQuery(search)
     const statusQuery = statusToQueryByName(search)
-    const organizationQuery = organizationToQueryByName(search)
 
     return [
         { clientName_contains_i: search },
@@ -201,7 +189,6 @@ export const searchToQuery = (search?: string): TicketWhereInput[] => {
         Number(search) && { number: Number(search) },
         { property: propertyQuery },
         { status: statusQuery },
-        { organization: organizationQuery },
     ].filter(Boolean)
 }
 
@@ -216,14 +203,12 @@ export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
     const assignee = get(filters, 'assignee')
     const search = get(filters, 'search')
     const isEmergency = get(filters, 'isEmergency')
-    const organization = get(filters, 'organization')
 
     const executorQuery = executorToQuery(executor)
     const assigneeQuery = assigneeToQuery(assignee)
     const statusFiltersQuery = statusToQuery(statusIds)
     const createdAtQuery = createdAtToQuery(createdAt)
     const propertyQuery = propertyToQuery(property)
-    const organizationQuery = organizationToQueryByName(organization)
     const searchQuery = searchToQuery(search)
 
     const filtersCollection = [
@@ -236,7 +221,6 @@ export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
         assignee && { assignee: assigneeQuery },
         number && Number(number) && { number: Number(number) },
         property && { property: propertyQuery },
-        organization && { organization: organizationQuery },
         isEmergency && { isEmergency: true },
         searchQuery && { OR: searchQuery },
     ].filter(Boolean)
@@ -294,7 +278,6 @@ const TICKET_TABLE_COLUMNS = [
     'executor',
     'createdAt',
     'clientName',
-    'organization',
 ]
 
 export const queryToSorter = (query: Array<string>) => {

@@ -41,7 +41,14 @@ const verticalAlign = css`
     }
 `
 
-export const TicketsPageContent = ({ searchTicketsQuery, tableColumns, sortBy, filtersApplied, setFiltersApplied }) => {
+export const TicketsPageContent = ({
+    searchTicketsQuery,
+    tableColumns,
+    sortBy,
+    filtersApplied,
+    setFiltersApplied,
+    filtersFromQuery,
+}) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -55,10 +62,8 @@ export const TicketsPageContent = ({ searchTicketsQuery, tableColumns, sortBy, f
 
     const router = useRouter()
     const offsetFromQuery = getPageIndexFromQuery(router.query)
-    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
     const pagesizeFromQuey: number = getPageSizeFromQuery(router.query)
 
-    const where = { ...filtersToQuery(filtersFromQuery), ...searchTicketsQuery }
     const {
         fetchMore,
         loading,
@@ -66,7 +71,7 @@ export const TicketsPageContent = ({ searchTicketsQuery, tableColumns, sortBy, f
         objs: tickets,
     } = Ticket.useObjects({
         sortBy: sortBy as SortTicketsBy[],
-        where,
+        where: searchTicketsQuery,
         skip: (offsetFromQuery * pagesizeFromQuey) - pagesizeFromQuey,
         first: pagesizeFromQuey,
     }, {
@@ -179,7 +184,7 @@ export const TicketsPageContent = ({ searchTicketsQuery, tableColumns, sortBy, f
                                                 icon={<DatabaseFilled />}
                                                 loading={isXlsLoading}
                                                 onClick={
-                                                    () => exportToExcel({ variables: { data: { where: where, sortBy: sortBy, timeZone } } })
+                                                    () => exportToExcel({ variables: { data: { where: searchTicketsQuery, sortBy: sortBy, timeZone } } })
                                                 }>{ExportAsExcel}
                                             </Button>
                                     }
@@ -223,10 +228,11 @@ const TicketsPage: ITicketIndexPage = () => {
     const [filtersApplied, setFiltersApplied] = useState(false)
 
     const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
-    const searchTicketsQuery = { organization: { id: userOrganizationId } }
+    const searchTicketsQuery = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
 
     return (
         <TicketsPageContent
+            filtersFromQuery={filtersFromQuery}
             searchTicketsQuery={searchTicketsQuery}
             tableColumns={tableColumns}
             sortBy={sortBy}
