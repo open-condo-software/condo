@@ -1,5 +1,6 @@
 import html2canvas from 'html2canvas'
 import Jspdf from 'jspdf'
+import { MM_TO_PIXEL_RATIO } from '@condo/domains/ticket/constants/common'
 const PDF_FORMAT_SETTINGS = {
     // pdfWidth - width of final image (in mm)
     // pdfHeight - height of final image (in mm)
@@ -86,23 +87,19 @@ export const createPdf: ICreatePdf = (options) => {
 
 export const createPdfWithPageBreaks: ICreatePdfWithPageBreaks = (options) => {
     const { element, fileName } = options
-    const elementWidth = element.clientWidth
+    const { pdfWidth, pdfHeight, elementOffset } = PDF_FORMAT_SETTINGS.a4
     const elementHeight = element.clientHeight
-    const { elementOffset } = PDF_FORMAT_SETTINGS['a4']
-    const pdfWidth = elementWidth + (elementOffset * 2)
-    const pdfHeight = (pdfWidth * 1.5) + (elementOffset * 2)
 
-    const totalPDFPages = Math.ceil(elementHeight / pdfHeight) - 1
-
-    return html2canvas(element).then(canvas => {
+    const totalPDFPages = Math.ceil(elementHeight / (pdfHeight * MM_TO_PIXEL_RATIO + elementOffset)) - 1
+    return html2canvas(element, { windowWidth: pdfWidth, windowHeight: pdfHeight }).then(canvas => {
         const imgData = canvas.toDataURL('image/jpeg', 1.0)
-        const pdf = new Jspdf('p', 'pt',  [pdfWidth, pdfHeight])
-        pdf.addImage(imgData, 'JPG', elementOffset, elementOffset, elementWidth, elementHeight)
+        const pdf = new Jspdf('l', 'mm', [pdfWidth, pdfHeight])
 
+        pdf.addImage(imgData, 'JPG', elementOffset, elementOffset, pdfWidth, pdfHeight)
 
         for (let i = 1; i <= totalPDFPages; i++) {
-            pdf.addPage([pdfWidth, pdfHeight], 'p')
-            pdf.addImage(imgData, 'JPG', elementOffset, -(pdfHeight * i) + (elementOffset * 4), elementWidth, elementHeight)
+            pdf.addPage([pdfWidth, pdfHeight], 'l')
+            pdf.addImage(imgData, 'JPG', elementOffset, -(pdfWidth * i) + (elementOffset), pdfWidth, pdfHeight)
         }
 
         return pdf.save(fileName, { returnPromise: true })
