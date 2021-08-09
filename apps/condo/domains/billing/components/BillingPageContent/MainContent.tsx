@@ -1,15 +1,35 @@
 import React from 'react'
-import { Col } from 'antd'
+import { Col, Tabs, Tooltip } from 'antd'
+import { useIntl } from '@core/next/intl'
+import { IContextProps } from './index'
+import { DemoTable } from './DemoTable'
 
-interface IMainContentProps {
-    organizationId: string
-    integrationId: string
-}
+export const MainContent: React.FC<IContextProps> = ({ context }) => {
+    const intl = useIntl()
+    const AccrualsTitle = intl.formatMessage({ id: 'Accruals' })
+    const MetersTitle = intl.formatMessage({ id: 'Meters' })
+    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
 
-export const MainContent: React.FC<IMainContentProps> = ({ organizationId, integrationId }) => {
     return (
         <Col span={24}>
-            asdasd
+            <Tabs
+                defaultActiveKey={'Accruals'}
+                tabBarStyle={{ marginBottom: 40 }}
+                style={{ overflow: 'visible' }}
+            >
+                <Tabs.TabPane key={'Accruals'} tab={AccrualsTitle}>
+                    <DemoTable context={context}/>
+                </Tabs.TabPane>
+                <Tabs.TabPane
+                    key={'meters'}
+                    tab={(
+                        <Tooltip title={NotImplementedYetMessage}>
+                            {MetersTitle}
+                        </Tooltip>
+                    )}
+                    disabled
+                />
+            </Tabs>
         </Col>
     )
 }
