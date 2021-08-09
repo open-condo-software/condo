@@ -42,8 +42,8 @@ class SberCloudObsAcl {
     generateUrl (filename, ttl = 300) { // obs default
         const { SignedUrl } = this.s3.createSignedUrlSync({
             Method: 'GET',
-            Bucket : this.bucket,
-            Key : filename,
+            Bucket: this.bucket,
+            Key: filename,
             Expires: ttl,
         })
         return SignedUrl
@@ -59,6 +59,13 @@ class SberCloudFileAdapter {
         this.server = config.s3Options.server
         this.folder = config.folder
         this.acl = new SberCloudObsAcl(config)
+    }
+
+    errorFromCommonMsg ({ CommonMsg: { Status, Message } }) {
+        if (Status > 300) {
+            return new Error(Message)
+        }
+        return null
     }
 
     save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
@@ -80,6 +87,7 @@ class SberCloudFileAdapter {
                     ...uploadParams,
                 },
                 (error, data) => {
+                    error = error || this.errorFromCommonMsg(data)
                     if (error) {
                         reject(error)
                     } else {
