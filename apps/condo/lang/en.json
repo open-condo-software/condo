@@ -475,6 +475,7 @@
   "ticket.shareTitle": "Ticket #{number} dated {date}",
   "ticket.shareDetails": "The text of the ticket: \"{details}\"",
   "ticket.shareWarningEmail": "Some employees will not receive a ticket because we do not know their email address. You can add their mail in the \"{link}\" section.\nNo mail for:\n{employees}\n",
+  "ticket.shareWarningEmailAndMore": "… and more {length} employee{ending}",
   "ticket.shareHeader": "Send ticket's link",
   "ticket.shareSent": "Ticket sent",
   "ticket.shareSentToEmail": "The ticket's link was successfully sent to employees by mail",
