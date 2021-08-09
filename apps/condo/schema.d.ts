@@ -18197,7 +18197,7 @@ export type TicketClassifierRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
-/**  Rules for  all possible valid combinations of classifiers  */
+/**  Rules for all possible valid combinations of classifiers  */
 export type TicketClassifierRule = {
   __typename?: 'TicketClassifierRule';
   /**
