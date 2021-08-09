@@ -35,6 +35,44 @@ const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, 
 
 }
 
+export const PropertyContent = ({ property }) => {
+    const intl = useIntl()
+    const UnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
+    const TicketsClosedTitle = intl.formatMessage({ id: 'pages.condo.property.id.TicketsClosed' })
+    const TicketsInWorkTitle = intl.formatMessage({ id: 'pages.condo.property.id.TicketsInWork' })
+
+    return (
+        <>
+            <Row gutter={[12, 40]} align='top'>
+                <Col span={24}>
+                    <Typography.Title level={1} style={{ margin: 0 }}>{property.address}</Typography.Title>
+                    {
+                        property.name ?
+                            <Tag style={{ marginTop: '25px', borderColor: 'transparent', backgroundColor: colors.ultraLightGrey }}>{property.name}</Tag> :
+                            null
+                    }
+                </Col>
+            </Row>
+            <Row gutter={[47, 40]} style={{ marginTop: '40px' }} justify='start'>
+                <Col flex={0} >
+                    <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} />
+                </Col>
+                <Col flex={0}>
+                    <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type='success' />
+                </Col>
+                <Col flex={0}>
+                    <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork}  type='warning' />
+                </Col>
+            </Row>
+            <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
+                <Col span={24}>
+                    <PropertyPanels mode='view' map={property.map} address={property.address} />
+                </Col>
+            </Row>
+        </>
+    )
+}
+
 interface IPropertyIdPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
@@ -52,9 +90,6 @@ const PropertyIdPage: IPropertyIdPage = () => {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
     }
 
-    const UnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
-    const TicketsClosedTitle = intl.formatMessage({ id: 'pages.condo.property.id.TicketsClosed' })
-    const TicketsInWorkTitle = intl.formatMessage({ id: 'pages.condo.property.id.TicketsInWork' })
     const UpdateTitle = intl.formatMessage({ id: 'Edit' })
 
     return <>
@@ -63,32 +98,7 @@ const PropertyIdPage: IPropertyIdPage = () => {
         </Head>
         <PageWrapper>
             <PageContent>
-                <Row gutter={[12, 40]} align='top'>
-                    <Col span={24}>
-                        <Typography.Title level={1} style={{ margin: 0 }}>{property.address}</Typography.Title>
-                        {
-                            property.name ?
-                                <Tag style={{ marginTop: '25px', borderColor: 'transparent', backgroundColor: colors.ultraLightGrey }}>{property.name}</Tag> :
-                                null
-                        }
-                    </Col>
-                </Row>
-                <Row gutter={[47, 40]} style={{ marginTop: '40px' }} justify='start'>
-                    <Col flex={0} >
-                        <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} />
-                    </Col>
-                    <Col flex={0}>
-                        <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type='success' />
-                    </Col>
-                    <Col flex={0}>
-                        <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork}  type='warning' />
-                    </Col>
-                </Row>
-                <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
-                    <Col span={24}>
-                        <PropertyPanels mode='view' map={property.map} address={property.address} />
-                    </Col>
-                </Row>
+                <PropertyContent property={property} />
                 <ActionBar>
                     <Link href={`/property/${property.id}/update`}>
                         <span>
