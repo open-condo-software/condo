@@ -18,8 +18,6 @@ import { useOrganization } from '@core/next/organization'
 import  { TicketCard } from '@condo/domains/common/components/TicketCard/TicketCard'
 import { canManageContacts } from '@condo/domains/organization/permissions'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import CreateContactPage from '../create'
-
 
 const FieldPairRow = (props) => {
     const {

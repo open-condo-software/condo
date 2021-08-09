@@ -31,7 +31,15 @@ import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFu
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 
-const ContactPage = () => {
+export const ContactPageContent = ({
+    tableColumns,
+    filtersToQuery,
+    filtersApplied,
+    setFiltersApplied,
+    searchContactsQuery,
+    role,
+    sortBy,
+}) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.contact.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -41,12 +49,10 @@ const ContactPage = () => {
     const ContactsMessage = intl.formatMessage({ id: 'menu.Contacts' })
 
     const router = useRouter()
-    const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
 
-    const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const canManageContacts = get(role, 'canManageContacts', false)
 
     const {
         refetch,
@@ -55,16 +61,13 @@ const ContactPage = () => {
         count: total,
         objs: contacts,
     } = Contact.useObjects({
-        sortBy: sortFromQuery.length > 0 ? sortFromQuery : ['createdAt_DESC'] as Array<SortContactsBy>,
-        where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
+        sortBy,
+        where: searchContactsQuery,
         skip: (offsetFromQuery * CONTACT_PAGE_SIZE) - CONTACT_PAGE_SIZE,
         first: CONTACT_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
     })
-
-    const [filtersApplied, setFiltersApplied] = useState(false)
-    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -101,8 +104,8 @@ const ContactPage = () => {
     }, 400), [loading])
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
-    const canManageContacts = get(userOrganization, ['link', 'role', 'canManageContacts'], false)
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
+
     return (
         <>
             <Head>
@@ -128,30 +131,34 @@ const ContactPage = () => {
                                                 value={search}
                                             />
                                         </Col>
-                                        <Space size={16}>
-                                            <ImportWrapper
-                                                objectsName={ContactsMessage}
-                                                accessCheck={canManageContacts}
-                                                onFinish={refetch}
-                                                columns={columns}
-                                                rowNormalizer={contactNormalizer}
-                                                rowValidator={contactValidator}
-                                                objectCreator={contactCreator}
-                                            >
-                                                <Button
-                                                    type={'sberPrimary'}
-                                                    icon={<DiffOutlined />}
-                                                    secondary
-                                                />
-                                            </ImportWrapper>
-                                            <Button
-                                                key='left'
-                                                type={'sberPrimary'}
-                                                onClick={() => router.push(ADD_CONTACT_ROUTE)}
-                                            >
-                                                {CreateContact}
-                                            </Button>
-                                        </Space>
+                                        {
+                                            canManageContacts ? (
+                                                <Space size={16}>
+                                                    <ImportWrapper
+                                                        objectsName={ContactsMessage}
+                                                        accessCheck={canManageContacts}
+                                                        onFinish={refetch}
+                                                        columns={columns}
+                                                        rowNormalizer={contactNormalizer}
+                                                        rowValidator={contactValidator}
+                                                        objectCreator={contactCreator}
+                                                    >
+                                                        <Button
+                                                            type={'sberPrimary'}
+                                                            icon={<DiffOutlined />}
+                                                            secondary
+                                                        />
+                                                    </ImportWrapper>
+                                                    <Button
+                                                        key='left'
+                                                        type={'sberPrimary'}
+                                                        onClick={() => router.push(ADD_CONTACT_ROUTE)}
+                                                    >
+                                                        {CreateContact}
+                                                    </Button>
+                                                </Space>
+                                            ) : null
+                                        }
                                     </Row>
                                 </Col>
                                 <Col span={24}>
@@ -178,6 +185,34 @@ const ContactPage = () => {
                 </PageContent>
             </PageWrapper>
         </>
+    )
+}
+
+const ContactPage = () => {
+    const router = useRouter()
+    const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
+    const sortBy = sortFromQuery.length > 0 ? sortFromQuery : ['createdAt_DESC'] as Array<SortContactsBy>
+    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
+
+    const { organization, link } = useOrganization()
+
+    const [filtersApplied, setFiltersApplied] = useState(false)
+    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
+
+    const searchContactsQuery = {
+        ...filtersToQuery(filtersFromQuery), organization: { id: organization.id },
+    }
+
+    return (
+        <ContactPageContent
+            tableColumns={tableColumns}
+            filtersToQuery={filtersToQuery}
+            filtersApplied={filtersApplied}
+            setFiltersApplied={setFiltersApplied}
+            searchContactsQuery={searchContactsQuery}
+            role={link.role}
+            sortBy={sortBy}
+        />
     )
 }
 

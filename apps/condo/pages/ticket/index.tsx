@@ -234,11 +234,11 @@ const TicketsPage: ITicketIndexPage = () => {
     return (
         <TicketsPageContent
             tableColumns={tableColumns}
-            sortBy={sortBy}
+            filtersToQuery={filtersToQuery}
             filtersApplied={filtersApplied}
             setFiltersApplied={setFiltersApplied}
-            filtersToQuery={filtersToQuery}
             searchTicketsQuery={searchTicketsQuery}
+            sortBy={sortBy}
         />
     )
 }
