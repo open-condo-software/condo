@@ -4247,6 +4247,7 @@ export type CheckPasswordRecoveryTokenOutput = {
 
 export type CheckPropertyWithAddressExistInput = {
   address: Scalars['String'];
+  addressMeta: Scalars['JSON'];
 };
 
 export type CheckPropertyWithAddressExistOutput = {
