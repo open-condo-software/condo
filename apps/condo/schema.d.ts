@@ -4247,7 +4247,6 @@ export type CheckPasswordRecoveryTokenOutput = {
 
 export type CheckPropertyWithAddressExistInput = {
   address: Scalars['String'];
-  addressMeta: Scalars['JSON'];
 };
 
 export type CheckPropertyWithAddressExistOutput = {
@@ -9490,7 +9489,8 @@ export type OrganizationEmployeeRole = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canShareTickets?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsResponsibleInDivisions?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsExecutorInDivisions?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -9513,7 +9513,8 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canShareTickets?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsResponsibleInDivisions?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsExecutorInDivisions?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9546,7 +9547,8 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canShareTickets?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsResponsibleInDivisions?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsExecutorInDivisions?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -9573,7 +9575,8 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canShareTickets?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsResponsibleInDivisions?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsExecutorInDivisions?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9605,7 +9608,8 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canShareTickets?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsResponsibleInDivisions?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsExecutorInDivisions?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9691,8 +9695,10 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageContacts_not?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageTicketComments_not?: Maybe<Scalars['Boolean']>;
-  canShareTickets?: Maybe<Scalars['Boolean']>;
-  canShareTickets_not?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsResponsibleInDivisions?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsResponsibleInDivisions_not?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsExecutorInDivisions?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsExecutorInDivisions_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -9781,7 +9787,8 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canShareTickets?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsResponsibleInDivisions?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsExecutorInDivisions?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9858,8 +9865,10 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageContacts_not?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageTicketComments_not?: Maybe<Scalars['Boolean']>;
-  canShareTickets?: Maybe<Scalars['Boolean']>;
-  canShareTickets_not?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsResponsibleInDivisions?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsResponsibleInDivisions_not?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsExecutorInDivisions?: Maybe<Scalars['Boolean']>;
+  canBeAssignedAsExecutorInDivisions_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -14918,8 +14927,10 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
   CanManageTicketCommentsDesc = 'canManageTicketComments_DESC',
-  CanShareTicketsAsc = 'canShareTickets_ASC',
-  CanShareTicketsDesc = 'canShareTickets_DESC',
+  CanBeAssignedAsResponsibleInDivisionsAsc = 'canBeAssignedAsResponsibleInDivisions_ASC',
+  CanBeAssignedAsResponsibleInDivisionsDesc = 'canBeAssignedAsResponsibleInDivisions_DESC',
+  CanBeAssignedAsExecutorInDivisionsAsc = 'canBeAssignedAsExecutorInDivisions_ASC',
+  CanBeAssignedAsExecutorInDivisionsDesc = 'canBeAssignedAsExecutorInDivisions_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -14959,8 +14970,10 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
   CanManageTicketCommentsDesc = 'canManageTicketComments_DESC',
-  CanShareTicketsAsc = 'canShareTickets_ASC',
-  CanShareTicketsDesc = 'canShareTickets_DESC',
+  CanBeAssignedAsResponsibleInDivisionsAsc = 'canBeAssignedAsResponsibleInDivisions_ASC',
+  CanBeAssignedAsResponsibleInDivisionsDesc = 'canBeAssignedAsResponsibleInDivisions_DESC',
+  CanBeAssignedAsExecutorInDivisionsAsc = 'canBeAssignedAsExecutorInDivisions_ASC',
+  CanBeAssignedAsExecutorInDivisionsDesc = 'canBeAssignedAsExecutorInDivisions_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -18225,7 +18238,7 @@ export type TicketClassifierRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
-/**  Rules for all possible valid combinations of classifiers  */
+/**  Rules for  all possible valid combinations of classifiers  */
 export type TicketClassifierRule = {
   __typename?: 'TicketClassifierRule';
   /**
