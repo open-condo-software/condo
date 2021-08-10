@@ -35,14 +35,11 @@ describe('GetBillingReceiptsForServiceConsumerService', () => {
 
         const [serviceConsumer] = await registerServiceConsumerByTestClient(userClient, payload)
         const [receipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
-        const [receipt2] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
-        const [receipt3] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
 
         const [objs] = await getBillingReceiptsForServiceConsumerByTestClient(userClient, serviceConsumer.id)
         expect(objs).toHaveLength(1)
-        expect(objs[0].toPay).toEqual(receipt.toPay)
         expect(objs[0].raw).toEqual(undefined)
-        expect(objs[0].id).toEqual(undefined)
+        expect(objs[0].id).toEqual(receipt.id)
     })
 
     test('user without valid serviceAccount cant read BillingReceipt', async () => {

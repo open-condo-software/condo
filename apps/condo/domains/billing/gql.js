@@ -43,6 +43,7 @@ const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIEL
 const ALL_BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY = gql`
     query allBillingReceiptsForServiceConsumer ($data: BillingReceiptsForServiceConsumerInput!) {
         objs: allBillingReceiptsForServiceConsumer(data: $data) {
+            id,
             dv,
             recipient,
             period,
