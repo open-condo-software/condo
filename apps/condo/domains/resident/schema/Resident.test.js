@@ -51,29 +51,6 @@ describe('Resident', () => {
             expect(obj.id).toMatch(UUID_RE)
         })
 
-        it('throws error, when trying to connect new resident to billing account, that is connected to another resident', async () => {
-            const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
-
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-            const [billingProperty] = await createTestBillingProperty(adminClient, context)
-            const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-
-            const billingAccountConnection = {
-                billingAccount: { connect: { id: billingAccount.id } },
-            }
-
-            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, billingAccountConnection)
-
-            await catchErrorFrom(async () => {
-                await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, billingAccountConnection)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Specified billing account is already connected to another resident')
-                expect(data).toEqual({ 'obj': null })
-            })
-        })
-
         it('throws error, when trying to connect new resident to property with another address', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
