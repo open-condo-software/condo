@@ -15,7 +15,8 @@
     "maketypes": "mkdirp dist/admin && NODE_ENV=test node ./../../bin/create-graphql-schema.js && graphql-codegen -c codegen.yaml",
     "createservice": "node ./../../bin/createservice",
     "createschema": "node ./../../bin/createschema",
-    "generate-tickets": "node ./../../bin/generate-tickets.js"
+    "generate-tickets": "node ./../../bin/generate-tickets.js",
+    "generate-receipts": "node ./../../bin/generate-receipts.js"
   },
   "dependencies": {
     "@2gis/mapgl": "^1.12.0",
