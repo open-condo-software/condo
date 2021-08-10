@@ -16,7 +16,7 @@ const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Or
 
 describe('OrganizationEmployeeRole', () => {
     describe('defaults', () => {
-        it('has `false` value in all roles except `canManageTicketComments`', async () => {
+        it('has default values for ability attributes, according to schema defaults', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
             const [obj] = await createTestOrganizationEmployeeRole(admin, organization)
@@ -29,8 +29,8 @@ describe('OrganizationEmployeeRole', () => {
             expect(obj.canManageTickets).toBeFalsy()
             expect(obj.canManageContacts).toBeFalsy()
             expect(obj.canManageTicketComments).toBeTruthy()
-            expect(obj.canBeAssignedAsResponsible).toBeFalsy()
-            expect(obj.canBeAssignedAsExecutor).toBeFalsy()
+            expect(obj.canBeAssignedAsResponsible).toBeTruthy()
+            expect(obj.canBeAssignedAsExecutor).toBeTruthy()
         })
     })
     describe('user: create OrganizationEmployeeRole', () => {
