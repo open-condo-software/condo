@@ -4,22 +4,21 @@
  * Note: contextId can be obtained thorough admin panel
  */
 
-const { Ticket, TicketStatus, TicketClassifierRule } = require('@condo/domains/ticket/utils/serverSchema')
 const { BillingProperty, BillingAccount, BillingReceipt, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
-const { Property } = require('@condo/domains/property/utils/serverSchema')
-const { demoProperties } = require('./constants')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { User } = require('@condo/domains/user/utils/serverSchema')
-const moment = require('moment')
 const faker = require('faker')
 const path = require('path')
 const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
 const { Client } = require('pg')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 
-const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
 const PROPERTY_QUANTITY = 10
-const ACCOUNTS_PER_PROPERTY = { min: 80, max: 140 }
+const ACCOUNTS_PER_PROPERTY_DISTRIBUTION = { min: 80, max: 140 }
+const PERIOD = '01.07.2021'
+const TO_PAY_DISTRIBUITION = { min: 1200, max: 8500 }
+
+const DV = 1
+const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }
+
 
 class ReceiptsGenerator {
 
@@ -33,11 +32,13 @@ class ReceiptsGenerator {
     ticketsByDay = {}
     context = null
 
-    constructor ({ billingContextId, detailLevel, propertyQuantity, accountsPerProperty }) {
+    constructor ({ billingContextId, detailLevel, propertyQuantity, accountsPerProperty, toPay, period }) {
         this.billingContextId = billingContextId
         this.detailLevel = detailLevel
         this.propertyQuantity = propertyQuantity,
         this.accountsPerProperty = accountsPerProperty,
+        this.toPay = toPay,
+        this.period = period,
         this.pg = new Client(process.env.DATABASE_URL)
         this.pg.connect()
     }
@@ -54,65 +55,19 @@ class ReceiptsGenerator {
 
     async generate () {
         await this.prepareModels()
-        await this.generateTickets()
-    }
-
-    async generateTickets () {
-        const dayStart = moment().utc().startOf('year')
-        const dayEnd = moment().utc()
-        let current = dayStart.add(6, 'hours')
-        let maxTickets = 10000
-        let counter = 0
-        do {
-            const arr = Array(faker.datatype.number(this.ticketsByDay)).fill('')
-            for (const _ of arr) {
-                // we cannot generate tickets in parallel as their autoincrement number will fail to fill
-                await this.generateTicket(current.valueOf())
-                console.log(`ticket ${++counter} `)
-            }
-            current = current.add(1, 'day')
-        } while (--maxTickets > 0 && current < dayEnd)
-    }
-
-    async generateTicket (timeStamp) {
-        const unit = this.unit
-        const problem = this.problem
-        const data = {
-            dv: 1,
-            sender: { dv: 1, fingerprint: 'import' },
-            clientName: `${faker.name.firstName()} ${faker.name.lastName()}`,
-            clientEmail: faker.internet.email(),
-            clientPhone: faker.phone.phoneNumber('+7922#######'),
-            details: faker.lorem.sentence(),
-            sectionName: unit.section,
-            floorName: unit.floor,
-            unitName: unit.unit,
-            source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
-            classifierRule: { connect: { id: problem.id } },
-            placeClassifier: { connect: { id: problem.place.id } },
-            categoryClassifier: { connect: { id: problem.category.id } },
-            problemClassifier: { connect: { id: problem.problem.id } },
-            operator: { connect: { id: this.user.id } },
-            assignee: { connect: { id: this.user.id } },
-            executor: { connect: { id: this.user.id } },
-            isEmergency: faker.datatype.boolean(),
-            isPaid: faker.datatype.boolean(),
-            organization: { connect: { id: this.organization.id } },
-            property:  { connect: { id: this.property.id } },
-            status: { connect: { id: this.status.id } },
-        }
-        const result = await Ticket.create(this.context, data)
-        await this.setCreatedAt(result.id, timeStamp)
+        await this.generateReceipts()
     }
 
     async generateProperty () {
         const [billingProperty] = await BillingProperty.create(
             this.context,
             {
+                dv: DV,
+                sender: SENDER,
                 context: { connect: { id: this.billingContextId } },
                 address: buildFakeAddressMeta().value,
-                importId: faker.random.uuid,
-                globalId: faker.random.uuid(),
+                importId: faker.datatype.uuid(),
+                globalId: faker.datatype.uuid(),
                 meta: {},
                 raw: {},
             }
@@ -122,19 +77,96 @@ class ReceiptsGenerator {
 	
     async generateBillingAccountsForProperty (property) {
         const { id } = property
-        return [0, 0, 0]
+        const accountsToGenerate = Math.floor(Math.random() * (this.accountsPerProperty.max - this.accountsPerProperty.min + 1)) + this.accountsPerProperty.min
+        console.info(`[INFO] ${accountsToGenerate} would be generated for ${property.address}`)
+        
+        const billingAccounts = []
+        for (let i = 0; i < accountsToGenerate; ++i) {
+            const [billingAccount] = await BillingAccount.create(
+                this.context,
+                {
+                    dv: DV,
+                    sender: SENDER,
+                    context: { connect: { id: this.billingContextId } },
+                    property: { connect: { id: id } },
+                    address: buildFakeAddressMeta().value,
+                    importId: faker.datatype.uuid(),
+                    globalId: faker.random.numeric(2) + faker.random.alpha(2) +
+                        faker.random.numeric(7),
+                    number: faker.random.numeric(11),
+                    unitName: i + 1,
+                    meta: {},
+                    raw: {},
+                }
+            )
+            billingAccounts.push(billingAccount)
+        }
+
+        return billingAccounts
     }
-	
+
+    async generateReceipts () {
+
+        // Gets somewhat like normal distribution using central limit theorem
+        function _gaussianRand () {
+            let rand = 0
+            for (let i = 0; i < 6; i += 1) {
+                rand += Math.random()
+            }
+            return rand / 6
+        }
+        
+        console.info('[INFO] Generating receipts...')
+        if (!this.billingAccounts) {
+            throw new Error('Cant generate receipts! No billing accounts. Please check that this.prepareModels() is ran before this.generateReceipts()')
+        }
+
+        const toBeGenerated = this.billingAccounts.length
+
+        // Right now we support only one payment organization
+        // The case when there are multiple payment organizations is possible
+        // todo(toplenboren) create
+        const PAYMENT_ORGANIZATION = {
+            tin: faker.datatype.number().toString(),
+            iec: faker.datatype.number().toString(),
+            bic: faker.datatype.number().toString(),
+            bankAccount: faker.datatype.number().toString(),
+        }
+
+        for (let i = 0; i < toBeGenerated; ++i) {
+            switch (this.detailLevel) {
+                case 1:
+                    await BillingReceipt.create(this.context, {
+                        dv: DV,
+                        sender: SENDER,
+                        context: { connect: { id: this.billingContextId } },
+                        property: { connect: { id: this.billingAccounts[i].property.id } },
+                        account: { connect: { id: this.billingAccounts[i].id } },
+                        importId: faker.datatype.uuid(),
+                        toPay: Math.floor(this.toPay.min + _gaussianRand() * (this.toPay.max - this.toPay.min + 1)),
+                        period: this.period,
+                        recipient: PAYMENT_ORGANIZATION,
+                    })
+                    break
+                default:
+                    throw new Error(`Cant generate receipts! Detail level is wrong. Should be 1. Got ${this.detailLevel}`)
+            }
+            console.info(`[INFO] ${Math.floor(i * 100 / toBeGenerated)}%`)
+        }
+    }
+
     /**
 	 * This function checks context, generates billingProperties and generates billingAccounts
-	 * @return {Promise<void>}
 	 */
     async prepareModels () {
-        const [billingContext] = await BillingIntegrationOrganizationContext.getAll(this.context, { id: this.billingContextId })
-        if (!billingContext) {
+        try {
+            const [billingContext] = await BillingIntegrationOrganizationContext.getAll(this.context, { id: this.billingContextId })
+            if (billingContext.length === 0) throw new Error('Provided billingContextId not found')
+        } catch (e) {
             throw new Error('Provided billingContextId was invalid')
         }
-		
+
+        console.info('[INFO] Generating properties...')
         const properties = []
         for (let i = 0; i < this.propertyQuantity; ++i) {
             const currentProperty = await this.generateProperty()
@@ -142,40 +174,14 @@ class ReceiptsGenerator {
         }
         this.properties = properties
 
+        console.info('[INFO] Generating accounts...')
         const billingAccounts = []
         for (let i = 0; i < properties.length; ++i) {
-            const billingAccountsForProperty = this.generateBillingAccountsForProperty(properties[i])
+            const billingAccountsForProperty = await this.generateBillingAccountsForProperty(properties[i])
             billingAccounts.push(billingAccountsForProperty)
         }
         this.billingAccounts = billingAccounts.flat()
     }
-
-    get unit () {
-        const result = { section: null, floor: null, unit: null }
-        const section = this.property.map.sections[faker.datatype.number({ min: 0, max: this.property.map.sections.length - 1 })]
-        result.section = section.name
-        const floor = section.floors[faker.datatype.number({ min: 0, max: section.floors.length - 1 })]
-        result.floor = floor.name
-        const unit = floor.units[faker.datatype.number({ min: 0, max: floor.units.length - 1 })]
-        result.unit = unit.label
-        return result
-    }
-
-    get problem () {
-        return this.classifiers[faker.datatype.number({ min: 0, max: this.classifiers.length - 1 })]
-    }
-
-    get status () {
-        return this.statuses[faker.datatype.number({ min: 0, max: this.statuses.length - 1 })]
-    }
-
-    async setCreatedAt (ticketId, date) {
-        await this.pg.query(' Update "Ticket" SET "createdAt" = $1 WHERE id=$2 ', [
-            moment(date).utc().format('YYYY-MM-DD HH:mm:ss'),
-            ticketId,
-        ])
-    }
-
 }
 
 const createReceipts = async ([billingContextId]) => {
@@ -183,21 +189,20 @@ const createReceipts = async ([billingContextId]) => {
         throw new Error('No billingContextId was provided – please use like this: yarn generate-receipts <contextId>')
     }
 
-    const ReceiptsManager = new ReceiptsGenerator({ billingContextId: billingContextId, detailLevel: 1 })
+    const ReceiptsManager = new ReceiptsGenerator({
+        billingContextId: billingContextId,
+        detailLevel: 1,
+        propertyQuantity: PROPERTY_QUANTITY,
+        accountsPerProperty: ACCOUNTS_PER_PROPERTY_DISTRIBUTION,
+        period: PERIOD,
+        toPay: TO_PAY_DISTRIBUITION,
+    })
+
     console.time('keystone')
     await ReceiptsManager.connect()
     console.timeEnd('keystone')
 
-    for (const info of demoProperties) {
-        try {
-            console.log(`[START] ${info.address}`)
-            await ReceiptsManager.generate(info)
-            console.log(`[END] ${info.address}`)
-        } catch (error) {
-            console.log('error', error)
-            console.log(`[SKIP] ${info.address}`)
-        }
-    }
+    await ReceiptsManager.generate()
 }
 
 if (process.env.NODE_ENV !== 'development') {
