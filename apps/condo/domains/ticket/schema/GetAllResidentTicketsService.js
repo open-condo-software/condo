@@ -11,6 +11,7 @@ const { get } = require('lodash')
 const fieldsObj = {
     id: 'ID',
     number: 'Int',
+    property: 'Property',
     status: 'TicketStatus',
     source: 'TicketSource',
     classifier: 'TicketClassifier',
