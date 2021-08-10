@@ -26,7 +26,6 @@ exports.up = async (knex) => {
     UPDATE "OrganizationEmployee" SET "new_newId" = uuid_generate_v4();
     ALTER TABLE "OrganizationEmployee" DROP COLUMN "newId";
     ALTER TABLE "OrganizationEmployee" RENAME COLUMN "new_newId" TO "newId";
-    ALTER TABLE "OrganizationEmployee" ALTER COLUMN "newId" SET NOT NULL;
     COMMIT;
 
     --
