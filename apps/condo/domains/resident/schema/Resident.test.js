@@ -3,15 +3,12 @@
  */
 
 const faker = require('faker')
-const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { makeClientWithResidentUser, addResidentAccess } = require('@condo/domains/user/utils/testSchema')
+const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const { createTestProperty, makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
-const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
@@ -193,46 +190,13 @@ describe('Resident', () => {
             expect(obj.billingAccount.id).toEqual(billingAccount.id)
         })
 
-        it('can be created by user with type "resident"', async () => {
-            const userClient = await makeClientWithResidentUser()
-            const [organization] = await registerNewOrganization(userClient)
-            const [property] = await createTestProperty(userClient, organization, { map: buildingMapJson })
-
-            const [obj, attrs] = await createTestResident(userClient, userClient.user, organization, property)
-
-            expect(obj.id).toMatch(UUID_RE)
-            expect(obj.dv).toEqual(1)
-            expect(obj.sender).toEqual(attrs.sender)
-            expect(obj.unitName).toMatch(attrs.unitName)
-            expect(obj.v).toEqual(1)
-            expect(obj.newId).toEqual(null)
-            expect(obj.deletedAt).toEqual(null)
-            expect(obj.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
-            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
-            expect(obj.createdAt).toMatch(DATETIME_RE)
-            expect(obj.updatedAt).toMatch(DATETIME_RE)
-            expect(obj.user.id).toEqual(userClient.user.id)
-            expect(obj.organization.id).toMatch(organization.id)
-        })
-
-        it('cannot be created by other users', async () => {
+        it('cannot be created by user', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
-            const [anotherOrganization] = await createTestOrganization(adminClient)
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization)
-            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestResident(userClient, userClient.user, anotherOrganization, userClient.property)
-            })
-        })
-
-        it('cannot be created by user, who is not employed in specified organization', async () => {
-            const userClient = await makeClientWithProperty()
-            const anotherUser = await makeClientWithProperty()
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestResident(anotherUser, userClient.user, userClient.organization, userClient.property)
+                await createTestResident(userClient, userClient.user, organization, userClient.property)
             })
         })
 
@@ -438,6 +402,20 @@ describe('Resident', () => {
             expect(objUpdated.deletedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+        })
+
+        it('cannot be soft-deleted using update operation by current user with type resident when other fields gets passed as variables', async () => {
+            const userClient = await makeClientWithResidentUserAndProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+
+            const notAllowedPayload = {
+                address: faker.lorem.words(),
+            }
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await softDeleteTestResident(userClient, obj.id, notAllowedPayload)
+            })
         })
 
         it('cannot be soft-deleted using update operation by other user with type resident', async () => {
