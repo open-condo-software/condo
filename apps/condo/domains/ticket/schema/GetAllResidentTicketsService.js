@@ -38,8 +38,13 @@ const GetAllResidentTicketsService = new GQLCustomSchema('GetAllResidentTicketsS
             schema: 'allResidentTickets(where: ResidentTicketWhereInput, first: Int, skip: Int, sortBy: [SortResidentTicketsBy!]): [ResidentTicketOutput]',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { where, first, skip, sortBy } = args
-                const clientId = get(context, ['req', 'user', 'id'])
-                return await Ticket.getAll(context, { ...where, client: { id: clientId } }, {
+                const user = get(context, ['req', 'user'])
+                const userId = get(user, 'id')
+
+                // admin can read all resident tickets
+                const ticketsQuery = user.isAdmin ? { ...where } : { ...where, client: { id: userId } }
+
+                return await Ticket.getAll(context, ticketsQuery, {
                     sortBy,
                     first,
                     skip,
