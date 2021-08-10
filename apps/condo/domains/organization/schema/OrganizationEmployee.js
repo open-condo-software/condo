@@ -8,7 +8,8 @@ const { userIsAdmin } = require('@core/keystone/access')
 const access = require('@condo/domains/organization/access/OrganizationEmployee')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { GQLListSchema } = require('@core/keystone/schema')
-const { historical, versioned, tracked, softDeleted } = require('@core/keystone/plugins')
+const { historical, versioned, tracked, softDeleted, uuided } = require('@core/keystone/plugins')
+
 const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
 const { DV_UNKNOWN_VERSION_ERROR, EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDbFields, hasOneOfFields, hasRequestFields } = require('@condo/domains/common/utils/validation.utils')
@@ -113,7 +114,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             defaultValue: false,
         },
     },
-    plugins: [versioned(), tracked(), historical(), softDeleted()],
+    plugins: [uuided(), versioned(), tracked(), historical(), softDeleted()],
     access: {
         read: access.canReadOrganizationEmployees,
         create: access.canManageOrganizationEmployees,
