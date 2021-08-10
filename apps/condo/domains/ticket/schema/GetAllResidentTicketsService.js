@@ -12,6 +12,7 @@ const fieldsObj = {
     id: 'ID',
     number: 'Int',
     property: 'Property',
+    unitName: 'String',
     status: 'TicketStatus',
     source: 'TicketSource',
     classifier: 'TicketClassifier',
