@@ -6,6 +6,7 @@ const { Text, Relationship, Integer, DateTimeUtc, Checkbox } = require('@keyston
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const TicketDvManager = require('./Ticket.dv')
 
 const { SENDER_FIELD, DV_FIELD, CLIENT_PHONE_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CONTACT_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/Ticket')
@@ -14,7 +15,7 @@ const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS } = require('../constants')
 const { buildSetOfFieldsToTrackFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { storeChangesIfUpdated } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
-const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
+const { hasDbFields, validateIdentity } = require('@condo/domains/common/utils/validation.utils')
 const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { normalizeText } = require('@condo/domains/common/utils/text')
@@ -255,25 +256,11 @@ const Ticket = new GQLListSchema('Ticket', {
         },
         validateInput: ({ resolvedData, existingItem, addValidationError, context, operation }) => {
             // Todo(zuch): add placeClassifier, categoryClassifier and classifierRule
+            validateIdentity(resolvedData, existingItem, context, addValidationError)
             if (!hasDbFields(['organization', 'source', 'status', 'details'], resolvedData, existingItem, context, addValidationError)) return
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
-            const { dv } = resolvedData
-            if (dv === 1) {
-                // NOTE: version 1 specific translations. Don't optimize this logic
-                if (resolvedData.statusUpdatedAt) {
-                    if (existingItem.statusUpdatedAt) {
-                        if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.statusUpdatedAt)) {
-                            return addValidationError(`${ STATUS_UPDATED_AT_ERROR }statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
-                        }
-                    } else {
-                        if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.createdAt)) {
-                            return addValidationError(`${ STATUS_UPDATED_AT_ERROR }statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
-                        }
-                    }
-                }
-            } else {
-                return addValidationError(`${ DV_UNKNOWN_VERSION_ERROR }dv] Unknown \`dv\``)
-            }
+            TicketDvManager.validate(existingItem, resolvedData, addValidationError)
+            TicketDvManager.upgrade(resolvedData)
+            
         },
         // `beforeChange` cannot be used, because data can be manipulated during updating process somewhere inside a ticket
         // We need a final result after update

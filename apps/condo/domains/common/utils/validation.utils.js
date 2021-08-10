@@ -63,6 +63,31 @@ function hasDvAndSenderFields (resolvedData, context, addFieldValidationError) {
     return hasDvField && hasSenderField
 }
 
+function validateIdentity (resolvedData, existingItem, context, addValidationError) {
+    let cookies
+    if (!resolvedData.hasOwnProperty('dv')) {
+        cookies = nextCookies({ req: context.req })
+        if (typeof cookies.dv === 'number') {
+            if (existingItem.dv !== cookies.dv) {
+                // TODO(MrFoxPro): add data format conversions?
+                return addValidationError(`${JSON_WRONG_VERSION_FORMAT_ERROR}${'dv'}] Data version mismatch!`)
+            }
+            resolvedData.dv = cookies.dv
+        }
+        else return addValidationError(`${REQUIRED_NO_VALUE_ERROR}${'dv'}] Value is required`)
+    }
+    if (!resolvedData.hasOwnProperty('sender')) {
+        if (!cookies) cookies = nextCookies({ req: context.req })
+        if (typeof cookies.fingerprint === 'string') {
+            resolvedData.sender = {
+                dv: resolvedData.dv,
+                fingerprint: cookies.fingerprint,
+            }
+        }
+        else return addValidationError(`${REQUIRED_NO_VALUE_ERROR}${'dv'}] Value is required`)
+    }
+}
+
 function hasOneOfFields (requestRequired, resolvedData, existingItem, addFieldValidationError) {
     if (typeof resolvedData === 'undefined') throw new Error('unexpected undefined resolvedData arg')
     if (requestRequired.length < 1) throw new Error('unexpected requestRequired list length')
@@ -107,6 +132,6 @@ function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints
 module.exports = {
     hasDbFields,
     hasOneOfFields,
-    hasDvAndSenderFields,
+    validateIdentity,
     hasValidJsonStructure,
 }
