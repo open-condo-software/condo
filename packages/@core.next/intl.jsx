@@ -27,9 +27,8 @@ let getMessages = async (locale) => {
 let extractReqLocale = (req) => {
     try {
         const cookieLocale = nextCookie({ req }).locale
-        const queryLocale = req.query && req.query.locale
         const headersLocale = req.headers['accept-language'] && req.headers['accept-language'].slice(0, 2)
-        return cookieLocale || queryLocale || headersLocale || defaultLocale
+        return cookieLocale || headersLocale || defaultLocale
     } catch (e) {
         return null
     }
@@ -49,6 +48,7 @@ let getLocale = () => {
     }
     return locale || defaultLocale
 }
+
 
 const initOnRestore = async (ctx) => {
     let locale, messages
