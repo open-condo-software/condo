@@ -161,7 +161,7 @@ const Property = new GQLListSchema('Property', {
     },
     hooks: {
         validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
-            if (!hasRequestAndDbFields(['dv', 'sender'], ['organization', 'type', 'address', 'addressMeta'], resolvedData, existingItem, context, addValidationError)) return
+            if (!hasRequestAndDbFields([{ field: 'dv', checkCookies: true }, { field: 'sender', checkCookies: true }], ['organization', 'type', 'address', 'addressMeta'], resolvedData, existingItem, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic

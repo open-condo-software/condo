@@ -14,7 +14,8 @@ const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const express = require('express')
 const bodyParser = require('body-parser')
-
+const nextCookie = require('next-cookies')
+const { makeId } = require('@condo/domains/common/utils/makeid.utils')
 const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
@@ -149,4 +150,18 @@ module.exports = {
         }),
         conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' }),
     ].filter(identity),
+    /** @type {(app: import('express').Application) => void} */
+    configureExpress: (app) => {
+        app.use('/admin/', (req, res, next)=> {
+            const cookies = nextCookie({ req })
+            if (!cookies.sender){
+                res.cookie('sender', JSON.stringify({
+                    dv: 1,
+                    fingerprint: makeId(),
+                }))
+            }
+            next()
+        })
+      
+    },
 }
