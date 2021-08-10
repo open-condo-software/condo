@@ -134,7 +134,7 @@ const TICKET_ANALYTICS_REPORT_MUTATION = gql`
     }
 `
 
-const RESIDENT_TICKET_FIELDS = '{ organization { id name } property { id name address } unitName sectionName floorName number client { id name } clientName clientEmail clientPhone status { id name type organization { id } colors } classifier { id name organization { id } parent { id name } } details related { id details } isEmergency isPaid source { id name type } id dv sender v deletedAt newId createdAt updatedAt }'
+const RESIDENT_TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName number client { id name } clientName clientEmail clientPhone status { id name type organization { id } colors } classifier { id name } ${THREE_LVL_CLASSIFIER_FIELDS} details related { id details } isEmergency isPaid source { id name type } id dv sender v deletedAt newId createdAt updatedAt }`
 const ResidentTicket = generateGqlQueries('ResidentTicket', RESIDENT_TICKET_FIELDS)
 
 const TICKET_PLACE_CLASSIFIER_FIELDS = `{ organization { id } name ${COMMON_FIELDS} }`

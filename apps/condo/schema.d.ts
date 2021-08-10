@@ -13785,6 +13785,10 @@ export type ResidentTicketCreateInput = {
   source: TicketSourceRelateToOneInput;
   property: PropertyRelateToOneInput;
   unitName?: Maybe<Scalars['String']>;
+  placeClassifier?: Maybe<TicketPlaceClassifierRelateToOneInput>;
+  categoryClassifier?: Maybe<TicketCategoryClassifierRelateToOneInput>;
+  problemClassifier?: Maybe<TicketProblemClassifierRelateToOneInput>;
+  classifierRule?: Maybe<TicketClassifierRuleRelateToOneInput>;
 };
 
 export type ResidentTicketOutput = {
@@ -13808,7 +13812,10 @@ export type ResidentTicketOutput = {
   id: Scalars['ID'];
   createdAt: Scalars['String'];
   updatedAt?: Maybe<Scalars['String']>;
+  classifier?: Maybe<TicketClassifier>;
   placeClassifier?: Maybe<TicketPlaceClassifier>;
+  problemClassifier?: Maybe<TicketProblemClassifier>;
+  classifierRule?: Maybe<TicketClassifierRule>;
   categoryClassifier?: Maybe<TicketCategoryClassifier>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
@@ -13844,8 +13851,14 @@ export type ResidentTicketWhereInput = {
   status_is_null?: Maybe<Scalars['Boolean']>;
   source?: Maybe<TicketSourceWhereInput>;
   source_is_null?: Maybe<Scalars['Boolean']>;
+  classifier?: Maybe<TicketClassifierWhereInput>;
+  classifier_is_null?: Maybe<Scalars['Boolean']>;
   placeClassifier?: Maybe<TicketPlaceClassifierWhereInput>;
   placeClassifier_is_null?: Maybe<Scalars['Boolean']>;
+  problemClassifier?: Maybe<TicketProblemClassifierWhereInput>;
+  problemClassifier_is_null?: Maybe<Scalars['Boolean']>;
+  classifierRule?: Maybe<TicketClassifierRuleWhereInput>;
+  classifierRule_is_null?: Maybe<Scalars['Boolean']>;
   categoryClassifier?: Maybe<TicketCategoryClassifierWhereInput>;
   categoryClassifier_is_null?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
@@ -15187,8 +15200,14 @@ export enum SortResidentTicketsBy {
   StatusDesc = 'status_DESC',
   SourceAsc = 'source_ASC',
   SourceDesc = 'source_DESC',
+  ClassifierAsc = 'classifier_ASC',
+  ClassifierDesc = 'classifier_DESC',
   PlaceClassifierAsc = 'placeClassifier_ASC',
   PlaceClassifierDesc = 'placeClassifier_DESC',
+  ProblemClassifierAsc = 'problemClassifier_ASC',
+  ProblemClassifierDesc = 'problemClassifier_DESC',
+  ClassifierRuleAsc = 'classifierRule_ASC',
+  ClassifierRuleDesc = 'classifierRule_DESC',
   CategoryClassifierAsc = 'categoryClassifier_ASC',
   CategoryClassifierDesc = 'categoryClassifier_DESC',
   IsEmergencyAsc = 'isEmergency_ASC',
