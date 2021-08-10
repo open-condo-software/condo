@@ -73,7 +73,6 @@
     "minimatch": "^3.0.4",
     "moment": "^2.29.1",
     "next": "^9.5.2",
-    "next-transpile-modules": "^4.1.0",
     "numeral": "2.0.6",
     "phone": "^2.4.21",
     "qs": "^6.9.6",
@@ -105,6 +104,7 @@
     "jest": "^26.6.3",
     "jest-watch-typeahead": "^0.6.1",
     "mkdirp": "^1.0.4",
+    "next-transpile-modules": "7.3.0",
     "typescript": "^4.1.5"
   }
 }
