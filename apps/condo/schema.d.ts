@@ -13857,6 +13857,22 @@ export type ResidentTicketWhereInput = {
   number_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   property?: Maybe<PropertyWhereInput>;
   property_is_null?: Maybe<Scalars['Boolean']>;
+  unitName?: Maybe<Scalars['String']>;
+  unitName_not?: Maybe<Scalars['String']>;
+  unitName_contains?: Maybe<Scalars['String']>;
+  unitName_not_contains?: Maybe<Scalars['String']>;
+  unitName_starts_with?: Maybe<Scalars['String']>;
+  unitName_not_starts_with?: Maybe<Scalars['String']>;
+  unitName_ends_with?: Maybe<Scalars['String']>;
+  unitName_not_ends_with?: Maybe<Scalars['String']>;
+  unitName_i?: Maybe<Scalars['String']>;
+  unitName_not_i?: Maybe<Scalars['String']>;
+  unitName_contains_i?: Maybe<Scalars['String']>;
+  unitName_not_contains_i?: Maybe<Scalars['String']>;
+  unitName_starts_with_i?: Maybe<Scalars['String']>;
+  unitName_not_starts_with_i?: Maybe<Scalars['String']>;
+  unitName_ends_with_i?: Maybe<Scalars['String']>;
+  unitName_not_ends_with_i?: Maybe<Scalars['String']>;
   status?: Maybe<TicketStatusWhereInput>;
   status_is_null?: Maybe<Scalars['Boolean']>;
   source?: Maybe<TicketSourceWhereInput>;
@@ -15210,6 +15226,8 @@ export enum SortResidentTicketsBy {
   NumberDesc = 'number_DESC',
   PropertyAsc = 'property_ASC',
   PropertyDesc = 'property_DESC',
+  UnitNameAsc = 'unitName_ASC',
+  UnitNameDesc = 'unitName_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
   SourceAsc = 'source_ASC',
