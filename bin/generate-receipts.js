@@ -13,11 +13,12 @@ const { GraphQLApp } = require('@keystonejs/app-graphql')
 
 const PROPERTY_QUANTITY = 10
 const ACCOUNTS_PER_PROPERTY_DISTRIBUTION = { min: 80, max: 140 }
-const PERIOD = '01.07.2021'
+const PERIOD = '2021-08-01'
 const TO_PAY_DISTRIBUITION = { min: 1200, max: 8500 }
 
 const DV = 1
 const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }
+const BASE_JSON = { dv: DV, sender: SENDER }
 
 
 class ReceiptsGenerator {
@@ -59,7 +60,7 @@ class ReceiptsGenerator {
     }
 
     async generateProperty () {
-        const [billingProperty] = await BillingProperty.create(
+        const billingProperty = await BillingProperty.create(
             this.context,
             {
                 dv: DV,
@@ -82,21 +83,19 @@ class ReceiptsGenerator {
         
         const billingAccounts = []
         for (let i = 0; i < accountsToGenerate; ++i) {
-            const [billingAccount] = await BillingAccount.create(
+            const billingAccount = await BillingAccount.create(
                 this.context,
                 {
                     dv: DV,
                     sender: SENDER,
                     context: { connect: { id: this.billingContextId } },
                     property: { connect: { id: id } },
-                    address: buildFakeAddressMeta().value,
                     importId: faker.datatype.uuid(),
-                    globalId: faker.random.numeric(2) + faker.random.alpha(2) +
-                        faker.random.numeric(7),
-                    number: faker.random.numeric(11),
-                    unitName: i + 1,
-                    meta: {},
-                    raw: {},
+                    globalId: faker.helpers.replaceSymbols('##??########'),
+                    number: faker.helpers.replaceSymbols('############'),
+                    unitName: (i + 1).toString(),
+                    meta: BASE_JSON,
+                    raw: BASE_JSON,
                 }
             )
             billingAccounts.push(billingAccount)
@@ -125,13 +124,19 @@ class ReceiptsGenerator {
 
         // Right now we support only one payment organization
         // The case when there are multiple payment organizations is possible
-        // todo(toplenboren) create
+        // todo(toplenboren) create multiple payment receipts for different orgs for same account
         const PAYMENT_ORGANIZATION = {
             tin: faker.datatype.number().toString(),
             iec: faker.datatype.number().toString(),
             bic: faker.datatype.number().toString(),
             bankAccount: faker.datatype.number().toString(),
         }
+
+        let currentProgress = 0 // in percentage
+
+        setInterval(() => {
+            process.stdout.write(`\r${currentProgress}%`)
+        }, 50)
 
         for (let i = 0; i < toBeGenerated; ++i) {
             switch (this.detailLevel) {
@@ -143,15 +148,17 @@ class ReceiptsGenerator {
                         property: { connect: { id: this.billingAccounts[i].property.id } },
                         account: { connect: { id: this.billingAccounts[i].id } },
                         importId: faker.datatype.uuid(),
-                        toPay: Math.floor(this.toPay.min + _gaussianRand() * (this.toPay.max - this.toPay.min + 1)),
+                        toPay: (Math.floor(this.toPay.min + _gaussianRand() * (this.toPay.max - this.toPay.min + 1))).toString(),
                         period: this.period,
                         recipient: PAYMENT_ORGANIZATION,
+                        raw: BASE_JSON,
                     })
                     break
                 default:
                     throw new Error(`Cant generate receipts! Detail level is wrong. Should be 1. Got ${this.detailLevel}`)
             }
-            console.info(`[INFO] ${Math.floor(i * 100 / toBeGenerated)}%`)
+            currentProgress = Math.floor(i * 100 / toBeGenerated)
+            //console.info(`[INFO] ${Math.floor(i * 100 / toBeGenerated)}%`)
         }
     }
 
@@ -184,10 +191,12 @@ class ReceiptsGenerator {
     }
 }
 
-const createReceipts = async ([billingContextId]) => {
-    if (!billingContextId) {
-        throw new Error('No billingContextId was provided – please use like this: yarn generate-receipts <contextId>')
-    }
+const createReceipts = async (ara) => {
+    // if (!billingContextId) {
+    //     throw new Error('No billingContextId was provided – please use like this: yarn generate-receipts <contextId>')
+    // }
+
+    let billingContextId = 'ae32e512-b791-4e3f-b5c5-4bcd18a94f22'
 
     const ReceiptsManager = new ReceiptsGenerator({
         billingContextId: billingContextId,
@@ -211,6 +220,7 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 createReceipts(process.argv.slice(2)).then(() => {
+    console.log('\r\n')
     console.log('All done')
     process.exit(0)
 }).catch(err => {
