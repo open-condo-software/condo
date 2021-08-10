@@ -14,7 +14,11 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
     types: [
         {
             access: true,
-            type: 'input ResidentTicketCreateInput { dv: Int!, sender: JSON!, details: String!, source: TicketSourceRelateToOneInput!, property: PropertyRelateToOneInput!, unitName: String }',
+            type:
+                'input ResidentTicketCreateInput { dv: Int!, sender: JSON!, details: String!,' +
+                'source: TicketSourceRelateToOneInput!, property: PropertyRelateToOneInput!, unitName: String,' +
+                'placeClassifier: TicketPlaceClassifierRelateToOneInput, categoryClassifier: TicketCategoryClassifierRelateToOneInput,' +
+                'problemClassifier: TicketProblemClassifierRelateToOneInput, classifierRule: TicketClassifierRuleRelateToOneInput }',
         },
         {
             access: true,
@@ -22,7 +26,8 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                 'type ResidentTicketOutput { organization: Organization!, property: Property!, unitName: String,' +
                 'sectionName: String, floorName: String, number: Int!, client: User, clientName: String,' +
                 'clientEmail: String, clientPhone: String, details: String!, related: Ticket, isEmergency: Boolean, status: TicketStatus!' +
-                'isPaid: Boolean, source: TicketSource!, id: ID!, createdAt: String!, updatedAt: String, placeClassifier: TicketPlaceClassifier,' +
+                'isPaid: Boolean, source: TicketSource!, id: ID!, createdAt: String!, updatedAt: String, classifier: TicketClassifier,' +
+                'placeClassifier: TicketPlaceClassifier, problemClassifier: TicketProblemClassifier, classifierRule: TicketClassifierRule,' +
                 'categoryClassifier: TicketCategoryClassifier, dv: Int, sender: JSON, v: Int, deletedAt: String, newId: String }',
         },
     ],
