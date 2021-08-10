@@ -1,6 +1,5 @@
 import html2canvas from 'html2canvas'
 import Jspdf from 'jspdf'
-import { MM_TO_PIXEL_RATIO } from '@condo/domains/ticket/constants/common'
 const PDF_FORMAT_SETTINGS = {
     // pdfWidth - width of final image (in mm)
     // pdfHeight - height of final image (in mm)
@@ -87,19 +86,29 @@ export const createPdf: ICreatePdf = (options) => {
 
 export const createPdfWithPageBreaks: ICreatePdfWithPageBreaks = (options) => {
     const { element, fileName } = options
-    const { pdfWidth, pdfHeight, elementOffset } = PDF_FORMAT_SETTINGS.a4
-    const elementHeight = element.clientHeight
+    const { elementOffset } = PDF_FORMAT_SETTINGS.a4
 
-    const totalPDFPages = Math.ceil(elementHeight / (pdfHeight * MM_TO_PIXEL_RATIO + elementOffset)) - 1
-    return html2canvas(element, { windowWidth: pdfWidth, windowHeight: pdfHeight }).then(canvas => {
+    return html2canvas(element).then(canvas => {
         const imgData = canvas.toDataURL('image/jpeg', 1.0)
-        const pdf = new Jspdf('l', 'mm', [pdfWidth, pdfHeight])
 
-        pdf.addImage(imgData, 'JPG', elementOffset, elementOffset, pdfWidth, pdfHeight)
+        // Default page size is a4
+        const pdf = new Jspdf('landscape')
+        const pdfWidth = pdf.internal.pageSize.getWidth()
+        const pdfHeight = pdf.internal.pageSize.getHeight()
+        const imgHeight = getPdfHeightFromElement(element, pdfWidth)
 
-        for (let i = 1; i <= totalPDFPages; i++) {
-            pdf.addPage([pdfWidth, pdfHeight], 'l')
-            pdf.addImage(imgData, 'JPG', elementOffset, -(pdfWidth * i) + (elementOffset), pdfWidth, pdfHeight)
+        let heightLeft = imgHeight + elementOffset * 2
+        let position = 0
+        let page = 1
+        pdf.addImage(imgData, 'JPG', elementOffset, elementOffset + position, pdfWidth, imgHeight)
+        heightLeft -= pdfHeight
+
+        while (heightLeft >= 0) {
+            position = heightLeft - imgHeight + elementOffset * page
+            pdf.addPage([pdfWidth, pdfHeight], 'landscape')
+            pdf.addImage(imgData, 'JPG', elementOffset, position, pdfWidth, imgHeight)
+            heightLeft -= (pdfHeight - elementOffset * page)
+            page++
         }
 
         return pdf.save(fileName, { returnPromise: true })
