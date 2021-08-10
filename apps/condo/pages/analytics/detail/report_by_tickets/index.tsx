@@ -239,9 +239,9 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
             },
         },
         grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
+            left: 0,
+            right: 0,
+            bottom: 0,
             containLabel: true,
             borderWidth: 1,
         },
@@ -271,7 +271,7 @@ const TicketAnalyticsPageChartView: React.FC<ITicketAnalyticsPageChartProps> = (
                     onChartReady={onChartReady}
                     notMerge
                     showLoading={loading}
-                    style={{ height: chartHeight !== 'auto' ? 'unset' : 300 }}
+                    style={{ height: chartHeight !== 'auto' ? 'unset' : 450 }}
                     option={option}/>
                 {children}
             </>
@@ -395,9 +395,9 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
 
     return (
         <Form>
-            <Row gutter={[40, 25]} wrap>
+            <Row gutter={[44, 12]} wrap>
                 <Col flex={0}>
-                    <Form.Item label={PeriodTitle} {...FORM_ITEM_STYLE}>
+                    <Form.Item label={PeriodTitle} {...FORM_ITEM_STYLE} style={{ width: 240 }}>
                         <DateRangePicker
                             value={dateRange}
                             onChange={(range) => setDateRange(range)}
@@ -417,14 +417,14 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                     </Form.Item>
                 </Col>
                 <Col flex={0}>
-                    <Form.Item label={SpecificationTitle} {...FORM_ITEM_STYLE} >
-                        <Select value={specification} onChange={(e) => setSpecification(e)} >
+                    <Form.Item label={SpecificationTitle} {...FORM_ITEM_STYLE} style={{ width: 170 }}>
+                        <Select value={specification} onChange={(e) => setSpecification(e)}>
                             <Select.Option value={'day'}>{SpecificationDays}</Select.Option>
                             <Select.Option value={'week'}>{SpecificationWeeks}</Select.Option>
                         </Select>
                     </Form.Item>
                 </Col>
-                <Col span={10}>
+                <Col flex={1}>
                     <Form.Item label={AddressTitle} {...FORM_ITEM_STYLE}>
                         <GraphQlSearchInput
                             allowClear
@@ -539,7 +539,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         </Head>
         <PageWrapper>
             <PageContent>
-                <Row gutter={[0, 40]}>
+                <Row gutter={[40, 8]}>
                     <Col span={18}>
                         <PageHeader style={{ width: '100%' }} title={<Typography.Title>{PageTitle}</Typography.Title>} />
                     </Col>
@@ -549,7 +549,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         </Tooltip>
                     </Col>
                 </Row>
-                <Row gutter={[0, 20]} align={'top'} justify={'space-between'}>
+                <Row gutter={[0, 40]} align={'top'} justify={'space-between'}>
                     <Col span={24}>
                         <Tabs
                             defaultActiveKey='status'

@@ -24,10 +24,11 @@ const radioButtonBorderlessCss = css`
   }
   & .ant-radio-button-wrapper {
     border: none;
+    padding: 0 16px 0 0;
   }
-  & .ant-radio-button-wrapper.ant-radio-button-wrapper-checked,
-  & .ant-radio-button-wrapper:hover {
+  & .ant-radio-button-wrapper.ant-radio-button-wrapper-checked {
     color: ${colors.green[5]};
+    font-weight: bold;
   }
   & .ant-radio-button-wrapper::after,
   & .ant-radio-button-wrapper::before {
