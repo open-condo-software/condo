@@ -20,7 +20,6 @@ async function canManageResidents ({ authentication: { item: user }, originalInp
     if (!user) return false
     if (user.isAdmin) return true
     if (user.type === RESIDENT) {
-        if (operation === 'create') return true
         // Only soft-delete is allowed for current resident
         if (operation === 'update') {
             if (!itemId) {
