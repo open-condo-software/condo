@@ -44,28 +44,5 @@ exports.up = async (knex) => {
 }
 
 exports.down = async (knex) => {
-    await knex.raw(`
-    BEGIN;
---
--- Alter field history_id on organizationemployeehistoryrecord
---
-ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "history_id" TYPE integer USING "history_id"::integer;
-ALTER TABLE "OrganizationEmployeeHistoryRecord" ADD CONSTRAINT "OrganizationEmployeeHistoryRecord_history_id_cf34a8fd_check" CHECK ("history_id" >= 0);
---
--- Alter field newId on organizationemployee
---
-ALTER TABLE "OrganizationEmployee" ALTER COLUMN "newId" TYPE integer USING "newId"::integer;
-ALTER TABLE "OrganizationEmployee" ADD CONSTRAINT "OrganizationEmployee_newId_505cfc42_check" CHECK ("newId" >= 0);
---
--- Alter field id on organizationemployee
---
-ALTER TABLE "OrganizationEmployee" ALTER COLUMN "id" TYPE integer USING "id"::integer;
-DROP SEQUENCE IF EXISTS "OrganizationEmployee_id_seq" CASCADE;
-CREATE SEQUENCE "OrganizationEmployee_id_seq";
-ALTER TABLE "OrganizationEmployee" ALTER COLUMN "id" SET DEFAULT nextval('"OrganizationEmployee_id_seq"');
-SELECT setval('"OrganizationEmployee_id_seq"', MAX("id")) FROM "OrganizationEmployee";
-ALTER SEQUENCE "OrganizationEmployee_id_seq" OWNED BY "OrganizationEmployee"."id";
-COMMIT;
-
-    `)
+    return
 }
