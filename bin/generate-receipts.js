@@ -5,6 +5,7 @@
  */
 
 const { Ticket, TicketStatus, TicketClassifierRule } = require('@condo/domains/ticket/utils/serverSchema')
+const { BillingProperty, BillingAccount, BillingReceipt, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { demoProperties } = require('./constants')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
@@ -12,10 +13,14 @@ const { User } = require('@condo/domains/user/utils/serverSchema')
 const moment = require('moment')
 const faker = require('faker')
 const path = require('path')
+const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
 const { Client } = require('pg')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 
 const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
+const PROPERTY_QUANTITY = 10
+const ACCOUNTS_PER_PROPERTY = { min: 80, max: 140 }
+
 class ReceiptsGenerator {
 
     property = null
@@ -28,9 +33,11 @@ class ReceiptsGenerator {
     ticketsByDay = {}
     context = null
 
-    constructor ({ ticketsByDay = { min: 20, max: 50 } }, propertyIndex = 0) {
-        this.ticketsByDay = ticketsByDay
-        this.propertyIndex = propertyIndex
+    constructor ({ billingContextId, detailLevel, propertyQuantity, accountsPerProperty }) {
+        this.billingContextId = billingContextId
+        this.detailLevel = detailLevel
+        this.propertyQuantity = propertyQuantity,
+        this.accountsPerProperty = accountsPerProperty,
         this.pg = new Client(process.env.DATABASE_URL)
         this.pg.connect()
     }
@@ -45,8 +52,8 @@ class ReceiptsGenerator {
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
 
-    async generate (propertyInfo) {
-        await this.prepareModels(propertyInfo)
+    async generate () {
+        await this.prepareModels()
         await this.generateTickets()
     }
 
@@ -98,32 +105,49 @@ class ReceiptsGenerator {
         await this.setCreatedAt(result.id, timeStamp)
     }
 
-    async prepareModels (propertyInfo) {
-        this.statuses = await TicketStatus.getAll(this.context, { organization_is_null: true })
-        this.classifiers = await TicketClassifierRule.getAll(this.context, { })
-        const [property] = await Property.getAll(this.context, { address: propertyInfo.address })
-        if (property){
-            throw new Error('Property already exists [SKIP!]')
+    async generateProperty () {
+        const [billingProperty] = await BillingProperty.create(
+            this.context,
+            {
+                context: { connect: { id: this.billingContextId } },
+                address: buildFakeAddressMeta().value,
+                importId: faker.random.uuid,
+                globalId: faker.random.uuid(),
+                meta: {},
+                raw: {},
+            }
+        )
+        return billingProperty
+    }
+	
+    async generateBillingAccountsForProperty (property) {
+        const { id } = property
+        return [0, 0, 0]
+    }
+	
+    /**
+	 * This function checks context, generates billingProperties and generates billingAccounts
+	 * @return {Promise<void>}
+	 */
+    async prepareModels () {
+        const [billingContext] = await BillingIntegrationOrganizationContext.getAll(this.context, { id: this.billingContextId })
+        if (!billingContext) {
+            throw new Error('Provided billingContextId was invalid')
         }
-        const [user] = await User.getAll(this.context, { name_not_in: ['Admin', 'JustUser'] })
-        this.user = user
-        const [organization] = await Organization.getAll(this.context, {})
-        this.organization = organization
-        if (!this.organization) {
-            throw new Error('Please create user with organization first')
+		
+        const properties = []
+        for (let i = 0; i < this.propertyQuantity; ++i) {
+            const currentProperty = await this.generateProperty()
+            properties.push(currentProperty)
         }
-        const { address, addressMeta, map } = propertyInfo
-        const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-        const newProperty = await Property.create(this.context, {
-            dv: 1,
-            sender,
-            address,
-            type: 'building',
-            organization: { connect: { id: this.organization.id } },
-            addressMeta,
-            map,
-        })
-        this.property = newProperty
+        this.properties = properties
+
+        const billingAccounts = []
+        for (let i = 0; i < properties.length; ++i) {
+            const billingAccountsForProperty = this.generateBillingAccountsForProperty(properties[i])
+            billingAccounts.push(billingAccountsForProperty)
+        }
+        this.billingAccounts = billingAccounts.flat()
     }
 
     get unit () {
@@ -154,15 +178,16 @@ class ReceiptsGenerator {
 
 }
 
-const createReceipts = async ([contextId]) => {
-    if (!contextId) {
-        throw new Error('No contextId was provided – please use like this: yarn generate-receipts <contextId>')
+const createReceipts = async ([billingContextId]) => {
+    if (!billingContextId) {
+        throw new Error('No billingContextId was provided – please use like this: yarn generate-receipts <contextId>')
     }
-    console.log(contextId)
-    const ReceiptsManager = new ReceiptsGenerator({ contextId: ''  })
+
+    const ReceiptsManager = new ReceiptsGenerator({ billingContextId: billingContextId, detailLevel: 1 })
     console.time('keystone')
     await ReceiptsManager.connect()
     console.timeEnd('keystone')
+
     for (const info of demoProperties) {
         try {
             console.log(`[START] ${info.address}`)
