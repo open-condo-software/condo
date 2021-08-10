@@ -6,6 +6,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/GetAllResidentTicketsService')
 const { generateQuerySortBy } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 const { generateQueryWhereInput } = require('@condo/domains/common/utils/codegeneration/generate.gql')
+const { get } = require('lodash')
 
 const fieldsObj = {
     id: 'ID',
@@ -37,7 +38,7 @@ const GetAllResidentTicketsService = new GQLCustomSchema('GetAllResidentTicketsS
             schema: 'allResidentTickets(where: ResidentTicketWhereInput, first: Int, skip: Int, sortBy: [SortResidentTicketsBy!]): [ResidentTicketOutput]',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { where, first, skip, sortBy } = args
-                const clientId = context.req.user.id
+                const clientId = get(context, ['req', 'user', 'id'])
                 return await Ticket.getAll(context, { ...where, client: { id: clientId } }, {
                     sortBy,
                     first,

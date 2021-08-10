@@ -61,6 +61,24 @@ describe('CreateResidentTicketService', () => {
         })
     })
 
+    test('resident: cannot create resident ticket with wrong source id', async () => {
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const wrongSource = {
+            connect: {
+                id: faker.random.uuid(),
+            },
+        }
+
+        await catchErrorFrom(async () => {
+            await createResidentTicketByTestClient(userClient, userClient.property, { source: wrongSource })
+        }, ({ errors, data }) => {
+            expect(errors).toHaveLength(1)
+            expect(errors[0].message).toEqual(`${NOT_FOUND_ERROR}source] source not found`)
+            expect(data).toEqual({ 'obj': null })
+        })
+    })
+
+
     test('resident: create contact when create resident ticket without contact', async () => {
         const admin = await makeLoggedInAdminClient()
         const userClient = await makeClientWithResidentUserAndProperty()

@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 const { AnaliticsTicket: AnaliticsTicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
@@ -16,9 +16,8 @@ const { TicketPlaceClassifier: TicketPlaceClassifierGQL } = require('@condo/doma
 const { TicketCategoryClassifier: TicketCategoryClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketProblemClassifier: TicketProblemClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketClassifierRule: TicketClassifierRuleGQL } = require('@condo/domains/ticket/gql')
-const { CREATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
-const { GET_ALL_RESIDENT_TICKETS_QUERY } = require('@condo/domains/ticket/gql')
-const { UPDATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
+const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
+const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -28,53 +27,14 @@ const TicketChange = generateServerUtils(TicketChangeGQL)
 const TicketFile = generateServerUtils(TicketFileGQL)
 const TicketClassifier = generateServerUtils(TicketClassifierGQL)
 const TicketComment = generateServerUtils(TicketCommentGQL)
-
-async function createResidentTicket (context, data) {
-    if (!context) throw new Error('no context')
-    if (!data) throw new Error('no data')
-    if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write createResidentTicket serverSchema guards
-
-    return await execGqlWithoutAccess(context, {
-        query: CREATE_RESIDENT_TICKET_MUTATION,
-        variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to createResidentTicket',
-        dataPath: 'obj',
-    })
-}
-
-async function getAllResidentTickets (context, data) {
-    if (!context) throw new Error('no context')
-    if (!data) throw new Error('no data')
-    if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write getAllResidentTickets serverSchema guards
-
-    return await execGqlWithoutAccess(context, {
-        query: GET_ALL_RESIDENT_TICKETS_QUERY,
-        variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to getAllResidentTickets',
-        dataPath: 'obj',
-    })
-}
-
-async function updateResidentTicket (context, data) {
-    if (!context) throw new Error('no context')
-    if (!data) throw new Error('no data')
-    if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write updateResidentTicket serverSchema guards
-
-    return await execGqlWithoutAccess(context, {
-        query: UPDATE_RESIDENT_TICKET_MUTATION,
-        variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to updateResidentTicket',
-        dataPath: 'obj',
-    })
-}
+const TicketSource = generateServerUtils(TicketSourceGQL)
 
 const TicketPlaceClassifier = generateServerUtils(TicketPlaceClassifierGQL)
 const TicketCategoryClassifier = generateServerUtils(TicketCategoryClassifierGQL)
 const TicketProblemClassifier = generateServerUtils(TicketProblemClassifierGQL)
 const TicketClassifierRule = generateServerUtils(TicketClassifierRuleGQL)
+
+const ResidentTicket = generateServerUtils(ResidentTicketGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -90,8 +50,7 @@ module.exports = {
     TicketCategoryClassifier,
     TicketProblemClassifier,
     TicketClassifierRule,
-    createResidentTicket,
-    getAllResidentTickets,
-    updateResidentTicket,
+    ResidentTicket,
+    TicketSource,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
