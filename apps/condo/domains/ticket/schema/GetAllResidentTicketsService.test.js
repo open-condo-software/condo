@@ -76,9 +76,10 @@ describe('GetAllResidentTicketsService', () => {
     test('admin: get resident tickets', async () => {
         const admin = await makeLoggedInAdminClient()
         const client = await makeClientWithResidentUserAndProperty()
-        await createResidentTicketByTestClient(client, client.property)
+        const [ticket] = await createResidentTicketByTestClient(client, client.property)
 
-        const tickets = await ResidentTicket.getAll(admin, {})
+        const tickets = await ResidentTicket.getAll(admin, { id: ticket.id })
         expect(tickets).toHaveLength(1)
+        expect(tickets[0].id).toEqual(ticket.id)
     })
 })
