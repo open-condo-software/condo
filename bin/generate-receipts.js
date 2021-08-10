@@ -8,7 +8,6 @@ const { BillingProperty, BillingAccount, BillingReceipt, BillingIntegrationOrgan
 const faker = require('faker')
 const path = require('path')
 const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
-const { Client } = require('pg')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 
 const PROPERTY_QUANTITY = 10
@@ -23,14 +22,6 @@ const BASE_JSON = { dv: DV, sender: SENDER }
 
 class ReceiptsGenerator {
 
-    property = null
-    organization = null
-    user = null
-
-    statuses = []
-    classifiers = []
-
-    ticketsByDay = {}
     context = null
 
     constructor ({ billingContextId, detailLevel, propertyQuantity, accountsPerProperty, toPay, period }) {
@@ -39,9 +30,7 @@ class ReceiptsGenerator {
         this.propertyQuantity = propertyQuantity,
         this.accountsPerProperty = accountsPerProperty,
         this.toPay = toPay,
-        this.period = period,
-        this.pg = new Client(process.env.DATABASE_URL)
-        this.pg.connect()
+        this.period = period
     }
 
     async connect () {
@@ -60,7 +49,7 @@ class ReceiptsGenerator {
     }
 
     async generateProperty () {
-        const billingProperty = await BillingProperty.create(
+        return await BillingProperty.create(
             this.context,
             {
                 dv: DV,
@@ -73,7 +62,6 @@ class ReceiptsGenerator {
                 raw: {},
             }
         )
-        return billingProperty
     }
 	
     async generateBillingAccountsForProperty (property) {
@@ -191,12 +179,10 @@ class ReceiptsGenerator {
     }
 }
 
-const createReceipts = async (ara) => {
-    // if (!billingContextId) {
-    //     throw new Error('No billingContextId was provided – please use like this: yarn generate-receipts <contextId>')
-    // }
-
-    let billingContextId = 'ae32e512-b791-4e3f-b5c5-4bcd18a94f22'
+const createReceipts = async ([billingContextId]) => {
+    if (!billingContextId) {
+        throw new Error('No billingContextId was provided – please use like this: yarn generate-receipts <contextId>')
+    }
 
     const ReceiptsManager = new ReceiptsGenerator({
         billingContextId: billingContextId,
