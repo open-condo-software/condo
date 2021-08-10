@@ -14,7 +14,7 @@ const { historical, versioned, tracked, softDeleted } = require('@core/keystone/
 
 const { ORGANIZATION_OWNED_FIELD, SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
 const { DV_UNKNOWN_VERSION_ERROR, EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
-const { hasRequestAndDbFields, hasOneOfFields } = require('@condo/domains/common/utils/validation.utils')
+const { hasDbFields, hasOneOfFields, hasRequestFields } = require('@condo/domains/common/utils/validation.utils')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
@@ -126,7 +126,8 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
     },
     hooks: {
         validateInput: ({ resolvedData, existingItem, addValidationError, context }) => {
-            if (!hasRequestAndDbFields([{ field: 'dv', checkCookies: true }, { field: 'sender', checkCookies: true }], ['organization'], resolvedData, existingItem, context, addValidationError)) return
+            if (!hasRequestFields(['dv', 'sender'], resolvedData, context, addValidationError)) return
+            if (!hasDbFields(['organization'], resolvedData, existingItem, context, addValidationError)) return
             if (!hasOneOfFields(['email', 'name', 'phone'], resolvedData, existingItem, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
