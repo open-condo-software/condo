@@ -3,7 +3,7 @@
  */
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
-const { Ticket, TicketSource } = require('../utils/serverSchema')
+const { Ticket, TicketSource } = require('@condo/domains/ticket/utils/serverSchema')
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/CreateResidentTicketService')
 const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
