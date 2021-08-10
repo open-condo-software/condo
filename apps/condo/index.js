@@ -155,10 +155,8 @@ module.exports = {
         app.use('/admin/', (req, res, next)=> {
             const cookies = nextCookie({ req })
             if (!cookies.sender){
-                res.cookie('sender', JSON.stringify({
-                    dv: 1,
-                    fingerprint: makeId(),
-                }))
+                res.cookie('sender', makeId())
+                res.cookie('dv', 1)
             }
             next()
         })
