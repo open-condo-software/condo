@@ -41,10 +41,10 @@ const Property = new GQLListSchema('Property', {
             type: Text,
             isRequired: true,
             hooks: {
-                validateInput: async ({ resolvedData, fieldPath, addFieldValidationError, context, existingItem }) => {
+                validateInput: async ({ resolvedData, fieldPath, addFieldValidationError, context, existingItem, operation }) => {
                     const value = resolvedData[fieldPath]
-                    // if we create property or we update property address
-                    if (!existingItem || (existingItem && resolvedData.address !== existingItem.address)) {
+                    // if we create a property or update a property address to another
+                    if (operation === 'create' || (operation === 'update' && resolvedData.address !== existingItem.address)) {
                         const [propertyWithSameAddressInOrganization] = await PropertyAPI.getAll(context, { address: value })
                         if (propertyWithSameAddressInOrganization) {
                             addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Property with same address exist in current organization`)
