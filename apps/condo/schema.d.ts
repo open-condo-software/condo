@@ -13808,7 +13808,8 @@ export type ResidentTicketOutput = {
   id: Scalars['ID'];
   createdAt: Scalars['String'];
   updatedAt?: Maybe<Scalars['String']>;
-  classifier?: Maybe<TicketClassifier>;
+  placeClassifier?: Maybe<TicketPlaceClassifier>;
+  categoryClassifier?: Maybe<TicketCategoryClassifier>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -13843,8 +13844,10 @@ export type ResidentTicketWhereInput = {
   status_is_null?: Maybe<Scalars['Boolean']>;
   source?: Maybe<TicketSourceWhereInput>;
   source_is_null?: Maybe<Scalars['Boolean']>;
-  classifier?: Maybe<TicketClassifierWhereInput>;
-  classifier_is_null?: Maybe<Scalars['Boolean']>;
+  placeClassifier?: Maybe<TicketPlaceClassifierWhereInput>;
+  placeClassifier_is_null?: Maybe<Scalars['Boolean']>;
+  categoryClassifier?: Maybe<TicketCategoryClassifierWhereInput>;
+  categoryClassifier_is_null?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isEmergency_not?: Maybe<Scalars['Boolean']>;
   isPaid?: Maybe<Scalars['Boolean']>;
@@ -15184,8 +15187,10 @@ export enum SortResidentTicketsBy {
   StatusDesc = 'status_DESC',
   SourceAsc = 'source_ASC',
   SourceDesc = 'source_DESC',
-  ClassifierAsc = 'classifier_ASC',
-  ClassifierDesc = 'classifier_DESC',
+  PlaceClassifierAsc = 'placeClassifier_ASC',
+  PlaceClassifierDesc = 'placeClassifier_DESC',
+  CategoryClassifierAsc = 'categoryClassifier_ASC',
+  CategoryClassifierDesc = 'categoryClassifier_DESC',
   IsEmergencyAsc = 'isEmergency_ASC',
   IsEmergencyDesc = 'isEmergency_DESC',
   IsPaidAsc = 'isPaid_ASC',
