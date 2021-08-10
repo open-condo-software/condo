@@ -35,6 +35,7 @@ function hasRequestFields (requestFields = ['dv', 'sender'], resolvedData, conte
             return false
         }
     }
+    return true
 }
 
 function hasOneOfFields (requestRequired, resolvedData, existingItem, addFieldValidationError) {
