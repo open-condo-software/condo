@@ -13795,7 +13795,7 @@ export type ResidentTicketOutput = {
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   number: Scalars['Int'];
-  client: User;
+  client?: Maybe<User>;
   clientName?: Maybe<Scalars['String']>;
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
@@ -13837,6 +13837,8 @@ export type ResidentTicketWhereInput = {
   number_gte?: Maybe<Scalars['Int']>;
   number_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   number_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  property?: Maybe<PropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
   status?: Maybe<TicketStatusWhereInput>;
   status_is_null?: Maybe<Scalars['Boolean']>;
   source?: Maybe<TicketSourceWhereInput>;
@@ -15176,6 +15178,8 @@ export enum SortResidentTicketsBy {
   IdDesc = 'id_DESC',
   NumberAsc = 'number_ASC',
   NumberDesc = 'number_DESC',
+  PropertyAsc = 'property_ASC',
+  PropertyDesc = 'property_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
   SourceAsc = 'source_ASC',
