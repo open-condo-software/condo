@@ -38,13 +38,8 @@ const FieldPairRow = (props) => {
     )
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-const ContactInfoPage = () => {
+export const ContactInfoContent = ({ organization, contact, isContactEditable }) => {
     const intl = useIntl()
-    const ErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-    const ContactNotFoundTitle = intl.formatMessage({ id: 'Contact.NotFound.Title' })
-    const ContactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })
     const ContactLabel = intl.formatMessage({ id:'Contact' }).toLowerCase()
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
@@ -53,32 +48,6 @@ const ContactInfoPage = () => {
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const UnitShortMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
-    const { query } = useRouter()
-    const contactId = get(query, 'id', '')
-
-    const { organization, link } = useOrganization()
-
-    const {
-        obj: contact,
-        loading,
-        error,
-    } = Contact.useObject({
-        where: {
-            id: String(contactId),
-            organization: {
-                id: String(organization.id),
-            },
-        },
-    })
-
-    if (error || loading) {
-        return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
-    }
-    if (!contact) {
-        return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
-    }
-
-    const isContactEditable = canManageContacts(link, contact)
     const contactName = get(contact, 'name')
     const contactUnitName = get(contact, 'unitName')
     const unitSuffix = contactUnitName ? `${UnitShortMessage} ${contactUnitName}` : ''
@@ -130,7 +99,7 @@ const ContactInfoPage = () => {
                                     {isContactEditable && (
                                         <Col span={24}>
                                             <Space direction={'horizontal'} size={40}>
-                                                <Link href={`/contact/${contactId}/update`}>
+                                                <Link href={`/contact/${get(contact, 'id')}/update`}>
                                                     <Button
                                                         color={'green'}
                                                         type={'sberPrimary'}
@@ -150,7 +119,7 @@ const ContactInfoPage = () => {
                                 <Affix offsetTop={40}>
                                     <TicketCard
                                         organizationId={String(organization.id)}
-                                        contactId={String(contactId)}
+                                        contactId={String(get(contact, 'id'))}
                                         contactName={contactName}
                                         address={get(contact, ['property', 'address'])}
                                         unitName={contactUnitName}
@@ -162,6 +131,50 @@ const ContactInfoPage = () => {
                 </Row>
             </PageWrapper>
         </>
+    )
+}
+
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+const ContactInfoPage = () => {
+    const intl = useIntl()
+    const ErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
+    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const ContactNotFoundTitle = intl.formatMessage({ id: 'Contact.NotFound.Title' })
+    const ContactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })
+
+    const { query } = useRouter()
+    const contactId = get(query, 'id', '')
+
+    const { organization, link } = useOrganization()
+
+    const {
+        obj: contact,
+        loading,
+        error,
+    } = Contact.useObject({
+        where: {
+            id: String(contactId),
+            organization: {
+                id: String(organization.id),
+            },
+        },
+    })
+
+    if (error || loading) {
+        return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
+    }
+    if (!contact) {
+        return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
+    }
+
+    const isContactEditable = canManageContacts(link, contact)
+
+    return (
+        <ContactInfoContent
+            organization={organization}
+            contact={contact}
+            isContactEditable={isContactEditable}
+        />
     )
 }
 
