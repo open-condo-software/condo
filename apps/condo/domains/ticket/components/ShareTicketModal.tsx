@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { EN_LOCALE } from '@condo/domains/common/constants/locale'
-import { Col, Row, Modal, Collapse, notification, Tooltip } from 'antd'
+import { Col, Row, Modal, Collapse, notification } from 'antd'
 import React, { useState } from 'react'
 import { ShareAltOutlined, RightOutlined, CloseCircleFilled } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
@@ -133,7 +133,6 @@ const Warning = (props) => {
 
     const ShareWarningEmailAndMoreMessage = intl.formatMessage({ id: 'ticket.shareWarningEmailAndMore' }, {
         length,
-        ending: length > 1 ? 's' : '',
     })
 
     const WarningContainer = styled.div`
@@ -226,7 +225,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const [usersWithoutEmail, setUsersWithoutEmail] = useState([])
 
     function handleSelect (value) {
-        setUsersWithoutEmail(value.map(JSON.parse).filter(item => !item.value.hasEmail).map(item => item.text))
+        setUsersWithoutEmail(value.map(JSON.parse).filter(item => item.value.hasEmail === 'false').map(item => item.text))
         setValue(value)
     }
 
@@ -239,7 +238,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                     sender,
                     users: value
                         .map(item=>JSON.parse(item))
-                        .filter(item=> item.value.hasEmail)
+                        .filter(item=> item.value.hasEmail === 'true')
                         .map(item=>item.value.id),
                     ticketId: query.id,
                 },
