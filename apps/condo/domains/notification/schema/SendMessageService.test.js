@@ -2,7 +2,7 @@ const faker = require('faker')
 const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { JSON_UNKNOWN_ATTR_NAME_ERROR } = require('@condo/domains/notification/constants')
 
-const { sendMessageByTestClient, resendMessageByTestClient, Message } = require('../utils/testSchema')
+const { sendMessageByTestClient, resendMessageByTestClient, Message, createTestMessage } = require('../utils/testSchema')
 const { MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS, MESSAGE_DELIVERED_STATUS } = require('../constants')
 
 const sleep = async (time) => (new Promise((resolve => {
@@ -85,8 +85,7 @@ describe('SendMessageService.sendMessage', () => {
 describe('SendMessageService.resendMessage', () => {
     test('admin: use resend message', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [message] = await sendMessageByTestClient(admin)
-
+        const [message] = await createTestMessage(admin, { status: MESSAGE_DELIVERED_STATUS })
         const [data] = await resendMessageByTestClient(admin, message)
         expect(data.id).toMatch(UUID_RE)
         expect(data.status).toEqual(MESSAGE_RESENDING_STATUS)
