@@ -5,25 +5,10 @@ const { JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/
 const { JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const { REQUIRED_NO_VALUE_ERROR } = require('@condo/domains/common/constants/errors')
 
-function hasRequestAndDbFields (requestRequired, databaseRequired, resolvedData, existingItem, context, addFieldValidationError) {
+function hasDbFields (databaseRequired, resolvedData, existingItem, context, addFieldValidationError) {
     if (typeof resolvedData === 'undefined') throw new Error('unexpected undefined resolvedData arg')
     if (typeof existingItem === 'undefined') existingItem = {}
     let hasAllFields = true
-    for (let field of requestRequired) {
-        let fieldName = field.field || field
-
-        if (!resolvedData.hasOwnProperty(fieldName)) {
-            if (field.checkCookies && context.req) {
-                const cookies = nextCookies({ req: context.req } )
-                if (cookies.hasOwnProperty(fieldName)) {
-                    continue
-                }
-            }
-        
-            addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${field}] Value is required`)
-            hasAllFields = false
-        }
-    }
     for (let field of databaseRequired) {
         let value = existingItem[field]
         let isValueNullOrUndefined = value === null || typeof value === 'undefined'
@@ -33,6 +18,23 @@ function hasRequestAndDbFields (requestRequired, databaseRequired, resolvedData,
         }
     }
     return hasAllFields
+}
+
+function hasRequestFields (requestFields = ['dv', 'sender'], resolvedData, context, addFieldValidationError) {
+    for (let field of requestFields) {
+        if (!resolvedData.hasOwnProperty(field)) {
+            if (context.req) {
+                const cookies = nextCookies({ req: context.req } )
+                if (cookies.hasOwnProperty(field)) {
+                    if (field === 'dv')  resolvedData[field] = parseInt(cookies[field])
+                    else resolvedData[field] = cookies[field]
+                    continue
+                }
+            }
+            addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${field}] Value is required`)
+            return false
+        }
+    }
 }
 
 function hasOneOfFields (requestRequired, resolvedData, existingItem, addFieldValidationError) {
@@ -77,7 +79,8 @@ function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints
 }
 
 module.exports = {
-    hasRequestAndDbFields,
+    hasDbFields,
     hasOneOfFields,
+    hasRequestFields,
     hasValidJsonStructure,
 }
