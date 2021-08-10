@@ -60,6 +60,7 @@ registerSchemas(keystone, [
     require('@condo/domains/notification/schema'),
     require('@condo/domains/contact/schema'),
     require('@condo/domains/resident/schema'),
+    require('@condo/domains/division/schema'),
 ])
 
 registerTasks([
