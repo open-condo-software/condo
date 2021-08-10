@@ -13,7 +13,6 @@ function hasRequestAndDbFields (requestRequired, databaseRequired, resolvedData,
         let fieldName = field.field || field
 
         if (!resolvedData.hasOwnProperty(fieldName)) {
-        
             if (field.checkCookies && context.req) {
                 const cookies = nextCookies({ req: context.req } )
                 if (cookies.hasOwnProperty(fieldName)) {
