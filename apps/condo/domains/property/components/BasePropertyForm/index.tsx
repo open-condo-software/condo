@@ -11,7 +11,7 @@ import { PropertyPanels } from '../panels'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { AddressMeta } from '@condo/domains/common/utils/addressApi/AddressMeta'
 import { useState } from 'react'
-import { validHouseTypes } from '@condo/domains/property/constants/property'
+import { validHouseTypes, validSettlementTypes } from '@condo/domains/property/constants/property'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PROPERTY_WITH_SAME_ADDRESS_EXIST } from '../../constants/errors'
 

@@ -252,7 +252,30 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
             return handleSubmit(values)
         }
         if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
-        const data = (formValuesToMutationDataPreprocessor) ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext, form) : values
+        let data
+        try {
+            data = (formValuesToMutationDataPreprocessor) ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext, form) : values
+        } catch (err) {
+            if (err instanceof ValidationError) {
+                let errors = []
+                if (ErrorToFormFieldMsgMapping) {
+                    const errorString = `${err}`
+                    Object.keys(ErrorToFormFieldMsgMapping).forEach((msg) => {
+                        if (errorString.includes(msg)) {
+                            errors.push(ErrorToFormFieldMsgMapping[msg])
+                        }
+                    })
+                }
+                if (errors.length === 0) {
+                    errors = [{ name: err.field || NON_FIELD_ERROR_NAME, errors: [String(err.message)] }]
+                }
+                form.setFields(errors)
+                return
+            } else {
+                form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [ClientSideErrorMsg] }])
+                throw err  // unknown error, rethrow it (**)
+            }
+        }
         form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [] }])
         setIsLoading(true)
 
