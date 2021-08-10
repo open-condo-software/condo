@@ -1,7 +1,7 @@
 const faker = require('faker')
 const { AddressMetaDataFields } = require('../addressApi/AddressMetaSchema')
 
-export const buildFakeAddressMeta = (withFlat = false) => {
+const buildFakeAddressMeta = (withFlat = false) => {
     const emptyData = Object.assign({}, ...AddressMetaDataFields.map((field) => ({[field]: null})))
     emptyData.postal_code = faker.address.zipCode()
     emptyData.country = faker.address.country()
@@ -59,4 +59,8 @@ export const buildFakeAddressMeta = (withFlat = false) => {
         unrestricted_value: unrestrictedValue,
         address: value
     }
+}
+
+module.exports = {
+    buildFakeAddressMeta: buildFakeAddressMeta
 }
