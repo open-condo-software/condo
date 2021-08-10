@@ -98,9 +98,9 @@ const PdfView = () => {
     const addressFilterTitle = addressListParsed.length ? `${SingleAddress} «${addressListParsed[0].value}»` : AllAddresses
     return <>
         {loading && <Loader fill spinning tip={LoadingTip} /> }
-        <Row ref={containerRef} gutter={[0, 40]} style={{ width: PDF_REPORT_WIDTH, paddingLeft: 40, paddingRight: 40 }}>
-            <Col flex={1} style={{ visibility: loading ? 'hidden' : 'visible', position: 'relative', paddingLeft: 40, paddingRight: 40 }}>
-                <Typography.Paragraph style={{ position: 'absolute', top: 0, right: 80 }}>
+        <Row ref={containerRef} gutter={[0, 40]} style={{ width: PDF_REPORT_WIDTH, paddingLeft: 80, paddingRight: 120 }}>
+            <Col flex={1} style={{ visibility: loading ? 'hidden' : 'visible', position: 'relative' }}>
+                <Typography.Paragraph style={{ position: 'absolute', top: 0, right: 0 }}>
                     <Logo onClick={undefined} fillColor={colors.lightGrey[6]} />
                 </Typography.Paragraph>
                 <Typography.Title level={3}>{PageTitle}</Typography.Title>
@@ -113,11 +113,11 @@ const PdfView = () => {
                     onChartReady={() => setLoading(false)}
                     chartConfig={{
                         animationEnabled: false,
-                        chartOptions: { renderer: 'svg', height: 400 },
+                        chartOptions: { renderer: 'svg' },
                     }}
                 />
             </Col>
-            <Col flex={1} style={{ paddingRight: 80, paddingLeft: 80 }}>
+            <Col flex={1} >
                 <TicketAnalyticsPageListView data={data} viewMode={viewMode} filters={{
                     range: [dateFrom, dateTo],
                     addressList: addressListParsed,
