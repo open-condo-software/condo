@@ -13,6 +13,7 @@ const DEFAULT_ROLES = {
         'canManageTickets': true,
         'canManageContacts': true,
         'canManageTicketComments': true,
+        'canManageDivisions': true,
         'canShareTickets': true,
     },
     'Dispatcher': {
@@ -26,6 +27,7 @@ const DEFAULT_ROLES = {
         'canManageTickets': true,
         'canManageContacts': true,
         'canManageTicketComments': true,
+        'canManageDivisions': false,
         'canShareTickets': true,
     },
     'Manager': {
@@ -39,6 +41,7 @@ const DEFAULT_ROLES = {
         'canManageTickets': true,
         'canManageContacts': true,
         'canManageTicketComments': true,
+        'canManageDivisions': false,
         'canShareTickets': true,
     },
     'Foreman': {
@@ -52,6 +55,7 @@ const DEFAULT_ROLES = {
         'canManageTickets': true,
         'canManageContacts': false,
         'canManageTicketComments': true,
+        'canManageDivisions': false,
         'canShareTickets': true,
     },
     'Technician': {
@@ -65,6 +69,7 @@ const DEFAULT_ROLES = {
         'canManageTickets': true,
         'canManageContacts': false,
         'canManageTicketComments': true,
+        'canManageDivisions': false,
         'canShareTickets': true,
     },
 }
