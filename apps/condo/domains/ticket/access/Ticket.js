@@ -9,11 +9,17 @@ const { checkRelatedOrganizationPermission } = require('../../organization/utils
 const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadTickets ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) {
         return {}
+    }
+    if (user.type === RESIDENT) {
+        return {
+            createdBy: user.id,
+        }
     }
     const userId = user.id
     return {
@@ -29,7 +35,6 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
 async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
-
     if (operation === 'create') {
         const organizationIdFromTicket = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationIdFromTicket) {
@@ -42,7 +47,10 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
         if (!property) {
             return false
         }
-
+        // TODO(zuch): need to check organization and property
+        if (user.type === RESIDENT) {
+            return true
+        }
         const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationIdFromTicket, 'canManageTickets')
         if (canManageRelatedOrganizationTickets) {
             return true
@@ -63,6 +71,9 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
         const ticket = await getById('Ticket', itemId)
         if (!ticket) {
             return false
+        }
+        if (ticket.createdBy.id === user.id && user.type === RESIDENT) {
+            return true
         }
 
         const { organization: organizationIdFromTicket } = ticket

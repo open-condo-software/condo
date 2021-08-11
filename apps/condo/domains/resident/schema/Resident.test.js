@@ -16,10 +16,13 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { Resident, createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
+const { createTestTicketFile, updateTestTicketFile, createTestTicket, updateTestTicket} = require('@condo/domains/ticket/utils/testSchema')
+
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('Resident', () => {
 
-    describe('validations', async () => {
+    describe('validations', () => {
         it('throws error on create record with same set of fields: "property", "unitName" for current user', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
@@ -71,6 +74,51 @@ describe('Resident', () => {
                 expect(errors[0].data.messages[0]).toMatch('Cannot connect property, because its address differs from address of resident')
                 expect(data).toEqual({ 'obj': null })
             })
+        })
+    })
+
+    describe('Working with Tickets', () => {
+        it('can create temporary TicketFile', async () => {
+            // TODO(zuch): check id makeClientWithProperty is good for tests with resident
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property)
+            const [ticketFile] = await createTestTicketFile(residentClient, userClient.organization)
+            expect(ticketFile.createdBy.id).toEqual(residentClient.user.id)
+            // expect(obj.organization.id).toEqual(userClient.organization.id)
+        })
+
+        it('can create Ticket', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property)
+            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property)
+            expect(ticket.createdBy.id).toEqual(residentClient.user.id)
+        })
+
+        it('can update Ticket', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property)
+            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property)
+            const details = faker.lorem.sentence()
+            const [updatedTicket] = await updateTestTicket(residentClient, ticket.id, { details })
+            expect(updatedTicket.details).toBe(details)
+            expect(updatedTicket.updateBy.id).toBe(residentClient.user.id)
+        })
+
+        it('can connect temporary TicketFile to Ticket', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property)
+            const [ticketFile] = await createTestTicketFile(residentClient, userClient.organization)
+            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property)
+            const [updatedTicketFile] = await updateTestTicketFile(residentClient, ticketFile.id, { ticket: { connect: { id: ticket.id } } })
+            expect(updatedTicketFile.ticket.id).toEqual(ticket.id)
         })
     })
 
