@@ -24,7 +24,7 @@ const { BillingAccountMeter: BillingAccountMeterGQL } = require('@condo/domains/
 const { BillingAccountMeterReading: BillingAccountMeterReadingGQL } = require('@condo/domains/billing/gql')
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
-const { ALL_BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY } = require('@condo/domains/billing/gql')
+const { ALL_RESIDENT_BILLING_RECEIPTS } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -448,7 +448,7 @@ async function updateTestBillingOrganization (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function getBillingReceiptsForServiceConsumerByTestClient(client, serviceConsumerId, extraAttrs = {}) {
+async function getAllResidentBillingReceipts(client, serviceConsumerId, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -458,7 +458,7 @@ async function getBillingReceiptsForServiceConsumerByTestClient(client, serviceC
         serviceConsumerId,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(ALL_BILLING_RECEIPTS_FOR_SERVICE_CONSUMER_QUERY, { data: attrs })
+    const { data, errors } = await client.mutate(ALL_RESIDENT_BILLING_RECEIPTS, { data: attrs })
     throwIfError(data, errors)
     return [data.objs, attrs]
 }
@@ -517,7 +517,7 @@ module.exports = {
     BillingMeterResource, createTestBillingMeterResource, updateTestBillingMeterResource,
     BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter,
     BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading,
-    BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt,
+    BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt, getAllResidentBillingReceipts,
     makeContextWithOrganizationAndIntegrationAsAdmin: createContextWithOrganizationAndIntegrationAsAdmin,
     makeOrganizationIntegrationManager: createOrganizationIntegrationManager,
     BillingOrganization, createTestBillingOrganization, updateTestBillingOrganization,
