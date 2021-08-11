@@ -5,26 +5,41 @@
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { GQLCustomSchema } = require('@core/keystone/schema')
-const access = require('../access/GetAllBillingReceiptsForServiceConsumer')
+const access = require('../access/AllResidentBillingReceipts')
+const { generateQuerySortBy } = require('@condo/domains/common/utils/codegeneration/generate.gql')
+const { generateQueryWhereInput } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 
 
-const GetAllBillingReceiptsForServiceConsumerService = new GQLCustomSchema('GetAllBillingReceiptsForServiceConsumerService', {
+const fieldsObj = {
+    id: 'ID',
+    period: 'String',
+    toPay: 'String',
+    printableNumber: 'String',
+}
+
+
+const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResidentBillingReceiptsService', {
     types: [
         {
             access: true,
-            type: 'input BillingReceiptsForServiceConsumerInput { dv: Int!, sender: JSON! serviceConsumerId: ID! }',
+            type: generateQueryWhereInput('ResidentBillingReceipt', fieldsObj),
         },
         {
             access: true,
-            type: 'type BillingReceiptsForServiceConsumerOutput { dv: String!, recipient: JSON!, id: ID!, period: String!, toPay: String!, printableNumber: String, toPayDetails: JSON, services: JSON }',
+            type: generateQuerySortBy('ResidentBillingReceipt', Object.keys(fieldsObj)),
+        },
+        {
+            access: true,
+            type: 'type allResidentBillingReceiptsOutput { dv: String!, recipient: JSON!, id: ID!, period: String!, toPay: String!, printableNumber: String, toPayDetails: JSON, services: JSON }',
         },
     ],
     
     queries: [
         {
-            access: access.canGetBillingReceiptsForServiceConsumerService,
-            schema: 'allBillingReceiptsForServiceConsumer (data: BillingReceiptsForServiceConsumerInput!): [BillingReceiptsForServiceConsumerOutput]',
+            access: access.canGetAllResidentBillingReceipts,
+            schema: 'allResidentBillingReceipts (where: BillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [allResidentBillingReceiptsOutput]',
             resolver: async (parent, args, context, info, extra = {}) => {
+
                 const { data: { serviceConsumerId } } = args
 
                 const [serviceConsumer] = await ServiceConsumer.getAll(context, { id: serviceConsumerId })
@@ -49,5 +64,5 @@ const GetAllBillingReceiptsForServiceConsumerService = new GQLCustomSchema('GetA
 })
 
 module.exports = {
-    GetAllBillingReceiptsForServiceConsumerService,
+    GetAllResidentBillingReceiptsService,
 }
