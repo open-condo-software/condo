@@ -4,7 +4,7 @@
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { Resident } = require('../utils/serverSchema')
-const { has } = require('lodash')
+const { isSoftDelete } = require('@core/keystone/access')
 
 async function canReadResidents ({ authentication: { item: user } }) {
     if (!user) return false
@@ -33,12 +33,7 @@ async function canManageResidents ({ authentication: { item: user }, originalInp
             if (user.id !== resident.user.id) {
                 return false
             }
-            if (
-                originalInput.deletedAt !== null &&
-                Object.keys(originalInput).length === 3 &&
-                has(originalInput, 'dv') &&
-                has(originalInput, 'sender')
-            ) {
+            if (isSoftDelete(originalInput)) {
                 return true
             }
         }

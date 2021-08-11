@@ -1,4 +1,5 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { has } = require('lodash')
 
 const userIsAuthenticated = ({ authentication: { item: user } }) => Boolean(user && user.id)
 
@@ -54,6 +55,15 @@ const readOnlyField = {
     update: false,
 }
 
+const isSoftDelete = (originalInput) => {
+    return (
+        originalInput.deletedAt !== null &&
+        Object.keys(originalInput).length === 3 &&
+        has(originalInput, 'dv') &&
+        has(originalInput, 'sender')
+    )
+}
+
 // TODO(pahaz): think about naming! ListAccessCheck and FieldAccessCheck has different arguments
 module.exports = {
     userIsAuthenticated,
@@ -65,4 +75,5 @@ module.exports = {
     canReadOnlyActive,
     canReadOnlyIfInUsers,
     readOnlyField,
+    isSoftDelete,
 }
