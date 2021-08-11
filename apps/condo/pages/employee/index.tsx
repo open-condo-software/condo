@@ -66,8 +66,6 @@ export const EmployeePageContent = ({
         fetchPolicy: 'network-only',
     })
 
-    console.log(employees)
-
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
