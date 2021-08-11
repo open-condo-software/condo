@@ -29,7 +29,7 @@ import { canManageEmployee } from '@condo/domains/organization/permissions'
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 
-export const EmployeePageContent = ({
+export const EmployeesPageContent = ({
     tableColumns,
     filtersToQuery,
     filtersApplied,
@@ -208,7 +208,7 @@ const EmployeesPage = () => {
     const searchEmployeeQuery = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
 
     return (
-        <EmployeePageContent
+        <EmployeesPageContent
             tableColumns={tableColumns}
             filtersToQuery={filtersToQuery}
             filtersApplied={filtersApplied}

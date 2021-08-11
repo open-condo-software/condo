@@ -31,7 +31,7 @@ import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFu
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 
-export const ContactPageContent = ({
+export const ContactsPageContent = ({
     tableColumns,
     filtersToQuery,
     filtersApplied,
@@ -188,7 +188,7 @@ export const ContactPageContent = ({
     )
 }
 
-const ContactPage = () => {
+const ContactsPage = () => {
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const sortBy = sortFromQuery.length > 0 ? sortFromQuery : ['createdAt_DESC'] as Array<SortContactsBy>
@@ -204,7 +204,7 @@ const ContactPage = () => {
     }
 
     return (
-        <ContactPageContent
+        <ContactsPageContent
             tableColumns={tableColumns}
             filtersToQuery={filtersToQuery}
             filtersApplied={filtersApplied}
@@ -216,7 +216,7 @@ const ContactPage = () => {
     )
 }
 
-ContactPage.headerAction = <TitleHeaderAction descriptor={{ id: 'pages.condo.contact.PageTitle' }}/>
-ContactPage.requiredAccess = OrganizationRequired
+ContactsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'pages.condo.contact.PageTitle' }}/>
+ContactsPage.requiredAccess = OrganizationRequired
 
-export default ContactPage
+export default ContactsPage

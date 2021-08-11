@@ -21,7 +21,13 @@ import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
-export const EmployeeInfoPage = () => {
+export const EmployeePageContent = ({
+    employee,
+    isEmployeeEditable,
+    isEmployeeReinvitable,
+    updateEmployeeAction,
+    softDeleteAction,
+}) => {
     const intl = useIntl()
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
@@ -32,24 +38,11 @@ export const EmployeeInfoPage = () => {
     const DeletePropertyLabel = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'employee.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'employee.ConfirmDeleteMessage' })
-    const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
-    const ErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
 
     const [isConfirmVisible, setIsConfirmVisible] = useState(false)
+    const isEmployeeBlocked = get(employee, 'isBlocked')
 
-    const { query } = useRouter()
-    const { link } = useOrganization()
-
-    const employeeId = get(query, 'id', '')
-    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
-        {
-            where: {
-                id: String(employeeId),
-            },
-        }
-    )
-    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
-    const softDeleteAction = OrganizationEmployee.useSoftDelete({}, () => Router.push('/employee/'))
+    const name = get(employee, 'name')
 
     const showConfirm = () => setIsConfirmVisible(true)
     const handleOk = () => {
@@ -57,16 +50,6 @@ export const EmployeeInfoPage = () => {
         softDeleteAction({}, employee)
     }
     const handleCancel = () => setIsConfirmVisible(false)
-
-    if (error || loading) {
-        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
-    }
-
-    const isEmployeeEditable = canManageEmployee(link, employee)
-    const isEmployeeReinvitable = canReinviteEmployee(link, employee)
-    const isEmployeeBlocked = get(employee, 'isBlocked')
-
-    const name = get(employee, 'name')
 
     const handleEmployeeBlock = (blocked) => {
         if (!isEmployeeEditable) {
@@ -115,7 +98,7 @@ export const EmployeeInfoPage = () => {
                                             <Alert showIcon type='warning' message={
                                                 <>
                                                     {EmployeeDidntEnteredMessage}
-                                                        .&nbsp;
+                                                    .&nbsp;
                                                     <EmployeeInviteRetryButton employee={employee}/>
                                                 </>
                                             }/>
@@ -177,7 +160,7 @@ export const EmployeeInfoPage = () => {
                                         {isEmployeeEditable && (
                                             <Col span={24}>
                                                 <Space direction={'horizontal'} size={40}>
-                                                    <Link href={`/employee/${employeeId}/update`}>
+                                                    <Link href={`/employee/${employee.id}/update`}>
                                                         <Button
                                                             color={'green'}
                                                             type={'sberPrimary'}
@@ -228,6 +211,43 @@ export const EmployeeInfoPage = () => {
                 </PageContent>
             </PageWrapper>
         </>
+    )
+}
+
+export const EmployeeInfoPage = () => {
+    const { query } = useRouter()
+    const { link } = useOrganization()
+    const intl = useIntl()
+    const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
+    const ErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
+
+    const employeeId = get(query, 'id', '')
+    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
+        {
+            where: {
+                id: String(employeeId),
+            },
+        }
+    )
+
+    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
+    const softDeleteAction = OrganizationEmployee.useSoftDelete({}, () => Router.push('/employee/'))
+
+    const isEmployeeEditable = canManageEmployee(link, employee)
+    const isEmployeeReinvitable = canReinviteEmployee(link, employee)
+
+    if (error || loading) {
+        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
+    }
+
+    return (
+        <EmployeePageContent
+            employee={employee}
+            updateEmployeeAction={updateEmployeeAction}
+            softDeleteAction={softDeleteAction}
+            isEmployeeEditable={isEmployeeEditable}
+            isEmployeeReinvitable={isEmployeeReinvitable}
+        />
     )
 }
 
