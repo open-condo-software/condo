@@ -128,9 +128,9 @@ describe('Property', () => {
         const client = await makeClientWithRegisteredOrganization()
         const [_, attrs] = await createTestProperty(client, client.organization)
         const { address } = attrs
-        const [property2] = await createTestProperty(client, client.organization)
+        const [property] = await createTestProperty(client, client.organization)
         await catchErrorFrom(async () => {
-            await updateTestProperty(client, property2.id, { address })
+            await updateTestProperty(client, property.id, { address })
         }, ({ errors }) => {
             expect(errors).toHaveLength(1)
             expect(errors[0].data.messages[0]).toContain(`${UNIQUE_ALREADY_EXISTS_ERROR}address]`)
