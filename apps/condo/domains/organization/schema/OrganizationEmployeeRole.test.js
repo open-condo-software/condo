@@ -29,6 +29,7 @@ describe('OrganizationEmployeeRole', () => {
             expect(obj.canManageTickets).toBeFalsy()
             expect(obj.canManageContacts).toBeFalsy()
             expect(obj.canManageTicketComments).toBeTruthy()
+            expect(obj.canManageDivisions).toBeFalsy()
             expect(obj.canShareTickets).toBeTruthy()
             expect(obj.canBeAssignedAsResponsible).toBeTruthy()
             expect(obj.canBeAssignedAsExecutor).toBeTruthy()

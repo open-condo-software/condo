@@ -63,6 +63,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         canManageTickets: { type: Checkbox, defaultValue: false },
         canManageContacts: { type: Checkbox, defaultValue: false },
         canManageTicketComments: { type: Checkbox, defaultValue: true },
+        canManageDivisions: { type: Checkbox, defaultValue: false },
         canShareTickets: { type: Checkbox, defaultValue: true },
         canBeAssignedAsResponsible: { type: Checkbox, defaultValue: true },
         canBeAssignedAsExecutor: { type: Checkbox, defaultValue: true },
