@@ -23,12 +23,21 @@ import { useTableColumns } from '@condo/domains/organization/hooks/useTableColum
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useOrganization } from '@core/next/organization'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { Button } from '../../domains/common/components/Button'
-import { SortOrganizationEmployeesBy } from '../../schema'
+import { Button } from '@condo/domains/common/components/Button'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { canManageEmployee } from '@condo/domains/organization/permissions'
+
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 
-const EmployeesPage = () => {
+export const EmployeePageContent = ({
+    tableColumns,
+    filtersToQuery,
+    filtersApplied,
+    setFiltersApplied,
+    searchEmployeeQuery,
+    sortBy,
+    canManageEmployee,
+}) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -40,12 +49,8 @@ const EmployeesPage = () => {
     const AddItemUsingUploadLabel = intl.formatMessage({ id: 'AddItemUsingFileUpload' })
 
     const router = useRouter()
-    const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-
-    const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const {
         fetchMore,
@@ -53,16 +58,15 @@ const EmployeesPage = () => {
         count: total,
         objs: employees,
     } = OrganizationEmployee.useObjects({
-        sortBy: sortFromQuery.length > 0  ? sortFromQuery : ['createdAt_DESC'] as Array<SortOrganizationEmployeesBy>, //TODO(Dimitreee):Find cleanest solution
-        where: { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } },
+        sortBy,
+        where: searchEmployeeQuery,
         skip: (offsetFromQuery * EMPLOYEE_PAGE_SIZE) - EMPLOYEE_PAGE_SIZE,
         first: EMPLOYEE_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
     })
-    const [filtersApplied, setFiltersApplied] = useState(false)
 
-    const tableColumns = useTableColumns(userOrganizationId, sortFromQuery, filtersFromQuery, setFiltersApplied)
+    console.log(employees)
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -141,25 +145,29 @@ const EmployeesPage = () => {
                                                 value={search}
                                             />
                                         </Col>
-                                        <Dropdown.Button
-                                            overlay={dropDownMenu}
-                                            buttonsRender={() => [
-                                                <Button
-                                                    key='left'
-                                                    type={'sberPrimary'}
-                                                    style={{ borderRight: '1px solid white' }}
-                                                    onClick={() => router.push(ADD_EMPLOYEE_ROUTE)}
-                                                >
-                                                    {CreateEmployee}
-                                                </Button>,
-                                                <Button
-                                                    key='right'
-                                                    type={'sberPrimary'}
-                                                    style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
-                                                    icon={<EllipsisOutlined />}
-                                                />,
-                                            ]}
-                                        />
+                                        {
+                                            canManageEmployee ? (
+                                                <Dropdown.Button
+                                                    overlay={dropDownMenu}
+                                                    buttonsRender={() => [
+                                                        <Button
+                                                            key='left'
+                                                            type={'sberPrimary'}
+                                                            style={{ borderRight: '1px solid white' }}
+                                                            onClick={() => router.push(ADD_EMPLOYEE_ROUTE)}
+                                                        >
+                                                            {CreateEmployee}
+                                                        </Button>,
+                                                        <Button
+                                                            key='right'
+                                                            type={'sberPrimary'}
+                                                            style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
+                                                            icon={<EllipsisOutlined />}
+                                                        />,
+                                                    ]}
+                                                />
+                                            ) : null
+                                        }
                                     </Row>
                                 </Col>
                                 <Col span={24}>
@@ -185,6 +193,32 @@ const EmployeesPage = () => {
                 </PageContent>
             </PageWrapper>
         </>
+    )
+}
+
+const EmployeesPage = () => {
+    const router = useRouter()
+    const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
+    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
+    const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC'
+
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+
+    const [filtersApplied, setFiltersApplied] = useState(false)
+    const tableColumns = useTableColumns(userOrganizationId, sortFromQuery, filtersFromQuery, setFiltersApplied)
+    const searchEmployeeQuery = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
+
+    return (
+        <EmployeePageContent
+            tableColumns={tableColumns}
+            filtersToQuery={filtersToQuery}
+            filtersApplied={filtersApplied}
+            setFiltersApplied={setFiltersApplied}
+            searchEmployeeQuery={searchEmployeeQuery}
+            sortBy={sortBy}
+            canManageEmployee={canManageEmployee}
+        />
     )
 }
 
