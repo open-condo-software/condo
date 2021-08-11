@@ -8,7 +8,11 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { Organization as OrganizationGQL } from '@condo/domains/organization/gql'
-import { Organization, OrganizationUpdateInput, QueryAllOrganizationsArgs } from '../../../../schema'
+import {
+    Organization,
+    OrganizationUpdateInput,
+    QueryAllOrganizationsArgs,
+} from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'country', 'name', 'description', 'avatar', 'meta', 'employees', 'statusTransitions', 'defaultEmployeeRoleStatusTransitions']
 const RELATIONS = []
@@ -48,6 +52,20 @@ function convertToGQLInput (state: IOrganizationFormState): OrganizationUpdateIn
     return result
 }
 
+export interface IOrganizationSelectState {
+    value: string
+    label: string
+}
+
+const convertGQLItemToFormSelectState = (item: Organization): IOrganizationSelectState | undefined => {
+    if (!item) {
+        return
+    }
+    const { name, id } = item
+
+    return { value: id, label: name }
+}
+
 const {
     useObject,
     useObjects,
@@ -63,4 +81,5 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    convertGQLItemToFormSelectState,
 }
