@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { jsx } from '@emotion/core'
+import { jsx, css } from '@emotion/core'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
@@ -93,6 +93,15 @@ const COLOR_SET = [colors.blue[5], colors.green[5], colors.red[4], colors.gold[5
     colors.magenta[7], colors.yellow[5], colors.lime[7], colors.blue[8], colors.cyan[5], colors.yellow[6],
     colors.purple[7], colors.lime[8], colors.red[6] ]
 const SPECIFICATIONS = ['day', 'week']
+
+const tabsCss = css`
+  & .ant-tabs-tab.ant-tabs-tab-active {
+    font-weight: bold;
+  }
+  & .ant-tabs-nav::before {
+    border-bottom: unset;
+  }
+`
 
 const ticketChartDataMapper = new TicketChart({
     line: {
@@ -554,7 +563,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             <PageContent>
                 <Row gutter={[40, 8]}>
                     <Col span={18}>
-                        <PageHeader style={{ width: '100%' }} title={<Typography.Title>{PageTitle}</Typography.Title>} />
+                        <PageHeader
+                            style={{ width: '100%', padding: '0 0 16px' }}
+                            title={<Typography.Title>{PageTitle}</Typography.Title>} />
                     </Col>
                     <Col span={6} style={{ textAlign: 'right', marginTop: 4 }}>
                         <Tooltip title={NotImplementedYetMessage}>
@@ -562,9 +573,10 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         </Tooltip>
                     </Col>
                 </Row>
-                <Row gutter={[0, 40]} align={'top'} justify={'space-between'}>
+                <Row gutter={[0, 24]} align={'top'} justify={'space-between'}>
                     <Col span={24}>
                         <Tabs
+                            css={tabsCss}
                             defaultActiveKey='status'
                             activeKey={groupTicketsBy}
                             onChange={(key) => setGroupTicketsBy(key as groupTicketsByTypes)}
@@ -578,7 +590,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                     </Col>
                     <Col span={24}>
                         <TicketAnalyticsPageFilter onChange={onFilterChange} />
-                        <Divider />
+                        <Divider style={{ padding: 0, marginTop: 40, marginBottom: 16 }} />
                     </Col>
                     <Col span={16}>
                         <Typography.Title level={3}>
@@ -605,7 +617,10 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 data={analyticsData}
                                 loading={loading}
                                 viewMode={viewMode}
-                                chartConfig={{ animationEnabled: true, chartOptions: { renderer: 'svg' } }}
+                                chartConfig={{
+                                    animationEnabled: true,
+                                    chartOptions: { renderer: 'svg', height: viewMode === 'line' ? 440 : 'auto' },
+                                }}
                             >
                                 <Select
                                     value={ticketType}
