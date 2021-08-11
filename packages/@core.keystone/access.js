@@ -1,5 +1,5 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { has } = require('lodash')
+const { get } = require('lodash')
 
 const userIsAuthenticated = ({ authentication: { item: user } }) => Boolean(user && user.id)
 
@@ -56,12 +56,21 @@ const readOnlyField = {
 }
 
 const isSoftDelete = (originalInput) => {
-    return (
-        originalInput.deletedAt !== null &&
+    // TODO(antonal): extract validations of `originalInput` to separate module and user ajv to validate JSON-schema
+    const isJustSoftDelete = (
         Object.keys(originalInput).length === 3 &&
-        has(originalInput, 'dv') &&
-        has(originalInput, 'sender')
+        get(originalInput, 'deletedAt') &&
+        get(originalInput, 'dv') &&
+        get(originalInput, 'sender')
     )
+    const isSoftDeleteWithMerge = (
+        Object.keys(originalInput).length === 4 &&
+        get(originalInput, 'deletedAt') &&
+        get(originalInput, 'newId') &&
+        get(originalInput, 'dv') &&
+        get(originalInput, 'sender')
+    )
+    return isJustSoftDelete || isSoftDeleteWithMerge
 }
 
 // TODO(pahaz): think about naming! ListAccessCheck and FieldAccessCheck has different arguments
