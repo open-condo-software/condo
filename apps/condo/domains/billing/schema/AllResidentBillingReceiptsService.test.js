@@ -3,7 +3,7 @@
  */
 import { catchErrorFrom } from '@condo/domains/common/utils/testSchema'
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
-const { createTestBillingIntegration, createTestBillingReceipt, getBillingReceiptsForServiceConsumerByTestClient } = require('../utils/testSchema')
+const { createTestBillingIntegration, createTestBillingReceipt, ResidentBillingReceipt } = require('../utils/testSchema')
 const { registerServiceConsumerByTestClient, createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, getAllResidentBillingReceipts } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
@@ -35,7 +35,7 @@ describe('AllResidentBillingReceipts', () => {
         const [serviceConsumer] = await registerServiceConsumerByTestClient(userClient, payload)
         const [receipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
 
-        const [objs] = await getAllResidentBillingReceipts(userClient, serviceConsumer.id)
+        const [objs] = await ResidentBillingReceipt.getAll(userClient)
         expect(objs).toHaveLength(1)
         expect(objs[0].raw).toEqual(undefined)
         expect(objs[0].id).toEqual(receipt.id)
@@ -93,7 +93,7 @@ describe('AllResidentBillingReceipts', () => {
         await addResidentAccess(userClient.user)
 
         await catchErrorFrom(async () => {
-            await getBillingReceiptsForServiceConsumerByTestClient(userClient, serviceConsumer.id + '1zzz')
+            await getAllResidentBillingReceipts(userClient, serviceConsumer.id + '1zzz')
         }, (err) => {
             expect(err).toBeDefined()
         } )

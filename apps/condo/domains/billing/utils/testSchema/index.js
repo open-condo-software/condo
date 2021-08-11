@@ -24,7 +24,7 @@ const { BillingAccountMeter: BillingAccountMeterGQL } = require('@condo/domains/
 const { BillingAccountMeterReading: BillingAccountMeterReadingGQL } = require('@condo/domains/billing/gql')
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
-const { ALL_RESIDENT_BILLING_RECEIPTS } = require('@condo/domains/billing/gql')
+const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -38,6 +38,7 @@ const BillingAccountMeter = generateGQLTestUtils(BillingAccountMeterGQL)
 const BillingAccountMeterReading = generateGQLTestUtils(BillingAccountMeterReadingGQL)
 const BillingReceipt = generateGQLTestUtils(BillingReceiptGQL)
 const BillingOrganization = generateGQLTestUtils(BillingOrganizationGQL)
+const ResidentBillingReceipt = generateGQLTestUtils(ResidentBillingReceiptGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
@@ -448,22 +449,6 @@ async function updateTestBillingOrganization (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function getAllResidentBillingReceipts(client, serviceConsumerId, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        serviceConsumerId,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(ALL_RESIDENT_BILLING_RECEIPTS, { data: attrs })
-    throwIfError(data, errors)
-    return [data.objs, attrs]
-}
-/* AUTOGENERATE MARKER <FACTORY> */
-
 async function makeClientWithIntegrationAccess () {
     const admin = await makeLoggedInAdminClient()
     const [integration, integrationAttrs] = await createTestBillingIntegration(admin)
@@ -517,11 +502,11 @@ module.exports = {
     BillingMeterResource, createTestBillingMeterResource, updateTestBillingMeterResource,
     BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter,
     BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading,
-    BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt, getAllResidentBillingReceipts,
+    BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt,
     makeContextWithOrganizationAndIntegrationAsAdmin: createContextWithOrganizationAndIntegrationAsAdmin,
     makeOrganizationIntegrationManager: createOrganizationIntegrationManager,
     BillingOrganization, createTestBillingOrganization, updateTestBillingOrganization,
-getBillingReceiptsForServiceConsumerByTestClient
+    ResidentBillingReceipt,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

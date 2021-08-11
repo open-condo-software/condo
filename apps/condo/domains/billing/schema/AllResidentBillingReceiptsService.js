@@ -37,7 +37,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
     queries: [
         {
             access: access.canGetAllResidentBillingReceipts,
-            schema: 'allResidentBillingReceipts (where: BillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [allResidentBillingReceiptsOutput]',
+            schema: 'allResidentBillingReceipts (where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [allResidentBillingReceiptsOutput]',
             resolver: async (parent, args, context, info, extra = {}) => {
 
                 const { data: { serviceConsumerId } } = args
