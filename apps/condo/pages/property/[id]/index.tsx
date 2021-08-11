@@ -35,7 +35,7 @@ const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, 
 
 }
 
-export const PropertyContent = ({ property }) => {
+export const PropertyPageContent = ({ property }) => {
     const intl = useIntl()
     const UnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
     const TicketsClosedTitle = intl.formatMessage({ id: 'pages.condo.property.id.TicketsClosed' })
@@ -98,7 +98,7 @@ const PropertyIdPage: IPropertyIdPage = () => {
         </Head>
         <PageWrapper>
             <PageContent>
-                <PropertyContent property={property} />
+                <PropertyPageContent property={property} />
                 <ActionBar>
                     <Link href={`/property/${property.id}/update`}>
                         <span>

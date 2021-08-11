@@ -244,7 +244,7 @@ export const PropertyPageViewTable = ({
     )
 }
 
-export const PropertyPageContent = ({
+export const PropertiesPageContent = ({
     filtersToQuery,
     searchPropertyQuery,
     tableColumns,
@@ -307,7 +307,7 @@ export const PropertyPageContent = ({
     )
 }
 
-const PropertyPage = (): React.FC => {
+const PropertiesPage = (): React.FC => {
     const router = useRouter()
     const { organization, link } = useOrganization()
 
@@ -319,7 +319,7 @@ const PropertyPage = (): React.FC => {
     const searchPropertyQuery = {  ...filtersToQuery(filtersFromQuery), organization: { id: organization.id } }
 
     return (
-        <PropertyPageContent
+        <PropertiesPageContent
             tableColumns={tableColumns}
             filtersToQuery={filtersToQuery}
             filtersApplied={filtersApplied}
@@ -330,7 +330,7 @@ const PropertyPage = (): React.FC => {
     )
 }
 
-PropertyPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Property' }}/>
-PropertyPage.requiredAccess = OrganizationRequired
+PropertiesPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Property' }}/>
+PropertiesPage.requiredAccess = OrganizationRequired
 
-export default PropertyPage
+export default PropertiesPage

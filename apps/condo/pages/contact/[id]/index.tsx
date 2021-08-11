@@ -38,7 +38,7 @@ const FieldPairRow = (props) => {
     )
 }
 
-export const ContactInfoContent = ({ organization, contact, isContactEditable }) => {
+export const ContactPageContent = ({ organization, contact, isContactEditable }) => {
     const intl = useIntl()
     const ContactLabel = intl.formatMessage({ id:'Contact' }).toLowerCase()
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
@@ -170,7 +170,7 @@ const ContactInfoPage = () => {
     const isContactEditable = canManageContacts(link, contact)
 
     return (
-        <ContactInfoContent
+        <ContactPageContent
             organization={organization}
             contact={contact}
             isContactEditable={isContactEditable}
