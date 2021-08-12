@@ -156,7 +156,7 @@ module.exports = {
             if (req.url === '/api') return next()
             const cookies = nextCookie({ req })
             if (!cookies.sender){
-                res.cookie('sender', makeId())
+                res.cookie('sender', makeId(12))
                 res.cookie('dv', 1)
             }
             next()
