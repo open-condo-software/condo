@@ -26,9 +26,19 @@ function hasRequestFields (requestFields = ['dv', 'sender'], resolvedData, conte
             if (context.req) {
                 const cookies = nextCookies({ req: context.req } )
                 if (cookies.hasOwnProperty(field)) {
-                    if (field === 'dv')  resolvedData[field] = parseInt(cookies[field])
-                    else resolvedData[field] = cookies[field]
-                    continue
+                    if (field === 'dv') {
+                        let parsed = parseInt(cookies[field])
+                        if (!isNaN(parsed)) {
+                            resolvedData[field] = parsed
+                            continue
+                        }
+                    }
+                    else
+                    { 
+                        resolvedData[field] = cookies[field]
+                        continue
+                    }
+                    
                 }
             }
             addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${field}] Value is required`)
