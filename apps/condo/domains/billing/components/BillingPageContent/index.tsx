@@ -41,8 +41,6 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
         company: CompanyName,
     })
 
-    // console.log(context)
-
     if (!access) {
         return (
             <BasicEmptyListView>

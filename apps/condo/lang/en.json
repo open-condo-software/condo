@@ -548,6 +548,7 @@
   "WillBeReadySoon": "Everything will be ready soon",
   "Accruals": "Accruals",
   "Meters": "Meters",
+  "DataFor": "Data for",
   "FeatureFlags.Modal.Title": "Feature Flags menu",
   "FeatureFlags.Modal.Description": "Any changes made here would apply only after reload"
 }
