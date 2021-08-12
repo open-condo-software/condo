@@ -158,7 +158,10 @@ const BillingIntegrationDetailsPage = () => {
                                                 }
                                                 <Col span={24}>
                                                     <Space size={20} style={{ width: '100%', flexWrap: 'wrap' }}>
-                                                        <Tooltip title={ContextAlreadyCreatedMessage}>
+                                                        <Tooltip
+                                                            title={ContextAlreadyCreatedMessage}
+                                                            visible={!disabledIntegration ? false : undefined}
+                                                        >
                                                             <ButtonWrap disabled={disabledIntegration}>
                                                                 <Button
                                                                     type='sberPrimary'
