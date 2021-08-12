@@ -81,6 +81,7 @@ export const useMultipleFileUploadHook = ({
     relationField,
     initialFileList,
     initialCreateValues = {},
+    // TODO(nomerdvadcatpyat): find another solution
     dependenciesForRerenderUploadComponent = [],
 }: IMultipleFileUploadHookArgs): IMultipleFileUploadHookResult => {
     const [modifiedFiles, dispatch] = useReducer(reducer, { added: [], deleted: [] })

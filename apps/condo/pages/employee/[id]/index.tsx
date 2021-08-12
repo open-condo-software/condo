@@ -160,7 +160,7 @@ export const EmployeePageContent = ({
                                         {isEmployeeEditable && (
                                             <Col span={24}>
                                                 <Space direction={'horizontal'} size={40}>
-                                                    <Link href={`/employee/${employee.id}/update`}>
+                                                    <Link href={`/employee/${get(employee, 'id')}/update`}>
                                                         <Button
                                                             color={'green'}
                                                             type={'sberPrimary'}
