@@ -91,7 +91,8 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     const handleClear = useCallback(
         () => {
             setSelected(null)
-            props.onClear()
+            if (props.onClear)
+                props.onClear()
         },
         [],
     )
