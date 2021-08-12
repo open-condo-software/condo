@@ -36,23 +36,6 @@ describe('ServiceConsumer', () => {
             expect(consumer.resident.id).toEqual(resident.id)
         })
 
-        it('cannot be created by user with type === resident', async () => {
-            const userClient = await makeClientWithResidentUser()
-            const adminClient = await makeLoggedInAdminClient()
-            const [organization] = await registerNewOrganization(userClient)
-            const [property] = await createTestProperty(userClient, organization, { map: buildingMapJson })
-
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-            const [billingProperty] = await createTestBillingProperty(adminClient, context)
-            const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-
-            const [resident] = await createTestResident(userClient, userClient.user, organization, property)
-
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestServiceConsumer(userClient, resident, billingAccount)
-            })
-        })
-
         it('cannot be created by other users', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
