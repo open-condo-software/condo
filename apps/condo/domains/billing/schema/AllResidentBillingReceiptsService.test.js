@@ -20,6 +20,7 @@ describe('AllResidentBillingReceipts', () => {
         const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
         const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+        const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty)
 
         await addResidentAccess(userClient.user)
 
@@ -34,6 +35,7 @@ describe('AllResidentBillingReceipts', () => {
 
         await registerServiceConsumerByTestClient(userClient, payload)
         const [receipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
+        await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount2)
 
         const objs = await ResidentBillingReceipt.getAll(userClient)
         expect(objs).toHaveLength(1)
@@ -152,7 +154,7 @@ describe('AllResidentBillingReceipts', () => {
             await ResidentBillingReceipt.getAll(hackerClient, { account: { id: billingAccountAttrs.id } })
         }, (err) => {
             expect(err).toBeDefined()
-        } )
+        })
     })
 
     test('user without valid serviceAccount cant read BillingReceipt', async () => {
