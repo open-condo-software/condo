@@ -9582,6 +9582,7 @@ export type OrganizationEmployeeRole = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
@@ -9607,6 +9608,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
@@ -9642,6 +9644,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
@@ -9671,6 +9674,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
@@ -9705,6 +9709,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
@@ -9793,6 +9798,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageContacts_not?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageTicketComments_not?: Maybe<Scalars['Boolean']>;
+  canManageDivisions?: Maybe<Scalars['Boolean']>;
+  canManageDivisions_not?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canShareTickets_not?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -9887,6 +9894,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
@@ -9966,6 +9974,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageContacts_not?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageTicketComments_not?: Maybe<Scalars['Boolean']>;
+  canManageDivisions?: Maybe<Scalars['Boolean']>;
+  canManageDivisions_not?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canShareTickets_not?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -11922,7 +11932,7 @@ export type Query = {
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
-  allResidentBillingReceipts?: Maybe<Array<Maybe<AllResidentBillingReceiptsOutput>>>;
+  allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
@@ -13554,7 +13564,7 @@ export type QueryCheckPropertyWithAddressExistArgs = {
 
 
 export type QueryAllResidentBillingReceiptsArgs = {
-  where?: Maybe<BillingReceiptWhereInput>;
+  where?: Maybe<ResidentBillingReceiptWhereInput>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
   sortBy?: Maybe<Array<SortResidentBillingReceiptsBy>>;
@@ -13690,6 +13700,18 @@ export type Resident = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+};
+
+export type ResidentBillingReceiptOutput = {
+  __typename?: 'ResidentBillingReceiptOutput';
+  dv: Scalars['String'];
+  recipient: Scalars['JSON'];
+  id: Scalars['ID'];
+  period: Scalars['String'];
+  toPay: Scalars['String'];
+  printableNumber?: Maybe<Scalars['String']>;
+  toPayDetails?: Maybe<Scalars['JSON']>;
+  services?: Maybe<Scalars['JSON']>;
 };
 
 export type ResidentBillingReceiptWhereInput = {
@@ -15528,6 +15550,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
   CanManageTicketCommentsDesc = 'canManageTicketComments_DESC',
+  CanManageDivisionsAsc = 'canManageDivisions_ASC',
+  CanManageDivisionsDesc = 'canManageDivisions_DESC',
   CanShareTicketsAsc = 'canShareTickets_ASC',
   CanShareTicketsDesc = 'canShareTickets_DESC',
   CanBeAssignedAsResponsibleAsc = 'canBeAssignedAsResponsible_ASC',
@@ -15573,6 +15597,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
   CanManageTicketCommentsDesc = 'canManageTicketComments_DESC',
+  CanManageDivisionsAsc = 'canManageDivisions_ASC',
+  CanManageDivisionsDesc = 'canManageDivisions_DESC',
   CanShareTicketsAsc = 'canShareTickets_ASC',
   CanShareTicketsDesc = 'canShareTickets_DESC',
   CanBeAssignedAsResponsibleAsc = 'canBeAssignedAsResponsible_ASC',
@@ -23155,18 +23181,6 @@ export type _KsListsMetaInput = {
   key?: Maybe<Scalars['String']>;
   /** Whether this is an auxiliary helper list */
   auxiliary?: Maybe<Scalars['Boolean']>;
-};
-
-export type AllResidentBillingReceiptsOutput = {
-  __typename?: 'allResidentBillingReceiptsOutput';
-  dv: Scalars['String'];
-  recipient: Scalars['JSON'];
-  id: Scalars['ID'];
-  period: Scalars['String'];
-  toPay: Scalars['String'];
-  printableNumber?: Maybe<Scalars['String']>;
-  toPayDetails?: Maybe<Scalars['JSON']>;
-  services?: Maybe<Scalars['JSON']>;
 };
 
 export type AuthenticateUserOutput = {
