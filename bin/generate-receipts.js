@@ -11,28 +11,45 @@ const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 
 const PROPERTY_QUANTITY = 10
-const ACCOUNTS_PER_PROPERTY_DISTRIBUTION = { min: 80, max: 140 }
-const currentDate = new Date(Date.now())
-const currentMonth = `${currentDate.getMonth() + 1}`.padStart(2, '0')
-const PERIOD = `${currentDate.getFullYear()}-${currentMonth}-01`
+const ACCOUNTS_PER_PROPERTY_DISTRIBUTION = { min: 30, max: 70 }
+const PERIODS_AMOUNT = 3
+
 const TO_PAY_DISTRIBUITION = { min: 1200, max: 8500 }
 
 const DV = 1
 const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }
 const BASE_JSON = { dv: DV, sender: SENDER }
 
+function getPeriods (amount = 3) {
+    if (amount < 1) throw new Error('Minimum periods amount are 1')
+    const currentDate = new Date(Date.now())
+    let month = currentDate.getMonth() + 1
+    let year = currentDate.getFullYear()
+    const result = []
+    for (let i = 0; i < amount; i++) {
+        if (month === 0) {
+            month = 12
+            year--
+        }
+        const paddedMonth = `${month}`.padStart(2, '0')
+        result.push(`${year}-${paddedMonth}-01`)
+        month--
+    }
+    return result
+}
+
 
 class ReceiptsGenerator {
 
     context = null
 
-    constructor ({ billingContextId, detailLevel, propertyQuantity, accountsPerProperty, toPay, period }) {
+    constructor ({ billingContextId, detailLevel, propertyQuantity, accountsPerProperty, toPay, periods }) {
         this.billingContextId = billingContextId
         this.detailLevel = detailLevel
-        this.propertyQuantity = propertyQuantity,
-        this.accountsPerProperty = accountsPerProperty,
-        this.toPay = toPay,
-        this.period = period
+        this.propertyQuantity = propertyQuantity
+        this.accountsPerProperty = accountsPerProperty
+        this.toPay = toPay
+        this.periods = periods
     }
 
     async connect () {
@@ -127,32 +144,33 @@ class ReceiptsGenerator {
         setInterval(() => {
             process.stdout.write(`\r${currentProgress}%`)
         }, 50)
-
-        for (let i = 0; i < toBeGenerated; ++i) {
-            switch (this.detailLevel) {
-                case 1:
-                    await BillingReceipt.create(this.context, {
-                        dv: DV,
-                        sender: SENDER,
-                        context: { connect: { id: this.billingContextId } },
-                        property: { connect: { id: this.billingAccounts[i].property.id } },
-                        account: { connect: { id: this.billingAccounts[i].id } },
-                        importId: faker.datatype.uuid(),
-                        toPay: (Math.floor(this.toPay.min + _gaussianRand() * (this.toPay.max - this.toPay.min + 1))).toString(),
-                        period: this.period,
-                        recipient: PAYMENT_ORGANIZATION,
-                        raw: BASE_JSON,
-                    })
-                    break
-                default:
-                    throw new Error(`Cant generate receipts! Detail level is wrong. Should be 1. Got ${this.detailLevel}`)
+        for (let p = 0; p < this.periods.length; p++) {
+            for (let i = 0; i < toBeGenerated; ++i) {
+                switch (this.detailLevel) {
+                    case 1:
+                        await BillingReceipt.create(this.context, {
+                            dv: DV,
+                            sender: SENDER,
+                            context: { connect: { id: this.billingContextId } },
+                            property: { connect: { id: this.billingAccounts[i].property.id } },
+                            account: { connect: { id: this.billingAccounts[i].id } },
+                            importId: faker.datatype.uuid(),
+                            toPay: (Math.floor(this.toPay.min + _gaussianRand() * (this.toPay.max - this.toPay.min + 1))).toString(),
+                            period: this.periods[p],
+                            recipient: PAYMENT_ORGANIZATION,
+                            raw: BASE_JSON,
+                        })
+                        break
+                    default:
+                        throw new Error(`Cant generate receipts! Detail level is wrong. Should be 1. Got ${this.detailLevel}`)
+                }
+                currentProgress = Math.floor(i * 100 / toBeGenerated)
+                //console.info(`[INFO] ${Math.floor(i * 100 / toBeGenerated)}%`)
             }
-            currentProgress = Math.floor(i * 100 / toBeGenerated)
-            //console.info(`[INFO] ${Math.floor(i * 100 / toBeGenerated)}%`)
         }
         await BillingIntegrationOrganizationContext.update(this.context, this.billingContextId, {
             lastReport: {
-                period: this.period,
+                period: this.periods[0],
                 finishTime: new Date(Date.now()).toISOString(),
                 totalReceipts: toBeGenerated,
             },
@@ -198,7 +216,7 @@ const createReceipts = async ([billingContextId]) => {
         detailLevel: 1,
         propertyQuantity: PROPERTY_QUANTITY,
         accountsPerProperty: ACCOUNTS_PER_PROPERTY_DISTRIBUTION,
-        period: PERIOD,
+        periods: getPeriods(PERIODS_AMOUNT),
         toPay: TO_PAY_DISTRIBUITION,
     })
 
