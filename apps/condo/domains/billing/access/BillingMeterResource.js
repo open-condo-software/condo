@@ -8,7 +8,8 @@ const { checkBillingIntegrationAccessRight } = require('@condo/domains/billing/u
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canReadBillingMeterResources ({ authentication: { item: user } }) {
-    return !!user
+    if (!user) return false
+    return {}
 }
 
 async function canManageBillingMeterResources ({ authentication: { item: user }, originalInput, operation, itemId  }) {

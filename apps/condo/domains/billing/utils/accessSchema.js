@@ -15,7 +15,7 @@ async function checkBillingIntegrationAccessRight (userId, integrationId) {
 
 async function canReadBillingEntity (user) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
+    if (user.isAdmin) return {}
     return {
         OR: [
             { context: { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true }, deletedAt: null, isBlocked: false } } } },
