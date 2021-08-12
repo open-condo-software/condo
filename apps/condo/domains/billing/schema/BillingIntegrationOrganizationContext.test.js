@@ -8,7 +8,7 @@ const { createTestBillingIntegration } = require('../utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
