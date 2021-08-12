@@ -23,9 +23,10 @@ function run {
 VERSION=$(escape $1)
 
 SSH_DESTINATION=root@v1.doma.ai
-WORKSPACE=condo
-APP=prod
-DOMAIN=v1.doma.ai
+
+WORKSPACE=$(escape $2)
+APP=$(escape $3)
+DOMAIN=$4
 
 action "Prepare build .env file"
 [ -f .env ] && cp .env .env.deploy.backup
@@ -68,9 +69,9 @@ if [[ -z "${DOCKER_COMPOSE_MIGRATION_COMMAND}" ]]; then
     echo "NO: DOCKER_COMPOSE_MIGRATION_COMMAND check .env"
     exit 1
 fi
-if [[ -z "${VERSION}" ]]; then
-    echo "Use: $0 <VERSION>"
-    echo "Example: $0 v-1-0-0"
+if [[ -z "${VERSION}" || -z "${WORKSPACE}" || -z "${APP}" || -z "${DOMAIN}" ]]; then
+    echo "Use: $0 <VERSION> <WORKSPACE> <APP> <DOMAIN>"
+    echo "Example: $0 v-1-0-0 condo prod v1.doma.ai"
     exit 1
 fi
 
