@@ -5,39 +5,34 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
     CREATE EXTENSION if not exists "uuid-ossp";
-    COMMIT;
 
     --
     -- Alter field id on organizationemployee
     --
-    ALTER TABLE "OrganizationEmployee" ADD COLUMN new_id UUID NULL;
-    COMMIT;
-    UPDATE "OrganizationEmployee" SET new_id = uuid_generate_v4();
-    ALTER TABLE "OrganizationEmployee" DROP COLUMN id;
-    ALTER TABLE "OrganizationEmployee" RENAME COLUMN new_id TO id;
-    ALTER TABLE "OrganizationEmployee" ALTER COLUMN id SET NOT NULL;
-    DROP SEQUENCE IF EXISTS "OrganizationEmployee_id_seq" CASCADE;
-    COMMIT;
+    ALTER TABLE "OrganizationEmployee" RENAME COLUMN id TO "oldId";
+    ALTER TABLE "OrganizationEmployee" ADD COLUMN id UUID NULL;
+    UPDATE "OrganizationEmployee" SET id = uuid_generate_v4();
+    
+    ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN history_id TO old_history_id;
+    ALTER TABLE "OrganizationEmployeeHistoryRecord" ADD COLUMN history_id UUID NULL;
+    
+    UPDATE "OrganizationEmployeeHistoryRecord" hr
+    SET history_id = e.id
+    FROM "OrganizationEmployee" as e
+    WHERE(
+      e."oldId" = hr.old_history_id
+    );
+    ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN history_id SET NOT NULL;
 
     --
     -- Alter field newId on organizationemployee
     --
     ALTER TABLE "OrganizationEmployee" ADD COLUMN "new_newId" UUID NULL;
-    UPDATE "OrganizationEmployee" SET "new_newId" = uuid_generate_v4();
     ALTER TABLE "OrganizationEmployee" DROP COLUMN "newId";
     ALTER TABLE "OrganizationEmployee" RENAME COLUMN "new_newId" TO "newId";
-    COMMIT;
 
-    --
-    -- Alter field history_id on organizationemployeehistoryrecord
-    --
-    ALTER TABLE "OrganizationEmployeeHistoryRecord" ADD COLUMN "new_history_id" UUID NULL;
     COMMIT;
-    UPDATE "OrganizationEmployeeHistoryRecord" SET "new_history_id" = uuid_generate_v4();
-    ALTER TABLE "OrganizationEmployeeHistoryRecord" DROP COLUMN "history_id";
-    ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN "new_history_id" TO "history_id";
-    ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "history_id" SET NOT NULL;
-    COMMIT;
+    END;
     `)
 }
 
