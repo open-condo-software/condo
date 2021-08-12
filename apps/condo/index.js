@@ -152,7 +152,8 @@ module.exports = {
     ].filter(identity),
     /** @type {(app: import('express').Application) => void} */
     configureExpress: (app) => {
-        app.use('/admin/', (req, res, next)=> {
+        app.use('/admin/', (req, res, next) => {
+            if (req.url === '/api') return next()
             const cookies = nextCookie({ req })
             if (!cookies.sender){
                 res.cookie('sender', makeId())
@@ -160,6 +161,5 @@ module.exports = {
             }
             next()
         })
-      
     },
 }
