@@ -28,6 +28,7 @@ async function createTestDivision (client, organization, responsible, extraAttrs
         sender,
         organization: { connect: { id: organization.id } },
         responsible: { connect: { id: responsible.id } },
+        name: faker.lorem.word(),
         ...extraAttrs,
     }
     const obj = await Division.create(client, attrs)
@@ -39,11 +40,10 @@ async function updateTestDivision (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestDivision logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
+        name: faker.lorem.word(),
         ...extraAttrs,
     }
     const obj = await Division.update(client, id, attrs)
