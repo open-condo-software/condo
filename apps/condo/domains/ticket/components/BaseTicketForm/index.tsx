@@ -414,14 +414,14 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 form={form}
                                                                 UploadComponent={UploadComponent}
                                                                 validations={validations}
-                                                                organizationId={organization.id}
+                                                                organizationId={get(organization, 'id')}
                                                                 initialValues={initialValues}
                                                                 disableUserInteraction={disableUserInteraction}
                                                             />
                                                             <TicketPurpose
                                                                 disableUserInteraction={disableUserInteraction}
                                                                 validations={validations}
-                                                                organizationId={organization.id}
+                                                                organizationId={get(organization, 'id')}
                                                             />
                                                         </Row>
                                                     </FrontLayerContainer>

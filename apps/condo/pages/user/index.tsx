@@ -23,7 +23,7 @@ export const UserInfoPage = () => {
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
 
     const { user, refetch } = useAuth()
-    const employeeOrganizationData = useOrganization()
+    const userOrganization = useOrganization()
 
     useEffect(() => {
         refetch()
@@ -100,8 +100,8 @@ export const UserInfoPage = () => {
                                 </Col>
                                 <Col span={24}>
                                     {
-                                        employeeOrganizationData ? (
-                                            <UserOrganizationsList employeeOrganizationData={employeeOrganizationData}/>
+                                        userOrganization ? (
+                                            <UserOrganizationsList userOrganization={userOrganization}/>
                                         ) : null
                                     }
                                 </Col>

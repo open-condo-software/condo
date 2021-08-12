@@ -24,6 +24,7 @@ import {
     CRYPTOENCODING,
 } from '@condo/domains/ticket/constants/crypto'
 import { Organization } from '@core/keystone/schema'
+import { get } from 'lodash'
 
 const collapse = css`
   border-radius: 8px;
@@ -335,7 +336,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                         <Collapse expandIconPosition='right' css={collapse}>
                             <Collapse.Panel key='1' header={ToEmployeesEmailMessage}>
                                 <GraphQlSearchInput
-                                    search={getEmployeeWithEmail(organization?.id)}
+                                    search={getEmployeeWithEmail(get(organization, 'id'))}
                                     showArrow={false}
                                     mode='multiple'
                                     css={search}

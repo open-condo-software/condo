@@ -1,6 +1,6 @@
 import { Col, Row, Skeleton, Tag, Typography } from 'antd'
 import get from 'lodash/get'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
@@ -39,7 +39,7 @@ const OrganizationName: React.FC<IOrganizationName> = (props) => {
 
 interface IOrganizationEmployeeItem {
     employee: OrganizationEmployeeType
-    employeeOrganizationData
+    userOrganization
 }
 
 const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) => {
@@ -48,10 +48,10 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
 
-    const { employee, employeeOrganizationData } = props
+    const { employee, userOrganization } = props
 
     const selectOrganization = useCallback(() => {
-        employeeOrganizationData.selectLink(employee)
+        userOrganization.selectLink(employee)
     }, [])
 
     if (!employee.isAccepted) {
@@ -73,7 +73,7 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
                             <OrganizationName
                                 name={name}
                                 organizationId={get(employee, ['organization', 'id'])}
-                                employeeOrganizationId={get(employeeOrganizationData, ['link', 'organization', 'id'])}
+                                employeeOrganizationId={get(userOrganization, ['link', 'organization', 'id'])}
                                 selectOrganization={selectOrganization}
                             />
                         )}
@@ -103,7 +103,7 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
     )
 }
 
-export const UserOrganizationsList = ({ employeeOrganizationData }) => {
+export const UserOrganizationsList = ({ userOrganization }) => {
     const { user } = useAuth()
 
     const { objs: userOrganizations, loading } = OrganizationEmployee.useObjects(
@@ -115,7 +115,7 @@ export const UserOrganizationsList = ({ employeeOrganizationData }) => {
         <OrganizationEmployeeItem
             employee={employee}
             key={index}
-            employeeOrganizationData={employeeOrganizationData}
+            userOrganization={userOrganization}
         />
     ))
 
