@@ -1,3 +1,5 @@
+const faker = require('faker')
+
 function throwIfError (data, errors) {
     if (errors) {
         const err = new Error('TestRequestError')
@@ -67,12 +69,30 @@ function generateGQLTestUtils (gql) {
         return data.obj
     }
 
+    async function softDelete (client, id, extraAttrs = {}, { raw = false } = {}) {
+        const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+        const attrs = {
+            dv: 1,
+            sender,
+            deletedAt: 'true',
+            ...extraAttrs,
+        }
+        checkClient(client)
+        const { data, errors } = await client.mutate(gql.UPDATE_OBJ_MUTATION, {
+            id, data: { ...attrs },
+        })
+        if (raw) return { data, errors }
+        throwIfError(data, errors)
+        return [data.obj, attrs]
+    }
+
     return {
         gql,
         getAll, count,
         getAllWithMeta,
         create, update,
         delete: delete_,
+        softDelete,
     }
 }
 
