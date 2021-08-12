@@ -1492,6 +1492,8 @@ export type BillingIntegration = {
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   /**  Link to external resource, on which you will go by clicking on "Instruction" button  */
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
+  /**  Status, which BillingIntegrationOrganizationContext, linked to this integration, will have after creation  */
+  contextDefaultStatus?: Maybe<Scalars['String']>;
   accessRights: Array<BillingIntegrationAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
   id: Scalars['ID'];
@@ -1794,6 +1796,7 @@ export type BillingIntegrationCreateInput = {
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
+  contextDefaultStatus?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1824,6 +1827,7 @@ export type BillingIntegrationHistoryRecord = {
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
+  contextDefaultStatus?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1847,6 +1851,7 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
+  contextDefaultStatus?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1875,6 +1880,7 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
+  contextDefaultStatus?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2028,6 +2034,24 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   detailsInstructionButtonLink_not_ends_with_i?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   detailsInstructionButtonLink_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contextDefaultStatus?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not?: Maybe<Scalars['String']>;
+  contextDefaultStatus_contains?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not_contains?: Maybe<Scalars['String']>;
+  contextDefaultStatus_starts_with?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not_starts_with?: Maybe<Scalars['String']>;
+  contextDefaultStatus_ends_with?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not_ends_with?: Maybe<Scalars['String']>;
+  contextDefaultStatus_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_contains_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not_contains_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_starts_with_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not_starts_with_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_ends_with_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not_ends_with_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contextDefaultStatus_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -2313,6 +2337,8 @@ export type BillingIntegrationOrganizationContext = {
   status?: Maybe<Scalars['String']>;
   /**  The current state of the integration process. Some integration need to store past state or data related to cache files/folders for past state. The data structure depends on the integration and defined there  */
   state?: Maybe<Scalars['JSON']>;
+  /**  Information about last report, such as time of report, period of report, amount of loaded data and etc  */
+  lastReport?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2331,6 +2357,7 @@ export type BillingIntegrationOrganizationContextCreateInput = {
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
+  lastReport?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2358,6 +2385,7 @@ export type BillingIntegrationOrganizationContextHistoryRecord = {
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
+  lastReport?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2379,6 +2407,7 @@ export type BillingIntegrationOrganizationContextHistoryRecordCreateInput = {
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
+  lastReport?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2405,6 +2434,7 @@ export type BillingIntegrationOrganizationContextHistoryRecordUpdateInput = {
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
+  lastReport?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2466,6 +2496,10 @@ export type BillingIntegrationOrganizationContextHistoryRecordWhereInput = {
   state_not?: Maybe<Scalars['JSON']>;
   state_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   state_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastReport?: Maybe<Scalars['JSON']>;
+  lastReport_not?: Maybe<Scalars['JSON']>;
+  lastReport_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastReport_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -2560,6 +2594,7 @@ export type BillingIntegrationOrganizationContextUpdateInput = {
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
+  lastReport?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2600,6 +2635,10 @@ export type BillingIntegrationOrganizationContextWhereInput = {
   state_not?: Maybe<Scalars['JSON']>;
   state_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   state_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastReport?: Maybe<Scalars['JSON']>;
+  lastReport_not?: Maybe<Scalars['JSON']>;
+  lastReport_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastReport_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -2676,6 +2715,7 @@ export type BillingIntegrationUpdateInput = {
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
+  contextDefaultStatus?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2827,6 +2867,10 @@ export type BillingIntegrationWhereInput = {
   detailsInstructionButtonLink_not_ends_with_i?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   detailsInstructionButtonLink_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contextDefaultStatus?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not?: Maybe<Scalars['String']>;
+  contextDefaultStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contextDefaultStatus_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   /**  condition must be true for all nodes  */
   accessRights_every?: Maybe<BillingIntegrationAccessRightWhereInput>;
   /**  condition must be true for at least 1 node  */
@@ -15483,6 +15527,8 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   DetailsInstructionButtonTextDesc = 'detailsInstructionButtonText_DESC',
   DetailsInstructionButtonLinkAsc = 'detailsInstructionButtonLink_ASC',
   DetailsInstructionButtonLinkDesc = 'detailsInstructionButtonLink_DESC',
+  ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
+  ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -15587,6 +15633,8 @@ export enum SortBillingIntegrationsBy {
   DetailsInstructionButtonTextDesc = 'detailsInstructionButtonText_DESC',
   DetailsInstructionButtonLinkAsc = 'detailsInstructionButtonLink_ASC',
   DetailsInstructionButtonLinkDesc = 'detailsInstructionButtonLink_DESC',
+  ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
+  ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   AccessRightsAsc = 'accessRights_ASC',
   AccessRightsDesc = 'accessRights_DESC',
   IdAsc = 'id_ASC',
