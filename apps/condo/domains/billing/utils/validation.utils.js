@@ -1,6 +1,8 @@
 const { JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const Ajv = require('ajv')
+const addFormats = require('ajv-formats')
 const ajv = new Ajv()
+addFormats(ajv)
 
 const PAYMENT_SCHEMA = {
     type: 'object',
@@ -88,9 +90,31 @@ function _validatePeriod ({ resolvedData, fieldPath, addFieldValidationError }) 
     }
 }
 
+const REPORT_SCHEMA = {
+    type: 'object',
+    properties: {
+        period: { type: 'string', format: 'date' },
+        finishTime: { type: 'string', format: 'date-time' },
+        totalReceipts: { type: 'number' },
+    },
+    required: ['period', 'finishTime', 'totalReceipts'],
+    additionalProperties: false,
+}
+
+const _jsonReportValidator = ajv.compile(REPORT_SCHEMA)
+
+function _validateReport ({ resolvedData, fieldPath, addFieldValidationError }) {
+    if (!_jsonReportValidator(resolvedData[fieldPath])) {
+        return _jsonReportValidator.errors.forEach((error) => {
+            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
+        })
+    }
+}
+
 module.exports = {
     validatePaymentDetails: _validatePaymentDetails,
     validateServices: _validateServices,
     validateRecipient: _validateRecipient,
     validatePeriod: _validatePeriod,
+    validateReport: _validateReport,
 }
