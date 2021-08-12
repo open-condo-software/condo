@@ -26,6 +26,7 @@ exports.up = async (knex) => {
     ALTER TABLE "OrganizationEmployee" DROP COLUMN "oldId";
     DROP SEQUENCE IF EXISTS "OrganizationEmployee_id_seq" CASCADE;
     ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN history_id SET NOT NULL;
+    ALTER TABLE "OrganizationEmployeeHistoryRecord" DROP COLUMN "old_history_id";
 
     --
     -- Alter field newId on organizationemployee
