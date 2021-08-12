@@ -211,4 +211,32 @@ describe('TicketStatus', () => {
 
         expect(isTranslationCompleted).toBeTruthy()
     })
+
+    
+    test.each(getAvailableLocales())('Passes request in complex raw backend query', async (locale) => {
+        const translations = Object.values(getTranslations(locale))
+
+        const admin = await makeLoggedInAdminClient()
+        const [organization] = await createTestOrganization(admin)
+        admin.setHeaders({
+            'Accept-Language': locale,
+        })
+
+        const statuses = await TicketStatus.getAll(admin, { 
+            OR: [
+                { organization: { id: organization.id } },
+                { organization_is_null: true },
+            ] })
+            .then((statuses)=> statuses.filter(status => {
+                if (!status.organization) { 
+                    return true 
+                }
+                return !statuses
+                    .find(organizationStatus => organizationStatus.organization !== null && organizationStatus.type === status.type)
+            }))
+            
+        const isTranslationCompleted = Object.values(statuses).every(status => translations.includes(status.name))
+
+        expect(isTranslationCompleted).toBeTruthy()
+    })
 })

@@ -13,7 +13,10 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
     if (!query) throw new Error('wrong query argument')
     if (!variables) throw new Error('wrong variables argument')
     const { errors, data } = await context.executeGraphQL({
-        context: context.createContext({ skipAccessControl: true }),
+        context: {
+            req: context.req,
+            ...context.createContext({ skipAccessControl: true }),
+        },
         variables: pickBy(variables, isNotUndefined),
         query,
     })
