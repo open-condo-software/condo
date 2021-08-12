@@ -13,9 +13,13 @@ const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } upda
 const DIVISION_FIELDS = `{ name organization { id } responsible { id } ${COMMON_FIELDS} }`
 const Division = generateGqlQueries('Division', DIVISION_FIELDS)
 
+const DIVISION_PROPERTY_FIELDS = `{ division { id } property { id } ${COMMON_FIELDS} }`
+const DivisionProperty = generateGqlQueries('DivisionProperty', DIVISION_PROPERTY_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Division,
+    DivisionProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

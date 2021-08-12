@@ -4,4 +4,5 @@
  */
 
 export * as Division from './Division'
+export * as DivisionProperty from './DivisionProperty'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

@@ -4,9 +4,11 @@
  */
 
 const { Division } = require('./Division')
+const { DivisionProperty } = require('./DivisionProperty')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Division,
+    DivisionProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -10,9 +10,11 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/co
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { Division: DivisionGQL } = require('@condo/domains/division/gql')
+const { DivisionProperty: DivisionPropertyGQL } = require('@condo/domains/division/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Division = generateGQLTestUtils(DivisionGQL)
+const DivisionProperty = generateGQLTestUtils(DivisionPropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestDivision (client, organization, responsible, extraAttrs = {}) {
@@ -48,9 +50,45 @@ async function updateTestDivision (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestDivisionProperty (client, division, property, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!division || !division.id) throw new Error('no division.id')
+    if (!property || !property.id) throw new Error('no property.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestDivisionProperty logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        division: { connect: { id: division.id } },
+        property: { connect: { id: property.id } },
+        ...extraAttrs,
+    }
+    const obj = await DivisionProperty.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestDivisionProperty (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestDivisionProperty logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await DivisionProperty.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     Division, createTestDivision, updateTestDivision,
+    DivisionProperty, createTestDivisionProperty, updateTestDivisionProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

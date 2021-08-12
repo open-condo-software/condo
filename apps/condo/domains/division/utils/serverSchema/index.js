@@ -7,12 +7,15 @@
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { Division: DivisionGQL } = require('@condo/domains/division/gql')
+const { DivisionProperty: DivisionPropertyGQL } = require('@condo/domains/division/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Division = generateServerUtils(DivisionGQL)
+const DivisionProperty = generateServerUtils(DivisionPropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Division,
+    DivisionProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
