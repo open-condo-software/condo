@@ -128,6 +128,8 @@ function queryHasSoftDeletedField (whereQuery, deletedAtField) {
  * @return {boolean}
  */
 function _queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
+    // undefined case
+    if (!whereQuery) return false
     // { deletedAt: null } case
     if (queryHasSoftDeletedField(whereQuery, deletedAtField)) {
         return true
