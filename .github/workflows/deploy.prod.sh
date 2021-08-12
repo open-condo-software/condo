@@ -23,12 +23,36 @@ function run {
 VERSION=$(escape $1)
 
 SSH_DESTINATION=root@v1.doma.ai
+WORKSPACE=condo
 APP=prod
 DOMAIN=v1.doma.ai
 
 action "Prepare build .env file"
 [ -f .env ] && cp .env .env.deploy.backup
-cp .env.build .env
+
+cat <<EOT >> .env
+# GEN by deploy.prod.sh!
+NODE_ENV=production
+
+COOKIE_SECRET=random
+DATABASE_URL=undefined
+WORKER_REDIS_URL=undefined
+
+# production docker deploy envs!
+DOCKER_FILE_INSTALL_COMMAND="python3 -m pip install 'psycopg2-binary>=2.8.5' && python3 -m pip install 'Django>=3.0.6'"
+
+DOCKER_FILE_BUILD_COMMAND="yarn workspace @app/${WORKSPACE} build"
+DOCKER_COMPOSE_APP_IMAGE_TAG=${WORKSPACE}
+DOCKER_COMPOSE_START_APP_COMMAND="yarn workspace @app/${WORKSPACE} start"
+DOCKER_COMPOSE_START_WORKER_COMMAND="yarn workspace @app/${WORKSPACE} worker"
+DOCKER_COMPOSE_MIGRATION_COMMAND="yarn workspace @app/${WORKSPACE} migrate"
+
+DOCKER_COMPOSE_COOKIE_SECRET=random
+DOCKER_COMPOSE_DATABASE_URL=undefined
+DOCKER_COMPOSE_WORKER_REDIS_URL=undefined
+DOCKER_COMPOSE_SERVER_URL=undefined
+
+EOT
 
 source .env
 
@@ -56,7 +80,7 @@ if [[ ! "${VERSION}" =~ ^v[-][0-9]+[-][0-9]+[-][0-9]+$ ]]; then
     exit 1
 fi
 
-echo "$(date +%Y-%m-%d-%H-%M-%S) - deploy.prod.sh $@ (APP=${APP}; VERSION=${VERSION}; SSH_DESTINATION=${SSH_DESTINATION})"
+echo "$(date +%Y-%m-%d-%H-%M-%S) - deploy.prod.sh $@ (WORKSPACE=${WORKSPACE}; APP=${APP}; VERSION=${VERSION}; SSH_DESTINATION=${SSH_DESTINATION})"
 
 action "Check access"
 info "Check SSH dokku "'"'"ssh ${SSH_DESTINATION} 'dokku help'"'"'
