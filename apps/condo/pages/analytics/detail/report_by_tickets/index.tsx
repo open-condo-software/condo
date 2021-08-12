@@ -98,6 +98,9 @@ const tabsCss = css`
   & .ant-tabs-tab.ant-tabs-tab-active {
     font-weight: bold;
   }
+  & .ant-tabs-nav {
+    margin: 0;
+  }
   & .ant-tabs-nav::before {
     border-bottom: unset;
   }
