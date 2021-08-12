@@ -9,6 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegrationOrganizationContext')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { validateReport } = require('@condo/domains/billing/utils/validation.utils')
 const {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_STATUSES,
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
@@ -62,6 +63,15 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
                 validateInput: (args) => {
                     if (!hasValidJsonStructure(args, true, 1, {})) return
                 },
+            },
+        },
+
+        lastReport: {
+            schemaDoc: 'Information about last report, such as time of report, period of report, amount of loaded data and etc',
+            type: Json,
+            isRequired: false,
+            hooks: {
+                validateInput: validateReport,
             },
         },
 

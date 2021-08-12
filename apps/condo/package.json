@@ -46,6 +46,7 @@
     "@zeit/next-css": "^1.0.1",
     "@zeit/next-less": "^1.0.1",
     "ajv": "^8.2.0",
+    "ajv-formats": "^2.1.0",
     "antd": "^4.8.2",
     "antd-mask-input": "^0.1.15",
     "bull": "^3.22.0",
