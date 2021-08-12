@@ -50,14 +50,15 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
             icon: 'circle',
             itemWidth: 7,
             itemHeight: 7,
+            itemGap: 28,
             textStyle: {
                 fontSize: '16px',
             },
         },
         grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
+            left: 0,
+            right: 0,
+            bottom: 0,
             containLabel: true,
             borderWidth: 1,
         },
@@ -72,6 +73,18 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
         return Object.values(ticketStatus).every(count => count === 0)
     }) && !loading
     const chartHeight = get(chartOptions, 'height', 'auto')
+    const chartStyle = {}
+    if (chartHeight !== 'auto') {
+        chartStyle['height'] = chartHeight
+    }
+
+    if (viewMode === 'bar' && chartHeight === 'auto') {
+        const axisLabels = get(axisData, 'yAxis.data')
+        if (axisLabels && axisLabels.length > 5) {
+            chartStyle['height'] = axisLabels.length * 50
+        }
+    }
+
     return <Typography.Paragraph style={{ position: 'relative' }}>
         {isEmptyDataSet ? (
             <Typography.Paragraph>
@@ -87,7 +100,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                     onChartReady={onChartReady}
                     notMerge
                     showLoading={loading}
-                    style={{ height: chartHeight !== 'auto' ? 'unset' : 300 }}
+                    style={{ ...chartStyle }}
                     option={option}/>
                 {children}
             </>
