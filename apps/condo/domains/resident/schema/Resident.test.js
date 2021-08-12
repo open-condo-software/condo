@@ -15,7 +15,6 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 
 const { Resident, createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
-const { softDeleteTestResident } = require('../utils/testSchema')
 const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
 
 describe('Resident', () => {
@@ -379,7 +378,7 @@ describe('Resident', () => {
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
-            const [objUpdated, attrs] = await softDeleteTestResident(adminClient, obj.id)
+            const [objUpdated, attrs] = await Resident.softDelete(adminClient, obj.id)
 
             expect(objUpdated.id).toEqual(obj.id)
             expect(objUpdated.dv).toEqual(1)
@@ -394,7 +393,7 @@ describe('Resident', () => {
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
-            const [objUpdated, attrs] = await softDeleteTestResident(userClient, obj.id)
+            const [objUpdated, attrs] = await Resident.softDelete(userClient, obj.id)
 
             expect(objUpdated.id).toEqual(obj.id)
             expect(objUpdated.dv).toEqual(1)
@@ -414,7 +413,7 @@ describe('Resident', () => {
             }
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await softDeleteTestResident(userClient, obj.id, notAllowedPayload)
+                await Resident.softDelete(userClient, obj.id, notAllowedPayload)
             })
         })
 
@@ -426,7 +425,7 @@ describe('Resident', () => {
             const otherUserClient = await makeClientWithResidentUserAndProperty()
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await softDeleteTestResident(otherUserClient, obj.id)
+                await Resident.softDelete(otherUserClient, obj.id)
             })
         })
     })

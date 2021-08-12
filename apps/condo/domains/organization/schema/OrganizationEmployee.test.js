@@ -14,7 +14,7 @@ const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
 const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { OrganizationEmployee, createTestOrganizationEmployee, updateTestOrganizationEmployee, softDeleteTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { OrganizationEmployee, createTestOrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
 
 describe('OrganizationEmployee', () => {
@@ -165,7 +165,7 @@ describe('OrganizationEmployee', () => {
             await createTestOrganizationEmployee(admin, organization, notManagerUserClient.user, role)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await softDeleteTestOrganizationEmployee(notManagerUserClient, employee.id)
+                await OrganizationEmployee.softDelete(notManagerUserClient, employee.id)
             })
         })
 
@@ -178,7 +178,7 @@ describe('OrganizationEmployee', () => {
 
             await createTestOrganizationEmployee(admin, organization, managerClient.user, role, { isBlocked: false })
 
-            const [ obj ] = await softDeleteTestOrganizationEmployee(managerClient, employee.id)
+            const [obj] = await OrganizationEmployee.softDelete(managerClient, employee.id)
 
             expect(obj.id).toBeDefined()
 

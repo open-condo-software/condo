@@ -112,21 +112,6 @@ async function updateTestOrganizationEmployee (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function softDeleteTestOrganizationEmployee (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        deletedAt: 'true',
-        ...extraAttrs,
-    }
-
-    return updateTestOrganizationEmployee(client, id, attrs)
-}
-
 async function createTestOrganizationEmployeeRole (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
@@ -238,7 +223,6 @@ module.exports = {
     createTestOrganization,
     updateTestOrganization,
     createTestOrganizationEmployee,
-    softDeleteTestOrganizationEmployee,
     makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
     updateTestOrganizationEmployee, createTestOrganizationWithAccessToAnotherOrganization,
     OrganizationLink, createTestOrganizationLink, updateTestOrganizationLink,
