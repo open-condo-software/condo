@@ -23,13 +23,17 @@ exports.up = async (knex) => {
     WHERE(
       e."oldId" = hr.old_history_id
     );
+    ALTER TABLE "OrganizationEmployee" DROP COLUMN "oldId";
+    DROP SEQUENCE IF EXISTS "OrganizationEmployee_id_seq" CASCADE;
     ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN history_id SET NOT NULL;
+    ALTER TABLE "OrganizationEmployeeHistoryRecord" DROP COLUMN "old_history_id";
 
     --
     -- Alter field newId on organizationemployee
     --
     ALTER TABLE "OrganizationEmployee" RENAME COLUMN "newId" TO "old_newId";
     ALTER TABLE "OrganizationEmployee" ADD COLUMN "newId" UUID NULL;
+    ALTER TABLE "OrganizationEmployee" DROP COLUMN "old_newId";
 
     COMMIT;
     END;
