@@ -32,7 +32,7 @@ export const useDemoReceiptTableColumns = (
         if (!isEmpty(search) && text) {
             result = (
                 <Highliter
-                    text={String(text)}
+                    text={`${text}`}
                     search={String(search)}
                     renderPart={(part) => (
                         <Typography.Text style={{ backgroundColor: colors.markColor }}>
@@ -84,7 +84,7 @@ export const useDemoReceiptTableColumns = (
                 width: '20%',
                 filterDropdown: getTextFilterDropdown(TotalPaymentMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
-                render,
+                render: (text) => render(`${text} ₽`),
             },
         ]
     }, [sort, filters])
