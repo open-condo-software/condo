@@ -1,7 +1,7 @@
 const { DateTimeUtc } = require('@keystonejs/fields')
 const { getType } = require('@keystonejs/utils')
 const { get, isPlainObject } = require('lodash')
-
+const { Parser } = require('graphql')
 const { HiddenRelationship } = require('./utils')
 const { composeHook, evaluateKeystoneAccessResult } = require('./utils')
 
@@ -96,7 +96,14 @@ function getWhereVariables (args) {
         variables = get(args, ['context', 'req', 'body', 'variables'])
     }
     try {
-        return JSON.parse(variables).where || {}
+        // Local test client parses variables into string type
+        if (typeof variables === 'string') {
+            return JSON.parse(variables).where || {}
+        }
+        // GraphiQL parses variables into object
+        else if (typeof variables === 'object') {
+            return variables.where
+        }
     } catch (e) {
         return {}
     }
@@ -160,7 +167,7 @@ function _queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
  * If you want to override default behaviour by explicitly setting
  * {deletedAt_not: null} on any part of the query -> the filters will not be
  * activated. So if you want to override the default behaviour on one part of the
- * query, you should explicitly specify the {deltedAt: null} on ALL other parts of
+ * query, you should explicitly specify the {deletedAt: null} on ALL other parts of
  * the query to get only NOT DELETED items
  *
  * Example:

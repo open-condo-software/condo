@@ -5,7 +5,8 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canReadBillingIntegrations ({ authentication: { item: user } }) {
-    return !!user
+    if (!user) return false
+    return {}
 }
 
 async function canManageBillingIntegrations ({ authentication: { item: user }, operation }) {
