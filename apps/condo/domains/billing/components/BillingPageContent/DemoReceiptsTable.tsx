@@ -21,7 +21,7 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useIntl } from '@core/next/intl'
 
 // TODO (SavelevMatthew): Move that to new component later or even delete
-export const DemoTable: React.FC<IContextProps> = ({ context }) => {
+export const DemoReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
 
@@ -30,7 +30,6 @@ export const DemoTable: React.FC<IContextProps> = ({ context }) => {
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
 
-    // TODO (SavelevMatthew): Filter by context later
     const {
         fetchMore,
         loading,
@@ -38,7 +37,7 @@ export const DemoTable: React.FC<IContextProps> = ({ context }) => {
         objs: receipts,
     } = BillingReceipt.useObjects({
         sortBy: sortFromQuery.length > 0 ? sortFromQuery : ['createdAt_DESC'] as Array<SortBillingReceiptsBy>,
-        where: { ...filtersToQuery(filtersFromQuery) },
+        where: { ...filtersToQuery(filtersFromQuery), context: { id: context.id } },
         skip: (offsetFromQuery * BILLING_RECEIPTS_PAGE_SIZE) - BILLING_RECEIPTS_PAGE_SIZE,
         first: BILLING_RECEIPTS_PAGE_SIZE,
     }, {
@@ -58,7 +57,6 @@ export const DemoTable: React.FC<IContextProps> = ({ context }) => {
 
         if (!loading) {
             fetchMore({
-                // @ts-ignore
                 sortBy: sort,
                 where: filters,
                 skip: offset,
@@ -102,9 +100,7 @@ export const DemoTable: React.FC<IContextProps> = ({ context }) => {
                         pageSize: BILLING_RECEIPTS_PAGE_SIZE,
                         position: ['bottomLeft'],
                     }}
-                >
-
-                </Table>
+                />
             </Col>
         </Row>
     )
