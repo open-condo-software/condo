@@ -27,6 +27,7 @@ export interface IBillingIntegrationOrganizationContextFormState {
     id?: undefined
     integration?: string
     organization?: string
+    status?: string
 }
 
 function convertToUIFormState (state: IBillingIntegrationOrganizationContextUIState): IBillingIntegrationOrganizationContextFormState | undefined {

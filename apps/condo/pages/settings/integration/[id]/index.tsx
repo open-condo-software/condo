@@ -94,7 +94,7 @@ const BillingIntegrationDetailsPage = () => {
             okText: ContinueMessage,
             cancelText: CancelMessage,
             onOk () {
-                return createContextAction({})
+                return createContextAction({ status: get(integration, 'contextDefaultStatus') })
             },
         })
     }
@@ -117,7 +117,6 @@ const BillingIntegrationDetailsPage = () => {
 
     const disabledIntegration = !!currentContext
     const shouldNotifyWithAlert = !!currentContext && currentContext.integration.id !== integrationId
-
     return (
         <>
             <Head>
