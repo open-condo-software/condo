@@ -548,6 +548,7 @@
   "WillBeReadySoon": "Скоро всё будет готово",
   "Accruals": "Начисления",
   "Meters": "ИПУ",
+  "DataFor": "Данные за",
   "FeatureFlags.Modal.Title": "Флаги функций",
   "FeatureFlags.Modal.Description": "Все изменения будут применены только после перезагрузки страницы"
 }
