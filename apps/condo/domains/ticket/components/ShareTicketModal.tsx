@@ -346,6 +346,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                                     onChange={handleSelect}
                                     value={value}
                                     placeholder={EmployeesNameMessage}
+                                    autoClearSearchValue={true}
                                 />
                                 {usersWithoutEmail.length ? <Warning>{usersWithoutEmail}</Warning> : null}
                                 {value.length ? <Button

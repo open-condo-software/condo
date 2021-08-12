@@ -23,7 +23,7 @@ interface ISearchInputProps extends SelectProps<string> {
 }
 
 export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
-    const { search, onSelect, formatLabel, ...restProps } = props
+    const { search, onSelect, formatLabel, autoClearSearchValue, ...restProps } = props
     const client = useApolloClient()
     const [selected, setSelected] = useState('')
     const [isLoading, setLoading] = useState(false)
@@ -68,7 +68,6 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
         if (props.mode === 'multiple') {
             setValue('')
-            handleSearch('')
         }
 
         if (onSelect) {
@@ -83,7 +82,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     return (
         <Select
             showSearch
-            autoClearSearchValue={false}
+            autoClearSearchValue={autoClearSearchValue || false}
             allowClear={true}
             optionFilterProp={'title'}
             defaultActiveFirstOption={false}
