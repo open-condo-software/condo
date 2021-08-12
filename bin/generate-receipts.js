@@ -12,7 +12,9 @@ const { GraphQLApp } = require('@keystonejs/app-graphql')
 
 const PROPERTY_QUANTITY = 10
 const ACCOUNTS_PER_PROPERTY_DISTRIBUTION = { min: 80, max: 140 }
-const PERIOD = '2021-08-01'
+const currentDate = new Date(Date.now())
+const currentMonth = `${currentDate.getMonth() + 1}`.padStart(2, '0')
+const PERIOD = `${currentDate.getFullYear()}-${currentMonth}-01`
 const TO_PAY_DISTRIBUITION = { min: 1200, max: 8500 }
 
 const DV = 1
@@ -148,6 +150,13 @@ class ReceiptsGenerator {
             currentProgress = Math.floor(i * 100 / toBeGenerated)
             //console.info(`[INFO] ${Math.floor(i * 100 / toBeGenerated)}%`)
         }
+        await BillingIntegrationOrganizationContext.update(this.context, this.billingContextId, {
+            lastReport: {
+                period: this.period,
+                finishTime: new Date(Date.now()).toISOString(),
+                totalReceipts: toBeGenerated,
+            },
+        })
     }
 
     /**
