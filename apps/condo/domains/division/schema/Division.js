@@ -9,6 +9,8 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/division/access/Division')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { get } = require('lodash')
 
 
 const Division = new GQLListSchema('Division', {
@@ -32,6 +34,25 @@ const Division = new GQLListSchema('Division', {
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            hooks: {
+                validateInput: async ({ resolvedData, operation, existingItem, addFieldValidationError, context, fieldPath, ...rest }) => {
+                    const responsibleId = resolvedData[fieldPath]
+                    const [responsible] = await OrganizationEmployee.getAll(context, { id: responsibleId })
+                    if (!responsible.role.canBeAssignedAsResponsible) {
+                        addFieldValidationError('Cannot be connected to responsible which does not have `canBeAssignedAsResponsible` ability')
+                    }
+                    let organizationId
+                    if (operation === 'create') {
+                        organizationId = resolvedData.organization
+                    }
+                    if (operation === 'update') {
+                        organizationId = get(existingItem, 'organization')
+                    }
+                    if (organizationId !== responsible.organization.id) {
+                        addFieldValidationError('Cannot be connected to responsible from another organization')
+                    }
+                },
+            },
         },
 
     },
