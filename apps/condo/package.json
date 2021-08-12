@@ -16,7 +16,8 @@
     "createservice": "node ./../../bin/createservice",
     "createschema": "node ./../../bin/createschema",
     "generate-tickets": "node ./../../bin/generate-tickets.js",
-    "generate-receipts": "node ./../../bin/generate-receipts.js"
+    "generate-receipts": "node ./../../bin/generate-receipts.js",
+    "generate-billings": "node ./../../bin/generate-billings.js"
   },
   "dependencies": {
     "@2gis/mapgl": "^1.12.0",
