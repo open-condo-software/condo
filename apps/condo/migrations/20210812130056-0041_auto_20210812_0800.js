@@ -8,32 +8,32 @@ exports.up = async (knex) => {
     CREATE EXTENSION if not exists "uuid-ossp";
 
     --
-    -- Alter field id on organizationemployee
+    -- id -> old_id
     --
-    ALTER TABLE "OrganizationEmployee" RENAME COLUMN id TO "oldId";
+    ALTER TABLE "OrganizationEmployee" RENAME COLUMN id TO old_id;
     ALTER TABLE "OrganizationEmployee" ADD COLUMN id UUID NULL;
+    -- id -> id = uuid
     UPDATE "OrganizationEmployee" SET id = uuid_generate_v4();
     
+    -- history_id -> old_history_id
     ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN history_id TO old_history_id;
+    -- +history_id
     ALTER TABLE "OrganizationEmployeeHistoryRecord" ADD COLUMN history_id UUID NULL;
     
+    -- OrganizationEmployeeHistoryRecord.history_id = OrganizationEmployee.id where OrganizationEmployee.old_id = OrganizationEmployeeHistoryRecord.old_history_id
     UPDATE "OrganizationEmployeeHistoryRecord" hr
     SET history_id = e.id
     FROM "OrganizationEmployee" as e
     WHERE(
-      e."oldId" = hr.old_history_id
+      e.old_id = hr.old_history_id
     );
-    ALTER TABLE "OrganizationEmployee" DROP COLUMN "oldId";
-    DROP SEQUENCE IF EXISTS "OrganizationEmployee_id_seq" CASCADE;
     ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN history_id SET NOT NULL;
-    ALTER TABLE "OrganizationEmployeeHistoryRecord" DROP COLUMN "old_history_id";
 
     --
-    -- Alter field newId on organizationemployee
+    -- newId -> old_newId
     --
-    ALTER TABLE "OrganizationEmployee" RENAME COLUMN "newId" TO "old_newId";
-    ALTER TABLE "OrganizationEmployee" ADD COLUMN "newId" UUID NULL;
-    ALTER TABLE "OrganizationEmployee" DROP COLUMN "old_newId";
+    ALTER TABLE "OrganizationEmployee" RENAME COLUMN newId TO old_newId;
+    ALTER TABLE "OrganizationEmployee" ADD COLUMN newId UUID NULL;
 
     COMMIT;
     END;
@@ -41,5 +41,24 @@ exports.up = async (knex) => {
 }
 
 exports.down = async (knex) => {
-    return
+    await knex.raw(`
+    BEGIN;
+
+    ALTER TABLE "OrganizationEmployee" DROP COLUMN id;
+    ALTER TABLE "OrganizationEmployee" RENAME COLUMN old_id TO id;
+    ALTER TABLE "OrganizationEmployee" RENAME COLUMN id SET NOT NULL;
+    
+    ALTER TABLE "OrganizationEmployeeHistoryRecord" DROP COLUMN history_id;
+    ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN old_history_id TO history_id;
+    ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN history_id SET NOT NULL;
+
+
+    ALTER TABLE "OrganizationEmployee" DROP COLUMN newId;
+    ALTER TABLE "OrganizationEmployee" RENAME COLUMN old_newId TO newId;
+    ALTER TABLE "OrganizationEmployee" ALTER COLUMN newId SET NOT NULL;
+
+
+    COMMIT;
+    END;
+    `)
 }
