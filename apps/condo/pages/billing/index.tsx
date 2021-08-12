@@ -16,7 +16,7 @@ const BillingPage = () => {
     const BillingTitle = intl.formatMessage({ id:'menu.Billing' })
 
     const userOrganization = useOrganization()
-    const organizationId = get(userOrganization, ['organization', 'id'])
+    const organizationId = get(userOrganization, ['organization', 'id'], '')
     const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
 
     const {
