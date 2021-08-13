@@ -21,8 +21,6 @@ async function createTestDivision (client, organization, responsible, extraAttrs
     if (!responsible || !responsible.id) throw new Error('no responsible.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestDivision logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
