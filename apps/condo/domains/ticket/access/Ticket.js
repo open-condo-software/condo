@@ -18,7 +18,7 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
     }
     if (user.type === RESIDENT) {
         return {
-            createdBy: user.id,
+            createdBy: { id: user.id },
         }
     }
     const userId = user.id
@@ -67,12 +67,11 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
         if (!itemId) {
             return false
         }
-
         const ticket = await getById('Ticket', itemId)
         if (!ticket) {
             return false
         }
-        if (ticket.createdBy.id === user.id && user.type === RESIDENT) {
+        if (ticket.createdBy === user.id && user.type === RESIDENT) {
             return true
         }
 
