@@ -8,6 +8,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { createTestTicket, makeClientWithTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { TICKET_STATUS_TYPES } = require('@condo/domains/ticket/constants')
 const { makeClient } = require('@core/keystone/test.utils')
+const { exec } = require('child_process')
 const DATE_FORMAT = 'DD.MM.YYYY'
 const NOW_DATE = moment().format(DATE_FORMAT)
 
@@ -32,8 +33,8 @@ describe('TicketAnalyticsReportService', () => {
                 },
             })
             expect(result).toBeDefined()
-            expect(Object.keys(result)).toStrictEqual([NOW_DATE])
-            expect(Object.values(result[NOW_DATE])).toHaveLength(TICKET_STATUS_TYPES.length)
+            expect(result).toHaveLength(1)
+            expect(result[0].count).toEqual(1)
         })
 
         it('can read TicketAnalyticsReportService grouped counts [status, day]', async () => {
@@ -58,10 +59,9 @@ describe('TicketAnalyticsReportService', () => {
                     groupBy: [ 'status', 'day' ],
                 },
             })
-            const ticketCountMap = Object.values(result).flatMap(dateGroup => Object.values(dateGroup))
             expect(result).toBeDefined()
-            expect(ticketCountMap.some(count => count === 1)).toBe(true)
-            expect(ticketCountMap.every(count => (count <= 1))).toBe(true)
+            expect(result).toHaveLength(1)
+            expect(result[0].count).toEqual(1)
         })
 
         it('can read TicketAnalyticsReportService groupped with property filter', async () => {
@@ -86,13 +86,13 @@ describe('TicketAnalyticsReportService', () => {
                             { isEmergency: false },
                         ],
                     },
-                    groupBy: [ 'day', 'status' ],
+                    groupBy: [ 'property', 'status' ],
                 },
             })
             expect(result).toBeDefined()
-            const countsMap = Object.values(result).flatMap(obj => Object.values(obj))
-            expect(countsMap.some(e =>  e === 1)).toBe(true)
-            expect(countsMap.filter(e => e === 1)).toHaveLength(1)
+            expect(result).toHaveLength(1)
+            expect(result[0].count).toEqual(1)
+            expect(result[0].property).toEqual(client.property.id)
         })
 
         it('can not read TicketAnalyticsReportService from another organization', async () => {
@@ -132,8 +132,9 @@ describe('TicketAnalyticsReportService', () => {
             })
 
             expect(emptyResult).toMatchObject({})
-            expect(Object.keys(result)).toStrictEqual([NOW_DATE])
-            expect(Object.values(result[NOW_DATE])).toHaveLength(TICKET_STATUS_TYPES.length)
+            expect(result).toBeDefined()
+            expect(result).toHaveLength(1)
+            expect(result[0].count).toEqual(1)
         })
     })
 
