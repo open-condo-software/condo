@@ -22,7 +22,10 @@ import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
+import { FocusContextProvider } from '../domains/common/components/Focus/FocusContextProvider'
+import { OnBoardingProgressIconContainer } from '../domains/onboarding/components/OnBoardingProgressIconContainer'
 import { SubscriptionContextProvider } from '../domains/subscription/components/SubscriptionContext'
+import { OnBoardingProvider } from '../domains/onboarding/components/OnBoardingContext'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -36,6 +39,8 @@ function menuDataRender () {
             path: '/onboarding',
             icon: OnBoardingProgress,
             locale: 'menu.OnBoarding',
+            focusable: true,
+            container: OnBoardingProgressIconContainer,
         },
         {
             path: '/analytics',
@@ -89,13 +94,15 @@ const MyApp = ({ Component, pageProps }) => {
                         />
                     </Head>
                     <GlobalStyle/>
-                    <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
-                        <OnBoardingProvider>
-                            <RequiredAccess>
-                                <Component {...pageProps} />
-                            </RequiredAccess>
-                        </OnBoardingProvider>
-                    </LayoutComponent>
+                    <FocusContextProvider>
+                        <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
+                            <OnBoardingProvider>
+                                <RequiredAccess>
+                                    <Component {...pageProps} />
+                                </RequiredAccess>
+                            </OnBoardingProvider>
+                        </LayoutComponent>
+                    </FocusContextProvider>
                     <GoogleAnalytics/>
                     <BehaviorRecorder engine="plerdy"/>
                 </CacheProvider>
@@ -131,14 +138,12 @@ const apolloClientConfig = {
 
 export default (
     withApollo({ ssr: true, apolloCacheConfig })(
-        withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale })(
+        withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale, apolloClientConfig })(
             withAuth({ ssr: true })(
                 withOrganization({
                     ssr: true,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
-                })(
-                    withOnBoardingContext()(MyApp)
-                )
+                })(MyApp)
             )
         )
     )

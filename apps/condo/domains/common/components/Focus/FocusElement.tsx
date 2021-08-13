@@ -3,7 +3,8 @@ import { Tooltip } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useRef, useState } from 'react'
 import { useApolloClient } from '@core/next/apollo'
-import { OnBoardingStep as OnBoardingStepGql } from '../../onboarding/gql'
+import { OnBoardingStep as OnBoardingStepGql } from '../../../onboarding/gql'
+import { useFocusContext } from './FocusContextProvider'
 
 const FocusWrapper = styled.div`
   position: relative;
@@ -57,45 +58,10 @@ const FocusWrapper = styled.div`
 `
 
 export const FocusElement: React.FC = ({ children }) => {
-    const client = useApolloClient()
-    const [showFocus, setShowFocus] = useState(false)
-    const lastCompletedStepsNumber = useRef(null)
-    const timeoutId = useRef(null)
-    const router = useRouter()
-
-    const showFocusTooltip = useCallback(() => {
-        if (!showFocus) {
-            setShowFocus(true)
-
-            if (!timeoutId.current) {
-                timeoutId.current = setTimeout(() => {
-                    setShowFocus(false)
-                    timeoutId.current = null
-                }, 10000)
-            }
-        }
-    }, [])
-
-    client.query({ query: OnBoardingStepGql.GET_ALL_OBJS_QUERY })
-        .then((result) => {
-            console.log(result.data.objs)
-            const nextCompletedStepsLength = result.data.objs.filter((obj) => obj.completed === true).length
-
-            if (!lastCompletedStepsNumber.current === null) {
-                lastCompletedStepsNumber.current = nextCompletedStepsLength
-            }
-
-            if (nextCompletedStepsLength !== lastCompletedStepsNumber.current && nextCompletedStepsLength > 0) {
-                if (router.pathname !== '/onboarding') {
-                    showFocusTooltip()
-                }
-
-                lastCompletedStepsNumber.current = nextCompletedStepsLength
-            }
-        })
+    const { isFocusVisible } = useFocusContext()
 
     return (
-        showFocus
+        isFocusVisible
             ? (
                 <FocusWrapper>
                     <Tooltip title={'Теперь вы можете перейти к следующему шагу'} visible placement={'right'}>
