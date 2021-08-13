@@ -24,7 +24,7 @@ let getApolloClientConfig = () => {
     return { serverUrl, apolloGraphQLUrl }
 }
 
-let createApolloClient = (initialState, ctx, apolloCacheConfig) => {
+let createApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConfig) => {
     const { serverUrl, apolloGraphQLUrl } = getApolloClientConfig()
     if (DEBUG_RERENDERS) console.log('WithApollo(): getApolloClientConfig()', { serverUrl, apolloGraphQLUrl })
 
@@ -50,6 +50,7 @@ let createApolloClient = (initialState, ctx, apolloCacheConfig) => {
             headers: (ctx && ctx.req) ? ctx.req.headers : undefined,  // allow to use client cookies on server side requests
         }),
         cache: new InMemoryCache(apolloCacheConfig).restore(initialState || {}),
+        ...apolloClientConfig,
     })
 }
 
@@ -64,18 +65,18 @@ let globalApolloClient = null
  * @param  {NextPageContext} ctx
  * @param  {InMemoryCacheConfig} apolloCacheConfig
  */
-const initApolloClient = (initialState, ctx, apolloCacheConfig) => {
+const initApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConfig) => {
     // Make sure to create a new client for every server-side request so that data
     // isn't shared between connections (which would be bad)
     // It's isOnServerSide === false for expo APP
     const isOnServerSide = typeof window === 'undefined'
     if (isOnServerSide) {
-        return createApolloClient(initialState, ctx, apolloCacheConfig)
+        return createApolloClient(initialState, ctx, apolloCacheConfig, apolloClientConfig)
     }
 
     // Reuse client on the client-side
     if (!globalApolloClient) {
-        globalApolloClient = createApolloClient(initialState, ctx, apolloCacheConfig)
+        globalApolloClient = createApolloClient(initialState, ctx, apolloCacheConfig, apolloClientConfig)
     }
 
     return globalApolloClient
@@ -125,7 +126,9 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     getApolloClientConfig = opts.getApolloClientConfig ? opts.getApolloClientConfig : getApolloClientConfig
     createApolloClient = opts.createApolloClient ? opts.createApolloClient : createApolloClient
+
     const apolloCacheConfig = opts.apolloCacheConfig ? opts.apolloCacheConfig : {}
+    const apolloClientConfig = opts.apolloClientConfig ? opts.apolloClientConfig : {}
 
     const WithApollo = ({ apolloClient, apolloState, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithApollo()', apolloState)
@@ -135,7 +138,7 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
             client = apolloClient
         } else {
             // Happens on: next.js csr || expo
-            client = initApolloClient(apolloState, undefined, apolloCacheConfig)
+            client = initApolloClient(apolloState, undefined, apolloCacheConfig, apolloClientConfig)
         }
 
         return (

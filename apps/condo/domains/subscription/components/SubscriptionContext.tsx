@@ -1,5 +1,6 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useContext, useMemo, useState } from 'react'
 import { SberIcon } from '../../common/components/icons/SberIcon'
+import { useApplySubscriptionModal } from '../hooks/useSubscriptionModal'
 
 type TrialOption = {
     amount: number,
@@ -9,6 +10,7 @@ type TrialOption = {
 }
 
 interface ISubscriptionContext {
+    daysRemaining?: number
     isSubscriptionActive?: boolean
     activateSubscription?: () => void
     options?: Array<TrialOption>
@@ -20,6 +22,8 @@ export const useSubscriptionContext = () => useContext<ISubscriptionContext>(Sub
 
 export const SubscriptionContextProvider: React.FC = (props) => {
     const [isActive, setIsActive] = useState(false)
+    const daysRemaining = 14
+    const { setVisible: showApplySubscription, SubscriptionModal } = useApplySubscriptionModal()
 
     const subscriptionOptions = useMemo(() => {
         return (
@@ -46,6 +50,7 @@ export const SubscriptionContextProvider: React.FC = (props) => {
             isSubscriptionActive: isActive,
             options: subscriptionOptions,
             activateSubscription,
+            daysRemaining,
         }}>
             {props.children}
         </SubscriptionContext.Provider>

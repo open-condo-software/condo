@@ -23,8 +23,10 @@ import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import { BarChartIcon } from '@condo/domains/common/components/icons/BarChart'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
+import { FocusContextProvider } from '../domains/common/components/Focus/FocusContextProvider'
+import { OnBoardingProgressIconContainer } from '../domains/onboarding/components/OnBoardingProgressIconContainer'
 import { SubscriptionContextProvider } from '../domains/subscription/components/SubscriptionContext'
-import { withOnBoardingContext } from '../domains/onboarding/components/OnBoardingContext'
+import { OnBoardingProvider } from '../domains/onboarding/components/OnBoardingContext'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -38,6 +40,8 @@ function menuDataRender () {
             path: '/onboarding',
             icon: OnBoardingProgress,
             locale: 'menu.OnBoarding',
+            focusable: true,
+            container: OnBoardingProgressIconContainer,
         },
         {
             path: '/',
@@ -73,25 +77,30 @@ const MyApp = ({ Component, pageProps }) => {
     const HeaderAction = Component.headerAction
 
     return (
-        <SubscriptionContextProvider>
-            <GlobalErrorBoundary>
-                <CacheProvider value={cache}>
-                    <Head>
-                        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
-                        <meta
-                            name="viewport"
-                            content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
-                        />
-                    </Head>
-                    <GlobalStyle/>
-                    <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
-                        <Component {...pageProps} />
-                    </LayoutComponent>
-                    <GoogleAnalytics/>
-                    <BehaviorRecorder engine="plerdy"/>
-                </CacheProvider>
-            </GlobalErrorBoundary>
-        </SubscriptionContextProvider>
+        <GlobalErrorBoundary>
+            <CacheProvider value={cache}>
+                <Head>
+                    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+                    <meta
+                        name="viewport"
+                        content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
+                    />
+                </Head>
+                <GlobalStyle/>
+                <FocusContextProvider>
+                    <SubscriptionContextProvider>
+                        <OnBoardingProvider>
+                            <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
+                                <Component {...pageProps} />
+                            </LayoutComponent>
+                        </OnBoardingProvider>
+                    </SubscriptionContextProvider>
+                </FocusContextProvider>
+                <GoogleAnalytics/>
+                <BehaviorRecorder engine="plerdy"/>
+            </CacheProvider>
+        </GlobalErrorBoundary>
+
     )
 }
 
@@ -120,15 +129,13 @@ const apolloClientConfig = {
 }
 
 export default (
-    withApollo({ ssr: true, apolloCacheConfig })(
+    withApollo({ ssr: true, apolloCacheConfig, apolloClientConfig })(
         withIntl({ ssr: true, messagesImporter })(
             withAuth({ ssr: true })(
                 withOrganization({
                     ssr: true,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
-                })(
-                    withOnBoardingContext()(MyApp)
-                )
+                })(MyApp)
             )
         )
     )

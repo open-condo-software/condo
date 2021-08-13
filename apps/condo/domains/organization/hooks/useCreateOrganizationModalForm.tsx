@@ -13,7 +13,7 @@ import { useOrganization } from '@core/next/organization'
 
 interface ICreateOrganizationModalFormResult {
     ModalForm: React.FC
-    setVisible: Dispatch<SetStateAction<boolean>>
+    setIsVisible: Dispatch<SetStateAction<boolean>>
 }
 
 interface IUseCreateOrganizationModalFormProps {
@@ -34,7 +34,7 @@ export const useCreateOrganizationModalForm = (props: IUseCreateOrganizationModa
         country: RUSSIA_COUNTRY,
     }
 
-    const [visible, setVisible] = useState<boolean>(false)
+    const [isVisible, setIsVisible] = useState<boolean>(false)
     const { selectLink } = useOrganization()
     const { user } = useAuth()
 
@@ -93,10 +93,10 @@ export const useCreateOrganizationModalForm = (props: IUseCreateOrganizationModa
                     onFinish(result)
                 }
 
-                setVisible(false)
+                setIsVisible(false)
             }}
-            visible={visible}
-            cancelModal={() => setVisible(false)}
+            visible={isVisible}
+            cancelModal={() => setIsVisible(false)}
             ModalTitleMsg={CreateOrganizationModalTitle}
             ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
             showCancelButton={false}
@@ -131,6 +131,6 @@ export const useCreateOrganizationModalForm = (props: IUseCreateOrganizationModa
 
     return {
         ModalForm,
-        setVisible,
+        setIsVisible,
     }
 }
