@@ -8,9 +8,7 @@ import classnames from 'classnames'
 import Link from 'next/link'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
-import { useSubscriptionContext } from '../../../../../subscription/components/SubscriptionContext'
 import { TrialTooltip } from '../../../../../subscription/components/TrialTooltop'
-import { FocusElement } from '../../../FocusElement'
 import {
     ItemContainer,
     MenuItem,
@@ -50,22 +48,6 @@ const MenuItems = (props) => {
                             const menuItemClassNames = classnames({
                                 'active': isItemActive(item.path),
                             })
-
-                            if (item.focus) {
-                                return (
-                                    <FocusElement key={item.path}>
-                                        <Link href={item.path}>
-                                            <MenuItem className={menuItemClassNames}>
-                                                <Icon className='icon' />
-                                                <Typography.Text className='label'>
-                                                    {intl.formatMessage({ id: item.locale })}
-                                                </Typography.Text>
-                                            </MenuItem>
-                                        </Link>
-                                    </FocusElement>
-                                )
-                            }
-
 
                             return (
                                 <Link href={item.path} key={item.path}>

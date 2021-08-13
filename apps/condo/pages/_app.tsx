@@ -4,7 +4,7 @@ import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
-import { ThunderboltFilled, HomeFilled, PieChartFilled } from '@ant-design/icons'
+import { ThunderboltFilled, HomeFilled } from '@ant-design/icons'
 
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
@@ -23,8 +23,8 @@ import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import { BarChartIcon } from '@condo/domains/common/components/icons/BarChart'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
-import { OnBoardingProvider } from '../domains/onboarding/components/OnBoardingContext'
 import { SubscriptionContextProvider } from '../domains/subscription/components/SubscriptionContext'
+import { withOnBoardingContext } from '../domains/onboarding/components/OnBoardingContext'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -38,7 +38,6 @@ function menuDataRender () {
             path: '/onboarding',
             icon: OnBoardingProgress,
             locale: 'menu.OnBoarding',
-            focus: true,
         },
         {
             path: '/',
@@ -72,6 +71,7 @@ const MyApp = ({ Component, pageProps }) => {
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
     const HeaderAction = Component.headerAction
+
     return (
         <SubscriptionContextProvider>
             <GlobalErrorBoundary>
@@ -85,9 +85,7 @@ const MyApp = ({ Component, pageProps }) => {
                     </Head>
                     <GlobalStyle/>
                     <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
-                        <OnBoardingProvider>
-                            <Component {...pageProps} />
-                        </OnBoardingProvider>
+                        <Component {...pageProps} />
                     </LayoutComponent>
                     <GoogleAnalytics/>
                     <BehaviorRecorder engine="plerdy"/>
@@ -113,6 +111,14 @@ async function messagesImporter (locale) {
  */
 const apolloCacheConfig = {}
 
+const apolloClientConfig = {
+    defaultOptions: {
+        watchQuery: {
+            fetchPolicy: 'no-cache',
+        },
+    },
+}
+
 export default (
     withApollo({ ssr: true, apolloCacheConfig })(
         withIntl({ ssr: true, messagesImporter })(
@@ -120,4 +126,10 @@ export default (
                 withOrganization({
                     ssr: true,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
-                })(MyApp)))))
+                })(
+                    withOnBoardingContext()(MyApp)
+                )
+            )
+        )
+    )
+)
