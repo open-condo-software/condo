@@ -1,7 +1,6 @@
 const { DateTimeUtc } = require('@keystonejs/fields')
 const { getType } = require('@keystonejs/utils')
 const { get, isPlainObject } = require('lodash')
-const { Parser } = require('graphql')
 const { HiddenRelationship } = require('./utils')
 const { composeHook, evaluateKeystoneAccessResult } = require('./utils')
 
