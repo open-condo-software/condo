@@ -11,6 +11,9 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('../../../schema/_common')
 const { rules } = require('../../../access')
 const access = require('@condo/domains/organization/access/Organization')
+const coreAccess = require('@core/keystone/access')
+const userAccess = require('@condo/domains/user/access/User')
+
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
@@ -52,16 +55,19 @@ const Organization = new GQLListSchema('Organization', {
                 'Examples of data keys: `inn`, `kpp`',
             type: Json,
             isRequired: true,
+            access: userAccess.canAccessToStaffUserField,
         },
         employees: {
             type: Relationship,
             ref: 'OrganizationEmployee.organization',
             many: true,
+            access: userAccess.canAccessToStaffUserField,
         },
         relatedOrganizations: {
             type: Relationship,
             ref: 'OrganizationLink.to',
             many: true,
+            access: userAccess.canAccessToStaffUserField,
         },
         statusTransitions: {
             schemaDoc: 'Graph of possible transitions for statuses. If there is no transition in this graph, ' +
@@ -76,7 +82,7 @@ const Organization = new GQLListSchema('Organization', {
             access: {
                 update: rules.canUpdateTicketStatusTransitions,
                 create: rules.canUpdateTicketStatusTransitions,
-                read: true,
+                read: coreAccess.userIsNotResidentUser,
             },
         },
         defaultEmployeeRoleStatusTransitions: {
@@ -92,7 +98,7 @@ const Organization = new GQLListSchema('Organization', {
             access: {
                 update: rules.canUpdateTicketStatusTransitions,
                 create: rules.canUpdateTicketStatusTransitions,
-                read: true,
+                read: coreAccess.userIsNotResidentUser,
             },
         },
     },

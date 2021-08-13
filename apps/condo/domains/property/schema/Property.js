@@ -8,6 +8,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/property/access/Property')
+const userAccess = require('@condo/domains/user/access/User')
 const get = require('lodash/get')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasDbFields, hasRequestFields } = require('@condo/domains/common/utils/validation.utils')
@@ -34,6 +35,7 @@ const Property = new GQLListSchema('Property', {
             schemaDoc: 'Client understandable Property name. A well-known property name for the client',
             type: Text,
             isRequired: false,
+            acess: userAccess.canAccessToStaffUserField,
         },
 
         address: {
@@ -84,6 +86,7 @@ const Property = new GQLListSchema('Property', {
                     }
                 },
             },
+            access: userAccess.canAccessToStaffUserField,
         },
         unitsCount: {
             schemaDoc: 'A number of parts in the property. The number of flats for property.type = house. The number of garden houses for property.type = village.',
@@ -127,6 +130,7 @@ const Property = new GQLListSchema('Property', {
                     return unitsCount
                 },
             },
+            access: userAccess.canAccessToStaffUserField,
         },
 
         ticketsClosed: {
@@ -145,6 +149,7 @@ const Property = new GQLListSchema('Property', {
                 }
                 return data.closed.count
             },
+            access: userAccess.canAccessToStaffUserField,
         },
 
         ticketsInWork: {
@@ -163,6 +168,7 @@ const Property = new GQLListSchema('Property', {
                 }
                 return data.inwork.count
             },
+            access: userAccess.canAccessToStaffUserField,
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],

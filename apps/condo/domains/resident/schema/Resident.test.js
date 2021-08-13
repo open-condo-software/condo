@@ -86,7 +86,7 @@ describe('Resident', () => {
             await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property)
             const [ticketFile] = await createTestTicketFile(residentClient, userClient.organization)
             expect(ticketFile.createdBy.id).toEqual(residentClient.user.id)
-            // expect(obj.organization.id).toEqual(userClient.organization.id)
+            expect(ticketFile.organization.id).toEqual(userClient.organization.id)
         })
 
         it('can create Ticket', async () => {
@@ -107,7 +107,7 @@ describe('Resident', () => {
             const details = faker.lorem.sentence()
             const [updatedTicket] = await updateTestTicket(residentClient, ticket.id, { details })
             expect(updatedTicket.details).toBe(details)
-            expect(updatedTicket.updateBy.id).toBe(residentClient.user.id)
+            expect(updatedTicket.updatedBy.id).toBe(residentClient.user.id)
         })
 
         it('can connect temporary TicketFile to Ticket', async () => {

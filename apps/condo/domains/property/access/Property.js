@@ -7,11 +7,27 @@ const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/ut
 const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils/serverSchema')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadProperties ({ authentication: { item: user } }) {
+
+async function canReadProperties ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
     const userId = user.id
+    if (user.type === RESIDENT) {
+        const residents = await ResidentServerUtils.getAll(context, { user: { id: userId }})
+        if (residents.length === 0) {
+            return false
+        }
+        const properties = residents.map(resident => get(resident, ['property', 'id']))
+        if (properties.length > 0) {
+            return {
+                id_in: properties,
+            }
+        }
+        return false
+    }
     return {
         organization: {
             OR: [

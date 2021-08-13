@@ -1,4 +1,5 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { get } = require('lodash')
 
 const userIsAuthenticated = ({ authentication: { item: user } }) => Boolean(user && user.id)
@@ -39,6 +40,12 @@ const canReadOnlyActive = ({ authentication: { item: user } }) => {
     return {
         isActive: true,
     }
+}
+
+const userIsNotResidentUser = ({ authentication: { item: user } }) => {
+    if (!user) return false
+    if (user.type === RESIDENT) return false
+    return true
 }
 
 const canReadOnlyIfInUsers = ({ authentication: { item: user } }) => {
@@ -85,4 +92,5 @@ module.exports = {
     canReadOnlyIfInUsers,
     readOnlyField,
     isSoftDelete,
+    userIsNotResidentUser,
 }

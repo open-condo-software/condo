@@ -16,8 +16,8 @@ async function canReadTicketFiles ({ authentication: { item: user }, originalInp
         return {}
     }
     if (user.type === RESIDENT) {
-        if (user.id === get(originalInput, ['createdBy', 'id'])) {
-            return true
+        return {
+            createdBy: { id: user.id },
         }
     }
     const userId = user.id
