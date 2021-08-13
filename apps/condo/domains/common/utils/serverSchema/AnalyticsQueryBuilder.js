@@ -39,7 +39,10 @@ class AnalyticsQueryBuilder {
         this.groups = groupBy.filter(type => !this.dayGroups.includes(type))
     }
 
-    getResult () {
+    getResult (mapLambda = null) {
+        if (mapLambda !== null) {
+            return this.result.map(mapLambda)
+        }
         return this.result
     }
 
