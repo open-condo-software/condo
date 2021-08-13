@@ -7,8 +7,9 @@ const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/ut
 const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils/serverSchema')
+const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { uniq } = require('lodash')
 
 
 async function canReadProperties ({ authentication: { item: user }, context }) {
@@ -16,14 +17,16 @@ async function canReadProperties ({ authentication: { item: user }, context }) {
     if (user.isAdmin) return {}
     const userId = user.id
     if (user.type === RESIDENT) {
-        const residents = await ResidentServerUtils.getAll(context, { user: { id: userId } })
+        const residents = await Resident.getAll(context, { user: { id: userId } })
         if (residents.length === 0) {
             return false
         }
-        const properties = residents.map(resident => get(resident, ['property', 'id']))
-        if (properties.length > 0) {
+        const propertyIds = residents.map(resident => get(resident, ['property', 'id']))
+        if (propertyIds.length > 0) {
             return {
-                id_in: properties,
+                // We can have multiple residents in different units of the same property for current user,
+                // and ids and be duplicated
+                id_in: uniq(propertyIds),
             }
         }
         return false
