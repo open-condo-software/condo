@@ -3,14 +3,15 @@
  */
 const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
-const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
+const { createTestOrganizationWithAccessToAnotherOrganization, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { makeClient, UUID_RE, DATETIME_RE, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { Property, createTestProperty, updateTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@condo/domains/ticket/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const faker = require('faker')
+const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 
 describe('Property', () => {
 
@@ -232,5 +233,25 @@ describe('Property', () => {
 
         const properties = await Property.getAll(user)
         expect(properties).toHaveLength(0)
+    })
+
+    describe('Resident access', () => {
+        it('can read only properties, it resides in', async () => {
+            const { organization, property } = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+            await createTestResident(adminClient, residentClient.user, organization, property)
+
+            const another = await makeClientWithProperty()
+            const anotherResidentClient = await makeClientWithResidentUser()
+            await createTestResident(adminClient, anotherResidentClient.user, another.organization, another.property)
+
+            const [anotherOrganization2] = await createTestOrganization(adminClient)
+            await createTestProperty(adminClient, anotherOrganization2, { map: buildingMapJson })
+
+            const objs = await Property.getAll(residentClient, {}, { sortBy: ['updatedAt_DESC'] })
+            expect(objs).toHaveLength(1)
+            expect(objs[0].id).toEqual(property.id)
+        })
     })
 })
