@@ -9,6 +9,7 @@ const faker = require('faker')
 const path = require('path')
 const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { getPreviousPeriods } = require('@condo/domains/billing/utils/period')
 
 const PROPERTY_QUANTITY = 10
 const ACCOUNTS_PER_PROPERTY_DISTRIBUTION = { min: 30, max: 70 }
@@ -19,24 +20,9 @@ const TO_PAY_DISTRIBUITION = { min: 1200, max: 8500 }
 const DV = 1
 const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }
 const BASE_JSON = { dv: DV, sender: SENDER }
-
-function getPeriods (amount = 3) {
-    if (amount < 1) throw new Error('Minimum periods amount are 1')
-    const currentDate = new Date(Date.now())
-    let month = currentDate.getMonth() + 1
-    let year = currentDate.getFullYear()
-    const result = []
-    for (let i = 0; i < amount; i++) {
-        if (month === 0) {
-            month = 12
-            year--
-        }
-        const paddedMonth = `${month}`.padStart(2, '0')
-        result.push(`${year}-${paddedMonth}-01`)
-        month--
-    }
-    return result
-}
+const CURRENT_DATE = new Date(Date.now())
+const CURRENT_MONTH = `${CURRENT_DATE.getMonth() + 1}`.padStart(2, '0')
+const CURRENT_PERIOD = `${CURRENT_DATE.getFullYear()}-${CURRENT_MONTH}-01`
 
 
 class ReceiptsGenerator {
@@ -216,7 +202,7 @@ const createReceipts = async ([billingContextId]) => {
         detailLevel: 1,
         propertyQuantity: PROPERTY_QUANTITY,
         accountsPerProperty: ACCOUNTS_PER_PROPERTY_DISTRIBUTION,
-        periods: getPeriods(PERIODS_AMOUNT),
+        periods: getPreviousPeriods(CURRENT_PERIOD, PERIODS_AMOUNT),
         toPay: TO_PAY_DISTRIBUITION,
     })
 

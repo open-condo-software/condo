@@ -20,27 +20,13 @@ import get from 'lodash/get'
 import qs from 'qs'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useIntl } from '@core/next/intl'
+const { getPeriodMessage, getPreviousPeriods } = require('../../utils/period')
 
 const PERIODS_AMOUNT = 3
 const generatePeriods = (currentPeriod: string, amount: number, locale: string) => {
-    const startDate = new Date(currentPeriod)
-    let month = startDate.getMonth() + 1
-    let year = startDate.getFullYear()
-    const result = []
-    for (let i = 0; i < amount; i++) {
-        if (month === 0) {
-            month = 12
-            year--
-        }
-        const paddedMonth = `${month}`.padStart(2, '0')
-        const period = `${year}-${paddedMonth}-01`
-        const date = new Date(period)
-        const fullMonth = date.toLocaleString(locale, { month: 'long' })
-        const periodDescription = `${fullMonth} ${year}`
-        result.push({ period: period, title: periodDescription })
-        month--
-    }
-    return result
+    return getPreviousPeriods(currentPeriod, PERIODS_AMOUNT).map((period) => {
+        return { period: period, title: getPeriodMessage(period, locale) }
+    })
 }
 
 // TODO (SavelevMatthew): Move that to new component later or even delete
