@@ -2,7 +2,7 @@ import { AuthRequired } from '@condo/domains/common/components/containers/AuthRe
 import { Col, Row, Skeleton, Space, Typography } from 'antd'
 import Head from 'next/head'
 import Router from 'next/router'
-import React, { useEffect, useMemo } from 'react'
+import React from 'react'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { HouseIcon } from '@condo/domains/common/components/icons/HouseIcon'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
@@ -10,7 +10,6 @@ import { OnBoardingStepItem, OnBoardingStepType } from '@condo/domains/onboardin
 import { CheckOutlined, WechatFilled, ProfileFilled, CreditCardFilled, BankOutlined } from '@ant-design/icons'
 import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
-import { useAuth } from '@core/next/auth'
 import { useOnBoardingContext } from '../domains/onboarding/components/OnBoardingContext'
 import { useCreateOrganizationModalForm } from '../domains/organization/hooks/useCreateOrganizationModalForm'
 import { useApplySubscriptionModal } from '../domains/subscription/hooks/useSubscriptionModal'
@@ -66,14 +65,21 @@ const getStepType = (
     }
 }
 
+const onBoardingIconsMap = {
+    organization: BankOutlined,
+    house: HouseIcon,
+    user: UserIcon,
+    chat: WechatFilled,
+    billing: ProfileFilled,
+    creditCard: CreditCardFilled,
+}
+
 const OnBoardingPage: IPageInterface = () => {
     const intl = useIntl()
     const Title = intl.formatMessage({ id: 'onboarding.title' })
     const SubTitle = intl.formatMessage({ id: 'onboarding.subtitle' })
-    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
-    const { onBoardingSteps, onBoarding, isLoading } = useOnBoardingContext()
-
-    const { user } = useAuth()
+    const { onBoarding, onBoardingSteps } = useOnBoardingContext()
+    // console.log(onBoarding, onBoardingSteps)
 
     const { setVisible: showApplySubscription, SubscriptionModal } = useApplySubscriptionModal()
     const { setVisible: showCreateOrganizationModal, ModalForm } = useCreateOrganizationModalForm({
@@ -82,52 +88,30 @@ const OnBoardingPage: IPageInterface = () => {
         },
     })
 
-    const onBoardingIconsMap = {
-        organization: BankOutlined,
-        house: HouseIcon,
-        user: UserIcon,
-        chat: WechatFilled,
-        billing: ProfileFilled,
-        creditCard: CreditCardFilled,
-    }
-
     const onBoardingActionMap = {
         'create.Organization': () => showCreateOrganizationModal(true),
         'create.Property': () => Router.push('property/create'),
         'create.OrganizationEmployee': () => Router.push('employee/create'),
     }
 
-    useEffect(() => {
-        const isOnBoardingCompleted = get(onBoarding, 'completed')
-
-        if (isOnBoardingCompleted) {
-            Router.push('/')
-        }
-    }, [onBoarding])
-
-    const steps = useMemo(() => {
-        if (onBoarding && Array.isArray(onBoardingSteps) && onBoardingSteps.length > 0) {
-            return onBoardingSteps
-                .sort((leftStep, rightStep) => leftStep.order > rightStep.order ? 1 : -1)
-                .map((step) => {
-                    const { title, description, icon } = step
-                    const stepKey = getStepKey(step)
-
-                    return (
-                        <OnBoardingStepItem
-                            action={step.completed ? null : onBoardingActionMap[stepKey]}
-                            key={title}
-                            title={title}
-                            description={description}
-                            icon={step.completed ? CheckOutlined : onBoardingIconsMap[icon]}
-                            type={getStepType(step, get(onBoarding, 'stepsTransitions'), onBoardingSteps)}
-                        />
-                    )
-                })
-        }
-
-        return []
-    }, [onBoardingSteps, onBoarding])
+    // const steps = [...onBoardingSteps]
+    //     .sort((leftStep, rightStep) => leftStep.order > rightStep.order ? 1 : -1)
+    //     .map((step) => {
+    //         const { title, description, icon } = step
+    //         const stepKey = getStepKey(step)
+    //
+    //         return (
+    //             <OnBoardingStepItem
+    //                 action={step.completed ? null : onBoardingActionMap[stepKey]}
+    //                 key={title}
+    //                 title={title}
+    //                 description={description}
+    //                 icon={step.completed ? CheckOutlined : onBoardingIconsMap[icon]}
+    //                 type={getStepType(step, get(onBoarding, 'stepsTransitions'), onBoardingSteps)}
+    //             />
+    //         )
+    //     })
+    const steps = []
 
     return (
         <>
@@ -145,7 +129,7 @@ const OnBoardingPage: IPageInterface = () => {
                                 </Space>
                             </Col>
                             <Col span={24}>
-                                {isLoading
+                                {true
                                     ? (
                                         <React.Fragment>
                                             <Skeleton active/>
@@ -156,6 +140,7 @@ const OnBoardingPage: IPageInterface = () => {
                                     )
                                     : (
                                         <Row gutter={[0, 0]}>
+                                            {true}
                                             {steps}
                                         </Row>
                                     )}

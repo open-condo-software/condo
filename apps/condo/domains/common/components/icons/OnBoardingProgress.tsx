@@ -1,6 +1,9 @@
 import styled from '@emotion/styled'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { colors } from '@condo/domains/common/constants/style'
+import { useApolloClient } from '@core/next/apollo'
+import { useOnBoardingContext } from '../../../onboarding/components/OnBoardingContext'
+import { OnBoardingStep as OnBoardingStepGql } from '../../../onboarding/gql'
 
 const Canvas = styled.canvas`
   width: 20px;
@@ -47,10 +50,20 @@ const Progress = styled.div`
     background-color: ${colors.sberGrey[1]};
 `
 
-export const OnBoardingProgress: React.FC = (props) => {
-    // TODO(Dimitreee): get progress from backend/clientSide context
+export const OnBoardingProgress: React.FC = () => {
+    const client = useApolloClient()
+    const [progress, setProgress] = useState(10)
+    const { onBoardingSteps, onBoarding } = useOnBoardingContext()
+    console.log(onBoardingSteps, onBoarding)
 
-    const progress = 40
+    client.watchQuery({ query: OnBoardingStepGql.GET_ALL_OBJS_QUERY }).refetch().then((result) => {
+        const totalSteps = result.data.objs.length
+        const completedSteps = result.data.objs.filter((obj) => obj.completed === true).length
+
+        setProgress((completedSteps / totalSteps) * 100 || 10)
+    })
+
+    // const { onBoardingSteps, onBoarding, isLoading } = useOnBoardingContext()
 
     return (
         <Progress>
