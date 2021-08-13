@@ -52,18 +52,18 @@ exports.down = async (knex) => {
 
     ALTER TABLE "OrganizationEmployee" RENAME COLUMN "id" TO "_old_id";
     ALTER TABLE "OrganizationEmployee" RENAME COLUMN "old_id" TO "id";
-    ALTER TABLE "OrganizationEmployee" RENAME COLUMN "_old_id" TO "old_id";
+    ALTER TABLE "OrganizationEmployee" DROP COLUMN "_old_id";
 
-    ALTER TABLE "OrganizationEmployee" DROP CONSTRAINT "OrganizationEmployee_pkey";
+    -- ALTER TABLE "OrganizationEmployee" DROP CONSTRAINT "OrganizationEmployee_pkey";
     ALTER TABLE "OrganizationEmployee" ADD PRIMARY KEY ("id");
 
     ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN "history_id" TO "_old_history_id";
     ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN "old_history_id" TO "history_id";
-    ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN "_old_history_id" TO "old_history_id";
+    ALTER TABLE "OrganizationEmployeeHistoryRecord" DROP COLUMN "_old_history_id";
 
     ALTER TABLE "OrganizationEmployee" RENAME COLUMN "newId" TO "_old_newId";
     ALTER TABLE "OrganizationEmployee" RENAME COLUMN "old_newId" TO "newId";
-    ALTER TABLE "OrganizationEmployee" RENAME COLUMN "_old_newId" TO "old_newId";
+    ALTER TABLE "OrganizationEmployee" DROP COLUMN "_old_newId";
 
     COMMIT;
     END;
