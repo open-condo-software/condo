@@ -666,7 +666,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 
 TicketAnalyticsPage.headerAction = <ReturnBackHeaderAction
     descriptor={{ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' }}
-    path={'/analytics/'} />
+    path={'/reports/'} />
 TicketAnalyticsPage.requiredAccess = OrganizationRequired
 TicketAnalyticsPage.whyDidYouRender = false
 
