@@ -1,10 +1,10 @@
 import styled from '@emotion/styled'
 import { Tooltip } from 'antd'
-import { gql } from 'graphql-tag'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { useApolloClient } from '@core/next/apollo'
-import { Organization as OrganizationGQL } from '@condo/domains/organization/gql'
+import { OnBoardingStep as OnBoardingStepGql } from '../../../onboarding/gql'
+import { useFocusContext } from './FocusContextProvider'
 
 const FocusWrapper = styled.div`
   position: relative;
@@ -25,7 +25,6 @@ const FocusWrapper = styled.div`
     clip-path: polygon(0% 100%, 3px 100%, 3px 3px, calc(100% - 3px) 3px, calc(100% - 3px) calc(100% - 3px), 3px calc(100% - 3px), 3px 100%, 100% 100%, 100% 0%, 0% 0%);
     animation: frame-enter 1s forwards ease-in-out reverse, gradient-animation 4s ease-in-out infinite;
 
-    /* motion */
     @keyframes gradient-animation {
       0% {
         background-position: 15% 0%;
@@ -59,11 +58,10 @@ const FocusWrapper = styled.div`
 `
 
 export const FocusElement: React.FC = ({ children }) => {
-    const router = useRouter()
-    const { query } = router
+    const { isFocusVisible } = useFocusContext()
 
     return (
-        query.showTooltip
+        isFocusVisible
             ? (
                 <FocusWrapper>
                     <Tooltip title={'Теперь вы можете перейти к следующему шагу'} visible placement={'right'}>
@@ -71,6 +69,6 @@ export const FocusElement: React.FC = ({ children }) => {
                     </Tooltip>
                 </FocusWrapper>
             )
-            : null
+            : <>{ children }</>
     )
 }

@@ -2,6 +2,7 @@ import styled from '@emotion/styled'
 import React from 'react'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Space, Typography } from 'antd'
+import { useSubscriptionContext } from './SubscriptionContext'
 
 const TrialText = styled(Typography.Text)`
   font-size: 12px;
@@ -63,10 +64,9 @@ const Progress: React.FC<IProgress> = (props) => {
 }
 
 export const TrialTooltip: React.FC = () => {
-    // TODO(Dimitreee): fetch from backend
-    const daysRemaining = 14
+    const { isSubscriptionActive, daysRemaining } = useSubscriptionContext()
 
-    return (
+    return isSubscriptionActive && (
         <FocusContainer margin={'0 0 0 -16px'} padding={'14px 13px 14px 16px'}>
             <Space direction={'vertical'} size={12}>
                 <Progress progressState={daysRemaining}/>

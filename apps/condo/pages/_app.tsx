@@ -25,7 +25,10 @@ import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoa
 import { OnBoardingProvider } from '../domains/onboarding/components/OnBoardingContext'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { FocusContextProvider } from '../domains/common/components/Focus/FocusContextProvider'
+import { OnBoardingProgressIconContainer } from '../domains/onboarding/components/OnBoardingProgressIconContainer'
 import { SubscriptionContextProvider } from '../domains/subscription/components/SubscriptionContext'
+import { OnBoardingProvider } from '../domains/onboarding/components/OnBoardingContext'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -39,7 +42,8 @@ function menuDataRender () {
             path: '/onboarding',
             icon: OnBoardingProgress,
             locale: 'menu.OnBoarding',
-            focus: true,
+            focusable: true,
+            container: OnBoardingProgressIconContainer,
         },
         {
             path: '/reports',
@@ -89,6 +93,7 @@ const MyApp = ({ Component, pageProps }) => {
     // TODO(Dimitreee): remove this mess later
     const HeaderAction = Component.headerAction
     const RequiredAccess = Component.requiredAccess || React.Fragment
+
     return (
         <SubscriptionContextProvider>
             <GlobalErrorBoundary>
@@ -101,13 +106,15 @@ const MyApp = ({ Component, pageProps }) => {
                         />
                     </Head>
                     <GlobalStyle/>
-                    <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
-                        <OnBoardingProvider>
-                            <RequiredAccess>
-                                <Component {...pageProps} />
-                            </RequiredAccess>
-                        </OnBoardingProvider>
-                    </LayoutComponent>
+                    <FocusContextProvider>
+                        <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
+                            <OnBoardingProvider>
+                                <RequiredAccess>
+                                    <Component {...pageProps} />
+                                </RequiredAccess>
+                            </OnBoardingProvider>
+                        </LayoutComponent>
+                    </FocusContextProvider>
                     <GoogleAnalytics/>
                     <BehaviorRecorder engine="plerdy"/>
                 </CacheProvider>
@@ -133,11 +140,23 @@ async function messagesImporter (locale) {
  */
 const apolloCacheConfig = {}
 
+const apolloClientConfig = {
+    defaultOptions: {
+        watchQuery: {
+            fetchPolicy: 'no-cache',
+        },
+    },
+}
+
 export default (
     withApollo({ ssr: true, apolloCacheConfig })(
-        withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale })(
+        withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale, apolloClientConfig })(
             withAuth({ ssr: true })(
                 withOrganization({
                     ssr: true,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
-                })(MyApp)))))
+                })(MyApp)
+            )
+        )
+    )
+)

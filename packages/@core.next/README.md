@@ -93,6 +93,7 @@ export default RecoveryPage
 ## override query ##
 
 If you need a customize GraphQL auth queries, you can do it:
+
 ```js
 let USER_QUERY = gql`
     query {
@@ -102,7 +103,8 @@ let USER_QUERY = gql`
     }
 `
 
-const MyApp = (...) => {...}
+const MyApp = (...) => {...
+}
 
-export default withApollo({ ssr: true })(withAuth({ ssr: false, USER_QUERY })(MyApp))
+export default withApollo({ssr: true})(withOnBoardingSteps({ssr: false, USER_QUERY})(MyApp))
 ```
