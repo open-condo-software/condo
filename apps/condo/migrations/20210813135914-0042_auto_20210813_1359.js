@@ -4,44 +4,34 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
-    CREATE EXTENSION if not exists "uuid-ossp";
 
-    --
-    -- Rename id -> old_id
-    --
-    ALTER TABLE "OrganizationEmployee" RENAME COLUMN "id" TO "old_id";
-    ALTER TABLE "OrganizationEmployee" ADD COLUMN "id" UUID NULL;
+        CREATE EXTENSION if not exists "uuid-ossp";
 
-    -- id -> id = uuid
-    UPDATE "OrganizationEmployee" SET "id" = uuid_generate_v4();
+        ALTER TABLE "OrganizationEmployee" RENAME COLUMN "id" TO "old_id";
+        ALTER TABLE "OrganizationEmployee" ADD COLUMN "id" UUID NULL;
 
-    -- Drop old PK and change it.
-    ALTER TABLE "OrganizationEmployee" DROP CONSTRAINT "OrganizationEmployee_pkey";
-    ALTER TABLE "OrganizationEmployee" ADD PRIMARY KEY ("id");
+        UPDATE "OrganizationEmployee" SET "id" = uuid_generate_v4();
 
-    -- Rename history_id to old_history_id
-    ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN "history_id" TO "old_history_id";
-    -- Create history id
-    ALTER TABLE "OrganizationEmployeeHistoryRecord" ADD COLUMN "history_id" UUID NULL;
+        ALTER TABLE "OrganizationEmployee" DROP CONSTRAINT "OrganizationEmployee_pkey";
+        ALTER TABLE "OrganizationEmployee" ADD PRIMARY KEY ("id");
 
-    -- Set OrganizationEmployeeHistoryRecord.history_id = OrganizationEmployee.id where OrganizationEmployee.old_id = OrganizationEmployeeHistoryRecord.old_history_id
-    UPDATE "OrganizationEmployeeHistoryRecord" hr
-    SET "history_id" = e."id"
-    FROM "OrganizationEmployee" as e
-    WHERE(
-      e."old_id" = hr."old_history_id"
-    );
+        ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN "history_id" TO "old_history_id";
+        ALTER TABLE "OrganizationEmployeeHistoryRecord" ADD COLUMN "history_id" UUID NULL;
 
-    ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "history_id" SET NOT NULL;
-    ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "old_history_id" DROP NOT NULL;
+        UPDATE "OrganizationEmployeeHistoryRecord" hr
+        SET "history_id" = e."id"
+        FROM "OrganizationEmployee" as e
+        WHERE(
+        e."old_id" = hr."old_history_id"
+        );
 
-    --
-    -- Rename newId to old_newId
-    --
-    ALTER TABLE "OrganizationEmployee" RENAME COLUMN "newId" TO "old_newId";
-    ALTER TABLE "OrganizationEmployee" ADD COLUMN "newId" UUID NULL;
+        ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "history_id" SET NOT NULL;
+        ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "old_history_id" DROP NOT NULL;
 
-    COMMIT;
+        ALTER TABLE "OrganizationEmployee" RENAME COLUMN "newId" TO "old_newId";
+        ALTER TABLE "OrganizationEmployee" ADD COLUMN "newId" UUID NULL;
+
+        COMMIT;
     END;
     `)
 }
@@ -49,23 +39,29 @@ exports.up = async (knex) => {
 exports.down = async (knex) => {
     await knex.raw(`
     BEGIN;
+        ALTER TABLE "OrganizationEmployee" RENAME COLUMN "id" TO "_old_id";
+        ALTER TABLE "OrganizationEmployee" RENAME COLUMN "old_id" TO "id";
 
-    ALTER TABLE "OrganizationEmployee" RENAME COLUMN "id" TO "_old_id";
-    ALTER TABLE "OrganizationEmployee" RENAME COLUMN "old_id" TO "id";
-    ALTER TABLE "OrganizationEmployee" DROP COLUMN "_old_id";
+        ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN "history_id" TO "_old_history_id";
+        ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN "old_history_id" TO "history_id";
+        ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "history_id" SET NOT NULL;
 
---     ALTER TABLE "OrganizationEmployee" DROP CONSTRAINT "OrganizationEmployee_pkey";
-    ALTER TABLE "OrganizationEmployee" ADD PRIMARY KEY ("id");
+        ALTER TABLE "OrganizationEmployee" RENAME COLUMN "newId" TO "_old_newId";
+        ALTER TABLE "OrganizationEmployee" RENAME COLUMN "old_newId" TO "newId";
+        ALTER TABLE "OrganizationEmployee" DROP COLUMN "_old_newId";
 
-    ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN "history_id" TO "_old_history_id";
-    ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN "old_history_id" TO "history_id";
-    ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "history_id" SET NOT NULL;
-    ALTER TABLE "OrganizationEmployeeHistoryRecord" DROP COLUMN "_old_history_id";
-
-    ALTER TABLE "OrganizationEmployee" RENAME COLUMN "newId" TO "_old_newId";
-    ALTER TABLE "OrganizationEmployee" RENAME COLUMN "old_newId" TO "newId";
-    ALTER TABLE "OrganizationEmployee" DROP COLUMN "_old_newId";
-
+        UPDATE "OrganizationEmployeeHistoryRecord" hr
+        SET "history_id" = e."id"
+        FROM "OrganizationEmployee" as e
+        WHERE(
+        e."_old_id" = hr."_old_history_id" AND
+        "history_id" IS NULL
+        );
+        ALTER TABLE "OrganizationEmployee" DROP CONSTRAINT "OrganizationEmployee_pkey";
+        ALTER TABLE "OrganizationEmployee" ADD PRIMARY KEY ("id");
+        ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "history_id" SET NOT NULL;
+        ALTER TABLE "OrganizationEmployee" DROP COLUMN "_old_id";
+        ALTER TABLE "OrganizationEmployeeHistoryRecord" DROP COLUMN "_old_history_id";
     COMMIT;
     END;
     `)
