@@ -60,7 +60,7 @@ describe('BillingMeterResource', () => {
         const client = await makeClient()
         const [obj] = await createTestBillingMeterResource(admin)
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await BillingMeterResource.getAll(client, { id : obj.id })
         })
     })
