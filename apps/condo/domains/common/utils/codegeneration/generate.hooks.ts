@@ -29,7 +29,7 @@ interface IHookResult<UI, UIForm, Q, TData = any, TVariables = OperationVariable
     useObject: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { obj: UI, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q>, fetchMore: FetchMore<Q> }
     useObjects: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q>, fetchMore: FetchMore<Q> }
     useCreate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
-    useUpdate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
+    useUpdate: (attrs: UIForm, onComplete?: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
     useDelete: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
     useSoftDelete: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
 }

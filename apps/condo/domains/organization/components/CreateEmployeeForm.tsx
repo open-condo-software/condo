@@ -89,7 +89,7 @@ export const CreateEmployeeForm: React.FC = () => {
     }
 
     const action = useInviteNewOrganizationEmployee({ organization: { id: organization.id } }, () => {
-        router.push('/employee/?showTooltip=true')
+        router.push('/employee/')
     })
 
     const initialValues = {

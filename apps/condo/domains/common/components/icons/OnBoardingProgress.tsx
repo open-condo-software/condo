@@ -1,6 +1,7 @@
+import { colors } from '@condo/domains/common/constants/style'
 import styled from '@emotion/styled'
 import React, { useEffect, useRef } from 'react'
-import { colors } from '@condo/domains/common/constants/style'
+import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoardingContext'
 
 const Canvas = styled.canvas`
   width: 20px;
@@ -47,14 +48,12 @@ const Progress = styled.div`
     background-color: ${colors.sberGrey[1]};
 `
 
-export const OnBoardingProgress: React.FC = (props) => {
-    // TODO(Dimitreee): get progress from backend/clientSide context
-
-    const progress = 40
+export const OnBoardingProgress: React.FC = () => {
+    const { progress } = useOnBoardingContext()
 
     return (
         <Progress>
-            <CanvasSegment progress={progress}/>
+            <CanvasSegment progress={progress || 20}/>
         </Progress>
     )
 }
