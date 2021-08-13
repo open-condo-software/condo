@@ -14,7 +14,7 @@ const { get } = require('lodash')
 
 
 const Division = new GQLListSchema('Division', {
-    schemaDoc: 'A team of people with dedicated responsible, serving set of properties by specific types of work',
+    schemaDoc: 'Grouping of properties and employees with one single responsible person',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,

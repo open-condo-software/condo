@@ -5197,7 +5197,7 @@ export type ContactsUpdateInput = {
   data?: Maybe<ContactUpdateInput>;
 };
 
-/**  A team of people with dedicated responsible, serving set of properties by specific types of work  */
+/**  Grouping of properties and employees with one single responsible person  */
 export type Division = {
   __typename?: 'Division';
   /**
