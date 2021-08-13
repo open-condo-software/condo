@@ -25,6 +25,7 @@ function convertToUIState (item: OnBoarding): IOnBoardingUIState {
 
 export interface IOnBoardingFormState {
     id?: undefined
+    completed?: boolean
     // TODO(codegen): write IOnBoardingUIFormState or extends it from
 }
 

@@ -1,154 +1,203 @@
+import { BankOutlined, CheckOutlined, CreditCardFilled, ProfileFilled, WechatFilled } from '@ant-design/icons'
 import get from 'lodash/get'
-import React, { createContext, useContext, useState } from 'react'
+import Router, { useRouter } from 'next/router'
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from '@core/next/auth'
 import { useApolloClient } from '@core/next/apollo'
-import { OnBoarding, OnBoardingStep } from '../utils/clientSchema'
-import { OnBoarding as IOnBoarding, OnBoardingStep as IOnBoardingStep } from '../../../schema'
+import { HouseIcon } from '@condo/domains/common/components/icons/HouseIcon'
+import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
+import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
+import { OnBoarding, OnBoardingStep } from '@condo/domains/onboarding/utils/clientSchema'
 import {
-    Organization as OrganizationGql,
-    OrganizationEmployee as OrganizationEmployeeGql,
-} from '@condo/domains/organization/gql'
+    OnBoarding as IOnBoarding,
+    OnBoardingStep as OnBoardingStepInterface,
+    OnBoardingStep as IOnBoardingStep,
+} from '../../../schema'
+import { OrganizationEmployee as OrganizationEmployeeGql } from '@condo/domains/organization/gql'
 import { Property as PropertyGql } from '@condo/domains/property/gql'
+import { useFocusContext } from '../../common/components/Focus/FocusContextProvider'
+import { useOnBoardingCompleteModal } from '../hooks/useOnBoardingCompleeteModal'
+import { OnBoardingStepType } from './OnBoardingStepItem'
+
+interface IDecoratedOnBoardingStepType extends Omit<IOnBoardingStep, 'action'> {
+    stepAction: () => void,
+    iconView: React.FC,
+    type: OnBoardingStepType,
+}
 
 interface OnBoardingContext {
-    stepCompleted: boolean
-    isLoading: boolean
+    progress?: number
+    isLoading?: boolean
     onBoarding?: IOnBoarding
-    onBoardingSteps?: Array<IOnBoardingStep>
+    onBoardingSteps?: Array<IDecoratedOnBoardingStepType>
 }
-//
-// const OnBoardingContext = createContext<OnBoardingContext>({
-//
-// })
-//
-// export const useOnBoardingContext = () => useContext(OnBoardingContext)
-//
-// export const OnBoardingProvider: React.FC = (props) => {
-//     const { user } = useAuth()
-//     const client = useApolloClient()
-//
-//     const { loading: onBoardingLoading, obj: onBoarding } = OnBoarding
-//         .useObject({ where: { user: { id: get(user, 'id') } } })
-//
-//     const { loading: stepsLoading, objs: onBoardingSteps, refetch } = OnBoardingStep
-//         .useObjects({ where: { onBoarding: { id: get(onBoarding, 'id') } } })
-//
-//     const updateAction = OnBoardingStep.useUpdate({}, () => refetch())
-//
-//     const onBoardingQueriesMap = {
-//         'create.Organization': OrganizationGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
-//         'create.Property': PropertyGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
-//         'create.OrganizationEmployee': OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
-//     }
-//
-//     onBoardingSteps.forEach(async (step) => {
-//         const { action, entity, completed } = step
-//         const key = `${action}.${entity}`
-//
-//         const query = onBoardingQueriesMap[key]
-//
-//         if (!completed && query) {
-//             client.watchQuery({ query }).result().then((res) => {
-//                 console.log(res)
-//                 if (res.data.objs.length > 0) {
-//                     updateAction({ completed: true }, step).then(() => {
-//                         refetch()
-//                     })
-//                 }
-//             })
-//         }
-//     })
-//
-//     const [stepCompleted, setStepCompleted] = useState()
-//
-//     return (
-//         <OnBoardingContext.Provider value={{
-//             stepCompleted,
-//             isLoading: onBoardingLoading || stepsLoading,
-//             onBoarding,
-//             onBoardingSteps,
-//         }}>
-//             {props.children}
-//         </OnBoardingContext.Provider>
-//     )
-// }
 
-function craeteOnboardingContext (name, defaultValue = {}) {
-    const DEBUG_RERENDERS = true
-    const DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER = true
+const getStepKey = (step: OnBoardingStepInterface) => `${step.action}.${step.entity}`
 
-    const OnBoardingContext = createContext(defaultValue)
+const getParentStep = (stepTransitions: Record<string, Array<string>>, stepKey: string, steps: Array<OnBoardingStepInterface>) => {
+    let parentKey: string | undefined
 
-    if (process.env.NODE_ENV !== 'production') {
-        OnBoardingContext.displayName = `MyContext<${name}>`
+    Object.keys(stepTransitions).map((key) => {
+        if (!parentKey && stepTransitions[key].includes(stepKey)) {
+            parentKey = key
+        }
+    })
+
+    if (!parentKey) {
+        return null
     }
 
-    const withOnBoardingContext = () => PageComponent => {
-        const WithOnBoardingContext = ({ ...pageProps }) => {
-            if (DEBUG_RERENDERS) console.log(`WithMyContext<${name}>()`, pageProps)
-            return (
-                <OnBoardingContextProvider initialValue={defaultValue}>
-                    <PageComponent {...pageProps} />
-                </OnBoardingContextProvider>
-            )
+    const [targetAction, targetEntity] = parentKey.split('.')
+
+    return steps.find((step) => (
+        step.action === targetAction && step.entity === targetEntity
+    ))
+}
+
+const getStepType = (
+    step: OnBoardingStepInterface,
+    stepsTransitions: Record<string, Array<string>>,
+    steps: Array<OnBoardingStepInterface>,
+) => {
+    const stepKey = getStepKey(step)
+    const stepTransitions = get(stepsTransitions, stepKey)
+    const parentStep = getParentStep(stepsTransitions, stepKey, steps)
+
+    const parentRequired = get(parentStep, 'required')
+    const parentCompleted = get(parentStep, 'completed')
+
+    if (Array.isArray(stepTransitions)) {
+        if (parentRequired && !parentCompleted) {
+            return OnBoardingStepType.DISABLED
         }
 
-        if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) WithOnBoardingContext.whyDidYouRender = true
-
-        // Set the correct displayName in development
-        if (process.env.NODE_ENV !== 'production') {
-            const displayName = PageComponent.displayName || PageComponent.name || 'Component'
-            WithOnBoardingContext.displayName = `withMyContext<${name}>(${displayName})`
+        if (step.completed) {
+            return OnBoardingStepType.COMPLETED
         }
 
-        return WithOnBoardingContext
+        return OnBoardingStepType.DEFAULT
+    } else {
+        return OnBoardingStepType.DISABLED
     }
+}
 
-    const OnBoardingContextProvider = ({ children, initialValue }) => {
-        const { user } = useAuth()
+const onBoardingIconsMap = {
+    organization: BankOutlined,
+    house: HouseIcon,
+    user: UserIcon,
+    chat: WechatFilled,
+    billing: ProfileFilled,
+    creditCard: CreditCardFilled,
+}
 
-        const onBoarding = OnBoarding
-            .useObject({ where: { user: { id: get(user, 'id') } } })
+const onBoardingQueriesMap = {
+    'create.Organization': OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
+    'create.Property': PropertyGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
+    'create.OrganizationEmployee': OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
+}
 
-        const onBoardingSteps = OnBoardingStep
-            .useObjects({ where: { onBoarding: { id: get(onBoarding, 'id') } } })
+const onBoardingStepResolvers = {
+    'create.Organization': (data) => data.objs.length > 0,
+    'create.Property': (data) => data.objs.length > 0,
+    'create.OrganizationEmployee': (data) => data.objs.length > 1,
+}
 
-        const value = {
-            ...initialValue,
-            onBoarding,
-            onBoardingSteps,
-        }
+const OnBoardingContext = createContext<OnBoardingContext>({})
 
-        if (DEBUG_RERENDERS) console.log(`ContextProvider<${name}>()`, value)
+export const useOnBoardingContext = () => useContext(OnBoardingContext)
 
-        return (
-            <OnBoardingContext.Provider value={value}>
-                {children}
-            </OnBoardingContext.Provider>
+export const OnBoardingProvider: React.FC = (props) => {
+    const { user } = useAuth()
+    const router = useRouter()
+    const client = useApolloClient()
+    const { setIsVisible: showCreateOrganizationModal, ModalForm } = useCreateOrganizationModalForm({})
+    const { setIsVisible: showOnBoardingCompleteModal, OnBoardingCompleteModal, isVisible: isOnBoardingCompleteVisible } = useOnBoardingCompleteModal()
+    const { showFocusTooltip } = useFocusContext()
+
+    const { obj: onBoarding, refetch: refetchOnBoarding } = OnBoarding
+        .useObject({ where: { user: { id: get(user, 'id') } } })
+
+    const { loading: stepsLoading, objs: onBoardingSteps = [], refetch } = OnBoardingStep
+        .useObjects(
+            { where: { onBoarding: { id: get(onBoarding, 'id') } } },
+            { fetchPolicy: 'network-only' }
         )
+    const updateStep = OnBoardingStep.useUpdate({})
+    const updateOnBoarding = OnBoarding.useUpdate({}, () => refetchOnBoarding())
+
+    const onBoardingActionMap = {
+        'create.Organization': () => showCreateOrganizationModal(true),
+        'create.Property': () => Router.push('property/create'),
+        'create.OrganizationEmployee': () => Router.push('employee/create'),
     }
 
-    if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) OnBoardingContextProvider.whyDidYouRender = true
+    const decoratedSteps = useMemo(() => {
+        return onBoardingSteps.map((step) => {
+            const stepKey = getStepKey(step)
 
-    if (process.env.NODE_ENV !== 'production') {
-        OnBoardingContextProvider.displayName = `MyContextProvider<${name}>`
-    }
+            return {
+                ...step,
+                stepAction: step.completed ? null : onBoardingActionMap[stepKey],
+                iconView: step.completed ? CheckOutlined : onBoardingIconsMap[step.icon],
+                type: getStepType(step, get(onBoarding, 'stepsTransitions'), onBoardingSteps),
+            }
+        })
+    }, [onBoardingSteps])
+    // TODO(Dimitreee): think about better sollution for progress state sync at hooks
+    const progressRef = useRef(0)
 
-    const useOnBoardingContext = () => useContext(OnBoardingContext)
+    const progress = useMemo(() => {
+        const totalSteps = decoratedSteps.filter((obj) => obj.type !== OnBoardingStepType.DISABLED).length
+        const completedSteps = decoratedSteps.filter((obj) => obj.type === OnBoardingStepType.COMPLETED).length
 
-    return {
-        useOnBoardingContext,
-        withOnBoardingContext,
-    }
+        progressRef.current = (completedSteps / totalSteps) * 100
+
+        return progressRef.current
+    }, [decoratedSteps])
+
+    useEffect(() => {
+        decoratedSteps.forEach(async (step) => {
+            const { completed } = step
+            const stepKey = getStepKey(step)
+
+            const query = onBoardingQueriesMap[stepKey]
+
+            if (!completed && query) {
+                client.watchQuery({ query }).result().then((res) => {
+                    const resolver = onBoardingStepResolvers[stepKey]
+
+                    if (resolver(res.data)) {
+                        updateStep({ completed: true }, step).then(() => {
+                            refetch().then(() => {
+                                if (router.pathname !== '/onboarding' && progressRef.current < 100) {
+                                    showFocusTooltip()
+                                }
+                            })
+                        })
+                    }
+                })
+            }
+        })
+    }, [decoratedSteps, progress, onBoarding])
+
+    useEffect(() => {
+        if (progress === 100 && !isOnBoardingCompleteVisible && !get(onBoarding, 'completed', false)) {
+            updateOnBoarding({ completed: true }, onBoarding).then(() => {
+                showOnBoardingCompleteModal(true)
+            })
+        }
+    }, [progress, router, onBoarding])
+
+    return (
+        <OnBoardingContext.Provider value={{
+            progress,
+            onBoarding,
+            isLoading: stepsLoading,
+            onBoardingSteps: decoratedSteps,
+        }}>
+            {props.children}
+            <ModalForm/>
+            <OnBoardingCompleteModal/>
+        </OnBoardingContext.Provider>
+    )
 }
-
-export const {
-    useOnBoardingContext,
-    withOnBoardingContext,
-} = craeteOnboardingContext(
-    'onBoardingContext',
-    {
-        stepCompleted: false,
-        isLoading: false,
-    }
-)
