@@ -35,7 +35,7 @@ const Property = new GQLListSchema('Property', {
             schemaDoc: 'Client understandable Property name. A well-known property name for the client',
             type: Text,
             isRequired: false,
-            acess: userAccess.canAccessToStaffUserField,
+            access: userAccess.canAccessToStaffUserField,
         },
 
         address: {
