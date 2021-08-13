@@ -16,7 +16,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { Resident, createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
-const { createTestTicketFile, updateTestTicketFile, createTestTicket, updateTestTicket} = require('@condo/domains/ticket/utils/testSchema')
+const { createTestTicketFile, updateTestTicketFile, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 

@@ -16,7 +16,7 @@ async function canReadProperties ({ authentication: { item: user }, context }) {
     if (user.isAdmin) return {}
     const userId = user.id
     if (user.type === RESIDENT) {
-        const residents = await ResidentServerUtils.getAll(context, { user: { id: userId }})
+        const residents = await ResidentServerUtils.getAll(context, { user: { id: userId } })
         if (residents.length === 0) {
             return false
         }
