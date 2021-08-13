@@ -33,4 +33,13 @@ module.exports = withTM(withLess(withCSS({
         javascriptEnabled: true,
         modifyVars: antGlobalVariables,
     },
+    async redirects () {
+        return [
+            {
+                source: '/analytics/:path*',
+                destination: '/reports/:path*',
+                permanent: false,
+            },
+        ]
+    },
 })))
