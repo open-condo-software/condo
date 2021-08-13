@@ -5,7 +5,8 @@ export const initFeatures = (): Array<string> => {
     // TODO(Dimitreee): add prefetch from server by userId
     // TODO(Dimitreee): add url search string parse
     if (typeof window !== 'undefined') {
-        const featuresFromStorage = localStorage.getItem('flags')
+        // features should be added at local storage as 'featureName1,featureName2'
+        const featuresFromStorage = localStorage.getItem('features')
 
         if (featuresFromStorage) {
             return featuresFromStorage.split(',')
