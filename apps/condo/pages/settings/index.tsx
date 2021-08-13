@@ -6,7 +6,7 @@ import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/comp
 import { useIntl } from '@core/next/intl'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { BillingChooser } from '../../domains/billing/components/Settings/BillingChooser'
-
+import { Feature } from '@condo/domains/common/components/Feature'
 
 const SettingsPage = () => {
     const intl = useIntl()
@@ -15,7 +15,7 @@ const SettingsPage = () => {
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const RolesAndAccessesTitle = intl.formatMessage({ id: 'RolesAndAccess' })
     return (
-        <>
+        <Feature name={'settings'} fallbackUrl={'/'}>
             <Head>
                 <title>
                     {PageTitle}
@@ -47,7 +47,7 @@ const SettingsPage = () => {
                     </PageContent>
                 </OrganizationRequired>
             </PageWrapper>
-        </>
+        </Feature>
     )
 }
 
