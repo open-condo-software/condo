@@ -12,6 +12,11 @@ const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegenera
 const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const {
+    createTestOrganization,
+    createTestOrganizationEmployeeRole, createTestOrganizationEmployee
+} = require('@condo/domains/organization/utils/testSchema')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateGQLTestUtils(PropertyGQL)
@@ -62,6 +67,20 @@ async function makeClientWithProperty (includeFlat = false) {
     return client
 }
 
+async function makeEmployeeUserClientWithAbilities (abilities = {}) {
+    const adminClient = await makeLoggedInAdminClient()
+    const userClient = await makeClientWithProperty()
+    const [organization] = await createTestOrganization(adminClient)
+    const [property] = await createTestProperty(adminClient, organization, { map: buildingMapJson })
+    const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, abilities)
+    const [employee] = await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+    userClient.organization = organization
+    userClient.property = property
+    userClient.role = role
+    userClient.employee = employee
+    return userClient
+}
+
 async function makeClientWithResidentUserAndProperty () {
     const userClient = await makeClientWithProperty()
     await addResidentAccess(userClient.user)
@@ -86,6 +105,7 @@ module.exports = {
     createTestProperty,
     updateTestProperty,
     makeClientWithProperty,
+    makeEmployeeUserClientWithAbilities,
     checkPropertyWithAddressExistByTestClient,
     makeClientWithResidentUserAndProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */

@@ -5218,6 +5218,9 @@ export type Division = {
   organization?: Maybe<Organization>;
   /**  Person, responsible for this division  */
   responsible?: Maybe<OrganizationEmployee>;
+  /**  Properties in service by this division  */
+  divisionProperties: Array<DivisionProperty>;
+  _divisionPropertiesMeta?: Maybe<_QueryMeta>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -5228,12 +5231,35 @@ export type Division = {
   newId?: Maybe<Scalars['String']>;
 };
 
+
+/**  Grouping of properties and employees with one single responsible person  */
+export type DivisionDivisionPropertiesArgs = {
+  where?: Maybe<DivisionPropertyWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDivisionPropertiesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+/**  Grouping of properties and employees with one single responsible person  */
+export type Division_DivisionPropertiesMetaArgs = {
+  where?: Maybe<DivisionPropertyWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDivisionPropertiesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
 export type DivisionCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   responsible?: Maybe<OrganizationEmployeeRelateToOneInput>;
+  divisionProperties?: Maybe<DivisionPropertyRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5434,12 +5460,332 @@ export type DivisionHistoryRecordsUpdateInput = {
   data?: Maybe<DivisionHistoryRecordUpdateInput>;
 };
 
+export type DivisionPropertiesCreateInput = {
+  data?: Maybe<DivisionPropertyCreateInput>;
+};
+
+export type DivisionPropertiesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<DivisionPropertyUpdateInput>;
+};
+
+/**  Join schema between division and property. Implements not only join feature, but also validation logic.  */
+export type DivisionProperty = {
+  __typename?: 'DivisionProperty';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the DivisionProperty List config, or
+   *  2. As an alias to the field set on 'labelField' in the DivisionProperty List config, or
+   *  3. As an alias to a 'name' field on the DivisionProperty List (if one exists), or
+   *  4. As an alias to the 'id' field on the DivisionProperty List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<Scalars['JSON']>;
+  /**  Division, that serves this property  */
+  division?: Maybe<Division>;
+  /**  Property, that is being served by this division  */
+  property?: Maybe<Property>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<User>;
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type DivisionPropertyCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  division?: Maybe<DivisionRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+/**  A keystone list  */
+export type DivisionPropertyHistoryRecord = {
+  __typename?: 'DivisionPropertyHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the DivisionPropertyHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the DivisionPropertyHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the DivisionPropertyHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the DivisionPropertyHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  division?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<DivisionPropertyHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type DivisionPropertyHistoryRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  division?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<DivisionPropertyHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum DivisionPropertyHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type DivisionPropertyHistoryRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  division?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<DivisionPropertyHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type DivisionPropertyHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<DivisionPropertyHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<DivisionPropertyHistoryRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  division?: Maybe<Scalars['String']>;
+  division_not?: Maybe<Scalars['String']>;
+  division_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  division_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property?: Maybe<Scalars['String']>;
+  property_not?: Maybe<Scalars['String']>;
+  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<DivisionPropertyHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<DivisionPropertyHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<DivisionPropertyHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<DivisionPropertyHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type DivisionPropertyHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type DivisionPropertyHistoryRecordsCreateInput = {
+  data?: Maybe<DivisionPropertyHistoryRecordCreateInput>;
+};
+
+export type DivisionPropertyHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<DivisionPropertyHistoryRecordUpdateInput>;
+};
+
+export type DivisionPropertyRelateToManyInput = {
+  create?: Maybe<Array<Maybe<DivisionPropertyCreateInput>>>;
+  connect?: Maybe<Array<Maybe<DivisionPropertyWhereUniqueInput>>>;
+  disconnect?: Maybe<Array<Maybe<DivisionPropertyWhereUniqueInput>>>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+export type DivisionPropertyUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  division?: Maybe<DivisionRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type DivisionPropertyWhereInput = {
+  AND?: Maybe<Array<Maybe<DivisionPropertyWhereInput>>>;
+  OR?: Maybe<Array<Maybe<DivisionPropertyWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  division?: Maybe<DivisionWhereInput>;
+  division_is_null?: Maybe<Scalars['Boolean']>;
+  property?: Maybe<PropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type DivisionPropertyWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type DivisionRelateToOneInput = {
+  create?: Maybe<DivisionCreateInput>;
+  connect?: Maybe<DivisionWhereUniqueInput>;
+  disconnect?: Maybe<DivisionWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
 export type DivisionUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   responsible?: Maybe<OrganizationEmployeeRelateToOneInput>;
+  divisionProperties?: Maybe<DivisionPropertyRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5486,6 +5832,12 @@ export type DivisionWhereInput = {
   organization_is_null?: Maybe<Scalars['Boolean']>;
   responsible?: Maybe<OrganizationEmployeeWhereInput>;
   responsible_is_null?: Maybe<Scalars['Boolean']>;
+  /**  condition must be true for all nodes  */
+  divisionProperties_every?: Maybe<DivisionPropertyWhereInput>;
+  /**  condition must be true for at least 1 node  */
+  divisionProperties_some?: Maybe<DivisionPropertyWhereInput>;
+  /**  condition must be false for all nodes  */
+  divisionProperties_none?: Maybe<DivisionPropertyWhereInput>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -7324,6 +7676,30 @@ export type Mutation = {
   deleteDivision?: Maybe<Division>;
   /**  Delete multiple Division items by ID.  */
   deleteDivisions?: Maybe<Array<Maybe<Division>>>;
+  /**  Create a single DivisionPropertyHistoryRecord item.  */
+  createDivisionPropertyHistoryRecord?: Maybe<DivisionPropertyHistoryRecord>;
+  /**  Create multiple DivisionPropertyHistoryRecord items.  */
+  createDivisionPropertyHistoryRecords?: Maybe<Array<Maybe<DivisionPropertyHistoryRecord>>>;
+  /**  Update a single DivisionPropertyHistoryRecord item by ID.  */
+  updateDivisionPropertyHistoryRecord?: Maybe<DivisionPropertyHistoryRecord>;
+  /**  Update multiple DivisionPropertyHistoryRecord items by ID.  */
+  updateDivisionPropertyHistoryRecords?: Maybe<Array<Maybe<DivisionPropertyHistoryRecord>>>;
+  /**  Delete a single DivisionPropertyHistoryRecord item by ID.  */
+  deleteDivisionPropertyHistoryRecord?: Maybe<DivisionPropertyHistoryRecord>;
+  /**  Delete multiple DivisionPropertyHistoryRecord items by ID.  */
+  deleteDivisionPropertyHistoryRecords?: Maybe<Array<Maybe<DivisionPropertyHistoryRecord>>>;
+  /**  Create a single DivisionProperty item.  */
+  createDivisionProperty?: Maybe<DivisionProperty>;
+  /**  Create multiple DivisionProperty items.  */
+  createDivisionProperties?: Maybe<Array<Maybe<DivisionProperty>>>;
+  /**  Update a single DivisionProperty item by ID.  */
+  updateDivisionProperty?: Maybe<DivisionProperty>;
+  /**  Update multiple DivisionProperty items by ID.  */
+  updateDivisionProperties?: Maybe<Array<Maybe<DivisionProperty>>>;
+  /**  Delete a single DivisionProperty item by ID.  */
+  deleteDivisionProperty?: Maybe<DivisionProperty>;
+  /**  Delete multiple DivisionProperty items by ID.  */
+  deleteDivisionProperties?: Maybe<Array<Maybe<DivisionProperty>>>;
   registerNewUser?: Maybe<User>;
   authenticateUserWithPhoneAndPassword?: Maybe<AuthenticateUserWithPhoneAndPasswordOutput>;
   startPasswordRecovery?: Maybe<StartPasswordRecoveryOutput>;
@@ -9331,6 +9707,68 @@ export type MutationDeleteDivisionArgs = {
 
 
 export type MutationDeleteDivisionsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateDivisionPropertyHistoryRecordArgs = {
+  data?: Maybe<DivisionPropertyHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateDivisionPropertyHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<DivisionPropertyHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateDivisionPropertyHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<DivisionPropertyHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateDivisionPropertyHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<DivisionPropertyHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteDivisionPropertyHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteDivisionPropertyHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateDivisionPropertyArgs = {
+  data?: Maybe<DivisionPropertyCreateInput>;
+};
+
+
+export type MutationCreateDivisionPropertiesArgs = {
+  data?: Maybe<Array<Maybe<DivisionPropertiesCreateInput>>>;
+};
+
+
+export type MutationUpdateDivisionPropertyArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<DivisionPropertyUpdateInput>;
+};
+
+
+export type MutationUpdateDivisionPropertiesArgs = {
+  data?: Maybe<Array<Maybe<DivisionPropertiesUpdateInput>>>;
+};
+
+
+export type MutationDeleteDivisionPropertyArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteDivisionPropertiesArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -12276,6 +12714,22 @@ export type Query = {
   _allDivisionsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the Division list.  */
   _DivisionsMeta?: Maybe<_ListMeta>;
+  /**  Search for all DivisionPropertyHistoryRecord items which match the where clause.  */
+  allDivisionPropertyHistoryRecords?: Maybe<Array<Maybe<DivisionPropertyHistoryRecord>>>;
+  /**  Search for the DivisionPropertyHistoryRecord item with the matching ID.  */
+  DivisionPropertyHistoryRecord?: Maybe<DivisionPropertyHistoryRecord>;
+  /**  Perform a meta-query on all DivisionPropertyHistoryRecord items which match the where clause.  */
+  _allDivisionPropertyHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the DivisionPropertyHistoryRecord list.  */
+  _DivisionPropertyHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all DivisionProperty items which match the where clause.  */
+  allDivisionProperties?: Maybe<Array<Maybe<DivisionProperty>>>;
+  /**  Search for the DivisionProperty item with the matching ID.  */
+  DivisionProperty?: Maybe<DivisionProperty>;
+  /**  Perform a meta-query on all DivisionProperty items which match the where clause.  */
+  _allDivisionPropertiesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the DivisionProperty list.  */
+  _DivisionPropertiesMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
@@ -13891,6 +14345,56 @@ export type Query_AllDivisionsMetaArgs = {
 };
 
 
+export type QueryAllDivisionPropertyHistoryRecordsArgs = {
+  where?: Maybe<DivisionPropertyHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDivisionPropertyHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryDivisionPropertyHistoryRecordArgs = {
+  where: DivisionPropertyHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllDivisionPropertyHistoryRecordsMetaArgs = {
+  where?: Maybe<DivisionPropertyHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDivisionPropertyHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllDivisionPropertiesArgs = {
+  where?: Maybe<DivisionPropertyWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDivisionPropertiesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryDivisionPropertyArgs = {
+  where: DivisionPropertyWhereUniqueInput;
+};
+
+
+export type Query_AllDivisionPropertiesMetaArgs = {
+  where?: Maybe<DivisionPropertyWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDivisionPropertiesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type Query_KsListsMetaArgs = {
   where?: Maybe<_KsListsMetaInput>;
 };
@@ -15314,6 +15818,48 @@ export enum SortDivisionHistoryRecordsBy {
   HistoryActionDesc = 'history_action_DESC'
 }
 
+export enum SortDivisionPropertiesBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  DivisionAsc = 'division_ASC',
+  DivisionDesc = 'division_DESC',
+  PropertyAsc = 'property_ASC',
+  PropertyDesc = 'property_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
+}
+
+export enum SortDivisionPropertyHistoryRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
 export enum SortDivisionsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
@@ -15323,6 +15869,8 @@ export enum SortDivisionsBy {
   OrganizationDesc = 'organization_DESC',
   ResponsibleAsc = 'responsible_ASC',
   ResponsibleDesc = 'responsible_DESC',
+  DivisionPropertiesAsc = 'divisionProperties_ASC',
+  DivisionPropertiesDesc = 'divisionProperties_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

@@ -55,6 +55,13 @@ const Division = new GQLListSchema('Division', {
             },
         },
 
+        divisionProperties: {
+            schemaDoc: 'Properties in service by this division',
+            type: Relationship,
+            ref: 'DivisionProperty',
+            many: true,
+        },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

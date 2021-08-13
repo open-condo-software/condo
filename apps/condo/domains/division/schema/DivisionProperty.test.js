@@ -4,129 +4,455 @@
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { DivisionProperty, createTestDivisionProperty, updateTestDivisionProperty } = require('@condo/domains/division/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const {
+    DivisionProperty,
+    createTestDivisionProperty,
+    updateTestDivisionProperty,
+    createTestDivision,
+} = require('@condo/domains/division/utils/testSchema')
+const { catchErrorFrom } = require('../../common/utils/testSchema')
+const { createTestProperty, makeEmployeeUserClientWithAbilities } = require('@condo/domains/property/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { buildingMapJson } = require('@condo/domains/property/constants/property')
+const { expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('DivisionProperty', () => {
-    test('user: create DivisionProperty', async () => {
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
+    describe('Create', () => {
+        it('can be created by admin', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
 
-        const [obj, attrs] = await createTestDivisionProperty(client)  // TODO(codegen): write 'user: create DivisionProperty' test
-        expect(obj.id).toMatch(UUID_RE)
-        expect(obj.dv).toEqual(1)
-        expect(obj.sender).toEqual(attrs.sender)
-        expect(obj.v).toEqual(1)
-        expect(obj.newId).toEqual(null)
-        expect(obj.deletedAt).toEqual(null)
-        expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(obj.createdAt).toMatch(DATETIME_RE)
-        expect(obj.updatedAt).toMatch(DATETIME_RE)
-    })
+            const [obj, attrs] = await createTestDivisionProperty(adminClient, division, userClient.property)
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.dv).toEqual(1)
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.v).toEqual(1)
+            expect(obj.newId).toEqual(null)
+            expect(obj.deletedAt).toEqual(null)
+            expect(obj.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(obj.createdAt).toMatch(DATETIME_RE)
+            expect(obj.updatedAt).toMatch(DATETIME_RE)
+            expect(obj.property.id).toEqual(userClient.property.id)
+            expect(obj.division.id).toEqual(division.id)
+        })
 
-    test('anonymous: create DivisionProperty', async () => {
-        const client = await makeClient()
-        await expectToThrowAuthenticationErrorToObjects(async () => {
-            await createTestDivisionProperty(client)  // TODO(codegen): check the 'anonymous: create DivisionProperty' test!
+        it('cannot be connected to property, that does not belongs to organization, being served by division', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+
+            const [anotherOrganization] = await createTestOrganization(adminClient)
+            const [propertyFromAnotherOrganization] = await createTestProperty(adminClient, anotherOrganization, { map: buildingMapJson })
+
+            await catchErrorFrom(async () => {
+                await createTestDivisionProperty(adminClient, division, propertyFromAnotherOrganization)
+            }, ({ errors, data }) => {
+                expect(errors[0].data.messages[0]).toMatch('Cannot be connected to property, that does not belongs to organization, being served by division')
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
+        it('can be created by employee, with `canManageDivisions` ability', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsResponsible: true,
+                canManageDivisions: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+
+            const [obj, attrs] = await createTestDivisionProperty(userClient, division, userClient.property)
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.dv).toEqual(1)
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.v).toEqual(1)
+            expect(obj.newId).toEqual(null)
+            expect(obj.deletedAt).toEqual(null)
+            expect(obj.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
+            expect(obj.createdAt).toMatch(DATETIME_RE)
+            expect(obj.updatedAt).toMatch(DATETIME_RE)
+            expect(obj.property.id).toEqual(userClient.property.id)
+            expect(obj.division.id).toEqual(division.id)
+        })
+
+        it('cannot be created by employee without `canManageDivisions` ability', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: false,
+                canBeAssignedAsResponsible: true,
+            })
+
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestDivisionProperty(userClient, division, userClient.property)
+            })
+        })
+
+        it('cannot be created by employee from another organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            // it will have admin role which can manage divisions
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: true,
+                canBeAssignedAsResponsible: true,
+            })
+            const userClientFromAnotherOrganization = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: false,
+                canBeAssignedAsResponsible: true,
+            })
+
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestDivisionProperty(userClientFromAnotherOrganization, division, userClient.property)
+            })
+        })
+
+        it('cannot be created by anonymous', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: true,
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+
+            const anonymous = await makeClient()
+
+            await expectToThrowAuthenticationErrorToObj(async () => {
+                await createTestDivisionProperty(anonymous, division, userClient.property)
+            })
         })
     })
 
-    test('user: read DivisionProperty', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [obj, attrs] = await createTestDivisionProperty(admin)  // TODO(codegen): check create function!
-
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
-        const objs = await DivisionProperty.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
-
-        // TODO(codegen): check 'user: read DivisionProperty' test!
-        expect(objs).toHaveLength(1)
-        // expect(objs.length >= 1).toBeTruthy()
-        expect(objs[0].id).toMatch(obj.id)
-        expect(objs[0].dv).toEqual(1)
-        expect(objs[0].sender).toEqual(attrs.sender)
-        expect(objs[0].v).toEqual(1)
-        expect(objs[0].newId).toEqual(null)
-        expect(objs[0].deletedAt).toEqual(null)
-        expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-        expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-        expect(objs[0].createdAt).toMatch(obj.createdAt)
-        expect(objs[0].updatedAt).toMatch(obj.updatedAt)
-    })
-
-    test('anonymous: read DivisionProperty', async () => {
-        const client = await makeClient()
-
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
-            await DivisionProperty.getAll(client)
-})
-    })
-
-    test('user: update DivisionProperty', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestDivisionProperty(admin)  // TODO(codegen): check create function!
-
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
-        const payload = {}  // TODO(codegen): change the 'user: update DivisionProperty' payload
-        const [objUpdated, attrs] = await updateTestDivisionProperty(client, objCreated.id, payload)
-
-        // TODO(codegen): white checks for 'user: update DivisionProperty' test
-        expect(objUpdated.id).toEqual(objCreated.id)
-        expect(objUpdated.dv).toEqual(1)
-        expect(objUpdated.sender).toEqual(attrs.sender)
-        expect(objUpdated.v).toEqual(2)
-        expect(objUpdated.newId).toEqual(null)
-        expect(objUpdated.deletedAt).toEqual(null)
-        expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(objUpdated.createdAt).toMatch(DATETIME_RE)
-        expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
-        expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
-    })
-
-    test('anonymous: update DivisionProperty', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestDivisionProperty(admin)  // TODO(codegen): check create function!
-
-        const client = await makeClient()
-        const payload = {}  // TODO(codegen): change the 'anonymous: update DivisionProperty' payload
-        await expectToThrowAuthenticationErrorToObjects(async () => {
-            await updateTestDivisionProperty(client, objCreated.id, payload)
-})
-    })
-
-    test('user: delete DivisionProperty', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestDivisionProperty(admin)  // TODO(codegen): check create function!
-
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
-        try {
-            // TODO(codegen): check 'user: delete DivisionProperty' test!
-            await DivisionProperty.delete(client, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
+    describe('Read', () => {
+        it('can be read by admin', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsResponsible: true,
             })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [obj, attrs] = await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            const objs = await DivisionProperty.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+            expect(objs.length >= 1).toBeTruthy()
+            expect(objs[0].id).toMatch(obj.id)
+            expect(objs[0].dv).toEqual(1)
+            expect(objs[0].sender).toEqual(attrs.sender)
+            expect(objs[0].v).toEqual(1)
+            expect(objs[0].newId).toEqual(null)
+            expect(objs[0].deletedAt).toEqual(null)
+            expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(objs[0].createdAt).toMatch(obj.createdAt)
+            expect(objs[0].updatedAt).toMatch(obj.updatedAt)
+        })
+
+        it('can be read by organization employee only from current organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [obj, attrs] = await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            const userClientFromAnotherOrganization = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsResponsible: true,
+            })
+            const [divisionFromAnotherOrganization] = await createTestDivision(adminClient, userClientFromAnotherOrganization.organization, userClientFromAnotherOrganization.employee)
+            await createTestDivisionProperty(adminClient, divisionFromAnotherOrganization, userClientFromAnotherOrganization.property)
+
+            const objs = await DivisionProperty.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+            expect(objs).toHaveLength(1)
+            expect(objs[0].id).toMatch(obj.id)
+            expect(objs[0].dv).toEqual(1)
+            expect(objs[0].sender).toEqual(attrs.sender)
+            expect(objs[0].v).toEqual(1)
+            expect(objs[0].newId).toEqual(null)
+            expect(objs[0].deletedAt).toEqual(null)
+            expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(objs[0].createdAt).toMatch(obj.createdAt)
+            expect(objs[0].updatedAt).toMatch(obj.updatedAt)
+        })
+
+        it('cannot be read by anonymous', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            const anonymous = await makeClient()
+
+            await expectToThrowAuthenticationErrorToObjects(async () => {
+                await DivisionProperty.getAll(anonymous)
+            })
+        })
     })
 
-    test('anonymous: delete DivisionProperty', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestDivisionProperty(admin)  // TODO(codegen): check create function!
-
-        const client = await makeClient()
-        try {
-            // TODO(codegen): check 'anonymous: delete DivisionProperty' test!
-            await DivisionProperty.delete(client, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
+    describe('Update', () => {
+        it('can be updated by admin', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: true,
+                canBeAssignedAsResponsible: true,
             })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [objCreated] = await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            const [objUpdated, attrs] = await updateTestDivisionProperty(adminClient, objCreated.id)
+            expect(objUpdated.id).toEqual(objCreated.id)
+            expect(objUpdated.dv).toEqual(1)
+            expect(objUpdated.sender).toEqual(attrs.sender)
+            expect(objUpdated.v).toEqual(2)
+            expect(objUpdated.newId).toEqual(null)
+            expect(objUpdated.deletedAt).toEqual(null)
+            expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(objUpdated.createdAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+        })
+
+        it('does not have property in update payload', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [objCreated] = await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            const payload = {
+                property: { connect: { id: userClient.property.id } },
+            }
+
+            await catchErrorFrom(async () => {
+                await updateTestDivisionProperty(adminClient, objCreated.id, payload)
+            }, ({ errors, data }) => {
+                expect(errors[0]).toMatchObject({
+                    'name': 'UserInputError',
+                    'extensions': {
+                        'code': 'BAD_USER_INPUT',
+                    },
+                })
+                expect(errors[0].message).toMatch('Field "property" is not defined by type "DivisionPropertyUpdateInput".')
+                expect(data).toBeUndefined()
+            })
+        })
+
+        it('can be updated by employee, with `canManageDivisions` ability', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: true,
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [objCreated] = await createTestDivisionProperty(userClient, division, userClient.property)
+
+            const [objUpdated, attrs] = await updateTestDivisionProperty(userClient, objCreated.id)
+            expect(objUpdated.id).toEqual(objCreated.id)
+            expect(objUpdated.dv).toEqual(1)
+            expect(objUpdated.sender).toEqual(attrs.sender)
+            expect(objUpdated.v).toEqual(2)
+            expect(objUpdated.newId).toEqual(null)
+            expect(objUpdated.deletedAt).toEqual(null)
+            expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
+            expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
+            expect(objUpdated.createdAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+        })
+
+        it('cannot be updated by employee without `canManageDivisions` ability', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: false,
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [objCreated] = await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestDivisionProperty(userClient, objCreated.id)
+            })
+        })
+
+        it('cannot be updated by employee from another organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: true,
+                canBeAssignedAsResponsible: true,
+            })
+            const userClientFromAnotherOrganization = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: true,
+                canBeAssignedAsResponsible: true,
+            })
+
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+
+            const [objCreated] = await createTestDivisionProperty(userClient, division, userClient.property)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestDivisionProperty(userClientFromAnotherOrganization, objCreated.id)
+            })
+        })
+
+        it('cannot be updated by anonymous', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: false,
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [objCreated] = await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            const anonymous = await makeClient()
+
+            await expectToThrowAuthenticationErrorToObj(async () => {
+                await updateTestDivisionProperty(anonymous, objCreated.id)
+            })
+        })
+    })
+
+    describe('Delete', () => {
+        it('can be soft-deleted by admin', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: true,
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [obj] = await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            const [objUpdated, attrs] = await DivisionProperty.softDelete(adminClient, obj.id)
+
+            expect(objUpdated.id).toEqual(obj.id)
+            expect(objUpdated.dv).toEqual(1)
+            expect(objUpdated.sender).toEqual(attrs.sender)
+            expect(objUpdated.deletedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+        })
+
+        it('can be soft-deleted by employee with `canManageDivisions` ability in current organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: true,
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [obj] = await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            const [objUpdated, attrs] = await DivisionProperty.softDelete(userClient, obj.id)
+
+            expect(objUpdated.id).toEqual(obj.id)
+            expect(objUpdated.dv).toEqual(1)
+            expect(objUpdated.sender).toEqual(attrs.sender)
+            expect(objUpdated.deletedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+        })
+
+        it('cannot be soft-deleted by employee without `canManageDivisions`', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: false,
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [obj] = await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await DivisionProperty.softDelete(userClient, obj.id)
+            })
+        })
+
+        it('cannot be soft-deleted by employee from another organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: false,
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [obj] = await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            const userClientFromAnotherOrganization = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: false,
+                canBeAssignedAsResponsible: true,
+            })
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await DivisionProperty.softDelete(userClientFromAnotherOrganization, obj.id)
+            })
+        })
+
+        it('cannot be soft-deleted by anonymous', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: true,
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [obj] = await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            const anonymous = await makeClient()
+
+            await expectToThrowAuthenticationErrorToObj(async () => {
+                await DivisionProperty.softDelete(anonymous, obj.id)
+            })
+        })
+
+        it('cannot be deleted by admin', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: false,
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [obj] = await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await DivisionProperty.delete(adminClient, obj.id)
+            })
+        })
+
+        it('cannot be deleted by user', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: false,
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [obj] = await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await DivisionProperty.delete(userClient, obj.id)
+            })
+        })
+
+        it('cannot be deleted by anonymous', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canManageDivisions: false,
+                canBeAssignedAsResponsible: true,
+            })
+            const [division] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const [obj] = await createTestDivisionProperty(adminClient, division, userClient.property)
+
+            const anonymous = await makeClient()
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await DivisionProperty.delete(anonymous, obj.id)
+            })
+        })
     })
 })

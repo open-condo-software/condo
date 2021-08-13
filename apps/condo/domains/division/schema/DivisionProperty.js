@@ -8,18 +8,20 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/division/access/DivisionProperty')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { get } = require('lodash')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
+const { Division } = require('../utils/serverSchema')
 
 
 const DivisionProperty = new GQLListSchema('DivisionProperty', {
-    // TODO(codegen): write doc for the DivisionProperty domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Join schema between division and property. Implements not only join feature, but also validation logic.',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
         division: {
-            // TODO(codegen): write doc for DivisionProperty.division field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Division, that serves this property',
             type: Relationship,
             ref: 'Division',
             isRequired: true,
@@ -28,13 +30,34 @@ const DivisionProperty = new GQLListSchema('DivisionProperty', {
         },
 
         property: {
-            // TODO(codegen): write doc for DivisionProperty.property field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Property, that is being served by this division',
             type: Relationship,
             ref: 'Property',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            hooks: {
+                validateInput: async ({ resolvedData, operation, existingItem, addFieldValidationError, context, fieldPath, ...rest }) => {
+                    const propertyId = resolvedData[fieldPath]
+                    const [property] = await Property.getAll(context, { id: propertyId })
+                    let divisionId
+                    if (operation === 'create') {
+                        divisionId = resolvedData.division
+                    }
+                    if (operation === 'update') {
+                        divisionId = get(existingItem, 'division')
+                    }
+                    const [division] = await Division.getAll(context, { id: divisionId })
+                    if (property.organization.id !== division.organization.id) {
+                        addFieldValidationError('Cannot be connected to property, that does not belongs to organization, being served by division')
+                    }
+                },
+            },
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
         },
 
     },
