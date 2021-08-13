@@ -39,7 +39,6 @@ function menuDataRender () {
             path: '/onboarding',
             icon: OnBoardingProgress,
             locale: 'menu.OnBoarding',
-            focus: true,
         },
         {
             path: '/reports',
@@ -89,6 +88,7 @@ const MyApp = ({ Component, pageProps }) => {
     // TODO(Dimitreee): remove this mess later
     const HeaderAction = Component.headerAction
     const RequiredAccess = Component.requiredAccess || React.Fragment
+
     return (
         <SubscriptionContextProvider>
             <GlobalErrorBoundary>
@@ -133,6 +133,14 @@ async function messagesImporter (locale) {
  */
 const apolloCacheConfig = {}
 
+const apolloClientConfig = {
+    defaultOptions: {
+        watchQuery: {
+            fetchPolicy: 'no-cache',
+        },
+    },
+}
+
 export default (
     withApollo({ ssr: true, apolloCacheConfig })(
         withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale })(
@@ -140,4 +148,10 @@ export default (
                 withOrganization({
                     ssr: true,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
-                })(MyApp)))))
+                })(
+                    withOnBoardingContext()(MyApp)
+                )
+            )
+        )
+    )
+)
