@@ -1,6 +1,6 @@
 import App from 'next/app'
 
-let errors = {}
+const errors = {}
 const DEBUG_RERENDERS = false
 const DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER = false
 
