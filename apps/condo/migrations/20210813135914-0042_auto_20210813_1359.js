@@ -33,6 +33,7 @@ exports.up = async (knex) => {
     );
 
     ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "history_id" SET NOT NULL;
+    ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "old_history_id" SET NULL;
 
     --
     -- Rename newId to old_newId
