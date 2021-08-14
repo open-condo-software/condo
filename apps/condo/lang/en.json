@@ -221,6 +221,7 @@
   "pages.condo.e-voting.status.draft": "Draft",
   "pages.condo.e-voting.status.published": "Published",
   "pages.condo.employee.PageTitle": "Employees",
+  "pages.condo.employee.id.PageTitle": "Employee",
   "pages.condo.contact.PageTitle": "Contacts",
   "pages.condo.property.EmptyBuildingDescription": "Fill required inputs and we will visualize it",
   "pages.condo.property.EmptyBuildingHeader": "Describe the house",
