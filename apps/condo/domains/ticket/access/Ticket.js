@@ -47,7 +47,6 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
         if (!property) {
             return false
         }
-        // TODO(zuch): need to check organization and property
         if (user.type === RESIDENT) {
             return true
         }

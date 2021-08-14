@@ -5,7 +5,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('../utils/accessSchema')
 const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils/serverSchema')
-const { get } = require('lodash')
+const { get, uniq } = require('lodash')
 
 async function canReadOrganizations ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -19,7 +19,7 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
         const organizations = residents.map(resident => get(resident, ['organization', 'id']))
         if (organizations.length > 0) {
             return {
-                id_in: organizations,
+                id_in: uniq(organizations),
             }
         }
         return false
