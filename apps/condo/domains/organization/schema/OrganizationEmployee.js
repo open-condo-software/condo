@@ -87,6 +87,12 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             type: Text,
             isRequired: false,
         },
+        specializations: {
+            schemaDoc: 'List of work categories, that this employee can perform',
+            type: Relationship,
+            ref: 'TicketCategoryClassifier',
+            many: true,
+        },
         isAccepted: {
             type: Checkbox,
             defaultValue: false,

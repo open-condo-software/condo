@@ -9723,6 +9723,9 @@ export type OrganizationEmployee = {
   role?: Maybe<OrganizationEmployeeRole>;
   /**  Free-form description of the employee's position  */
   position?: Maybe<Scalars['String']>;
+  /**  List of work categories, that this employee can perform  */
+  specializations: Array<TicketCategoryClassifier>;
+  _specializationsMeta?: Maybe<_QueryMeta>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   /**  Employee is blocked status, used in permissions functions, isBlocked has Free-form description of the employee's position over all permissions  */
@@ -9736,6 +9739,28 @@ export type OrganizationEmployee = {
   newId?: Maybe<Scalars['String']>;
 };
 
+
+/**  B2B customer employees  */
+export type OrganizationEmployeeSpecializationsArgs = {
+  where?: Maybe<TicketCategoryClassifierWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketCategoryClassifiersBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+/**  B2B customer employees  */
+export type OrganizationEmployee_SpecializationsMetaArgs = {
+  where?: Maybe<TicketCategoryClassifierWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketCategoryClassifiersBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
 export type OrganizationEmployeeCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
@@ -9747,6 +9772,7 @@ export type OrganizationEmployeeCreateInput = {
   phone?: Maybe<Scalars['String']>;
   role?: Maybe<OrganizationEmployeeRoleRelateToOneInput>;
   position?: Maybe<Scalars['String']>;
+  specializations?: Maybe<TicketCategoryClassifierRelateToManyInput>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   isBlocked?: Maybe<Scalars['Boolean']>;
@@ -10525,6 +10551,7 @@ export type OrganizationEmployeeUpdateInput = {
   phone?: Maybe<Scalars['String']>;
   role?: Maybe<OrganizationEmployeeRoleRelateToOneInput>;
   position?: Maybe<Scalars['String']>;
+  specializations?: Maybe<TicketCategoryClassifierRelateToManyInput>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   isBlocked?: Maybe<Scalars['Boolean']>;
@@ -10642,6 +10669,12 @@ export type OrganizationEmployeeWhereInput = {
   position_not_ends_with_i?: Maybe<Scalars['String']>;
   position_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   position_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  /**  condition must be true for all nodes  */
+  specializations_every?: Maybe<TicketCategoryClassifierWhereInput>;
+  /**  condition must be true for at least 1 node  */
+  specializations_some?: Maybe<TicketCategoryClassifierWhereInput>;
+  /**  condition must be false for all nodes  */
+  specializations_none?: Maybe<TicketCategoryClassifierWhereInput>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isAccepted_not?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
@@ -16241,6 +16274,8 @@ export enum SortOrganizationEmployeesBy {
   RoleDesc = 'role_DESC',
   PositionAsc = 'position_ASC',
   PositionDesc = 'position_DESC',
+  SpecializationsAsc = 'specializations_ASC',
+  SpecializationsDesc = 'specializations_DESC',
   IsAcceptedAsc = 'isAccepted_ASC',
   IsAcceptedDesc = 'isAccepted_DESC',
   IsRejectedAsc = 'isRejected_ASC',
@@ -17718,6 +17753,13 @@ export type TicketCategoryClassifierHistoryRecordsCreateInput = {
 export type TicketCategoryClassifierHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<TicketCategoryClassifierHistoryRecordUpdateInput>;
+};
+
+export type TicketCategoryClassifierRelateToManyInput = {
+  create?: Maybe<Array<Maybe<TicketCategoryClassifierCreateInput>>>;
+  connect?: Maybe<Array<Maybe<TicketCategoryClassifierWhereUniqueInput>>>;
+  disconnect?: Maybe<Array<Maybe<TicketCategoryClassifierWhereUniqueInput>>>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
 export type TicketCategoryClassifierRelateToOneInput = {

@@ -13,9 +13,11 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
 const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keystone/test.utils')
+const { pick } = require('lodash')
 
 const { OrganizationEmployee, createTestOrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
+const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
 
 describe('OrganizationEmployee', () => {
     describe('user: create OrganizationEmployee', () => {
@@ -43,7 +45,18 @@ describe('OrganizationEmployee', () => {
             const managerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
             await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
             const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [obj, attrs] = await createTestOrganizationEmployee(managerUserClient, organization, user, role)
+
+            const [categoryClassifier1] = await createTestTicketCategoryClassifier(admin)
+            const [categoryClassifier2] = await createTestTicketCategoryClassifier(admin)
+
+            const [obj, attrs] = await createTestOrganizationEmployee(managerUserClient, organization, user, role, {
+                specializations: {
+                    connect: [
+                        { id: categoryClassifier1.id },
+                        { id: categoryClassifier2.id },
+                    ],
+                },
+            })
             expect(obj.id).toBeDefined()
             expect(obj.dv).toEqual(1)
             expect(obj.sender).toEqual(attrs.sender)
@@ -52,6 +65,17 @@ describe('OrganizationEmployee', () => {
             expect(obj.updatedBy).toEqual(expect.objectContaining({ id: managerUserClient.user.id }))
             expect(obj.createdAt).toMatch(DATETIME_RE)
             expect(obj.updatedAt).toMatch(DATETIME_RE)
+            expect(obj.specializations).toHaveLength(2)
+            expect(obj.specializations).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining(pick(categoryClassifier1, ['id', 'name'])),
+                ])
+            )
+            expect(obj.specializations).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining(pick(categoryClassifier2, ['id', 'name'])),
+                ])
+            )
         })
 
     })
