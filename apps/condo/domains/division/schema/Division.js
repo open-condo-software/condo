@@ -9,8 +9,9 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/division/access/Division')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { OrganizationEmployee, Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { get } = require('lodash')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 
 const Division = new GQLListSchema('Division', {
@@ -50,6 +51,38 @@ const Division = new GQLListSchema('Division', {
                     }
                     if (organizationId !== responsible.organization.id) {
                         addFieldValidationError('Cannot be connected to responsible from another organization')
+                    }
+                },
+            },
+        },
+
+        properties: {
+            schemaDoc: 'Properties in service by this division',
+            type: Relationship,
+            ref: 'Property',
+            many: true,
+            hooks: {
+                validateInput: async ({ resolvedData, operation, existingItem, addFieldValidationError, context, fieldPath }) => {
+                    let organizationId
+                    if (operation === 'create') {
+                        organizationId = resolvedData.organization
+                    }
+                    if (operation === 'update') {
+                        organizationId = get(existingItem, 'organization')
+                    }
+                    const [organization] = await Organization.getAll(context, { id: organizationId })
+
+                    const propertyIds = resolvedData[fieldPath]
+                    // Fetch in specified order to be able to test a list of ids in error message
+                    const properties = await Property.getAll(context, { id_in: propertyIds }, { sortBy: ['createdAt_ASC'] })
+                    const propertyIdsFromAnotherOrganization = []
+                    properties.map(property => {
+                        if (property.organization.id !== organization.id) {
+                            propertyIdsFromAnotherOrganization.push(property.id)
+                        }
+                    })
+                    if (propertyIdsFromAnotherOrganization.length > 0) {
+                        addFieldValidationError(`Cannot be connected to following property(s), because they are belonging to another organization(s): ${propertyIdsFromAnotherOrganization.join()}, `)
                     }
                 },
             },
