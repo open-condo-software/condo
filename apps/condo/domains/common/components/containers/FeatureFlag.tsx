@@ -5,7 +5,7 @@ import { Modal, Switch } from 'antd'
 import useKeyboardShortcut from 'use-keyboard-shortcut'
 
 
-const _getEnabledFeatures = (): Array<string> => {
+const getEnabledFeatures = (): Array<string> => {
     if (typeof window !== 'undefined') {
         const featuresFromStorage = localStorage.getItem('features')
 
@@ -17,9 +17,9 @@ const _getEnabledFeatures = (): Array<string> => {
     return []
 }
 
-const _toggleFeature = (name: string): void => {
+const toggleFeature = (name: string): void => {
     if (typeof window !== 'undefined') {
-        const enabledFeatures = _getEnabledFeatures()
+        const enabledFeatures = getEnabledFeatures()
         const index = enabledFeatures.indexOf(name)
 
         if (index !== -1) {
@@ -34,11 +34,10 @@ const _toggleFeature = (name: string): void => {
 
 /**
  * Returns true if feature is found in localstorage, false otherwise
- * @param name - name of the feature
  */
-export const hasFeature = (name: string): boolean => {
-    const enabledFeatures = _getEnabledFeatures()
-    return enabledFeatures.includes(name)
+export const hasFeature = (featureName: string): boolean => {
+    const enabledFeatures = getEnabledFeatures()
+    return enabledFeatures.includes(featureName)
 }
 
 interface IFeature {
@@ -94,7 +93,7 @@ export const FeatureFlagsController: React.FC = () => {
         setIsModalVisible(true)
     }
 
-    const enabledFlags = _getEnabledFeatures()
+    const enabledFlags = getEnabledFeatures()
 
     return (
         <>
@@ -104,7 +103,7 @@ export const FeatureFlagsController: React.FC = () => {
                         <>
                             <div>
                                 <h2><b>{name}</b></h2>
-                                <Switch defaultChecked={enabledFlags.includes(name)} checkedChildren="1" unCheckedChildren="0" onChange={() => _toggleFeature(name)} />
+                                <Switch defaultChecked={enabledFlags.includes(name)} checkedChildren="1" unCheckedChildren="0" onChange={() => toggleFeature(name)} />
                             </div>
                         </>
                     ))
