@@ -1,22 +1,22 @@
 import { BankOutlined, CheckOutlined, CreditCardFilled, ProfileFilled, WechatFilled } from '@ant-design/icons'
 import get from 'lodash/get'
 import Router, { useRouter } from 'next/router'
-import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useRef } from 'react'
 import { useAuth } from '@core/next/auth'
 import { useApolloClient } from '@core/next/apollo'
 import { HouseIcon } from '@condo/domains/common/components/icons/HouseIcon'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
-import { OnBoarding, OnBoardingStep } from '@condo/domains/onboarding/utils/clientSchema'
+import { OnBoarding as OnBoardingHooks, OnBoardingStep as OnBoardingStepHooks } from '@condo/domains/onboarding/utils/clientSchema'
 import {
     OnBoarding as IOnBoarding,
-    OnBoardingStep as OnBoardingStepInterface,
     OnBoardingStep as IOnBoardingStep,
 } from '../../../schema'
 import { OrganizationEmployee as OrganizationEmployeeGql } from '@condo/domains/organization/gql'
 import { Property as PropertyGql } from '@condo/domains/property/gql'
 import { useFocusContext } from '../../common/components/Focus/FocusContextProvider'
 import { useOnBoardingCompleteModal } from '../hooks/useOnBoardingCompleeteModal'
+import { getStepKey, getStepType } from '../utils/stepUtils'
 import { OnBoardingStepType } from './OnBoardingStepItem'
 
 interface IDecoratedOnBoardingStepType extends Omit<IOnBoardingStep, 'action'> {
@@ -30,55 +30,6 @@ interface OnBoardingContext {
     isLoading?: boolean
     onBoarding?: IOnBoarding
     onBoardingSteps?: Array<IDecoratedOnBoardingStepType>
-}
-
-const getStepKey = (step: OnBoardingStepInterface) => `${step.action}.${step.entity}`
-
-const getParentStep = (stepTransitions: Record<string, Array<string>>, stepKey: string, steps: Array<OnBoardingStepInterface>) => {
-    let parentKey: string | undefined
-
-    Object.keys(stepTransitions).map((key) => {
-        if (!parentKey && stepTransitions[key].includes(stepKey)) {
-            parentKey = key
-        }
-    })
-
-    if (!parentKey) {
-        return null
-    }
-
-    const [targetAction, targetEntity] = parentKey.split('.')
-
-    return steps.find((step) => (
-        step.action === targetAction && step.entity === targetEntity
-    ))
-}
-
-const getStepType = (
-    step: OnBoardingStepInterface,
-    stepsTransitions: Record<string, Array<string>>,
-    steps: Array<OnBoardingStepInterface>,
-) => {
-    const stepKey = getStepKey(step)
-    const stepTransitions = get(stepsTransitions, stepKey)
-    const parentStep = getParentStep(stepsTransitions, stepKey, steps)
-
-    const parentRequired = get(parentStep, 'required')
-    const parentCompleted = get(parentStep, 'completed')
-
-    if (Array.isArray(stepTransitions)) {
-        if (parentRequired && !parentCompleted) {
-            return OnBoardingStepType.DISABLED
-        }
-
-        if (step.completed) {
-            return OnBoardingStepType.COMPLETED
-        }
-
-        return OnBoardingStepType.DEFAULT
-    } else {
-        return OnBoardingStepType.DISABLED
-    }
 }
 
 const onBoardingIconsMap = {
@@ -110,20 +61,20 @@ export const OnBoardingProvider: React.FC = (props) => {
     const { user } = useAuth()
     const router = useRouter()
     const client = useApolloClient()
+    const { showFocusTooltip } = useFocusContext()
     const { setIsVisible: showCreateOrganizationModal, ModalForm } = useCreateOrganizationModalForm({})
     const { setIsVisible: showOnBoardingCompleteModal, OnBoardingCompleteModal, isVisible: isOnBoardingCompleteVisible } = useOnBoardingCompleteModal()
-    const { showFocusTooltip } = useFocusContext()
 
-    const { obj: onBoarding, refetch: refetchOnBoarding } = OnBoarding
+    const { obj: onBoarding, refetch: refetchOnBoarding } = OnBoardingHooks
         .useObject({ where: { user: { id: get(user, 'id') } } })
 
-    const { loading: stepsLoading, objs: onBoardingSteps = [], refetch } = OnBoardingStep
+    const { loading: stepsLoading, objs: onBoardingSteps = [], refetch } = OnBoardingStepHooks
         .useObjects(
             { where: { onBoarding: { id: get(onBoarding, 'id') } } },
             { fetchPolicy: 'network-only' }
         )
-    const updateStep = OnBoardingStep.useUpdate({})
-    const updateOnBoarding = OnBoarding.useUpdate({}, () => refetchOnBoarding())
+    const updateOnBoarding = OnBoardingHooks.useUpdate({}, () => refetchOnBoarding())
+    const updateStep = OnBoardingStepHooks.useUpdate({})
 
     const onBoardingActionMap = {
         'create.Organization': () => showCreateOrganizationModal(true),
@@ -157,12 +108,10 @@ export const OnBoardingProvider: React.FC = (props) => {
 
     useEffect(() => {
         decoratedSteps.forEach(async (step) => {
-            const { completed } = step
             const stepKey = getStepKey(step)
-
             const query = onBoardingQueriesMap[stepKey]
 
-            if (!completed && query) {
+            if (!step.completed && query) {
                 client.watchQuery({ query }).result().then((res) => {
                     const resolver = onBoardingStepResolvers[stepKey]
 
