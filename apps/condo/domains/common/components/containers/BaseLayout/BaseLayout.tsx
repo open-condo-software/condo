@@ -37,14 +37,15 @@ const ANT_LOCALES = {
     en: enUS,
 }
 interface IBaseLayoutProps {
+    headerAction: ElementType<unknown>
+    menuData: React.ElementType
     style?: CSSProperties
     className?: string
     disableMobile?: boolean
-    headerAction?: ElementType<unknown>
-    onLogoClick?: () => void
     menuDataRender?: () => MenuItem[]
     TopMenuItems?: React.FC<ITopMenuItemsProps>
     logoLocation?: string
+    onLogoClick?: () => void
 }
 
 const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
@@ -52,10 +53,10 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
         style,
         children,
         className,
+        menuData,
         disableMobile,
         headerAction,
         onLogoClick = () => Router.push('/'),
-        menuDataRender = () => [],
         TopMenuItems: TopMenuItemsFromProps,
     } = props
     const intl = useIntl()
@@ -66,7 +67,6 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
     } = useTopNotificationsHook()
     // TODO(Dimitreee): add UA base isMobile detection
     const isMobile = (colSize === 'xs') && !disableMobile
-    const menuData = menuDataRender()
     const [isSideMenuCollapsed, setIsSideMenuCollapsed] = useState(!isMobile)
     const menuDataClassNames = classnames(
         'layout',
