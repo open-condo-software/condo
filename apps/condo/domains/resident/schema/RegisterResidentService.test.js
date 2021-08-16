@@ -4,12 +4,12 @@
 
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty, makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
 const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
-const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { registerResidentByTestClient, createTestResident, Resident } = require('@condo/domains/resident/utils/testSchema')
 
 describe('RegisterResidentService', () => {
     test('can be executed by user with "resident" type', async () => {
@@ -78,5 +78,18 @@ describe('RegisterResidentService', () => {
         await expectToThrowAccessDeniedErrorToResult(async () => {
             await registerResidentByTestClient(staffClient)
         })
+    })
+
+    it('clears `deletedAt` when a Resident with same address and unitName already exists for this user', async () => {
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const [resident, attrs] = await registerResidentByTestClient(userClient)
+        const [softDeletedResident] = await Resident.softDelete(userClient, resident.id)
+
+        const [restoredResident] = await registerResidentByTestClient(userClient, {
+            address: attrs.address,
+            unitName: attrs.unitName,
+        })
+        expect(restoredResident.id).toEqual(softDeletedResident.id)
+        expect(restoredResident.deletedAt).toBeNull()
     })
 })
