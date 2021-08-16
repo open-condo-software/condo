@@ -14,6 +14,8 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
 const { catchErrorFrom } = require('../../common/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { buildingMapJson } = require('@condo/domains/property/constants/property')
 
 describe('Division', () => {
     describe('Create', () => {
@@ -81,6 +83,32 @@ describe('Division', () => {
                 await createTestDivision(adminClient, anotherOrganization, userClient.employee)
             }, ({ errors, data }) => {
                 expect(errors[0].data.messages[0]).toMatch('Cannot be connected to responsible from another organization')
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
+        it('cannot be connected to properties from other organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsResponsible: true,
+            })
+
+            const [anotherOrganization] = await createTestOrganization(adminClient)
+            const [property1] = await createTestProperty(adminClient, anotherOrganization, { map: buildingMapJson })
+            const [property2] = await createTestProperty(adminClient, anotherOrganization, { map: buildingMapJson })
+
+            await catchErrorFrom(async () => {
+                await createTestDivision(adminClient, userClient.organization, userClient.employee, {
+                    properties: {
+                        connect: [
+                            { id: property1.id },
+                            { id: property2.id },
+                        ],
+                    },
+                })
+            }, ({ errors, data }) => {
+                const ids = [property1.id, property2.id]
+                expect(errors[0].data.messages[0]).toMatch(`Cannot be connected to following property(s), because they are belonging to another organization(s): ${ids.join()}`)
                 expect(data).toEqual({ 'obj': null })
             })
         })
@@ -190,6 +218,34 @@ describe('Division', () => {
                 await updateTestDivision(adminClient, objCreated.id, payload)
             }, ({ errors, data }) => {
                 expect(errors[0].data.messages[0]).toMatch('Cannot be connected to responsible from another organization')
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
+        it('cannot be connected to properties from other organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsResponsible: true,
+            })
+
+            const [objCreated] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+
+            const [anotherOrganization] = await createTestOrganization(adminClient)
+            const [property1] = await createTestProperty(adminClient, anotherOrganization, { map: buildingMapJson })
+            const [property2] = await createTestProperty(adminClient, anotherOrganization, { map: buildingMapJson })
+
+            await catchErrorFrom(async () => {
+                await updateTestDivision(adminClient, objCreated.id, {
+                    properties: {
+                        connect: [
+                            { id: property1.id },
+                            { id: property2.id },
+                        ],
+                    },
+                })
+            }, ({ errors, data }) => {
+                const ids = [property1.id, property2.id]
+                expect(errors[0].data.messages[0]).toMatch(`Cannot be connected to following property(s), because they are belonging to another organization(s): ${ids.join()}`)
                 expect(data).toEqual({ 'obj': null })
             })
         })
