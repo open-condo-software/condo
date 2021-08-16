@@ -4,7 +4,6 @@ import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
-import { ThunderboltFilled, HomeFilled } from '@ant-design/icons'
 
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
@@ -18,15 +17,18 @@ import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleA
 import BehaviorRecorder from '@condo/domains/common/components/containers/BehaviorRecorder'
 import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
-import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
+import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
+import { MenuItem } from '@condo/domains/common/components/MenuItem'
+import { FocusElement } from '@condo/domains/common/components/Focus/FocusElement'
 import { BarChartIcon } from '@condo/domains/common/components/icons/BarChart'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
+import { OnBoarding, OnBoardingProvider } from '@condo/domains/onboarding/components/OnBoardingContext'
 import { FocusContextProvider } from '../domains/common/components/Focus/FocusContextProvider'
-import { OnBoardingProgressIconContainer } from '../domains/onboarding/components/OnBoardingProgressIconContainer'
-import { SubscriptionContextProvider } from '../domains/subscription/components/SubscriptionContext'
-import { OnBoardingProvider } from '../domains/onboarding/components/OnBoardingContext'
+import { SubscriptionContextProvider } from '@condo/domains/subscription/components/SubscriptionContext'
+import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
+import { ThunderboltFilled, HomeFilled } from '@ant-design/icons'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -34,42 +36,44 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     })
 }
 
-function menuDataRender () {
-    return [
-        {
-            path: '/onboarding',
-            icon: OnBoardingProgress,
-            locale: 'menu.OnBoarding',
-            focusable: true,
-            container: OnBoardingProgressIconContainer,
-        },
-        {
-            path: '/',
-            icon: BarChartIcon,
-            locale: 'menu.Analytics',
-        },
-        {
-            path: '/ticket',
-            icon: ThunderboltFilled,
-            locale: 'menu.ControlRoom',
-        },
-        {
-            path: '/property',
-            icon: HomeFilled,
-            locale: 'menu.Property',
-        },
-        {
-            path: '/contact',
-            icon: UserIcon,
-            locale: 'menu.Contacts',
-        },
-        {
-            path: '/employee',
-            icon: UserIcon,
-            locale: 'menu.Employees',
-        },
-    ]
-}
+const MenuItems: React.FC = () => (
+    <>
+        <FocusElement>
+            <OnBoardingProgressIconContainer>
+                <MenuItem
+                    path={'/onboarding'}
+                    icon={OnBoardingProgress}
+                    label={'menu.OnBoarding'}
+                />
+            </OnBoardingProgressIconContainer>
+        </FocusElement>
+        <MenuItem
+            path={'/'}
+            icon={BarChartIcon}
+            label={'menu.Analytics'}
+        />
+        <MenuItem
+            path={'/ticket'}
+            icon={ThunderboltFilled}
+            label={'menu.ControlRoom'}
+        />
+        <MenuItem
+            path={'/property'}
+            icon={HomeFilled}
+            label={'menu.Property'}
+        />
+        <MenuItem
+            path={'/contact'}
+            icon={UserIcon}
+            label={'menu.Contacts'}
+        />
+        <MenuItem
+            path={'/employee'}
+            icon={UserIcon}
+            label={'menu.Employees'}
+        />
+    </>
+)
 
 const MyApp = ({ Component, pageProps }) => {
     const LayoutComponent = Component.container || BaseLayout
@@ -90,7 +94,7 @@ const MyApp = ({ Component, pageProps }) => {
                 <FocusContextProvider>
                     <SubscriptionContextProvider>
                         <OnBoardingProvider>
-                            <LayoutComponent menuDataRender={menuDataRender} headerAction={HeaderAction}>
+                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                 <Component {...pageProps} />
                             </LayoutComponent>
                         </OnBoardingProvider>
