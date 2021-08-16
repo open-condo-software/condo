@@ -10,8 +10,10 @@ import { withAuth } from '@core/next/auth'
 import { withIntl } from '@core/next/intl'
 import { withOrganization } from '@core/next/organization'
 
+
 import GlobalStyle from '@app/condo/containers/GlobalStyle'
 import BaseLayout from '@app/condo/containers/BaseLayout'
+import {MenuItem} from "@condo/domains/common/components/MenuItem";
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -19,14 +21,14 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     })
 }
 
-function menuDataRender () {
-    return [
-        {
-            path: '/',
-            icon: <DashboardOutlined/>,
-            locale: 'menu.Home',
-        },
-    ]
+const MenuData = () => {
+    return (
+        <MenuItem
+            path={'/'}
+            icon={DashboardOutlined}
+            label={'menu.Analytics'}
+        />
+    )
 }
 
 const MyApp = ({ Component, pageProps }) => {
@@ -41,7 +43,7 @@ const MyApp = ({ Component, pageProps }) => {
                 />
             </Head>
             <GlobalStyle/>
-            <LayoutComponent menuDataRender={menuDataRender}>
+            <LayoutComponent menuData={<MenuData/>}>
                 <Component {...pageProps} />
             </LayoutComponent>
         </CacheProvider>

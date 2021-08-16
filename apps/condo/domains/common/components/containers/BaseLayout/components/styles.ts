@@ -71,46 +71,7 @@ export const substrateDesktopCss = css`
   min-height: 100%;
 `
 
-export const MenuItem = styled.span`
-  cursor: pointer;
-  padding: 16px 0;
-  display: flex;
-  border-radius: 8px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  vertical-align: center;
-
-  .label {
-    padding-left: 20px;
-    font-size: 16px;
-    transition: all 0.3s;
-  }
-
-  .icon {
-    color: ${colors.lightGrey[5]};
-    font-size: 20px;
-    transition: all 0.3s;
-  }
-
-  &:hover {
-    .icon {
-      color: ${colors.black};
-    }
-  }
-
-  &.active {
-    .label {
-      font-weight: 700;
-    }
-
-    .icon {
-      color: ${colors.black};
-    }
-  }
-`
-
-export const ItemContainer = styled.div`
+export const MenuItemsContainer = styled.div`
   padding-top: 42px;
 `
 
