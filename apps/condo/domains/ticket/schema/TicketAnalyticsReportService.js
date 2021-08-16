@@ -7,7 +7,8 @@ const access = require('@condo/domains/ticket/access/TicketAnalyticsReportServic
 const moment = require('moment')
 const get = require('lodash/get')
 const { createCountersStructure, fetchTicketsForAnalytics, DATE_FORMATS } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
-const { TicketAnalyticsQueryBuilder } = require('../utils/serverSchema/analytics.helper')
+const { TicketAnalyticsQueryBuilder } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
+const { DATE_DISPLAY_FORMAT } = require('@condo/domains/ticket/constants/common')
 
 
 const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportService', {
@@ -40,7 +41,8 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 const analyticsQueryBuilder = new TicketAnalyticsQueryBuilder(where, groupBy)
                 await analyticsQueryBuilder.loadData()
                 const result = analyticsQueryBuilder
-                    .getResult(({ count, ...searchResult }) => ({ ...searchResult, count: parseInt(count) }))
+                    .getResult(({ count, dayGroup, ...searchResult }) =>
+                        ({ ...searchResult, dayGroup: moment(dayGroup).format(DATE_DISPLAY_FORMAT), count: parseInt(count) }))
                 return { result }
                 // let allTickets = await fetchTicketsForAnalytics(context, where)
                 // allTickets = allTickets.map( ticket => {
