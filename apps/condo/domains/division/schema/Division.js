@@ -88,6 +88,45 @@ const Division = new GQLListSchema('Division', {
             },
         },
 
+        executors: {
+            schemaDoc: 'Employees, that will be assigned as executors to all corresponding tickets',
+            type: Relationship,
+            ref: 'OrganizationEmployee',
+            many: true,
+            hooks: {
+                validateInput: async ({ resolvedData, operation, existingItem, addFieldValidationError, context, fieldPath }) => {
+                    let organizationId
+                    if (operation === 'create') {
+                        organizationId = resolvedData.organization
+                    }
+                    if (operation === 'update') {
+                        organizationId = get(existingItem, 'organization')
+                    }
+                    const [organization] = await Organization.getAll(context, { id: organizationId })
+
+                    const employeeIds = resolvedData[fieldPath]
+                    // Fetch in specified order to be able to test a list of ids in error message
+                    const employees = await OrganizationEmployee.getAll(context, { id_in: employeeIds }, { sortBy: ['createdAt_ASC'] })
+                    const employeeIdsFromAnotherOrganization = []
+                    const employeeIdsThatCannotBeAssignableAsExecutor = []
+                    employees.map(employee => {
+                        if (!employee.role.canBeAssignedAsExecutor) {
+                            employeeIdsThatCannotBeAssignableAsExecutor.push(employee.id)
+                        }
+                        if (employee.organization.id !== organization.id) {
+                            employeeIdsFromAnotherOrganization.push(employee.id)
+                        }
+                    })
+                    if (employeeIdsFromAnotherOrganization.length > 0) {
+                        addFieldValidationError(`Cannot be connected to following employee(s) as executors, because they are belonging to another organization(s): ${employeeIdsFromAnotherOrganization.join()}, `)
+                    }
+                    if (employeeIdsThatCannotBeAssignableAsExecutor.length > 0) {
+                        addFieldValidationError(`Cannot be connected to following employee(s) as executors, because they does not have 'canBeAssignedAsExecutor' role ability: ${employeeIdsThatCannotBeAssignableAsExecutor.join()}, `)
+                    }
+                },
+            },
+        },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
