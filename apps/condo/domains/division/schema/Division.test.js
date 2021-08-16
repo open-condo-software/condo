@@ -10,7 +10,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
 } = require('@condo/domains/common/utils/testSchema')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
 const { catchErrorFrom } = require('../../common/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -109,6 +109,61 @@ describe('Division', () => {
             }, ({ errors, data }) => {
                 const ids = [property1.id, property2.id]
                 expect(errors[0].data.messages[0]).toMatch(`Cannot be connected to following property(s), because they are belonging to another organization(s): ${ids.join()}`)
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
+        it('cannot be connected to executors from other organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsResponsible: true,
+            })
+            const executor1 = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsExecutor: true,
+            })
+            const executor2 = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsExecutor: true,
+            })
+
+            await catchErrorFrom(async () => {
+                await createTestDivision(adminClient, userClient.organization, userClient.employee, {
+                    executors: {
+                        connect: [
+                            { id: executor1.employee.id },
+                            { id: executor2.employee.id },
+                        ],
+                    },
+                })
+            }, ({ errors, data }) => {
+                const ids = [executor1.employee.id, executor2.employee.id]
+                expect(errors[0].data.messages[0]).toMatch(`Cannot be connected to following employee(s) as executors, because they are belonging to another organization(s): ${ids.join()}`)
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
+        it('cannot be connected to executors without canBeAssignedAsExecutor ability', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsResponsible: true,
+            })
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, userClient.organization, {
+                canBeAssignedAsExecutor: false,
+            })
+            const [executor1] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
+            const [executor2] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
+
+            await catchErrorFrom(async () => {
+                await createTestDivision(adminClient, userClient.organization, userClient.employee, {
+                    executors: {
+                        connect: [
+                            { id: executor1.id },
+                            { id: executor2.id },
+                        ],
+                    },
+                })
+            }, ({ errors, data }) => {
+                const ids = [executor1.id, executor2.id]
+                expect(errors[0].data.messages[0]).toMatch(`Cannot be connected to following employee(s) as executors, because they does not have 'canBeAssignedAsExecutor' role ability: ${ids.join()}`)
                 expect(data).toEqual({ 'obj': null })
             })
         })
@@ -246,6 +301,66 @@ describe('Division', () => {
             }, ({ errors, data }) => {
                 const ids = [property1.id, property2.id]
                 expect(errors[0].data.messages[0]).toMatch(`Cannot be connected to following property(s), because they are belonging to another organization(s): ${ids.join()}`)
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
+        it('cannot be connected to executors from other organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsResponsible: true,
+            })
+
+            const executor1 = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsExecutor: true,
+            })
+            const executor2 = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsExecutor: true,
+            })
+
+            const [objCreated] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+
+            await catchErrorFrom(async () => {
+                await updateTestDivision(adminClient, objCreated.id, {
+                    executors: {
+                        connect: [
+                            { id: executor1.employee.id },
+                            { id: executor2.employee.id },
+                        ],
+                    },
+                })
+            }, ({ errors, data }) => {
+                const ids = [executor1.employee.id, executor2.employee.id]
+                expect(errors[0].data.messages[0]).toMatch(`Cannot be connected to following employee(s) as executors, because they are belonging to another organization(s): ${ids.join()}`)
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
+        it('cannot be connected to executors without canBeAssignedAsExecutor ability', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({
+                canBeAssignedAsResponsible: true,
+            })
+            const [objCreated] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, userClient.organization, {
+                canBeAssignedAsExecutor: false,
+            })
+            const [executor1] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
+            const [executor2] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
+
+            await catchErrorFrom(async () => {
+                await updateTestDivision(adminClient, objCreated.id, {
+                    executors: {
+                        connect: [
+                            { id: executor1.id },
+                            { id: executor2.id },
+                        ],
+                    },
+                })
+            }, ({ errors, data }) => {
+                const ids = [executor1.id, executor2.id]
+                expect(errors[0].data.messages[0]).toMatch(`Cannot be connected to following employee(s) as executors, because they does not have 'canBeAssignedAsExecutor' role ability: ${ids.join()}`)
                 expect(data).toEqual({ 'obj': null })
             })
         })
