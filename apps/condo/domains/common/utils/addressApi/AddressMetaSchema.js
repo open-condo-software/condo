@@ -101,7 +101,10 @@ const AddressMetaJSONSchema = {
         },
         'data': {
             'type': 'object',
-            'properties': Object.assign({}, ...AddressMetaDataFields.map((x) => ({ [x]: { 'type': ['string', 'null'] } }))),
+            'properties': Object.assign({},
+                ...AddressMetaDataFields.map((x) => ({ [x]: { 'type': ['string', 'null'] } })),
+                { history_values: { type: ['array', 'null'], items: { type: 'string' } } }
+            ),
             'additionalProperties': true,
             'required': AddressMetaDataFields,
         },
