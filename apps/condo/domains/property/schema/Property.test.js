@@ -124,6 +124,33 @@ describe('Property', () => {
         })
     })
 
+    test('user: can create Property when same address exist in other organization', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+        const client2 = await makeClientWithProperty()
+
+        const [_, attrs] = await createTestProperty(client, client.organization)
+        const { address } = attrs
+
+        const [property] = await createTestProperty(client2, client2.organization, { address })
+
+        expect(property.address).toEqual(address)
+    })
+
+    test('user: can update Property when same address exist in other organization', async () => {
+        const client = await makeClientWithProperty()
+        const client2 = await makeClientWithProperty()
+
+        console.log('1 2', client.organization.id, client2.organization.id)
+
+        const [_, attrs] = await createTestProperty(client, client.organization)
+        const { address } = attrs
+
+        const [property2] = await createTestProperty(client2, client2.organization)
+        const [updatedProperty] = await updateTestProperty(client2, property2.id, { address })
+
+        expect(updatedProperty.address).toEqual(address)
+    })
+
     test('user: cannot update Property address when other Property with same address exist in organization', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const [_, attrs] = await createTestProperty(client, client.organization)
