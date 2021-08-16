@@ -159,10 +159,12 @@ class TicketAnalyticsQueryBuilder extends AnalyticsQueryBuilder {
                 .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
                 .whereIn(whereIn[0], whereIn[1])
                 .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
+                .orderBy('dayGroup', 'desc')
         }
         this.result = await query.groupBy(['dayGroup', ...this.groups])
             .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
             .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
+            .orderBy('dayGroup', 'desc')
     }
 }
 
