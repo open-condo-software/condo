@@ -22,16 +22,13 @@ describe('CreateResidentTicketService', () => {
         expect(ticket.id).toMatch(UUID_RE)
     })
 
-    test('resident: cannot create resident ticket with wrong unitName', async () => {
+    test('resident: can create resident ticket with wrong unitName', async () => {
         const userClient = await makeClientWithResidentUserAndProperty()
+        const unitName = faker.random.alphaNumeric(10)
 
-        await catchErrorFrom(async () => {
-            await createResidentTicketByTestClient(userClient, userClient.property, { unitName: faker.random.alphaNumeric(10) })
-        }, ({ errors, data }) => {
-            expect(errors).toHaveLength(1)
-            expect(errors[0].message).toEqual(`${NOT_FOUND_ERROR}unitName] unitName not found`)
-            expect(data).toEqual({ 'obj': null })
-        })
+        const [ticket] =  await createResidentTicketByTestClient(userClient, userClient.property, { unitName })
+        expect(ticket.id).toMatch(UUID_RE)
+        expect(ticket.unitName).toEqual(unitName)
     })
 
     test('resident: cannot create resident ticket without details', async () => {

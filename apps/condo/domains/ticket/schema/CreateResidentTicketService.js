@@ -50,7 +50,6 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
 
                 const organizationId = get(property, ['organization', 'id'])
                 const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
-                if (unitName && (!sectionName || !floorName)) throw Error(`${NOT_FOUND_ERROR}unitName] unitName not found`)
 
                 const user = get(context, ['req', 'user'])
 
