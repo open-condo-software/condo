@@ -1,7 +1,7 @@
 import React from 'react'
 import { useIntl } from '@core/next/intl'
 import { Skeleton, Table, TableColumnsType } from 'antd'
-import { ticketAnalyticsPageFilters, ticketChartDataMapper } from '@condo/domains/ticket/utils/helpers'
+import { ticketAnalyticsPageFilters } from '@condo/domains/ticket/utils/helpers'
 import { ITicketAnalyticsPageWidgetProps } from './TicketChartView'
 
 interface ITicketAnalyticsPageListViewProps extends ITicketAnalyticsPageWidgetProps {
@@ -12,6 +12,7 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = ({
     loading = false,
     data,
     viewMode,
+    mapperInstance,
     filters }) => {
     const intl = useIntl()
     const DateTitle = intl.formatMessage({ id: 'Date' })
@@ -30,7 +31,7 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = ({
             addresses: filters.addressList.map(({ value }) => value),
         },
     }
-    const { tableColumns, dataSource } = ticketChartDataMapper.getTableConfig(viewMode, data, restOptions)
+    const { tableColumns, dataSource } = mapperInstance.getTableConfig(viewMode, data, restOptions)
     return (
         <Table
             bordered
