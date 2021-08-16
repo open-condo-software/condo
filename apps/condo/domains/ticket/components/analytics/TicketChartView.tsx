@@ -5,14 +5,14 @@ import isEmpty from 'lodash/isEmpty'
 import get from 'lodash/get'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import ReactECharts from 'echarts-for-react'
-import { AnalyticsDataType, ViewModeTypes } from '@condo/domains/ticket/components/TicketChart'
-import { ticketChartDataMapper } from '@condo/domains/ticket/utils/helpers'
+import TicketChart, { AnalyticsDataType, ViewModeTypes } from '@condo/domains/ticket/components/TicketChart'
 import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
 
 export interface ITicketAnalyticsPageWidgetProps {
     data: null | AnalyticsDataType
     viewMode: ViewModeTypes
     loading?: boolean
+    mapperInstance: TicketChart
 }
 
 interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps {
@@ -30,6 +30,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     loading = false,
     onChartReady,
     chartConfig,
+    mapperInstance,
 }) => {
     const intl = useIntl()
     const NoData = intl.formatMessage({ id: 'NoData' })
@@ -37,7 +38,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
         return <Skeleton loading={loading} active paragraph={{ rows: 6 }} />
     }
     const { animationEnabled, chartOptions } = chartConfig
-    const { series, legend, axisData, tooltip } = ticketChartDataMapper.getChartConfig(viewMode, data)
+    const { series, legend, axisData, tooltip } = mapperInstance.getChartConfig(viewMode, data)
     const option = {
         animation: animationEnabled,
         color: CHART_COLOR_SET,
