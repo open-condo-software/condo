@@ -15,6 +15,7 @@ interface IGetChartConfig {
         }
     }
 }
+
 type restTableOptions = {
     translations: unknown;
     filters?: unknown;
@@ -43,7 +44,6 @@ class TicketChart {
     public getTableConfig: IGetTableConfig = (viewMode, data, restOptions) => {
         return this.chartConfigMap[viewMode]['table'](viewMode, data, restOptions)
     }
-
 }
 
 export default TicketChart
