@@ -1,18 +1,13 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
-import { Drawer, Layout, Typography, Space } from 'antd'
+import { Drawer, Layout, Space } from 'antd'
 import get from 'lodash/get'
-import React, { useCallback } from 'react'
-import { useRouter } from 'next/router'
-import classnames from 'classnames'
+import React from 'react'
 import Link from 'next/link'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
-import { TrialTooltip } from '../../../../../subscription/components/TrialTooltop'
-import { FocusElement } from '../../../Focus/FocusElement'
 import {
-    ItemContainer,
-    MenuItem,
+    MenuItemsContainer,
     SIDE_MENU_WIDTH,
     sideMenuDesktopCss,
     sideMenuMobileCss,
@@ -22,90 +17,10 @@ import { Logo } from '@condo/domains/common/components/Logo'
 import { Button } from '@condo/domains/common/components/Button'
 import { PlusCircleFilled } from '@ant-design/icons'
 
-const MenuItems = (props) => {
-    const router = useRouter()
-    const intl = useIntl()
-
-    const isItemActive = useCallback((path) => {
-        if (path === '/') {
-            return router.route === path
-        }
-        // TODO(sitozzz): rewrite match logic for support nested navigation like /domain/group/another_domain
-        return router.route.includes(path)
-    }, [router])
-
-    return (
-        props.menuData
-            ? (
-                <ItemContainer>
-                    {
-                        props.menuData.map((item) => {
-                            if (item.hideInMenu) {
-                                return null
-                            }
-
-                            const menuItemClassNames = classnames({
-                                'active': isItemActive(item.path),
-                            })
-
-                            const Icon = item.icon
-                            const Container = item.container
-
-                            const menuItem = item.focusable
-                                ? (
-                                    <FocusElement>
-                                        <Link href={item.path} key={item.path}>
-                                            <MenuItem className={menuItemClassNames}>
-                                                <Icon className='icon' />
-                                                <Typography.Text className='label'>
-                                                    {intl.formatMessage({ id: item.locale })}
-                                                </Typography.Text>
-                                            </MenuItem>
-                                        </Link>
-                                    </FocusElement>
-                                )
-                                : (
-                                    <Link href={item.path} key={item.path}>
-                                        <MenuItem className={menuItemClassNames}>
-                                            <Icon className='icon' />
-                                            <Typography.Text className='label'>
-                                                {intl.formatMessage({ id: item.locale })}
-                                            </Typography.Text>
-                                        </MenuItem>
-                                    </Link>
-                                )
-
-                            if (Container) {
-                                return (
-                                    <Container>
-                                        {menuItem}
-                                    </Container>
-                                )
-                            }
-
-                            return menuItem
-                        })
-                    }
-                </ItemContainer>
-            )
-            : null
-    )
-}
-
-type MenuItem = {
-    hideInMenu: boolean
-    locale: boolean
-    name: string
-    icon: React.ElementType
-    path: string
-    focusable?: boolean
-    container?: React.ElementType
-}
-
 interface ISideMenuProps {
-    onLogoClick: (...args) => void
-    menuData: Array<MenuItem>,
+    menuData: React.ElementType
     isMobile: boolean
+    onLogoClick: (...args) => void
     isSideMenuCollapsed: boolean
     toggleSideMenuCollapsed: (...args) => void
 }
@@ -155,7 +70,9 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
             >
                 <Logo onClick={onLogoClick} />
                 <Space size={60} direction={'vertical'}>
-                    <MenuItems menuData={menuData} />
+                    <MenuItemsContainer>
+                        {menuData}
+                    </MenuItemsContainer>
                     <TicketCreateButton />
                 </Space>
             </Layout.Sider>
@@ -173,9 +90,10 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
             >
                 <Logo onClick={onLogoClick} />
                 <Space size={60} direction={'vertical'}>
-                    <MenuItems menuData={menuData} />
+                    <MenuItemsContainer>
+                        {menuData}
+                    </MenuItemsContainer>
                     <TicketCreateButton />
-                    <TrialTooltip/>
                 </Space>
             </Layout.Sider>
             {menuData && <div css={substrateDesktopCss} className='side-menu-substrate' />}
