@@ -22,7 +22,7 @@ describe('CreateResidentTicketService', () => {
         expect(ticket.id).toMatch(UUID_RE)
     })
 
-    test('resident: can create resident ticket with wrong unitName', async () => {
+    test('resident: can create resident ticket with unit name which does not exist at property map', async () => {
         const userClient = await makeClientWithResidentUserAndProperty()
         const unitName = faker.random.alphaNumeric(10)
 
