@@ -1,4 +1,5 @@
-import React, { useCallback, useContext, useRef, useState } from 'react'
+import { useRouter } from 'next/router'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 
 interface IFocusContext {
     isFocusVisible?: boolean
@@ -10,8 +11,18 @@ const FocusContext = React.createContext<IFocusContext>({})
 export const useFocusContext = () => useContext<IFocusContext>(FocusContext)
 
 export const FocusContextProvider: React.FC = (props) => {
+    const router = useRouter()
     const [isFocusVisible, setIsFocusVisible] = useState(false)
     const timeoutId = useRef(null)
+
+    useEffect(() => {
+        if (router.events) {
+            router.events.on('routeChangeStart', () => {
+                setIsFocusVisible(false)
+                timeoutId.current = null
+            })
+        }
+    }, [router.events])
 
     const showFocusTooltip = useCallback(() => {
         if (!isFocusVisible) {
