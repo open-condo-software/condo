@@ -66,7 +66,7 @@ export const OrganizationSelect: React.FC = () => {
         { fetchPolicy: 'cache-first' }
     )
 
-    const { setVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm()
+    const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({})
 
     const options = React.useMemo(() => {
         return userOrganizations.filter(link => link.isAccepted).map((organization) => {
