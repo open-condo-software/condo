@@ -1,12 +1,13 @@
 import React from 'react'
 import Head from 'next/head'
+import Error from 'next/error'
 import { Typography, Tabs, Tooltip, Col } from 'antd'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useIntl } from '@core/next/intl'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { BillingChooser } from '../../domains/billing/components/Settings/BillingChooser'
-import { Feature } from '@condo/domains/common/components/Feature'
+import { FeatureFlagRequired } from '../../domains/common/components/containers/FeatureFlag'
 
 const SettingsPage = () => {
     const intl = useIntl()
@@ -15,7 +16,7 @@ const SettingsPage = () => {
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const RolesAndAccessesTitle = intl.formatMessage({ id: 'RolesAndAccess' })
     return (
-        <Feature name={'settings'} fallbackUrl={'/'}>
+        <FeatureFlagRequired name={'billing'} fallback={<Error statusCode={404}/>}>
             <Head>
                 <title>
                     {PageTitle}
@@ -47,7 +48,7 @@ const SettingsPage = () => {
                     </PageContent>
                 </OrganizationRequired>
             </PageWrapper>
-        </Feature>
+        </FeatureFlagRequired>
     )
 }
 
