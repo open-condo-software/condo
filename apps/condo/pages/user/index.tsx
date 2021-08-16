@@ -14,6 +14,7 @@ import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useOrganization } from '@core/next/organization'
+import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag';
 
 export const UserInfoPage = () => {
     const intl = useIntl()
@@ -36,6 +37,7 @@ export const UserInfoPage = () => {
             <Head>
                 <title>{name}</title>
             </Head>
+            <FeatureFlagsController/>
             <PageWrapper>
                 <PageContent>
                     <Row gutter={[0, 40]}>
