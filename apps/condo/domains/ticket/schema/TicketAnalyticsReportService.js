@@ -5,11 +5,35 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
 const moment = require('moment')
-const get = require('lodash/get')
-const { createCountersStructure, fetchTicketsForAnalytics, DATE_FORMATS } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
+const { sortStatusesByType } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
 const { TicketAnalyticsQueryBuilder } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
 const { DATE_DISPLAY_FORMAT } = require('@condo/domains/ticket/constants/common')
+const { Property: PropertyServerUtils } = require('@condo/domains/property/utils/serverSchema')
+const { TicketStatus: TicketStatusServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
+const isEmpty = require('lodash/isEmpty')
+const get = require('lodash/get')
 
+const createPropertyRange = async (context, organizationWhereInput) => {
+    const properties = await PropertyServerUtils.getAll(context, { organization:  organizationWhereInput  })
+    return properties.map( property => ({ label: property.address, value: property.id }))
+}
+
+const createStatusRange = async (context, organizationWhereInput) => {
+    const statuses = await TicketStatusServerUtils.getAll(context, { OR: [
+        { organization: organizationWhereInput },
+        { organization_is_null: true },
+    ] })
+    // We use organization specific statuses if they exists
+    // or default if there is no organization specific status with a same type
+    const allStatuses = statuses.filter(status => {
+        if (!status.organization) {
+            return true
+        }
+        return !statuses
+            .find(organizationStatus => organizationStatus.organization !== null && organizationStatus.type === status.type)
+    })
+    return sortStatusesByType(allStatuses).map(status => ({ label: status.name, value: status.id }))
+}
 
 const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportService', {
     types: [
@@ -30,7 +54,6 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             type: 'type TicketGroupedCounter { count: Int!, status: String, property: String, dayGroup: String!  }',
         },
     ],
-
     queries: [
         {
             access: access.canReadTicketAnalyticsReport,
@@ -40,9 +63,43 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
 
                 const analyticsQueryBuilder = new TicketAnalyticsQueryBuilder(where, groupBy)
                 await analyticsQueryBuilder.loadData()
+
+                const translates = {}
+                for (const group of groupBy) {
+                    switch (group) {
+                        case 'property':
+                            translates[group] = await createPropertyRange(context, where.organization)
+                            break
+                        case 'status':
+                            translates[group] = await createStatusRange(context, where.organization)
+                            break
+                        default:
+                            break
+                    }
+                }
+
                 const result = analyticsQueryBuilder
                     .getResult(({ count, dayGroup, ...searchResult }) =>
-                        ({ ...searchResult, dayGroup: moment(dayGroup).format(DATE_DISPLAY_FORMAT), count: parseInt(count) }))
+                    {
+                        if (!isEmpty(translates)) {
+                            Object.entries(searchResult).forEach(([groupName, value]) => {
+                                const translateMapping = get(translates, groupName, false)
+                                if (translateMapping) {
+                                    searchResult[groupName] = translateMapping.find(translate => translate.value === value).label
+                                }
+                            })
+                            return {
+                                ...searchResult,
+                                dayGroup: moment(dayGroup).format(DATE_DISPLAY_FORMAT),
+                                count: parseInt(count),
+                            }
+                        }
+                        return {
+                            ...searchResult,
+                            dayGroup: moment(dayGroup).format(DATE_DISPLAY_FORMAT),
+                            count:parseInt(count),
+                        }
+                    })
                 return { result }
                 // let allTickets = await fetchTicketsForAnalytics(context, where)
                 // allTickets = allTickets.map( ticket => {

@@ -173,4 +173,5 @@ module.exports = {
     createCountersStructure,
     fetchTicketsForAnalytics,
     TicketAnalyticsQueryBuilder,
+    sortStatusesByType,
 }
