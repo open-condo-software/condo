@@ -1,10 +1,10 @@
-import styled from '@emotion/styled'
+import React, { useState, Dispatch, SetStateAction } from 'react'
 import { Col, Modal, Row, Typography } from 'antd'
 import { useRouter } from 'next/router'
-import React, { useState, Dispatch, SetStateAction } from 'react'
+import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
-import { Poster } from '../../common/components/Poster'
+import { Poster } from '@condo/domains/common/components/Poster'
 
 const PosterWrapper = styled.div`
   height: 320px;
@@ -35,7 +35,9 @@ export const useOnBoardingCompleteModal = (): IApplySubscriptionModal => {
             footer={[
                 <Button size={'large'} key="submit" type="sberPrimary" onClick={() => {
                     setIsVisible(false)
-                    router.push('/')
+                    if (router.pathname === '/onboarding') {
+                        router.push('/')
+                    }
                 }}>{OnBoardingCompleteButton}</Button>,
             ]}
         >

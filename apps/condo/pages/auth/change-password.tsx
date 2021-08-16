@@ -4,7 +4,7 @@ import { useIntl } from '@core/next/intl'
 import { Form, Input, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
@@ -13,6 +13,9 @@ import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN } fr
 import { useAuth } from '@core/next/auth'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 
 const INPUT_STYLE = { width: '20em' }
 
@@ -97,13 +100,17 @@ const ChangePasswordPage: AuthPage = () => {
             setIsLoading(false)
         },
     })
+
     const [recoveryTokenError, setRecoveryTokenError] = useState<Error | null>(null)
+
     useEffect(() => {
         checkPasswordRecoveryToken({ variables: { data: { token } } })
     }, [])
+
     if (isLoading){
         return <Loader size="large" delay={0} fill />
     }
+
     if (recoveryTokenError) {
         return (
             <BasicEmptyListView>
@@ -117,7 +124,6 @@ const ChangePasswordPage: AuthPage = () => {
             </BasicEmptyListView>
         )
     }
-
 
     return (
         <div >

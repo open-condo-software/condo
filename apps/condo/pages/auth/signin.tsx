@@ -4,6 +4,7 @@ import { useIntl } from '@core/next/intl'
 import { Col, Row, Typography } from 'antd'
 import Head from 'next/head'
 import React from 'react'
+import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 const SignInPage: AuthPage = () => {
     const intl = useIntl()
