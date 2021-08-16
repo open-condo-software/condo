@@ -1,9 +1,6 @@
 import styled from '@emotion/styled'
 import { Tooltip } from 'antd'
-import { useRouter } from 'next/router'
-import React, { useCallback, useRef, useState } from 'react'
-import { useApolloClient } from '@core/next/apollo'
-import { OnBoardingStep as OnBoardingStepGql } from '../../../onboarding/gql'
+import React from 'react'
 import { useFocusContext } from './FocusContextProvider'
 
 const FocusWrapper = styled.div`
@@ -23,7 +20,7 @@ const FocusWrapper = styled.div`
     background: linear-gradient(120deg, #00F260, #0575E6, #00F260);
     background-size: 300% 300%;
     clip-path: polygon(0% 100%, 3px 100%, 3px 3px, calc(100% - 3px) 3px, calc(100% - 3px) calc(100% - 3px), 3px calc(100% - 3px), 3px 100%, 100% 100%, 100% 0%, 0% 0%);
-    animation: frame-enter 1s forwards ease-in-out reverse, gradient-animation 4s ease-in-out infinite;
+    animation: frame-enter 1s forwards ease-in-out, gradient-animation 4s ease-in-out infinite;
 
     @keyframes gradient-animation {
       0% {
@@ -39,19 +36,14 @@ const FocusWrapper = styled.div`
 
     @keyframes frame-enter {
       0% {
-        clip-path: polygon(0% 100%, 3px 100%, 3px 3px, calc(100% - 3px) 3px, calc(100% - 3px) calc(100% - 3px), 3px calc(100% - 3px), 3px 100%, 100% 100%, 100% 0%, 0% 0%);
+        opacity: 0;
       }
-      25% {
-        clip-path: polygon(0% 100%, 3px 100%, 3px 3px, calc(100% - 3px) 3px, calc(100% - 3px) calc(100% - 3px), calc(100% - 3px) calc(100% - 3px), calc(100% - 3px) 100%, 100% 100%, 100% 0%, 0% 0%);
-      }
+     
       50% {
-        clip-path: polygon(0% 100%, 3px 100%, 3px 3px, calc(100% - 3px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 3px, 100% 0%, 0% 0%);
-      }
-      75% {
-        clip-path: polygon(0% 100%, 3px 100%, 3px 3px, 3px 3px, 3px 3px, 3px 3px, 3px 3px, 3px 3px, 3px 0%, 0% 0%);
+        opacity: 50%;
       }
       100% {
-        path: polygon(0% 100%, 3px 100%, 3px 100%, 3px 100%, 3px 100%, 3px 100%, 3px 100%, 3px 100%, 3px 100%, 0% 100%);
+        opacity: 100%;
       }
     }
   }
