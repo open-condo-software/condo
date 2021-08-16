@@ -49,7 +49,7 @@ interface IFeature {
 /**
  * Container which will return { children } or { fallback } based on feature flag state
  */
-export const FeatureFlagRequired: ReactNode = (props: React.PropsWithChildren<IFeature>) => {
+export const FeatureFlagRequired: React.FC<IFeature> = (props) => {
     const {
         name,
         children,
@@ -72,19 +72,23 @@ export const FeatureFlagRequired: ReactNode = (props: React.PropsWithChildren<IF
         return <>{ children }</>
     }
 
-    return fallback
+    return (
+        <>
+            {fallback}
+        </>
+    )
 }
 
 /**
  * Controller which allows to set feature flags in localstorage using non-trivial cheat-code interface
  */
-export const FeatureFlagsController: ReactNode = (props) => {
+export const FeatureFlagsController: React.FC = () => {
 
     useKeyboardShortcut(['D', 'O', 'M', 'A'], () => showModal(), { overrideSystem: false })
 
     const [isModalVisible, setIsModalVisible] = useState(false)
 
-    const featureFlagsConfig = ['billing']
+    const featureFlagsConfig = ['billing', 'settings', 'se']
 
     const showModal = () => {
         setIsModalVisible(true)
@@ -99,7 +103,7 @@ export const FeatureFlagsController: ReactNode = (props) => {
                     featureFlagsConfig.map((name) => (
                         <>
                             <div>
-                                <h2>{name}</h2>
+                                <h2><b>{name}</b></h2>
                                 <Switch defaultChecked={enabledFlags.includes(name)} checkedChildren="1" unCheckedChildren="0" onChange={() => _toggleFeature(name)} />
                             </div>
                         </>
