@@ -13,6 +13,7 @@ const { makeLoggedInAdminClient, makeLoggedInClient } = require ('@core/keystone
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { Organization: OrganizationGQL, OrganizationEmployee: OrganizationEmployeeGQL, OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@condo/domains/organization/gql')
 const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql');
+const { buildingMapJson } = require('@condo/domains/property/constants/property')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
@@ -212,6 +213,20 @@ async function createTestOrganizationWithAccessToAnotherOrganization () {
     }
 }
 
+async function makeEmployeeUserClientWithAbilities (abilities = {}) {
+    const adminClient = await makeLoggedInAdminClient()
+    const userClient = await makeClientWithProperty()
+    const [organization] = await createTestOrganization(adminClient)
+    const [property] = await createTestProperty(adminClient, organization, { map: buildingMapJson })
+    const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, abilities)
+    const [employee] = await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+    userClient.organization = organization
+    userClient.property = property
+    userClient.role = role
+    userClient.employee = employee
+    return userClient
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -226,6 +241,7 @@ module.exports = {
     makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
     updateTestOrganizationEmployee, createTestOrganizationWithAccessToAnotherOrganization,
     OrganizationLink, createTestOrganizationLink, updateTestOrganizationLink,
+    makeEmployeeUserClientWithAbilities,
 }
 
     /* AUTOGENERATE MARKER <EXPORTS> */
