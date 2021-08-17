@@ -4,6 +4,7 @@ import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
+import getConfig from 'next/config'
 
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
@@ -17,7 +18,7 @@ import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleA
 import BehaviorRecorder from '@condo/domains/common/components/containers/BehaviorRecorder'
 import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
-
+import { extractReqLocale } from '@condo/domains/common/utils/locale'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
@@ -26,7 +27,6 @@ import { BarChartIcon } from '@condo/domains/common/components/icons/BarChart'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
 import { OnBoardingProvider } from '@condo/domains/onboarding/components/OnBoardingContext'
 import { FocusContextProvider } from '../domains/common/components/Focus/FocusContextProvider'
-import { SubscriptionContextProvider } from '@condo/domains/subscription/components/SubscriptionContext'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import { ThunderboltFilled, HomeFilled } from '@ant-design/icons'
 
@@ -87,31 +87,29 @@ const MyApp = ({ Component, pageProps }) => {
     const RequiredAccess = Component.requiredAccess || React.Fragment
 
     return (
-        <SubscriptionContextProvider>
-            <GlobalErrorBoundary>
-                <CacheProvider value={cache}>
-                    <Head>
-                        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
-                        <meta
-                            name="viewport"
-                            content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
-                        />
-                    </Head>
-                    <GlobalStyle/>
-                    <FocusContextProvider>
+        <GlobalErrorBoundary>
+            <CacheProvider value={cache}>
+                <Head>
+                    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+                    <meta
+                        name="viewport"
+                        content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
+                    />
+                </Head>
+                <GlobalStyle/>
+                <FocusContextProvider>
+                    <OnBoardingProvider>
                         <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                            <OnBoardingProvider>
-                                <RequiredAccess>
-                                    <Component {...pageProps} />
-                                </RequiredAccess>
-                            </OnBoardingProvider>
+                            <RequiredAccess>
+                                <Component {...pageProps} />
+                            </RequiredAccess>
                         </LayoutComponent>
-                    </FocusContextProvider>
-                    <GoogleAnalytics/>
-                    <BehaviorRecorder engine="plerdy"/>
-                </CacheProvider>
-            </GlobalErrorBoundary>
-        </SubscriptionContextProvider>
+                    </OnBoardingProvider>
+                </FocusContextProvider>
+                <GoogleAnalytics/>
+                <BehaviorRecorder engine="plerdy"/>
+            </CacheProvider>
+        </GlobalErrorBoundary>
     )
 }
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
@@ -141,8 +139,8 @@ const apolloClientConfig = {
 }
 
 export default (
-    withApollo({ ssr: true, apolloCacheConfig })(
-        withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale, apolloClientConfig })(
+    withApollo({ ssr: true, apolloCacheConfig, apolloClientConfig })(
+        withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale })(
             withAuth({ ssr: true })(
                 withOrganization({
                     ssr: true,

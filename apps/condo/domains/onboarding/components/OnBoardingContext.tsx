@@ -90,7 +90,7 @@ export const OnBoardingProvider: React.FC = (props) => {
                 ...step,
                 stepAction: step.completed ? null : onBoardingActionMap[stepKey],
                 iconView: step.completed ? CheckOutlined : onBoardingIconsMap[step.icon],
-                type: getStepType(step, get(onBoarding, 'stepsTransitions'), onBoardingSteps),
+                type: getStepType(step, get(onBoarding, 'stepsTransitions', {}), onBoardingSteps),
             }
         })
     }, [onBoardingSteps])

@@ -63,7 +63,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     }
 
     const menuItemClassNames = classnames({
-        'active': path === '/' ? route === path : route.includes(path),
+        'active': route.includes(path),
     })
 
     return (
