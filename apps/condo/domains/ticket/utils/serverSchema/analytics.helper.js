@@ -67,45 +67,6 @@ const createPropertyRange = async (context, organizationWhereInput) => {
     return properties.map( property => ({ label: property.address, value: property.id }))
 }
 
-// TODO(zuch): add support for groupping by classifier, assignee, executor
-const createCountersStructure = async ({ context, organization, groups, datesRange }) => {
-    const translates = {}
-    const { min, max } = datesRange
-    const ranges = []
-    for (const groupName of groups) {
-        let range = []
-        switch (groupName) {
-            case 'week':
-                range = createDateRange(moment(min).endOf(groupName), moment(max).endOf(groupName), groupName)
-                break
-            case 'day':
-            case 'month':
-                range = createDateRange(min, max, groupName)
-                break
-            case 'status':
-                range = await createStatusRange(context, organization)
-                break
-            case 'property':
-                range = await createPropertyRange(context, organization)
-                break
-            default:
-                throw new Error('Unknown group name')
-        }
-        translates[groupName] = Object.fromEntries(range.map(({ value, label }) => ([ value, label ])))
-        ranges.push(range)
-    }
-    // Transform [[a1, a2, a3], [b1, b2], [c1, c2]] to
-    // { a1: { b1: { c1: 0, c2: 0 }, b2: { c1: 0, c2: 0 } }, a2: { ... }}
-    const groupedCounters = ranges.reduceRight((previousValue, currentValue) =>
-        Object.fromEntries(currentValue.map(option =>
-            ([option.value, previousValue])))
-    , 0)
-    return {
-        groupedCounters,
-        translates,
-    }
-}
-
 const fetchTicketsForAnalytics = async (context, ticketWhereInput) => {
     let skip = 0
     let maxCount = MAX_TICKET_REPORT_COUNT
@@ -159,18 +120,17 @@ class TicketAnalyticsQueryBuilder extends AnalyticsQueryBuilder {
                 .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
                 .whereIn(whereIn[0], whereIn[1])
                 .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
-                .orderBy('dayGroup', 'desc')
+                .orderBy('dayGroup', 'asc')
         }
         this.result = await query.groupBy(['dayGroup', ...this.groups])
             .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
             .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
-            .orderBy('dayGroup', 'desc')
+            .orderBy('dayGroup', 'asc')
     }
 }
 
 module.exports = {
     DATE_FORMATS,
-    createCountersStructure,
     fetchTicketsForAnalytics,
     TicketAnalyticsQueryBuilder,
     sortStatusesByType,

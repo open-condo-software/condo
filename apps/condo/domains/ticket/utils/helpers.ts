@@ -1,11 +1,20 @@
 import { SortOrder } from 'antd/es/table/interface'
 import { format, formatDuration, intervalToDuration } from 'date-fns'
 import get from 'lodash/get'
+import groupBy from 'lodash/groupBy'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import moment, { Moment } from 'moment'
 import { ParsedUrlQuery } from 'querystring'
-import { Ticket, TicketAnalyticsGroupBy, TicketStatus, TicketStatusWhereInput, TicketWhereInput } from '../../../schema'
-import  { TicketSelectTypes, ViewModeTypes } from '../components/TicketChart'
+import {
+    Ticket,
+    TicketAnalyticsGroupBy,
+    TicketGroupedCounter,
+    TicketStatus,
+    TicketStatusWhereInput,
+    TicketWhereInput,
+} from '../../../schema'
+import { AnalyticsDataType, TicketSelectTypes, ViewModeTypes } from '../components/TicketChart'
+import { TICKET_REPORT_SPECIFICATIONS } from '@condo/domains/ticket/constants/common'
 
 export const getTicketCreateMessage = (intl, ticket) => {
     if (!ticket) {
@@ -409,114 +418,21 @@ export const filterToQuery: IFilterToQuery = (filter, viewMode, ticketType) => {
     return { AND, groupBy }
 }
 
-export const ticketChartDataMapper = new TicketChart({
-    line: {
-        chart: (viewMode, data) => {
-            const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
-            const legend = Object.keys(data)
-            const series = []
-            Object.entries(data).map(([groupBy, dataObj]) => {
-                series.push({
-                    name: groupBy,
-                    type: viewMode,
-                    symbol: 'none',
-                    stack: groupBy,
-                    data: Object.values(dataObj),
-                    emphasis: {
-                        focus: 'none',
-                        blurScope: 'none',
-                    },
-                })
-            })
-            const axisData = { yAxis: { type: 'value', data: null }, xAxis: { type: 'category', data: axisLabels } }
-            const tooltip = { trigger: 'axis', axisPointer: { type: 'line' } }
-            return { series, legend, axisData, tooltip }
-        },
-        table: (viewMode, data, restOptions) => {
-            const dataSource = []
-            const { translations, filters } = restOptions
-            const tableColumns: TableColumnsType = [
-                { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
-                {
-                    title: translations['date'],
-                    dataIndex: 'date',
-                    key: 'date',
-                    defaultSortOrder: 'descend',
-                    sorter: (a, b) => moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
-                },
-                ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) =>a[key] - b[key] })),
-            ]
-            const uniqueDates = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
-            uniqueDates.forEach((date, key) => {
-                const restTableColumns = {}
-                Object.keys(data).forEach(ticketType => (restTableColumns[ticketType] = data[ticketType][date]))
-                let address = translations['allAddresses']
-                const addressList = get(filters, 'addresses')
-                if (addressList && addressList.length) {
-                    address = addressList.join(', ')
-                }
-                dataSource.push({ key, address, date, ...restTableColumns })
-            })
-            return { dataSource, tableColumns }
-        },
-    },
-    bar: {
-        chart: (viewMode, data) => {
-            const series = []
-            const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
-            const legend = Object.keys(data)
-            Object.entries(data).map(([groupBy, dataObj]) => {
-                series.push({
-                    name: groupBy,
-                    type: viewMode,
-                    symbol: 'none',
-                    stack: 'total',
-                    data: Object.values(dataObj),
-                    emphasis: {
-                        focus: 'self',
-                        blurScope: 'self',
-                    },
-                })
-            })
-            const axisData = { yAxis: { type: 'category', data: axisLabels }, xAxis: { type: 'value', data: null } }
-            const tooltip = { trigger: 'item', axisPointer: { type: 'line' } }
-            return { series, legend, axisData, tooltip }
-        },
-        table: (viewMode, data, restOptions) => {
-            const { translations, filters } = restOptions
-            const dataSource = []
-            const tableColumns: TableColumnsType = [
-                { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
-                ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
-            ]
-            const restTableColumns = {}
-            const addressList = get(filters, 'addresses')
-            const aggregateSummary = addressList !== undefined && addressList.length === 0
-            if (aggregateSummary) {
-                Object.entries(data).forEach((rowEntry) => {
-                    const [ticketType, dataObj] = rowEntry
-                    const counts = Object.values(dataObj) as number[]
-                    restTableColumns[ticketType] = counts.reduce((a, b) => a + b, 0)
-                })
-                dataSource.push({
-                    key: 0,
-                    address: translations['allAddresses'],
-                    ...restTableColumns,
-                })
-            } else {
-                addressList.forEach((address, key) => {
-                    const tableRow = { key, address }
-                    Object.entries(data).forEach(rowEntry => {
-                        const [ticketType, dataObj] = rowEntry
-                        const counts = Object.entries(dataObj)
-                            .filter(obj => obj[0] === address).map(e => e[1]) as number[]
-                        tableRow[ticketType] = counts.reduce((a, b) => a + b, 0)
-                    })
-                    dataSource.push(tableRow)
-                })
-            }
-            return { dataSource, tableColumns }
-        },
+interface IGetAggregatedData {
+    (data: TicketGroupedCounter[], groupBy: TicketAnalyticsGroupBy[]): AnalyticsDataType
+}
 
-    },
-})
+export const getAggregatedData: IGetAggregatedData = (data, groupByFilter) => {
+    const [axisGroupKey] = groupByFilter
+    const labelsGroupKey = TICKET_REPORT_SPECIFICATIONS.includes(groupByFilter[1]) ? 'dayGroup' : groupByFilter[1]
+    const groupedResult = groupBy(data, axisGroupKey)
+    const result = {}
+    Object.entries(groupedResult).forEach(([filter, dataObject]) => {
+        result[filter] = Object.fromEntries(
+            Object.entries(
+                groupBy(dataObject, labelsGroupKey)
+            ).map(([labelsGroupTitle, resultObject]) => [labelsGroupTitle, resultObject[0].count])
+        )
+    })
+    return result
+}

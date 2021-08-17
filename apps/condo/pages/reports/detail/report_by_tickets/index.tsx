@@ -32,13 +32,18 @@ import { useRouter } from 'next/router'
 import qs from 'qs'
 import DateRangePicker from '@condo/domains/common/components/DateRangePicker'
 import TicketChart, { ViewModeTypes, TicketSelectTypes } from '@condo/domains/ticket/components/TicketChart'
-import { filterToQuery, specificationTypes, ticketAnalyticsPageFilters } from '@condo/domains/ticket/utils/helpers'
+import {
+    filterToQuery,
+    getAggregatedData,
+    specificationTypes,
+    ticketAnalyticsPageFilters,
+} from '@condo/domains/ticket/utils/helpers'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
-import { DATE_DISPLAY_FORMAT } from '@condo/domains/ticket/constants/common'
+import { DATE_DISPLAY_FORMAT, TICKET_REPORT_SPECIFICATIONS } from '@condo/domains/ticket/constants/common'
 
 interface ITicketAnalyticsPage extends React.FC {
     headerAction?: JSX.Element
@@ -63,7 +68,7 @@ const DATE_RANGE_PRESETS = {
     year: [moment().subtract(1, 'year'), moment()],
 }
 type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
-const SPECIFICATIONS = ['day', 'week']
+
 const tabsCss = css`
   & .ant-tabs-tab.ant-tabs-tab-active {
     font-weight: bold;
@@ -97,7 +102,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const [dateRangePreset, setDateRangePreset] = useState<null | string>(null)
     const [addressList, setAddressList] = useState([])
     const addressListRef = useRef([])
-    const [specification, setSpecification] = useState<specificationTypes>(SPECIFICATIONS[0] as specificationTypes)
+    const [specification, setSpecification] = useState<specificationTypes>(TICKET_REPORT_SPECIFICATIONS[0] as specificationTypes)
 
     const updateUrlFilters = useCallback(() => {
         const [startDate, endDate] = dateRange
@@ -252,12 +257,16 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         fetchPolicy: 'network-only',
         onCompleted: response => {
             const { result: { result } } = response
-            setAnalyticsData(result)
+            const { groupBy } = filterToQuery(filtersRef.current, viewMode, ticketType)
+
+            setAnalyticsData(getAggregatedData(result, groupBy))
             setLoading(false)
         },
     })
     const getAnalyticsData = () => {
-        if (mapperInstanceRef.current === null) {
+        if (filtersRef.current !== null) {
+            setLoading(true)
+            const { AND, groupBy } = filterToQuery(filtersRef.current, viewMode, ticketType)
             mapperInstanceRef.current = new TicketChart({
                 line: {
                     chart: (viewMode, data) => {
@@ -277,6 +286,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 },
                             })
                         })
+                        console.log(series)
                         const axisData = { yAxis: { type: 'value', data: null }, xAxis: { type: 'category', data: axisLabels } }
                         const tooltip = { trigger: 'axis', axisPointer: { type: 'line' } }
                         return { series, legend, axisData, tooltip }
@@ -369,10 +379,6 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 
                 },
             })
-        }
-        if (filtersRef.current !== null) {
-            setLoading(true)
-            const { AND, groupBy } = filterToQuery(filtersRef.current, viewMode, ticketType)
             const where = { organization: { id: userOrganizationId }, AND }
             loadTicketAnalytics({ variables: { data: { groupBy, where } } })
         }
