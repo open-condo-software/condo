@@ -1,4 +1,6 @@
 import moment from 'moment'
+import get from 'lodash/get'
+import { ParsedUrlQuery } from 'querystring'
 
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>
@@ -8,9 +10,35 @@ export type WhereType = { [key: string]: WhereArgumentType | WhereType }
 export type FilterType = (search: QueryArgType) => WhereType
 export type ArgumentType = 'single' | 'array'
 export type ArgumentDataType = 'string' | 'number' | 'dateTime' | 'boolean'
+export type FiltersApplyMode = 'AND' | 'OR'
+
+export type QueryMeta = {
+    keyword: string
+    filters: FilterType[]
+    // by default === 'AND'
+    combineType?: FiltersApplyMode
+}
+
+export type SorterColumn = {
+    columnKey: string,
+    order: 'ascend' | 'descend'
+}
+
+enum FULL_TO_SHORT_ORDERS_MAP {
+    ascend = 'ASC',
+    descend = 'DESC',
+}
+
+enum SHORT_TO_FULL_ORDERS_MAP {
+    ASC = 'ascend',
+    DESC = 'descend',
+}
 
 export const getFilter: (
-    dataIndex: DataIndexType, argType: ArgumentType, argData: ArgumentDataType, suffix: string
+    dataIndex: DataIndexType,
+    argType: ArgumentType,
+    argData: ArgumentDataType,
+    suffix: string
 ) => FilterType = (
     dataIndex, argType, argData, suffix
 ) => {
@@ -97,5 +125,33 @@ export const getBooleanFilter: (dataIndex: DataIndexType) => FilterType = (dataI
     return getFilter(dataIndex, 'single', 'boolean', undefined)
 }
 
+export const getSortersFromQuery = (query: ParsedUrlQuery): SorterColumn[] => {
+    let sorters = get(query, 'sort', [])
+    if (!Array.isArray(sorters)) {
+        sorters = sorters.split(',')
+    }
 
+    return sorters
+        .map((sorter) => {
+            const [column, order] = sorter.split('_')
+            if (!column || !order || !SHORT_TO_FULL_ORDERS_MAP[order]) return
+            return { columnKey: column, order: SHORT_TO_FULL_ORDERS_MAP[order] }
+        })
+        .filter(Boolean)
+}
+
+export const convertSortersToSortBy = (sorters?: SorterColumn | Array<SorterColumn>): Array<string> => {
+    if (!sorters) {
+        return []
+    }
+    if (!Array.isArray(sorters)) {
+        sorters = [sorters]
+    }
+    return sorters
+        .map((sorter) => {
+            if (!FULL_TO_SHORT_ORDERS_MAP[sorter.order]) return
+            return `${sorter.columnKey}_${FULL_TO_SHORT_ORDERS_MAP[sorter.order]}`
+        })
+        .filter(Boolean)
+}
 
