@@ -83,6 +83,7 @@
     "react-dom": "^16.13.1",
     "react-fittext": "^1.0.0",
     "react-google-recaptcha-v3": "1.9.4",
+    "react-hotkeys-hook": "^3.4.0",
     "react-indiana-drag-scroll": "^2.0.1",
     "react-markdown": "^4.3.1",
     "react-phone-input-2": "^2.14.0",
@@ -93,8 +94,7 @@
     "uuid": "^8.3.0",
     "validate.js": "^0.13.1",
     "validator": "^13.1.1",
-    "xlsx": "^0.16.9",
-    "use-keyboard-shortcut": "^1.0.6"
+    "xlsx": "^0.16.9"
   },
   "devDependencies": {
     "@testing-library/react": "^11.2.5",

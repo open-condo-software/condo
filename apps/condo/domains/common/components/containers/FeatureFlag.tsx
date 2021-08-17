@@ -16,9 +16,10 @@
 
 import React, { ReactNode, useState } from 'react'
 import { Modal, Switch, Alert } from 'antd'
-import useKeyboardShortcut from 'use-keyboard-shortcut'
+
 import getConfig from 'next/config'
 import { useIntl } from '@core/next/intl'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 
 const getEnabledFeatures = (): Array<string> => {
@@ -99,7 +100,7 @@ export const FeatureFlagRequired: React.FC<IFeature> = (props) => {
  */
 export const FeatureFlagsController: React.FC = () => {
 
-    useKeyboardShortcut(['D', 'O', 'M', 'A'], () => showModal(), { overrideSystem: false })
+    useHotkeys('d+o+m+a', () => setIsModalVisible(true))
 
     const intl = useIntl()
 
@@ -110,10 +111,6 @@ export const FeatureFlagsController: React.FC = () => {
 
     const allFeatures = getAllFeatures()
 
-    const showModal = () => {
-        setIsModalVisible(true)
-    }
-
     const handleOk = () => {
         setIsModalVisible(false)
         window.location.reload()
@@ -123,7 +120,12 @@ export const FeatureFlagsController: React.FC = () => {
 
     return (
         <>
-            <Modal title={ featureFlagsTitle } visible={isModalVisible} onOk={handleOk} cancelButtonProps={{ disabled: true }}>
+            <Modal title={ featureFlagsTitle }
+                visible={isModalVisible}
+                onCancel={() => setIsModalVisible(false)}
+                onOk={handleOk}
+                cancelButtonProps={{ disabled: true }}
+            >
                 <Alert message={ featureFlagsDescription } type="success" />
                 {
                     allFeatures.map((name) => (
