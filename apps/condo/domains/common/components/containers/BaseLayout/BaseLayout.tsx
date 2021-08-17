@@ -37,8 +37,8 @@ const ANT_LOCALES = {
     en: enUS,
 }
 interface IBaseLayoutProps {
-    headerAction: ElementType<unknown>
-    menuData: React.ElementType
+    headerAction?: ElementType<unknown>
+    menuData?: React.ElementType
     style?: CSSProperties
     className?: string
     disableMobile?: boolean
@@ -76,7 +76,6 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
     const toggleSideMenuCollapsed = () => setIsSideMenuCollapsed(!isSideMenuCollapsed)
 
     const TopMenuItems = TopMenuItemsFromProps ? TopMenuItemsFromProps : BaseTopMenuItems
-
 
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
