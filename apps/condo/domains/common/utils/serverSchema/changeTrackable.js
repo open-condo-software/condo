@@ -208,13 +208,15 @@ function generateChangeTrackableFieldsFrom (
  * @param createCallback
  * @param displayNameResolvers
  * @param relatedManyToManyResolvers
+ * @param relatedFieldsList
  * @return function, compatible with Keystone `afterChange` hook
  */
 const storeChangesIfUpdated = (
     fields,
     createCallback,
     displayNameResolvers,
-    relatedManyToManyResolvers
+    relatedManyToManyResolvers,
+    relatedFieldsList = [{}],
 ) => async ({ operation, existingItem, context, originalInput, updatedItem }) => {
     if (operation === 'update') {
         const fieldsChanges = await buildDataToStoreChangeFrom({
@@ -226,8 +228,14 @@ const storeChangesIfUpdated = (
             displayNameResolvers,
             relatedManyToManyResolvers,
         })
+        const fieldsChangesWithRelatedFields = await buildRelatedFields({
+            existingItem,
+            fieldsChanges,
+            relatedFieldsList,
+            displayNameResolvers,
+        })
         if (keys(fieldsChanges).length > 0) {
-            createCallback(fieldsChanges, { existingItem, updatedItem, context })
+            createCallback(fieldsChangesWithRelatedFields, { existingItem, updatedItem, context })
         }
     }
 }
@@ -301,6 +309,52 @@ const buildDataToStoreChangeFrom = async (args) => {
         }
     }))
     return data
+}
+
+const isFieldChanged = (fieldsChanges, fieldKey) => (
+    fieldsChanges[`${fieldKey}From`] !== fieldsChanges[`${fieldKey}To`] ||
+    fieldsChanges[`${fieldKey}IdFrom`] !== fieldsChanges[`${fieldKey}IdTo`] ||
+    fieldsChanges[`${fieldKey}DisplayNameFrom`] !== fieldsChanges[`${fieldKey}DisplayNameTo`] ||
+    fieldsChanges[`${fieldKey}IdsFrom`] !== fieldsChanges[`${fieldKey}IdsTo`] ||
+    fieldsChanges[`${fieldKey}DisplayNamesFrom`] !== fieldsChanges[`${fieldKey}DisplayNamesTo`]
+)
+
+const buildRelatedFields = async (args) => {
+    const {
+        existingItem,
+        fieldsChanges,
+        relatedFieldsList,
+        displayNameResolvers,
+    } = args
+    const dataWithRelatedFields = { ...fieldsChanges }
+
+    // If any of the related fields has changed, then all unchanged related fields must be put in the result data
+    for (const relatedFields of relatedFieldsList) {
+        const relatedFieldsKeys = keys(relatedFields)
+        const changedFieldKeyInRelatedFields = relatedFieldsKeys.find(relatedFieldsKey => isFieldChanged(fieldsChanges, relatedFieldsKey))
+
+        if (changedFieldKeyInRelatedFields) {
+            const unchangedRelatedFieldKeys = relatedFieldsKeys.filter(relatedFieldsKey => !isFieldChanged(fieldsChanges, relatedFieldsKey))
+            const unchangedRelatedFields = pick(relatedFields, [...unchangedRelatedFieldKeys])
+
+            await Promise.all(unchangedRelatedFieldKeys.map(async (key) => {
+                const field = unchangedRelatedFields[key]
+                const existingField = existingItem[key]
+                if (isScalar(field)) {
+                    dataWithRelatedFields[`${key}From`] = existingField
+                    dataWithRelatedFields[`${key}To`] = existingField
+                } else if (isRelationSingle(field)) {
+                    const existingFieldDisplayName = await displayNameResolvers[key](existingItem[key])
+                    dataWithRelatedFields[`${key}IdFrom`] = existingField
+                    dataWithRelatedFields[`${key}IdTo`] = existingField
+                    dataWithRelatedFields[`${key}DisplayNameFrom`] = existingFieldDisplayName
+                    dataWithRelatedFields[`${key}DisplayNameTo`] = existingFieldDisplayName
+                }
+            }))
+        }
+    }
+
+    return dataWithRelatedFields
 }
 
 const isScalar = (field) => (
