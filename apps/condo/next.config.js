@@ -13,6 +13,7 @@ const apolloGraphQLUrl = `${serverUrl}/admin/api`
 const addressSuggestionsConfig = conf['ADDRESS_SUGGESTIONS_CONFIG'] && JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG'])
 const mapApiKey = conf['MAP_API_KEY']
 const behaviorRecorder = { 'plerdy': conf['BEHAVIOR_RECORDER_PLERDY_CONFIG'] }
+const featureFlagsConfig = conf['FEATURE_FLAGS_CONFIG']
 const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
 const googleCaptcha = conf['GOOGLE_RECAPTCHA_CONFIG'] && JSON.parse(conf['GOOGLE_RECAPTCHA_CONFIG'])
 const defaultLocale = conf.DEFAULT_LOCALE
@@ -26,6 +27,7 @@ module.exports = withTM(withLess(withCSS({
         mapApiKey,
         googleCaptcha,
         behaviorRecorder,
+        featureFlagsConfig,
         docsConfig,
         defaultLocale,
     },

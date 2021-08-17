@@ -32,7 +32,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 }
 
 function menuDataRender () {
-    return [
+    const menuDataItems = [
         {
             path: '/analytics',
             icon: PieChartFilled,
@@ -58,12 +58,6 @@ function menuDataRender () {
             icon: UserIcon,
             locale: 'menu.Employees',
         },
-        // TODO (savelevMatthew): Toggle this feature later
-        // {
-        //     path: '/settings',
-        //     icon: GearIcon,
-        //     locale: 'menu.Settings',
-        // },
     ]
 }
 
