@@ -86,7 +86,6 @@ export const getServerSideProps = ({ query }) => {
     return { props: JSON.parse(decryptedText) }
 }
 
-
 const EmptyLayout = ({ children, ...props }) => {
     return <BaseLayout
         {...props}
