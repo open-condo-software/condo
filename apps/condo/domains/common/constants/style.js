@@ -37,6 +37,7 @@ const colors = {
     defaultWhite: generate(white),
     lightGrey: generate(lightGrey),
     beautifulBlue: generate(beautifulBlue),
+    transparent: 'transparent',
     markColor,
     white,
     black,
@@ -67,7 +68,6 @@ const shadows = {
 
 const transitions = {
     elevateTransition: 'box-shadow 0.2s ease-in-out, border 0.2s ease-in-out',
-    transparent: 'transparent',
     easeInOut: 'all .2s ease-in-out',
 }
 
