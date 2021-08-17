@@ -101,6 +101,11 @@ export const FeatureFlagsController: React.FC = () => {
 
     useKeyboardShortcut(['D', 'O', 'M', 'A'], () => showModal(), { overrideSystem: false })
 
+    const intl = useIntl()
+
+    const featureFlagsTitle = intl.formatMessage({ id: 'FeatureFlags.Modal.Title' } )
+    const featureFlagsDescription = intl.formatMessage({ id: 'FeatureFlags.Modal.Description' } )
+
     const [isModalVisible, setIsModalVisible] = useState(false)
 
     const allFeatures = getAllFeatures()
