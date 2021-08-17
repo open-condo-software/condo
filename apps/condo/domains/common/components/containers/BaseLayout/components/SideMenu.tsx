@@ -18,11 +18,11 @@ import { Button } from '@condo/domains/common/components/Button'
 import { PlusCircleFilled } from '@ant-design/icons'
 
 interface ISideMenuProps {
-    menuData: React.ElementType
     isMobile: boolean
     onLogoClick: (...args) => void
     isSideMenuCollapsed: boolean
     toggleSideMenuCollapsed: (...args) => void
+    menuData?: React.ElementType
 }
 
 const TicketCreateButton = () => {
