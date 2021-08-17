@@ -7,7 +7,7 @@ import { MessageDescriptor } from '@formatjs/intl/src/types'
 import Router, { useRouter } from 'next/router'
 import get from 'lodash/get'
 import { Space, Typography } from 'antd'
-import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayout'
+import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 import { Button } from './Button'
 
 interface IReturnBackHeaderActionProps {
