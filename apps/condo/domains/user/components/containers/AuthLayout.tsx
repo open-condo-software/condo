@@ -58,7 +58,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                     <Global styles={formInputFixCss}/>
                     <Layout>
                         <Header
-                            title={<Logo onClick={handleLogoClick} />}
+                            title={<Logo fillColor={'white'} onClick={handleLogoClick} />}
                             extra={headerAction}
                         />
                         <PageContent>
