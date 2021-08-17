@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Row, Col, Typography, Tooltip } from 'antd'
 import { has } from 'lodash'
 import styled from '@emotion/styled'
@@ -8,6 +8,7 @@ import { useIntl } from '@core/next/intl'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { green } from '@ant-design/colors'
 import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/restrictions'
+import { FormattedMessage } from 'react-intl'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -15,13 +16,8 @@ interface ITicketChangeProps {
 
 interface ITicketChangeFieldMessages {
     add?: string,
-    change: string,
+    change?: string,
     remove?: string,
-}
-
-interface ITicketChangeField {
-    title: string,
-    messages: ITicketChangeFieldMessages
 }
 
 export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => {
@@ -47,142 +43,32 @@ export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => 
 
 const useChangedFieldMessagesOf = (ticketChange) => {
     const intl = useIntl()
-    const ClientPhoneChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone.change' })
-    const ClientPhoneAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone.add' })
-    const ClientPhoneRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone.remove' })
-    const DetailsChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details.change' })
-    const DetailsAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details.add' })
-    const DetailsRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details.remove' })
-    const ClientNameChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientName.change' })
-    const ClientNameAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientName.add' })
-    const ClientNameRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientName.remove' })
-    const IsPaidChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.change' })
-    const IsPaidAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.add' })
-    const IsPaidRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.remove' })
-    const IsEmergencyChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.change' })
-    const IsEmergencyAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.add' })
-    const IsEmergencyRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.remove' })
-    const StatusDisplayNameChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.statusDisplayName.change' })
-    const StatusDisplayNameAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.statusDisplayName.add' })
-    const StatusDisplayNameRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.statusDisplayName.remove' })
-    const PropertyDisplayNameChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.propertyDisplayName.change' })
-    const PropertyDisplayNameAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.propertyDisplayName.add' })
-    const PropertyDisplayNameRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.propertyDisplayName.remove' })
-    const UnitNameChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName.change' })
-    const UnitNameAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName.add' })
-    const UnitNameRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.unitName.remove' })
-    const AssigneeChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.assignee.change' })
-    const AssigneeAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.assignee.add' })
-    const AssigneeRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.assignee.remove' })
-    const ClassifierChangeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier.change' })
-    const ClassifierAddMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier.add' })
-    const ClassifierRemoveMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier.remove' })
+    const ClientPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone' })
+    const DetailsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details' })
+    const ClientNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientName' })
+    const StatusDisplayNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.statusDisplayName' })
+    const AssigneeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.assignee' })
+    const ExecutorMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.executor' })
+    const ClassifierMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier' })
+    const AddressMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.address' })
 
-    const fields: ITicketChangeField[] = [
-        {
-            title: 'clientPhone',
-            messages: {
-                add: ClientPhoneAddMessage,
-                change: ClientPhoneChangeMessage,
-                remove: ClientPhoneRemoveMessage,
-            },
-        },
-        {
-            title: 'details',
-            messages: {
-                add: DetailsAddMessage,
-                change: DetailsChangeMessage,
-                remove: DetailsRemoveMessage,
-            },
-        },
-        {
-            title: 'clientName',
-            messages: {
-                add: ClientNameAddMessage,
-                change: ClientNameChangeMessage,
-                remove: ClientNameRemoveMessage,
-            },
-        },
-        {
-            title: 'isPaid',
-            messages: {
-                add: IsPaidAddMessage,
-                change: IsPaidChangeMessage,
-                remove: IsPaidRemoveMessage,
-            },
-        },
-        {
-            title: 'isEmergency',
-            messages: {
-                add: IsEmergencyAddMessage,
-                change: IsEmergencyChangeMessage,
-                remove: IsEmergencyRemoveMessage,
-            },
-        },
-        {
-            title: 'statusDisplayName',
-            messages: {
-                add: StatusDisplayNameAddMessage,
-                change: StatusDisplayNameChangeMessage,
-                remove: StatusDisplayNameRemoveMessage,
-            },
-        },
-        {
-            title: 'unitName',
-            messages: {
-                add: UnitNameAddMessage,
-                change: UnitNameChangeMessage,
-                remove: UnitNameRemoveMessage,
-            },
-        },
-        {
-            title: 'propertyDisplayName',
-            messages: {
-                add: PropertyDisplayNameAddMessage,
-                change: PropertyDisplayNameChangeMessage,
-                remove: PropertyDisplayNameRemoveMessage,
-            },
-        },
-        {
-            title: 'assigneeDisplayName',
-            messages: {
-                add: AssigneeAddMessage,
-                change: AssigneeChangeMessage,
-                remove: AssigneeRemoveMessage,
-            },
-        },
-        {
-            title: 'classifierDisplayName',
-            messages: {
-                add: ClassifierAddMessage,
-                change: ClassifierChangeMessage,
-                remove: ClassifierRemoveMessage,
-            },
-        },
-        {
-            title: 'placeClassifierDisplayName',
-            messages: {
-                add: ClassifierAddMessage,
-                change: ClassifierChangeMessage,
-                remove: ClassifierRemoveMessage,
-            },
-        },
-        {
-            title: 'categoryClassifierDisplayName',
-            messages: {
-                add: ClassifierAddMessage,
-                change: ClassifierChangeMessage,
-                remove: ClassifierRemoveMessage,
-            },
-        },
-        {
-            title: 'problemClassifierDisplayName',
-            messages: {
-                add: ClassifierAddMessage,
-                change: ClassifierChangeMessage,
-                remove: ClassifierRemoveMessage,
-            },
-        },
+    const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
+    const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
+
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+
+    const fields = [
+        ['clientPhone', ClientPhoneMessage],
+        ['details', DetailsMessage, { change: 'pages.condo.ticket.TicketChanges.details.change' }],
+        ['clientName', ClientNameMessage],
+        ['isPaid', IsPaidMessage],
+        ['isEmergency', IsEmergencyMessage],
+        ['statusDisplayName', StatusDisplayNameMessage, { change: 'pages.condo.ticket.TicketChanges.status.change' }],
+        ['propertyDisplayName', AddressMessage],
+        ['assigneeDisplayName', AssigneeMessage],
+        ['executorDisplayName', ExecutorMessage],
+        ['classifierDisplayName', ClassifierMessage],
+        ['placeClassifierDisplayName', ClassifierMessage],
     ]
 
     const BooleanToString = {
@@ -196,7 +82,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         },
     }
 
-    const formatField = (field, value) => {
+    const formatField = (field, value, type) => {
         const formatterFor = {
             clientPhone: (field, value) => (
                 <PhoneLink value={value} />
@@ -212,84 +98,118 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     </Tooltip>
                 ) : value
             ),
+            propertyDisplayName: (field, value, type) => {
+                let unitNameToDisplay
+                const unitNameFrom = ticketChange['unitNameFrom']
+                const unitNameTo = ticketChange['unitNameTo']
+                if (type === 'from' && unitNameFrom) {
+                    unitNameToDisplay = unitNameFrom
+                }
+                else if (type === 'to' && unitNameTo) {
+                    unitNameToDisplay = unitNameTo
+                }
+
+                return unitNameToDisplay ? `${value}, ${ShortFlatNumber} ${unitNameToDisplay}` : value
+            },
+            placeClassifierDisplayName: (field, value, type) => {
+                let placeClassifierToDisplay
+                let categoryClassifierToDisplay
+                let problemClassifierToDisplay
+
+                if (type === 'from') {
+                    placeClassifierToDisplay = ticketChange['placeClassifierDisplayNameFrom']
+                    categoryClassifierToDisplay = ticketChange['categoryClassifierDisplayNameFrom']
+                    problemClassifierToDisplay = ticketChange['problemClassifierDisplayNameFrom']
+                }
+                else if (type === 'to') {
+                    placeClassifierToDisplay = ticketChange['placeClassifierDisplayNameTo']
+                    categoryClassifierToDisplay = ticketChange['categoryClassifierDisplayNameTo']
+                    problemClassifierToDisplay = ticketChange['problemClassifierDisplayNameTo']
+                }
+
+                return `${placeClassifierToDisplay} → ${categoryClassifierToDisplay} → ${problemClassifierToDisplay}`
+            },
         }
         return has(formatterFor, field)
-            ? formatterFor[field](field, value)
-            : value
+            ? formatterFor[field](field, value, type)
+            : <Typography.Text>{value}</Typography.Text>
     }
 
-    const format = (field, value) => (
-        typeof value === 'boolean'
-            ? BooleanToString[field][value]
-            : formatField(field, value)
-    )
+    const formatDiffMessage = (field, message, ticketChange, customMessages: ITicketChangeFieldMessages = {}) => {
+        if (typeof ticketChange[`${field}To`] === 'boolean') {
+            const valueTo = BooleanToString[field][ticketChange[`${field}To`]]
+            return (
+                <>
+                    <SafeUserMention createdBy={ticketChange.createdBy} />
+                    &nbsp;
+                    <FormattedMessage
+                        id={ customMessages.change ? customMessages.change : 'pages.condo.ticket.TicketChanges.boolean.change' }
+                        values={{
+                            field: message,
+                            to: valueTo,
+                        }}
+                    />
+                </>
+            )
+        }
 
-    /*
-        Interpolates message string with JSX tags.
-        They will be safely mounted in place of `{to}` and `{from}` placeholders
-     */
-    const formatDiffMessage = (field, message, ticketChange) => {
-        // we have both "from" and "to" parts to interpolate
-        if (message.search('{from}') !== -1 && message.search('{to}') !== -1) {
-            const aroundFrom = message.split('{from}')
-            const aroundTo = aroundFrom[1].split('{to}')
-            const valueFrom = ticketChange[`${field}From`]
-            const valueTo = ticketChange[`${field}To`]
+        const valueFrom = formatField(field, ticketChange[`${field}From`], 'from')
+        const valueTo = formatField(field, ticketChange[`${field}To`], 'to')
+
+        if (valueFrom && valueTo) {
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
-                    &nbsp;{aroundFrom[0]}
-                    <del>{format(field, valueFrom)}</del>
-                    {aroundTo[0]}
-                    <ins>{format(field, valueTo)}</ins>
-                    {aroundTo[1]}
+                    &nbsp;
+                    <FormattedMessage
+                        id={ customMessages.change ? customMessages.change : 'pages.condo.ticket.TicketChanges.change' }
+                        values={{
+                            field: message,
+                            from: valueFrom,
+                            to: valueTo,
+                        }}
+                    />
                 </>
             )
-        } else if (message.search('{to}') !== -1) { // only "to" part
-            const aroundTo = message.split('{to}')
-            const valueTo = ticketChange[`${field}To`]
+        } else if (valueTo) { // only "to" part
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
-                    &nbsp;{aroundTo[0]}
-                    <ins>{format(field, valueTo)}</ins>
-                    {aroundTo[1]}
+                    &nbsp;
+                    <FormattedMessage
+                        id={ customMessages.add ? customMessages.add : 'pages.condo.ticket.TicketChanges.add' }
+                        values={{
+                            field: message,
+                            to: valueTo,
+                        }}
+                    />
                 </>
             )
-        } else if (message.search('{from}') !== -1) {
-            const aroundFrom = message.split('{from}')
-            const valueFrom = ticketChange[`${field}From`]
+        } else if (valueFrom) {
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
-                    &nbsp;{aroundFrom[0]}
-                    <ins>{format(field, valueFrom)}</ins>
-                    {aroundFrom[1]}
+                    &nbsp;
+                    <FormattedMessage
+                        id={ customMessages.remove ? customMessages.remove : 'pages.condo.ticket.TicketChanges.remove' }
+                        values={{
+                            field: message,
+                            from: valueFrom,
+                        }}
+                    />
                 </>
             )
         }
     }
 
     // Omit what was not changed
-    const changedFields = fields.filter(({ title }) => (
-        ticketChange[`${title}From`] !== ticketChange[`${title}To`]
+    const changedFields = fields.filter(([field]) => (
+        ticketChange[`${field}From`] !== null && ticketChange[`${field}To`] !== null
     ))
 
-    const changedFieldsWithMessages = changedFields.map(({ title, messages }) => {
-        if (!ticketChange[`${title}From`]) {
-            return [title, messages.add]
-        }
-        else if (!ticketChange[`${title}To`]) {
-            return [title, messages.remove]
-        }
-        else {
-            return [title, messages.change]
-        }
-    })
-
-    return changedFieldsWithMessages.map(([field, message]) => ({
+    return changedFields.map(([field, message, changeMessage]) => ({
         field,
-        message: formatDiffMessage(field, message, ticketChange),
+        message: formatDiffMessage(field, message, ticketChange, changeMessage),
     }))
 }
 
