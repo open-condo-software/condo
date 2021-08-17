@@ -9,8 +9,8 @@ type ChartConfigResult = {
     legend: string[],
     series: unknown[],
     axisData: {
-        xAxis: { type: string, data: null | unknown[] },
-        yAxis: { type: string, data: null | unknown[] }
+        xAxis: { type: string, data: null | string[] },
+        yAxis: { type: string, data: null | string[] }
     },
     tooltip: {
         trigger: string,
@@ -38,7 +38,7 @@ type RestTableOptionsType = {
     filters?: unknown;
 }
 type TableConfigResult = {
-    dataSource: TableProps<any>['dataSource']
+    dataSource: TableProps<AnalyticsDataType>['dataSource']
     tableColumns: TableColumnsType
 }
 

@@ -43,7 +43,7 @@ import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
-import { DATE_DISPLAY_FORMAT, TICKET_REPORT_SPECIFICATIONS } from '@condo/domains/ticket/constants/common'
+import { DATE_DISPLAY_FORMAT, TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
 
 interface ITicketAnalyticsPage extends React.FC {
     headerAction?: JSX.Element
@@ -102,7 +102,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const [dateRangePreset, setDateRangePreset] = useState<null | string>(null)
     const [addressList, setAddressList] = useState([])
     const addressListRef = useRef([])
-    const [specification, setSpecification] = useState<specificationTypes>(TICKET_REPORT_SPECIFICATIONS[0] as specificationTypes)
+    const [specification, setSpecification] = useState<specificationTypes>(TICKET_REPORT_DAY_GROUP_STEPS[0] as specificationTypes)
 
     const updateUrlFilters = useCallback(() => {
         const [startDate, endDate] = dateRange
@@ -286,7 +286,6 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 },
                             })
                         })
-                        console.log(series)
                         const axisData = { yAxis: { type: 'value', data: null }, xAxis: { type: 'category', data: axisLabels } }
                         const tooltip = { trigger: 'axis', axisPointer: { type: 'line' } }
                         return { series, legend, axisData, tooltip }
