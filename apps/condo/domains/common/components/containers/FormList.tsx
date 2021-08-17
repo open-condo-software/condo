@@ -214,7 +214,6 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> {
     }>
     mutationExtraVariables?: Record<string, unknown>
     mutationExtraData?: Record<string, unknown>
-    formValuesToMutationDataPreprocessor?: (values) => values
     formValuesToMutationDataPreprocessorContext?: Record<string, unknown>
     OnErrorMsg?: string
     OnCompletedMsg?: string

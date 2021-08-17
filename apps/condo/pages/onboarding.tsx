@@ -7,7 +7,7 @@ import get from 'lodash/get'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OnBoardingStepItem } from '@condo/domains/onboarding/components/OnBoardingStepItem'
 import { useIntl } from '@core/next/intl'
-import { useOnBoardingContext } from '../domains/onboarding/components/OnBoardingContext'
+import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoardingContext'
 import { IPageInterface } from '../next-env'
 
 const OnBoardingPage: IPageInterface = () => {
