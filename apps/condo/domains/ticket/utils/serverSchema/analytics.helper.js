@@ -1,10 +1,3 @@
-const { MAX_TICKET_REPORT_COUNT } =  require('@condo/domains/ticket/constants/common')
-const { TicketStatus: TicketStatusServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
-const { Property: PropertyServerUtils } = require('@condo/domains/property/utils/serverSchema')
-const { AnaliticsTicket: AnaliticsTicketServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
-
-const CHUNK_SIZE = 100
-const moment = require('moment')
 const { AnalyticsQueryBuilder } = require('@condo/domains/common/utils/serverSchema/AnalyticsQueryBuilder')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const has = require('lodash/get')
@@ -14,19 +7,6 @@ const DATE_FORMATS = {
     day: 'DD.MM.YYYY',
     week: 'DD.MM.YYYY',
     month: 'MM.YYYY',
-}
-
-const createDateRange = (start, end, tick) => {
-    let current = moment(start)
-    let stop = moment(end)
-    let range = []
-    let maxLength = 1000
-    while (current <= stop && --maxLength > 0) {
-        const value = current.format(DATE_FORMATS[tick])
-        range.push({ label: value, value: value })
-        current = current.add(1, tick)
-    }
-    return range
 }
 
 const sortStatusesByType = (statuses) => {
@@ -43,41 +23,6 @@ const sortStatusesByType = (statuses) => {
         }
         return 0
     })
-}
-
-const createStatusRange = async (context, organizationWhereInput) => {
-    const statuses = await TicketStatusServerUtils.getAll(context, { OR: [
-        { organization: organizationWhereInput },
-        { organization_is_null: true },
-    ] })
-    // We use organization specific statuses if they exists
-    // or default if there is no organization specific status with a same type
-    const allStatuses = statuses.filter(status => {
-        if (!status.organization) {
-            return true
-        }
-        return !statuses
-            .find(organizationStatus => organizationStatus.organization !== null && organizationStatus.type === status.type)
-    })
-    return sortStatusesByType(allStatuses).map(status => ({ label: status.name, value: status.type }))
-}
-
-const createPropertyRange = async (context, organizationWhereInput) => {
-    const properties = await PropertyServerUtils.getAll(context, { organization:  organizationWhereInput  })
-    return properties.map( property => ({ label: property.address, value: property.id }))
-}
-
-const fetchTicketsForAnalytics = async (context, ticketWhereInput) => {
-    let skip = 0
-    let maxCount = MAX_TICKET_REPORT_COUNT
-    let newchunk = []
-    let allTickets = []
-    do {
-        newchunk = await AnaliticsTicketServerUtils.getAll(context, ticketWhereInput, { first: CHUNK_SIZE, skip: skip })
-        allTickets = allTickets.concat(newchunk)
-        skip += newchunk.length
-    } while (--maxCount > 0 && newchunk.length)
-    return allTickets
 }
 
 class TicketAnalyticsQueryBuilder extends AnalyticsQueryBuilder {
@@ -131,7 +76,6 @@ class TicketAnalyticsQueryBuilder extends AnalyticsQueryBuilder {
 
 module.exports = {
     DATE_FORMATS,
-    fetchTicketsForAnalytics,
     TicketAnalyticsQueryBuilder,
     sortStatusesByType,
 }
