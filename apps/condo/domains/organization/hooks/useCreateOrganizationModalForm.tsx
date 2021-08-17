@@ -9,10 +9,6 @@ import { convertUIStateToGQLItem, OrganizationEmployee } from '@condo/domains/or
 import { INN_LENGTH } from '@condo/domains/organization/constants/common'
 import { EMPTY_NAME_ERROR, INN_TOO_SHORT_ERROR } from '@condo/domains/organization/constants/errors'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-
-interface ICreateOrganizationModalFormArguments {
-    onFinish: (newOrganization) => void
-}
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 
@@ -32,7 +28,6 @@ export const useCreateOrganizationModalForm = (props: IUseCreateOrganizationModa
     const CreateOrganizationModalTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationModalTitle' })
     const CreateOrganizationModalMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationMessage' })
 
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const NameMsg = intl.formatMessage({ id: 'pages.organizations.OrganizationName' })
     const InnMessage = intl.formatMessage({ id: 'pages.organizations.Inn' })
     const InnTooShortMsg = intl.formatMessage({ id: 'pages.organizations.inn.TooShortMessage' })
@@ -70,7 +65,7 @@ export const useCreateOrganizationModalForm = (props: IUseCreateOrganizationModa
         })
 
         return null
-    }, [])
+    }, [user])
 
     const ErrorToFormFieldMsgMapping = {
         [EMPTY_NAME_ERROR]: {
