@@ -114,15 +114,16 @@ export const FeatureFlagsController: React.FC = () => {
         setIsModalVisible(true)
     }
 
-    const closeModal = () => {
+    const handleOk = () => {
         setIsModalVisible(false)
+        window.location.reload()
     }
 
     const enabledFlags = getEnabledFeatures()
 
     return (
         <>
-            <Modal title={ featureFlagsTitle } visible={isModalVisible} onOk={closeModal} >
+            <Modal title={ featureFlagsTitle } visible={isModalVisible} onOk={handleOk} cancelButtonProps={{ disabled: true }}>
                 <Alert message={ featureFlagsDescription } type="success" />
                 {
                     allFeatures.map((name) => (
