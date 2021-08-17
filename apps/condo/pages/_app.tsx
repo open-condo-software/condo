@@ -1,8 +1,11 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+import { ConfigProvider } from 'antd'
+import enUS from 'antd/lib/locale/en_US'
+import ruRU from 'antd/lib/locale/ru_RU'
 // @ts-nocheck
 import React from 'react'
 import Head from 'next/head'
-import { CacheProvider } from '@emotion/core'
+import { CacheProvider, jsx } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
 import { ThunderboltFilled, HomeFilled, SettingFilled, ApiFilled } from '@ant-design/icons'
@@ -11,7 +14,7 @@ import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 import { withApollo } from '@core/next/apollo'
 import { withAuth } from '@core/next/auth'
-import { withIntl } from '@core/next/intl'
+import { useIntl, withIntl } from '@core/next/intl'
 import { withOrganization } from '@core/next/organization'
 
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
@@ -36,6 +39,13 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
         logOnDifferentValues: true,
     })
 }
+
+const ANT_LOCALES = {
+    ru: ruRU,
+    en: enUS,
+}
+
+const ANT_DEFAULT_LOCALE = enUS
 
 const MenuItems: React.FC = () => (
     <>
@@ -95,6 +105,8 @@ const MenuItems: React.FC = () => (
 )
 
 const MyApp = ({ Component, pageProps }) => {
+    const intl = useIntl()
+
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
     const HeaderAction = Component.headerAction
@@ -102,27 +114,29 @@ const MyApp = ({ Component, pageProps }) => {
 
     return (
         <GlobalErrorBoundary>
-            <CacheProvider value={cache}>
-                <Head>
-                    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
-                    <meta
-                        name="viewport"
-                        content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
-                    />
-                </Head>
-                <GlobalStyle/>
-                <FocusContextProvider>
-                    <OnBoardingProvider>
-                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                            <RequiredAccess>
-                                <Component {...pageProps} />
-                            </RequiredAccess>
-                        </LayoutComponent>
-                    </OnBoardingProvider>
-                </FocusContextProvider>
-                <GoogleAnalytics/>
-                <BehaviorRecorder engine="plerdy"/>
-            </CacheProvider>
+            <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
+                <CacheProvider value={cache}>
+                    <Head>
+                        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+                        <meta
+                            name="viewport"
+                            content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
+                        />
+                    </Head>
+                    <GlobalStyle/>
+                    <FocusContextProvider>
+                        <OnBoardingProvider>
+                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                <RequiredAccess>
+                                    <Component {...pageProps} />
+                                </RequiredAccess>
+                            </LayoutComponent>
+                        </OnBoardingProvider>
+                    </FocusContextProvider>
+                    <GoogleAnalytics/>
+                    <BehaviorRecorder engine="plerdy"/>
+                </CacheProvider>
+            </ConfigProvider>
         </GlobalErrorBoundary>
     )
 }
