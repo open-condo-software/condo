@@ -140,8 +140,6 @@ describe('Property', () => {
         const client = await makeClientWithProperty()
         const client2 = await makeClientWithProperty()
 
-        console.log('1 2', client.organization.id, client2.organization.id)
-
         const [_, attrs] = await createTestProperty(client, client.organization)
         const { address } = attrs
 
