@@ -22,10 +22,11 @@ exports.up = async (knex) => {
         SET "history_id" = e."id"
         FROM "OrganizationEmployee" as e
         WHERE(
-        e."old_id" = hr."old_history_id"
+            e."old_id" = hr."old_history_id"
         );
 
         ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "history_id" SET NOT NULL;
+        -- All future history record will not have old id anymore, because plugin does not saves them
         ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "old_history_id" DROP NOT NULL;
 
         ALTER TABLE "OrganizationEmployee" RENAME COLUMN "newId" TO "old_newId";
@@ -50,12 +51,13 @@ exports.down = async (knex) => {
         ALTER TABLE "OrganizationEmployee" RENAME COLUMN "old_newId" TO "newId";
         ALTER TABLE "OrganizationEmployee" DROP COLUMN "_old_newId";
 
+        -- Set old format values of history_id, that was not saved after up-migration for further inserted rows
         UPDATE "OrganizationEmployeeHistoryRecord" hr
         SET "history_id" = e."id"
         FROM "OrganizationEmployee" as e
         WHERE(
-        e."_old_id" = hr."_old_history_id" AND
-        "history_id" IS NULL
+            e."_old_id" = hr."_old_history_id" AND
+            "history_id" IS NULL
         );
         ALTER TABLE "OrganizationEmployee" DROP CONSTRAINT "OrganizationEmployee_pkey";
         ALTER TABLE "OrganizationEmployee" ADD PRIMARY KEY ("id");
