@@ -6,8 +6,8 @@ import { TitleHeaderAction } from '@condo/domains/common/components/HeaderAction
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useIntl } from '@core/next/intl'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { BillingChooser } from '../../domains/billing/components/Settings/BillingChooser'
-import { FeatureFlagRequired } from '../../domains/common/components/containers/FeatureFlag'
+import { BillingChooser } from '@condo/domains/billing/components/Settings/BillingChooser'
+import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 
 const SettingsPage = () => {
     const intl = useIntl()
