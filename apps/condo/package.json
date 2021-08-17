@@ -93,7 +93,8 @@
     "uuid": "^8.3.0",
     "validate.js": "^0.13.1",
     "validator": "^13.1.1",
-    "xlsx": "^0.16.9"
+    "xlsx": "^0.16.9",
+    "use-keyboard-shortcut": "^1.0.6"
   },
   "devDependencies": {
     "@testing-library/react": "^11.2.5",

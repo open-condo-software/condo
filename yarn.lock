@@ -19251,6 +19251,11 @@ use-immer@^0.4.1:
   resolved "https://registry.yarnpkg.com/use-immer/-/use-immer-0.4.2.tgz#7d7e7d3386cc834d45b2279f37d8974023550f4f"
   integrity sha512-ONfZHEv/gzt/jyYxrJD3ZFUllKJED8F1mds9Fr9CYj54LmsiuGDg3vkx+R7WHS72p7DbSS1QbM7xNYrVWX+KcA==
 
+use-keyboard-shortcut@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/use-keyboard-shortcut/-/use-keyboard-shortcut-1.0.6.tgz#0b67160dd0ef192a9c8262f5068609db4d9806dc"
+  integrity sha512-xdH5+XZ6fpey4Cvuh/T0q0tBYu9RGlhg1Xf2W6THtGi5CnI/M90kVaCpfy/Ew8ZDyJnUEwSh4gYolVI2QtgciQ==
+
 use-resize-observer@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/use-resize-observer/-/use-resize-observer-6.1.0.tgz#d4d267a940dbf9c326da6042f8a4bb8c89d29729"
