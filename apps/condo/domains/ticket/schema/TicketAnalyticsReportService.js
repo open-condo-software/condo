@@ -101,46 +101,6 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                         }
                     })
                 return { result }
-                // let allTickets = await fetchTicketsForAnalytics(context, where)
-                // allTickets = allTickets.map( ticket => {
-                //     ticket.interval = {
-                //         day: moment(ticket.createdAt).format(DATE_FORMATS.day),
-                //         week: moment(ticket.createdAt).endOf('week').format(DATE_FORMATS.week),
-                //         month: moment(ticket.createdAt).format(DATE_FORMATS.month),
-                //     }
-                //     return ticket
-                // })
-                // const groupByFields = {
-                //     status: 'status.type',
-                //     property: 'property.id',
-                //     day: 'interval.day',
-                //     week: 'interval.week',
-                //     month: 'interval.month',
-                // }
-                // const allDates = allTickets.map(ticket => new Date(ticket.createdAt))
-                // const { groupedCounters, translates } = await createCountersStructure({
-                //     context,
-                //     organization: where.organization,
-                //     groups: groupBy,
-                //     datesRange: {
-                //         min: new Date(Math.min.apply(null, allDates)),
-                //         max: new Date(Math.max.apply(null, allDates)),
-                //     },
-                // })
-                // const result = {}
-                // // TODO(sitozzz): rewrite to support `n` levels of groupping
-                // const [group1Name, group2Name] = groupBy
-                // for (const group1Option in groupedCounters) {
-                //     result[translates[group1Name][group1Option]] = {}
-                //     for (const group2Option in groupedCounters[group1Option]) {
-                //         result[translates[group1Name][group1Option]][translates[group2Name][group2Option]] = allTickets.filter(
-                //             ticket =>
-                //                 get(ticket, groupByFields[group1Name]) === group1Option &&
-                //                 get(ticket, groupByFields[group2Name]) === group2Option
-                //         ).length
-                //     }
-                // }
-                // return { result }
             },
         },
     ],

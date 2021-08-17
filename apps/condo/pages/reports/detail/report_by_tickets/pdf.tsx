@@ -12,12 +12,13 @@ import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 import { createPdfWithPageBreaks } from '@condo/domains/common/utils/pdf'
 import moment from 'moment'
-import { filterToQuery } from '@condo/domains/ticket/utils/helpers'
+import { filterToQuery, getAggregatedData } from '@condo/domains/ticket/utils/helpers'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DATE_DISPLAY_FORMAT, PDF_REPORT_WIDTH } from '@condo/domains/ticket/constants/common'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { colors } from '@condo/domains/common/constants/style'
 import TicketChart from '@condo/domains/ticket/components/TicketChart'
+import { TicketAnalyticsGroupBy } from '../../../../schema'
 
 const PdfView = () => {
     const intl = useIntl()
@@ -31,6 +32,7 @@ const PdfView = () => {
     const LoadingTip = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PDF.LoadingTip' })
     const containerRef = useRef<null | HTMLDivElement>(null)
     const queryParamsRef = useRef(null)
+    const groupByRef = useRef<null | TicketAnalyticsGroupBy[]>(null)
     const mapperInstanceRef = useRef(null)
 
     const [data, setData] = useState(null)
@@ -51,7 +53,8 @@ const PdfView = () => {
         onCompleted: response => {
             setLoading(false)
             const { result: { result } } = response
-            setData(result)
+
+            setData(getAggregatedData(result, groupByRef.current))
         },
     })
     useEffect(() => {
@@ -70,6 +73,7 @@ const PdfView = () => {
                 specification,
             }, viewMode, ticketType
         )
+        groupByRef.current = groupBy
         const where = { organization: { id: userOrganizationId }, AND }
 
         loadTicketAnalyticsData({ variables: { data: { groupBy, where } } })

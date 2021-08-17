@@ -17630,7 +17630,7 @@ export type TicketAnalyticsReportInput = {
 
 export type TicketAnalyticsReportOutput = {
   __typename?: 'TicketAnalyticsReportOutput';
-  result: Scalars['JSON'];
+  result?: Maybe<Array<TicketGroupedCounter>>;
 };
 
 /**  Describes what type of work needs to be done to fix incident  */
@@ -20832,6 +20832,14 @@ export type TicketFilesCreateInput = {
 export type TicketFilesUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<TicketFileUpdateInput>;
+};
+
+export type TicketGroupedCounter = {
+  __typename?: 'TicketGroupedCounter';
+  count: Scalars['Int'];
+  status?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  dayGroup: Scalars['String'];
 };
 
 /**  A keystone list  */
