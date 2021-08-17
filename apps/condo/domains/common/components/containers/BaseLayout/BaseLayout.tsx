@@ -30,12 +30,6 @@ const useLayoutContext = (): ILayoutContext => useContext<ILayoutContext>(Layout
 
 const { Header, Content } = Layout
 
-const ANT_DEFAULT_LOCALE = enUS
-
-const ANT_LOCALES = {
-    ru: ruRU,
-    en: enUS,
-}
 interface IBaseLayoutProps {
     headerAction?: ElementType<unknown>
     menuData?: React.ElementType
@@ -59,7 +53,6 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
         onLogoClick = () => Router.push('/'),
         TopMenuItems: TopMenuItemsFromProps,
     } = props
-    const intl = useIntl()
     const colSize = useAntdMediaQuery()
     const {
         TopNotificationComponent,
@@ -78,31 +71,29 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
     const TopMenuItems = TopMenuItemsFromProps ? TopMenuItemsFromProps : BaseTopMenuItems
 
     return (
-        <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
-            <LayoutContext.Provider value={{ isMobile, addNotification }}>
-                <TopNotificationComponent />
-                <Layout className={menuDataClassNames} style={style} css={layoutCss} >
-                    <SideMenu {...{
-                        onLogoClick,
-                        menuData,
-                        isMobile,
-                        isSideMenuCollapsed,
-                        toggleSideMenuCollapsed,
-                    }} />
-                    <Layout css={subLayoutCss}>
-                        <Header css={topMenuCss}>
-                            <TopMenuItems
-                                headerAction={headerAction}
-                                isMobile={isMobile}
-                                isSideMenuCollapsed={isSideMenuCollapsed}
-                                toggleSideMenuCollapsed={toggleSideMenuCollapsed}
-                            />
-                        </Header>
-                        {children}
-                    </Layout>
+        <LayoutContext.Provider value={{ isMobile, addNotification }}>
+            <TopNotificationComponent />
+            <Layout className={menuDataClassNames} style={style} css={layoutCss} >
+                <SideMenu {...{
+                    onLogoClick,
+                    menuData,
+                    isMobile,
+                    isSideMenuCollapsed,
+                    toggleSideMenuCollapsed,
+                }} />
+                <Layout css={subLayoutCss}>
+                    <Header css={topMenuCss}>
+                        <TopMenuItems
+                            headerAction={headerAction}
+                            isMobile={isMobile}
+                            isSideMenuCollapsed={isSideMenuCollapsed}
+                            toggleSideMenuCollapsed={toggleSideMenuCollapsed}
+                        />
+                    </Header>
+                    {children}
                 </Layout>
-            </LayoutContext.Provider>
-        </ConfigProvider>
+            </Layout>
+        </LayoutContext.Provider>
     )
 }
 
