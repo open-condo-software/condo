@@ -51,7 +51,7 @@ const Property = new GQLListSchema('Property', {
                         propertiesWithSameAddressInOrganization = await PropertyAPI.getAll(context, { address: value, organization: { id: existingItem.organization }, deletedAt: null })
                     }
 
-                    if (propertiesWithSameAddressInOrganization.length > 0) {
+                    if (propertiesWithSameAddressInOrganization && propertiesWithSameAddressInOrganization.length > 0) {
                         addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Property with same address exist in current organization`)
                     }
                 },
