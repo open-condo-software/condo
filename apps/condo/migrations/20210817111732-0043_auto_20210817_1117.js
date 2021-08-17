@@ -27,12 +27,24 @@ exports.up = async (knex) => {
         ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN "history_id" TO "old_history_id";
         ALTER TABLE "OrganizationEmployeeHistoryRecord" ADD COLUMN "history_id" UUID NULL;
 
+        -- Set "history_id" of history records to "id" of corresponding records in new format [1]
         UPDATE "OrganizationEmployeeHistoryRecord" hr
         SET "history_id" = e."id"
         FROM "OrganizationEmployee" as e
         WHERE(
             e."old_id" = hr."old_history_id"
         );
+        
+        -- We can have hard-deleted rows in OrganizationEmployee table and orphaned rows in OrganizationEmployeeHistoryRecord,
+        -- that was correspond to them before hard-delete. Therefore after [1] a table OrganizationEmployeeHistoryRecord
+        -- can have NULL in "history_id" column in some rows. Since we don't have original rows in OrganizationEmployee
+        -- table, we can set them to some value
+        UPDATE "OrganizationEmployeeHistoryRecord" hr
+        SET "history_id" = '00000000-0000-0000-0000-000000000000'
+        WHERE (
+            hr.history_id IS NULL
+        );
+        
 
         ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "history_id" SET NOT NULL;
         -- All future history record will not have old id anymore, because plugin does not saves them
