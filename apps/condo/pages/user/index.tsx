@@ -16,7 +16,7 @@ import { TitleHeaderAction } from '@condo/domains/common/components/HeaderAction
 import { useOrganization } from '@core/next/organization'
 import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag'
 
-export const UserInfoPage = () => {x
+export const UserInfoPage = () => {
     const intl = useIntl()
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
