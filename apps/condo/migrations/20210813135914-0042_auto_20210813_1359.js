@@ -45,7 +45,6 @@ exports.down = async (knex) => {
 
         ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN "history_id" TO "_old_history_id";
         ALTER TABLE "OrganizationEmployeeHistoryRecord" RENAME COLUMN "old_history_id" TO "history_id";
-        ALTER TABLE "OrganizationEmployeeHistoryRecord" ALTER COLUMN "history_id" SET NOT NULL;
 
         ALTER TABLE "OrganizationEmployee" RENAME COLUMN "newId" TO "_old_newId";
         ALTER TABLE "OrganizationEmployee" RENAME COLUMN "old_newId" TO "newId";
