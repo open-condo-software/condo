@@ -537,5 +537,7 @@
   "AnotherContextAlreadyCreated": "You've already connected to another integration. To change the current one, contact support of «{company}»",
   "ContextAlreadyCreated": "You've already connected to integration",
   "ErrorHappenedDuringIntegration": "An error occurred during the integration process. Please, contact support of «{company}»",
-  "ErrorOccurred": "Error occurred"
+  "ErrorOccurred": "Error occurred",
+  "FeatureFlags.Modal.Title": "Feature Flags menu",
+  "FeatureFlags.Modal.Description": "Any changes made here would apply only after reload"
 }

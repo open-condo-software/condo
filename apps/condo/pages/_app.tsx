@@ -24,6 +24,7 @@ import { GearIcon } from '@condo/domains/common/components/icons/GearIcon'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -59,6 +60,16 @@ function menuDataRender () {
             locale: 'menu.Employees',
         },
     ]
+
+    if (hasFeature('billing')) {
+        menuDataItems.push({
+            path: '/settings',
+            icon: GearIcon,
+            locale: 'menu.Settings',
+        })
+    }
+
+    return menuDataItems
 }
 
 const MyApp = ({ Component, pageProps }) => {

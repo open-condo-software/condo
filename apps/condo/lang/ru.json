@@ -537,5 +537,7 @@
   "AnotherContextAlreadyCreated": "У вас уже подключена другая интеграция, чтобы поменять текущую, обратитесь в тех. поддержку «{company}»",
   "ContextAlreadyCreated": "У вас уже подключена интеграция",
   "ErrorHappenedDuringIntegration": "В процессе интеграции возникла ошибка. Пожалуйста, обратитесь в техю поддержку «{company}»",
-  "ErrorOccurred": "Возникла ошибка"
+  "ErrorOccurred": "Возникла ошибка",
+  "FeatureFlags.Modal.Title": "Флаги функций",
+  "FeatureFlags.Modal.Description": "Все изменения будут применены только после перезагрузки страницы"
 }
