@@ -1,4 +1,5 @@
 import {
+    SorterColumn,
     getFilter,
     getStringContainsFilter,
     getNumberFilter,
@@ -6,6 +7,8 @@ import {
     getDayGteFilter,
     getDayLteFilter,
     getBooleanFilter,
+    getSortersFromQuery,
+    convertSortersToSortBy,
 } from './tables.utils'
 import moment from 'moment'
 
@@ -18,6 +21,8 @@ describe('Table utils', () => {
     const numberSearch = '12345'
     const dateSearch = new Date(Date.now()).toISOString()
     const nestedPath = [field, subfield, target]
+    const descShortSort = 'col1_DESC'
+    const ascShortSort = 'col2_ASC'
     describe('getFilter', () => {
         describe('generated filter', () => {
             describe('should return undefined', () => {
@@ -265,6 +270,54 @@ describe('Table utils', () => {
         it('should accept only single argument', () => {
             const result = filter(['true', 'false'])
             expect(result).toBeUndefined()
+        })
+    })
+    describe('getSortersFromQuery', () => {
+        describe('should return empty list', () => {
+            it('if "sort" attribute is not specified', () => {
+                expect(getSortersFromQuery({})).toStrictEqual([])
+            })
+        })
+        describe('should return list of sorters', () => {
+            const expectedMultipleResult = [
+                { columnKey: 'col2', order: 'ascend' },
+                { columnKey: 'col1', order: 'descend' },
+            ]
+            it('if "sort" passed as list of strings', () => {
+                expect(getSortersFromQuery({ sort: [ascShortSort, descShortSort] })).toStrictEqual(expectedMultipleResult)
+            })
+            it('if "sort" passed as single string', () => {
+                expect(getSortersFromQuery({ sort: `${ascShortSort},${descShortSort}` })).toStrictEqual(expectedMultipleResult)
+            })
+        })
+        describe('should drop invalid columns and orders', () => {
+            const expected = { columnKey: 'col1', order: 'descend' }
+            it('if it\'s not possible to split it by "_"', () => {
+                const sort = [descShortSort, 'col1ASD']
+                expect(getSortersFromQuery({ sort })).toStrictEqual([expected])
+            })
+            it('if no column or correct order specified', () => {
+                const brokenOrderSort = [descShortSort, 'col1_bla']
+                const noColumnSort = [descShortSort, '_bla']
+                expect(getSortersFromQuery({ sort: brokenOrderSort })).toStrictEqual([expected])
+                expect(getSortersFromQuery({ sort: noColumnSort })).toStrictEqual([expected])
+            })
+        })
+    })
+    describe('convertSortersToSortBy', () => {
+        it('should return empty list if no sorters provided', () => {
+            expect(convertSortersToSortBy()).toStrictEqual([])
+        })
+        it('should return sortBy strings', () => {
+            const sorters: Array<SorterColumn> = [
+                { columnKey: 'col2', order: 'ascend' },
+                { columnKey: 'col1', order: 'descend' },
+            ]
+            const expectedResult = [
+                ascShortSort,
+                descShortSort,
+            ]
+            expect(convertSortersToSortBy(sorters)).toStrictEqual(expectedResult)
         })
     })
 })
