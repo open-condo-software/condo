@@ -6,11 +6,7 @@ const { TICKET_ANALYTICS_REPORT_MUTATION } = require(('@condo/domains/ticket/gql
 const moment = require('moment')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestTicket, makeClientWithTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { TICKET_STATUS_TYPES } = require('@condo/domains/ticket/constants')
 const { makeClient } = require('@core/keystone/test.utils')
-const { exec } = require('child_process')
-const DATE_FORMAT = 'DD.MM.YYYY'
-const NOW_DATE = moment().format(DATE_FORMAT)
 
 describe('TicketAnalyticsReportService', () => {
     describe('User', () => {
@@ -92,7 +88,7 @@ describe('TicketAnalyticsReportService', () => {
             expect(result).toBeDefined()
             expect(result).toHaveLength(1)
             expect(result[0].count).toEqual(1)
-            expect(result[0].property).toEqual(client.property.id)
+            expect(result[0].property).toEqual(client.property.address)
         })
 
         it('can not read TicketAnalyticsReportService from another organization', async () => {

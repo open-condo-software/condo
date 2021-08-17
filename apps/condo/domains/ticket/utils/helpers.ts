@@ -14,7 +14,7 @@ import {
     TicketWhereInput,
 } from '../../../schema'
 import { AnalyticsDataType, TicketSelectTypes, ViewModeTypes } from '../components/TicketChart'
-import { TICKET_REPORT_SPECIFICATIONS } from '@condo/domains/ticket/constants/common'
+import { TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
 
 export const getTicketCreateMessage = (intl, ticket) => {
     if (!ticket) {
@@ -424,7 +424,7 @@ interface IGetAggregatedData {
 
 export const getAggregatedData: IGetAggregatedData = (data, groupByFilter) => {
     const [axisGroupKey] = groupByFilter
-    const labelsGroupKey = TICKET_REPORT_SPECIFICATIONS.includes(groupByFilter[1]) ? 'dayGroup' : groupByFilter[1]
+    const labelsGroupKey = TICKET_REPORT_DAY_GROUP_STEPS.includes(groupByFilter[1]) ? 'dayGroup' : groupByFilter[1]
     const groupedResult = groupBy(data, axisGroupKey)
     const result = {}
     Object.entries(groupedResult).forEach(([filter, dataObject]) => {
