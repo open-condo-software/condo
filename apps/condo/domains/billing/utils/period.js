@@ -1,26 +1,24 @@
-function getPeriodMessage (period, locale = 'default') {
-    if (!period || !locale) return
-    const date = new Date(period)
-    if (isNaN(date.getMonth())) return
-    const fullMonth = date.toLocaleString(locale, { month: 'long' })
-    return `${fullMonth} ${date.getFullYear()}`
+const { DateTime } = require('luxon')
+
+function getPeriodMessage (period, locale) {
+    if (!period) return
+    let dt = DateTime.fromISO(period)
+    if (!dt.isValid) return
+    if (locale) {
+        dt = dt.setLocale(locale)
+    }
+    const month = dt.toLocaleString({ month: 'long' })
+    return `${month} ${dt.year}`
 }
 
 function getPreviousPeriods (period, totalAmount = 3) {
     if (!period || !totalAmount || totalAmount < 1) return []
-    const startDate = new Date(period)
-    let month = startDate.getMonth() + 1
-    if (isNaN(month)) return []
-    let year = startDate.getFullYear()
+    let date = DateTime.fromISO(period)
+    if (!date.isValid) return  []
     const result = []
     for (let i = 0; i < totalAmount; i++) {
-        if (month === 0) {
-            month = 12
-            year--
-        }
-        const paddedMonth = `${month}`.padStart(2, '0')
-        result.push(`${year}-${paddedMonth}-01`)
-        month--
+        result.push(date.toFormat('yyyy-MM-01'))
+        date = date.minus({ month: 1 })
     }
     return result
 }

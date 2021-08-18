@@ -1,4 +1,5 @@
 const { getPeriodMessage, getPreviousPeriods } = require('./period')
+const { DateTime } = require('luxon')
 
 describe('period utils test', () => {
     describe('getPreviousPeriods', () => {
@@ -73,19 +74,19 @@ describe('period utils test', () => {
                 'May', 'June', 'July', 'August',
                 'September', 'October', 'November', 'December',
             ]
-            const nowDate = new Date(Date.now())
-            const currentPeriod = `${nowDate.getFullYear()}-${nowDate.getMonth() + 1}-01`
+            const dt = DateTime.now()
+            const currentPeriod = dt.toFormat('yyyy-MM-01')
             it('for ru locale', () => {
-                const expectedResult = `${ruMonths[nowDate.getMonth()]} ${nowDate.getFullYear()}`
+                const expectedResult = `${ruMonths[dt.month - 1]} ${dt.year}`
                 expect(getPeriodMessage(currentPeriod, 'ru-RU')).toStrictEqual(expectedResult)
             })
             it('for en locale', () => {
-                const expectedResult = `${enMonths[nowDate.getMonth()]} ${nowDate.getFullYear()}`
+                const expectedResult = `${enMonths[dt.month - 1]} ${dt.year}`
                 expect(getPeriodMessage(currentPeriod, 'en-EN')).toStrictEqual(expectedResult)
             })
             it('for default locale', () => {
-                const defaultMonth = nowDate.toLocaleString('default', { month: 'long' })
-                const expectedResult = `${defaultMonth} ${nowDate.getFullYear()}`
+                const expectedMonth = dt.toLocaleString({ month: 'long' })
+                const expectedResult = `${expectedMonth} ${dt.year}`
                 expect(getPeriodMessage(currentPeriod)).toStrictEqual(expectedResult)
             })
         })
