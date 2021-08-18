@@ -145,7 +145,7 @@ const obsRouterHandler = ({ keystone }) => {
 
     return async function (req, res, next) {
         if (!req.user) {
-            // TODO(zuch): Ask where  error pages are located in keystone - 403 is probably missing
+            // TODO(zuch): Ask where error pages are located in keystone - 403 is probably missing
             res.sendStatus(403)
             return res.end()
         }
@@ -159,13 +159,14 @@ const obsRouterHandler = ({ keystone }) => {
             res.status(404)
             return next()
         }
-        const { id: userId } = req.user
-        const context = await keystone.createContext({ authentication: { item: { id: userId }, listKey: 'User' } })
+        const { id, isAdmin, isSupport, type } = req.user
+        const context = await keystone.createContext({ authentication: { item: { id, isAdmin, isSupport, type }, listKey: 'User' } })
         const fileAfterAccessCheck = await getItem({
             keystone,
             listKey,
             itemId,
             context,
+            returnFields: 'id',
         })
         if (!fileAfterAccessCheck) {
             res.sendStatus(403)
