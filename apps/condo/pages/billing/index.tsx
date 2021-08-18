@@ -44,21 +44,20 @@ const BillingPage = () => {
             </Head>
             <PageWrapper>
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{BillingTitle}</Typography.Title>}/>
-                <OrganizationRequired>
-                    <PageContent>
-                        <BillingPageContent
-                            access={canManageIntegrations}
-                            contextLoading={contextLoading}
-                            contextError={contextError}
-                            context={currentContext}
-                        />
-                    </PageContent>
-                </OrganizationRequired>
+                <PageContent>
+                    <BillingPageContent
+                        access={canManageIntegrations}
+                        contextLoading={contextLoading}
+                        contextError={contextError}
+                        context={currentContext}
+                    />
+                </PageContent>
             </PageWrapper>
         </FeatureFlagRequired>
     )
 }
 
 BillingPage.headerAction = <TitleHeaderAction descriptor={{ id:'menu.Billing' }}/>
+BillingPage.requiredAccess = OrganizationRequired
 
 export default BillingPage
