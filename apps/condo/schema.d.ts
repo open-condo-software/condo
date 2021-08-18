@@ -5262,6 +5262,12 @@ export type Division = {
   organization?: Maybe<Organization>;
   /**  Person, responsible for this division  */
   responsible?: Maybe<OrganizationEmployee>;
+  /**  Properties in service by this division  */
+  properties: Array<Property>;
+  _propertiesMeta?: Maybe<_QueryMeta>;
+  /**  Employees, that will be assigned as executors to all corresponding tickets  */
+  executors: Array<OrganizationEmployee>;
+  _executorsMeta?: Maybe<_QueryMeta>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -5272,12 +5278,58 @@ export type Division = {
   newId?: Maybe<Scalars['String']>;
 };
 
+
+/**  Grouping of properties and employees with one single responsible person  */
+export type DivisionPropertiesArgs = {
+  where?: Maybe<PropertyWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertiesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+/**  Grouping of properties and employees with one single responsible person  */
+export type Division_PropertiesMetaArgs = {
+  where?: Maybe<PropertyWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertiesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+/**  Grouping of properties and employees with one single responsible person  */
+export type DivisionExecutorsArgs = {
+  where?: Maybe<OrganizationEmployeeWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortOrganizationEmployeesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+/**  Grouping of properties and employees with one single responsible person  */
+export type Division_ExecutorsMetaArgs = {
+  where?: Maybe<OrganizationEmployeeWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortOrganizationEmployeesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
 export type DivisionCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   responsible?: Maybe<OrganizationEmployeeRelateToOneInput>;
+  properties?: Maybe<PropertyRelateToManyInput>;
+  executors?: Maybe<OrganizationEmployeeRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5484,6 +5536,8 @@ export type DivisionUpdateInput = {
   name?: Maybe<Scalars['String']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   responsible?: Maybe<OrganizationEmployeeRelateToOneInput>;
+  properties?: Maybe<PropertyRelateToManyInput>;
+  executors?: Maybe<OrganizationEmployeeRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5530,6 +5584,18 @@ export type DivisionWhereInput = {
   organization_is_null?: Maybe<Scalars['Boolean']>;
   responsible?: Maybe<OrganizationEmployeeWhereInput>;
   responsible_is_null?: Maybe<Scalars['Boolean']>;
+  /**  condition must be true for all nodes  */
+  properties_every?: Maybe<PropertyWhereInput>;
+  /**  condition must be true for at least 1 node  */
+  properties_some?: Maybe<PropertyWhereInput>;
+  /**  condition must be false for all nodes  */
+  properties_none?: Maybe<PropertyWhereInput>;
+  /**  condition must be true for all nodes  */
+  executors_every?: Maybe<OrganizationEmployeeWhereInput>;
+  /**  condition must be true for at least 1 node  */
+  executors_some?: Maybe<OrganizationEmployeeWhereInput>;
+  /**  condition must be false for all nodes  */
+  executors_none?: Maybe<OrganizationEmployeeWhereInput>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -5587,6 +5653,17 @@ export type DivisionsCreateInput = {
 export type DivisionsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<DivisionUpdateInput>;
+};
+
+export type ExportPropertiesToExcelInput = {
+  where: PropertyWhereInput;
+  sortBy?: Maybe<Array<SortPropertiesBy>>;
+};
+
+export type ExportPropertiesToExcelOutput = {
+  __typename?: 'ExportPropertiesToExcelOutput';
+  status: Scalars['String'];
+  linkToFile: Scalars['String'];
 };
 
 export type ExportTicketsToExcelInput = {
@@ -9706,7 +9783,6 @@ export type OrganizationEmployee = {
    *  4. As an alias to the 'id' field on the OrganizationEmployee List.
    */
   _label_?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
@@ -9730,6 +9806,7 @@ export type OrganizationEmployee = {
   isRejected?: Maybe<Scalars['Boolean']>;
   /**  Employee is blocked status, used in permissions functions, isBlocked has Free-form description of the employee's position over all permissions  */
   isBlocked?: Maybe<Scalars['Boolean']>;
+  id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9809,12 +9886,12 @@ export type OrganizationEmployeeHistoryRecord = {
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   isBlocked?: Maybe<Scalars['Boolean']>;
+  id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
   updatedBy?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<OrganizationEmployeeHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -9983,6 +10060,10 @@ export type OrganizationEmployeeHistoryRecordWhereInput = {
   isRejected_not?: Maybe<Scalars['Boolean']>;
   isBlocked?: Maybe<Scalars['Boolean']>;
   isBlocked_not?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -10015,10 +10096,6 @@ export type OrganizationEmployeeHistoryRecordWhereInput = {
   updatedBy_not?: Maybe<Scalars['String']>;
   updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -10567,14 +10644,6 @@ export type OrganizationEmployeeUpdateInput = {
 export type OrganizationEmployeeWhereInput = {
   AND?: Maybe<Array<Maybe<OrganizationEmployeeWhereInput>>>;
   OR?: Maybe<Array<Maybe<OrganizationEmployeeWhereInput>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_lt?: Maybe<Scalars['ID']>;
-  id_lte?: Maybe<Scalars['ID']>;
-  id_gt?: Maybe<Scalars['ID']>;
-  id_gte?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   dv?: Maybe<Scalars['Int']>;
   dv_not?: Maybe<Scalars['Int']>;
   dv_lt?: Maybe<Scalars['Int']>;
@@ -10681,6 +10750,10 @@ export type OrganizationEmployeeWhereInput = {
   isRejected_not?: Maybe<Scalars['Boolean']>;
   isBlocked?: Maybe<Scalars['Boolean']>;
   isBlocked_not?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -11777,6 +11850,13 @@ export type PropertyHistoryRecordsUpdateInput = {
   data?: Maybe<PropertyHistoryRecordUpdateInput>;
 };
 
+export type PropertyRelateToManyInput = {
+  create?: Maybe<Array<Maybe<PropertyCreateInput>>>;
+  connect?: Maybe<Array<Maybe<PropertyWhereUniqueInput>>>;
+  disconnect?: Maybe<Array<Maybe<PropertyWhereUniqueInput>>>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
 export type PropertyRelateToOneInput = {
   create?: Maybe<PropertyCreateInput>;
   connect?: Maybe<PropertyWhereUniqueInput>;
@@ -12466,6 +12546,7 @@ export type Query = {
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
+  executeExportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
@@ -14144,6 +14225,11 @@ export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
 
 export type QueryCheckPropertyWithAddressExistArgs = {
   data: CheckPropertyWithAddressExistInput;
+};
+
+
+export type QueryExecuteExportPropertiesToExcelArgs = {
+  data: ExportPropertiesToExcelInput;
 };
 
 
@@ -15990,6 +16076,10 @@ export enum SortDivisionsBy {
   OrganizationDesc = 'organization_DESC',
   ResponsibleAsc = 'responsible_ASC',
   ResponsibleDesc = 'responsible_DESC',
+  PropertiesAsc = 'properties_ASC',
+  PropertiesDesc = 'properties_DESC',
+  ExecutorsAsc = 'executors_ASC',
+  ExecutorsDesc = 'executors_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -16147,14 +16237,14 @@ export enum SortOrganizationEmployeeHistoryRecordsBy {
   IsRejectedDesc = 'isRejected_DESC',
   IsBlockedAsc = 'isBlocked_ASC',
   IsBlockedDesc = 'isBlocked_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',
   CreatedAtDesc = 'createdAt_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
   UpdatedAtDesc = 'updatedAt_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -16254,8 +16344,6 @@ export enum SortOrganizationEmployeeRolesBy {
 }
 
 export enum SortOrganizationEmployeesBy {
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   OrganizationAsc = 'organization_ASC',
@@ -16282,6 +16370,8 @@ export enum SortOrganizationEmployeesBy {
   IsRejectedDesc = 'isRejected_DESC',
   IsBlockedAsc = 'isBlocked_ASC',
   IsBlockedDesc = 'isBlocked_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',

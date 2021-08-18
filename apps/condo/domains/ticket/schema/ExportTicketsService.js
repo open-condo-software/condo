@@ -6,10 +6,10 @@ const { createExportFile } = require('@condo/domains/common/utils/createExportFi
 const { has, get } = require('lodash')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
-const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/ticket/constants/errors')
+const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/errors')
 const CHUNK_SIZE = 20
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
-
+ 
 // TODO(zuch): if we add timeZone and locale to organization settings use organization timeZone instead of client's timezone
 const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
     types: [

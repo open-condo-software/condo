@@ -276,6 +276,7 @@
   "pages.condo.property.warning.modal.SameUnitNamesErrorMsg": "Названия помещений должны быть уникальными",
   "pages.condo.property.warning.modal.SamePropertyErrorMsg": "Дом с таким адресом уже был добавлен в организацию",
   "pages.condo.property.warning.modal.Title": "Не сохранять дом?",
+  "pages.condo.property.id.DownloadExcelLabel": "Скачать файл",
   "pages.condo.warning.modal.SaveLabel": "Сохранить",
   "pages.condo.warning.modal.LeaveLabel": "Не сохранять",
   "pages.condo.residents.PageTitle": "Жители",

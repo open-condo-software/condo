@@ -18,6 +18,8 @@ const NOT_FOUND_ERROR = '[constrain:notFound:'
 
 const WRONG_TEXT_FORMAT = '[text:wrongFormat:'
 
+const EMPTY_DATA_EXPORT_ERROR = '[export.empty.data'
+
 module.exports = {
     PHONE_WRONG_FORMAT_ERROR,
     JSON_UNKNOWN_VERSION_ERROR,
@@ -33,4 +35,5 @@ module.exports = {
     NOT_FOUND_ERROR,
     STATUS_UPDATED_AT_ERROR,
     WRONG_TEXT_FORMAT,
+    EMPTY_DATA_EXPORT_ERROR,
 }
