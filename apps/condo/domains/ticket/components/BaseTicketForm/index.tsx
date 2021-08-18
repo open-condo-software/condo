@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { searchEmployee } from '@condo/domains/ticket/utils/clientSchema/search'
+import { searchEmployeeUser } from '@condo/domains/ticket/utils/clientSchema/search'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
@@ -235,7 +235,7 @@ const TicketPurpose = ({ validations, organizationId, disableUserInteraction }) 
                     >
                         <GraphQlSearchInput
                             formatLabel={formatUserFieldLabel}
-                            search={searchEmployee(organizationId)}
+                            search={searchEmployeeUser(organizationId)}
                             allowClear={false}
                             showArrow={false}
                             disabled={disableUserInteraction}
@@ -250,7 +250,7 @@ const TicketPurpose = ({ validations, organizationId, disableUserInteraction }) 
                     >
                         <GraphQlSearchInput
                             formatLabel={formatUserFieldLabel}
-                            search={searchEmployee(organizationId)}
+                            search={searchEmployeeUser(organizationId)}
                             allowClear={false}
                             showArrow={false}
                             disabled={disableUserInteraction}
