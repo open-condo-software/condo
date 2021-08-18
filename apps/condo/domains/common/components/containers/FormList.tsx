@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { Dropdown, Form, Input, List, Menu, Modal, Popconfirm, Skeleton, Typography } from 'antd'
+import { Dropdown, Form, FormInstance, Input, List, Menu, Modal, Popconfirm, Skeleton, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
@@ -187,12 +187,20 @@ function useCreateAndEditModalForm () {
 
 type IFormValuesType = Record<string, string | number | { id: string } | { disconnectId: string }>
 
+type IFormWithActionChildrenArgs = {
+    handleSave: () => void,
+    isLoading: boolean,
+    form: FormInstance,
+    handleSubmit?: (values: any) => void,
+}
+
+export type IFormWithActionChildren = (args: IFormWithActionChildrenArgs) => JSX.Element
+
 // TODO(Dimitreee): add children type/interface
-// TODO(Dimitreee): remove any
-interface IFormWithAction {
-    action?: (formValues) => Promise<any>
+interface IFormWithAction<TRecordFormState, TRecordUIState> {
+    action?: (formValues) => Promise<TRecordUIState>
     mutation?: Document.Node
-    initialValues?: Record<string, unknown>
+    initialValues?: TRecordFormState,
     onChange?: (changedValues: Record<string, unknown>, allValues: Record<string, unknown>) => void
     handleSubmit?: (values) => void
     validateTrigger?: string | string[]
@@ -212,6 +220,7 @@ interface IFormWithAction {
     OnCompletedMsg?: string
     onMutationCompleted?: (result) => void,
     style?: CSSProperties,
+    children: IFormWithActionChildren
 }
 
 const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
