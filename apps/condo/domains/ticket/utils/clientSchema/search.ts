@@ -87,6 +87,22 @@ export async function searchProperty (client, where, orderBy) {
     return []
 }
 
+export function searchOrganizationProperty (organizationId) {
+    if (!organizationId) return
+    return async function (client, value) {
+        const where = {
+            organization: {
+                id: organizationId,
+            },
+            name_contains_i: value,
+        }
+        const orderBy = 'address_ASC'
+        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy })
+        if (error) console.warn(error)
+        return data.objs.map(x => ({ text: x.address, value: x.id }))
+    }
+}
+
 export async function searchSingleProperty (client, propertyId, organizationId) {
     const { data, error } = await _search(client, GET_PROPERTY_BY_ID_QUERY, { propertyId, organizationId })
 
