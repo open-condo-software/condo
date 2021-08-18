@@ -10,6 +10,7 @@ const path = require('path')
 const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { getPreviousPeriods } = require('@condo/domains/billing/utils/period')
+const { DateTime } = require('luxon')
 
 const PROPERTY_QUANTITY = 10
 const ACCOUNTS_PER_PROPERTY_DISTRIBUTION = { min: 30, max: 70 }
@@ -20,9 +21,8 @@ const TO_PAY_DISTRIBUITION = { min: 1200, max: 8500 }
 const DV = 1
 const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }
 const BASE_JSON = { dv: DV, sender: SENDER }
-const CURRENT_DATE = new Date(Date.now())
-const CURRENT_MONTH = `${CURRENT_DATE.getMonth() + 1}`.padStart(2, '0')
-const CURRENT_PERIOD = `${CURRENT_DATE.getFullYear()}-${CURRENT_MONTH}-01`
+const CURRENT_DATE = DateTime.now()
+const CURRENT_PERIOD = CURRENT_DATE.toFormat('yyyy-MM-01')
 
 
 class ReceiptsGenerator {
@@ -157,7 +157,7 @@ class ReceiptsGenerator {
         await BillingIntegrationOrganizationContext.update(this.context, this.billingContextId, {
             lastReport: {
                 period: this.periods[0],
-                finishTime: new Date(Date.now()).toISOString(),
+                finishTime: DateTime.now().toISO(),
                 totalReceipts: toBeGenerated,
             },
         })
