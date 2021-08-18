@@ -5,7 +5,6 @@
 
 const { Property } = require('./Property')
 const { CheckPropertyWithAddressExistService } = require('./CheckPropertyWithAddressExistService')
-
 const { ExportPropertiesToExcelService } = require('./ExportPropertiesToExcelService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
