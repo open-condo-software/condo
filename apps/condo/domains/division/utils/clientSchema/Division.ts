@@ -53,8 +53,20 @@ function convertToGQLInput (state: IDivisionFormState): DivisionUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
-        const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        if (RELATIONS.includes(attr)) {
+            if (Array.isArray(state[attr])) {
+                result[attr] = {
+                    connect: state[attr].map(item => ({
+                        id: get(item, 'id') || item,
+                    })),
+                }
+            } else {
+                const attrId = get(state[attr], 'id')
+                result[attr] = { connect: { id: (attrId || state[attr]) } }
+            }
+        } else {
+            result[attr] = state[attr]
+        }
     }
     return result
 }
@@ -65,6 +77,7 @@ const {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
 } = generateReactHooks<Division, DivisionUpdateInput, IDivisionFormState, IDivisionUIState, QueryAllDivisionsArgs>(DivisionGQL, { convertToGQLInput, convertToUIState })
 
 export {
@@ -73,5 +86,6 @@ export {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
     convertToUIFormState,
 }
