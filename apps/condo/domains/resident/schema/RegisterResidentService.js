@@ -52,7 +52,8 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     id = resident.id
                 }
                 // Hack that helps to resolve all subfields in result of this mutation
-                return await getById('Resident', id)
+                const result = await getById('Resident', id)
+                return result
             },
         },
     ],
