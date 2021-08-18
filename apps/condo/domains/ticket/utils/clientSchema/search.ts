@@ -145,6 +145,16 @@ export function searchEmployeeUser (organizationId) {
     }
 }
 
+export function searchEmployee (organizationId) {
+    if (!organizationId) return
+    return async function (client, value) {
+        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
+        if (error) console.warn(error)
+
+        return data.objs.map(({ name, id }) => ({ text: name, value: id }))
+    }
+}
+
 export function getEmployeeWithEmail (organizationId) {
     return async function (client, value) {
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY_WITH_EMAIL, { value, organizationId })
