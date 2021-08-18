@@ -18,7 +18,7 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = ({
     const DateTitle = intl.formatMessage({ id: 'Date' })
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const AllAddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses' })
-    if (data === null || filters === null) {
+    if (data === null || filters === null || loading) {
         return <Skeleton loading={loading} active paragraph={{ rows: 10 }} />
     }
     const restOptions = {
@@ -37,7 +37,6 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = ({
             bordered
             tableLayout={'fixed'}
             scroll={{ scrollToFirstRowOnChange: false }}
-            loading={loading}
             dataSource={dataSource}
             columns={tableColumns as TableColumnsType}
             pagination={false}

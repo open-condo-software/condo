@@ -34,8 +34,8 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
 }) => {
     const intl = useIntl()
     const NoData = intl.formatMessage({ id: 'NoData' })
-    if (data === null) {
-        return <Skeleton loading={loading} active paragraph={{ rows: 6 }} />
+    if (data === null || loading) {
+        return <Skeleton loading={loading} active paragraph={{ rows: 12 }} />
     }
     const { animationEnabled, chartOptions } = chartConfig
     const { series, legend, axisData, tooltip } = mapperInstance.getChartConfig(viewMode, data)
@@ -100,7 +100,6 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                     opts={{ ...chartOptions, renderer: 'svg', height: chartHeight }}
                     onChartReady={onChartReady}
                     notMerge
-                    showLoading={loading}
                     style={{ ...chartStyle }}
                     option={option}/>
                 {children}
