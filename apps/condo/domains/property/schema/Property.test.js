@@ -137,7 +137,7 @@ describe('Property', () => {
         expect(property.address).toEqual(address)
     })
 
-    test('user: can update Property when same address exist in other organization', async () => {
+    test('user: can update Property when another Property with same address exist in other organization', async () => {
         const client = await makeClientWithProperty()
         const client2 = await makeClientWithProperty()
 
@@ -150,7 +150,7 @@ describe('Property', () => {
         expect(updatedProperty.address).toEqual(address)
     })
 
-    test('user: can create Property when Property with same address soft deleted in user organization', async () => {
+    test('user: can create Property when another Property with same address soft deleted in user organization', async () => {
         const client = await makeClientWithProperty()
         await updateTestProperty(client, client.property.id, { deletedAt: 'true' })
 
@@ -159,7 +159,7 @@ describe('Property', () => {
         expect(property.address).toEqual(client.property.address)
     })
 
-    test('user: can create Property when Property with same address soft deleted in other organization', async () => {
+    test('user: can create Property when another Property with same address soft deleted in other organization', async () => {
         const client = await makeClientWithProperty()
         const client2 = await makeClientWithProperty()
 
@@ -170,7 +170,7 @@ describe('Property', () => {
         expect(property2.address).toEqual(client.property.address)
     })
 
-    test('user: can update Property when Property with same address soft deleted in user organization', async () => {
+    test('user: can update Property when another Property with same address soft deleted in user organization', async () => {
         const client = await makeClientWithProperty()
         await updateTestProperty(client, client.property.id, { deletedAt: 'true' })
 
@@ -191,7 +191,7 @@ describe('Property', () => {
         expect(property2.address).toEqual(client.property.address)
     })
 
-    test('user: cannot update Property address when other Property with same address exist in user organization', async () => {
+    test('user: can update Property when another Property with same address soft deleted in other organization', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const [_, attrs] = await createTestProperty(client, client.organization)
         const { address } = attrs
