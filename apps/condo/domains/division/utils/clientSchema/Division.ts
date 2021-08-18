@@ -8,14 +8,22 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { Division as DivisionGQL } from '@condo/domains/division/gql'
-import { Division, DivisionUpdateInput, QueryAllDivisionsArgs } from '../../../../schema'
+import {
+    Division,
+    DivisionUpdateInput,
+    OrganizationEmployee,
+    Property,
+    QueryAllDivisionsArgs,
+} from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'organization', 'responsible']
-const RELATIONS = ['organization', 'responsible']
+const RELATIONS = ['organization', 'properties', 'responsible', 'executors']
 
 export interface IDivisionUIState extends Division {
     id: string
-    // TODO(codegen): write IDivisionUIState or extends it from
+    responsible: OrganizationEmployee
+    properties: Property[]
+    executors: OrganizationEmployee[]
 }
 
 function convertToUIState (item: Division): IDivisionUIState {
@@ -25,7 +33,10 @@ function convertToUIState (item: Division): IDivisionUIState {
 
 export interface IDivisionFormState {
     id?: undefined
-    // TODO(codegen): write IDivisionUIFormState or extends it from
+    organization?: string
+    properties?: string[]
+    responsible: string[]
+    executors?: string[]
 }
 
 function convertToUIFormState (state: IDivisionUIState): IDivisionFormState | undefined {
