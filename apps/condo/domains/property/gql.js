@@ -32,6 +32,13 @@ const CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY = gql`
         result: checkPropertyWithAddressExist(data: $data) { isFound }
     }
 `
+
+const EXPORT_PROPERTIES_TO_EXCEL =  gql`
+    query exportPropertiesToExcel ($data: ExportPropertiesToExcelInput!) {
+        result: executeExportPropertiesToExcel(data: $data) { status, linkToFile }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -39,5 +46,7 @@ module.exports = {
     GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
     GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
     CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY,
+    EXPORT_PROPERTIES_TO_EXCEL,
+
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

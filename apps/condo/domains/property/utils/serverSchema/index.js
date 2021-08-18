@@ -11,6 +11,7 @@ const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 
 const { Resident: ResidentGQL } = require('@condo/domains/property/gql')
 const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('@condo/domains/property/gql')
+const { EXPORT_PROPERTIES_TO_EXCEL_MUTATION } = require('@condo/domains/property/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateServerUtils(PropertyGQL)
@@ -27,11 +28,26 @@ async function checkPropertyWithAddressExist (context, data) {
         dataPath: 'obj',
     })
 }
+async function exportPropertiesToExcel (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write exportPropertiesToExcel serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: EXPORT_PROPERTIES_TO_EXCEL_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to exportPropertiesToExcel',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Property,
     Resident,
     checkPropertyWithAddressExist,
+    exportPropertiesToExcel,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

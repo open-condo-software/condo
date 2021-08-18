@@ -12,6 +12,7 @@ const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegenera
 const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { EXPORT_PROPERTIES_TO_EXCEL } = require('@condo/domains/property/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateGQLTestUtils(PropertyGQL)
@@ -79,6 +80,16 @@ async function checkPropertyWithAddressExistByTestClient(client, extraAttrs = {}
     return [data.result, attrs]
 }
 
+async function exportPropertiesToExcelByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const attrs = {
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.query(EXPORT_PROPERTIES_TO_EXCEL, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -88,5 +99,6 @@ module.exports = {
     makeClientWithProperty,
     checkPropertyWithAddressExistByTestClient,
     makeClientWithResidentUserAndProperty,
+    exportPropertiesToExcelByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

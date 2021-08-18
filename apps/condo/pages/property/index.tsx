@@ -2,7 +2,7 @@
 // @ts-nocheck
 import React, { useCallback, useState } from 'react'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { Typography, Space, Radio, Row, Col, Input, Table } from 'antd'
+import { Typography, Space, Radio, Row, Col, Input, Table, notification } from 'antd'
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import Head from 'next/head'
 import { MapGL } from '@condo/domains/common/components/MapGL'
@@ -10,12 +10,13 @@ import { Button } from '@condo/domains/common/components/Button'
 import { IFilters } from '@condo/domains/property/utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
+import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
+import { useLazyQuery } from '@core/next/apollo'
 
 import qs from 'qs'
 import pickBy from 'lodash/pickBy'
 import get from 'lodash/get'
 import has from 'lodash/has'
-import XLSX from 'xlsx'
 
 import {
     getPageIndexFromQuery,
@@ -80,11 +81,8 @@ export const PropertyPageViewTable = ({
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const PropertiesMessage = intl.formatMessage({ id: 'menu.Property' })
-    // EXCEL TABLE FIELDS
-    const ExcelAddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const ExcelOrganizationLabel = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
-    const ExcelUnitsCountLabel = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
-    const ExcelTicketsInWorkLabel = intl.formatMessage({ id:'pages.condo.property.id.TicketsInWork' })
+    const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })
+
 
     const createRoute = '/property/create'
 
@@ -109,6 +107,23 @@ export const PropertyPageViewTable = ({
         fetchPolicy: 'network-only',
     })
 
+    const [downloadLink, setDownloadLink] = useState(null)
+
+    const [
+        exportToExcel,
+        { loading: isXlsLoading },
+    ] = useLazyQuery(
+        EXPORT_PROPERTIES_TO_EXCEL,
+        {
+            onError: error => {
+                notification.error(error)
+            },
+            onCompleted: data => {
+                setDownloadLink(data.result.linkToFile)
+            },
+        },
+    )
+
     const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
         const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
         const { current, pageSize } = nextPagination
@@ -127,45 +142,13 @@ export const PropertyPageViewTable = ({
                     { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
                     { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
                 )
+                setDownloadLink(null)
                 router.push(router.route + query)
             })
         }
     }, 400), [loading])
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
-
-    const generateExcelData = useCallback(() => {
-        return new Promise<void>((resolve, reject) => {
-            try {
-                const dataCols = [
-                    'address',
-                    'organization',
-                    'unitsCount',
-                    'ticketsInWork',
-                ]
-                const headers = [
-                    [
-                        ExcelAddressLabel,
-                        ExcelOrganizationLabel,
-                        ExcelUnitsCountLabel,
-                        ExcelTicketsInWorkLabel,
-                    ],
-                ]
-                const wb = XLSX.utils.book_new()
-                const ws = XLSX.utils.json_to_sheet(
-                    properties.map((property) => Property.extractAttributes(property, dataCols)),
-                    { skipHeader: true, origin: 'A2' }
-                )
-                XLSX.utils.sheet_add_aoa(ws, headers)
-                XLSX.utils.book_append_sheet(wb, ws, 'table')
-                XLSX.writeFile(wb, 'export_properties.xlsx')
-            } catch (e) {
-                reject(e)
-            } finally {
-                resolve()
-            }
-        })
-    }, [properties])
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -193,7 +176,27 @@ export const PropertyPageViewTable = ({
                 />
             </Col>
             <Col span={6} push={1}>
-                <Button type={'inlineLink'} icon={<DatabaseFilled />} onClick={generateExcelData} >{ExportAsExcel}</Button>
+                {
+                    downloadLink
+                        ?
+                        <Button
+                            type={'inlineLink'}
+                            icon={<DatabaseFilled />}
+                            loading={isXlsLoading}
+                            target='_blank'
+                            href={downloadLink}
+                            rel='noreferrer'>{DownloadExcelLabel}
+                        </Button>
+                        :
+                        <Button
+                            type={'inlineLink'}
+                            icon={<DatabaseFilled />}
+                            loading={isXlsLoading}
+                            onClick={
+                                () => exportToExcel({ variables: { data: { where: searchPropertyQuery, sortBy: sortFromQuery } } })
+                            }>{ExportAsExcel}
+                        </Button>
+                }
             </Col>
             <Col span={6} push={6} align={'right'}>
                 {

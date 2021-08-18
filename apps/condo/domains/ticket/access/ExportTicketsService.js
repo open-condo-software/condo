@@ -1,7 +1,6 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { checkOrganizationPermission, checkRelatedOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
-const { checkRelatedOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 async function canExportTicketsToExcel ({ args: { data: { where } }, authentication: { item: user }, context }) {
