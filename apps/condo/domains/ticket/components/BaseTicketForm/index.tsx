@@ -357,7 +357,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 {PromptHelpMessage}
                             </Typography.Paragraph>
                         </Prompt>
-                        <Col span={13}>
+                        <Col lg={13} md={24}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
                                     <Row justify={'space-between'} gutter={[0, 15]}>
