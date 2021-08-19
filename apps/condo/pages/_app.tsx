@@ -1,11 +1,9 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
-// @ts-nocheck
 import React from 'react'
 import Head from 'next/head'
-import { CacheProvider, jsx } from '@emotion/core'
+import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
 
@@ -58,7 +56,7 @@ const MenuItems: React.FC = () => (
             </OnBoardingProgressIconContainer>
         </FocusElement>
         <MenuItem
-            path={'/analytics'}
+            path={'/reports'}
             icon={BarChartIcon}
             label={'menu.Analytics'}
         />
