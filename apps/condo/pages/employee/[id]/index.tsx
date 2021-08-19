@@ -21,6 +21,34 @@ import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
+const ReInviteActionAlert = ({ employee }) => {
+    const intl = useIntl()
+    const EmployeeDidntEnteredMessage = intl.formatMessage({ id: 'employee.EmployeeDidntEntered' })
+    const EmployeeRejectedMessage = intl.formatMessage({ id: 'pages.users.status.Rejected' })
+
+    const isEmployeeRejected = get(employee, 'isRejected')
+
+    if (isEmployeeRejected) {
+        return (
+            <Alert showIcon type='warning' message={
+                <>
+                    {EmployeeRejectedMessage}.
+                </>
+            }/>
+        )
+    }
+
+    return (
+        <Alert showIcon type='warning' message={
+            <>
+                {EmployeeDidntEnteredMessage}
+                    .&nbsp;
+                <EmployeeInviteRetryButton employee={employee}/>
+            </>
+        }/>
+    )
+}
+
 export const EmployeePageContent = ({
     employee,
     isEmployeeEditable,
@@ -33,7 +61,6 @@ export const EmployeePageContent = ({
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
-    const EmployeeDidntEnteredMessage = intl.formatMessage({ id: 'employee.EmployeeDidntEntered' })
     const BlockUserMessage = intl.formatMessage({ id: 'employee.BlockUser' })
     const DeletePropertyLabel = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'employee.ConfirmDeleteTitle' })
@@ -95,13 +122,7 @@ export const EmployeePageContent = ({
                                             />
                                         </Col>
                                         {isEmployeeReinvitable && (
-                                            <Alert showIcon type='warning' message={
-                                                <>
-                                                    {EmployeeDidntEnteredMessage}
-                                                    .&nbsp;
-                                                    <EmployeeInviteRetryButton employee={employee}/>
-                                                </>
-                                            }/>
+                                            <ReInviteActionAlert employee={employee} />
                                         )}
                                         {isEmployeeEditable && (
                                             <Col span={24}>
