@@ -2,7 +2,22 @@ import { AddressMeta } from '@condo/domains/common/utils/addressApi/AddressMeta'
 
 // "д" - "дом" or "к" - "корпус"
 const validHouseTypes: AddressMeta['data']['house_type_full'][] = ['дом', 'корпус', 'строение']
-const validSettlementTypes: AddressMeta['data']['settlement_type_full'][] = ['село', 'поселок городского типа']
+// house_type_full: "домовладение"
+// house_type_full: "сооружение"
+
+const validSettlementTypes: AddressMeta['data']['settlement_type_full'][] = [
+    'село', // settlement_type_full
+    'поселок городского типа', // settlement_type_full
+    'поселок', // settlement_type_full
+    'деревня', // settlement_type_full
+    'квартал', // settlement_type_full
+    'микрорайон', // street_type_full
+]
+
+// 'район', // area_type_full
+// 'рабочий поселок', // city_type_full не валидируем, и так работает
+// 'городской поселок', // city_type_full не валидируем, и так работает
+// city_type_full: "территория"
 
 const buildingEmptyMapJson = {
     'dv': 1,
