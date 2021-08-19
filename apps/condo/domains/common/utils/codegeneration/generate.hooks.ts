@@ -79,7 +79,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         const [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION)
         async function _action (state: UIForm) {
             const { data, errors } = await rowAction({
-                variables: { data: convertToGQLInput({ ...state, ...attrs }) },
+                variables: { data: convertToGQLInput({ ...attrs, ...state }) },
             })
             if (data && data.obj) {
                 const result = convertToUIState(data.obj)
