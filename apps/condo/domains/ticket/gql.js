@@ -132,6 +132,11 @@ const TICKET_ANALYTICS_REPORT_QUERY = gql`
         result: ticketAnalyticsReport(data: $data) { groups { count status property dayGroup } }
     }
 `
+const EXPORT_TICKET_ANALYTICS_TO_EXCEL = gql`
+    query exportTicketAnalyticsToExcel ($data: TicketAnalyticsReportInput!) {
+        result: exportTicketAnalyticsToExcel(data: $data) { link }
+    }
+`
 
 const RESIDENT_TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName number client { id name } clientName clientEmail clientPhone status { id name type organization { id } colors } classifier { id name } ${THREE_LVL_CLASSIFIER_FIELDS} details related { id details } isEmergency isPaid source { id name type } id dv sender v deletedAt newId createdAt updatedAt }`
 const ResidentTicket = generateGqlQueries('ResidentTicket', RESIDENT_TICKET_FIELDS)
@@ -179,5 +184,6 @@ module.exports = {
     TicketProblemClassifier,
     TicketClassifierRule,
     RESIDENT_TICKET_FIELDS,
+    EXPORT_TICKET_ANALYTICS_TO_EXCEL,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

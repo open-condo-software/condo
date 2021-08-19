@@ -7,18 +7,20 @@ const access = require('@condo/domains/ticket/access/TicketAnalyticsReportServic
 const moment = require('moment')
 const { sortStatusesByType } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
 const { TicketGqlToKnexAdapter } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
-const { DATE_DISPLAY_FORMAT } = require('@condo/domains/ticket/constants/common')
+const { DATE_DISPLAY_FORMAT, TICKET_REPORT_DAY_GROUP_STEPS } = require('@condo/domains/ticket/constants/common')
 const { Property: PropertyServerUtils } = require('@condo/domains/property/utils/serverSchema')
-const { TicketStatus: TicketStatusServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
+const { TicketStatus: TicketStatusServerUtils, Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const get = require('lodash/get')
+const groupObjectBy = require('lodash/groupBy')
+const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 
 const createPropertyRange = async (context, organizationWhereInput) => {
     const properties = await PropertyServerUtils.getAll(context, { organization:  organizationWhereInput  })
     return properties.map( property => ({ label: property.address, value: property.id }))
 }
 
-const createStatusRange = async (context, organizationWhereInput) => {
+const createStatusRange = async (context, organizationWhereInput, labelKey = 'name') => {
     const statuses = await TicketStatusServerUtils.getAll(context, { OR: [
         { organization: organizationWhereInput },
         { organization_is_null: true },
@@ -32,7 +34,53 @@ const createStatusRange = async (context, organizationWhereInput) => {
         return !statuses
             .find(organizationStatus => organizationStatus.organization !== null && organizationStatus.type === status.type)
     })
-    return sortStatusesByType(allStatuses).map(status => ({ label: status.name, value: status.id }))
+    return sortStatusesByType(allStatuses).map(status => ({ label: status[labelKey], value: status.id }))
+}
+
+const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
+    const ticketGqlToKnexAdapter = new TicketGqlToKnexAdapter(where, groupBy)
+    await ticketGqlToKnexAdapter.loadData()
+
+    const translates = {}
+    for (const group of groupBy) {
+        switch (group) {
+            case 'property':
+                translates[group] = await createPropertyRange(context, where.organization)
+                break
+            case 'status':
+                translates[group] = await createStatusRange(
+                    context, where.organization, isEmpty(extraLabels) ? 'name' :  extraLabels[group]
+                )
+                break
+            default:
+                break
+        }
+    }
+
+    return ticketGqlToKnexAdapter
+        .getResult(({ count, dayGroup, ...searchResult }) =>
+        {
+            if (!isEmpty(translates)) {
+                Object.entries(searchResult).forEach(([groupName, value]) => {
+                    const translateMapping = get(translates, groupName, false)
+                    if (translateMapping) {
+                        const translation = translateMapping.find(translate => translate.value === value)
+                        searchResult[groupName] = translation.label
+                    }
+                })
+                return {
+                    ...searchResult,
+                    dayGroup: moment(dayGroup).format(DATE_DISPLAY_FORMAT),
+                    count: parseInt(count),
+                }
+            }
+            return {
+                ...searchResult,
+                dayGroup: moment(dayGroup).format(DATE_DISPLAY_FORMAT),
+                count:parseInt(count),
+            }
+        }).sort((a, b) =>
+            moment(a.dayGroup, DATE_DISPLAY_FORMAT).format('X') - moment(b.dayGroup, DATE_DISPLAY_FORMAT).format('X'))
 }
 
 const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportService', {
@@ -47,7 +95,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
         },
         {
             access: true,
-            type: 'type TicketAnalyticsReportOutput { groups: [TicketGroupedCounter!] }',
+            type: 'type TicketAnalyticsReportOutput { result: [TicketGroupedCounter!] }',
         },
         {
             access: true,
@@ -101,11 +149,32 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                         }
                     }).sort((a, b) =>
                         moment(a.dayGroup, DATE_DISPLAY_FORMAT).format('X') - moment(b.dayGroup, DATE_DISPLAY_FORMAT).format('X'))
-                return { groups: result }
+                return { result }
+            },
+        },
+        {
+            access: access.canReadTicketAnalyticsReport,
+            schema: 'exportTicketAnalyticsToExcel(data: TicketAnalyticsReportInput): ExportTicketAnalyticsToExcelOutput',
+            resolver: async (parent, args, context, info, extra = {}) => {
+                const { data: { where = {}, groupBy = [] } } = args
+                const ticketCounts = await getTicketCounts(context, where, groupBy, { status: 'type' })
+                const { result, groupKeys } = aggregateData(ticketCounts, groupBy)
+                const ticketAccessCheck = await Ticket.getAll(context, where, { first: 1 })
+                const [groupBy1, groupBy2] = groupKeys
+                const excelRows = ticketAnalyticsExcelExportDataMapper(result)
+                const link = await createExportFile({
+                    fileName: `ticket_analytics_${moment().format('DD_MM')}.xlsx`,
+                    templatePath: `./domains/ticket/templates/TicketAnalyticsExportTemplate[${groupBy1}_${groupBy2}].xlsx`,
+                    replaces: { tickets: excelRows },
+                    meta: {
+                        listkey: 'Ticket',
+                        id: ticketAccessCheck[0].id,
+                    },
+                })
+                return { link }
             },
         },
     ],
-
 })
 
 module.exports = {
