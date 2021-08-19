@@ -19,7 +19,7 @@ import {
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import { TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/ticket/gql'
+import { TICKET_ANALYTICS_REPORT_QUERY, EXPORT_TICKET_ANALYTICS_TO_EXCEL } from '@condo/domains/ticket/gql'
 import { useLazyQuery } from '@core/next/apollo'
 
 import moment, { Moment } from 'moment'
@@ -249,6 +249,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const [viewMode, setViewMode] = useState<ViewModeTypes>('line')
     const [analyticsData, setAnalyticsData] = useState(null)
     const [loading, setLoading] = useState<boolean>(false)
+    const [excelDownloadLink, setExcelDownloadLink] = useState<null | string>(null)
 
     const [ticketType, setTicketType] = useState<TicketSelectTypes>('all')
     const [dateFrom, dateTo] = filtersRef.current !== null ? filtersRef.current.range : []
@@ -268,6 +269,18 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 
             setAnalyticsData(getAggregatedData(groups, groupBy))
             setLoading(false)
+        },
+    })
+    const [exportTicketAnalyticsToExcel, { loading: isXSLXLoading }] = useLazyQuery(EXPORT_TICKET_ANALYTICS_TO_EXCEL, {
+        onError: error => {
+            console.log(error)
+            notification.error(error)
+        },
+        fetchPolicy: 'network-only',
+        onCompleted: response => {
+            const { result: { link } } = response
+            console.log(link)
+            setExcelDownloadLink(link)
         },
     })
     const getAnalyticsData = () => {
@@ -399,6 +412,21 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         getAnalyticsData()
     }, [groupTicketsBy, userOrganizationId, ticketType, viewMode])
 
+    // Download excel file when file link was created
+    useEffect(() => {
+        if (excelDownloadLink !== null && !isXSLXLoading) {
+            const link = document.createElement('a')
+            link.href = excelDownloadLink
+            link.target = '_blank'
+            link.hidden = true
+            document.body.appendChild(link)
+            link.click()
+            link.parentNode.removeChild(link)
+            setExcelDownloadLink(null)
+        }
+    }, [excelDownloadLink, isXSLXLoading])
+
+
     const printPdf = useCallback(
         () => {
             router.push(router.route + '/pdf?' + qs.stringify({
@@ -413,6 +441,16 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         },
         [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId],
     )
+
+    const downloadExcel = useCallback(
+        () => {
+            const { AND, groupBy } = filterToQuery(filtersRef.current, viewMode, ticketType)
+            const where = { organization: { id: userOrganizationId }, AND }
+            exportTicketAnalyticsToExcel({ variables: { data: { groupBy, where } } })
+        },
+        [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId],
+    )
+
 
     const onFilterChange: ITicketAnalyticsPageFilterProps['onChange'] = useCallback((filters) => {
         filtersRef.current = filters
@@ -521,9 +559,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         <Button onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
                             {PrintTitle}
                         </Button>
-                        <Tooltip title={NotImplementedYetMessage}>
-                            <Button icon={<EditFilled />} type='sberPrimary' secondary>{ExcelTitle}</Button>
-                        </Tooltip>
+                        <Button onClick={downloadExcel} loading={isXSLXLoading} icon={<EditFilled />} type='sberPrimary' secondary>{ExcelTitle}</Button>
                     </ActionBar>
                 </Row>
             </PageContent>
