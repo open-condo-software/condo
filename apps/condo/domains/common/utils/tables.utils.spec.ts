@@ -9,6 +9,7 @@ import {
     getBooleanFilter,
     getSortersFromQuery,
     convertSortersToSortBy,
+    getFiltersFromQuery,
 } from './tables.utils'
 import moment from 'moment'
 
@@ -318,6 +319,24 @@ describe('Table utils', () => {
                 descShortSort,
             ]
             expect(convertSortersToSortBy(sorters)).toStrictEqual(expectedResult)
+        })
+    })
+    describe('getFiltersFromQuery', () => {
+        describe('it should extract filters from query', () => {
+            it('if valid JSON is provided', () => {
+                expect(getFiltersFromQuery({ filters: '{"key": "value", "key2": "value"}' })).toStrictEqual({
+                    key: 'value',
+                    key2: 'value',
+                })
+            })
+            it('if some arguments are invalid strings', () => {
+                expect(getFiltersFromQuery({ filters: '{"key": true, "key2": ["value", 2]}' })).toStrictEqual({
+                    key2: ['value'],
+                })
+            })
+            it('if invalid JSON is provided', () => {
+                expect(getFiltersFromQuery({ filters: '{"key": value, "key2": value}' })).toStrictEqual({})
+            })
         })
     })
 })

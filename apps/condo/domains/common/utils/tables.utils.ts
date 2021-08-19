@@ -155,3 +155,27 @@ export const convertSortersToSortBy = (sorters?: SorterColumn | Array<SorterColu
         .filter(Boolean)
 }
 
+export const getFiltersFromQuery = (query: ParsedUrlQuery): { [x: string]: QueryMeta } => {
+    const { filters } = query
+    if (!filters || typeof filters !== 'string') {
+        return {}
+    }
+    try {
+        const json = JSON.parse(filters)
+        const result = {}
+        Object.keys(json).forEach((key) => {
+            let value = json[key]
+            if (Array.isArray(value)) {
+                value = value.filter((v) => typeof v === 'string' && !!v)
+                if (value.length) {
+                    result[key] = value
+                }
+            } else {
+                if (typeof value === 'string' && !!value) result[key] = value
+            }
+        })
+        return result
+    } catch (e) {
+        return {}
+    }
+}
