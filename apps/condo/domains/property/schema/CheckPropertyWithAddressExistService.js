@@ -7,11 +7,11 @@ const access = require('@condo/domains/property/access/CheckPropertyWithAddressE
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const get = require('lodash/get')
 const { jsonAddressMetaValidator } = require('../utils/validation.utils')
+const { getAddressUpToBuildingFrom, FLAT_WITHOUT_FLAT_TYPE_MESSAGE } = require('../utils/helpers')
 
 const NO_OBJECT_MESSAGE = 'No object specified!'
 const META_INCORRECT_JSON_MESSAGE = 'AddressMeta Json had incorrect format!'
 const DV_VERSION_MISMATCH_MESSAGE = 'Unknown version of addressMeta! Expected "dv" to equal 1'
-const FLAT_WITHOUT_FLAT_TYPE_MESSAGE = 'Flat is specified, but flat type is not!'
 
 const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyWithAddressExistService', {
     types: [
@@ -40,18 +40,13 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
                 if (dv !== 1) {
                     throw new Error(DV_VERSION_MISMATCH_MESSAGE)
                 }
-
-                const data = get(addressMeta, 'data')
-                const value = get(addressMeta, 'value')
-
-                const flat = get(data, 'flat')
-                let search = value
-                if (flat) {
-                    const flatType = get(data, 'flat_type')
-                    if (!flatType) throw new Error(FLAT_WITHOUT_FLAT_TYPE_MESSAGE)
-                    const suffix = `, ${flatType} ${flat}`
-                    search = search.substring(0, search.length - suffix.length)
+                const flatType = get(addressMeta, ['data', 'flat_type'])
+                if (!flatType) {
+                    throw new Error(FLAT_WITHOUT_FLAT_TYPE_MESSAGE)
                 }
+
+                const search = getAddressUpToBuildingFrom(addressMeta)
+
                 const count = await Property.count(context, {
                     address_i: search,
                 })
@@ -69,5 +64,4 @@ module.exports = {
     NO_OBJECT_MESSAGE,
     META_INCORRECT_JSON_MESSAGE,
     DV_VERSION_MISMATCH_MESSAGE,
-    FLAT_WITHOUT_FLAT_TYPE_MESSAGE,
 }
