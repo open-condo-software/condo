@@ -204,6 +204,28 @@ describe('TicketChange', () => {
 
             expect(objs).toHaveLength(0)
         })
+
+        it('create related fields when Ticket has changes in at least one field from related fields', async () => {
+            const client = await makeClientWithProperty()
+            const unitName1 = faker.lorem.word()
+
+            const [ticket] = await createTestTicket(client, client.organization, client.property, { unitName: unitName1 })
+
+            const unitName2 = faker.lorem.word()
+
+            await updateTestTicket(client, ticket.id, { unitName: unitName2 })
+
+            const [ticketChange] = await TicketChange.getAll(client, {
+                ticket: { id: ticket.id },
+            })
+
+            expect(ticketChange.propertyIdFrom).toEqual(client.property.id)
+            expect(ticketChange.propertyIdTo).toEqual(client.property.id)
+            expect(ticketChange.propertyDisplayNameFrom).toEqual(client.property.address)
+            expect(ticketChange.propertyDisplayNameTo).toEqual(client.property.address)
+            expect(ticketChange.unitNameFrom).toEqual(unitName1)
+            expect(ticketChange.unitNameTo).toEqual(unitName2)
+        })
     })
 
     test('user: create TicketChange', async () => {
