@@ -36,7 +36,6 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
     const AddressValidationErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
-    const UnsupportedPropertyErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.UnsupportedPropertyErrorMsg' })
     const SameUnitNamesErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
     const SamePropertyErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SamePropertyErrorMsg' })
 
@@ -119,11 +118,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         <AddressSuggestionsSearchInput
                                             onSelect={(_, option) => {
                                                 const address = JSON.parse(option.key) as AddressMeta
-                                                console.log('address', address)
-                                                if (address.data.settlement_type_full && !validSettlementTypes.includes(address.data.settlement_type_full)) {
-                                                    setAddressValidatorError(UnsupportedPropertyErrorMsg.replace('{propertyType}', address.data.settlement_type_full))
-                                                }
-                                                else if (!validHouseTypes.includes(address.data.house_type_full)) {
+                                                if (!validHouseTypes.includes(address.data.house_type_full)) {
                                                     setAddressValidatorError(AddressValidationErrorMsg)
                                                 }
                                                 else if (AddressValidationErrorMsg) setAddressValidatorError(null)
