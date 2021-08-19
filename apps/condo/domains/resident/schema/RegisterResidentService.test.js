@@ -9,7 +9,7 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
 const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
-const { registerResidentByTestClient, createTestResident, Resident } = require('@condo/domains/resident/utils/testSchema')
+const { registerResidentByTestClient, Resident } = require('@condo/domains/resident/utils/testSchema')
 
 describe('RegisterResidentService', () => {
     test('can be executed by user with "resident" type', async () => {

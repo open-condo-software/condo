@@ -9,10 +9,11 @@ const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('../../gql')
 const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema/factories')
+const { buildFakeAddressAndMeta } = require('@condo/domains/common/utils/testSchema/factories')
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { EXPORT_PROPERTIES_TO_EXCEL } = require('@condo/domains/property/gql')
+const {  } = require('@condo/domains/common/utils/testSchema/factories')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateGQLTestUtils(PropertyGQL)
@@ -23,12 +24,7 @@ async function createTestProperty (client, organization, extraAttrs = {}, withFl
     if (!organization) throw new Error('no organization')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.address.streetAddress(true)
-    const addressMeta = buildFakeAddressMeta(withFlat)
-    let address = addressMeta.address
-    if (withFlat) {
-        const index = address.lastIndexOf(',')
-        address = address.substring(0, index)
-    }
+    const { address, addressMeta } = buildFakeAddressAndMeta(withFlat)
     const attrs = {
         dv: 1,
         sender,

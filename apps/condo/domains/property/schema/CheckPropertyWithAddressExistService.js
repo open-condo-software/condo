@@ -40,8 +40,9 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
                 if (dv !== 1) {
                     throw new Error(DV_VERSION_MISMATCH_MESSAGE)
                 }
+                const flat = get(addressMeta, ['data', 'flat'])
                 const flatType = get(addressMeta, ['data', 'flat_type'])
-                if (!flatType) {
+                if (flat && !flatType) {
                     throw new Error(FLAT_WITHOUT_FLAT_TYPE_MESSAGE)
                 }
 
