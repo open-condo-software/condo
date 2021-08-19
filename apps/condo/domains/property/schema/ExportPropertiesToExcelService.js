@@ -9,10 +9,10 @@ const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/err
 const moment = require('moment')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 
-
+// as we have limits in query we need to fetch all properties by chunks
 const CHUNK_SIZE = 50
 
-
+// TODO(zuch): use workers for export
 const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToExcelService', {
     types: [
         { 
@@ -32,14 +32,14 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { where, sortBy } = args.data
                 let skip = 0
-                let maxCount = 1000
+                let iterationsLimit = 1000
                 let newchunk = []
                 let allProperties = []
                 do {
                     newchunk = await PropertyAPI.getAll(context, where, { sortBy, first: CHUNK_SIZE, skip: skip })
                     allProperties = allProperties.concat(newchunk)
                     skip += newchunk.length
-                } while (--maxCount > 0 && newchunk.length)
+                } while (--iterationsLimit > 0 && newchunk.length)
                 if (allProperties.length === 0) {
                     throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
                 }
