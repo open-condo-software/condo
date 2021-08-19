@@ -3,6 +3,7 @@
  */
 
 const faker = require('faker')
+const { cloneDeep } = require('lodash')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const { createTestProperty, makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
@@ -21,6 +22,27 @@ const { createTestTicketFile, updateTestTicketFile, createTestTicket, updateTest
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('Resident', () => {
+
+    describe('resolveInput', () => {
+        it('resolves address to address up to building, if flat is presented in address string', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+
+            const addressMetaWithFlat = cloneDeep(userClient.property.addressMeta)
+            addressMetaWithFlat.data.flat = '123'
+            addressMetaWithFlat.data.flat_type = 'кв.'
+            addressMetaWithFlat.value = addressMetaWithFlat.value + ', кв. 123'
+
+            const attrs = {
+                address: addressMetaWithFlat.value,
+                unitName: faker.random.alphaNumeric(3),
+                addressMeta: addressMetaWithFlat,
+            }
+
+            const [objCreated] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, attrs)
+            expect(objCreated.address).toEqual(userClient.property.addressMeta.value)
+        })
+    })
 
     describe('validations', () => {
         it('throws error on create record with same set of fields: "property", "unitName" for current user', async () => {
