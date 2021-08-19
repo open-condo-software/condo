@@ -13,7 +13,7 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { userIsAdmin } = require('@core/keystone/access')
 const { getById } = require('@core/keystone/schema')
 const { pick } = require('lodash')
-const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/helpers')
+const { getAddressUpToBuildingFrom } = require('@condo/domains/common/utils/addressApi/helpers')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const Resident = new GQLListSchema('Resident', {
