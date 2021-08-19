@@ -94,7 +94,7 @@ export const OrganizationSelect: React.FC = () => {
                 }
             }
         }
-    }, [userOrganizations, organizationLinksLoading, showCreateOrganizationModal, user])
+    }, [userOrganizations, organizationLinksLoading, showCreateOrganizationModal, user, router])
 
     const chooseOrganizationByLinkId = React.useCallback((value) => {
         selectLink({ id: value })
