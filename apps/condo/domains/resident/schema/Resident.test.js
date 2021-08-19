@@ -45,11 +45,11 @@ describe('Resident', () => {
     })
 
     describe('validations', () => {
-        it('throws error on create record with same set of fields: "property", "unitName" for current user', async () => {
+        it('throws error on create record with same set of fields: "address", "unitName" for current user', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const duplicatedFields = {
-                property: { connect: { id: userClient.property.id } },
+                address: userClient.property.address,
                 unitName: faker.random.alphaNumeric(3),
             }
             await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
@@ -58,7 +58,36 @@ describe('Resident', () => {
                 await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot create resident, because another resident with the same provided "property", "unitName" fields already exists for current user')
+                expect(errors[0].data.messages[0]).toMatch('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
+        it('throws error on create record with same set of fields: "address", "unitName" for current user, ignoring flat part in "address"', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const duplicatedFields = {
+                address: userClient.property.address,
+                unitName: faker.random.alphaNumeric(3),
+            }
+            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
+
+            const addressMetaWithFlat = cloneDeep(userClient.property.addressMeta)
+            addressMetaWithFlat.data.flat = '123'
+            addressMetaWithFlat.data.flat_type = 'кв.'
+            addressMetaWithFlat.value = addressMetaWithFlat.value + ', кв. 123'
+
+            const duplicatedFieldsWithFlatInAddress = {
+                address: addressMetaWithFlat.value,
+                unitName: duplicatedFields.unitName,
+                addressMeta: addressMetaWithFlat,
+            }
+
+            await catchErrorFrom(async () => {
+                await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFieldsWithFlatInAddress)
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                expect(errors[0].data.messages[0]).toMatch('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
                 expect(data).toEqual({ 'obj': null })
             })
         })
@@ -80,13 +109,11 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
 
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-            const [billingProperty] = await createTestBillingProperty(adminClient, context)
-
             const [propertyWithAnotherAddress] = await createTestProperty(userClient, userClient.organization, { map: buildingMapJson })
 
             const attrs = {
                 address: userClient.property.address,
+                addressMeta: userClient.property.addressMeta,
             }
 
             await catchErrorFrom(async () => {
