@@ -7,7 +7,23 @@ import nextCookie from 'next-cookies'
 
 const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
-const OrganizationContext = createContext({})
+export interface IOrganization {
+    id: string;
+    name: string;
+    description: string;
+    avatar: {
+        publicUrl: string
+    }
+}
+
+type OrganizationContext = {
+    link?: any;
+    selectLink?: any;
+    isLoading?: boolean;
+    organization?: IOrganization;
+}
+
+const OrganizationContext = createContext<OrganizationContext>({})
 
 const useOrganization = () => useContext(OrganizationContext)
 
@@ -35,13 +51,13 @@ let GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY = gql`
     }
 `
 
-let setCookieLinkId = (value) => {
+const setCookieLinkId = (value) => {
     if (typeof window !== 'undefined') {
         cookie.set('organizationLinkId', value, { expires: 365 })
     }
 }
 
-let getLinkId = () => {
+const getLinkId = () => {
     let state = null
     if (typeof window !== 'undefined') {
         try {
@@ -53,7 +69,7 @@ let getLinkId = () => {
     return state
 }
 
-let extractReqLinkId = (req) => {
+const extractReqLinkId = (req) => {
     try {
         return nextCookie({ req }).organizationLinkId || null
     } catch (e) {

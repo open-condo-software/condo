@@ -12,12 +12,38 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "baseUrl": "./",
+    "paths": {
+      "@core/next/*": [
+        "../../packages/@core.next/*"
+      ],
+      "@core/codegen/*": [
+        "../../packages/@core.codegen/*"
+      ],
+      "@core/config/*": [
+        "../../packages/@core.config/*"
+      ],
+      "@core/keystone/*": [
+        "../../packages/@core.keystone/*"
+      ],
+      "@core/triggers/*": [
+        "../../packages/@core.triggers/*"
+      ]
+    },
+    "rootDirs": [
+      ".",
+      "../../packages/@core.next",
+      "../../packages/@core.codegen",
+      "../../packages/@core.config",
+      "../../packages/@core.keystone",
+      "../../packages/@core.triggers"
+    ]
   },
   "include": [
     "next-env.d.ts",
@@ -27,6 +53,7 @@
   "exclude": [
     "node_modules",
     ".next",
+    ".kmigrator",
     "out"
   ]
 }

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { ApolloError, QueryHookOptions, OperationVariables } from '@apollo/client'
 
-import { useMutation, useQuery } from '@core/next/apollo'
+import { ApolloClientType, useApolloClient, useMutation, useQuery } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 
 const getObjects = (objectsContainer, converter) => (objectsContainer && objectsContainer.objs) ? objectsContainer.objs.map(converter) : []
@@ -46,10 +46,10 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         const intl = useIntl()
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
-
         const result = useQuery<{ objs?: GQL[], meta?: { count?: number } }, Q>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
             notifyOnNetworkStatusChange: true,
+            client: options.client as ApolloClientType,
             ...options,
         })
 

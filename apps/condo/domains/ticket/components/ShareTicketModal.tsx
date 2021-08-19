@@ -229,7 +229,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     async function handleClick () {
         setLoading(true)
         const sender = getClientSideSenderInfo()
-        const { data, error } = await shareTicket({
+        const { data, errors } = await shareTicket({
             variables: {
                 data: {
                     sender,
@@ -246,11 +246,11 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
             setShareVisible(false)
             setOkVisible(true)
         }
-        if (error) {
-            console.error(error)
+        if (errors.length > 0) {
+            console.error(errors[0].message)
             notification.error({
                 message: ServerErrorMessage,
-                description: error.message,
+                description: errors[0].message,
             })
         }
         setLoading(false)

@@ -14,6 +14,7 @@ import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { Organization } from '../../../schema'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -105,7 +106,7 @@ export const CreateContactForm: React.FC = () => {
                                             {...INPUT_LAYOUT_PROPS}
                                             wrapperCol={{ span: 14 }}>
                                             <PropertyAddressSearchInput
-                                                organization={organization}
+                                                organization={organization as Organization}
                                                 onSelect={(_, option) => {
                                                     form.setFieldsValue({ 'unitName': null })
                                                     setSelectedPropertyId(option.key)

@@ -223,8 +223,9 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
 
     return WithApollo
 }
-
+export type ApolloClientType = ReturnType<typeof createApolloClient>
+const useCustomApolloClient = useApolloClient as () => ApolloClientType
 export {
     withApollo,
-    useApolloClient, useMutation, useQuery, useSubscription, useLazyQuery,
+    useCustomApolloClient as useApolloClient, useMutation, useQuery, useSubscription, useLazyQuery,
 }

@@ -25,6 +25,7 @@ import { InputWithCounter } from '@condo/domains/common/components/InputWithCoun
 import Prompt from '@condo/domains/common/components/Prompt'
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSchema/Organization'
+import { IOrganization } from '../../../../../../packages/@core.next/organization'
 
 const { TabPane } = Tabs
 
@@ -262,7 +263,7 @@ const TicketPurpose = ({ validations, organizationId, disableUserInteraction }) 
 }
 
 export interface ITicketFormProps {
-    organization?: IOrganizationUIState
+    organization?: IOrganizationUIState | IOrganization
     role?: IOrganizationEmployeeRoleUIState
     initialValues?: ITicketFormState
     action?: (...args) => void,

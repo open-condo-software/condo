@@ -4,20 +4,35 @@ import { gql } from 'graphql-tag'
 
 const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
+type AuthContext = {
+    isAuthenticated: boolean,
+    isLoading: boolean;
+    refetch: () => void;
+    signin: () => void; 
+    signout: () => void;
+    user?: any;
+}
 /**
  * AuthContext
  * -----------
  * This is the base react context instance. It should not be used
  * directly but is exported here to simplify testing.
  */
-const AuthContext = createContext({})
+const AuthContext = createContext<AuthContext>({
+    isAuthenticated: false,
+    isLoading: false,
+    refetch: () => void 0,
+    signin: () => void 0,
+    signout: () => void 0,
+    user: undefined,
+})
 
 /**
  * useAuth
  * -------
  * A hook which provides access to the AuthContext
  */
-const useAuth = () => useContext(AuthContext)
+const useAuth = () => useContext<AuthContext>(AuthContext)
 
 const userFragment = `
   id
