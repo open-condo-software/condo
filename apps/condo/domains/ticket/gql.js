@@ -127,7 +127,6 @@ const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype }
 const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
 const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name } content ${COMMON_FIELDS} }`
 const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
-// TODO(codegen): write return type result!
 const TICKET_ANALYTICS_REPORT_QUERY = gql`
     query ticketAnalyticsReport ($data: TicketAnalyticsReportInput!) {
         result: ticketAnalyticsReport(data: $data) { result { count status property dayGroup } }
