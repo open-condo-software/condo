@@ -1,7 +1,6 @@
-import { QueryMeta, SorterColumn, convertSortersToSortBy, getFiltersFromQuery, getSortersFromQuery } from '../utils/tables.utils'
+import { QueryMeta, SorterColumn, convertSortersToSortBy } from '../utils/tables.utils'
 import { useMemo } from 'react'
 import get from 'lodash/get'
-import { ParsedUrlQuery } from 'querystring'
 
 export const useQueryMappers = (queryMetas: Array<QueryMeta>, sortableColumns: Array<string>) => {
     return useMemo(() => {
@@ -27,24 +26,20 @@ export const useQueryMappers = (queryMetas: Array<QueryMeta>, sortableColumns: A
                 }
             }
 
-            return whereQueries
+            return {
+                AND: whereQueries,
+            }
         }
 
         const sortersToSortBy = (querySorts: SorterColumn | Array<SorterColumn>) => {
-            return convertSortersToSortBy(querySorts)
+            const sorters = convertSortersToSortBy(querySorts)
                 .filter((sortLine) => validSorts.includes(sortLine))
-        }
-
-        const parseQuery = (query: ParsedUrlQuery) => {
-            const filters = getFiltersFromQuery(query)
-            const sorters = getSortersFromQuery(query)
-            return { filters, sorters }
+            return sorters.length ? sorters : ['createdAt_DESC']
         }
 
         return {
             filtersToWhere,
             sortersToSortBy,
-            parseQuery,
         }
 
     }, [queryMetas, sortableColumns])

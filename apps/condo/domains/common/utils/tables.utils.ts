@@ -164,12 +164,9 @@ export const getFiltersFromQuery = (query: ParsedUrlQuery): { [x: string]: Query
         const json = JSON.parse(filters)
         const result = {}
         Object.keys(json).forEach((key) => {
-            let value = json[key]
+            const value = json[key]
             if (Array.isArray(value)) {
-                value = value.filter((v) => typeof v === 'string' && !!v)
-                if (value.length) {
-                    result[key] = value
-                }
+                result[key] = value.filter((v) => typeof v === 'string' && !!v)
             } else {
                 if (typeof value === 'string' && !!value) result[key] = value
             }
@@ -178,4 +175,16 @@ export const getFiltersFromQuery = (query: ParsedUrlQuery): { [x: string]: Query
     } catch (e) {
         return {}
     }
+}
+
+export const getPageIndexFromOffset = (offset: number, pageSize: number): number => {
+    return Math.floor(offset / pageSize) + 1
+}
+
+export const parseQuery = (query: ParsedUrlQuery) => {
+    const filters = getFiltersFromQuery(query)
+    const sorters = getSortersFromQuery(query)
+    const queryOffset = get(query, 'offset', '0')
+    const offset = Number(queryOffset) ? Number(queryOffset) : 0
+    return { filters, sorters, offset }
 }
