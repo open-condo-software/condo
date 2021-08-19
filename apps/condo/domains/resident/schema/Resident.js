@@ -14,6 +14,7 @@ const { userIsAdmin } = require('@core/keystone/access')
 const { getById } = require('@core/keystone/schema')
 const { pick } = require('lodash')
 const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/helpers')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const Resident = new GQLListSchema('Resident', {
     schemaDoc: 'Person, that resides in a specified property and unit',
@@ -69,12 +70,13 @@ const Resident = new GQLListSchema('Resident', {
             knexOptions: { isNotNullable: false }, // Required relationship only!
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             hooks: {
-                validateInput: async ({ context, resolvedData, existingItem, addFieldValidationError }) => {
-                    const newOrExistingPropertyId = resolvedData.property || existingItem.property
-                    if (!newOrExistingPropertyId) return
-                    const [property] = await Property.getAll(context, { id: newOrExistingPropertyId })
-                    const newOrExistingAddress = resolvedData.address || existingItem.address
-                    if (property.address !== newOrExistingAddress) {
+                validateInput: async ({ context, resolvedData, operation, addFieldValidationError }) => {
+                    if (operation === 'update') return
+                    const propertyId = resolvedData.property
+                    if (!propertyId) return
+                    const [property] = await Property.getAll(context, { id: propertyId })
+                    const residentAddress = getAddressUpToBuildingFrom(resolvedData.addressMeta)
+                    if (property.address !== residentAddress) {
                         return addFieldValidationError('Cannot connect property, because its address differs from address of resident')
                     }
                 },
@@ -124,13 +126,14 @@ const Resident = new GQLListSchema('Resident', {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
             const { property, address, addressMeta, unitName, user: userId } = resolvedData
             if (operation === 'create') {
+                const addressUpToBuilding = getAddressUpToBuildingFrom(addressMeta)
                 const [resident] = await ResidentAPI.getAll(context, {
-                    property: { id: property },
+                    address: addressUpToBuilding,
                     unitName,
                     user: { id: userId },
                 })
                 if (resident) {
-                    return addValidationError('Cannot create resident, because another resident with the same provided "property", "unitName" fields already exists for current user')
+                    return addValidationError('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
                 }
             } else if (operation === 'update') {
                 if (property || address || addressMeta || unitName) {
