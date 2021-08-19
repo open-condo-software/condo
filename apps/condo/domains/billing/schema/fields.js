@@ -62,7 +62,7 @@ const BILLING_ACCOUNT_METER_FIELD = {
 }
 
 const PERIOD_FIELD = {
-    schemaDoc: 'Period date: Generated on template 01-<month>-<year>',
+    schemaDoc: 'Period date: Generated on template <year>-<month>-01',
     type: CalendarDay,
     isRequired: true,
     hooks: {
