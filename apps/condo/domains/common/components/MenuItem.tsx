@@ -3,9 +3,11 @@ import { Typography } from 'antd'
 import classnames from 'classnames'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React  from 'react'
 import { useIntl } from '@core/next/intl'
 import { colors } from '../constants/style'
+
+const IconWrapper = styled.div``
 
 const MenuItemWrapper = styled.span`
   cursor: pointer;
@@ -18,7 +20,6 @@ const MenuItemWrapper = styled.span`
   vertical-align: center;
 
   .label {
-    padding-left: 20px;
     font-size: 16px;
     transition: all 0.3s;
   }
@@ -26,6 +27,7 @@ const MenuItemWrapper = styled.span`
   .icon {
     color: ${colors.lightGrey[5]};
     font-size: 20px;
+    margin-right: 20px;
     transition: all 0.3s;
   }
 
@@ -63,13 +65,15 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     }
 
     const menuItemClassNames = classnames({
-        'active': route.includes(path),
+        'active': path === '/' ? route === path : route.includes(path),
     })
 
     return (
         <Link href={path}>
             <MenuItemWrapper className={menuItemClassNames}>
-                <Icon className='icon' />
+                <IconWrapper className='icon'>
+                    <Icon/>
+                </IconWrapper>
                 <Typography.Text className='label'>
                     {intl.formatMessage({ id: label })}
                 </Typography.Text>
