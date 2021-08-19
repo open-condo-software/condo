@@ -271,7 +271,20 @@ describe('BillingReceipt', () => {
             expect(obj.importId).toEqual(context.id + '__' + TEST_IMPORT_ID)
         })
 
-        test('can update importId within same context', async () => {
+        test('can update receipt import id', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+
+            const [obj] = await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
+            const [updatedObj] = await updateTestBillingReceipt(admin, obj.id, { importId: TEST_IMPORT_ID + '2' })
+
+            expect(obj.id).toEqual(updatedObj.id)
+            expect(updatedObj.importId).toEqual(context.id + '__' + TEST_IMPORT_ID + '2')
+        })
+
+        test('can update importId to same importId', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
