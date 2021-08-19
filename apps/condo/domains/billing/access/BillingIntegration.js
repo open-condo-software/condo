@@ -12,7 +12,7 @@ async function canReadBillingIntegrations ({ authentication: { item: user } }) {
 async function canManageBillingIntegrations ({ authentication: { item: user }, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
-    if (user.isSupport && operation === 'create') return true
+    if (user.isSupport) return true
     return false
 }
 
