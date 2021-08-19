@@ -20,6 +20,11 @@ interface ITicketChangeFieldMessages {
     remove?: string,
 }
 
+enum TicketChangeFieldMessageType {
+    From,
+    To,
+}
+
 export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => {
     const intl = useIntl()
     const changedFieldMessages = useChangedFieldMessagesOf(ticketChange)
@@ -82,7 +87,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         },
     }
 
-    const formatField = (field, value, type) => {
+    const formatField = (field, value, type: TicketChangeFieldMessageType) => {
         const formatterFor = {
             clientPhone: (field, value) => (
                 <PhoneLink value={value} />
@@ -98,30 +103,30 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     </Tooltip>
                 ) : value
             ),
-            propertyDisplayName: (field, value, type) => {
+            propertyDisplayName: (field, value, type: TicketChangeFieldMessageType) => {
                 let unitNameToDisplay
                 const unitNameFrom = ticketChange['unitNameFrom']
                 const unitNameTo = ticketChange['unitNameTo']
-                if (type === 'from' && unitNameFrom) {
+                if (type === TicketChangeFieldMessageType.From && unitNameFrom) {
                     unitNameToDisplay = unitNameFrom
                 }
-                else if (type === 'to' && unitNameTo) {
+                else if (type === TicketChangeFieldMessageType.To && unitNameTo) {
                     unitNameToDisplay = unitNameTo
                 }
 
                 return unitNameToDisplay ? `${value}, ${ShortFlatNumber} ${unitNameToDisplay}` : value
             },
-            placeClassifierDisplayName: (field, value, type) => {
+            placeClassifierDisplayName: (field, value, type: TicketChangeFieldMessageType) => {
                 let placeClassifierToDisplay
                 let categoryClassifierToDisplay
                 let problemClassifierToDisplay
 
-                if (type === 'from') {
+                if (type === TicketChangeFieldMessageType.From) {
                     placeClassifierToDisplay = ticketChange['placeClassifierDisplayNameFrom']
                     categoryClassifierToDisplay = ticketChange['categoryClassifierDisplayNameFrom']
                     problemClassifierToDisplay = ticketChange['problemClassifierDisplayNameFrom']
                 }
-                else if (type === 'to') {
+                else if (type === TicketChangeFieldMessageType.To) {
                     placeClassifierToDisplay = ticketChange['placeClassifierDisplayNameTo']
                     categoryClassifierToDisplay = ticketChange['categoryClassifierDisplayNameTo']
                     problemClassifierToDisplay = ticketChange['problemClassifierDisplayNameTo']
@@ -153,8 +158,8 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             )
         }
 
-        const valueFrom = formatField(field, ticketChange[`${field}From`], 'from')
-        const valueTo = formatField(field, ticketChange[`${field}To`], 'to')
+        const valueFrom = formatField(field, ticketChange[`${field}From`], TicketChangeFieldMessageType.From)
+        const valueTo = formatField(field, ticketChange[`${field}To`], TicketChangeFieldMessageType.To)
 
         if (valueFrom && valueTo) {
             return (
