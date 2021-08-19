@@ -12546,7 +12546,7 @@ export type Query = {
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
-  executeExportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
+  exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
@@ -14228,7 +14228,7 @@ export type QueryCheckPropertyWithAddressExistArgs = {
 };
 
 
-export type QueryExecuteExportPropertiesToExcelArgs = {
+export type QueryExportPropertiesToExcelArgs = {
   data: ExportPropertiesToExcelInput;
 };
 

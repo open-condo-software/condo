@@ -35,7 +35,7 @@ const CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY = gql`
 
 const EXPORT_PROPERTIES_TO_EXCEL =  gql`
     query exportPropertiesToExcel ($data: ExportPropertiesToExcelInput!) {
-        result: executeExportPropertiesToExcel(data: $data) { status, linkToFile }
+        result: exportPropertiesToExcel(data: $data) { status, linkToFile }
     }
 `
 
