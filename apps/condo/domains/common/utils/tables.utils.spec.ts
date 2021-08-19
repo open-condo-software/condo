@@ -10,8 +10,14 @@ import {
     getSortersFromQuery,
     convertSortersToSortBy,
     getFiltersFromQuery,
+    getPageIndexFromOffset,
 } from './tables.utils'
+
 import moment from 'moment'
+
+function randInt (maxValue) {
+    return Math.floor(Math.random() * maxValue)
+}
 
 describe('Table utils', () => {
     const field = 'field'
@@ -337,6 +343,22 @@ describe('Table utils', () => {
             it('if invalid JSON is provided', () => {
                 expect(getFiltersFromQuery({ filters: '{"key": value, "key2": value}' })).toStrictEqual({})
             })
+        })
+    })
+    describe('getPageIndexFromOffset', () => {
+        const attemps = 10
+        const pageSize = 10
+        it('rounded value test', () => {
+            for (let i = 0; i < attemps; i++) {
+                const page = randInt(1000)
+                expect(getPageIndexFromOffset(page * pageSize, pageSize)).toStrictEqual(page + 1)
+            }
+        })
+        it('not-rounded value test', () => {
+            for (let i = 0; i < attemps; i++) {
+                const offset  = i * pageSize + randInt(pageSize)
+                expect(getPageIndexFromOffset(offset, pageSize)).toStrictEqual(i + 1)
+            }
         })
     })
 })
