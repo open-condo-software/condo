@@ -48,9 +48,9 @@ const onBoardingQueriesMap = {
 }
 
 const onBoardingStepResolvers = {
-    'create.Organization': (data) => data.objs.length > 0,
-    'create.Property': (data) => data.objs.length > 0,
-    'create.OrganizationEmployee': (data) => data.objs.length > 1,
+    'create.Organization': (data) => get(data, 'objs', []).length > 0,
+    'create.Property': (data) => get(data, 'objs', []).length > 0,
+    'create.OrganizationEmployee': (data) => get(data, 'objs', []).length > 1,
 }
 
 const OnBoardingContext = createContext<OnBoardingContext>({})
