@@ -28,7 +28,7 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
     queries: [
         {
             access: access.canExportPropertiesToExcel,
-            schema: 'executeExportPropertiesToExcel (data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput',
+            schema: 'exportPropertiesToExcel (data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { where, sortBy } = args.data
                 let skip = 0
