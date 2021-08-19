@@ -232,6 +232,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const TicketTypeEmergency = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency' })
     const AllAddresses = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllAddresses' })
     const ManyAddresses = intl.formatMessage({ id:'pages.condo.analytics.TicketAnalyticsPage.ManyAddresses' })
+    const AllAddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses' })
     const SingleAddress = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.SingleAddress' })
     const AllCategories = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllCategories' })
     const TableTitle = intl.formatMessage({ id: 'Table' })
@@ -446,12 +447,14 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         () => {
             const { AND, groupBy } = filterToQuery(filtersRef.current, viewMode, ticketType)
             const where = { organization: { id: userOrganizationId }, AND }
-            exportTicketAnalyticsToExcel({ variables: { data: { groupBy, where } } })
+            const translates = {
+                property: filtersRef.current.addressList.length ? filtersRef.current.addressList.map(({ value }) => value).join(', ') : AllAddressTitle,
+            }
+
+            exportTicketAnalyticsToExcel({ variables: { data: { groupBy, where, translates } } })
         },
         [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId],
     )
-
-
     const onFilterChange: ITicketAnalyticsPageFilterProps['onChange'] = useCallback((filters) => {
         filtersRef.current = filters
         getAnalyticsData()

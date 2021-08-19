@@ -133,7 +133,7 @@ const TICKET_ANALYTICS_REPORT_QUERY = gql`
     }
 `
 const EXPORT_TICKET_ANALYTICS_TO_EXCEL = gql`
-    query exportTicketAnalyticsToExcel ($data: TicketAnalyticsReportInput!) {
+    query exportTicketAnalyticsToExcel ($data: ExportTicketAnalyticsToExcelInput!) {
         result: exportTicketAnalyticsToExcel(data: $data) { link }
     }
 `
