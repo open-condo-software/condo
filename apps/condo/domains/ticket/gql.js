@@ -128,7 +128,7 @@ const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
 const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name } content ${COMMON_FIELDS} }`
 const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 // TODO(codegen): write return type result!
-const TICKET_ANALYTICS_REPORT_MUTATION = gql`
+const TICKET_ANALYTICS_REPORT_QUERY = gql`
     query ticketAnalyticsReport ($data: TicketAnalyticsReportInput!) {
         result: ticketAnalyticsReport(data: $data) { result { count status property dayGroup } }
     }
@@ -173,7 +173,7 @@ module.exports = {
     EXPORT_TICKETS_TO_EXCEL,
     GET_TICKET_WIDGET_REPORT_DATA,
     TicketComment,
-    TICKET_ANALYTICS_REPORT_MUTATION,
+    TICKET_ANALYTICS_REPORT_QUERY,
     SHARE_TICKET_MUTATION,
     TicketPlaceClassifier,
     TicketCategoryClassifier,

@@ -6,7 +6,7 @@ import { useIntl } from '@core/next/intl'
 import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
 import { useLazyQuery } from '@core/next/apollo'
-import { TICKET_ANALYTICS_REPORT_MUTATION } from '@condo/domains/ticket/gql'
+import { TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/ticket/gql'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
@@ -40,7 +40,7 @@ const PdfView = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const [loadTicketAnalyticsData] = useLazyQuery(TICKET_ANALYTICS_REPORT_MUTATION, {
+    const [loadTicketAnalyticsData] = useLazyQuery(TICKET_ANALYTICS_REPORT_QUERY, {
         onError: error => {
             console.log(error)
             notification.error({
