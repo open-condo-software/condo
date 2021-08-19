@@ -186,6 +186,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                             <InputWithCounter
                                 InputComponent={Input.TextArea}
                                 currentLength={currentDetailsLength}
+                                autoSize={true}
                                 maxLength={500}
                                 onChange={e => setCurrentDetailsLength(e.target.value.length)}
                                 placeholder={DescriptionPlaceholder}
