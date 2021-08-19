@@ -667,7 +667,7 @@ export type BillingAccountMeterReading = {
   account?: Maybe<BillingAccount>;
   /**  Billing account meter  */
   meter?: Maybe<BillingAccountMeter>;
-  /**  Period date: Generated on template 01-<month>-<year>  */
+  /**  Period date: Generated on template <year>-<month>-01  */
   period?: Maybe<Scalars['String']>;
   /**  Meter reading value of tariff 1  */
   value1?: Maybe<Scalars['Int']>;
@@ -3759,7 +3759,7 @@ export type BillingReceipt = {
   property?: Maybe<BillingProperty>;
   /**  Billing account  */
   account?: Maybe<BillingAccount>;
-  /**  Period date: Generated on template 01-<month>-<year>  */
+  /**  Period date: Generated on template <year>-<month>-01  */
   period?: Maybe<Scalars['String']>;
   /**  `billing receipt` local object ID. Unique up to billing context. It is made using template: <context_id>__<importId>  */
   importId?: Maybe<Scalars['String']>;
