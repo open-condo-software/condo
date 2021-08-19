@@ -9,10 +9,11 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingReceipt')
 const { validatePaymentDetails, validateServices, validateRecipient } = require('../utils/validation.utils')
-const { hasDbFields, hasRequestFields } = require('@condo/domains/common/utils/validation.utils')
-const { DV_UNKNOWN_VERSION_ERROR, WRONG_TEXT_FORMAT, ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
+const { hasRequestFields } = require('@condo/domains/common/utils/validation.utils')
+const { DV_UNKNOWN_VERSION_ERROR, WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
 const { INTEGRATION_CONTEXT_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD } = require('./fields')
 const _ = require('lodash')
+const { generateImportId } = require('../utils/fields.utils')
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
     schemaDoc: 'Account monthly invoice document',
@@ -37,35 +38,37 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                  * We make sure that you can not create two receipts with same importId in same billing integration organization context
                  */
                 resolveInput: async ({ resolvedData, operation, existingItem }) => {
-                    const contextId = resolvedData.context
-                    const resolvedImportId = resolvedData.importId
+                    const resolvedImportId = _.get(resolvedData, ['importId'])
                     const existingImportId = _.get(existingItem, ['importId'])
-                    let newImportId
 
-
-                    if (!resolvedImportId || resolvedImportId.length === 0) {
-                        // User cant create receipt without adequate id
-                        if (operation === 'create') {
+                    if (operation === 'create') {
+                        if (!resolvedImportId || resolvedImportId.length === 0) {
                             throw `${WRONG_TEXT_FORMAT}importId] - Cant modify billing receipt without correct importId! Found ${resolvedImportId}`
                         }
-                        // If user updates other fields we dont need to modify importId
-                        if (operation === 'update') {
+
+                        const contextId = resolvedData.context
+
+                        // If user already pre-formatted hist importId
+                        return generateImportId(contextId, resolvedImportId)
+                    }
+
+                    if (operation === 'update') {
+                        // Handle specific case: If user updates other fields
+                        if (!resolvedImportId) {
                             return undefined
                         }
-                    }
 
-                    // If user already pre-formatted hist importId
-                    if (resolvedImportId.startsWith(contextId + '__')) {
-                        newImportId = resolvedImportId
-                    } else {
-                        newImportId = contextId + '__' + resolvedImportId
-                    }
+                        const contextId = existingItem.context
 
-                    // Handle specific case: If user updates import id with the same import id
-                    if (operation === 'update' && newImportId === existingImportId) {
-                        return undefined
+                        const newImportId = generateImportId(contextId,
+                            resolvedImportId)
+
+                        // Handle specific case: If user updates import id with the same import id
+                        if (newImportId === existingImportId) {
+                            return undefined
+                        }
+                        return newImportId
                     }
-                    return newImportId
                 },
             },
         },
