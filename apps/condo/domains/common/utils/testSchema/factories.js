@@ -61,6 +61,17 @@ const buildFakeAddressMeta = (withFlat = false) => {
     }
 }
 
+const buildFakeAddressAndMeta = (withFlat) => {
+    const addressMeta = buildFakeAddressMeta(withFlat)
+    let address = addressMeta.address
+    if (withFlat) {
+        const index = address.lastIndexOf(',')
+        address = address.substring(0, index)
+    }
+    return { address, addressMeta }
+}
+
 module.exports = {
-    buildFakeAddressMeta: buildFakeAddressMeta
+    buildFakeAddressMeta,
+    buildFakeAddressAndMeta,
 }

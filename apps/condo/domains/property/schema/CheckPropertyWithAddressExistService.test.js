@@ -5,8 +5,8 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { checkPropertyWithAddressExistByTestClient } = require('@condo/domains/property/utils/testSchema')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { DV_VERSION_MISMATCH_MESSAGE, META_INCORRECT_JSON_MESSAGE } = require('./CheckPropertyWithAddressExistService')
-const { FLAT_WITHOUT_FLAT_TYPE_MESSAGE } = require('../utils/helpers')
- 
+const { FLAT_WITHOUT_FLAT_TYPE_MESSAGE } = require('@condo/domains/common/utils/addressApi/helpers')
+
 describe('CheckPropertyWithAddressExistService', async () => {
     test('user finds result', async () => {
         const client = await makeClientWithProperty(true)
