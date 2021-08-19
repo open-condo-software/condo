@@ -354,6 +354,8 @@ const buildRelatedFields = async (args) => {
         }
     }
 
+    console.log('dataWithRelatedFields', dataWithRelatedFields)
+
     return dataWithRelatedFields
 }
 
