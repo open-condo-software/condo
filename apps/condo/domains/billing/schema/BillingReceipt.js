@@ -10,8 +10,9 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/billing/access/BillingReceipt')
 const { validatePaymentDetails, validateServices, validateRecipient } = require('../utils/validation.utils')
 const { hasDbFields, hasRequestFields } = require('@condo/domains/common/utils/validation.utils')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD } = require('./fields')
+const { DV_UNKNOWN_VERSION_ERROR, WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
+const { INTEGRATION_CONTEXT_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD } = require('./fields')
+const _ = require('lodash')
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
     schemaDoc: 'Account monthly invoice document',
@@ -23,8 +24,42 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         property: BILLING_PROPERTY_FIELD,
         account: BILLING_ACCOUNT_FIELD,
 
-        importId: IMPORT_ID_FIELD,
         period: PERIOD_FIELD,
+
+        importId: {
+            schemaDoc: '`billing receipt` local object ID. Unique up to billing context.' +
+                ' It is made using template: <context_id>__<importId>',
+            type: Text,
+            isRequired: true,
+            kmigratorOptions: { unique: true, null: false },
+            hooks: {
+                /**
+                 * We make sure that you can not create two receipts with same importId in same billing integration organization context
+                 */
+                resolveInput: async ({ resolvedData, operation, existingItem }) => {
+                    const contextId = resolvedData.context
+                    const resolvedImportId = resolvedData.importId
+                    const oldImportId = _.get(existingItem, ['importId'])
+
+                    // If user try to create receipt without import id
+                    if (operation === 'create' && (!resolvedImportId || resolvedImportId.length === 0)) {
+                        throw `${WRONG_TEXT_FORMAT}importId] - Cant modify billing receipt without correct importId! Found ${resolvedImportId}`
+                    }
+
+                    // If user updates other fields we dont need to modify importId
+                    if (operation === 'update' && !resolvedData.importId) {
+                        return oldImportId
+                    }
+
+                    // If user already pre-formatter importId
+                    if (resolvedImportId.startsWith(contextId + '__')) {
+                        return resolvedImportId
+                    }
+
+                    return contextId + '__' + resolvedImportId
+                },
+            },
+        },
 
         printableNumber: {
             schemaDoc: 'A number to print on the payment document.',

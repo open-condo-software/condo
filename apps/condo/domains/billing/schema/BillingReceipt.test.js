@@ -206,6 +206,140 @@ describe('BillingReceipt', () => {
         })
     })
 
+    describe('Constrains', async () => {
+
+        const TEST_IMPORT_ID = 'bedrock_220v'
+
+        test('can create billing receipt with import id, and it is appended with context', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+
+            const [obj] = await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
+
+            expect(obj.account.id).toEqual(billingAccount.id)
+            expect(obj.context.id).toEqual(context.id)
+            expect(obj.property.id).toEqual(property.id)
+
+            expect(obj.importId).toEqual(context.id + '__' + TEST_IMPORT_ID)
+        })
+
+        test('can create billing receipt with pre-formatted import id, and it is not appended with context', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+
+            const [obj] = await createTestBillingReceipt(admin, context, property, billingAccount, { importId: context.id + '__' + TEST_IMPORT_ID })
+
+            expect(obj.account.id).toEqual(billingAccount.id)
+            expect(obj.context.id).toEqual(context.id)
+            expect(obj.property.id).toEqual(property.id)
+
+            expect(obj.importId).toEqual(context.id + '__' + TEST_IMPORT_ID)
+        })
+
+        test('can create billing receipt with same import id but in different billing contexts', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+            const [receipt] = await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
+
+            const { context: context2 } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property2] = await createTestBillingProperty(admin, context2)
+
+            const [billingAccount2] = await createTestBillingAccount(admin, context2, property2)
+            const [receipt2] = await createTestBillingReceipt(admin, context2, property2, billingAccount2, { importId: TEST_IMPORT_ID })
+
+            expect(receipt.id).not.toEqual(receipt2.id)
+            expect(receipt.importId.split('__')[1]).toEqual(receipt.importId.split('__')[1])
+        })
+
+        test('can update receipt with other fields and it does not break importId', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+
+            const [obj] = await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
+            const [updatedObj] = await updateTestBillingReceipt(admin, obj.id, { toPay: '221' })
+
+            expect(obj.importId).toEqual(updatedObj.importId)
+            expect(obj.importId).toEqual(context.id + '__' + TEST_IMPORT_ID)
+        })
+
+        test('can update importId within same context', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+
+            const [obj] = await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
+            const [updatedObj] = await updateTestBillingReceipt(admin, obj.id, { importId: TEST_IMPORT_ID })
+
+            expect(obj.importId).toEqual(updatedObj.importId)
+            expect(obj.importId).toEqual(context.id + '__' + TEST_IMPORT_ID)
+        })
+
+        test('cant create billing receipt with same import id', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+            await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
+
+            await catchErrorFrom(async () => {
+                await createTestBillingReceipt(admin, context, property,
+                    billingAccount, { importId: TEST_IMPORT_ID })
+            }, (err) => {
+                expect(err).toBeDefined()
+            })
+        })
+
+        test('cant create billing receipt with empty import id', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+
+            await catchErrorFrom(async () => {
+                await createTestBillingReceipt(admin, context, property, billingAccount, { importId: '' })
+            }, (err) => {
+                expect(err).toBeDefined()
+            })
+        })
+
+        test('cant create billing receipt with undefined import id', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+
+            await catchErrorFrom(async () => {
+                await createTestBillingReceipt(admin, context, property, billingAccount, { importId: undefined })
+            }, (err) => {
+                expect(err).toBeDefined()
+            })
+        })
+
+        test('cant create billing receipt with null import id', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+
+            await catchErrorFrom(async () => {
+                await createTestBillingReceipt(admin, context, property, billingAccount, { importId: null })
+            }, (err) => {
+                expect(err).toBeDefined()
+            })
+        })
+    })
+
     describe('Create', async () => {
         test('admin can create BillingReceipt', async () => {
             const admin = await makeLoggedInAdminClient()
