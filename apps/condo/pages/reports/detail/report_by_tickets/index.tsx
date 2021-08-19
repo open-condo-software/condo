@@ -19,7 +19,7 @@ import {
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import { TICKET_ANALYTICS_REPORT_MUTATION } from '@condo/domains/ticket/gql'
+import { TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/ticket/gql'
 import { useLazyQuery } from '@core/next/apollo'
 
 import moment, { Moment } from 'moment'
@@ -248,7 +248,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const selectedPeriod = filtersRef.current !== null ? filtersRef.current.range.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
     const selectedAddresses = filtersRef.current !== null ? filtersRef.current.addressList : []
 
-    const [loadTicketAnalytics] = useLazyQuery(TICKET_ANALYTICS_REPORT_MUTATION, {
+    const [loadTicketAnalytics] = useLazyQuery(TICKET_ANALYTICS_REPORT_QUERY, {
         onError: error => {
             console.log(error)
             notification.error(error)
