@@ -13,6 +13,7 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { userIsAdmin } = require('@core/keystone/access')
 const { getById } = require('@core/keystone/schema')
 const { pick } = require('lodash')
+const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/helpers')
 
 const Resident = new GQLListSchema('Resident', {
     schemaDoc: 'Person, that resides in a specified property and unit',
@@ -102,6 +103,12 @@ const Resident = new GQLListSchema('Resident', {
             schemaDoc: 'Normalized address',
             type: Text,
             isRequired: true,
+            hooks: {
+                resolveInput: async ({ resolvedData: { address, addressMeta } }) => {
+                    const newAddress = getAddressUpToBuildingFrom(addressMeta)
+                    return newAddress || address
+                },
+            },
         },
 
         addressMeta: ADDRESS_META_FIELD,
