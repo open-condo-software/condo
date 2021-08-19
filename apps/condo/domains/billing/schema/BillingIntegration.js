@@ -4,9 +4,11 @@
 
 const { Text, Relationship, Select } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
+const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegration')
+const { validateDataFormat } = require('../utils/validation.utils')
 const {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_STATUSES,
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
@@ -70,6 +72,14 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             defaultValue: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
         },
 
+        dataFormat: {
+            schemaDoc: 'Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay)',
+            type: Json,
+            isRequired: false,
+            hooks: {
+                validateInput: validateDataFormat,
+            },
+        },
 
         // settings data structure config (settings field for BillingIntegrationOrganizationContext)
         // state data structure config (state field for BillingIntegrationOrganizationContext)
