@@ -99,7 +99,8 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                             dayGroup: moment(dayGroup).format(DATE_DISPLAY_FORMAT),
                             count:parseInt(count),
                         }
-                    })
+                    }).sort((a, b) =>
+                        moment(a.dayGroup, DATE_DISPLAY_FORMAT).format('X') - moment(b.dayGroup, DATE_DISPLAY_FORMAT).format('X'))
                 return { result }
             },
         },

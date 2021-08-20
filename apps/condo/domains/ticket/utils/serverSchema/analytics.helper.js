@@ -2,6 +2,7 @@ const { AnalyticsQueryBuilder } = require('@condo/domains/common/utils/serverSch
 const { getSchemaCtx } = require('@core/keystone/schema')
 const has = require('lodash/get')
 const get = require('lodash/get')
+const { TICKET_REPORT_DAY_GROUP_STEPS } = require('@condo/domains/ticket/constants/common')
 
 const DATE_FORMATS = {
     day: 'DD.MM.YYYY',
@@ -26,8 +27,11 @@ const sortStatusesByType = (statuses) => {
 }
 
 class TicketAnalyticsQueryBuilder extends AnalyticsQueryBuilder {
+    aggregateBy = []
     constructor (where, groupBy) {
         super('Ticket', where, groupBy)
+        this.aggregateBy = groupBy
+            .some(e => TICKET_REPORT_DAY_GROUP_STEPS.includes(e)) ? ['dayGroup', ...this.groups] : [...this.groups]
     }
 
     async loadData () {
@@ -57,20 +61,19 @@ class TicketAnalyticsQueryBuilder extends AnalyticsQueryBuilder {
 
         const query = knex(this.domainName)
             .count('id')
-            .select(knex.raw(`date_trunc('${this.dayGroup}',  "createdAt") as "dayGroup"`))
             .select(this.groups)
-
+        if (this.aggregateBy.includes('dayGroup')) {
+            query.select(knex.raw(`date_trunc('${this.dayGroup}',  "createdAt") as "dayGroup"`))
+        }
         if (whereIn[0].length && whereIn[1].length) {
-            this.result = await query.groupBy(['dayGroup', ...this.groups])
+            this.result = await query.groupBy(this.aggregateBy)
                 .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
                 .whereIn(whereIn[0], whereIn[1])
                 .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
-                .orderBy('dayGroup', 'asc')
         }
-        this.result = await query.groupBy(['dayGroup', ...this.groups])
+        this.result = await query.groupBy(this.aggregateBy)
             .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
             .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
-            .orderBy('dayGroup', 'asc')
     }
 }
 
