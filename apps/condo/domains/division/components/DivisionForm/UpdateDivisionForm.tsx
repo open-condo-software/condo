@@ -12,6 +12,7 @@ import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import Modal from 'antd/lib/modal/Modal'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { omit } from 'lodash'
 
 interface IUpdateDivisionForm {
     id: string
@@ -26,8 +27,6 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
     const router = useRouter()
     const { organization } = useOrganization()
     const { refetch, obj: division, loading, error } = Division.useObject({ where: { id } })
-
-    console.debug('division', division)
 
     const initialValues = Division.convertToUIFormState(division)
 
