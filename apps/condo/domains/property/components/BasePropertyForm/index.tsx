@@ -95,6 +95,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                 validateTrigger={['onBlur', 'onSubmit']}
                 formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
                 ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
+                style={{ width: '100%' }}
             >
                 {({ handleSave, isLoading, form }) => {
                     return (
