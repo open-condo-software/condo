@@ -24,7 +24,7 @@ export type SorterColumn = {
     order: 'ascend' | 'descend'
 }
 
-enum FULL_TO_SHORT_ORDERS_MAP {
+export enum FULL_TO_SHORT_ORDERS_MAP {
     ascend = 'ASC',
     descend = 'DESC',
 }
