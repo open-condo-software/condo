@@ -1,10 +1,11 @@
 import { FilterFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
 import React from 'react'
-import { Input } from 'antd'
+import { Checkbox, Input } from 'antd'
 import { FilterContainer } from '../TableFilter'
 import { QueryMeta } from '../../utils/tables.utils'
 import { FilterValue } from 'antd/es/table/interface'
+import { OptionType } from './Index'
 import get from 'lodash/get'
 
 type FilterIconType = (filtered?: boolean) => React.ReactNode
@@ -23,6 +24,28 @@ export const getTextFilterDropdown = (placeholder: string) => {
                     value={selectedKeys}
                     onChange={e => {
                         setSelectedKeys(e.target.value)
+                        confirm({ closeDropdown: false })
+                    }}
+                />
+            </FilterContainer>
+        )
+    }
+}
+
+export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boolean) => {
+    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+        return (
+            <FilterContainer
+                clearFilters={clearFilters}
+                showClearButton={selectedKeys && selectedKeys.length > 0}
+            >
+                <Checkbox.Group
+                    disabled={loading}
+                    options={options}
+                    style={{ display: 'flex', flexDirection: 'column' }}
+                    value={selectedKeys}
+                    onChange={(e) => {
+                        setSelectedKeys(e)
                         confirm({ closeDropdown: false })
                     }}
                 />
