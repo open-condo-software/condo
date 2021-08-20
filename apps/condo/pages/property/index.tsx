@@ -86,14 +86,11 @@ export const PropertyPageViewMap = ({ searchPropertyQuery }): React.FC => {
 const DivisionPageViewTable = () => {
 
     const intl = useIntl()
-
-    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     // EXCEL TABLE FIELDS
     const ExcelAddressLabel = intl.formatMessage({ id: 'field.Address' })
     const ExcelOrganizationLabel = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
     const ExcelUnitsCountLabel = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
     const ExcelTicketsInWorkLabel = intl.formatMessage({ id: 'pages.condo.property.id.TicketsInWork' })
-
 
     const router = useRouter()
     const { organization, link: { role } } = useOrganization()
@@ -102,7 +99,6 @@ const DivisionPageViewTable = () => {
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
     const sortFromQuery = getSortStringFromQuery(router.query)
     const offsetFromQuery = getPageIndexFromQuery(router.query)
-
     const tableColumns = useDivisionTableColumns(sortFromQuery, filtersFromQuery, filtersState[1])
     const searchDivisionQuery = { ...divisionFiltersToQuery(filtersFromQuery), organization: { id: organization.id } }
     const objects = Division.useObjects({
@@ -181,7 +177,6 @@ const BuildingsPageViewTable = () => {
         fetchPolicy: 'network-only',
     })
 
-
     const handleRowAction = (record) => {
         return {
             onClick: () => {
@@ -189,7 +184,6 @@ const BuildingsPageViewTable = () => {
             },
         }
     }
-
     const dataCols = [
         'address',
         'organization',
@@ -356,10 +350,7 @@ export const PropertiesPage = () => {
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
 
     const [propertiesType, setPropertiesType] = useState<'buildings' | 'divisions'>('buildings')
-
-
     const [viewMode, changeViewMode] = useState('list')
-
 
     return (
         <>
@@ -385,7 +376,9 @@ export const PropertiesPage = () => {
                                                         opacity: 70,
                                                         color: colors.sberGrey[4],
                                                     }}
-                                                >{DivisionsTabTitle}</Typography.Text>
+                                                >
+                                                    {DivisionsTabTitle}
+                                                </Typography.Text>
                                             </Tooltip>} 
                                         />
                                     </Tabs>
