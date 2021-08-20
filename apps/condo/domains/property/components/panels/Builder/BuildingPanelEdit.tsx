@@ -132,9 +132,11 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
                         />
                 }
                 {
-                    <Typography.Paragraph type="danger" style={{ width: '100%', textAlign: 'center' }}>
-                        {mapValidationError}
-                    </Typography.Paragraph>
+                    mapValidationError ? (
+                        <Typography.Paragraph type="danger" style={{ width: '100%', textAlign: 'center' }}>
+                            {mapValidationError}
+                        </Typography.Paragraph>
+                    ) : null
                 }
             </Row>
         </FullscreenWrapper>
