@@ -1,5 +1,5 @@
 import { colors } from '@condo/domains/common/constants/style'
-import { FilterValue } from 'antd/es/table/interface'
+import { ColumnsType, FilterValue } from 'antd/es/table/interface'
 
 import React, { useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
@@ -37,24 +37,24 @@ export const useTableColumns = (sort: Array<string>, filters: any,
         const ForemanTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Foreman' })
         const TechiesTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Techies' })
         // const sorterMap = createSorterMap(sort)
-        // const search = getFilteredValue(filters, 'search')
-        // const render = (text) => {
-        //     let result = text
-        //     if (!isEmpty(search) && text) {
-        //         result = (
-        //             <Highliter
-        //                 text={String(text)}
-        //                 search={String(search)}
-        //                 renderPart={(part) => (
-        //                     <Typography.Text style={{ backgroundColor: colors.markColor }}>
-        //                         {part}
-        //                     </Typography.Text>
-        //                 )}
-        //             />
-        //         )
-        //     }
-        //     return (<EmptyTableCell>{result}</EmptyTableCell>)
-        // }
+        const search = getFilteredValue(filters, 'search')
+        const render = (text, isArray = false) => {
+            let result = text
+            if (!isEmpty(search) && text) {
+                result = (
+                    <Highliter
+                        text={String(text)}
+                        search={String(search)}
+                        renderPart={(part) => (
+                            <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                {part} <br />
+                            </Typography.Text>
+                        )}
+                    />
+                )
+            }
+            return (<EmptyTableCell>{result}{isArray && <br />}</EmptyTableCell>)
+        }
         return [
             {
                 title: DivisionTitleMessage,
@@ -68,25 +68,28 @@ export const useTableColumns = (sort: Array<string>, filters: any,
             {
                 title: BuildingsTitleMessage,
                 ellipsis: true,
-                dataIndex: 'address',
-                key: 'address',
+                dataIndex: 'properties',
+                key: 'properties',
+                render: properties => properties.map((property) => render(property.address, true)),
                 width: '25%',
             },
             {
                 title: ForemanTitleMessage,
                 ellipsis: true,
-                dataIndex: 'unitName',
-                key: 'unitName',
+                dataIndex: 'responsible',
+                key: 'responsible',
+                render: responsible => render(responsible.name),
                 width: '25%',
             },
             {
                 title: TechiesTitleMessage,
                 ellipsis: true,
-                dataIndex: 'unitName',
-                key: 'unitName',
+                dataIndex: 'executors',
+                key: 'executors',
+                render: executors => executors.map((executor) => render(executor.name, true)),
                 width: '25%',
             },
-        ]
+        ] as ColumnsType<any>
     }, [sort, filters, intl])
 
     return columns
