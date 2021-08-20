@@ -16,7 +16,7 @@ interface FetchMore<Q> {
 }
 
 interface IHookConverters<GQL, GQLInput, UI, UIForm> {
-    convertToGQLInput: (state: UIForm, item?: UI) => GQLInput
+    convertToGQLInput: (state: UIForm, item?: UI, initialState?: UIForm) => GQLInput
     convertToUIState: (item: GQL) => UI
 }
 
@@ -105,7 +105,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
             const { data, errors } = await rowAction({
                 variables: {
                     id: obj.id,
-                    data: convertToGQLInput({ ...state, ...attrs }, obj),
+                    data: convertToGQLInput({ ...attrs, ...state }, obj, attrs as UIForm),
                 },
             })
             if (data && data.obj) {
