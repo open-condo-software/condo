@@ -1,7 +1,12 @@
 import React from 'react'
 import { Table as DefaultTable } from 'antd'
 import get from 'lodash/get'
-import { getTextFilterDropdown, getFilterIcon, getFilterValue } from './Filters'
+import {
+    getTextFilterDropdown,
+    getFilterIcon,
+    getFilterValue,
+    getOptionFilterDropdown,
+} from './Filters'
 import { debounce } from 'lodash'
 import { useRouter } from 'next/router'
 import {
@@ -26,6 +31,17 @@ type StringFilter = {
     placeholder?: string
 }
 
+export type OptionType = {
+    label: string,
+    value: string,
+}
+
+type StringOptionFilter = {
+    type: 'stringOption'
+    options: Array<OptionType>
+    loading?: boolean
+}
+
 
 export type ColumnInfo = {
     title: string
@@ -33,7 +49,7 @@ export type ColumnInfo = {
     width: number
     dataIndex: string | Array<string>
     ellipsis?: boolean
-    filter?: StringFilter
+    filter?: StringFilter | StringOptionFilter
     sortable?: boolean
     visible?: boolean
 }
@@ -76,10 +92,14 @@ const convertColumns = (
         }
         if (column.filter) {
             const filter = column.filter
-            baseColumnInfo.filterIcon = getFilterIcon
             if (filter.type === 'string') {
                 const placeHolder = filter.placeholder || column.title
+                baseColumnInfo.filterIcon = getFilterIcon
                 baseColumnInfo.filterDropdown = getTextFilterDropdown(placeHolder)
+            } else if (filter.type === 'stringOption' && filter.options.length > 0) {
+                const loading = get(filter, 'loading', false)
+                baseColumnInfo.filterIcon = getFilterIcon
+                baseColumnInfo.filterDropdown = getOptionFilterDropdown(filter.options, loading)
             }
         }
         if (column.sortable) {
@@ -121,7 +141,7 @@ export const Table: React.FC<ITableProps> = ({
         for (const [key, value] of Object.entries(nextFilters)) {
             let typedValue = null
             if (Array.isArray(value)) {
-                value.filter(Boolean).map(String)
+                typedValue = value.filter(Boolean).map(String)
             } else if (typeof value === 'string') {
                 typedValue = value
             }
